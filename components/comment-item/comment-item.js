@@ -269,14 +269,21 @@ Component({
       const openid = this.data.formattedComment?.openid;
       if (!openid) return;
       
-      // 将openid存入缓存，防止URL参数失效时作为备用
-      storage.set('temp_profile_openid', openid);
-      
-      // 使用reLaunch跳转到profile页面
-      wx.reLaunch({
-        url: `/pages/profile/profile?openid=${openid}`,
+      wx.navigateTo({
+        url: `/pages/index/user-profile/user-profile?openid=${openid}`,
         fail: (err) => {
-          console.debug('跳转到个人主页失败:', err);
+          console.error('跳转到用户资料页面失败:', err);
+          // 尝试备用路径
+          wx.navigateTo({
+            url: `/pages/profile/profile?id=${openid}&from=comment`,
+            fail: (subErr) => {
+              console.error('备用路径跳转也失败:', subErr);
+              // 最后尝试redirectTo
+              wx.redirectTo({
+                url: `/pages/profile/profile?id=${openid}&from=comment`
+              });
+            }
+          });
         }
       });
     },
