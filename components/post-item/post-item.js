@@ -407,7 +407,6 @@ Component({
         }
       } catch (err) {
         console.error('关注失败:', err);
-        this.showToast('关注失败', 'error');
       } finally {
         this.setData({ isProcessing: false });
       }
