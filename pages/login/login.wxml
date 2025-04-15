@@ -1,11 +1,18 @@
 <view class="container">
   <view class="main-content">
     <!-- Logo区域 -->
+    <block wx:if="{{aboutInfo && aboutInfo.version}}">
       <logo-section 
         appName="{{aboutInfo.app_name}}" 
         version="{{aboutInfo.version}}" 
         subtitle="校园知识共享平台">
-    </logo-section>
+      </logo-section>
+    </block>
+    <block wx:else>
+      <view class="loading-placeholder">
+        <view class="loading-spinner"></view>
+      </view>
+    </block>
     <!-- 登录卡片 -->
     <login-card 
       bind:login="handleLogin"
