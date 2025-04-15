@@ -353,7 +353,23 @@ Component({
     // 评论
     _onCommentTap() {
       const postId = this.properties.post?.id;
-      if (postId) {
+      if (!postId) return;
+      
+      // 如果是在详情页，直接滚动到评论区域
+      if (this.properties.detailPage) {
+        wx.createSelectorQuery()
+          .select('.comment-list-container')
+          .boundingClientRect(rect => {
+            if (rect) {
+              wx.pageScrollTo({
+                scrollTop: rect.top,
+                duration: 300
+              });
+            }
+          })
+          .exec();
+      } else {
+        // 如果不是在详情页，跳转到详情页并传递focus=comment参数
         wx.navigateTo({ url: `/pages/post/detail/detail?id=${postId}&focus=comment` });
       }
     },

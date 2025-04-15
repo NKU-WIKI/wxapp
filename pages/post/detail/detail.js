@@ -28,7 +28,10 @@ Page({
       show: false,
       title: '',
       buttons: []
-    }
+    },
+
+    // 记录是否需要聚焦到评论区
+    shouldFocusComment: false
   },
 
   async onLoad(options) {
@@ -37,9 +40,18 @@ Page({
     this.setData({
       postId: postId
     });
+    
+    // 处理评论ID和焦点参数
     if(options.commentId){
       this.setData({
         commentId: options.commentId
+      });
+    }
+    
+    // 记录是否需要聚焦到评论区
+    if(options.focus === 'comment') {
+      this.setData({
+        shouldFocusComment: true
       });
     }
     
@@ -60,13 +72,27 @@ Page({
   
   onReady() {
     // 如果有评论ID参数，等待页面准备好后定位到指定评论
-    const { commentId } = this.data;
-    if (commentId) {
-      // 给评论列表一些时间加载数据
-      setTimeout(() => {
+    const { commentId, shouldFocusComment } = this.data;
+    
+    // 延迟执行以确保组件已加载
+    setTimeout(() => {
+      if (commentId) {
         this.scrollToComment(commentId);
-      }, 1000);
-    }
+      } else if (shouldFocusComment) {
+        // 滚动到评论区域
+        wx.createSelectorQuery()
+          .select('.comment-list-container')
+          .boundingClientRect(rect => {
+            if (rect) {
+              wx.pageScrollTo({
+                scrollTop: rect.top,
+                duration: 300
+              });
+            }
+          })
+          .exec();
+      }
+    }, 1000);
   },
   
   onShow() {

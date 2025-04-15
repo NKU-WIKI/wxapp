@@ -38,13 +38,7 @@
         wx:key="id"
         comment="{{item}}"
         bind:reply="handleReply"
-        bind:replyToReply="handleReplyToReply"
-        bind:like="handleLike"
         bind:delete="handleDelete"
-        bind:deleteReply="handleDeleteReply"
-        bind:user="goToUserProfile"
-        bind:viewReplies="handleViewReplies"
-        bind:viewSubReplies="handleViewSubReplies"
         class="comment-item comment-item-{{item.id}} {{item.highlighted ? 'highlighted' : ''}}"
       ></comment-item>
     </view>
@@ -93,10 +87,10 @@
       
       <!-- 发送按钮 -->
       <view
-              class="submit-btn {{commentText.length ? 'active' : ''}}"
-              bindtap="submitComment"
-              data-disabled="{{!commentText.trim() || isSubmitting}}">
-        <text>发送</text>
+              class="submit-btn {{commentText ? 'active' : ''}} {{isSubmitting ? 'disabled' : ''}}"
+              bindtap="{{!isSubmitting && commentText ? 'submitComment' : ''}}"
+              disabled="{{isSubmitting || !commentText}}">
+        <text>{{isSubmitting ? '发送中...' : '发送'}}</text>
       </view>
     </view>
   </view>

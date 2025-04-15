@@ -81,14 +81,20 @@ module.exports = Behavior({
      * @param {string} content - 评论内容
      * @param {string} [parentId] - 父评论ID，回复时使用
      * @param {object} [replyTo] - 回复对象信息，回复的回复时使用
-     * @returns {Promise<object|null>} 创建的评论
+     * @returns {Promise<object>} 创建的评论或API响应
      */
     async _createComment(postId, content, parentId = null, replyTo = null) {
-      if (!postId) return null;
-      if (!content?.trim()) return null;
+      if (!postId) {
+        return { code: 400, message: '缺少帖子ID' };
+      }
+      if (!content?.trim()) {
+        return { code: 400, message: '评论内容不能为空' };
+      }
       
       const openid = storage.get('openid');
-      if (!openid) return null;
+      if (!openid) {
+        return { code: 401, message: '用户未登录' };
+      }
 
       try {
         const params = { 
@@ -105,57 +111,31 @@ module.exports = Behavior({
         
         const res = await commentApi.create(params);
         
-        if (res.code !== 200) {
-          throw new Error(res.message || '评论失败');
-        }
-        
-        // 处理新的响应格式，从details中获取comment_id
-        if (res.details?.comment_id) {
-          // 如果details中有comment_id，创建一个简单的评论对象返回
-          const newComment = {
-            id: res.details.comment_id,
-            post_id: postId,
-            content: content.trim(),
-            parent_id: parentId,
-            openid,
-            // 添加创建时间
-            create_time: new Date().toISOString()
-          };
-          
-          // 如果有回复对象信息，添加到返回值中
-          if (replyTo) {
-            newComment.reply_to = {
-              id: replyTo.reply_id,
-              nickname: replyTo.nickname,
-              openid: replyTo.openid
-            };
-          }
-          
-          return newComment;
-        } else if (res.data) {
-          // 兼容旧格式，如果data中有完整评论数据
-          return res.data;
-        }
-        
-        throw new Error('评论创建成功但未返回评论数据');
+        // 直接返回API响应
+        return res;
       } catch (err) {
-        return null;
+        // 返回错误响应而不是null
+        return { 
+          code: 500, 
+          message: err.message || '评论创建失败', 
+          error: err 
+        };
       }
     },
 
     /**
      * 删除评论
      * @param {string} commentId - 评论ID
-     * @returns {Promise<boolean>} 是否删除成功
+     * @returns {Promise<object>} API响应
      */
     async _deleteComment(commentId) {
       if (!commentId) {
-        return false;
+        return { code: 400, message: '缺少评论ID' };
       }
       
       const openid = storage.get('openid');
       if (!openid) {
-        return false;
+        return { code: 401, message: '用户未登录' };
       }
 
       try {
@@ -166,10 +146,10 @@ module.exports = Behavior({
         
         const res = await commentApi.delete(params);
         
-        if (res.code !== 200) throw new Error(res.message || '删除评论失败');
-        return true;
+        // 直接返回API响应，不再转换为布尔值
+        return res;
       } catch (err) {
-        return false;
+        return { code: 500, message: err.message || '删除评论失败' };
       }
     },
 

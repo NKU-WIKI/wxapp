@@ -465,6 +465,14 @@
   box-shadow: 0 2px 4px rgba(7, 193, 96, 0.2);
 }
 
+.submit-btn.disabled {
+  background-color: #cccccc !important;
+  color: #999999 !important;
+  pointer-events: none;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
 /* 错误状态 - TO BE DELETED */
 .error-container {
   display: flex;

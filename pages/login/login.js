@@ -5,7 +5,7 @@ Page({
   behaviors: [baseBehavior, authBehavior],
 
   data: {
-    companyInfo: {
+    aboutInfo: {
       app_name: '',
       version: '',
       description: '',
@@ -18,23 +18,9 @@ Page({
   },
   async onLoad() {
     try {
-      let aboutInfo = await getAboutInfo();
-      // 确保有默认值，避免传null给组件
-      this.updateState({
-        companyInfo: {
-          app_name: aboutInfo?.app_name || 'nkuwiki',
-          version: aboutInfo?.version || '0.0.1',
-          description: aboutInfo?.description || '校园知识共享平台',
-          company: aboutInfo?.company || '',
-          email: aboutInfo?.email || '',
-          github: aboutInfo?.github || '',
-          website: aboutInfo?.website || '',
-          copyright: aboutInfo?.copyright || ''
-        },
-        loading: false,
-        error: false,
+      this.setData({
+        aboutInfo: await getAboutInfo()
       });
-
       try {
         const res = await this._syncUserInfo();
         if(res && res.code === 200){
@@ -49,22 +35,8 @@ Page({
       } catch (err) {
         console.warn('登录状态同步失败，需要用户手动登录', err);
       }
-    } catch (err) {
+    } catch (err){
       console.error('加载页面数据失败', err);
-      this.updateState({
-        companyInfo: {
-          app_name: 'nkuwiki',
-          version: '0.0.1',
-          description: '校园知识共享平台',
-          company: '',
-          email: '',
-          github: '',
-          website: '',
-          copyright: ''
-        },
-        loading: false,
-        error: false,
-      });
     }
   },
 
@@ -74,24 +46,10 @@ Page({
   },
   // 刷新页面
   async refreshPage() {
-    this.updateState({ error: false, errorText: '' });
-    
     try {
-      // 获取最新的应用信息
-      let aboutInfo = await getAboutInfo();
-      
-      this.updateState({
-        companyInfo: {
-          app_name: aboutInfo?.app_name || 'nkuwiki',
-          version: aboutInfo?.version || '0.0.1',
-          description: aboutInfo?.description || '校园知识共享平台',
-          company: aboutInfo?.company || '',
-          email: aboutInfo?.email || '',
-          github: aboutInfo?.github || '',
-          website: aboutInfo?.website || '',
-          copyright: aboutInfo?.copyright || ''
-        }
-      });
+      this.setData({
+        aboutInfo: await getAboutInfo()
+      })
     } catch (err) {
       console.error('刷新页面失败', err);
     }

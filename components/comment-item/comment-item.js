@@ -364,15 +364,16 @@ Component({
         // 调用API
         const res = await this._deleteComment(commentId);
         
-        if (res.code === 200) {
+        // API返回200表示成功
+        if (res && res.code === 200) {
           // 触发删除成功事件
-          this.triggerEvent('delete', { id: commentId, success: true });
+          this.triggerEvent('delete', { id: commentId, success: true, deleted: true });
           wx.showToast({
             title: '删除成功',
             icon: 'success'
           });
         } else {
-          throw new Error('删除失败');
+          throw new Error(res?.message || '删除失败');
         }
       } catch (err) {
         console.debug('删除评论失败:', err);
@@ -546,11 +547,43 @@ Component({
       
       if (!confirm) return;
       
-      // 触发删除回复事件
-      this.triggerEvent('deleteReply', { 
-        commentId: this.data.formattedComment?.id,
-        replyId: id 
-      });
+      this.setData({ isProcessing: true });
+      
+      try {
+        // 调用API
+        const res = await this._deleteComment(id);
+        
+        // API返回200表示成功
+        if (res && res.code === 200) {
+          // 触发删除回复事件，标记为已删除成功
+          this.triggerEvent('deleteReply', { 
+            commentId: this.data.formattedComment?.id,
+            replyId: id,
+            deleted: true
+          });
+          
+          wx.showToast({
+            title: '删除成功',
+            icon: 'success'
+          });
+        } else {
+          throw new Error(res?.message || '删除失败');
+        }
+      } catch (err) {
+        console.debug('删除回复失败:', err);
+        wx.showToast({
+          title: '删除失败',
+          icon: 'error'
+        });
+        // 触发删除失败事件
+        this.triggerEvent('deleteReply', { 
+          commentId: this.data.formattedComment?.id,
+          replyId: id,
+          deleted: false
+        });
+      } finally {
+        this.setData({ isProcessing: false });
+      }
     },
     
     // 处理回复头像加载错误

@@ -335,165 +335,29 @@ Component({
       this.triggerEvent('focusComment', { commentId });
     },
     
-    // 处理回复的回复
-    handleReplyToReply(e) {
-      if (this.data.isSubmitting) return;
-      
-      const { comment, parentId, replyTo } = e.detail;
-      if (!comment || !comment.id) return;
-      
-      // 查找父评论
-      const parentComment = this.data.comments.find(c => c.id === parentId);
-      if (!parentComment) return;
-
-      this.setData({
-        replyToComment: parentComment,
-        replyToReply: replyTo || {
-          id: comment.id,
-          nickname: comment.nickname || '用户',
-          openid: comment.openid
-        },
-        commentFocus: true
-      });
-
-      // 触发事件，以便页面可以滚动到评论框
-      this.triggerEvent('focusComment', { commentId: parentId, replyId: comment.id });
-    },
-    
     // 处理删除评论
     handleDelete(e) {
-      const { id } = e.detail;
+      const { id, success } = e.detail;
       
+      // 无论是否已经删除，都更新UI
       // 找到要删除的评论所在位置
       const index = this.data.comments.findIndex(comment => comment.id == id);
       if (index === -1) return;
       
-      wx.showModal({
-        title: '确认删除',
-        content: '确定要删除这条评论吗？',
-        confirmText: '删除',
-        confirmColor: '#ff4d4f',
-        success: (res) => {
-          if (res.confirm) {
-            // 先移除本地数据再发起请求
-            const newComments = [...this.data.comments];
-            newComments.splice(index, 1);
-            
-            this.setData({ 
-              comments: newComments,
-              total: Math.max(0, this.data.total - 1)
-            });
-            
-            // 发起删除请求
-            this._deleteComment(id)
-              .then(() => {
-                this.showToast('删除成功', 'success');
-                
-                // 通知父组件更新评论计数
-                this.triggerEvent('commentDeleted', {
-                  postId: this.properties.postId,
-                  commentId: id
-                });
-              })
-              .catch(err => {
-                console.error('删除评论失败:', err);
-                this.showToast('删除失败，请稍后重试', 'error');
-                
-                // 恢复删除的评论
-                this.refresh();
-              });
-          }
-        }
-      });
-    },
-    
-    // 处理删除回复
-    handleDeleteReply(e) {
-      const { commentId, replyId } = e.detail;
-
-      // 找到要删除的评论和回复
-      const commentIndex = this.data.comments.findIndex(comment => comment.id == commentId);
-      if (commentIndex === -1) return;
-
-      const comment = this.data.comments[commentIndex];
-      const replyIndex = comment.replies?.findIndex(reply => reply.id == replyId);
-      if (replyIndex === -1 || replyIndex === undefined) return;
-
-      wx.showModal({
-        title: '确认删除',
-        content: '确定要删除这条回复吗？',
-        confirmText: '删除',
-        confirmColor: '#ff4d4f',
-        success: (res) => {
-          if (res.confirm) {
-            // 先在UI上移除
-            const newComments = [...this.data.comments];
-            const replies = [...newComments[commentIndex].replies];
-            replies.splice(replyIndex, 1);
-
-            newComments[commentIndex].replies = replies;
-            newComments[commentIndex].reply_count = Math.max(0, newComments[commentIndex].reply_count - 1);
-
-            this.setData({ comments: newComments });
-
-            // 调用API删除
-            this._deleteComment(replyId)
-              .then(() => {
-                this.showToast('删除成功', 'success');
-              })
-              .catch(err => {
-                console.debug('删除回复失败:', err);
-                this.showToast('删除失败，请稍后重试', 'error');
-                // 恢复删除的回复，重新加载评论
-                this.refresh();
-              });
-          }
-        }
-      });
-    },
-
-    // 查看更多回复
-    viewMoreReplies(e) {
-      const { commentId } = e.currentTarget.dataset;
-      this.triggerEvent('viewreplies', { commentId });
-    },
-    
-    // 处理用户点击
-    goToUserProfile(e) {
-      const { userId } = e.detail;
-      if (!userId) return;
+      // 更新本地数据
+      const newComments = [...this.data.comments];
+      newComments.splice(index, 1);
       
-      wx.navigateTo({
-        url: `/pages/profile/profile?id=${userId}`,
-        fail: () => {
-          this.setStorage('temp_profile_id', userId);
-          wx.switchTab({
-            url: `/pages/profile/profile`
-          });
-        }
+      this.setData({ 
+        comments: newComments,
+        total: Math.max(0, this.data.total - 1)
       });
-    },
-    
-    // 预览评论图片
-    previewCommentImage(e) {
-      const { urls, current } = e.currentTarget.dataset;
-      wx.previewImage({
-        urls,
-        current
-      });
-    },
-    
-    // 处理图片加载错误
-    handleImageError(e) {
-      const { urls, current } = e.currentTarget.dataset;
-      console.debug('评论图片加载出错:', e);
       
-      // 可以在这里设置默认图片或者其他处理逻辑
-      // 例如替换为默认图片
-      if (e.type === 'error') {
-        // 可以在这里更新数据中的图片URL为默认图片
-        // 但是要注意不要频繁更新，避免死循环
-      }
+      // 通知父组件更新评论计数
+      this.triggerEvent('commentDeleted', {
+        postId: this.properties.postId,
+        commentId: id
+      });
     },
     
     // 阻止冒泡
@@ -506,7 +370,7 @@ Component({
       const value = e.detail.value;
       console.debug('评论内容变化:', value);
       this.setData({
-        commentText: e.detail.value.trimStart()
+        commentText: value
       });
     },
     
@@ -536,8 +400,14 @@ Component({
     
     // 提交评论
     async submitComment() {
+      // 检查是否正在提交中
+      if (this.data.isSubmitting) {
+        console.debug('已在提交中，忽略重复点击');
+        return;
+      }
+      
       // 检查评论内容是否为空
-      const content = this.data.commentText?.trim();
+      const content = this.data.commentText ? this.data.commentText.trim() : '';
       if (!content) {
         this.showToast('评论内容不能为空', 'error');
         return;
@@ -554,239 +424,162 @@ Component({
       // 准备参数
       const postId = this.properties.postId;
       const parentId = this.data.replyToComment?.id || null;
-      const replyToInfo = parentId && this.data.replyToReply ? {
-        id: this.data.replyToReply.id,
-        nickname: this.data.replyToReply.nickname,
-        openid: this.data.replyToReply.openid
-      } : null;
+      const replyToInfo = null; // 简化此处，不再支持回复的回复
 
-      // 显示提交中状态
+      // 清空输入 - 先清空输入，避免用户以为没提交成功重复发送
+      const savedCommentText = content; // 保存内容用于后续处理
+      this.setData({
+        commentText: '',
+        replyToComment: null,
+        replyToReply: null,
+        commentFocus: false
+      });
+
+      // 显示提交中状态 - 先设置UI状态再调用API
       this.setData({ isSubmitting: true });
-      wx.showLoading({ title: '发送中...' });
+      
+      // 使用简单的loading，避免wx.showLoading可能导致的问题
+      console.debug('开始提交评论，参数:', {
+        postId,
+        content: savedCommentText,
+        parentId,
+        replyToInfo
+      });
       
       try {
         // 调用API创建评论
-        const result = await this._createComment(postId, content, parentId, replyToInfo);
-
-        if (result.code === 200) {
-          // 清空输入
-          this.setData({
-            commentText: '',
-            replyToComment: null,
-            replyToReply: null,
-            commentFocus: false
-          });
-          
-          wx.hideLoading();
+        const result = await this._createComment(postId, savedCommentText, parentId, replyToInfo);
+        
+        // 输出详细的API响应信息用于调试
+        console.debug('评论API响应:', result);
+        
+        // 检查API响应状态
+        if (result && result.code === 200) {
           this.showToast('评论成功', 'success');
-
+          
+          // 从API响应中获取新评论的ID
+          const commentId = result.details?.comment_id || (result.data && result.data.id);
+          
+          if (!commentId) {
+            console.debug('评论创建成功但未返回评论ID:', result);
+            this.refresh();
+            return;
+          }
+          
           // 获取用户信息
-          const userInfo = await this._getUserInfo(openid);
+          try {
+            const userInfo = await this._getUserInfo(openid);
+            console.debug('获取用户信息结果:', userInfo);
 
-          if (userInfo.code === 200 && userInfo.data) {
-            const { nickname, avatar, bio } = userInfo.data;
+            if (userInfo && userInfo.code === 200 && userInfo.data) {
+              const { nickname, avatar, bio } = userInfo.data;
 
-            // 构建新评论对象
-            const newComment = {
-              id: result.data.id,
-              post_id: postId,
-              parent_id: parentId,
-              openid,
-              content,
-              image: '[]',
-              create_time: new Date().toISOString(),
-              nickname,
-              avatar,
-              bio,
-              like_count: 0,
-              reply_count: 0,
-              is_liked: false,
-              isOwner: true,
-              replies: []
-            };
+              // 构建新评论对象
+              const newComment = {
+                id: commentId,
+                post_id: postId,
+                parent_id: parentId,
+                openid,
+                content: savedCommentText,
+                image: '[]',
+                create_time: new Date().toISOString(),
+                nickname,
+                avatar,
+                bio,
+                like_count: 0,
+                reply_count: 0,
+                is_liked: false,
+                isOwner: true,
+                replies: []
+              };
 
-            // 如果是回复某个评论
-            if (parentId) {
-              // 查找父评论
-              const commentIndex = this.data.comments.findIndex(c => c.id === parentId);
+              // 如果是回复某个评论
+              if (parentId) {
+                // 查找父评论
+                const commentIndex = this.data.comments.findIndex(c => c.id === parentId);
 
-              if (commentIndex !== -1) {
-                // 克隆评论列表和父评论
-                const comments = [...this.data.comments];
-                const parentComment = {...comments[commentIndex]};
+                if (commentIndex !== -1) {
+                  // 克隆评论列表和父评论
+                  const comments = [...this.data.comments];
+                  const parentComment = {...comments[commentIndex]};
 
-                // 确保父评论有回复数组
-                if (!parentComment.replies) {
-                  parentComment.replies = [];
+                  // 确保父评论有回复数组
+                  if (!parentComment.replies) {
+                    parentComment.replies = [];
+                  }
+
+                  // 将新回复添加到父评论的回复列表开头
+                  parentComment.replies.unshift(newComment);
+
+                  // 更新父评论的回复计数
+                  parentComment.reply_count = (parentComment.reply_count || 0) + 1;
+
+                  // 如果回复数量超过显示限制，保留最新的几条
+                  const maxDisplayReplies = 5;
+                  if (parentComment.replies.length > maxDisplayReplies) {
+                    parentComment.replies = parentComment.replies.slice(0, maxDisplayReplies);
+                  }
+
+                  // 更新评论列表
+                  comments[commentIndex] = parentComment;
+                  this.setData({ comments });
+
+                  // 触发回复添加事件
+                  this.triggerEvent('replyAdded', {
+                    postId,
+                    parentId,
+                    comment: newComment
+                  });
+                } else {
+                  // 在当前列表中找不到父评论，刷新整个列表
+                  this.refresh();
+
+                  // 触发回复添加事件
+                  this.triggerEvent('replyAdded', {
+                    postId,
+                    parentId,
+                    comment: newComment
+                  });
                 }
-
-                // 处理回复信息
-                if (replyToInfo) {
-                  // 如果是回复其他回复
-                  newComment.reply_to = JSON.stringify(replyToInfo);
-
-                  // 打印调试信息
-                  console.debug('回复其他回复:', replyToInfo);
-                }
-
-                // 将新回复添加到父评论的回复列表开头
-                parentComment.replies.unshift(newComment);
-
-                // 更新父评论的回复计数
-                parentComment.reply_count = (parentComment.reply_count || 0) + 1;
-
-                // 如果回复数量超过显示限制，保留最新的几条
-                const maxDisplayReplies = 5;
-                if (parentComment.replies.length > maxDisplayReplies) {
-                  parentComment.replies = parentComment.replies.slice(0, maxDisplayReplies);
-                }
-
-                // 更新评论列表
-                comments[commentIndex] = parentComment;
-                this.setData({ comments });
-
-                // 触发回复添加事件
-                this.triggerEvent('replyAdded', {
-                  postId,
-                  parentId,
-                  comment: newComment
-                });
               } else {
-                // 在当前列表中找不到父评论，刷新整个列表
-                this.refresh();
+                // 顶级评论，直接添加到列表头部
+                this.setData({
+                  comments: [newComment, ...this.data.comments],
+                  total: this.data.total + 1
+                });
 
-                // 触发回复添加事件
-                this.triggerEvent('replyAdded', {
+                // 触发评论添加事件
+                this.triggerEvent('commentAdded', {
                   postId,
-                  parentId,
                   comment: newComment
                 });
               }
             } else {
-              // 顶级评论，直接添加到列表头部
-              this.setData({
-                comments: [newComment, ...this.data.comments],
-                total: this.data.total + 1
-              });
-
-              // 触发评论添加事件
-              this.triggerEvent('commentAdded', {
-                postId,
-                comment: newComment
-              });
+              // 用户信息获取失败，刷新列表
+              console.debug('用户信息获取失败，刷新列表');
+              this.refresh();
             }
-          } else {
-            // 用户信息获取失败或者API返回格式不完整，刷新列表
-            console.debug('用户信息获取失败，刷新列表');
+          } catch (userError) {
+            console.debug('获取用户信息失败:', userError);
             this.refresh();
           }
         } else {
-          wx.hideLoading();
-          throw new Error(result.message || '评论提交失败');
+          throw new Error(result?.message || '评论提交失败');
         }
       } catch (err) {
-        wx.hideLoading();
         console.debug('提交评论出错:', err);
         this.showToast('评论提交失败，请重试', 'error');
+        
+        // 还原评论内容，方便用户重试
+        this.setData({
+          commentText: savedCommentText
+        });
       } finally {
-        this.setData({ isSubmitting: false });
+        // 确保将isSubmitting设置回false
+        setTimeout(() => {
+          this.setData({ isSubmitting: false });
+        }, 500); // 延迟500ms，避免按钮状态闪烁
       }
-    },
-
-    // 查看单条评论的所有回复
-    handleViewReplies(e) {
-      const { commentId } = e.detail;
-      if (!commentId) return;
-
-      // 查找评论
-      const commentIndex = this.data.comments.findIndex(c => c.id == commentId);
-      if (commentIndex === -1) return;
-
-      const comment = this.data.comments[commentIndex];
-
-      // 显示加载中状态
-      wx.showLoading({
-        title: '加载回复中',
-        mask: true
-      });
-
-      // 加载该评论的所有回复
-      this._getCommentList(this.properties.postId, {
-        parentId: commentId,
-        page: 1,
-        page_size: 50 // 一次加载足够多的回复
-      })
-      .then(result => {
-        wx.hideLoading();
-
-        if (result && result.list && result.list.length > 0) {
-          // 更新评论回复列表
-          const comments = [...this.data.comments];
-          comments[commentIndex].replies = result.list;
-          comments[commentIndex].reply_count = result.total || comments[commentIndex].reply_count;
-
-          this.setData({ comments });
-          this.showToast(`已加载${result.list.length}条回复`, 'success');
-        } else {
-          this.showToast('暂无回复', 'none');
-        }
-      })
-      .catch(err => {
-        wx.hideLoading();
-        console.debug('加载回复失败:', err);
-        this.showToast('加载回复失败', 'error');
-      });
-    },
-
-    // 添加处理查看子回复的方法
-    handleViewSubReplies(e) {
-      const { commentId, replyId } = e.detail;
-
-      // 获取特定回复的子回复
-      this.loadSubReplies(commentId, replyId);
-    },
-
-    // 加载子回复
-    loadSubReplies(commentId, replyId, page = 1, pageSize = 10) {
-      if (!commentId || !replyId) return Promise.reject(new Error('参数缺失'));
-
-      const postId = Number(this.properties.postId);
-
-      // 查询子回复需要传递parent_id为回复ID
-      return this._getCommentList(postId, {
-        parentId: replyId,
-        page,
-        page_size: pageSize
-      })
-      .then(result => {
-        if (result && result.list) {
-          // 更新对应评论的子回复
-          const comments = [...this.data.comments];
-          const commentIndex = comments.findIndex(c => c.id == commentId);
-
-          if (commentIndex !== -1) {
-            const comment = comments[commentIndex];
-            const replyIndex = comment.replies?.findIndex(r => r.id == replyId);
-
-            if (replyIndex !== -1 && replyIndex !== undefined) {
-              const reply = comment.replies[replyIndex];
-
-              // 更新子回复
-              reply.sub_replies = page === 1 ? result.list : [...(reply.sub_replies || []), ...result.list];
-              reply.sub_reply_count = result.total || reply.sub_reply_count || 0;
-
-              this.setData({ comments });
-            }
-          }
-
-          return result;
-        }
-        return null;
-      })
-      .catch(err => {
-        console.debug('加载子回复失败:', err);
-        return null;
-      });
     }
   }
 })
