@@ -5,7 +5,7 @@ const { createApiClient } = require('../utils/util');
 
 // 创建帖子API客户端
 const postApi = createApiClient('/api/wxapp/post', {
-  list:     { method: 'GET',  path: '/list',    params: { openid: true } },
+  list:     { method: 'GET',  path: '/list',    params: {} },
   detail:   { method: 'GET',  path: '/detail',  params: { openid: true, post_id: true } },
   like:     { method: 'POST', path: '/like',    params: { openid: true, post_id: true } },
   favorite: { method: 'POST', path: '/favorite',params: { openid: true, post_id: true } },
@@ -19,6 +19,7 @@ module.exports = Behavior({
   methods: {
     /**
      * 获取帖子列表
+     * @param {string} openid 用户ID
      * @param {number|object} filter 分类ID或筛选条件对象
      * @param {number} page 页码
      * @param {number} page_size 每页数量

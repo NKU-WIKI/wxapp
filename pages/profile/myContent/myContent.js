@@ -1,5 +1,4 @@
 // 我的内容页面 - 整合了我的帖子、点赞、收藏和评论功能
-const app = getApp();
 const behaviors = require('../../../behaviors/index');
 
 Page({
@@ -19,37 +18,11 @@ Page({
     followingFilter: {}, // 关注筛选条件
     followerFilter: {}, // 粉丝筛选条件
     commentFilter: {}, // 评论筛选条件
-    // API参数 - 可以删除，不再需要
-    postApiParams: {
-      openid: '',
-      page: 1,
-      limit: 10
-    },
-    likeApiParams: {
-      openid: '',
-      offset: 0,
-      limit: 10
-    },
-    favoriteApiParams: {
-      openid: '',
-      offset: 0,
-      limit: 10
-    },
-    commentApiParams: {
-      openid: '',
-      offset: 0,
-      limit: 10
-    }
   },
 
   async onLoad(options) {
-    // 获取登录信息
+    await this._checkLogin();
     const userInfo = await this._getUserInfo();
-    if (!userInfo?.openid) {
-      this.showToast('请先登录', 'error');
-      return;
-    }
-
     // 解析tab参数
     let tabIndex = 0; // 默认为0（我的帖子）
     if (options && options.tab) {
@@ -60,15 +33,6 @@ Page({
       }
     }
 
-    // 设置API参数
-    const apiParams = {
-      postApiParams: { openid: userInfo.openid, page: 1, limit: 10 },
-      likeApiParams: { openid: userInfo.openid, offset: 0, limit: 10 },
-      favoriteApiParams: { openid: userInfo.openid, offset: 0, limit: 10 },
-      commentApiParams: { openid: userInfo.openid, offset: 0, limit: 10 }
-    };
-
-    // 设置所有的filter
     const filters = {
       postFilter: { openid: userInfo.openid }, // 我的帖子 - 显示当前用户发布的帖子
       likeFilter: { type: 'liked', openid: userInfo.openid }, // 我的获赞 - 显示当前用户获得点赞的帖子
@@ -80,39 +44,66 @@ Page({
 
     this.setData({
       tabIndex,
-      ...apiParams,
       ...filters
     });
   },
 
+  onPullDownRefresh() {
+    const postList = this.selectComponent('#postList');
+    console.log('postList', postList);
+    if (postList) {
+      // 直接加载第一页最新数据，并强制刷新
+      postList.loadInitialData(true).then(() => {
+      }).catch(err => {
+      }).finally(() => {
+        wx.stopPullDownRefresh();
+      });
+    } else {
+      wx.stopPullDownRefresh();
+    }
+  },
+
+  onReachBottom() {
+    const { tabIndex } = this.data;
+    let componentId = '';
+    
+    // 根据当前标签选择对应的组件ID
+    switch(tabIndex) {
+      case 0:
+        componentId = '#postList';
+        break;
+      case 1:
+        componentId = '#likeList';
+        break;
+      case 2:
+        componentId = '#favoriteList';
+        break;
+      case 3:
+        componentId = '#followingList';
+        break;
+      case 4:
+        componentId = '#followerList';
+        break;
+      case 5:
+        componentId = '#commentList';
+        break;
+      default:
+        return;
+    }
+    
+    // 选择对应的组件并加载更多内容
+    const component = this.selectComponent(componentId);
+    console.debug('选中组件:', componentId, component);
+    if (component && typeof component.loadMore === 'function') {
+      component.loadMore();
+    }
+  },
+
   // 切换标签
-  switchTab(e) {
+  onSwitchTab(e) {
     const tabIndex = e.detail.index;
     if (tabIndex === this.data.tabIndex) return;
     
     this.setData({ tabIndex });
   },
-
-  // 帖子点击
-  onPostTap(e) {
-    const { id } = e.detail;
-    wx.navigateTo({
-      url: `/pages/post/detail/detail?id=${id}`
-    });
-  },
-  
-  // 评论点击
-  onCommentTap(e) {
-    const { postId } = e.detail;
-    wx.navigateTo({
-      url: `/pages/post/detail/detail?id=${postId}`
-    });
-  },
-  
-  // 新建帖子
-  onNewPost() {
-    wx.navigateTo({
-      url: '/pages/post/edit/edit'
-    });
-  }
 }); 
