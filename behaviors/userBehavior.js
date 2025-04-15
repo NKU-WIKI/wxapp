@@ -5,7 +5,8 @@ const userApi = createApiClient('/api/wxapp/user', {
   profile: { method: 'GET',  path: '/profile', params: { openid: true } },
   update:  { method: 'POST', path: '/update',  params: { openid: true } },
   follow:  { method: 'POST', path: '/follow',  params: { follower_id: true, followed_id: true } },
-  status:  { method: 'GET',  path: '/status',  params: { openid: true, target_id: true, target_openid: false } }
+  status:  { method: 'GET',  path: '/status',  params: { openid: true, target_id: true, target_openid: false } },
+  list:    { method: 'GET',  path: '/list',    params: {} }
 });
 
 module.exports = Behavior({
@@ -13,6 +14,57 @@ module.exports = Behavior({
   methods: {
     // ==== 数据获取 ====
 
+    /**
+     * 获取用户列表，支持所有用户、粉丝、关注列表
+     * @param {Object} filter - 筛选条件
+     * @param {string} filter.type - 列表类型：all(所有用户)、follower(粉丝)、following(关注)
+     * @param {string} filter.openid - 用户openid（当type为follower或following时必填）
+     * @param {number} page - 页码，默认1
+     * @param {number} page_size - 每页数量，默认10
+     * @returns {Promise<Object>} API响应
+     */
+    async _getUserList(filter = {}, page = 1, page_size = 10) {
+      // 构建查询参数
+      const params = { page, page_size };
+      
+      // 如果filter是对象，提取支持的参数
+      if (typeof filter === 'object') {
+        // 支持type参数：all, follower, following
+        if (filter.type) {
+          params.type = filter.type;
+        }
+        
+        // 支持openid参数
+        if (filter.openid) {
+          params.openid = filter.openid;
+        }
+      }
+      
+      try {
+        const res = await userApi.list(params);
+        if (res.code !== 200) {
+          throw new Error(res.message || '获取用户列表失败');
+        }
+        
+        // 处理分页数据，确保返回标准格式
+        const result = {
+          data: res.data || [],
+          pagination: res.pagination || {
+            total: res.total || 0,
+            page: page,
+            page_size: page_size,
+            total_pages: Math.ceil((res.total || 0) / page_size) || 0,
+            has_more: res.has_more !== undefined ? res.has_more : 
+              ((page * page_size) < (res.total || 0))
+          }
+        };
+        
+        return result;
+      } catch (err) {
+        console.debug('获取用户列表失败:', err);
+        throw err;
+      }
+    },
 
     /**
      * 获取指定openid的用户公开信息

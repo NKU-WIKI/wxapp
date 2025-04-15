@@ -215,46 +215,37 @@ Component({
     },
     
     // 展开/收起内容
-    _onExpandTap() {
+    onExpandTap() {
       this.setData({ contentExpanded: !this.properties.contentExpanded });
     },
     
     // 点击头像或作者
-    _onAvatarTap() {
+    onAvatarTap() {
       const post = this.properties.post;
       if (!post) return;
-      
       // 首先尝试直接从post对象获取openid
       const openid = post?.openid || (post?.user?.openid);
-      
-      if (openid) {
-        console.debug('头像点击跳转，openid:', openid);
-        
-        // 直接跳转到user-profile页面，不再使用temp_profile_openid
+      const currentOpenid = storage.get('openid');
+      console.debug('点击头像或作者', openid, currentOpenid);
+      if (openid !== currentOpenid) {
         wx.navigateTo({
-          url: `/pages/index/user-profile/user-profile?openid=${openid}`,
-          fail: (err) => {
-            console.error('跳转到用户资料页面失败:', err);
-            // 尝试备用路径
-            wx.navigateTo({
-              url: `/pages/profile/profile?id=${openid}&from=post`,
-              fail: (subErr) => {
-                console.error('备用路径跳转也失败:', subErr);
-              }
-            });
-          }
+          url: `/pages/user/user?openid=${openid}`,
+        });
+      }else{
+        wx.navigateTo({
+          url: `/pages/profile/profile`,
         });
       }
     },
     
     // 点击作者名称
-    _onAuthorTap() {
+    onAuthorTap() {
       // 复用头像点击方法
       this._onAvatarTap();
     },
     
     // 点击帖子
-    _onPostTap() {
+    onPostTap() {
       const postId = this.properties.post?.id;
       if (postId) {
         wx.navigateTo({ url: `/pages/post/detail/detail?id=${postId}` });
@@ -262,20 +253,20 @@ Component({
     },
     
     // 点击图片
-    _onImageTap(e) {
+    onImageTap(e) {
       const { index } = e.currentTarget.dataset;
       const urls = this.properties.post?.images || [];
       wx.previewImage({ current: urls[index], urls });
     },
     
     // 点击标签
-    _onTagTap(e) {
+    onTagTap(e) {
       const tag = e.currentTarget.dataset.tag;
       wx.navigateTo({ url: `/pages/search/search?keyword=${encodeURIComponent(tag)}` });
     },
     
     // 点赞
-    async _onLikeTap() {
+    async onLikeTap() {
       if (this.properties.isProcessing) return;
       
       const postId = this.properties.post?.id;
@@ -315,7 +306,7 @@ Component({
     },
     
     // 收藏
-    async _onFavoriteTap() {
+    async onFavoriteTap() {
       if (this.properties.isProcessing) return;
       
       const postId = this.properties.post?.id;
@@ -355,7 +346,7 @@ Component({
     },
     
     // 评论
-    _onCommentTap() {
+    onCommentTap() {
       const postId = this.properties.post?.id;
       if (!postId) return;
       
@@ -379,7 +370,7 @@ Component({
     },
     
     // 关注
-    async _onFollowTap() {
+    async onFollowTap() {
       if (this.properties.isProcessing) return;
       
       const post = this.properties.post;
@@ -423,7 +414,7 @@ Component({
     },
     
     // 查看更多评论
-    _onViewMoreComments() {
+    onViewMoreComments() {
       const postId = this.properties.post?.id;
       if (postId) {
         wx.navigateTo({ url: `/pages/post/detail/detail?id=${postId}&tab=comment` });
@@ -447,7 +438,7 @@ Component({
     },
     
     // 空方法，用于阻止事件冒泡而不执行任何操作
-    _catchBubble() {
+    catchBubble() {
       // 不执行任何操作，仅用于阻止事件冒泡
     },
   }

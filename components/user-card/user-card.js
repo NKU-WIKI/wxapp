@@ -1,12 +1,8 @@
-const { createApiClient } = require('../../utils/util');
 const baseBehavior = require('../../behaviors/baseBehavior');
 const userBehavior = require('../../behaviors/userBehavior');
 const { storage } = require('../../utils/util');
 
-// 创建用户API客户端
-const userApi = {
-  follow: createApiClient('/api/wxapp/user', {}).follow
-};
+
 
 Component({
   behaviors: [baseBehavior, userBehavior],
@@ -180,17 +176,7 @@ Component({
       const { openid } = this.data.formattedUser;
       if (openid) {
         wx.navigateTo({
-          url: `/pages/index/user-profile/user-profile?openid=${openid}`,
-          fail: (err) => {
-            console.error('跳转到用户资料页面失败:', err);
-            // 尝试备用路径
-            wx.navigateTo({
-              url: `/pages/profile/profile?id=${openid}&from=card`,
-              fail: (subErr) => {
-                console.error('备用路径跳转也失败:', subErr);
-              }
-            });
-          }
+          url: `/pages/user/user?openid=${openid}`,
         });
       }
     },
@@ -206,58 +192,32 @@ Component({
         url: '/pages/profile/edit/edit'
       });
     },
-    
-    // 关注/取消关注用户
-    onFollow() {
-      if (this.data.isCurrentUser) {
+
+    // 关注/取消关注
+    async onTapFollow() {
+      const { openid } = this.data.formattedUser;
+      if (!openid) return;
+      
+      const currentOpenid = storage.get('openid');
+      if (!currentOpenid) {
+        this.showToast('请先登录', 'error');
         return;
       }
       
-      const { openid, isFollowed } = this.data.formattedUser;
-      if (!openid) return;
+      // 不能关注自己
+      if (openid === currentOpenid) {
+        this.showToast('不能关注自己', 'error');
+        return;
+      }
       
-      if (isFollowed) {
-        this.unfollowUser(openid);
-      } else {
-        this.followUser(openid);
-      }
-    },
-    
-    // 关注用户
-    async followUser(targetOpenid) {
       try {
-        // 使用 userBehavior 中的 _toggleFollow 方法
-        const res = await this._toggleFollow({
-          followed_id: targetOpenid
+        await this._toggleFollow({
+          followed_id: openid
         });
-        
-        if (res && res.code === 200) {
-          wx.showToast({
-            title: res.data.is_following ? '关注成功' : '已取消关注',
-            icon: 'none'
-          });
-          
-          // 更新关注状态
-          this.updateFollowStatus(res.data.is_following);
-          this.triggerEvent('follow', { user_id: targetOpenid });
-        } else {
-          wx.showToast({
-            title: res?.message || '操作失败',
-            icon: 'none'
-          });
-        }
       } catch (err) {
-        console.debug('关注操作失败:', err);
-        wx.showToast({
-          title: '网络错误',
-          icon: 'none'
-        });
+        console.error('关注操作失败:', err);
+        this.showToast('操作失败', 'error');
       }
-    },
-    
-    // 取消关注用户 - 使用同一个方法
-    async unfollowUser(targetOpenid) {
-      await this.followUser(targetOpenid);
     },
     
     // 更新关注状态
@@ -296,11 +256,20 @@ Component({
         return;
       }
       
-      const tabIndex = e.currentTarget.dataset.tab;
-      wx.reLaunch({
-        url: `/pages/profile/myContent/myContent?tab=${tabIndex}`
+      wx.navigateTo({
+        url: `/pages/profile/content/content?tab=0`
       });
     },
+
+    onTapFavorites(e) {
+      if (!this.data.isCurrentUser) {
+        return;
+      }
+      wx.navigateTo({
+        url: `/pages/profile/content/content?tab=1`
+      });
+    },
+
     
     // 点击关注跳转到关注列表页面
     onTapFollowing() {
@@ -308,8 +277,8 @@ Component({
         return;
       }
       
-      wx.reLaunch({
-        url: `/pages/profile/myContent/myContent?tab=3`
+      wx.navigateTo({
+        url: `/pages/profile/content/content?tab=2`
       });
     },
     
@@ -319,8 +288,8 @@ Component({
         return;
       }
       
-      wx.reLaunch({
-        url: `/pages/profile/myContent/myContent?tab=4`
+      wx.navigateTo({
+        url: `/pages/profile/content/content?tab=3`
       });
     },
     
@@ -331,59 +300,11 @@ Component({
         return;
       }
       
-      wx.reLaunch({
-        url: '/pages/profile/points/points'
-      });
-    },
-
-    // 点击头像或用户名
-    onUserTap() {
-      const { openid } = this.data.formattedUser;
-      if (!openid) return;
-      
       wx.navigateTo({
-        url: `/pages/index/user-profile/user-profile?openid=${openid}`,
-        fail: (err) => {
-          console.error('跳转到用户资料页面失败:', err);
-          // 尝试备用路径
-          wx.navigateTo({
-            url: `/pages/profile/profile?id=${openid}&from=card`,
-            fail: (subErr) => {
-              console.error('备用路径跳转也失败:', subErr);
-              wx.redirectTo({
-                url: `/pages/profile/profile?id=${openid}&from=card`
-              });
-            }
-          });
-        }
+        url: '/pages/profile/content/content'
       });
     },
     
-    // 关注/取消关注
-    async onFollowTap() {
-      const { openid, isFollowed } = this.data.formattedUser;
-      if (!openid) return;
-      
-      const currentOpenid = storage.get('openid');
-      if (!currentOpenid) {
-        this.showToast('请先登录', 'error');
-        return;
-      }
-      
-      // 不能关注自己
-      if (openid === currentOpenid) {
-        this.showToast('不能关注自己', 'error');
-        return;
-      }
-      
-      try {
-        await this._toggleFollow({
-          followed_id: openid
-        });
-      } catch (err) {
-        console.error('关注操作失败:', err);
-        this.showToast('操作失败', 'error');
-      }
-    }
+    
   }
 }); 

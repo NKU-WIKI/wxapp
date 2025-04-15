@@ -24,18 +24,10 @@
       empty-text="您还没有发布任何帖子"
     ></post-list>
 
-    <!-- 我的获赞 -->
-    <post-list
-      id="likeList"
-      wx:if="{{tabIndex === 1}}"
-      filter="{{likeFilter}}"
-      empty-text="您还没有获得任何点赞"
-    ></post-list>
-
     <!-- 我的收藏 -->
     <post-list
       id="favoriteList"
-      wx:if="{{tabIndex === 2}}"
+      wx:if="{{tabIndex === 1}}"
       filter="{{favoriteFilter}}"
       empty-text="您还没有收藏任何帖子"
     ></post-list>
@@ -43,25 +35,21 @@
     <!-- 我的关注 -->
     <user-list
       id="followingList"
-      wx:if="{{tabIndex === 3}}"
+      wx:if="{{tabIndex === 2}}"
       filter="{{followingFilter}}"
       empty-text="您还没有关注任何用户"
+      bindfollow="onUserFollow"
     ></user-list>
 
     <!-- 我的粉丝 -->
     <user-list
       id="followerList"
-      wx:if="{{tabIndex === 4}}"
+      wx:if="{{tabIndex === 3}}"
       filter="{{followerFilter}}"
       empty-text="您还没有任何粉丝"
+      bindfollow="onUserFollow"
     ></user-list>
 
-    <!-- 我的评论 -->
-    <comment-list
-      id="commentList"
-      wx:if="{{tabIndex === 5}}"
-      filter="{{commentFilter}}"
-      empty-text="您还没有评论任何帖子"
-    ></comment-list>
+  
   </view>
 </view>

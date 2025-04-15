@@ -398,6 +398,7 @@ Component({
             return; // 重要：添加return防止执行下面的代码
           } else {
               // 其他页面使用常规返回
+              console.debug('返回上一页');
               wx.navigateBack();
             }
           

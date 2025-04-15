@@ -35,11 +35,9 @@ module.exports = Behavior({
       } 
       // 支持传入对象形式的筛选条件
       else if (typeof filter === 'object') {
-        // 提取通用筛选条件
+        // 提取支持的筛选条件
         const validFilters = [
-          'category_id', 'openid', 'tag', 'keyword', 
-          'status', 'is_public', 'sort', 'favorite', 
-          'followed', 'hot', 'type', 'order_by'
+          'category_id', 'tag', 'openid', 'favorite', 'order_by'
         ];
         
         // 将有效的筛选条件添加到参数中
@@ -64,8 +62,6 @@ module.exports = Behavior({
       }
       
       try {
-        // 减少不必要的日志输出
-        // console.debug('API请求参数:', params);
         const res = await postApi.list(params);
         if (res.code !== 200) {
           throw new Error(res.message || '获取帖子列表失败');

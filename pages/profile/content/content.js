@@ -9,15 +9,13 @@ Page({
 
   data: {
     tabIndex: 0,
-    tabTitles: ['帖子', '获赞', '收藏', '关注', '粉丝', '评论'],
+    tabTitles: ['帖子', '收藏', '关注', '粉丝'],
   
     // 筛选条件
     postFilter: {}, // 帖子筛选条件
-    likeFilter: {}, // 获赞筛选条件
     favoriteFilter: {}, // 收藏筛选条件
     followingFilter: {}, // 关注筛选条件
     followerFilter: {}, // 粉丝筛选条件
-    commentFilter: {}, // 评论筛选条件
   },
 
   async onLoad(options) {
@@ -35,11 +33,9 @@ Page({
 
     const filters = {
       postFilter: { openid: userInfo.openid }, // 我的帖子 - 显示当前用户发布的帖子
-      likeFilter: { type: 'liked', openid: userInfo.openid }, // 我的获赞 - 显示当前用户获得点赞的帖子
-      favoriteFilter: { favorite: 1, openid: userInfo.openid }, // 我的收藏 - 显示当前用户收藏的帖子
-      followingFilter: { openid: userInfo.openid }, // 我的关注
-      followerFilter: { openid: userInfo.openid }, // 我的粉丝
-      commentFilter: { openid: userInfo.openid } // 我的评论
+      favoriteFilter: { favorite: true, openid: userInfo.openid }, // 我的收藏 - 显示当前用户收藏的帖子
+      followingFilter: { type: 'following', openid: userInfo.openid }, // 我的关注 - 显示当前用户关注的用户
+      followerFilter: { type: 'follower', openid: userInfo.openid }, // 我的粉丝 - 显示关注当前用户的用户
     };
 
     this.setData({
@@ -49,16 +45,38 @@ Page({
   },
 
   onPullDownRefresh() {
-    const postList = this.selectComponent('#postList');
-    console.log('postList', postList);
-    if (postList) {
+    const { tabIndex } = this.data;
+    let componentId = '';
+    
+    // 根据当前标签选择对应的组件ID
+    switch(tabIndex) {
+      case 0:
+        componentId = '#postList';
+        break;
+      case 1:
+        componentId = '#favoriteList';
+        break;
+      case 2:
+        componentId = '#followingList';
+        break;
+      case 3:
+        componentId = '#followerList';
+        break;
+      default:
+        return;
+    }
+    
+    const component = this.selectComponent(componentId);
+    if (component) {
       // 直接加载第一页最新数据，并强制刷新
-      postList.loadInitialData(true).then(() => {
+      component.loadInitialData(true).then(() => {
       }).catch(err => {
+        console.debug('下拉刷新失败:', err);
       }).finally(() => {
         wx.stopPullDownRefresh();
       });
     } else {
+      console.debug('找不到组件:', componentId);
       wx.stopPullDownRefresh();
     }
   },
@@ -73,19 +91,13 @@ Page({
         componentId = '#postList';
         break;
       case 1:
-        componentId = '#likeList';
-        break;
-      case 2:
         componentId = '#favoriteList';
         break;
-      case 3:
+      case 2:
         componentId = '#followingList';
         break;
-      case 4:
+      case 3:
         componentId = '#followerList';
-        break;
-      case 5:
-        componentId = '#commentList';
         break;
       default:
         return;
@@ -93,7 +105,6 @@ Page({
     
     // 选择对应的组件并加载更多内容
     const component = this.selectComponent(componentId);
-    console.debug('选中组件:', componentId, component);
     if (component && typeof component.loadMore === 'function') {
       component.loadMore();
     }
@@ -106,4 +117,25 @@ Page({
     
     this.setData({ tabIndex });
   },
+  
+  // 处理用户关注事件
+  onUserFollow(e) {
+    const { user_id, is_followed } = e.detail;
+    
+    // 刷新关注列表和粉丝列表
+    const followingList = this.selectComponent('#followingList');
+    const followerList = this.selectComponent('#followerList');
+    
+    // 延迟一点时间再刷新，确保API操作完成
+    setTimeout(() => {
+      if (followingList) followingList.refresh();
+      if (followerList) followerList.refresh();
+    }, 500);
+    
+    // 显示操作结果提示
+    wx.showToast({
+      title: is_followed ? '关注成功' : '已取消关注',
+      icon: 'none'
+    });
+  }
 }); 

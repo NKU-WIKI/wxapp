@@ -1,12 +1,12 @@
 <!-- 帖子列表项组件 -->
 <view class="post-item" style="{{customStyle}}">
   <!-- 点击跳转覆盖层 - 位于所有内容之下但优先处理点击 -->
-  <view class="tap-overlay" bindtap="_onPostTap" wx:if="{{!detailPage}}"></view>
+  <view class="tap-overlay" bindtap="onPostTap" wx:if="{{!detailPage}}"></view>
   
   <view class="post-header">
     <view class="post-header-left">
       <!-- 修改头像展示方式，使用更新后的icon组件并根据是否有avatar决定展示方式 -->
-      <view class="avatar-container" catchtap="_onAvatarTap">
+      <view class="avatar-container" catchtap="onAvatarTap">
         <icon 
           wx:if="{{post.avatar}}"
           useImage="{{true}}"
@@ -23,7 +23,7 @@
         </icon>
       </view>
       <view class="post-info">
-        <view class="author-name" catchtap="_onAuthorTap">{{post.user.nickname || post.nickname || '未知用户'}}</view>
+        <view class="author-name" catchtap="onAuthorTap">{{post.user.nickname || post.nickname || '未知用户'}}</view>
         <view wx:if="{{post.user.bio || post.bio}}" class="author-bio">{{post.user.bio || post.bio}}</view>
       </view> 
     </view>
@@ -32,7 +32,7 @@
         <button 
           class="follow-button button {{post.is_following ? 'followed' : ''}}"
           hover-class="button-hover"
-          catchtap="_onFollowTap">
+          catchtap="onFollowTap">
           {{post.is_following ? '已关注' : '关注'}}
         </button>
       </view>
@@ -84,7 +84,7 @@
     <view wx:for="{{post.tags}}" wx:key="*this"
           class="tag-item"
           data-tag="{{item}}" 
-          catchtap="_onTagTap">
+          catchtap="onTagTap">
       #{{item}}
     </view>
   </view>
@@ -97,7 +97,7 @@
       <button class="action-button {{post.is_liked ? 'action-button-active' : ''}}" 
               hover-class="button-hover" 
               size="mini" 
-              catchtap="_onLikeTap">
+              catchtap="onLikeTap">
         <image class="action-icon" src="/icons/{{post.is_liked ? 'liked' : 'like'}}.png" mode="aspectFit"></image>
         <text class="action-count" wx:if="{{post.like_count > 0}}">{{post.like_count}}</text>
       </button>
@@ -106,7 +106,7 @@
       <button class="action-button" 
               hover-class="button-hover" 
               size="mini" 
-              catchtap="_onCommentTap">
+              catchtap="onCommentTap">
         <image class="action-icon" src="/icons/{{!post.comment_count ? 'comment' : 'comment-active'}}.png" mode="aspectFit"></image>
         <text class="action-count" wx:if="{{post.comment_count > 0}}">{{post.comment_count}}</text>
       </button>
@@ -115,7 +115,7 @@
       <button class="action-button {{post.is_favorited ? 'action-button-active' : ''}}"
               hover-class="button-hover" 
               size="mini" 
-              catchtap="_onFavoriteTap">
+              catchtap="onFavoriteTap">
         <image class="action-icon" src="/icons/{{post.is_favorited ? 'favorited' : 'favorite'}}.png" mode="aspectFit"></image>
         <text class="action-count" wx:if="{{post.favorite_count > 0}}">{{post.favorite_count}}</text>
       </button>
@@ -125,7 +125,7 @@
               hover-class="button-hover" 
               size="mini" 
               open-type="share" 
-              catchtap="_onShareTap">
+              catchtap="onShareTap">
         <image class="action-icon" src="/icons/wechat.png" mode="aspectFit"></image>
         <text class="action-count" wx:if="{{post.share_count > 0}}">{{post.share_count}}</text>
       </button>
