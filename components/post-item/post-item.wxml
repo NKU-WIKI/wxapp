@@ -36,6 +36,16 @@
           {{post.is_following ? '已关注' : '关注'}}
         </button>
       </view>
+      <!-- 添加删除按钮 -->
+      <view wx:if="{{post.openid === currentUserOpenid}}" class="delete-container">
+        <icon 
+          name="clear"
+          size="40"
+          color="#ff4d4f"
+          class="delete-icon"
+          catchtap="onDeleteTap">
+        </icon>
+      </view>
     </view>
   </view>
 

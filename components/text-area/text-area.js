@@ -450,7 +450,7 @@ Component({
     },
     
     // 删除图片
-    deleteImage(e) {
+    async deleteImage(e) {
       const { id } = e.currentTarget.dataset;
       if (!id) return;
       
@@ -459,15 +459,14 @@ Component({
       if (!imageToDelete) return;
       
       // 确认删除
-      wx.showModal({
+      const confirmed = await this.showModal({
         title: '删除图片',
-        content: `确定要删除图片${imageToDelete.index}吗？`,
-        success: (res) => {
-          if (res.confirm) {
-            this._removeImage(id);
-          }
-        }
+        content: `确定要删除图片${imageToDelete.index}吗？`
       });
+      
+      if (confirmed) {
+        this._removeImage(id);
+      }
     },
     
     // 预览图片

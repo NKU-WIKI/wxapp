@@ -518,16 +518,15 @@ Page({
   },
   
   // 确认删除
-  confirmDelete() {
-    wx.showModal({
+  async confirmDelete() {
+    const confirmed = await this.showModal({
       title: '确认删除',
-      content: '删除后无法恢复，确定要删除吗？',
-      success: (res) => {
-        if (res.confirm) {
-          this.deleteKnowledge();
-        }
-      }
+      content: '删除后无法恢复，确定要删除吗？'
     });
+    
+    if (confirmed) {
+      this.deleteKnowledge();
+    }
   },
   
   // 删除知识

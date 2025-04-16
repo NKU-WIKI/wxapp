@@ -42,6 +42,7 @@ Page({
     // 防抖控制
     lastActionTime: 0,
     isNavigating: false,
+    skipNextRefresh: false,
   },
 
   async onLoad() {
@@ -77,6 +78,12 @@ Page({
   
   async onShow() {
     try {
+      // 如果设置了skipNextRefresh标记，则跳过本次刷新
+      if (this.data.skipNextRefresh) {
+        this.setData({ skipNextRefresh: false });
+        return;
+      }
+
       // 不管时间间隔，始终刷新帖子状态，确保从任何页面返回时数据一致
       console.log('刷新帖子');
       const postList = this.selectComponent('#postList');

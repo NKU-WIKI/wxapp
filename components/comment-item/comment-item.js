@@ -355,15 +355,15 @@ Component({
       const commentId = this.data.formattedComment?.id;
       if (!commentId || this.data.isProcessing) return;
       
-      // 显示确认对话框
-      const { confirm } = await wx.showModal({
+      // 使用baseBehavior提供的showModal方法代替wx.showModal
+      const confirmed = await this.showModal({
         title: '提示',
         content: '确定要删除这条评论吗？',
         confirmText: '删除',
         confirmColor: '#ff6b6b'
       });
       
-      if (!confirm) return;
+      if (!confirmed) return;
       
       this.setData({ isProcessing: true });
       
@@ -375,19 +375,13 @@ Component({
         if (res && res.code === 200) {
           // 触发删除成功事件
           this.triggerEvent('delete', { id: commentId, success: true, deleted: true });
-          wx.showToast({
-            title: '删除成功',
-            icon: 'success'
-          });
+          this.showToast('删除成功', 'success');
         } else {
           throw new Error(res?.message || '删除失败');
         }
       } catch (err) {
         console.debug('删除评论失败:', err);
-        wx.showToast({
-          title: '删除失败',
-          icon: 'error'
-        });
+        this.showToast('删除失败', 'error');
         // 触发删除失败事件
         this.triggerEvent('delete', { id: commentId, success: false });
       } finally {
@@ -544,15 +538,15 @@ Component({
       const { id } = e.currentTarget.dataset;
       if (!id) return;
       
-      // 显示确认对话框
-      const { confirm } = await wx.showModal({
+      // 使用baseBehavior提供的showModal方法代替wx.showModal
+      const confirmed = await this.showModal({
         title: '提示',
         content: '确定要删除这条回复吗？',
         confirmText: '删除',
         confirmColor: '#ff6b6b'
       });
       
-      if (!confirm) return;
+      if (!confirmed) return;
       
       this.setData({ isProcessing: true });
       
@@ -569,19 +563,13 @@ Component({
             deleted: true
           });
           
-          wx.showToast({
-            title: '删除成功',
-            icon: 'success'
-          });
+          this.showToast('删除成功', 'success');
         } else {
           throw new Error(res?.message || '删除失败');
         }
       } catch (err) {
         console.debug('删除回复失败:', err);
-        wx.showToast({
-          title: '删除失败',
-          icon: 'error'
-        });
+        this.showToast('删除失败', 'error');
         // 触发删除失败事件
         this.triggerEvent('deleteReply', { 
           commentId: this.data.formattedComment?.id,

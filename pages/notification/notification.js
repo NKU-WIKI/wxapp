@@ -270,30 +270,29 @@ Page({
   async onNotificationDelete(e) {
     const { id } = e.currentTarget.dataset;
 
-    wx.showModal({
+    const confirmed = await this.showModal({
       title: '确认删除',
-      content: '确定要删除这条通知吗？',
-      success: async (res) => {
-        if (!res.confirm) return;
-        
-        this.showLoading('删除中...');
-        
-        try {
-          // 使用behavior删除通知
-          if (await this._deleteNotification(id)) {
-            // 更新本地列表
-            const notifications = this.data.notifications.filter(n => n.id !== id);
-            this.setData({ notifications });
-            this.showToast('删除成功', 'success');
-          } else {
-            throw new Error('删除失败');
-          }
-        } catch (err) {
-          this.handleError(err, '删除失败');
-        } finally {
-          this.hideLoading();
-        }
-      }
+      content: '确定要删除这条通知吗？'
     });
+    
+    if (!confirmed) return;
+    
+    this.showLoading('删除中...');
+    
+    try {
+      // 使用behavior删除通知
+      if (await this._deleteNotification(id)) {
+        // 更新本地列表
+        const notifications = this.data.notifications.filter(n => n.id !== id);
+        this.setData({ notifications });
+        this.showToast('删除成功', 'success');
+      } else {
+        throw new Error('删除失败');
+      }
+    } catch (err) {
+      this.handleError(err, '删除失败');
+    } finally {
+      this.hideLoading();
+    }
   }
 });

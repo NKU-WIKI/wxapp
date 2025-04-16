@@ -230,7 +230,7 @@ Component({
         }
         return Promise.resolve();
       } catch (err) {
-        // 只有在非平滑加载时才隐藏loading状态并显示错误
+        // 只有在非平滑加载时才隐藏loading状态并显示错误 
         if (!smoothLoading) {
           this.setData({
             loading: false,
@@ -312,6 +312,17 @@ Component({
           empty: !posts || posts.length === 0
         });
       }
+    },
+    
+    // 处理帖子删除
+    handlePostDelete(e) {
+      const { postId } = e.detail;
+      // 从列表中移除被删除的帖子
+      const posts = this.properties.post || [];
+      const newPosts = posts.filter(post => post.id !== postId);
+      this.setData({ post: newPosts });
+      // 更新空状态
+      this.updateEmptyState(newPosts);
     },
     
     // 加载更多

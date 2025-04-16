@@ -440,5 +440,51 @@ Component({
     catchBubble() {
       // 不执行任何操作，仅用于阻止事件冒泡
     },
+    
+    // 删除帖子
+    async onDeleteTap() {
+      if (this.properties.isProcessing) return;
+      
+      const postId = this.properties.post?.id;
+      if (!postId) return;
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        this.showToast('请先登录', 'error');
+        return;
+      }
+      
+      // 使用baseBehavior提供的showModal方法代替wx.showModal
+      const confirmed = await this.showModal({
+        title: '确认删除',
+        content: '确定要删除这条帖子吗？',
+      });
+      
+      if (!confirmed) return;
+      
+      try {
+        this.setData({ isProcessing: true });
+        const deleteRes = await this._deletePost(postId);
+        
+        if (deleteRes && deleteRes.code === 200) {
+          this.showToast('删除成功', 'success');
+          
+          // 触发删除成功事件，让父组件处理删除后的UI更新
+          this.triggerEvent('delete', { postId });
+          
+          // 如果在详情页，返回上一页
+          if (this.properties.detailPage) {
+            setTimeout(() => {
+              wx.navigateBack();
+            }, 1500);
+          }
+        }
+      } catch (err) {
+        console.debug('删除帖子失败:', err);
+        this.showToast('删除失败', 'error');
+      } finally {
+        this.setData({ isProcessing: false });
+      }
+    },
   }
 }); 
