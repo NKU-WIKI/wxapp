@@ -266,7 +266,7 @@ API接口的参数类型规范如下：
     "favorite_count": 5,
     "post_count": 8,
     "follower_count": 20,
-    "follow_count": 15,
+    "following_count": 15,
     "create_time": "2023-01-01 12:00:00",
     "update_time": "2023-01-01 12:00:00",
     "last_login": "2023-01-01 12:00:00",
@@ -307,7 +307,7 @@ API接口的参数类型规范如下：
     "favorite_count": 0,
     "post_count": 0,
     "follower_count": 0,
-    "follow_count": 0,
+    "following_count": 0,
     "create_time": "2023-01-01 12:00:00",
     "update_time": "2023-01-01 12:00:00",
     "last_login": "2023-01-01 12:00:00",
@@ -356,7 +356,7 @@ API接口的参数类型规范如下：
     "favorite_count": 0,
     "post_count": 0,
     "follower_count": 0,
-    "follow_count": 0,
+    "following_count": 0,
     "create_time": "2023-01-01 12:00:00",
     "update_time": "2023-01-01 12:00:00",
     "last_login": "2023-01-01 12:00:00",
@@ -425,7 +425,7 @@ API接口的参数类型规范如下：
       "bio": "个人简介",
       "post_count": 5,
       "follower_count": 10,
-      "follow_count": 20,
+      "following_count": 20,
       "follow_time": "2023-01-01 12:00:00"
     }
   ],
@@ -456,7 +456,7 @@ API接口的参数类型规范如下：
       "bio": "个人简介",
       "post_count": 8,
       "follower_count": 15,
-      "follow_count": 5,
+      "following_count": 5,
       "follow_time": "2023-01-01 12:00:00"
     }
   ],
@@ -532,7 +532,7 @@ API接口的参数类型规范如下：
     "favorite_count": 5,
     "post_count": 8,
     "follower_count": 20,
-    "follow_count": 15,
+    "following_count": 15,
     "create_time": "2023-01-01 12:00:00",
     "update_time": "2023-01-02 14:30:00",
     "last_login": "2023-01-01 12:00:00",
@@ -1586,12 +1586,13 @@ GET /api/agent/search?query=南开&openid=test&page=2&page_size=20
 ### 6.3 小程序搜索
 
 **接口**：`GET /api/knowledge/search-wxapp`  
-**描述**：专为小程序优化的搜索接口  
+**描述**：专为小程序优化的搜索接口，支持帖子和用户的综合搜索  
 **参数**：
 - `query` - 查询参数，搜索关键词（必填）
-- `openid` - 查询参数，用户openid（必填）
+- `search_type` - 查询参数，搜索类型：all(全部)、post(帖子)、user(用户)，默认all
 - `page` - 查询参数，页码，默认1
-- `page_size` - 查询参数，每页条数，默认10
+- `page_size` - 查询参数，每页记录数量，默认10
+- `sort_by` - 查询参数，排序方式：time(时间)、relevance(相关度)，默认time
 
 **响应**：
 
@@ -1599,30 +1600,103 @@ GET /api/agent/search?query=南开&openid=test&page=2&page_size=20
 {
   "code": 200,
   "message": "success",
-  "data": {
-    "results": [
-      {
-        "id": 1,
-        "title": "帖子标题",
-        "content": "帖子内容摘要...",
-        "author": "用户昵称",
-        "create_time": "2023-01-01 12:00:00",
-        "like_count": 5,
-        "comment_count": 2,
-        "view_count": 100,
-        "image": ["图片URL"]
+  "data": [
+    {
+      // 帖子类型结果
+      "id": 1,
+      "title": "帖子标题",
+      "content": "帖子内容",
+      "type": "post",
+      "like_count": 10,
+      "comment_count": 5,
+      "view_count": 100,
+      "update_time": "2023-01-01 12:00:00",
+      "openid": "发布者openid",
+      "relevance": 0.85,
+      "user": {
+        "openid": "作者openid",
+        "nickname": "作者昵称",
+        "avatar": "作者头像URL",
+        "bio": "作者简介"
       }
-    ],
-    "pagination": {
-      "total": 50,
-      "page": 1,
-      "page_size": 10,
-      "total_pages": 5
+    },
+    {
+      // 用户类型结果
+      "id": 2,
+      "openid": "用户openid",
+      "nickname": "用户昵称",
+      "avatar": "用户头像URL",
+      "bio": "用户简介",
+      "type": "user",
+      "relevance": 0.75
     }
+  ],
+  "pagination": {
+    "total": 100,
+    "page": 1,
+    "page_size": 10,
+    "total_pages": 10,
+    "has_more": true
   },
-  "details": null,
-  "timestamp": "2023-01-01 12:00:00"
+  "details": {
+    "query": "搜索关键词",
+    "search_type": "all",
+    "sort_by": "time"
+  }
 }
+```
+
+**响应字段说明**：
+
+1. 帖子类型结果字段：
+- `id` - 帖子ID
+- `title` - 帖子标题
+- `content` - 帖子内容
+- `type` - 结果类型，固定为"post"
+- `like_count` - 点赞数
+- `comment_count` - 评论数
+- `view_count` - 浏览数
+- `update_time` - 更新时间
+- `openid` - 发布者openid
+- `relevance` - 相关度分数（当sort_by=relevance时）
+- `user` - 作者信息对象
+
+2. 用户类型结果字段：
+- `id` - 用户ID
+- `openid` - 用户openid
+- `nickname` - 用户昵称
+- `avatar` - 用户头像URL
+- `bio` - 用户简介
+- `type` - 结果类型，固定为"user"
+- `relevance` - 相关度分数（当sort_by=relevance时）
+
+**排序说明**：
+- `time`：按更新时间降序排序
+- `relevance`：按相关度分数降序排序，相关度基于以下因素计算：
+  - 标题/昵称匹配度
+  - 内容/简介匹配度
+  - 更新时间权重（仅对帖子有效）
+
+**示例**：
+
+1. 搜索所有内容：
+```
+GET /api/knowledge/search-wxapp?query=南开大学&search_type=all
+```
+
+2. 仅搜索帖子：
+```
+GET /api/knowledge/search-wxapp?query=南开大学&search_type=post
+```
+
+3. 仅搜索用户：
+```
+GET /api/knowledge/search-wxapp?query=南开大学&search_type=user
+```
+
+4. 按相关度排序：
+```
+GET /api/knowledge/search-wxapp?query=南开大学&sort_by=relevance
 ```
 
 ### 6.4 搜索历史

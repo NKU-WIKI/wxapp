@@ -5,7 +5,9 @@
   empty="{{users.length === 0 && !loading && !error}}"
   emptyText="{{emptyText}}"
   hasMore="{{hasMore}}"
+  loadMoreText="{{loadMoreText}}"
   noMoreText="{{noMoreText}}"
+  showNoMore="{{true}}"
   bindretry="handleRetry"
   bindloadmore="loadMore"
 >
@@ -20,11 +22,5 @@
         />
       </view>
     </block>
-  </view>
-  
-  <!-- 加载更多状态 -->
-  <view wx:if="{{loadingMore && users.length > 0}}" class="loading-more">
-    <view class="loading-icon"></view>
-    <text>{{loadingText || '加载中...'}}</text>
   </view>
 </cell-status> 

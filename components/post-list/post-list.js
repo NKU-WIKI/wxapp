@@ -11,13 +11,20 @@ Component({
       value: {
         category_id: 0 // 默认不筛选分类
       }
+    },
+    // 帖子列表
+    post: {
+      type: Array,
+      value: []
+    },
+    // 是否自动加载数据
+    auto_load: {
+      type: Boolean,
+      value: true
     }
   },
 
   data: {
-    // 帖子列表
-    post: [],
-    
     // 基础状态
     loading: false,
     error: false,
@@ -56,12 +63,20 @@ Component({
         _lastStatusUpdateTime: 0
       });
       
+      // 如果设置了auto_load=false并且有传入帖子数据，则不加载
+      if (!this.properties.auto_load && this.properties.post && this.properties.post.length > 0) {
+        // 只更新帖子状态
+        this.updatePostsStatus(this.properties.post);
+        this.updateEmptyState(this.properties.post);
+        return;
+      }
+      
       // 组件attached后异步加载数据
       setTimeout(() => {
         this.loadInitialData().then(() => {
           // 再次确保帖子状态已更新
-          if (this.data.post && this.data.post.length > 0) {
-            this.updatePostsStatus(this.data.post);
+          if (this.properties.post && this.properties.post.length > 0) {
+            this.updatePostsStatus(this.properties.post);
           }
         });
       }, 100);
@@ -73,8 +88,8 @@ Component({
 
   observers: {
     'filter': function(filter) {
-      // 当filter变化时刷新列表
-      if (!filter) return;
+      // 当filter变化时，如果auto_load=false则不刷新列表
+      if (!filter || !this.properties.auto_load) return;
       
       // 添加淡出效果
       const postListView = this.selectComponent('.post-list');
@@ -109,6 +124,14 @@ Component({
           }, 100);
         }
       });
+    },
+    'post': function(posts) {
+      // 当post属性变化时更新空状态
+      this.updateEmptyState(posts);
+      // 更新帖子状态
+      if (posts && posts.length > 0) {
+        this.updatePostsStatus(posts);
+      }
     }
   },
 
@@ -125,6 +148,11 @@ Component({
     
     // 加载初始数据
     async loadInitialData(force = false, smoothLoading = false) {
+      // 如果设置了auto_load=false并且不是强制刷新，则跳过加载
+      if (!this.properties.auto_load && !force) {
+        return Promise.resolve();
+      }
+      
       if (force) {
         this.setData({
           _lastUpdateTime: 0 // 重置最后更新时间
@@ -241,7 +269,10 @@ Component({
         const statusMap = statusRes.data;
         const updates = {};
 
-        this.data.post.forEach((post, index) => {
+        // 获取当前的post数组
+        const currentPosts = this.properties.post;
+        
+        currentPosts.forEach((post, index) => {
           const status = statusMap[post.id];
           if (!status) return;
 
@@ -302,7 +333,7 @@ Component({
           
           if (newPosts.length > 0) {
             // 合并数据
-            const currentPosts = this.data.post || [];
+            const currentPosts = this.properties.post || [];
             const updatedPosts = [...currentPosts, ...newPosts];
             
             // 更新状态

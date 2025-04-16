@@ -258,6 +258,20 @@ Component({
       
       let content = this.properties.value;
       
+      // 处理连续空行
+      content = content
+        .split('\n')
+        .reduce((acc, line, index, arr) => {
+          // 如果当前行不为空，或者前后行不为空，则保留该行
+          if (line.trim() !== '' || 
+              (index > 0 && arr[index-1].trim() !== '') || 
+              (index < arr.length-1 && arr[index+1].trim() !== '')) {
+            acc.push(line);
+          }
+          return acc;
+        }, [])
+        .join('\n');
+      
       // 隐藏加载状态，直接指定rendering为false
       this.setData({
         rendering: false

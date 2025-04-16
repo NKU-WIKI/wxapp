@@ -2,7 +2,8 @@
 .text-area-container {
   position: relative;
   width: 100%;
-  margin-bottom: 0;
+  margin-bottom: 0rpx;
+  margin-top:0rpx;
   background: #fff;
 }
 
@@ -57,44 +58,52 @@
 .text-preview {
   width: 100%;
   box-sizing: border-box;
-  padding: 20rpx;
-  background-color: #f8f8f8;
-  border-radius: 8rpx;
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  line-height: 1.6;
 }
 
 /* 只读模式的预览区样式 */
 .markdown-preview.read-only {
   padding: 0;
+  margin: 0;
 }
 
 .markdown-content {
   width: 100%;
+  margin: 0;
 }
 
 .markdown-content .h1 {
   font-size: 36rpx;
   font-weight: bold;
-  margin: 30rpx 0 20rpx;
+  margin: 16rpx 0 12rpx;
   color: #333;
+  line-height: 1.4;
 }
 
 .markdown-content .h2 {
   font-size: 32rpx;
   font-weight: bold;
-  margin: 26rpx 0 18rpx;
+  margin: 14rpx 0 10rpx;
   color: #333;
+  line-height: 1.4;
 }
 
 .markdown-content .h3 {
   font-size: 30rpx;
   font-weight: bold;
-  margin: 22rpx 0 16rpx;
+  margin: 12rpx 0 8rpx;
   color: #333;
+  line-height: 1.4;
 }
 
 .markdown-content .p {
-  margin: 16rpx 0;
+  margin: 0rpx 0rpx 4rpx 4rpx;
   line-height: 1.6;
+  font-size: 28rpx;
+  color: #333;
 }
 
 .markdown-content .a {
@@ -104,7 +113,7 @@
 
 .markdown-content .markdown-image {
   max-width: 100%;
-  margin: 10rpx 0;
+  margin: 8rpx 0;
 }
 
 .markdown-content .code {
@@ -121,7 +130,7 @@
   padding: 20rpx;
   border-radius: 8rpx;
   overflow-x: auto;
-  margin: 20rpx 0;
+  margin: 16rpx 0;
 }
 
 .markdown-content .pre-block .code-block {
@@ -132,6 +141,7 @@
 
 .text-preview.read-only {
   padding: 0;
+  margin: 0;
 }
 
 .empty-preview {
@@ -141,8 +151,8 @@
   justify-content: center;
   color: #999;
   font-size: 28rpx;
-  background: #f8f8f8;
-  border-radius: 8rpx;
+  background: transparent;
+  border-radius: 0;
   min-height: 60rpx;
   padding: 10rpx 0;
 }

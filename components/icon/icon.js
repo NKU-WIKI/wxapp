@@ -141,7 +141,7 @@ Component({
       'group': '/icons/group.png',
       'voice': '/icons/voice.png',
       'code': '/icons/code.png',
-      
+      'question': '/icons/about.png',
       // 社交平台图标
       'wechat': '/icons/wechat.png',
       'douyin': '/icons/douyin.png',
@@ -154,7 +154,8 @@ Component({
       // 头像
       'avatar1': '/icons/avatar1.png',
       'avatar2': '/icons/avatar2.png',
-      'logo': '/icons/logo.png'
+      'logo': '/icons/logo.png',
+      'wiki': '/icons/wiki.png'
     }
   },
 

@@ -1,11 +1,15 @@
 <!-- 简化的搜索页面 -->
 <view class="container">
 	<!-- 导航栏和搜索框 -->
-	<nav-bar title="探索" showBack="{{true}}" />
+	<nav-bar title="探索" 
+	showBack="{{false}}" 
+	showAvatar="{{true}}" 
+	showNotification="{{true}}" 
+	/>
 	
 	<search-bar
 		value="{{searchValue}}"
-		placeholder="搜索校园知识"
+		placeholder="探索校园知识"
 		focus="{{false}}"
 		show-action="{{false}}"
 		bindinput="onSearchInput"
@@ -17,6 +21,41 @@
 
 	<!-- 热门搜索和历史 -->
 	<block wx:if="{{!isSearching && !searchValue}}">
+		<!-- 搜索前缀说明 -->
+		<view class="search-prefix-guide">
+			<view class="section-title">搜索技巧</view>
+			<view class="prefix-list">
+				<view class="prefix-item" bindtap="onPrefixTap" data-prefix="@wiki">
+					<view class="prefix-icon"><icon name="robot" size="40" /></view>
+					<view class="prefix-content">
+						<view class="prefix-name">@wiki</view>
+						<view class="prefix-desc">智能问答，可提问任何南开相关问题</view>
+					</view>
+				</view>
+				<view class="prefix-item" bindtap="onPrefixTap" data-prefix="@user">
+					<view class="prefix-icon"><icon name="profile" size="40" /></view>
+					<view class="prefix-content">
+						<view class="prefix-name">@user</view>
+						<view class="prefix-desc">查找用户，查看和关注感兴趣的人</view>
+					</view>
+				</view>
+				<view class="prefix-item" bindtap="onPrefixTap" data-prefix="@post">
+					<view class="prefix-icon"><icon name="book" size="40" /></view>
+					<view class="prefix-content">
+						<view class="prefix-name">@post</view>
+						<view class="prefix-desc">查找帖子，发现校园热点内容</view>
+					</view>
+				</view>
+				<view class="prefix-item" bindtap="onPrefixTap" data-prefix="@knowledge">
+					<view class="prefix-icon"><icon name="life" size="40" /></view>
+					<view class="prefix-content">
+						<view class="prefix-name">@knowledge</view>
+						<view class="prefix-desc">搜索知识库，获取校园资讯与知识</view>
+					</view>
+				</view>
+			</view>
+		</view>
+
 		<!-- 热门搜索 -->
 		<view class="hot-searches" wx:if="{{hotSearches.length > 0}}">
 			<view class="section-title">热门搜索</view>
@@ -54,67 +93,141 @@
 	</block>
 
 	<!-- 加载中 -->
-	<view class="loading" wx:if="{{isSearching}}">
+	<view class="loading" wx:if="{{isSearching && !hasSearched && !showRagResults}}">
 		<view class="loading-icon"></view>
 		<text>搜索中...</text>
 	</view>
 
 	<!-- 搜索结果 -->
-	<view class="search-content" wx:if="{{!isSearching && (searchResults.length > 0 || showRagResults)}}">
-		<!-- RAG查询回答 -->
-		<block wx:if="{{showRagResults}}">
-			<text-area 
-				value="{{ragResults}}" 
-				readOnly="{{true}}" 
-				markdownMode="{{true}}"
-				height="{{500}}"
-				showToolbar="{{false}}"
-			></text-area>
-		</block>
+	<view class="search-results" wx:if="{{hasSearched && !showRagResults}}">
+		<!-- 帖子列表 -->
+		<post-list 
+			wx:if="{{currentSearchType === 'post'}}"
+			post="{{searchResults}}"
+			auto_load="{{false}}"
+			loading="{{loading}}"
+			has-more="{{pagination.has_more}}"
+			bind:loadmore="loadMore"
+			emptyText="没有找到相关帖子，试试其他关键词吧"
+		/>
 		
-		<!-- 统一的来源列表 -->
-		<view wx:if="{{(showRagResults && ragSources && ragSources.length > 0) || (!showRagResults && searchResults.length > 0)}}">
-			<view class="section-title">信息来源({{pagination.total || searchResults.length}})</view>
-			<source-list 
-				sources="{{showRagResults ? ragSources : searchResults}}" 
-				show-rank="{{true}}"
-			/>
-		</view>
+		<!-- 用户列表 -->
+		<user-list 
+			wx:elif="{{currentSearchType === 'user'}}"
+			user="{{searchResults}}"
+			auto_load="{{false}}"
+			loading="{{loading}}"
+			has-more="{{pagination.has_more}}"
+			bind:loadmore="loadMore"
+			loadMoreText="点击加载更多"
+			noMoreText="已经到底了"
+			emptyText="没有找到相关用户，试试其他关键词吧"
+		/>
 		
-		<!-- 建议问题 -->
-		<view class="suggest-questions" wx:if="{{ragSuggestions && ragSuggestions.length > 0}}">
-			<view class="section-title">你可能还想了解</view>
-			<view class="question-list">
-				<view 
-					class="question-item" 
-					wx:for="{{ragSuggestions}}" 
-					wx:key="index"
-					bindtap="onRagSuggestionTap"
-					data-question="{{item}}"
-				>
-					<icon name="question" size="28" />
-					<text>{{item}}</text>
+		<!-- 其他类型的搜索结果（知识库等） -->
+		<view wx:else>
+			<!-- 统一的来源列表 -->
+			<view wx:if="{{(showRagResults && ragSources && ragSources.length > 0) || (!showRagResults && searchResults.length > 0)}}">
+				<view class="section-title">信息来源({{pagination.total || searchResults.length || ragSources.length}})</view>
+				<source-list 
+					sources="{{showRagResults ? ragSources : searchResults}}" 
+					show-rank="{{true}}"
+				/>
+			</view>
+			
+			<!-- 建议问题 -->
+			<view class="suggest-questions" wx:if="{{ragSuggestions && ragSuggestions.length > 0}}">
+				<view class="section-title">你可能还想了解</view>
+				<view class="question-list">
+					<view 
+						class="question-item" 
+						wx:for="{{ragSuggestions}}" 
+						wx:key="index"
+						bindtap="handleRecommendedQuestion"
+						data-question="{{item}}"
+					>
+						<icon name="question" size="32" color="#6369e8" />
+						<text>{{item}}</text>
+					</view>
+				</view>
+			</view>
+			
+			<!-- 加载更多提示 -->
+			<view class="loading-more" wx:if="{{loading}}">加载中...</view>
+			<view class="no-more" wx:elif="{{!pagination.has_more && searchResults.length > 0}}">没有更多了</view>
+			<view class="empty" wx:elif="{{searchResults.length === 0}}">
+				<view class="empty-search">
+					<icon name="empty" size="64" color="#cccccc" />
+					<text class="empty-text">暂无搜索结果</text>
+					
+					<view class="empty-tips">
+						<view class="tips-title">搜索小技巧：</view>
+						<view class="tips-item">• 使用<text class="prefix">@wiki</text>进行智能问答，例如"@wiki 南开大学校训"</view>
+						<view class="tips-item">• 使用<text class="prefix">@user</text>搜索用户，例如"@user 张三"</view>
+						<view class="tips-item">• 使用<text class="prefix">@post</text>搜索帖子，例如"@post 校园活动"</view>
+						<view class="tips-item">• 使用<text class="prefix">@knowledge</text>搜索知识库，例如"@knowledge 选课指南"</view>
+					</view>
 				</view>
 			</view>
 		</view>
-		
-		<!-- 分页控制 -->
-		<view class="pagination" wx:if="{{!showRagResults && searchResults.length > 0}}">
-			<view class="load-more" wx:if="{{pagination.has_more}}" bindtap="loadMore">加载更多</view>
-			<view class="no-more" wx:else>没有更多结果了</view>
+	</view>
+
+	<!-- RAG结果区域 -->
+	<view class="rag-results" wx:elif="{{showRagResults}}">
+		<view class="rag-answer-container">
+			<view class="rag-header">
+				<view class="rag-avatar">
+					<icon name="wiki" size="64" />
+				</view>
+				<text class="rag-nickname">南开小知</text>
+			</view>
+			<view class="rag-content">
+				<text-area 
+					value="{{ragResults}}" 
+					readOnly="{{true}}" 
+					markdownMode="{{true}}"
+					height="{{600}}"
+					showToolbar="{{false}}"
+				></text-area>
+			</view>
+			
+			<!-- 信息来源 -->
+			<view wx:if="{{ragSources && ragSources.length > 0}}">
+				<view class="section-title">信息来源({{ragSources.length}})</view>
+				<source-list 
+					sources="{{ragSources}}" 
+					show-rank="{{true}}"
+				/>
+			</view>
+			
+			<!-- 你可能还想了解 -->
+			<view class="suggest-questions" wx:if="{{ragSuggestions && ragSuggestions.length > 0}}">
+				<view class="section-title">你可能还想了解</view>
+				<view class="question-list">
+					<view 
+						class="question-item" 
+						wx:for="{{ragSuggestions}}" 
+						wx:key="index"
+						bindtap="handleRecommendedQuestion"
+						data-question="{{item}}"
+					>
+						<icon name="question" size="32" color="#6369e8" />
+						<text>{{item}}</text>
+					</view>
+				</view>
+			</view>
 		</view>
 	</view>
 
-	<!-- 无结果状态 -->
-	<!-- 已执行搜索但没有结果 -->
-	<view class="no-result" wx:if="{{!isSearching && searchValue && !searchResults.length && !showRagResults && hasSearched}}">
-		<icon name="empty" size="64" />
-		<text>暂无搜索结果</text>
-	</view>
-	
 	<!-- 输入了关键词但尚未搜索 -->
 	<view class="search-tips" wx:if="{{!isSearching && searchValue && !hasSearched && !showRagResults}}">
 		<icon name="search" size="64" color="#cccccc" />
 		<text>输入关键词后，按回车键开始搜索</text>
+		<view class="search-tips-prefixes">
+			<text>输入<text class="prefix">@wiki</text>进行智能问答</text>
+			<text>输入<text class="prefix">@user</text>搜索用户</text>
+			<text>输入<text class="prefix">@post</text>搜索帖子</text>
+			<text>输入<text class="prefix">@knowledge</text>搜索知识库</text>
+		</view>
 	</view>
 </view>

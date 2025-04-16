@@ -11,11 +11,21 @@ Component({
       value: {
         type: 'all' // 默认所有用户
       }
+    },
+    // 用户列表
+    user: {
+      type: Array,
+      value: []
+    },
+    // 是否自动加载数据
+    auto_load: {
+      type: Boolean,
+      value: true
     }
   },
 
   data: {
-    // 用户列表
+    // 用户列表 (内部使用，与属性同步)
     users: [],
     
     // 基础状态
@@ -53,6 +63,16 @@ Component({
         _lastUpdateTime: 0
       });
       
+      // 如果设置了auto_load=false并且有传入用户数据，则不加载
+      if (!this.properties.auto_load && this.properties.user && this.properties.user.length > 0) {
+        // 同步外部传入的用户数据到内部
+        this.setData({
+          users: this.properties.user,
+          empty: this.properties.user.length === 0
+        });
+        return;
+      }
+      
       // 组件attached后异步加载数据
       setTimeout(() => {
         this.loadInitialData();
@@ -66,8 +86,8 @@ Component({
 
   observers: {
     'filter': function(filter) {
-      // 当filter变化时刷新列表
-      if (!filter) return;
+      // 当filter变化时，如果auto_load=false则不刷新列表
+      if (!filter || !this.properties.auto_load) return;
       
       // 添加淡出效果
       this.setData({
@@ -83,6 +103,15 @@ Component({
           });
         }, 100);
       });
+    },
+    'user': function(users) {
+      // 当user属性变化时同步到内部users
+      if (users) {
+        this.setData({
+          users: users,
+          empty: users.length === 0
+        });
+      }
     }
   },
 
@@ -99,6 +128,11 @@ Component({
     
     // 加载初始数据
     async loadInitialData(force = false, smoothLoading = false) {
+      // 如果设置了auto_load=false并且不是强制刷新，则跳过加载
+      if (!this.properties.auto_load && !force) {
+        return Promise.resolve();
+      }
+      
       if (force) {
         this.setData({
           _lastUpdateTime: 0 // 重置最后更新时间
@@ -178,8 +212,22 @@ Component({
       if (!this.data.hasMore || this.data.loadingMore) return;
       
       try {
+        // 设置加载状态
         this.setData({ loadingMore: true });
-        this.showLoadingMore();
+        
+        // 触发外部loadmore事件，让父组件知道我们正在加载更多
+        this.triggerEvent('loadmore');
+        
+        // 如果是外部传入数据模式，则不需要自己加载，等待父组件更新
+        if (!this.properties.auto_load) {
+          // 等待父组件处理，5秒后如果还没处理完就自动隐藏loading
+          setTimeout(() => {
+            if (this.data.loadingMore) {
+              this.setData({ loadingMore: false });
+            }
+          }, 5000);
+          return;
+        }
         
         // 调用API获取更多用户
         const nextPage = this.data.page + 1;
@@ -209,8 +257,8 @@ Component({
           icon: 'none'
         });
       } finally {
+        // 确保无论如何都会隐藏加载状态
         this.setData({ loadingMore: false });
-        this.hideLoadingMore();
       }
     },
     

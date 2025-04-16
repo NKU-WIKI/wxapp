@@ -13,7 +13,7 @@ const knowledgeApi = createApiClient('/api/knowledge', {
   searchWxapp: { 
     method: 'GET', 
     path: '/search-wxapp', 
-    params: { query: true, openid: true }
+    params: { query: true}
   },
   suggestion: { 
     method: 'GET', 
@@ -516,6 +516,94 @@ module.exports = Behavior({
       } catch (err) {
         console.error('删除知识失败:', err);
         throw err;
+      }
+    },
+
+    /**
+     * 搜索帖子
+     * @param {string} query 搜索关键词
+     * @param {number} page 页码，默认1
+     * @param {number} page_size 每页记录数，默认10
+     * @param {string} sort_by 排序方式：time-时间，relevance-相关度，默认relevance
+     * @returns {Promise<object>} 搜索结果，包含帖子列表和分页信息
+     */
+    async _searchPost(query, page = 1, page_size = 10, sort_by = 'relevance') {
+      if (!query || !query.trim()) {
+        return null;
+      }
+
+      try {
+        const params = {
+          query: query.trim(),
+          search_type: 'post',
+          page,
+          page_size,
+          sort_by
+        };
+        
+        const res = await knowledgeApi.searchWxapp(params);
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '搜索帖子失败');
+        }
+        
+        return {
+          data: res.data || [],
+          pagination: res.pagination || {
+            total: 0,
+            page,
+            page_size,
+            total_pages: 0,
+            has_more: false
+          }
+        };
+      } catch (err) {
+        console.debug('搜索帖子失败:', err);
+        return null;
+      }
+    },
+
+    /**
+     * 搜索用户
+     * @param {string} query 搜索关键词
+     * @param {number} page 页码，默认1
+     * @param {number} page_size 每页记录数，默认10
+     * @param {string} sort_by 排序方式：time-时间，relevance-相关度，默认relevance
+     * @returns {Promise<object>} 搜索结果，包含用户列表和分页信息
+     */
+    async _searchUser(query, page = 1, page_size = 10, sort_by = 'relevance') {
+      if (!query || !query.trim()) {
+        return null;
+      }
+
+      try {
+        const params = {
+          query: query.trim(),
+          search_type: 'user',
+          page,
+          page_size,
+          sort_by
+        };
+        
+        const res = await knowledgeApi.searchWxapp(params);
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '搜索用户失败');
+        }
+        
+        return {
+          data: res.data || [],
+          pagination: res.pagination || {
+            total: 0,
+            page,
+            page_size,
+            total_pages: 0,
+            has_more: false
+          }
+        };
+      } catch (err) {
+        console.debug('搜索用户失败:', err);
+        return null;
       }
     }
   }
