@@ -153,4 +153,8 @@
   font-size: 28rpx;
   color: #999;
   margin-top: 20rpx;
-} 
+}
+
+.scroll-page-position{
+  height: 5rpx;
+}
