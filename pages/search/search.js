@@ -14,6 +14,7 @@ Page({
     isSearching: false,
     hasSearched: false, // 标记是否已执行过搜索
     currentSearchType: '', // 添加当前搜索类型标记
+    focus: false, // 添加搜索框焦点状态
     // RAG相关数据
     showRagResults: false,
     ragQuery: '',
@@ -63,7 +64,20 @@ Page({
   
   // 搜索方法
   search(e) {
-    const keyword = e.detail.value || this.data.searchValue;
+    // 支持两种方式调用：1. 通过输入框的confirm事件 2. 通过按钮点击
+    let keyword = '';
+    
+    if (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.value) {
+      // 按钮点击方式
+      keyword = e.currentTarget.dataset.value;
+    } else if (e.detail && e.detail.value) {
+      // 输入框confirm方式
+      keyword = e.detail.value;
+    } else {
+      // 默认使用当前searchValue
+      keyword = this.data.searchValue;
+    }
+    
     if (!keyword || !keyword.trim()) return;
     
     // 检查是否只有前缀没有内容
@@ -210,7 +224,7 @@ Page({
           .split('\n')
           .filter(line => line.trim() !== '') // 移除空行
           .join('\n')
-          .replace(/:/g, ''); // 移除所有冒号
+          .replace(/[:：]/g, ''); // 移除所有中英文冒号
         
         // 处理来源
         if (data.sources && Array.isArray(data.sources)) {
@@ -469,18 +483,30 @@ Page({
     const prefix = e.currentTarget.dataset.prefix;
     if (!prefix) return;
     
-    // 设置搜索前缀，但不立即搜索
-    this.setData({
-      searchValue: prefix + ' '
-    });
-    
-    // 聚焦搜索框，微信小程序不支持直接设置focus，可以考虑用wx.createSelectorQuery
-    // 或者让用户自己点击搜索框，这里只是预填充前缀
-    wx.showToast({
-      title: '请输入搜索内容',
-      icon: 'none',
-      duration: 1500
-    });
+    // 设置搜索前缀，但不直接触发搜索
+    // 从searchOptions中找到匹配的选项
+    // const option = this.data.searchOptions.find(opt => opt.value === prefix);
+    // console.debug('option:', option);
+    // if (option) {
+    //   // 触发select事件，让search-bar组件处理前缀高亮
+    //   const detail = {
+    //     detail: {
+    //       option: option,
+    //       value: prefix + ' '
+    //     }
+    //   };
+    //   this.onSearchSelect(detail);
+      
+      // 设置焦点，方便用户输入
+      // this.setData({ focus: true });
+      
+      // 提示用户输入搜索内容
+    //   wx.showToast({
+    //     title: '请输入搜索内容',
+    //     icon: 'none',
+    //     duration: 1500
+    //   });
+    // }
   },
   
   // 清空搜索
@@ -492,7 +518,8 @@ Page({
       showRagResults: false,
       ragResults: null,
       hasSearched: false, // 重置搜索状态
-      'pagination.page': 1
+      'pagination.page': 1,
+      focus: false // 重置focus状态
     });
   },
 
@@ -620,11 +647,22 @@ Page({
     // 使用@wiki前缀
     const searchValue = '@wiki ' + question;
     
-    this.setData({
-      searchValue: searchValue
-    });
-    
-    this.search({ detail: { value: searchValue } });
+    // 检查是否与当前搜索值相同
+    if (searchValue === this.data.searchValue) {
+      // 如果相同，先清空，再在下一个时间片重新设置，确保界面刷新
+      this.setData({ searchValue: '' }, () => {
+        setTimeout(() => {
+          this.setData({ searchValue: searchValue }, () => {
+            this.search({ detail: { value: searchValue } });
+          });
+        }, 50);
+      });
+    } else {
+      // 不同时直接设置
+      this.setData({ searchValue: searchValue }, () => {
+        this.search({ detail: { value: searchValue } });
+      });
+    }
   },
 
 });

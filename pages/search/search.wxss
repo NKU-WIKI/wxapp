@@ -508,3 +508,33 @@ page {
   font-size: 28rpx;
   color: #999;
 }
+
+/* 搜索按钮 */
+.search-button {
+  margin-top: 32rpx;
+  width: 80%;
+  height: 80rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f5ff;
+  color: #3366cc;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid #e8e8e8;
+}
+
+.search-button icon {
+  margin-right: 12rpx;
+}
+
+.search-button text {
+  color: #3366cc;
+}
+
+.search-button:active {
+  opacity: 0.8;
+}

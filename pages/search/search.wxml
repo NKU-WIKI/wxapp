@@ -9,8 +9,8 @@
 	
 	<search-bar
 		value="{{searchValue}}"
-		placeholder="探索校园知识"
-		focus="{{false}}"
+		placeholder="@wiki探索校园知识"
+		focus="{{focus}}"
 		show-action="{{false}}"
 		bindinput="onSearchInput"
 		bindclear="clearSearch"
@@ -238,6 +238,12 @@
 			<text>输入<text class="prefix">@user</text>搜索用户</text>
 			<text>输入<text class="prefix">@post</text>搜索帖子</text>
 			<text>输入<text class="prefix">@knowledge</text>搜索知识库</text>
+		</view>
+		
+		<!-- 添加搜索按钮提示 -->
+		<view class="search-button" bindtap="search" data-value="{{searchValue}}">
+			<icon name="search" size="32" color="#3366cc" />
+			<text>输入内容后点击搜索</text>
 		</view>
 	</view>
 </view>

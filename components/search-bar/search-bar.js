@@ -61,6 +61,14 @@ Component({
           selectorOptions: options
         });
       }
+    },
+    'value': function(value) {
+      // 当外部value属性变化时，更新inputValue
+      if (value !== this.data.inputValue) {
+        this.setData({
+          inputValue: value
+        });
+      }
     }
   },
 

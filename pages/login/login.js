@@ -30,7 +30,7 @@ Page({
               url: '/pages/index/index'
             });
           }
-          //这里不直接进index页面单纯是为了让新用户点一下登录按钮qwq
+          // 这里不直接进index页面单纯是为了让新用户点一下登录按钮qwq
         }
       } catch (err) {
         console.warn('登录状态同步失败，需要用户手动登录', err);
