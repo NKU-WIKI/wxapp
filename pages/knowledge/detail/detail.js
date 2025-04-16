@@ -63,6 +63,10 @@ Page({
           // 查找id匹配的项目
           knowledgeData = parsedData.find(item => item.id == id);
         }
+        // 直接使用对象，检查id是否匹配
+        else if (parsedData.id && parsedData.id == id) {
+          knowledgeData = parsedData;
+        }
         // 直接使用对象
         else {
           knowledgeData = parsedData;
@@ -254,40 +258,46 @@ Page({
     this.setData({ isLoading: true, loadError: '' });
     
     try {
-      // 检查是否已经有数据，避免调用API
+      // 如果已有数据，无需再次加载
       if (this.data.knowledgeDetail && this.data.knowledgeDetail.data) {
-        // 已有数据，直接处理并返回
         this.processKnowledgeData();
         this.setData({ isLoading: false });
         return;
       }
       
-      // 这里暂时不调用API，设置一个空的知识详情
-      this.setData({
-        knowledgeDetail: {
-          data: {
-            id: id,
-            title: '知识详情',
-            content: '内容暂不加载，请刷新或返回重试',
-            platform: 'website',
-            view_count: 0,
-            like_count: 0,
-            comment_count: 0,
-            collect_count: 0
-          }
-        },
-        isLoading: false,
-        loadError: ''
-      });
+      // 调用API获取知识详情
+      const result = await this._getKnowledgeDetail(id);
       
-      // 不调用增加浏览量的API
-      // this.increaseViewCount();
-    } catch (err) {
-      console.error('加载知识详情失败:', err);
-      this.setData({ 
-        loadError: '加载失败，请重试',
-        isLoading: false 
-      });
+      if (result && result.data) {
+        this.setData({ 
+          knowledgeDetail: result,
+          isLoading: false 
+        });
+        
+        // 处理relevance的格式
+        this.processKnowledgeData();
+        
+        // 增加浏览次数
+        this.increaseViewCount();
+      } else {
+        throw new Error('获取知识详情失败');
+      }
+    } catch (error) {
+      console.error('加载知识详情失败:', error);
+      
+      // 检查是否有已存在的部分数据
+      const { knowledgeDetail } = this.data;
+      if (knowledgeDetail && knowledgeDetail.data) {
+        // 如果有部分数据，仍然显示，只是提示加载完整数据失败
+        this.showToptips('加载完整数据失败，显示部分内容');
+        this.setData({ isLoading: false });
+      } else {
+        // 如果完全没有数据，则显示错误状态
+        this.setData({
+          loadError: '加载知识详情失败: ' + (error.message || '未知错误'),
+          isLoading: false
+        });
+      }
     }
   },
   

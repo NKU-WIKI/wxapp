@@ -297,7 +297,13 @@ Component({
             let dataToPass = null;
             // 如果当前页面是搜索页面，使用原始的搜索结果
             if (currentPage && currentPage.route && currentPage.route.includes('search')) {
-              dataToPass = { data: currentPage.data.searchResults };
+              if (currentPage.data.showRagResults && currentPage.data.ragSources) {
+                // 如果是RAG搜索结果，直接传递当前项目
+                dataToPass = item;
+              } else {
+                // 否则使用普通搜索结果
+                dataToPass = { data: currentPage.data.searchResults };
+              }
             } else {
               dataToPass = item;
             }

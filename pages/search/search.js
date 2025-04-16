@@ -224,10 +224,14 @@ Page({
             // 处理相关度
             let relevance = source.relevance
             
+            // 确保有ID字段，这对于导航到知识详情页面是必须的
+            const sourceId = source.id || source.knowledge_id || source.article_id || `source_${index + 1}`;
+            
             // 处理一些可能缺失的字段
             return {
               ...source,
-              id: source.id || (index + 1).toString(), // 确保有id
+              id: sourceId, // 确保有id
+              knowledge_id: sourceId, // 添加knowledge_id以兼容知识详情页面
               index: index + 1, // 添加序号，从1开始
               title: source.title || '',
               content: source.content || '',
@@ -239,7 +243,9 @@ Page({
               update_time: source.update_time || createTime,
               publish_time: source.create_time || createTime,
               relevance: relevance,
-              is_official: source.is_official !== undefined ? source.is_official : false
+              is_official: source.is_official !== undefined ? source.is_official : false,
+              // 添加类型标记，帮助source-list组件判断跳转目标
+              type: 'knowledge' 
             };
           });
         }

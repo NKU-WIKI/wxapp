@@ -115,6 +115,9 @@ Component({
   methods: {
     // 加载评论
     loadComments() {
+      if(this.data.resourceType=='knowledge'){
+        return;
+      }
       console.debug('加载评论');
       const resourceId = this.data.resourceId;
       const resourceType = this.data.resourceType;
