@@ -182,13 +182,23 @@
 				<text class="rag-nickname">南开小知</text>
 			</view>
 			<view class="rag-content">
-				<text-area 
-					value="{{ragResults}}" 
-					readOnly="{{true}}" 
-					markdownMode="{{true}}"
-					height="{{600}}"
-					showToolbar="{{false}}"
-				></text-area>
+				<!-- 判断是否在加载中 -->
+				<block wx:if="{{isSearching}}">
+					<view class="rag-loading">
+						<view class="rag-loading-text">
+							{{ragResults}}<text class="rag-loading-dots"></text>
+						</view>
+					</view>
+				</block>
+				<block wx:else>
+					<text-area 
+						value="{{ragResults}}" 
+						readOnly="{{true}}" 
+						markdownMode="{{true}}"
+						height="{{600}}"
+						showToolbar="{{false}}"
+					></text-area>
+				</block>
 			</view>
 			
 			<!-- 信息来源 -->

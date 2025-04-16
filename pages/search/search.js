@@ -159,13 +159,26 @@ Page({
       isSearching: true,
       showRagResults: true,
       suggestions: [],
-      ragResults: '正在查询中...',
+      ragResults: '正在查询改写',
       ragSources: [],
       ragSuggestions: []
     });
     
     try {
       console.debug('发送RAG查询:', queryText);
+      
+      // 添加分阶段的提示动画
+      setTimeout(() => {
+        if (this.data.isSearching) {
+          this.setData({ ragResults: '正在检索知识库' });
+        }
+      }, 1000);
+      
+      setTimeout(() => {
+        if (this.data.isSearching) {
+          this.setData({ ragResults: '正在思考中' });
+        }
+      }, 3000);
       
       // 调用RAG接口
       const resultData = await this._sendRagQuery(
@@ -192,11 +205,12 @@ Page({
         response = data.response || '';
         console.debug('提取的回答内容:', response);
         
-        // 处理回答内容，去除多余空行
+        // 处理回答内容，去除多余空行和所有冒号
         response = response
           .split('\n')
           .filter(line => line.trim() !== '') // 移除空行
-          .join('\n');
+          .join('\n')
+          .replace(/:/g, ''); // 移除所有冒号
         
         // 处理来源
         if (data.sources && Array.isArray(data.sources)) {

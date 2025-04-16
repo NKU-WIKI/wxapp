@@ -4,6 +4,7 @@
   "backgroundTextStyle": "dark",
   "backgroundColor": "#f7f9fc",
   "usingComponents": {
-    "nav-bar": "/components/nav-bar/nav-bar"
+    "nav-bar": "/components/nav-bar/nav-bar",
+    "icon": "/components/icon/icon"
   }
 }
