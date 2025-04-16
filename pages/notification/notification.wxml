@@ -5,6 +5,8 @@
   showAvatar="{{true}}"
 />
 
+<view class="scroll-page-position"></view>
+
 <!-- 标签栏 -->
 <tab-bar 
   tabs="{{[tabs[0].title, tabs[1].title]}}" 
