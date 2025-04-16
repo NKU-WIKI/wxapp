@@ -3,7 +3,7 @@
 <mp-toptips msg="{{toptipsMsg}}" type="{{toptipsType}}" show="{{toptipsShow}}"></mp-toptips>
 <nav-bar 
   showBack="{{true}}"
-  showProfile="{{false}}"
+  showAvatar="{{false}}"
   showNotification="{{false}}"
   title="编辑资料"
 ></nav-bar>

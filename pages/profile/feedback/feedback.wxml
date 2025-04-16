@@ -7,6 +7,7 @@
   <nav-bar 
     title="意见反馈"
     showBack="{{true}}"
+    showAvatar="{{false}}"
   ></nav-bar>
 
   <!-- 页面标题 -->

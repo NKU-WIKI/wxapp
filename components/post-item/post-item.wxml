@@ -121,7 +121,7 @@
       </button>
       
       <!-- 分享按钮 -->
-      <button class="action-button share-button" 
+      <button class="action-button" 
               hover-class="button-hover" 
               size="mini" 
               open-type="share" 

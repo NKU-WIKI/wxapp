@@ -5,6 +5,7 @@
     "pages/notification/notification",
     "pages/post/post",
     "pages/post/detail/detail",
+    "pages/knowledge/detail/detail",
     "pages/search/search",
     "pages/discover/discover",
     "pages/profile/profile",

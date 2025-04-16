@@ -3,6 +3,7 @@
   <nav-bar 
     title="{{title}}" 
     showBack="{{true}}"
+    showAvatar="{{false}}"
   ></nav-bar>
 
   <!-- 内容区域 -->

@@ -1,8 +1,8 @@
 <!-- 导航栏 -->
 <nav-bar
   title="消息通知"
-  show-back="{{true}}"
-  fixed="{{true}}"
+  showBack="{{true}}"
+  showAvatar="{{true}}"
 />
 
 <!-- 标签栏 -->

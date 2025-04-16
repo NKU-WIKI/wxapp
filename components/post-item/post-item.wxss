@@ -290,23 +290,6 @@
   margin-left: 2rpx;
 }
 
-.share-button {
-  background: none;
-  border: none;
-  padding: 0 2rpx;
-  margin: 0 0 0 4rpx;
-  display: flex;
-  align-items: center;
-  line-height: normal;
-  font-size: unset;
-  box-sizing: border-box;
-  min-height: 0;
-}
-
-.share-button::after {
-  border: none;
-}
-
 /* 标签样式 */
 .tag-list {
   display: flex;

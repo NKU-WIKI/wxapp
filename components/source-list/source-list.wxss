@@ -120,7 +120,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 160rpx;
+  max-width: 120rpx;
 }
 
 .official-tag {
@@ -206,22 +206,17 @@
   justify-content: flex-end;
 }
 
-.relevance {
-  font-size: 22rpx;
-  color: #999;
-  margin-top: 4rpx;
-}
-
-.platform {
+.stat-item {
+  margin-left: 12rpx;
   display: flex;
   align-items: center;
-  margin-right: 20rpx;
 }
 
-.platform text {
-  margin-left: 6rpx;
+.stat-item text {
+  margin-left: 4rpx;
 }
 
+/* 为兼容旧版本保留 */
 .views {
   margin-right: 12rpx;
   display: flex;
@@ -273,4 +268,20 @@
   flex-shrink: 0;
   max-width: 40%;
   overflow: hidden;
+}
+
+.relevance {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.platform {
+  display: flex;
+  align-items: center;
+  margin-right: 20rpx;
+}
+
+.platform text {
+  margin-left: 6rpx;
 } 

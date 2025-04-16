@@ -50,6 +50,11 @@ Component({
     emptyTip: {
       type: String,
       value: '暂无数据'
+    },
+    // 是否将导航逻辑委托给父组件
+    delegateNavigation: {
+      type: Boolean,
+      value: false
     }
   },
 
@@ -84,24 +89,54 @@ Component({
         // 处理相关度
         const relevanceDisplay = this.formatRelevance(item.relevance);
         
-        // 处理阅读数
-        const views = this.formatNumber(item.views || item.read_count);
+        // 统计信息处理 - 使用统一的字段命名格式
+        const stats = {
+          view_count: this.formatNumber(item.view_count || item.views || item.read_count),
+          like_count: this.formatNumber(item.like_count || item.likes),
+          comment_count: this.formatNumber(item.comment_count),
+          collect_count: this.formatNumber(item.collect_count || item.favorite_count),
+          share_count: this.formatNumber(item.share_count),
+          follower_count: this.formatNumber(item.follower_count),
+          following_count: this.formatNumber(item.following_count),
+        };
         
-        // 处理点赞数
-        const likes = this.formatNumber(item.likes || item.like_count);
+        // 处理摘要，避免与标题重复
+        let summary = '';
+        if (item.summary) {
+          if (item.summary === item.title) {
+            summary = '';  // 如果摘要与标题相同，清空摘要
+          } else if (item.summary.startsWith(item.title)) {
+            // 如果摘要以标题开头，只显示标题后的部分
+            summary = item.summary.substring(item.title.length).trim();
+          } else {
+            summary = item.summary;
+          }
+        } else if (item.content) {
+          if (item.content === item.title) {
+            summary = '';  // 如果内容与标题相同，清空摘要
+          } else if (item.content.startsWith(item.title)) {
+            // 如果内容以标题开头，只显示标题后的部分
+            summary = this.truncateText(item.content.substring(item.title.length).trim(), 100);
+          } else {
+            summary = this.truncateText(item.content, 100);
+          }
+        }
         
         return {
           ...item,
           title: item.title || '无标题',
-          summary: item.summary || (item.content ? this.truncateText(item.content, 100) : ''),
+          summary: summary,
           author: item.author || '',
           displayTime: displayTime,
           relevanceDisplay: relevanceDisplay,
           platformIcon: platformInfo.icon,
           platformName: platformInfo.name,
           is_official: !!item.is_official,
-          views: views,
-          likes: likes
+          // 保持向后兼容的同时添加新字段
+          views: stats.view_count,
+          likes: stats.like_count,
+          // 添加统一格式的字段
+          stats: stats
         };
       });
       
@@ -156,19 +191,16 @@ Component({
       
       if (platform.includes('wechat') || platform.includes('weixin') || platform === 'wechat' || platform === 'weixin') {
         icon = 'wechat';
-        name = '微信';
+        name = '公众号';
       } else if (platform.includes('wxapp') || platform.includes('miniprogram') || platform === 'wxapp' || platform === 'miniprogram') {
-        icon = 'wechat';
-        name = '小程序';
+        icon = 'logo';
+        name = 'nkuwiki';
       } else if (platform.includes('web') || platform.includes('website') || platform === 'web' || platform === 'website') {
         icon = 'website';
-        name = '网页';
+        name = '网站';
       } else if (platform.includes('douyin') || platform === 'douyin') {
         icon = 'douyin';
         name = '抖音';
-      } else if (platform.includes('app') || platform === 'app') {
-        icon = 'app';
-        name = '应用';
       } else if (platform.includes('blog') || platform === 'blog') {
         icon = 'blog';
         name = '博客';
@@ -187,6 +219,9 @@ Component({
       const index = e.currentTarget.dataset.index;
       const item = this.data.processedSources[index];
       
+      // 执行跳转处理
+      this.handleItemNavigation(item);
+      
       this.triggerEvent('itemtap', {
         item: item,
         index: index
@@ -197,6 +232,9 @@ Component({
     onTitleTap(e) {
       const index = e.currentTarget.dataset.index;
       const item = this.data.processedSources[index];
+      
+      // 执行跳转处理
+      this.handleItemNavigation(item);
       
       this.triggerEvent('titletap', {
         item: item,
@@ -217,6 +255,75 @@ Component({
       });
       
       return false; // 阻止冒泡
+    },
+    
+    // 处理项目跳转逻辑
+    handleItemNavigation(item) {
+      if (!item) return;
+      
+      // 判断是否为帖子类型
+      const isPost = 
+        // 判断是否有category_id字段，这是帖子的特有字段
+        (item.category_id !== undefined) || 
+        // 或者平台为wxapp且有id字段
+        (item.platform === 'wxapp' && item.id) ||
+        // 检查类型字段
+        (item.type === 'post');
+      
+      console.debug('判断项目类型', item, isPost ? '帖子' : '外部链接');
+      
+      if (isPost) {
+        // 帖子类型跳转到详情页
+        wx.navigateTo({
+          url: `/pages/post/detail/detail?id=${item.id}`
+        });
+      } else if (item.original_url) {
+        // 检查是否是nkuwiki.com域名
+        const isNkuwikiDomain = item.original_url.includes('nkuwiki.com');
+        
+        if (isNkuwikiDomain) {
+          // nkuwiki.com域名下的网站用webview打开
+          wx.navigateTo({
+            url: `/pages/webview/webview?url=${encodeURIComponent(item.original_url)}&title=${encodeURIComponent(item.title || '')}`
+          });
+        } else {
+          // 其他网站跳转到knowledge/detail页面
+          if (item.id) {
+            // 先获取父组件的数据
+            const pages = getCurrentPages();
+            const currentPage = pages[pages.length - 1];
+            
+            // 准备要传递的数据
+            let dataToPass = null;
+            // 如果当前页面是搜索页面，使用原始的搜索结果
+            if (currentPage && currentPage.route && currentPage.route.includes('search')) {
+              dataToPass = { data: currentPage.data.searchResults };
+            } else {
+              dataToPass = item;
+            }
+            
+            // 将数据编码为URL参数
+            const encodedData = encodeURIComponent(JSON.stringify(dataToPass));
+            
+            wx.navigateTo({
+              url: `/pages/knowledge/detail/detail?id=${item.id}&data=${encodedData}`
+            });
+          } else {
+            console.debug('无法跳转到知识详情页，ID缺失:', item);
+            wx.showToast({
+              title: '无法打开此内容',
+              icon: 'none'
+            });
+          }
+        }
+      } else {
+        // 无法确定跳转方式的情况，记录日志
+        console.debug('无法确定项目跳转方式:', item);
+        wx.showToast({
+          title: '无法打开此内容',
+          icon: 'none'
+        });
+      }
     },
     
     // 格式化相关度

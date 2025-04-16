@@ -1,0 +1,1 @@
+相关度: {{knowledgeDetail.data.relevance > 1 ? knowledgeDetail.data.relevance + "%

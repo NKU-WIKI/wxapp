@@ -285,67 +285,16 @@ Page({
       console.debug('搜索结果数据:', JSON.stringify(result));
       
       if (result && result.data) {
-        // 处理搜索结果，确保每个结果项都有必要的字段
-        const processedResults = result.data.map(item => {
-          // 确保有作者信息
-          if (!item.author && item.source_name) {
-            item.author = item.source_name;
-          }
-          
-          // 确保有时间信息
-          if (!item.create_time && item.update_time) {
-            item.create_time = item.update_time;
-          }
-          
-          // 确保有发布时间
-          if (!item.publish_time && item.create_time) {
-            item.publish_time = item.create_time;
-          }
-          
-          // 处理相关度字段 - 确保它是一个0-1之间的数值
-          if (typeof item.relevance === 'string') {
-            // 如果是百分比格式的字符串 (例如 "90%")
-            if (item.relevance.endsWith('%')) {
-              item.relevance = parseFloat(item.relevance) / 100;
-            } else {
-              // 尝试直接解析为数字
-              item.relevance = parseFloat(item.relevance);
-            }
-          }
-          // 确保相关度值在0-1之间
-          if (typeof item.relevance === 'number' && item.relevance > 1) {
-            item.relevance = item.relevance / 100;
-          }
-          
-          // 确保有平台信息
-          if (!item.platform) {
-            // 根据来源或URL猜测平台
-            if (item.source_name && item.source_name.includes('公众号')) {
-              item.platform = 'wechat';
-            } else if (item.original_url && item.original_url.includes('mp.weixin.qq.com')) {
-              item.platform = 'wechat';
-            } else if (item.type === 'post') {
-              item.platform = 'wxapp'; // 帖子类型应该是小程序平台
-            } else {
-              item.platform = 'website'; // 默认为网站
-            }
-          }
-          
-          // 如果是帖子搜索，确保平台标记为小程序
-          if (type === 'post' && item.platform !== 'wxapp') {
-            item.platform = 'wxapp';
-          }
-          
-          return item;
-        });
-        
-        // 如果是第一页，直接替换结果，否则追加
-        const newResults = this.data.pagination.page === 1 
-          ? processedResults 
-          : [...this.data.searchResults, ...processedResults];
+        // 直接使用API返回的原始数据，不做处理
+        const searchResults = result.data;
         
         // 更新分页信息
         const pagination = result.pagination || {};
+        
+        // 如果是第一页，直接替换结果，否则追加
+        const newResults = this.data.pagination.page === 1 
+          ? searchResults 
+          : [...this.data.searchResults, ...searchResults];
         
         this.setData({
           searchResults: newResults,
@@ -570,27 +519,6 @@ Page({
     });
   },
   
-  // 点击搜索结果
-  onResultTap(e) {
-    const { item } = e.detail;
-    console.debug('点击搜索结果:', item);
-    
-    // 根据不同平台类型处理跳转
-    if (item.platform === 'wxapp') {
-      // 内部帖子跳转
-      wx.navigateTo({
-        url: `/pages/post/detail/detail?id=${item.id}`
-      });
-    } else if (item.platform === 'wechat' || item.platform === 'website') {
-      // 外部链接，使用webview打开
-      wx.navigateTo({
-        url: `/pages/webview/webview?url=${encodeURIComponent(item.original_url)}&title=${encodeURIComponent(item.title)}`
-      });
-    } else {
-      console.debug('未知平台类型:', item.platform);
-    }
-  },
-  
   // 点击RAG建议问题
   onRagSuggestionTap(e) {
     const { question } = e.currentTarget.dataset;
@@ -605,25 +533,5 @@ Page({
     
     this.search({ detail: { value: searchValue } });
   },
-  
-  // 点击RAG知识源
-  onRagSourceTap(e) {
-    const { item } = e.detail;
-    console.debug('点击RAG知识源:', item);
-    
-    // 根据不同平台类型处理跳转
-    if (item.platform === 'wxapp') {
-      // 内部帖子跳转
-      wx.navigateTo({
-        url: `/pages/post/detail/detail?id=${item.id}`
-      });
-    } else if (item.platform === 'wechat' || item.platform === 'website') {
-      // 外部链接，使用webview打开
-      wx.navigateTo({
-        url: `/pages/webview/webview?url=${encodeURIComponent(item.original_url)}&title=${encodeURIComponent(item.title)}`
-      });
-    } else {
-      console.debug('未知平台类型:', item.platform);
-    }
-  }
+
 });

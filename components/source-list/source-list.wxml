@@ -45,12 +45,41 @@
           <!-- 右侧信息：统计 -->
           <view class="right-info">
             <!-- 统计信息 -->
-            <view class="stats" wx:if="{{item.views || item.likes}}">
-              <view class="views" wx:if="{{item.views}}">
-                <icon name="eye" size="28" /> {{item.views}}
+            <view class="stats" wx:if="{{showStats}}">
+              <!-- 阅读数 -->
+              <view class="stat-item" wx:if="{{item.stats.view_count}}">
+                <icon name="eye" size="28" /> 
+                <text>{{item.stats.view_count}}</text>
               </view>
-              <view class="likes" wx:if="{{item.likes}}">
-                <icon name="like" size="28" /> {{item.likes}}
+              
+              <!-- 点赞数 -->
+              <view class="stat-item" wx:if="{{item.stats.like_count}}">
+                <icon name="like" size="28" /> 
+                <text>{{item.stats.like_count}}</text>
+              </view>
+              
+              <!-- 评论数 -->
+              <view class="stat-item" wx:if="{{item.stats.comment_count}}">
+                <icon name="comment" size="28" /> 
+                <text>{{item.stats.comment_count}}</text>
+              </view>
+              
+              <!-- 收藏数 -->
+              <view class="stat-item" wx:if="{{item.stats.collect_count}}">
+                <icon name="favorite" size="28" /> 
+                <text>{{item.stats.collect_count}}</text>
+              </view>
+              
+              <!-- 分享数 -->
+              <view class="stat-item" wx:if="{{item.stats.share_count}}">
+                <icon name="share" size="28" /> 
+                <text>{{item.stats.share_count}}</text>
+              </view>
+              
+              <!-- 粉丝数 -->
+              <view class="stat-item" wx:if="{{item.stats.follower_count}}">
+                <icon name="profile" size="28" /> 
+                <text>{{item.stats.follower_count}}</text>
               </view>
             </view>
           </view>

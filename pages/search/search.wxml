@@ -15,20 +15,6 @@
 		options="{{searchOptions}}"
 	/>
 
-	<!-- 搜索建议
-	<view class="search-suggestions" wx:if="{{suggestions.length > 0 && searchValue && !isSearching}}">
-		<view 
-			class="suggestion-item" 
-			wx:for="{{suggestions}}" 
-			wx:key="index"
-			bindtap="onSuggestionTap"
-			data-keyword="{{item}}"
-		>
-			<icon name="search" size="32" />
-			<text>{{item}}</text>
-		</view>
-	</view>
-	 -->
 	<!-- 热门搜索和历史 -->
 	<block wx:if="{{!isSearching && !searchValue}}">
 		<!-- 热门搜索 -->
@@ -86,17 +72,11 @@
 			></text-area>
 		</block>
 		
-		<!-- 结果摘要 -->
-		<view class="result-summary" wx:if="{{!showRagResults}}">
-			找到 {{pagination.total || searchResults.length}} 条结果
-		</view>
-		
 		<!-- 统一的来源列表 -->
 		<view wx:if="{{(showRagResults && ragSources && ragSources.length > 0) || (!showRagResults && searchResults.length > 0)}}">
-			<view class="section-title">信息来源</view>
+			<view class="section-title">信息来源({{pagination.total || searchResults.length}})</view>
 			<source-list 
 				sources="{{showRagResults ? ragSources : searchResults}}" 
-				binditemtap="{{showRagResults ? 'onRagSourceTap' : 'onResultTap'}}"
 				show-rank="{{true}}"
 			/>
 		</view>

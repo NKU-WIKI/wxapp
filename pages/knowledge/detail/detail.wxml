@@ -1,0 +1,123 @@
+<!-- 知识详情页 -->
+<nav-bar 
+  title="知识详情"
+  showBack="{{true}}"
+  showAvatar="{{false}}"
+/>
+
+<view class="knowledge-container">
+  <!-- 知识内容和评论的包装器 -->
+  <view class="knowledge-content-wrapper">
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{isLoading}}">
+      <view class="loading-spinner"></view>
+      <view class="loading-text">加载中...</view>
+    </view>
+
+    <!-- 错误状态 -->
+    <view class="error-state" wx:elif="{{loadError}}">
+      <view class="error-icon">
+        <icon name="error" size="60"></icon>
+      </view>
+      <view class="error-text">{{loadError || '加载失败'}}</view>
+      <view class="retry-btn" bindtap="loadKnowledgeDetail">重试</view>
+    </view>
+
+    <!-- 加载完成后显示知识详情和评论 -->
+    <block wx:elif="{{knowledgeDetail && knowledgeDetail.data}}">
+      <!-- 知识详情 -->
+      <view class="knowledge-detail">
+        <!-- 标题 -->
+        <view class="knowledge-title">{{knowledgeDetail.data.title || '无标题'}}</view>
+        
+        <!-- 来源信息 -->
+        <view class="knowledge-source">
+          <view class="source-info">
+            <view class="platform-info">
+              <view class="platform-icon-wrapper">
+                <icon name="{{knowledgeDetail.data.platform === 'wechat' ? 'wechat' : (knowledgeDetail.data.platform === 'wxapp' ? 'logo' : 'website')}}" size="32" />
+                <text class="platform-name">
+                  {{knowledgeDetail.data.platform === 'wechat' ? '公众号' : (knowledgeDetail.data.platform === 'wxapp' ? 'nkuwiki' : (knowledgeDetail.data.platform === 'website' ? '网站' : '未知来源'))}}
+                </text>
+                <view class="official-tag" wx:if="{{knowledgeDetail.data.is_official}}">官方</view>
+              </view>
+              <text class="author" wx:if="{{knowledgeDetail.data.author}}">{{knowledgeDetail.data.author}}</text>
+            </view>
+          </view>
+          
+          <!-- 原始链接 -->
+          <view class="original-link-container">
+            <view class="original-link-btn" wx:if="{{knowledgeDetail.data.original_url}}" bindtap="openInBrowser">
+              <icon name="website" size="28" />
+              <text>查看原文</text>
+            </view>
+            <text class="publish-time">{{knowledgeDetail.data.publish_time || knowledgeDetail.data.create_time || ''}}</text>
+          </view>
+        </view>
+        
+        <!-- 内容 -->
+        <view class="knowledge-content">
+          <view class="content-label">摘要</view>
+          <text selectable="{{true}}">{{knowledgeDetail.data.content || '暂无内容'}}</text>
+        </view>
+        
+        <!-- 统计信息和操作按钮 -->
+        <view class="knowledge-footer">
+          <view class="stats-action-row">
+            <!-- 相关度 -->
+            <view class="relevance" wx:if="{{knowledgeDetail.data.relevance}}">
+              相关度: {{knowledgeDetail.data.relevance}}%
+            </view>
+            
+            <!-- 操作按钮 -->
+            <view class="footer-actions">
+              <view class="action-item">
+                <icon name="eye" size="28" />
+                <text>{{knowledgeDetail.data.view_count || 0}}</text>
+              </view>
+              <view class="action-item">
+                <icon name="comment" size="28" />
+                <text>{{knowledgeDetail.data.comment_count || 0}}</text>
+              </view>
+              <view class="action-item {{knowledgeDetail.data.is_liked ? 'active' : ''}}" bindtap="toggleLike">
+                <icon name="{{knowledgeDetail.data.is_liked ? 'like-active' : 'like'}}" size="28" />
+                <text>{{knowledgeDetail.data.like_count || 0}}</text>
+              </view>
+              <view class="action-item {{knowledgeDetail.data.is_collected ? 'active' : ''}}" bindtap="toggleCollect">
+                <icon name="{{knowledgeDetail.data.is_collected ? 'favorite-active' : 'favorite'}}" size="28" />
+                <text>{{knowledgeDetail.data.collect_count || 0}}</text>
+              </view>
+              <view class="action-item" bindtap="showActionSheet">
+                <icon name="share" size="28" />
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 分隔线 -->
+      <view class="divider-line"></view>
+
+      <!-- 评论区域 -->
+      <comment-list 
+        id="commentList"
+        class="comment-list-container"
+        resourceId="{{id}}"
+        resourceType="knowledge"
+        style="margin-top:0;padding-top:16rpx;">
+      </comment-list>
+    </block>
+  </view>
+</view>
+
+<!-- WEUI组件 -->
+<mp-toptips msg="{{toptips.msg}}" type="{{toptips.type}}" show="{{toptips.show}}"></mp-toptips>
+<mp-dialog title="{{dialog.title}}" show="{{dialog.show}}" buttons="{{dialog.buttons}}"></mp-dialog>
+
+<!-- 操作菜单 -->
+<mp-actionSheet 
+  bindactiontap="handleActionSheetSelect" 
+  show="{{actionSheet.show}}" 
+  actions="{{actionSheet.itemList}}" 
+  bindclose="closeActionSheet">
+</mp-actionSheet> 
