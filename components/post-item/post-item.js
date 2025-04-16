@@ -241,7 +241,7 @@ Component({
     // 点击作者名称
     onAuthorTap() {
       // 复用头像点击方法
-      this._onAvatarTap();
+      this.onAvatarTap();
     },
     
     // 点击帖子
@@ -454,37 +454,37 @@ Component({
         return;
       }
       
-      // 使用baseBehavior提供的showModal方法代替wx.showModal
-      const confirmed = await this.showModal({
+      wx.showModal({
         title: '确认删除',
         content: '确定要删除这条帖子吗？',
-      });
-      
-      if (!confirmed) return;
-      
-      try {
-        this.setData({ isProcessing: true });
-        const deleteRes = await this._deletePost(postId);
-        
-        if (deleteRes && deleteRes.code === 200) {
-          this.showToast('删除成功', 'success');
+        success: async (res) => {
+          if (!res.confirm) return;
           
-          // 触发删除成功事件，让父组件处理删除后的UI更新
-          this.triggerEvent('delete', { postId });
-          
-          // 如果在详情页，返回上一页
-          if (this.properties.detailPage) {
-            setTimeout(() => {
-              wx.navigateBack();
-            }, 1500);
+          try {
+            this.setData({ isProcessing: true });
+            const deleteRes = await this._deletePost(postId);
+            
+            if (deleteRes && deleteRes.code === 200) {
+              wx.showToast('删除成功', 'success');
+              
+              // 触发删除成功事件，让父组件处理删除后的UI更新
+              this.triggerEvent('delete', { postId });
+              
+              // 如果在详情页，返回上一页
+              if (this.properties.detailPage) {
+                setTimeout(() => {
+                  wx.navigateBack();
+                }, 1500);
+              }
+            }
+          } catch (err) {
+            console.debug('删除帖子失败:', err);
+            wx.showToast('删除失败', 'error');
+          } finally {
+            this.setData({ isProcessing: false });
           }
         }
-      } catch (err) {
-        console.debug('删除帖子失败:', err);
-        this.showToast('删除失败', 'error');
-      } finally {
-        this.setData({ isProcessing: false });
-      }
+      });
     },
   }
 }); 

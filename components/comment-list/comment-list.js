@@ -88,9 +88,18 @@ Component({
         this.setData({ currentUserOpenid: openid });
       }
       
+      // 初始化behavior对象引用
+      
+      console.debug('评论组件初始化:', {
+        openid: openid,
+        postId: this.properties.postId,
+        resourceId: this.data.resourceId,
+        resourceType: this.data.resourceType
+      });
+      
       // 如果提供了postId，自动加载评论
       if (this.properties.postId) {
-        this.loadComments();
+        this.loadComments();  
       }
     },
 
@@ -105,60 +114,64 @@ Component({
    */
   methods: {
     // 加载评论
-    loadComments(options = {}) {
-      const that = this;
-      const { refresh = false, scrollToComment = null } = options;
+    loadComments() {
+      console.debug('加载评论');
+      const resourceId = this.data.resourceId;
+      const resourceType = this.data.resourceType;
 
-      if (refresh) {
-        this.setData({
-          comments: [],
-          isLoading: true,
-          page: 1,
-          hasMore: true
+      if (!resourceId) {
+        console.debug('缺少必要的resourceId参数');
+        this.setData({ 
+          loading: false,
+          error: true,
+          errorMsg: '参数错误' 
         });
-      } else if (this.data.isLoading || !this.data.hasMore) {
         return;
-      } else {
-        this.setData({
-          isLoading: true
-        });
       }
 
-      const params = {
-        page: this.data.page,
-        resourceId: this.data.resourceId,
-        resourceType: this.data.resourceType
-      };
+      console.debug('开始加载评论列表:', {
+        resourceId,
+        resourceType,
+        page: this.data.page
+      });
 
-      this._getCommentList(params)
+      this._getCommentList(this.data.resourceId, {
+        resourceType: this.data.resourceType,
+        page: this.data.page,
+        page_size: this.data.pageSize
+      })
         .then(res => {
           if (res) {
             const { list: comments, total, has_more } = res;
+            console.debug('获取到评论:', comments.length);
             
             // 将API返回的扁平评论列表转换为树状结构
             const commentList = buildCommentTree(comments);
             
             // 更新评论列表和分页信息，只使用顶级评论
-            that.setData({
-              comments: that.data.page === 1 ? commentList : [...that.data.comments, ...commentList],
+            this.setData({
+              comments: this.data.page === 1 ? commentList : [...this.data.comments, ...commentList],
               hasMore: has_more,
-              total: total || 0
+              total: total || 0,
+              loading: false,
+              error: false
             });
 
             // 如果是首次加载，为有回复的评论预加载部分回复
-            if (that.data.page === 1) {
-              that.preloadReplies(commentList);
+            if (this.data.page === 1) {
+              this.preloadReplies(commentList);
             }
           } else {
             throw new Error('获取评论失败');
           }
         })
         .catch(error => {
-          that.setData({ error: true, errorMsg: error.message || '加载评论失败' });
-          return Promise.reject(error);
-        })
-        .finally(() => {
-          that.setData({ loading: false });
+          console.error('加载评论失败:', error);
+          this.setData({ 
+            loading: false,
+            error: true, 
+            errorMsg: error.message || '加载评论失败' 
+          });
         });
     },
     
@@ -170,8 +183,7 @@ Component({
         // 如果评论没有回复但reply_count > 0，加载前几条回复
         if ((!comment.replies || comment.replies.length === 0) && comment.reply_count > 0) {
           // 获取该评论的所有回复
-          this._getCommentList({
-            resourceId: this.data.resourceId,
+          this._getCommentList(this.data.resourceId, {
             resourceType: this.data.resourceType,
             parentId: comment.id,
             page: 1,
@@ -201,10 +213,7 @@ Component({
     loadCommentReplies(commentId, page = 1, pageSize = 5) {
       if (!commentId) return Promise.reject(new Error('缺少评论ID'));
 
-      const postId = Number(this.properties.postId);
-
-      return this._getCommentList({
-        resourceId: this.data.resourceId,
+      return this._getCommentList(this.data.resourceId, {
         resourceType: this.data.resourceType,
         parentId: commentId,
         page,
@@ -257,7 +266,7 @@ Component({
 
     // 加载更多评论
     loadMore() {
-      if (this.data.hasMore && !this.data.isLoading) {
+      if (this.data.hasMore && !this.data.loading) {
         this.setData({
           page: this.data.page + 1
         });
@@ -612,18 +621,7 @@ Component({
       }
     },
 
-    // 修改私有方法调用API格式
-    _getCommentList(params) {
-      return this._commentBehavior._getCommentList(params);
-    },
-
-    _createComment(params) {
-      return this._commentBehavior._createComment(params);
-    },
-
-    _getUserInfo(openid) {
-      return this._userBehavior._getUserInfo(openid);
-    }
+   
   }
 })
 

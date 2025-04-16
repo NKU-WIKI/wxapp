@@ -65,7 +65,7 @@
         ></text-area>
         
         <!-- 展开全文按钮 - 移到这里确保一定会显示 -->
-        <view wx:if="{{contentOverflow}}" catchtap="_onExpandTap" class="read-more-wrapper">
+        <view wx:if="{{contentOverflow}}" catchtap="onExpandTap" class="read-more-wrapper">
           <view class="read-more">
             {{contentExpanded ? '收起' : '展开全文'}}
             <image class="expand-icon {{contentExpanded ? 'rotate-up' : 'rotate-down'}}" src="/icons/arrow-right.png" mode="aspectFit"></image>
@@ -83,7 +83,7 @@
       <block wx:for="{{post.images}}" wx:key="*this">
         <image class="post-image" src="{{item}}" mode="{{post.images.length === 1 ? 'widthFix' : 'aspectFill'}}" 
                data-index="{{index}}" data-images="{{post.images}}" 
-               catchtap="_onImageTap"></image>
+               catchtap="onImageTap"></image>
       </block>
       <view wx:if="{{post.images.length > 3}}" class="image-count">+{{post.images.length - 3}}</view>
     </view>-->
@@ -147,7 +147,7 @@
       <text class="comment-author">{{item.nickname}}：</text>
       <text class="comment-content">{{item.content}}</text>
     </view>
-    <view wx:if="{{post.comment_count > post.comments.length}}" class="view-more" catchtap="_onViewMoreComments">
+    <view wx:if="{{post.comment_count > post.comments.length}}" class="view-more" catchtap="onViewMoreComments">
       查看全部{{post.comment_count}}条评论
     </view>
   </view>

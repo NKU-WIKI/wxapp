@@ -2,6 +2,8 @@
 <nav-bar 
   title="{{postDetail.data.title}}"
   showBack="{{true}}"
+  showAvatar="{{false}}"
+  showNotice="{{false}}"
 />
 
 <view class="post-container">
@@ -37,6 +39,8 @@
       <comment-list 
         id="commentList"
         class="comment-list-container"
+        resourceId="{{postId}}"
+        resourceType="post"
         postId="{{postId}}"
         style="margin-top:0;padding-top:0;">
       </comment-list>
