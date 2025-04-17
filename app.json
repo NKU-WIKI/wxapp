@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/login/login",
+    "pages/login/privacy/privacy",
     "pages/index/index",
     "pages/notification/notification",
     "pages/post/post",

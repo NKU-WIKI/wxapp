@@ -1,0 +1,26 @@
+<view class="container">
+  <view class="content">
+    <view class="header">
+      <view class="title">{{content.title}}</view>
+    </view>
+    
+    <view class="sections">
+      <block wx:for="{{content.sections}}" wx:key="title">
+        <view class="section">
+          <view class="section-title">{{item.title}}</view>
+          <view class="section-content">{{item.content}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+  
+  <view class="button-area">
+    <button class="agree-button" type="primary" bindtap="onAgree">同意并继续</button>
+    <button class="cancel-button" bindtap="onCancel">不同意</button>
+  </view>
+
+  <view class="footer">
+    <view class="copyright">© {{aboutInfo.copyright || '2025 沈阳最优解教育科技有限公司'}}</view>
+    <view class="last-updated">最后更新：2025年4月17日</view>
+  </view>
+</view> 

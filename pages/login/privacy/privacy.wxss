@@ -1,0 +1,119 @@
+.container {
+  background-color: #f7f9fc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 30rpx 60rpx;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.content {
+  background-color: #fff;
+  border-radius: 20rpx;
+  width: 100%;
+  max-width: 720rpx;
+  padding: 40rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  margin-bottom: 40rpx;
+}
+
+.header {
+  margin-bottom: 40rpx;
+  padding-bottom: 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.sections {
+  margin-bottom: 40rpx;
+}
+
+.section {
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.section-content {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  text-align: justify;
+  white-space: pre-wrap;
+}
+
+.button-area {
+  width: 100%;
+  max-width: 720rpx;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 30rpx;
+  margin: 40rpx auto;
+  padding: 0 40rpx;
+  box-sizing: border-box;
+}
+
+.agree-button {
+  height: 88rpx !important;
+  line-height: 88rpx !important;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 44rpx;
+  width: 280rpx !important;
+  min-width: 280rpx !important;
+  background-color: #07c160;
+  color: #fff;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+
+.cancel-button {
+  height: 88rpx !important;
+  line-height: 88rpx !important;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 44rpx;
+  width: 280rpx !important;
+  min-width: 280rpx !important;
+  background-color: #f2f2f2;
+  color: #666;
+  border: none;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+
+.footer {
+  width: 100%;
+  text-align: center;
+  padding-top: 30rpx;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: auto;
+}
+
+.copyright {
+  margin-bottom: 10rpx;
+}
+
+.last-updated {
+  font-size: 22rpx;
+}

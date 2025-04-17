@@ -142,6 +142,7 @@ Component({
       'voice': '/icons/voice.png',
       'code': '/icons/code.png',
       'question': '/icons/about.png',
+      'post': '/icons/book.png',
       // 社交平台图标
       'wechat': '/icons/wechat.png',
       'douyin': '/icons/douyin.png',

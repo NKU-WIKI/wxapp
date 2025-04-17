@@ -1,27 +1,21 @@
 /* 登录页面样式 */
 page {
   background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
-  overflow: hidden;
-  height: 100%;
-  position: fixed;
-  width: 100%;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  height: 100%;
-  padding: 40rpx 30rpx 120rpx;
+  justify-content: space-between;
+  min-height: 100vh;
+  padding: 40rpx 30rpx 0;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
-  overflow: hidden;
 }
 
 /* 背景装饰元素，降低层级和透明度 */
@@ -58,8 +52,9 @@ page {
   display: flex;
   flex-direction: column;
   align-items: center;
+  z-index: 2;
   flex: 1;
-  z-index: 2; /* 确保内容在装饰元素之上 */
+  margin-bottom: 40rpx;
 }
 
 /* 加载占位符 */
@@ -91,18 +86,15 @@ page {
 .footer {
   width: 100%;
   text-align: center;
-  padding: 20rpx 0;
+  padding: 30rpx 0;
   z-index: 2;
-  position: absolute;
-  bottom: 30rpx;
-  left: 0;
-  right: 0;
+  margin-top: auto;
 }
 
 .copyright {
   font-size: 24rpx;
-  color: #a0a0a0;
-  opacity: 1;
+  color: #999;
+  opacity: 0.8;
   letter-spacing: 1rpx;
   font-weight: 400;
   white-space: nowrap;

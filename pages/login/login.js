@@ -15,6 +15,7 @@ Page({
       website: '',
       copyright: ''
     },
+    policyAgreed: false
   },
   async onLoad() {
     try {
@@ -40,6 +41,12 @@ Page({
     }
   },
 
+  // 页面显示时检查协议同意状态
+  onShow() {
+    const loginCard = this.selectComponent('.login-card');
+    loginCard.refreshAgreementState();
+  },
+
   async onPullDownRefresh() {
     this.refreshPage();
     wx.stopPullDownRefresh();
@@ -54,21 +61,10 @@ Page({
       console.error('刷新页面失败', err);
     }
   },
-
   async handleLogin() {
+
     wx.reLaunch({
       url: '/pages/index/index'
     });
   },
-
-  async onAgreementTap(e) {
-    const type = e.detail?.type || e.currentTarget.dataset.type;
-    const title = type === 'user' ? '用户协议' : '隐私政策';
-    this.showModal({
-      title,
-      content: `您正在查看${title}，该功能正在开发中`,
-      showCancel: false,
-      confirmText: '知道了'
-    });
-  }
 }); 
