@@ -7,7 +7,15 @@ const config = require('../../config'),
             html: true,
             xhtmlOut: true,
             typographer: true,
-            breaks: true,
+            breaks: false,  // 设置为false，不自动转换换行为<br>
+            linkify: false, // 禁用自动链接
+            // 自定义渲染规则
+            replaceRules: {
+                paragraph_open: () => '<view class="h2w__p">',
+                paragraph_close: () => '</view>',
+                hardbreak: () => '<text>\n</text>',
+                softbreak: () => ' '
+            }
         };
 
         if(config.highlight.length && hljs){
@@ -15,18 +23,14 @@ const config = require('../../config'),
                 let lineLen = code.split(/\r|\n/ig).length,
                     result = hljs.highlightAuto(code).value;
 
-                    // 代码块多换行的问题
-                    result = result.replace(/(\r|\n){2,}/g, str => {
-                        return new Array(str.length).join("<p>&nbsp;</p>")
-                    });
-                    result = result.replace(/\r|\n/g, str => {
-                        return "<br/>"
-                    });
+                // 代码块多换行的问题
+                result = result.replace(/(\r|\n){2,}/g, '\n');
+                result = result.replace(/\r|\n/g, '<br/>');
 
-                    // 代码空格处理
-                    result = result.replace(/>[^<]+</g,str => {
-                        return str.replace(/\s/g,"&nbsp;");
-                    }).replace(/\t/g,new Array(4).join("&nbsp;"));
+                // 代码空格处理
+                result = result.replace(/>[^<]+</g,str => {
+                    return str.replace(/\s/g,"&nbsp;");
+                }).replace(/\t/g,new Array(4).join("&nbsp;"));
 
                 if(config.showLineNumber){
                     let lineStr = (()=>{

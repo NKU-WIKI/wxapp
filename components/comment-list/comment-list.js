@@ -1,9 +1,7 @@
 const behaviors = require('../../behaviors/index');
+const { storage } = require('../../utils/util');
 
 Component({
-  /**
-   * 组件的属性列表
-   */
   behaviors: [
     behaviors.baseBehavior,
     behaviors.commentBehavior,
@@ -17,6 +15,31 @@ Component({
       value: 0,
       observer: function(newVal) {
         if (newVal) {
+          // 兼容旧版本，设置资源ID和类型
+          this.setData({
+            resourceId: newVal,
+            resourceType: 'post'
+          });
+          this.loadComments();
+        }
+      }
+    },
+    // 资源ID（新属性）
+    resourceId: {
+      type: null,
+      value: 0,
+      observer: function(newVal) {
+        if (newVal && this.data.resourceType) {
+          this.loadComments();
+        }
+      }
+    },
+    // 资源类型（新属性）
+    resourceType: {
+      type: String,
+      value: 'post',
+      observer: function(newVal) {
+        if (this.data.resourceId && newVal) {
           this.loadComments();
         }
       }
@@ -65,10 +88,24 @@ Component({
         this.setData({ currentUserOpenid: openid });
       }
       
+      // 初始化behavior对象引用
+      
+      console.debug('评论组件初始化:', {
+        openid: openid,
+        postId: this.properties.postId,
+        resourceId: this.data.resourceId,
+        resourceType: this.data.resourceType
+      });
+      
       // 如果提供了postId，自动加载评论
       if (this.properties.postId) {
-        this.loadComments();
+        this.loadComments();  
       }
+    },
+
+    ready() {
+      // 打印调试日志，用于检查组件状态
+      console.debug('评论组件就绪，初始输入内容:', this.data.commentText);
     }
   },
 
@@ -78,42 +115,138 @@ Component({
   methods: {
     // 加载评论
     loadComments() {
-      const postId = Number(this.properties.postId);
-      const { page, pageSize } = this.data;
-      
-      if (!postId) {
-        return Promise.reject(new Error('未提供帖子ID'));
+      if(this.data.resourceType=='knowledge'){
+        return;
       }
-      
-      this.setData({ loading: true, error: false, errorMsg: '' });
-      
-      return this._getCommentList(postId, { page, limit: pageSize })
-        .then(result => {
-          if (result) {
-            const { list: comments, total, has_more } = result;
+      console.debug('加载评论');
+      const resourceId = this.data.resourceId;
+      const resourceType = this.data.resourceType;
+
+      if (!resourceId) {
+        console.debug('缺少必要的resourceId参数');
+        this.setData({ 
+          loading: false,
+          error: true,
+          errorMsg: '参数错误' 
+        });
+        return;
+      }
+
+      console.debug('开始加载评论列表:', {
+        resourceId,
+        resourceType,
+        page: this.data.page
+      });
+
+      this._getCommentList(this.data.resourceId, {
+        resourceType: this.data.resourceType,
+        page: this.data.page,
+        page_size: this.data.pageSize
+      })
+        .then(res => {
+          if (res) {
+            const { list: comments, total, has_more } = res;
+            console.debug('获取到评论:', comments.length);
             
-            // 格式化评论数据
-            const formattedComments = comments && comments.length ? comments.map(comment => this._formatCommentData(comment)) : [];
+            // 将API返回的扁平评论列表转换为树状结构
+            const commentList = buildCommentTree(comments);
             
-            // 更新评论列表和分页信息
+            // 更新评论列表和分页信息，只使用顶级评论
             this.setData({
-              comments: this.data.page === 1 ? formattedComments : [...this.data.comments, ...formattedComments],
+              comments: this.data.page === 1 ? commentList : [...this.data.comments, ...commentList],
               hasMore: has_more,
-              total: total || 0
+              total: total || 0,
+              loading: false,
+              error: false
             });
+
+            // 如果是首次加载，为有回复的评论预加载部分回复
+            if (this.data.page === 1) {
+              this.preloadReplies(commentList);
+            }
           } else {
             throw new Error('获取评论失败');
           }
         })
         .catch(error => {
-          this.setData({ error: true, errorMsg: error.message || '加载评论失败' });
-          return Promise.reject(error);
-        })
-        .finally(() => {
-          this.setData({ loading: false });
+          console.error('加载评论失败:', error);
+          this.setData({ 
+            loading: false,
+            error: true, 
+            errorMsg: error.message || '加载评论失败' 
+          });
         });
     },
     
+    // 预加载评论回复
+    preloadReplies(comments) {
+      if (!comments || !Array.isArray(comments)) return;
+
+      comments.forEach(comment => {
+        // 如果评论没有回复但reply_count > 0，加载前几条回复
+        if ((!comment.replies || comment.replies.length === 0) && comment.reply_count > 0) {
+          // 获取该评论的所有回复
+          this._getCommentList(this.data.resourceId, {
+            resourceType: this.data.resourceType,
+            parentId: comment.id,
+            page: 1,
+            page_size: 5
+          })
+          .then(result => {
+            if (result && result.list && result.list.length > 0) {
+              // 更新评论的回复列表
+              const comments = [...this.data.comments];
+              const idx = comments.findIndex(c => c.id === comment.id);
+              if (idx !== -1) {
+                comments[idx].replies = result.list;
+                comments[idx].reply_count = result.total || comments[idx].reply_count;
+                this.setData({ comments });
+                console.debug(`为评论${comment.id}加载了${result.list.length}条回复`);
+              }
+            }
+          })
+          .catch(err => {
+            console.debug(`加载评论${comment.id}的回复失败:`, err);
+          });
+        }
+      });
+    },
+
+    // 加载评论回复
+    loadCommentReplies(commentId, page = 1, pageSize = 5) {
+      if (!commentId) return Promise.reject(new Error('缺少评论ID'));
+
+      return this._getCommentList(this.data.resourceId, {
+        resourceType: this.data.resourceType,
+        parentId: commentId,
+        page,
+        page_size: pageSize
+      })
+      .then(result => {
+        if (result && result.list) {
+          // 更新对应评论的回复列表
+          const comments = [...this.data.comments];
+          const commentIndex = comments.findIndex(c => c.id == commentId);
+
+          if (commentIndex !== -1) {
+            // 如果找到评论，更新其回复
+            const comment = comments[commentIndex];
+            comment.replies = page === 1 ? result.list : [...(comment.replies || []), ...result.list];
+            comment.reply_count = result.total || comment.reply_count || 0;
+
+            this.setData({ comments });
+          }
+
+          return result;
+        }
+        return null;
+      })
+      .catch(err => {
+        console.debug('加载回复失败:', err);
+        return null;
+      });
+    },
+
     // 重置分页
     resetPagination() {
       this.setData({
@@ -125,10 +258,7 @@ Component({
     
     // 刷新评论列表
     refresh() {
-      this.resetPagination();
-      this.setData({ comments: [] }, () => {
-        this.loadComments();
-      });
+      return this.loadComments({ refresh: true });
     },
     
     // 重试加载评论
@@ -139,13 +269,12 @@ Component({
 
     // 加载更多评论
     loadMore() {
-      if (this.data.loading || !this.data.hasMore) return;
-      
-      this.setData({ page: this.data.page + 1 }, () => {
+      if (this.data.hasMore && !this.data.loading) {
+        this.setData({
+          page: this.data.page + 1
+        });
         this.loadComments();
-      });
-      
-      this.triggerEvent('loadmore');
+      }
     },
     
     // 定位到指定评论
@@ -238,197 +367,49 @@ Component({
       loadAndFind();
     },
     
-    // 点赞评论
-    handleLike(e) {
-      const { id, index } = e.currentTarget.dataset;
-      const comment = this.data.comments[index];
-      
-      if (!comment) return;
-      
-      const isLiked = comment.isLiked;
-      
-      // 调用评论行为中的点赞/取消点赞方法
-      this._toggleCommentLike(id)
-        .then(result => {
-          if (!result) throw new Error('操作失败');
-          
-          // 更新评论点赞状态
-          const comments = [...this.data.comments];
-          comments[index] = {
-            ...comment,
-            isLiked: result.status === 'liked',
-            like_count: result.like_count || comment.like_count || 0
-          };
-          
-          this.setData({ comments });
-          this.showToast(result.status === 'liked' ? '已点赞' : '已取消点赞', 'success');
-        })
-        .catch(error => {
-          this.showToast('操作失败: ' + (error.message || '未知错误'), 'error');
-        });
-    },
-    
-    // 格式化评论数据
-    _formatCommentData(comment) {
-      if (!comment) return null;
-      
-      // 格式化时间
-      const createTime = comment.create_time ? new Date(comment.create_time) : new Date();
-      const now = new Date();
-      
-      // 计算相对时间
-      const diffMinutes = Math.floor((now - createTime) / (1000 * 60));
-      let relativeTime = '';
-      
-      if (diffMinutes < 1) {
-        relativeTime = '刚刚';
-      } else if (diffMinutes < 60) {
-        relativeTime = `${diffMinutes}分钟前`;
-      } else if (diffMinutes < 24 * 60) {
-        relativeTime = `${Math.floor(diffMinutes / 60)}小时前`;
-      } else if (diffMinutes < 30 * 24 * 60) {
-        relativeTime = `${Math.floor(diffMinutes / (24 * 60))}天前`;
-      } else {
-        // 超过30天显示具体日期
-        const year = createTime.getFullYear();
-        const month = createTime.getMonth() + 1;
-        const day = createTime.getDate();
-        relativeTime = `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
-      }
-      
-      // 处理图片字段 - 将字符串转换为数组
-      let imageArray = [];
-      if (comment.image) {
-        try {
-          // 如果是字符串，尝试解析为JSON
-          if (typeof comment.image === 'string') {
-            const parsed = JSON.parse(comment.image);
-            imageArray = Array.isArray(parsed) ? parsed : [];
-          } 
-          // 如果已经是数组，直接使用
-          else if (Array.isArray(comment.image)) {
-            imageArray = comment.image;
-          }
-        } catch (e) {
-          imageArray = [];
-        }
-      }
-      
-      return {
-        ...comment,
-        image: imageArray,
-        relativeTime,
-        // 检查是否是当前用户的评论
-        isOwner: this.data.currentUserOpenid && comment.openid === this.data.currentUserOpenid
-      };
-    },
-    
-    // 回复评论
+    // 处理回复评论
     handleReply(e) {
-      // 先检查登录状态
-      if (!this._checkLogin()) return;
+      if (this.data.isSubmitting) return;
       
-      const { id, index } = e.currentTarget.dataset;
-      // 获取完整的评论对象
-      const comment = this.data.comments[index];
+      const { commentId, nickname, openid } = e.detail;
+      if (!commentId) return;
+
+      const comment = this.data.comments.find(c => c.id === commentId);
       if (!comment) return;
       
-      const replyPrefix = comment.nickname ? `回复 @${comment.nickname}: ` : '';
-      
-      // 设置回复状态
       this.setData({
-        commentText: replyPrefix,
-        commentFocus: true,
-        replyTo: {
-          commentId: id,
-          nickname: comment.nickname
-        }
+        replyToComment: comment,
+        replyToReply: null,
+        commentFocus: true
       });
+
+      // 触发事件，以便页面可以滚动到评论框
+      this.triggerEvent('focusComment', { commentId });
     },
     
-    // 删除评论
+    // 处理删除评论
     handleDelete(e) {
-      const { id, index } = e.currentTarget.dataset;
+      const { id, success } = e.detail;
       
-      // 调试日志，确认事件触发
-      console.debug('handleDelete 被调用:', id, index);
+      // 无论是否已经删除，都更新UI
+      // 找到要删除的评论所在位置
+      const index = this.data.comments.findIndex(comment => comment.id == id);
+      if (index === -1) return;
       
-      try {
-        // 直接调用删除逻辑，不使用 showModal
-        console.debug('开始删除评论:', id);
-        console.debug('评论ID类型:', typeof id);
-        
-        // 检查openid是否存在
-        const openid = this.getStorage('openid');
-        console.debug('当前用户openid:', openid);
-        
-        // 调用评论行为中的删除评论方法
-        this._deleteComment(id)
-          .then(success => {
-            console.debug('删除评论结果:', success);
-            
-            if (!success) throw new Error('删除失败');
-            
-            // 更新评论列表
-            const comments = [...this.data.comments];
-            comments.splice(index, 1);
-            
-            this.setData({ 
-              comments,
-              total: Math.max(0, this.data.total - 1)
-            });
-            
-            this.showToast('删除成功', 'success');
-            
-            // 通知父组件更新评论计数
-            this.triggerEvent('delete', { 
-              id, 
-              index,
-              postId: Number(this.properties.postId)
-            });
-          })
-          .catch(error => {
-            console.error('删除评论失败:', error);
-            this.showToast('删除失败: ' + (error.message || '未知错误'), 'error');
-          });
-      } catch (error) {
-        console.error('删除评论处理过程出错:', error);
-        this.showToast('操作失败，请稍后再试', 'error');
-      }
-    },
-    
-    // 查看更多回复
-    viewMoreReplies(e) {
-      const { commentId } = e.currentTarget.dataset;
-      this.triggerEvent('viewreplies', { commentId });
-    },
-    
-    // 跳转到用户主页
-    goToUserProfile(e) {
-      const { userId } = e.currentTarget.dataset;
-      this.triggerEvent('usertap', { userId });
-    },
-    
-    // 预览评论图片
-    previewCommentImage(e) {
-      const { urls, current } = e.currentTarget.dataset;
-      wx.previewImage({
-        urls,
-        current
+      // 更新本地数据
+      const newComments = [...this.data.comments];
+      newComments.splice(index, 1);
+      
+      this.setData({ 
+        comments: newComments,
+        total: Math.max(0, this.data.total - 1)
       });
-    },
-    
-    // 处理图片加载错误
-    handleImageError(e) {
-      const { urls, current } = e.currentTarget.dataset;
-      console.debug('评论图片加载出错:', e);
       
-      // 可以在这里设置默认图片或者其他处理逻辑
-      // 例如替换为默认图片
-      if (e.type === 'error') {
-        // 可以在这里更新数据中的图片URL为默认图片
-        // 但是要注意不要频繁更新，避免死循环
-      }
+      // 通知父组件更新评论计数
+      this.triggerEvent('commentDeleted', {
+        postId: this.properties.postId,
+        commentId: id
+      });
     },
     
     // 阻止冒泡
@@ -438,8 +419,10 @@ Component({
     
     // 评论输入事件
     onCommentInput(e) {
+      const value = e.detail.value;
+      console.debug('评论内容变化:', value);
       this.setData({
-        commentText: e.detail.value
+        commentText: value
       });
     },
     
@@ -461,75 +444,280 @@ Component({
     cancelReply() {
       this.setData({
         commentText: '',
-        replyTo: null,
+        replyToComment: null,
+        replyToReply: null,
         commentFocus: false
       });
     },
     
     // 提交评论
-    submitComment() {
-      const { commentText, replyTo } = this.data;
-      const postId = Number(this.properties.postId);
+    async submitComment() {
+      const that = this;
+      if (this.data.isSubmitting) {
+        console.debug('已在提交中，忽略重复点击');
+        return;
+      }
       
-      // 验证评论内容
-      if (!commentText.trim()) {
+      const content = this.data.commentText ? this.data.commentText.trim() : '';
+      if (!content) {
         this.showToast('评论内容不能为空', 'error');
         return;
       }
       
-      // 检查用户登录状态
-      if (!this._checkLogin()) return;
-      
-      // 检查是否已提供帖子ID
-      if (!postId) {
-        this.showToast('缺少帖子ID', 'error');
+      const openid = storage.get('openid');
+      if (!openid) {
+        this.showToast('请先登录', 'error');
         return;
       }
       
-      // 设置提交中状态
+      const resourceId = this.data.resourceId;
+      const resourceType = this.data.resourceType;
+      const parentId = this.data.replyToComment?.id || null;
+      const replyToInfo = null;
+
+      const savedCommentText = content;
+      this.setData({
+        commentText: '',
+        replyToComment: null,
+        showReplyInfo: false
+      });
+
       this.setData({ isSubmitting: true });
       
-      // 处理回复情况，提取实际内容
-      let content = commentText;
-      let parentId = null;
+      console.debug('开始提交评论，参数:', {
+        resourceId,
+        resourceType,
+        content,
+        parentId
+      });
       
-      if (replyTo) {
-        // 移除回复前缀
-        const replyPrefix = `回复 @${replyTo.nickname}: `;
-        content = content.replace(replyPrefix, '');
-        parentId = replyTo.commentId;
-      }
-      
-      // 提交评论
-      this._createComment(postId, content, parentId)
-        .then(result => {
-          if (!result) throw new Error('评论失败');
-          
-          // 成功提示
+      try {
+        // 构建评论参数
+        const commentParams = {
+          content: savedCommentText,
+          resourceId: resourceId,
+          resourceType: resourceType
+        };
+
+        // 如果有回复ID，添加到参数中
+        if (parentId) {
+          commentParams.parent_id = parentId;
+        }
+
+        const result = await this._createComment(commentParams);
+        
+        console.debug('评论API响应:', result);
+        
+        if (result && result.code === 200) {
           this.showToast('评论成功', 'success');
           
-          // 清空输入框
+          const commentId = result.details?.comment_id || (result.data && result.data.id);
+          
+          if (!commentId) {
+            console.debug('无法获取新评论ID，刷新列表');
+            this.refresh();
+            return;
+          }
+          
+          try {
+            const userInfo = await this._getUserInfo(openid);
+            
+            if (userInfo && userInfo.code === 200) {
+              const { nickname, avatar, bio } = userInfo.data;
+
+              const newComment = {
+                id: commentId,
+                content: savedCommentText,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                parent_id: parentId,
+                resource_id: resourceId,
+                resource_type: resourceType,
+                user: {
+                  id: openid,
+                  nickname,
+                  avatar,
+                  bio
+                },
+                reply_count: 0,
+                replies: []
+              };
+
+              if (parentId) {
+                const commentIndex = this.data.comments.findIndex(c => c.id === parentId);
+
+                if (commentIndex !== -1) {
+                  const comments = [...this.data.comments];
+                  const parentComment = {...comments[commentIndex]};
+
+                  if (!parentComment.replies) {
+                    parentComment.replies = [];
+                  }
+
+                  parentComment.replies.unshift(newComment);
+
+                  parentComment.reply_count = (parentComment.reply_count || 0) + 1;
+
+                  const maxDisplayReplies = 5;
+                  if (parentComment.replies.length > maxDisplayReplies) {
+                    parentComment.replies = parentComment.replies.slice(0, maxDisplayReplies);
+                  }
+
+                  comments[commentIndex] = parentComment;
+                  this.setData({ comments });
+
+                  this.triggerEvent('replyAdded', {
+                    resourceId,
+                    resourceType,
+                    commentId: parentId,
+                    reply: newComment
+                  });
+                } else {
+                  this.refresh();
+
+                  this.triggerEvent('replyAdded', {
+                    resourceId,
+                    resourceType,
+                    commentId: parentId,
+                    reply: newComment
+                  });
+                }
+              } else {
+                this.setData({
+                  comments: [newComment, ...this.data.comments],
+                  total: this.data.total + 1
+                });
+
+                this.triggerEvent('commentAdded', {
+                  resourceId,
+                  resourceType,
+                  comment: newComment
+                });
+              }
+            } else {
+              console.debug('用户信息获取失败，刷新列表');
+              this.refresh();
+            }
+          } catch (error) {
+            console.error('获取用户信息失败:', error);
+            this.refresh();
+          }
+        } else {
+          console.error('评论创建失败:', result);
+          this.showToast('评论提交失败，请重试', 'error');
+          
           this.setData({
-            commentText: '',
-            replyTo: null,
-            commentFocus: false
+            commentText: savedCommentText
           });
-          
-          // 刷新评论列表
-          this.refresh();
-          
-          // 通知父组件更新评论计数
-          this.triggerEvent('commentAdded', {
-            postId,
-            comment: result
-          });
-        })
-        .catch(error => {
-          this.showToast('评论失败: ' + (error.message || '未知错误'), 'error');
-        })
-        .finally(() => {
-          this.setData({ isSubmitting: false });
+        }
+      } catch (error) {
+        console.error('评论提交失败:', error);
+        this.showToast('评论提交失败，请重试', 'error');
+        
+        this.setData({
+          commentText: savedCommentText
         });
-    }
+      } finally {
+        setTimeout(() => {
+          this.setData({ isSubmitting: false });
+        }, 500);
+      }
+    },
+
+   
   }
 })
+
+// 将API返回的扁平评论列表转换为树状结构
+function buildCommentTree(commentList) {
+  if (!commentList || !Array.isArray(commentList)) return [];
+
+  console.debug('接收到评论列表:', commentList.length);
+
+  // 创建评论映射
+  const commentMap = {};
+
+  // 第一步：将所有评论保存到映射
+  commentList.forEach(comment => {
+    // 确保评论对象有基本属性
+    if (!comment.replies) {
+      comment.replies = [];
+    }
+
+    // 重新计算回复数量（如果需要）
+    comment.reply_count = comment.reply_count || 0;
+
+    // 将评论加入映射表
+    commentMap[comment.id] = comment;
+  });
+
+  // 第二步：分离顶级评论和回复评论
+  const topComments = [];
+  const replyComments = [];
+
+  // 先将所有评论分类
+  commentList.forEach(comment => {
+    if (comment.parent_id === null) {
+      // 顶级评论
+      topComments.push(comment);
+    } else {
+      // 回复评论
+      replyComments.push(comment);
+      comment.is_reply = true;
+    }
+  });
+
+  console.debug('顶级评论数量:', topComments.length);
+  console.debug('回复评论数量:', replyComments.length);
+
+  // 第三步：为避免二次遍历出现的问题，先清空所有已添加的回复
+  topComments.forEach(comment => {
+    comment.replies = [];
+    comment.reply_count = 0;
+  });
+
+  // 第四步：组织回复关系
+  replyComments.forEach(reply => {
+    const parentId = reply.parent_id;
+    const parentComment = commentMap[parentId];
+
+    if (parentComment) {
+      // 将回复添加到父评论的replies数组
+      parentComment.replies.push(reply);
+
+      // 标记为回复
+      reply.is_reply = true;
+
+      // 更新父评论的回复计数
+      parentComment.reply_count += 1;
+    } else {
+      // 找不到父评论，可能是被删除了或者数据不完整
+      // 将此回复作为顶级评论处理
+      console.debug('找不到父评论:', parentId, '将回复作为顶级评论处理');
+      reply.parent_id = null;
+      reply.is_orphan_reply = true; // 标记为孤立回复
+      topComments.push(reply);
+    }
+  });
+
+  // 第五步：对每个评论的回复列表按时间排序
+  Object.values(commentMap).forEach(comment => {
+    if (comment.replies && comment.replies.length > 0) {
+      comment.replies.sort((a, b) => {
+        return new Date(b.create_time) - new Date(a.create_time);
+      });
+    }
+  });
+
+  // 第六步：对顶级评论按时间排序并返回
+  topComments.sort((a, b) => {
+    return new Date(b.create_time) - new Date(a.create_time);
+  });
+
+  // 打印调试信息
+  topComments.forEach((comment, index) => {
+    console.debug(`顶级评论${index+1}: id=${comment.id}, 回复数=${comment.replies.length}/${comment.reply_count}`);
+  });
+
+  return topComments;
+}

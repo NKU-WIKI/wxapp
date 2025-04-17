@@ -5,15 +5,17 @@
     "pages/notification/notification",
     "pages/post/post",
     "pages/post/detail/detail",
+    "pages/knowledge/detail/detail",
     "pages/search/search",
     "pages/discover/discover",
     "pages/profile/profile",
     "pages/profile/edit/edit",
     "pages/profile/feedback/feedback",
-    "pages/profile/myContent/myContent",
+    "pages/profile/content/content",
     "pages/profile/setting/setting",
     "pages/webview/webview",
-    "pages/about/about"
+    "pages/about/about",
+    "pages/user/user"
   ],
   "window": {
     "backgroundTextStyle": "light",

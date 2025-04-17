@@ -6,7 +6,7 @@ Component({
     },
     version: {
       type: String,
-      value: '1.0.0'
+      value: ''
     },
     subtitle: {
       type: String,
@@ -19,7 +19,17 @@ Component({
   },
 
   data: {
-    isAnimating: false
+    isAnimating: false,
+    hasVersion: false
+  },
+
+  lifetimes: {
+    attached() {
+      // 检查version是否有效
+      this.setData({
+        hasVersion: !!this.properties.version
+      });
+    }
   },
 
   methods: {

@@ -76,6 +76,11 @@ Component({
       this.setData({ currentUserOpenid: storage.get('openid') });
       // 只在详情页面时刷新状态
       if (this.properties.detailPage) {
+        // 添加防御性检查，避免post为null时产生错误
+        if (!this.properties.post || !this.properties.post.id) {
+          console.debug('帖子数据尚未加载，等待父组件提供数据');
+          return;
+        }
         await this.getPostDetail(this.properties.post.id);
         await this.updatePostStatus();
       }
@@ -129,8 +134,11 @@ Component({
             if (view_count !== undefined) {
               updatedPost.view_count = view_count || 0;
             }
-            // 更新整个post对象
-            this.setData({ post: updatedPost }, () => {
+            // 更新整个post对象，不显示加载状态
+            this.setData({ 
+              post: updatedPost,
+              isProcessing: false
+            }, () => {
               // 在回调中打印日志，确保数据更新完成
               console.debug('更新帖子状态成功 [ID:' + postId + ']');
             });
@@ -138,6 +146,8 @@ Component({
         }
       } catch (err) {
         console.debug('获取帖子状态失败:', err);
+        // 确保错误时也取消加载状态
+        this.setData({ isProcessing: false });
       }
     },
 
@@ -147,12 +157,15 @@ Component({
         if (res.code === 200 && res.data) {
           this.setData({
             post: res.data,
+            isProcessing: false
           });
         } else {
           throw new Error('获取帖子详情失败');
         }
       } catch (err) {
         console.debug('[加载帖子详情失败]', err);
+        // 确保错误时也取消加载状态
+        this.setData({ isProcessing: false });
         throw err;
       }
     },
@@ -202,42 +215,37 @@ Component({
     },
     
     // 展开/收起内容
-    _onExpandTap() {
+    onExpandTap() {
       this.setData({ contentExpanded: !this.properties.contentExpanded });
     },
     
     // 点击头像或作者
-    _onAvatarTap() {
+    onAvatarTap() {
       const post = this.properties.post;
       if (!post) return;
-      
       // 首先尝试直接从post对象获取openid
       const openid = post?.openid || (post?.user?.openid);
-      
-      if (openid) {
-        console.debug('头像点击跳转，openid:', openid);
-        
-        // 将openid存入缓存，防止URL参数失效时作为备用
-        storage.set('temp_profile_openid', openid);
-        
-        // 使用reLaunch跳转到profile页面，直接在URL中传递openid参数
-        wx.reLaunch({
-          url: `/pages/profile/profile?openid=${openid}`,
-          fail: (err) => {
-            console.error('跳转到个人主页失败:', err);
-          }
+      const currentOpenid = storage.get('openid');
+      console.debug('点击头像或作者', openid, currentOpenid);
+      if (openid !== currentOpenid) {
+        wx.navigateTo({
+          url: `/pages/user/user?openid=${openid}`,
+        });
+      }else{
+        wx.navigateTo({
+          url: `/pages/profile/profile`,
         });
       }
     },
     
     // 点击作者名称
-    _onAuthorTap() {
+    onAuthorTap() {
       // 复用头像点击方法
-      this._onAvatarTap();
+      this.onAvatarTap();
     },
     
     // 点击帖子
-    _onPostTap() {
+    onPostTap() {
       const postId = this.properties.post?.id;
       if (postId) {
         wx.navigateTo({ url: `/pages/post/detail/detail?id=${postId}` });
@@ -245,20 +253,20 @@ Component({
     },
     
     // 点击图片
-    _onImageTap(e) {
+    onImageTap(e) {
       const { index } = e.currentTarget.dataset;
       const urls = this.properties.post?.images || [];
       wx.previewImage({ current: urls[index], urls });
     },
     
     // 点击标签
-    _onTagTap(e) {
+    onTagTap(e) {
       const tag = e.currentTarget.dataset.tag;
       wx.navigateTo({ url: `/pages/search/search?keyword=${encodeURIComponent(tag)}` });
     },
     
     // 点赞
-    async _onLikeTap() {
+    async onLikeTap() {
       if (this.properties.isProcessing) return;
       
       const postId = this.properties.post?.id;
@@ -298,7 +306,7 @@ Component({
     },
     
     // 收藏
-    async _onFavoriteTap() {
+    async onFavoriteTap() {
       if (this.properties.isProcessing) return;
       
       const postId = this.properties.post?.id;
@@ -338,15 +346,31 @@ Component({
     },
     
     // 评论
-    _onCommentTap() {
+    onCommentTap() {
       const postId = this.properties.post?.id;
-      if (postId) {
+      if (!postId) return;
+      
+      // 如果是在详情页，直接滚动到评论区域
+      if (this.properties.detailPage) {
+        wx.createSelectorQuery()
+          .select('.comment-list-container')
+          .boundingClientRect(rect => {
+            if (rect) {
+              wx.pageScrollTo({
+                scrollTop: rect.top,
+                duration: 300
+              });
+            }
+          })
+          .exec();
+      } else {
+        // 如果不是在详情页，跳转到详情页并传递focus=comment参数
         wx.navigateTo({ url: `/pages/post/detail/detail?id=${postId}&focus=comment` });
       }
     },
     
     // 关注
-    async _onFollowTap() {
+    async onFollowTap() {
       if (this.properties.isProcessing) return;
       
       const post = this.properties.post;
@@ -383,14 +407,13 @@ Component({
         }
       } catch (err) {
         console.error('关注失败:', err);
-        this.showToast('关注失败', 'error');
       } finally {
         this.setData({ isProcessing: false });
       }
     },
     
     // 查看更多评论
-    _onViewMoreComments() {
+    onViewMoreComments() {
       const postId = this.properties.post?.id;
       if (postId) {
         wx.navigateTo({ url: `/pages/post/detail/detail?id=${postId}&tab=comment` });
@@ -414,8 +437,54 @@ Component({
     },
     
     // 空方法，用于阻止事件冒泡而不执行任何操作
-    _catchBubble() {
+    catchBubble() {
       // 不执行任何操作，仅用于阻止事件冒泡
+    },
+    
+    // 删除帖子
+    async onDeleteTap() {
+      if (this.properties.isProcessing) return;
+      
+      const postId = this.properties.post?.id;
+      if (!postId) return;
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        this.showToast('请先登录', 'error');
+        return;
+      }
+      
+      wx.showModal({
+        title: '确认删除',
+        content: '确定要删除这条帖子吗？',
+        success: async (res) => {
+          if (!res.confirm) return;
+          
+          try {
+            this.setData({ isProcessing: true });
+            const deleteRes = await this._deletePost(postId);
+            
+            if (deleteRes && deleteRes.code === 200) {
+              wx.showToast('删除成功', 'success');
+              
+              // 触发删除成功事件，让父组件处理删除后的UI更新
+              this.triggerEvent('delete', { postId });
+              
+              // 如果在详情页，返回上一页
+              if (this.properties.detailPage) {
+                setTimeout(() => {
+                  wx.navigateBack();
+                }, 1500);
+              }
+            }
+          } catch (err) {
+            console.debug('删除帖子失败:', err);
+            wx.showToast('删除失败', 'error');
+          } finally {
+            this.setData({ isProcessing: false });
+          }
+        }
+      });
     },
   }
 }); 

@@ -5,7 +5,75 @@ page {
 }
 
 .container {
-  padding: 0 0 30rpx;
+  padding: 20rpx;
+}
+
+/* RAG回答样式 */
+.rag-results {
+  padding: 0rpx;
+  background-color: #f7f7f7;
+}
+
+.rag-answer-container {
+  padding: 30rpx 40rpx;
+  margin: 0 10rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  width: auto;
+}
+
+.rag-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.rag-avatar {
+  margin-right: 20rpx;
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rag-nickname {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.rag-content {
+  margin-bottom: 30rpx;
+}
+
+.rag-content text-area {
+  width: 100%;
+}
+
+.rag-sources {
+  margin-top: 40rpx;
+  padding-top: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+/* 覆盖text-area组件的默认样式 */
+.rag-content .text-area-container {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.rag-content .text-area-container .markdown-preview {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.rag-content .text-area-container .text-preview {
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 /* 搜索建议 */
@@ -46,86 +114,210 @@ page {
   font-size: 28rpx;
   font-weight: bold;
   color: #333;
-  padding: 24rpx 24rpx 16rpx;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin: 30rpx 0 15rpx 0;
+  position: relative;
+  padding-left: 20rpx;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8rpx;
+  height: 28rpx;
+  width: 8rpx;
+  background-color: #6369e8;
+  border-radius: 4rpx;
 }
 
 .clear-btn {
-  font-size: 24rpx;
-  color: #666;
+  font-size: 26rpx;
+  color: #6369e8;
   font-weight: normal;
+}
+
+/* 搜索前缀指南 */
+.search-prefix-guide {
+  margin: 30rpx 0;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.prefix-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20rpx;
+}
+
+.prefix-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.prefix-item:last-child {
+  border-bottom: none;
+}
+
+.prefix-icon {
+  margin-right: 20rpx;
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8f8f8;
+  border-radius: 50%;
+}
+
+.prefix-content {
+  flex: 1;
+}
+
+.prefix-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+
+.prefix-desc {
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 搜索为空状态 */
+.empty-search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 0;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: #999;
+  margin: 20rpx 0 40rpx;
+}
+
+.empty-tips {
+  width: 100%;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.tips-title {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 16rpx;
+}
+
+.tips-item {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+  line-height: 1.5;
+}
+
+.prefix {
+  color: #6369e8;
+  font-weight: bold;
+  margin: 0 4rpx;
+}
+
+/* 搜索提示前缀列表 */
+.search-tips {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.search-tips-prefixes {
+  display: flex;
+  flex-direction: column;
+  margin-top: 40rpx;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  width: 80%;
+}
+
+.search-tips-prefixes text {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 10rpx;
 }
 
 /* 热门搜索 */
 .hot-searches {
-  background-color: #fff;
-  margin: 16rpx;
-  border-radius: 8rpx;
-  padding-bottom: 16rpx;
+  margin-top: 20rpx;
 }
 
 .hot-list {
-  padding: 0 24rpx;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .hot-item {
   display: flex;
   align-items: center;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid #f8f8f8;
-}
-
-.hot-item:last-child {
-  border-bottom: none;
+  background: #fff;
+  padding: 15rpx 20rpx;
+  border-radius: 10rpx;
+  margin-right: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
 }
 
 .hot-rank {
   width: 40rpx;
   height: 40rpx;
-  line-height: 40rpx;
-  text-align: center;
-  background-color: #eee;
-  border-radius: 6rpx;
-  margin-right: 16rpx;
-  font-size: 24rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f0f0f0;
   color: #999;
+  border-radius: 50%;
+  font-size: 24rpx;
+  margin-right: 10rpx;
 }
 
 .hot-rank.top {
-  background-color: #ff6b6b;
+  background: #6369e8;
   color: #fff;
 }
 
 .count {
-  margin-left: auto;
   font-size: 24rpx;
   color: #999;
+  margin-left: 10rpx;
 }
 
 /* 搜索历史 */
 .search-history {
-  background-color: #fff;
-  margin: 16rpx;
-  border-radius: 8rpx;
-  padding-bottom: 16rpx;
+  margin-top: 40rpx;
 }
 
 .history-list {
   display: flex;
   flex-wrap: wrap;
-  padding: 0 20rpx;
 }
 
 .history-item {
-  padding: 8rpx 16rpx;
-  background-color: #f5f5f5;
+  background: #f5f5f5;
   color: #666;
-  border-radius: 24rpx;
-  font-size: 24rpx;
-  margin-right: 16rpx;
-  margin-bottom: 16rpx;
+  font-size: 26rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 30rpx;
+  margin-right: 20rpx;
+  margin-bottom: 20rpx;
 }
 
 /* 搜索内容区 */
@@ -134,6 +326,7 @@ page {
   margin: 16rpx;
   border-radius: 8rpx;
   padding: 16rpx;
+  margin-top:0rpx;
 }
 
 /* 查询与回答 */
@@ -147,32 +340,39 @@ page {
   color: #333;
 }
 
-/* 问题建议 */
+/* 建议问题样式 */
 .suggest-questions {
-  margin-top: 16rpx;
+  margin-top: 30rpx;
 }
 
 .question-list {
-  padding: 0 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
 }
 
 .question-item {
   display: flex;
   align-items: center;
-  padding: 16rpx;
-  background-color: #f8f8f8;
-  border-radius: 8rpx;
-  margin-bottom: 12rpx;
+  background-color: #f8f9fe;
+  padding: 16rpx 20rpx;
+  border-radius: 16rpx;
+  transition: all 0.3s;
+}
+
+.question-item:active {
+  background-color: #edeef9;
 }
 
 .question-item icon {
-  margin-right: 12rpx;
-  color: #666;
+  margin-right: 16rpx;
+  flex-shrink: 0;
 }
 
 .question-item text {
   font-size: 26rpx;
   color: #333;
+  line-height: 1.4;
 }
 
 /* 结果摘要 */
@@ -227,6 +427,46 @@ page {
   color: #999;
 }
 
+/* RAG加载动画 */
+.rag-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.rag-loading-text {
+  font-size: 32rpx;
+  color: #333;
+  margin: 10rpx 0;
+  position: relative;
+  animation: fade-in 0.5s ease-in;
+}
+
+.rag-loading-dots {
+  display: inline-block;
+}
+
+.rag-loading-dots:after {
+  content: '...';
+  animation: dots 1.5s steps(4, end) infinite;
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+}
+
+@keyframes dots {
+  0%, 20% { width: 0px; }
+  40% { width: 6px; }
+  60% { width: 12px; }
+  80%, 100% { width: 18px; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -267,4 +507,34 @@ page {
 .search-tips text {
   font-size: 28rpx;
   color: #999;
+}
+
+/* 搜索按钮 */
+.search-button {
+  margin-top: 32rpx;
+  width: 80%;
+  height: 80rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f5ff;
+  color: #3366cc;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid #e8e8e8;
+}
+
+.search-button icon {
+  margin-right: 12rpx;
+}
+
+.search-button text {
+  color: #3366cc;
+}
+
+.search-button:active {
+  opacity: 0.8;
 }

@@ -28,70 +28,78 @@ Page({
       show: false,
       title: '',
       buttons: []
-    }
+    },
+
+    // 记录是否需要聚焦到评论区
+    shouldFocusComment: false
   },
 
-  onLoad(options) {
+  async onLoad(options) {
     // 从页面参数中获取帖子ID
     const postId = options.id;
-    const commentId = options.comment_id; // 获取评论ID参数
+    this.setData({
+      postId: postId
+    });
     
-    // 获取状态栏高度 - 使用新API替代已废弃的getSystemInfoSync
+    // 处理评论ID和焦点参数
+    if(options.commentId){
+      this.setData({
+        commentId: options.commentId
+      });
+    }
+    
+    // 记录是否需要聚焦到评论区
+    if(options.focus === 'comment') {
+      this.setData({
+        shouldFocusComment: true
+      });
+    }
+    
     try {
       const windowInfo = wx.getWindowInfo();
       this.setData({
         statusBarHeight: windowInfo.statusBarHeight,
-        postId: postId,
-        commentId: commentId // 保存评论ID
       });
     } catch (err) {
-      console.debug('获取窗口信息失败:', err);
       this.setData({
         statusBarHeight: 20, // 默认状态栏高度
-        postId: postId,
-        commentId: commentId // 保存评论ID
       });
     }
     
     // 加载帖子详情
-    this.loadPostDetail();
+    await this.loadPostDetail();
   },
   
   onReady() {
     // 如果有评论ID参数，等待页面准备好后定位到指定评论
-    const { commentId } = this.data;
-    if (commentId) {
-      // 给评论列表一些时间加载数据
-      setTimeout(() => {
+    const { commentId, shouldFocusComment } = this.data;
+    
+    // 延迟执行以确保组件已加载
+    setTimeout(() => {
+      if (commentId) {
         this.scrollToComment(commentId);
-      }, 1000);
-    }
+      } else if (shouldFocusComment) {
+        // 滚动到评论区域
+        wx.createSelectorQuery()
+          .select('.comment-list-container')
+          .boundingClientRect(rect => {
+            if (rect) {
+              wx.pageScrollTo({
+                scrollTop: rect.top,
+                duration: 300
+              });
+            }
+          })
+          .exec();
+      }
+    }, 1000);
   },
   
   onShow() {
 
   },
 
-  // 加载帖子详情
-  loadPostDetail() {
-    const { postId } = this.data;
-    if (!postId) {
-      this.setData({
-        isPostLoading: false,
-        loadError: '帖子ID为空'
-      });
-      return;
-    }
-    // 显示加载状态
-    this.setData({ 
-      postDetail: {
-        id: postId
-      },
-      isPostLoading: true,
-      loadError: ''
-    });
-  },
-  
+
   
   // 显示顶部提示
   showToptips(msg, type = 'error') {
@@ -172,6 +180,35 @@ Page({
     if (commentList) {
       // 调用评论列表组件的方法，定位到指定评论
       commentList.locateComment(commentId);
+    }
+  },
+
+  // 加载帖子详情
+  async loadPostDetail() {
+    const { postId } = this.data;
+    if (!postId) {
+      this.setData({ 
+        loadError: '帖子ID不存在',
+        isPostLoading: false 
+      });
+      return;
+    }
+    
+    this.setData({ isPostLoading: true, loadError: '' });
+    
+    try {
+      const postDetail = await this._getPostDetail(postId);
+      this.setData({
+        postDetail: postDetail,
+        isPostLoading: false
+      });
+      console.log('postDetail', postDetail);
+    } catch (err) {
+      console.error('加载帖子详情失败:', err);
+      this.setData({ 
+        loadError: '加载失败，请重试',
+        isPostLoading: false 
+      });
     }
   },
 

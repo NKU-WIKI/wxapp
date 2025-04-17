@@ -266,7 +266,7 @@ API接口的参数类型规范如下：
     "favorite_count": 5,
     "post_count": 8,
     "follower_count": 20,
-    "follow_count": 15,
+    "following_count": 15,
     "create_time": "2023-01-01 12:00:00",
     "update_time": "2023-01-01 12:00:00",
     "last_login": "2023-01-01 12:00:00",
@@ -307,7 +307,7 @@ API接口的参数类型规范如下：
     "favorite_count": 0,
     "post_count": 0,
     "follower_count": 0,
-    "follow_count": 0,
+    "following_count": 0,
     "create_time": "2023-01-01 12:00:00",
     "update_time": "2023-01-01 12:00:00",
     "last_login": "2023-01-01 12:00:00",
@@ -356,7 +356,7 @@ API接口的参数类型规范如下：
     "favorite_count": 0,
     "post_count": 0,
     "follower_count": 0,
-    "follow_count": 0,
+    "following_count": 0,
     "create_time": "2023-01-01 12:00:00",
     "update_time": "2023-01-01 12:00:00",
     "last_login": "2023-01-01 12:00:00",
@@ -373,13 +373,16 @@ API接口的参数类型规范如下：
 ### 1.3 查询用户列表
 
 **接口**：`GET /api/wxapp/user/list`  
-**描述**：获取用户列表  
+**描述**：获取用户列表，支持获取所有用户、粉丝列表和关注列表  
 **参数**：
+- `type` - 查询参数，列表类型：all(所有用户，默认)、follower(粉丝)、following(关注)
+- `openid` - 查询参数，用户openid（当type为follower或following时必填）
 - `page_size` - 查询参数，每页记录数量，默认10，最大100
 - `page` - 查询参数，页码，从1开始，默认1
 
 **响应**：
 
+当type=all或未指定时，返回所有用户列表：
 ```json
 {
   "code": 200,
@@ -388,33 +391,11 @@ API接口的参数类型规范如下：
     {
       "id": 1,
       "openid": "微信用户唯一标识",
-      "unionid": "微信开放平台唯一标识",
       "nickname": "用户昵称",
       "avatar": "头像URL",
-      "gender": 0,
       "bio": "个人简介",
-      "country": "国家",
-      "province": "省份",
-      "city": "城市",
-      "language": "语言",
-      "birthday": "2004-06-28",
-      "wechatId": "微信号",
-      "qqId": "QQ号",
-      "phone": "手机号",
-      "university": "大学",
-      "token_count": 0,
-      "like_count": 0,
-      "favorite_count": 0,
-      "post_count": 0,
-      "follower_count": 0,
-      "follow_count": 0,
       "create_time": "2023-01-01 12:00:00",
-      "update_time": "2023-01-01 12:00:00",
-      "last_login": "2023-01-01 12:00:00",
-      "platform": "wxapp",
-      "status": 1,
-      "is_deleted": 0,
-      "extra": {}
+      "update_time": "2023-01-01 12:00:00"
     }
   ],
   "pagination": {
@@ -426,6 +407,68 @@ API接口的参数类型规范如下：
   },
   "details": {
     "message": "获取用户列表成功"
+  },
+  "timestamp": "2023-01-01 12:00:00"
+}
+```
+
+当type=follower时，返回粉丝列表：
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "openid": "粉丝用户的openid",
+      "nickname": "粉丝昵称",
+      "avatar": "头像URL",
+      "bio": "个人简介",
+      "post_count": 5,
+      "follower_count": 10,
+      "following_count": 20,
+      "follow_time": "2023-01-01 12:00:00"
+    }
+  ],
+  "pagination": {
+    "total": 20,
+    "page": 1,
+    "page_size": 10,
+    "total_pages": 2,
+    "has_more": true
+  },
+  "details": {
+    "message": "获取粉丝列表成功"
+  },
+  "timestamp": "2023-01-01 12:00:00"
+}
+```
+
+当type=following时，返回关注列表：
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "openid": "被关注用户的openid",
+      "nickname": "被关注用户昵称",
+      "avatar": "头像URL",
+      "bio": "个人简介",
+      "post_count": 8,
+      "follower_count": 15,
+      "following_count": 5,
+      "follow_time": "2023-01-01 12:00:00"
+    }
+  ],
+  "pagination": {
+    "total": 30,
+    "page": 1,
+    "page_size": 10,
+    "total_pages": 3,
+    "has_more": true
+  },
+  "details": {
+    "message": "获取关注列表成功"
   },
   "timestamp": "2023-01-01 12:00:00"
 }
@@ -489,7 +532,7 @@ API接口的参数类型规范如下：
     "favorite_count": 5,
     "post_count": 8,
     "follower_count": 20,
-    "follow_count": 15,
+    "following_count": 15,
     "create_time": "2023-01-01 12:00:00",
     "update_time": "2023-01-02 14:30:00",
     "last_login": "2023-01-01 12:00:00",
@@ -524,14 +567,13 @@ API接口的参数类型规范如下：
 {"code":200,"message":"success","data":{"success":true,"status":"unfollowed","is_following":false},"details":{"message":"取消关注成功"},"timestamp":"2025-04-12T21:10:01.431815","pagination":null}
 ```
 
+### 1.6 获取用户交互状态
 
-### 1.6 检查关注状态
-
-**接口**：`GET /api/wxapp/user/check-follow`  
-**描述**：检查用户是否已关注某用户  
+**接口**：`GET /api/wxapp/user/status`  
+**描述**：获取当前用户与目标用户之间的交互状态  
 **参数**：
-- `follower_id` - 查询参数，关注者的openid（必填）
-- `followed_id` - 查询参数，被关注者的openid（必填）
+- `openid` - 查询参数，当前用户openid（必填）
+- `target_id` - 查询参数，目标用户openid（必填）
 
 **响应**：
 
@@ -540,93 +582,12 @@ API接口的参数类型规范如下：
   "code": 200,
   "message": "success",
   "data": {
-    "is_following": true
-  },
-  "details": null,
-  "timestamp": "2023-01-01 12:00:00"
-}
-```
-
-### 1.7 获取用户关注列表
-
-**接口**：`GET /api/wxapp/user/following`  
-**描述**：获取用户关注的所有用户  
-**参数**：
-- `openid` - 查询参数，用户openid（必填）
-- `page_size` - 查询参数，每页记录数量，默认20，最大100
-- `page` - 查询参数，页码，从1开始，默认1
-
-**响应**：
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": [
-    {
-      "user": {
-        "id": 2,
-        "openid": "用户openid",
-        "nickname": "用户昵称",
-        "avatar": "头像URL",
-        "gender": 1,
-        "bio": "个人简介",
-        "country": "国家",
-        "province": "省份",
-        "city": "城市"
-      },
-      "follow_time": "2023-01-01 12:00:00"
-    }
-  ],
-  "pagination": {
-    "total": 30,
-    "page": 1,
-    "page_size": 20,
-    "total_pages": 2,
-    "has_more": true
-  },
-  "details": null,
-  "timestamp": "2023-01-01 12:00:00"
-}
-```
-
-### 1.8 获取用户粉丝列表
-
-**接口**：`GET /api/wxapp/user/follower`  
-**描述**：获取关注该用户的所有用户  
-**参数**：
-- `openid` - 查询参数，用户openid（必填）
-- `page_size` - 查询参数，每页记录数量，默认20，最大100
-- `page` - 查询参数，页码，从1开始，默认1
-
-**响应**：
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": [
-    {
-      "user": {
-        "id": 3,
-        "openid": "粉丝用户的openid",
-        "nickname": "粉丝昵称",
-        "avatar": "头像URL",
-        "gender": 2,
-        "bio": "个人简介",
-        "country": "国家",
-        "province": "省份",
-        "city": "城市"
-      },
-      "follow_time": "2023-01-01 12:00:00"
-    }
-  ],
-  "pagination": {
-    "total": 20,
-    "page": 1,
-    "page_size": 20,
-    "total_pages": 1,
-    "has_more": false
+    "is_following": true,
+    "is_self": false,
+    "post_count": 10,
+    "follower_count": 20,
+    "following_count": 15,
+    "like_count": 50
   },
   "details": null,
   "timestamp": "2023-01-01 12:00:00"
@@ -754,14 +715,19 @@ API接口的参数类型规范如下：
 ### 2.3 查询帖子列表
 
 **接口**：`GET /api/wxapp/post/list`  
-**描述**：获取帖子列表  
+**描述**：查询帖子列表，支持多种筛选条件  
 **参数**：
-- `page` - 查询参数，页码，从1开始，默认1
-- `page_size` - 查询参数，每页记录数量，默认10，最大100
-- `category_id` - 查询参数，按分类ID筛选，可选
-- `tag` - 查询参数，按标签筛选，可选
-- `status` - 查询参数，帖子状态筛选，1-正常，0-禁用，默认1
-- `order_by` - 查询参数，排序方式，默认"update_time DESC"
+- `page` - 查询参数，页码，默认1
+- `limit` - 查询参数，每页数量，默认10
+- `category_id` - 查询参数，分类ID（可选）
+- `tag` - 查询参数，标签（可选）
+- `openid` - 查询参数，用户openid，查询该用户的帖子或收藏的帖子（可选）
+- `favorite` - 查询参数，布尔值，默认false。为true时使用openid参数查询用户收藏的帖子
+- `order_by` - 查询参数，排序方式，默认为"create_time DESC"，支持：
+  - `create_time DESC/ASC`（创建时间）
+  - `update_time DESC/ASC`（更新时间）
+  - `view_count DESC/ASC`（浏览数）
+  - `like_count DESC/ASC`（点赞数）
 
 **响应**：
 
@@ -771,54 +737,44 @@ API接口的参数类型规范如下：
   "message": "success",
   "data": [
     {
-      "id": 1,              // 帖子ID，主键
-      "openid": "发布用户openid",
-      "nickname": "用户昵称",
-      "avatar": "用户头像URL",
-      "bio": "用户个人简介",
-      "category_id": 1,
+      "id": 1,
       "title": "帖子标题",
       "content": "帖子内容",
       "image": ["图片URL1", "图片URL2"],
-      "tag": ["标签1", "标签2"],
+      "openid": "发布用户openid",
+      "nickname": "用户昵称",
+      "avatar": "头像URL",
+      "bio": "用户简介",
       "view_count": 10,
       "like_count": 5,
       "comment_count": 3,
-      "collect_count": 0,
-      "status": 1,          // 帖子状态：1-正常，0-禁用
-      "is_deleted": 0,      // 是否删除：0-未删除，1-已删除
-      "platform": "wxapp",   // 发布平台
-      "create_time": "2023-01-01T12:00:00",
-      "update_time": "2023-01-01T12:00:00"
+      "favorite_count": 2,
+      "is_favorited": true,      // 当使用favorite=true参数时，所有返回的帖子都标记为true
+      "allow_comment": 1,
+      "is_public": 1,
+      "create_time": "2023-01-01 12:00:00",
+      "update_time": "2023-01-01 12:00:00",
+      "tag": ["标签1", "标签2"],
+      "category_id": 1,
+      "user": {                  // 补充查询得到的作者信息
+        "openid": "作者openid",
+        "nickname": "作者昵称",
+        "avatar": "作者头像URL",
+        "bio": "作者简介"
+      }
     }
   ],
-  "details": {
-    "message": "查询帖子列表成功"
-  },
-  "timestamp": "2023-01-01T12:00:00",
   "pagination": {
     "total": 100,
     "page": 1,
     "page_size": 10,
-    "total_pages": 10
-  }
+    "total_pages": 10,
+    "has_more": true
+  },
+  "details": {"message": "查询帖子列表成功"},
+  "timestamp": "2023-01-01 12:00:00"
 }
 ```
-
-**响应字段说明**：
-
-| 字段 | 类型 | 描述 |
-|------|------|------|
-| [post_id] | object | 以帖子ID为key的状态对象 |
-| exist | boolean | 帖子是否存在 |
-| is_liked | boolean | 当前用户是否点赞 |
-| is_favorited | boolean | 当前用户是否收藏 |
-| is_author | boolean | 当前用户是否是作者 |
-| is_following | boolean | 当前用户是否关注了帖子作者 |
-| like_count | integer | 帖子点赞总数 |
-| favorite_count | integer | 帖子收藏总数 |
-| comment_count | integer | 帖子评论总数 |
-| view_count | integer | 帖子浏览总数 |
 
 ### 2.4 更新帖子
 
@@ -1630,12 +1586,13 @@ GET /api/agent/search?query=南开&openid=test&page=2&page_size=20
 ### 6.3 小程序搜索
 
 **接口**：`GET /api/knowledge/search-wxapp`  
-**描述**：专为小程序优化的搜索接口  
+**描述**：专为小程序优化的搜索接口，支持帖子和用户的综合搜索  
 **参数**：
 - `query` - 查询参数，搜索关键词（必填）
-- `openid` - 查询参数，用户openid（必填）
+- `search_type` - 查询参数，搜索类型：all(全部)、post(帖子)、user(用户)，默认all
 - `page` - 查询参数，页码，默认1
-- `page_size` - 查询参数，每页条数，默认10
+- `page_size` - 查询参数，每页记录数量，默认10
+- `sort_by` - 查询参数，排序方式：time(时间)、relevance(相关度)，默认time
 
 **响应**：
 
@@ -1643,30 +1600,103 @@ GET /api/agent/search?query=南开&openid=test&page=2&page_size=20
 {
   "code": 200,
   "message": "success",
-  "data": {
-    "results": [
-      {
-        "id": 1,
-        "title": "帖子标题",
-        "content": "帖子内容摘要...",
-        "author": "用户昵称",
-        "create_time": "2023-01-01 12:00:00",
-        "like_count": 5,
-        "comment_count": 2,
-        "view_count": 100,
-        "image": ["图片URL"]
+  "data": [
+    {
+      // 帖子类型结果
+      "id": 1,
+      "title": "帖子标题",
+      "content": "帖子内容",
+      "type": "post",
+      "like_count": 10,
+      "comment_count": 5,
+      "view_count": 100,
+      "update_time": "2023-01-01 12:00:00",
+      "openid": "发布者openid",
+      "relevance": 0.85,
+      "user": {
+        "openid": "作者openid",
+        "nickname": "作者昵称",
+        "avatar": "作者头像URL",
+        "bio": "作者简介"
       }
-    ],
-    "pagination": {
-      "total": 50,
-      "page": 1,
-      "page_size": 10,
-      "total_pages": 5
+    },
+    {
+      // 用户类型结果
+      "id": 2,
+      "openid": "用户openid",
+      "nickname": "用户昵称",
+      "avatar": "用户头像URL",
+      "bio": "用户简介",
+      "type": "user",
+      "relevance": 0.75
     }
+  ],
+  "pagination": {
+    "total": 100,
+    "page": 1,
+    "page_size": 10,
+    "total_pages": 10,
+    "has_more": true
   },
-  "details": null,
-  "timestamp": "2023-01-01 12:00:00"
+  "details": {
+    "query": "搜索关键词",
+    "search_type": "all",
+    "sort_by": "time"
+  }
 }
+```
+
+**响应字段说明**：
+
+1. 帖子类型结果字段：
+- `id` - 帖子ID
+- `title` - 帖子标题
+- `content` - 帖子内容
+- `type` - 结果类型，固定为"post"
+- `like_count` - 点赞数
+- `comment_count` - 评论数
+- `view_count` - 浏览数
+- `update_time` - 更新时间
+- `openid` - 发布者openid
+- `relevance` - 相关度分数（当sort_by=relevance时）
+- `user` - 作者信息对象
+
+2. 用户类型结果字段：
+- `id` - 用户ID
+- `openid` - 用户openid
+- `nickname` - 用户昵称
+- `avatar` - 用户头像URL
+- `bio` - 用户简介
+- `type` - 结果类型，固定为"user"
+- `relevance` - 相关度分数（当sort_by=relevance时）
+
+**排序说明**：
+- `time`：按更新时间降序排序
+- `relevance`：按相关度分数降序排序，相关度基于以下因素计算：
+  - 标题/昵称匹配度
+  - 内容/简介匹配度
+  - 更新时间权重（仅对帖子有效）
+
+**示例**：
+
+1. 搜索所有内容：
+```
+GET /api/knowledge/search-wxapp?query=南开大学&search_type=all
+```
+
+2. 仅搜索帖子：
+```
+GET /api/knowledge/search-wxapp?query=南开大学&search_type=post
+```
+
+3. 仅搜索用户：
+```
+GET /api/knowledge/search-wxapp?query=南开大学&search_type=user
+```
+
+4. 按相关度排序：
+```
+GET /api/knowledge/search-wxapp?query=南开大学&sort_by=relevance
 ```
 
 ### 6.4 搜索历史

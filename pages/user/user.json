@@ -1,0 +1,13 @@
+{
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "backgroundColor": "#f7f9fc",
+  "usingComponents": {
+    "user-card": "/components/user-card/user-card",
+    "mp-cells": "/components/weui/cells/cells",
+    "mp-cell": "/components/weui/cell/cell",
+    "mp-toptips": "/components/weui/toptips/toptips",
+    "nav-bar": "/components/nav-bar/nav-bar"
+  }
+}

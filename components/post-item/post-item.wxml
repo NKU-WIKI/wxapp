@@ -1,12 +1,12 @@
 <!-- 帖子列表项组件 -->
 <view class="post-item" style="{{customStyle}}">
   <!-- 点击跳转覆盖层 - 位于所有内容之下但优先处理点击 -->
-  <view class="tap-overlay" bindtap="_onPostTap" wx:if="{{!detailPage}}"></view>
+  <view class="tap-overlay" bindtap="onPostTap" wx:if="{{!detailPage}}"></view>
   
   <view class="post-header">
     <view class="post-header-left">
       <!-- 修改头像展示方式，使用更新后的icon组件并根据是否有avatar决定展示方式 -->
-      <view class="avatar-container" catchtap="_onAvatarTap">
+      <view class="avatar-container" catchtap="onAvatarTap">
         <icon 
           wx:if="{{post.avatar}}"
           useImage="{{true}}"
@@ -23,7 +23,7 @@
         </icon>
       </view>
       <view class="post-info">
-        <view class="author-name" catchtap="_onAuthorTap">{{post.user.nickname || post.nickname || '未知用户'}}</view>
+        <view class="author-name" catchtap="onAuthorTap">{{post.user.nickname || post.nickname || '未知用户'}}</view>
         <view wx:if="{{post.user.bio || post.bio}}" class="author-bio">{{post.user.bio || post.bio}}</view>
       </view> 
     </view>
@@ -32,9 +32,19 @@
         <button 
           class="follow-button button {{post.is_following ? 'followed' : ''}}"
           hover-class="button-hover"
-          catchtap="_onFollowTap">
+          catchtap="onFollowTap">
           {{post.is_following ? '已关注' : '关注'}}
         </button>
+      </view>
+      <!-- 添加删除按钮 -->
+      <view wx:if="{{post.openid === currentUserOpenid}}" class="delete-container">
+        <icon 
+          name="clear"
+          size="40"
+          color="#ff4d4f"
+          class="delete-icon"
+          catchtap="onDeleteTap">
+        </icon>
       </view>
     </view>
   </view>
@@ -51,11 +61,11 @@
           height="{{contentExpanded ? 900 : (previewHeight > 0 ? previewHeight : 120)}}"
           autoHeight="{{!contentExpanded && !detailPage}}"
           showToolbar="{{false}}"
-          scroll="{{true}}"
+          scroll="{{detailPage}}"
         ></text-area>
         
         <!-- 展开全文按钮 - 移到这里确保一定会显示 -->
-        <view wx:if="{{contentOverflow}}" catchtap="_onExpandTap" class="read-more-wrapper">
+        <view wx:if="{{contentOverflow}}" catchtap="onExpandTap" class="read-more-wrapper">
           <view class="read-more">
             {{contentExpanded ? '收起' : '展开全文'}}
             <image class="expand-icon {{contentExpanded ? 'rotate-up' : 'rotate-down'}}" src="/icons/arrow-right.png" mode="aspectFit"></image>
@@ -73,7 +83,7 @@
       <block wx:for="{{post.images}}" wx:key="*this">
         <image class="post-image" src="{{item}}" mode="{{post.images.length === 1 ? 'widthFix' : 'aspectFill'}}" 
                data-index="{{index}}" data-images="{{post.images}}" 
-               catchtap="_onImageTap"></image>
+               catchtap="onImageTap"></image>
       </block>
       <view wx:if="{{post.images.length > 3}}" class="image-count">+{{post.images.length - 3}}</view>
     </view>-->
@@ -84,7 +94,7 @@
     <view wx:for="{{post.tags}}" wx:key="*this"
           class="tag-item"
           data-tag="{{item}}" 
-          catchtap="_onTagTap">
+          catchtap="onTagTap">
       #{{item}}
     </view>
   </view>
@@ -97,7 +107,7 @@
       <button class="action-button {{post.is_liked ? 'action-button-active' : ''}}" 
               hover-class="button-hover" 
               size="mini" 
-              catchtap="_onLikeTap">
+              catchtap="onLikeTap">
         <image class="action-icon" src="/icons/{{post.is_liked ? 'liked' : 'like'}}.png" mode="aspectFit"></image>
         <text class="action-count" wx:if="{{post.like_count > 0}}">{{post.like_count}}</text>
       </button>
@@ -106,7 +116,7 @@
       <button class="action-button" 
               hover-class="button-hover" 
               size="mini" 
-              catchtap="_onCommentTap">
+              catchtap="onCommentTap">
         <image class="action-icon" src="/icons/{{!post.comment_count ? 'comment' : 'comment-active'}}.png" mode="aspectFit"></image>
         <text class="action-count" wx:if="{{post.comment_count > 0}}">{{post.comment_count}}</text>
       </button>
@@ -115,17 +125,17 @@
       <button class="action-button {{post.is_favorited ? 'action-button-active' : ''}}"
               hover-class="button-hover" 
               size="mini" 
-              catchtap="_onFavoriteTap">
+              catchtap="onFavoriteTap">
         <image class="action-icon" src="/icons/{{post.is_favorited ? 'favorited' : 'favorite'}}.png" mode="aspectFit"></image>
         <text class="action-count" wx:if="{{post.favorite_count > 0}}">{{post.favorite_count}}</text>
       </button>
       
       <!-- 分享按钮 -->
-      <button class="action-button share-button" 
+      <button class="action-button" 
               hover-class="button-hover" 
               size="mini" 
               open-type="share" 
-              catchtap="_onShareTap">
+              catchtap="onShareTap">
         <image class="action-icon" src="/icons/wechat.png" mode="aspectFit"></image>
         <text class="action-count" wx:if="{{post.share_count > 0}}">{{post.share_count}}</text>
       </button>
@@ -137,7 +147,7 @@
       <text class="comment-author">{{item.nickname}}：</text>
       <text class="comment-content">{{item.content}}</text>
     </view>
-    <view wx:if="{{post.comment_count > post.comments.length}}" class="view-more" catchtap="_onViewMoreComments">
+    <view wx:if="{{post.comment_count > post.comments.length}}" class="view-more" catchtap="onViewMoreComments">
       查看全部{{post.comment_count}}条评论
     </view>
   </view>

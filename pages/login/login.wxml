@@ -1,11 +1,18 @@
 <view class="container">
   <view class="main-content">
     <!-- Logo区域 -->
+    <block wx:if="{{aboutInfo && aboutInfo.version}}">
       <logo-section 
-        app-name="{{companyInfo.app_name}}" 
-        version="{{companyInfo.version}}" 
+        appName="{{aboutInfo.app_name}}" 
+        version="{{aboutInfo.version}}" 
         subtitle="校园知识共享平台">
-    </logo-section>
+      </logo-section>
+    </block>
+    <block wx:else>
+      <view class="loading-placeholder">
+        <view class="loading-spinner"></view>
+      </view>
+    </block>
     <!-- 登录卡片 -->
     <login-card 
       bind:login="handleLogin"
@@ -13,7 +20,7 @@
     ></login-card>
      <!-- 版权信息 -->
       <view class="copyright">
-        <text>{{companyInfo.copyright || '©2025 nkuwiki team'}}</text>
+        <text>{{aboutInfo.copyright}}</text>
       </view>
   </view>
 </view>

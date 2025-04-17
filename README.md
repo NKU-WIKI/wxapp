@@ -1,6 +1,6 @@
 # nkuwiki微信小程序
 
-[![Version](https://img.shields.io/badge/version-0.0.2-blue.svg)](https://github.com/your-org/nkuwiki/releases)
+[![Version](https://img.shields.io/badge/version-0.0.5-blue.svg)](https://github.com/your-org/nkuwiki/releases)
 
 <img src="https://raw.githubusercontent.com/aokimi0/image-hosting-platform/main/img/20250404144927.png" width="200" />
 
@@ -57,6 +57,7 @@ services/app/
 │   ├── login/          # 登录页
 │   ├── notification/   # 通知页
 │   ├── post/           # 发帖页
+│   ├── knowledge/      # 知识库页面
 │   └── agent/          # 智能体相关页面
 ├── behaviors/          # 可复用的行为模块
 │   ├── baseBehavior.js      # 基础行为
@@ -65,11 +66,10 @@ services/app/
 │   ├── postBehavior.js      # 帖子行为
 │   ├── commentBehavior.js   # 评论行为
 │   ├── notificationBehavior.js # 通知行为
+│   └── knowledgeBehavior.js # 知识库行为
 ├── components/         # 自定义组件
-│   ├── action-bar/     # 操作栏
-│   ├── button/         # 按钮
 │   ├── card/           # 卡片
-│   ├── category-tabs/  # 分类标签页
+│   ├── category-tab/  # 分类标签页
 │   ├── cell-status/    # 单元格状态组件
 │   ├── comment-input/  # 评论输入框
 │   ├── comment-item/   # 评论项
@@ -86,7 +86,7 @@ services/app/
 │   ├── logo-section/   # Logo区域
 │   ├── menu-list/      # 菜单列表
 │   ├── nav-bar/        # 导航栏
-│   ├── nav-tab-bar/    # 底部标签栏
+│   ├── tab-bar/        # 顶部标签栏
 │   ├── picker-field/   # 选择器
 │   ├── post-item/      # 帖子项
 │   ├── post-list/      # 帖子列表
@@ -647,7 +647,7 @@ if (storage.get('token')) {
 ##### 界面交互工具
 
 ```javascript
-const { ui, nav, ToastType } = require('../../utils/util');
+const { ui, ToastType } = require('../../utils/util');
 
 // 显示提示
 ui.showToast('操作成功', { type: ToastType.SUCCESS });
@@ -658,8 +658,6 @@ const confirmed = await ui.showDialog({
   content: '确定删除吗？'
 });
 
-// 页面导航
-nav.to('/pages/post/detail', { id: 123 });
 ```
 
 ##### 错误处理工具
@@ -755,6 +753,7 @@ api交互字段最好用api文档严格一致。
   - 以 `/api/` 开头
   - 微信小程序API：`/api/wxapp/` 前缀
   - 智能体API：`/api/agent/` 前缀
+  - 知识库API：  `/api/knowledge/` 前缀
   - 路径统一小写
   - 单词间用短横线连接
 - 参数命名：一般是小写下划线命名法（如 `post_id`、`user_id`）

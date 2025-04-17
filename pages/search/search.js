@@ -13,6 +13,8 @@ Page({
     loading: false,
     isSearching: false,
     hasSearched: false, // 标记是否已执行过搜索
+    currentSearchType: '', // 添加当前搜索类型标记
+    focus: false, // 添加搜索框焦点状态
     // RAG相关数据
     showRagResults: false,
     ragQuery: '',
@@ -62,7 +64,20 @@ Page({
   
   // 搜索方法
   search(e) {
-    const keyword = e.detail.value || this.data.searchValue;
+    // 支持两种方式调用：1. 通过输入框的confirm事件 2. 通过按钮点击
+    let keyword = '';
+    
+    if (e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.value) {
+      // 按钮点击方式
+      keyword = e.currentTarget.dataset.value;
+    } else if (e.detail && e.detail.value) {
+      // 输入框confirm方式
+      keyword = e.detail.value;
+    } else {
+      // 默认使用当前searchValue
+      keyword = this.data.searchValue;
+    }
+    
     if (!keyword || !keyword.trim()) return;
     
     // 检查是否只有前缀没有内容
@@ -114,7 +129,8 @@ Page({
       suggestions: [],
       showRagResults: false,
       hasSearched: true, // 标记已执行过搜索
-      'pagination.page': 1
+      'pagination.page': 1,
+      currentSearchType: searchType
     });
     
     // 保存搜索历史
@@ -157,13 +173,26 @@ Page({
       isSearching: true,
       showRagResults: true,
       suggestions: [],
-      ragResults: '正在查询中...',
+      ragResults: '正在查询改写',
       ragSources: [],
       ragSuggestions: []
     });
     
     try {
       console.debug('发送RAG查询:', queryText);
+      
+      // 添加分阶段的提示动画
+      setTimeout(() => {
+        if (this.data.isSearching) {
+          this.setData({ ragResults: '正在检索知识库' });
+        }
+      }, 1000);
+      
+      setTimeout(() => {
+        if (this.data.isSearching) {
+          this.setData({ ragResults: '正在思考中' });
+        }
+      }, 3000);
       
       // 调用RAG接口
       const resultData = await this._sendRagQuery(
@@ -190,6 +219,13 @@ Page({
         response = data.response || '';
         console.debug('提取的回答内容:', response);
         
+        // 处理回答内容，去除多余空行和所有冒号
+        response = response
+          .split('\n')
+          .filter(line => line.trim() !== '') // 移除空行
+          .join('\n')
+          .replace(/[:：]/g, ''); // 移除所有中英文冒号
+        
         // 处理来源
         if (data.sources && Array.isArray(data.sources)) {
           processedSources = data.sources.map((source, index) => {
@@ -202,10 +238,14 @@ Page({
             // 处理相关度
             let relevance = source.relevance
             
+            // 确保有ID字段，这对于导航到知识详情页面是必须的
+            const sourceId = source.id || source.knowledge_id || source.article_id || `source_${index + 1}`;
+            
             // 处理一些可能缺失的字段
             return {
               ...source,
-              id: source.id || (index + 1).toString(), // 确保有id
+              id: sourceId, // 确保有id
+              knowledge_id: sourceId, // 添加knowledge_id以兼容知识详情页面
               index: index + 1, // 添加序号，从1开始
               title: source.title || '',
               content: source.content || '',
@@ -217,7 +257,9 @@ Page({
               update_time: source.update_time || createTime,
               publish_time: source.create_time || createTime,
               relevance: relevance,
-              is_official: source.is_official !== undefined ? source.is_official : false
+              is_official: source.is_official !== undefined ? source.is_official : false,
+              // 添加类型标记，帮助source-list组件判断跳转目标
+              type: 'knowledge' 
             };
           });
         }
@@ -232,7 +274,7 @@ Page({
       
       console.debug('处理后的回答:', response);
       console.debug('处理后的来源数量:', processedSources.length);
-      
+      console.debug('处理后的建议问题:', suggestions);
       // 在data中更新数据，确保字段名与wxml中一致
       this.setData({
         ragQuery: resultData.data?.original_query || queryText,
@@ -255,97 +297,68 @@ Page({
   async executeSearch(keyword, type = '') {
     if (!keyword) return;
     
-    this.setData({ loading: true });
+    console.debug('执行搜索:', keyword, '类型:', type, '页码:', this.data.pagination.page);
+    
+    this.setData({ 
+      loading: true,
+      currentSearchType: type // 设置当前搜索类型
+    });
     
     try {
       // 准备搜索参数
       const searchParams = {
         page: this.data.pagination.page,
         page_size: this.data.pagination.page_size,
-        sort_by: 'relevance', // 默认按相关度排序
+        sort_by: 'relevance' // 默认按相关度排序
       };
       
-      // 根据不同的搜索类型设置不同的platform参数
-      if (type === 'post' || type === 'user') {
-        // 帖子类型只搜索小程序内容
-        searchParams.platform = 'wxapp';
+      let result;
+      
+      // 根据搜索类型使用不同的搜索函数
+      if (type === 'post') {
+        result = await this._searchPost(
+          keyword,
+          searchParams.page,
+          searchParams.page_size,
+          searchParams.sort_by
+        );
+      } else if (type === 'user') {
+        result = await this._searchUser(
+          keyword,
+          searchParams.page,
+          searchParams.page_size,
+          searchParams.sort_by
+        );
       } else {
-        // 其他类型搜索所有平台
-        searchParams.platform = 'wxapp,wechat,website';
+        // 其他类型使用通用搜索
+        result = await this._search(keyword, {
+          ...searchParams,
+          platform: 'wxapp,wechat,website'
+        });
       }
-      
-      // 如果有指定搜索类型，添加到参数中
-      if (type) {
-        searchParams.type = type;
-      }
-      
-      // 使用knowledgeBehavior中的搜索方法
-      const result = await this._search(keyword, searchParams);
       
       console.debug('搜索结果数据:', JSON.stringify(result));
       
       if (result && result.data) {
-        // 处理搜索结果，确保每个结果项都有必要的字段
-        const processedResults = result.data.map(item => {
-          // 确保有作者信息
-          if (!item.author && item.source_name) {
-            item.author = item.source_name;
-          }
-          
-          // 确保有时间信息
-          if (!item.create_time && item.update_time) {
-            item.create_time = item.update_time;
-          }
-          
-          // 确保有发布时间
-          if (!item.publish_time && item.create_time) {
-            item.publish_time = item.create_time;
-          }
-          
-          // 处理相关度字段 - 确保它是一个0-1之间的数值
-          if (typeof item.relevance === 'string') {
-            // 如果是百分比格式的字符串 (例如 "90%")
-            if (item.relevance.endsWith('%')) {
-              item.relevance = parseFloat(item.relevance) / 100;
-            } else {
-              // 尝试直接解析为数字
-              item.relevance = parseFloat(item.relevance);
-            }
-          }
-          // 确保相关度值在0-1之间
-          if (typeof item.relevance === 'number' && item.relevance > 1) {
-            item.relevance = item.relevance / 100;
-          }
-          
-          // 确保有平台信息
-          if (!item.platform) {
-            // 根据来源或URL猜测平台
-            if (item.source_name && item.source_name.includes('公众号')) {
-              item.platform = 'wechat';
-            } else if (item.original_url && item.original_url.includes('mp.weixin.qq.com')) {
-              item.platform = 'wechat';
-            } else if (item.type === 'post') {
-              item.platform = 'wxapp'; // 帖子类型应该是小程序平台
-            } else {
-              item.platform = 'website'; // 默认为网站
-            }
-          }
-          
-          // 如果是帖子搜索，确保平台标记为小程序
-          if (type === 'post' && item.platform !== 'wxapp') {
-            item.platform = 'wxapp';
-          }
-          
-          return item;
-        });
-        
-        // 如果是第一页，直接替换结果，否则追加
-        const newResults = this.data.pagination.page === 1 
-          ? processedResults 
-          : [...this.data.searchResults, ...processedResults];
+        // 直接使用API返回的原始数据，不做处理
+        const searchResults = result.data;
         
         // 更新分页信息
         const pagination = result.pagination || {};
+        
+        // 如果是第一页，直接替换结果，否则追加
+        const newResults = this.data.pagination.page === 1 
+          ? searchResults 
+          : [...this.data.searchResults, ...searchResults];
+        
+        // 判断是否有更多数据
+        const hasMore = pagination.has_more !== undefined 
+          ? pagination.has_more 
+          : (pagination.total_pages 
+              ? this.data.pagination.page < pagination.total_pages 
+              : searchResults.length >= searchParams.page_size);
+        
+        console.debug('更新搜索结果, 总数:', newResults.length, 'has_more:', hasMore);
         
         this.setData({
           searchResults: newResults,
@@ -354,9 +367,10 @@ Page({
             page_size: this.data.pagination.page_size,
             total: pagination.total || 0,
             total_pages: pagination.total_pages || 0,
-            has_more: this.data.pagination.page < (pagination.total_pages || 1)
+            has_more: hasMore
           },
-          isSearching: false
+          isSearching: false,
+          hasSearched: true
         });
       } else {
         throw new Error('搜索失败');
@@ -366,6 +380,12 @@ Page({
       wx.showToast({
         title: '搜索失败: ' + (err.message || '未知错误'),
         icon: 'none'
+      });
+      
+      // 确保在出错时也设置hasSearched为true
+      this.setData({
+        hasSearched: true,
+        searchResults: []
       });
     } finally {
       this.setData({ 
@@ -404,12 +424,29 @@ Page({
   
   // 加载更多
   loadMore() {
-    if (this.data.loading || !this.data.pagination.has_more) return;
+    if (this.data.loading || !this.data.pagination.has_more) {
+      console.debug('不需要加载更多：loading=', this.data.loading, 'has_more=', this.data.pagination.has_more);
+      return;
+    }
+    
+    console.debug('触发加载更多, 当前类型:', this.data.currentSearchType, '当前页:', this.data.pagination.page);
     
     this.setData({
-      'pagination.page': this.data.pagination.page + 1
+      'pagination.page': this.data.pagination.page + 1,
+      loading: true
     }, () => {
-      this.executeSearch(this.data.searchValue);
+      // 提取真正的搜索关键词（去除前缀）
+      let searchKeyword = this.data.searchValue;
+      if (this.data.currentSearchType) {
+        searchKeyword = searchKeyword.replace(new RegExp(`@${this.data.currentSearchType}`), '').trim();
+      } else {
+        searchKeyword = searchKeyword.replace(/@(post|user|knowledge)/, '').trim();
+      }
+      
+      console.debug('执行搜索加载更多，关键词:', searchKeyword, '类型:', this.data.currentSearchType, '页码:', this.data.pagination.page);
+      
+      // 执行搜索获取更多数据
+      this.executeSearch(searchKeyword, this.data.currentSearchType);
     });
   },
   
@@ -441,6 +478,37 @@ Page({
     // 不要立即触发搜索，让用户输入内容
   },
   
+  // 处理前缀选项点击
+  onPrefixTap(e) {
+    const prefix = e.currentTarget.dataset.prefix;
+    if (!prefix) return;
+    
+    // 设置搜索前缀，但不直接触发搜索
+    // 从searchOptions中找到匹配的选项
+    // const option = this.data.searchOptions.find(opt => opt.value === prefix);
+    // console.debug('option:', option);
+    // if (option) {
+    //   // 触发select事件，让search-bar组件处理前缀高亮
+    //   const detail = {
+    //     detail: {
+    //       option: option,
+    //       value: prefix + ' '
+    //     }
+    //   };
+    //   this.onSearchSelect(detail);
+      
+      // 设置焦点，方便用户输入
+      // this.setData({ focus: true });
+      
+      // 提示用户输入搜索内容
+    //   wx.showToast({
+    //     title: '请输入搜索内容',
+    //     icon: 'none',
+    //     duration: 1500
+    //   });
+    // }
+  },
+  
   // 清空搜索
   clearSearch() {
     this.setData({
@@ -450,7 +518,8 @@ Page({
       showRagResults: false,
       ragResults: null,
       hasSearched: false, // 重置搜索状态
-      'pagination.page': 1
+      'pagination.page': 1,
+      focus: false // 重置focus状态
     });
   },
 
@@ -569,61 +638,31 @@ Page({
       icon: 'success'
     });
   },
-  
-  // 点击搜索结果
-  onResultTap(e) {
-    const { item } = e.detail;
-    console.debug('点击搜索结果:', item);
-    
-    // 根据不同平台类型处理跳转
-    if (item.platform === 'wxapp') {
-      // 内部帖子跳转
-      wx.navigateTo({
-        url: `/pages/post/detail/detail?id=${item.id}`
-      });
-    } else if (item.platform === 'wechat' || item.platform === 'website') {
-      // 外部链接，使用webview打开
-      wx.navigateTo({
-        url: `/pages/webview/webview?url=${encodeURIComponent(item.original_url)}&title=${encodeURIComponent(item.title)}`
-      });
-    } else {
-      console.debug('未知平台类型:', item.platform);
-    }
-  },
-  
-  // 点击RAG建议问题
-  onRagSuggestionTap(e) {
+
+  // 处理推荐问题点击
+  handleRecommendedQuestion(e) {
     const { question } = e.currentTarget.dataset;
     if (!question) return;
     
     // 使用@wiki前缀
-    const searchValue = '@wiki' + question;
+    const searchValue = '@wiki ' + question;
     
-    this.setData({
-      searchValue: searchValue
-    });
-    
-    this.search({ detail: { value: searchValue } });
-  },
-  
-  // 点击RAG知识源
-  onRagSourceTap(e) {
-    const { item } = e.detail;
-    console.debug('点击RAG知识源:', item);
-    
-    // 根据不同平台类型处理跳转
-    if (item.platform === 'wxapp') {
-      // 内部帖子跳转
-      wx.navigateTo({
-        url: `/pages/post/detail/detail?id=${item.id}`
-      });
-    } else if (item.platform === 'wechat' || item.platform === 'website') {
-      // 外部链接，使用webview打开
-      wx.navigateTo({
-        url: `/pages/webview/webview?url=${encodeURIComponent(item.original_url)}&title=${encodeURIComponent(item.title)}`
+    // 检查是否与当前搜索值相同
+    if (searchValue === this.data.searchValue) {
+      // 如果相同，先清空，再在下一个时间片重新设置，确保界面刷新
+      this.setData({ searchValue: '' }, () => {
+        setTimeout(() => {
+          this.setData({ searchValue: searchValue }, () => {
+            this.search({ detail: { value: searchValue } });
+          });
+        }, 50);
       });
     } else {
-      console.debug('未知平台类型:', item.platform);
+      // 不同时直接设置
+      this.setData({ searchValue: searchValue }, () => {
+        this.search({ detail: { value: searchValue } });
+      });
     }
-  }
+  },
+
 });

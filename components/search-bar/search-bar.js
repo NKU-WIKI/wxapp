@@ -61,6 +61,14 @@ Component({
           selectorOptions: options
         });
       }
+    },
+    'value': function(value) {
+      // 当外部value属性变化时，更新inputValue
+      if (value !== this.data.inputValue) {
+        this.setData({
+          inputValue: value
+        });
+      }
     }
   },
 
@@ -152,6 +160,9 @@ Component({
           selectedType: '',
           selectedOption: matchedIndex // 设置匹配的选项
         });
+        
+        // 计算选择器位置
+        this.updateSelectorPosition();
       } else {
         this.setData({
           showSelector: false,
@@ -277,6 +288,22 @@ Component({
       });
       
       this.triggerEvent('input', { value: prefixedValue });
+    },
+
+    // 更新选择器位置
+    updateSelectorPosition() {
+      // 使用wx.createSelectorQuery获取搜索框位置
+      const query = wx.createSelectorQuery().in(this);
+      query.select('.search-bar').boundingClientRect(rect => {
+        if (rect) {
+          // 计算选择器应该显示的位置，确保在搜索框下方
+          const top = rect.bottom + 10; // 搜索框底部位置再加10rpx的间距
+          // 更新选择器样式
+          this.setData({
+            selectorStyle: `top: ${top}px;`
+          });
+        }
+      }).exec();
     }
   }
 })

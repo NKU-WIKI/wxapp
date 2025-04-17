@@ -1,7 +1,7 @@
 .search-bar-container {
   width: 100%;
   position: relative;
-  z-index: 10;
+  z-index: 100;
 }
 
 .search-bar {
@@ -54,16 +54,15 @@
 
 /* 选择框样式 */
 .selector-container {
-  position: absolute;
+  position: fixed;
   width: calc(100% - 40rpx);
-  z-index: 100;
+  z-index: 1000;
   background-color: #fff;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2rpx 20rpx rgba(0, 0, 0, 0.2);
   border-radius: 16rpx;
   overflow: hidden;
-  margin-top: 10rpx;
   left: 20rpx;
-  top: 80rpx;
+  border: 1rpx solid #e8e8e8;
 }
 
 .selector-options {
@@ -117,4 +116,15 @@
 .input-with-prefix {
   flex: 1;
   width: auto;
+}
+
+/* 遮罩层样式 */
+.selector-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 999;
 }

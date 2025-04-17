@@ -73,8 +73,8 @@
     <slot></slot>
   </view>
   
-  <!-- 加载更多状态 - 只在有内容且明确指定hasMore，showNoMore=false时显示 -->
-  <view class="load-more" wx:if="{{_state.isNormal && hasMore !== undefined && showNoMore}}"> 
+  <!-- 加载更多状态 -->
+  <view class="load-more" wx:if="{{_state.isNormal && hasMore !== undefined}}"> 
     <view wx:if="{{hasMore}}" class="load-more-loading" bindtap="onLoadMore">
       <view class="loading-dots small">
         <view class="loading-dot"></view>

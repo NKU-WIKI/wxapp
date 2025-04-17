@@ -62,7 +62,12 @@
       {{actionText}}
     </view>
   </view>
-  <view class="selector-container" wx:if="{{showSelector && selectorOptions.length > 0 && !hasSelected}}">
+  
+  <!-- 添加遮罩层 -->
+  <view class="selector-mask" wx:if="{{showSelector && selectorOptions.length > 0 && !hasSelected}}" bindtap="onClear"></view>
+  
+  <!-- 选择器选项 -->
+  <view class="selector-container" style="{{selectorStyle}}" wx:if="{{showSelector && selectorOptions.length > 0 && !hasSelected}}">
     <view class="selector-options">
       <view 
         class="selector-option {{selectedOption === index ? 'selected' : ''}}" 

@@ -6,6 +6,6 @@
     "tab-bar": "/components/tab-bar/tab-bar",
     "post-list": "/components/post-list/post-list",
     "comment-list": "/components/comment-list/comment-list",
-    "floating-button": "/components/floating-button/floating-button"
+    "user-list": "/components/user-list/user-list"
   }
 } 

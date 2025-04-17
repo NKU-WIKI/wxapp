@@ -1,9 +1,11 @@
 <!-- 导航栏 -->
 <nav-bar
   title="消息通知"
-  show-back="{{true}}"
-  fixed="{{true}}"
+  showBack="{{true}}"
+  showAvatar="{{true}}"
 />
+
+<view class="scroll-page-position"></view>
 
 <!-- 标签栏 -->
 <tab-bar 

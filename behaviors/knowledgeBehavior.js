@@ -13,7 +13,7 @@ const knowledgeApi = createApiClient('/api/knowledge', {
   searchWxapp: { 
     method: 'GET', 
     path: '/search-wxapp', 
-    params: { query: true, openid: true }
+    params: { query: true}
   },
   suggestion: { 
     method: 'GET', 
@@ -34,6 +34,47 @@ const knowledgeApi = createApiClient('/api/knowledge', {
     method: 'GET', 
     path: '/hot', 
     params: { openid: true }
+  },
+  // 新增API
+  detail: {
+    method: 'GET',
+    path: '/:id',
+    params: { id: true, openid: true }
+  },
+  viewCount: {
+    method: 'POST',
+    path: '/:id/view',
+    params: { id: true, openid: true }
+  },
+  like: {
+    method: 'POST',
+    path: '/:id/like',
+    params: { id: true, openid: true }
+  },
+  unlike: {
+    method: 'DELETE',
+    path: '/:id/like',
+    params: { id: true, openid: true }
+  },
+  collect: {
+    method: 'POST',
+    path: '/:id/collect',
+    params: { id: true, openid: true }
+  },
+  uncollect: {
+    method: 'DELETE',
+    path: '/:id/collect',
+    params: { id: true, openid: true }
+  },
+  update: {
+    method: 'PUT',
+    path: '/:id',
+    params: { id: true, openid: true, title: true, content: true }
+  },
+  delete: {
+    method: 'DELETE',
+    path: '/:id',
+    params: { id: true, openid: true }
   }
 });
 
@@ -261,6 +302,308 @@ module.exports = Behavior({
       } catch (err) {
         console.debug('获取热门搜索失败:', err);
         return [];
+      }
+    },
+
+    /**
+     * 获取知识详情
+     * @param {string|number} id 知识ID
+     * @returns {Promise<object>} 知识详情
+     */
+    async _getKnowledgeDetail(id) {
+      if (!id) {
+        throw new Error('知识ID不能为空');
+      }
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('获取知识详情需要用户登录');
+        throw new Error('用户未登录');
+      }
+
+      try {
+        const res = await knowledgeApi.detail({
+          id,
+          openid
+        });
+        
+        console.debug('知识详情API响应:', JSON.stringify(res));
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '获取知识详情失败');
+        }
+        
+        return res;
+      } catch (err) {
+        console.error('获取知识详情失败:', err);
+        throw err;
+      }
+    },
+
+    /**
+     * 增加知识浏览量
+     * @param {string|number} id 知识ID
+     * @returns {Promise<boolean>} 是否成功
+     */
+    async _increaseKnowledgeViewCount(id) {
+      if (!id) return false;
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('增加浏览量需要用户登录');
+        return false;
+      }
+
+      try {
+        const res = await knowledgeApi.viewCount({
+          id,
+          openid
+        });
+        
+        return res.code === 200;
+      } catch (err) {
+        console.debug('增加浏览量失败:', err);
+        return false;
+      }
+    },
+
+    /**
+     * 点赞/取消点赞知识
+     * @param {string|number} id 知识ID
+     * @param {boolean} isLike true为点赞，false为取消点赞
+     * @returns {Promise<boolean>} 是否成功
+     */
+    async _toggleKnowledgeLike(id, isLike = true) {
+      if (!id) return false;
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('点赞操作需要用户登录');
+        return false;
+      }
+
+      try {
+        let res;
+        if (isLike) {
+          res = await knowledgeApi.like({
+            id,
+            openid
+          });
+        } else {
+          res = await knowledgeApi.unlike({
+            id,
+            openid
+          });
+        }
+        
+        return res.code === 200;
+      } catch (err) {
+        console.error('点赞操作失败:', err);
+        return false;
+      }
+    },
+
+    /**
+     * 收藏/取消收藏知识
+     * @param {string|number} id 知识ID
+     * @param {boolean} isCollect true为收藏，false为取消收藏
+     * @returns {Promise<boolean>} 是否成功
+     */
+    async _toggleKnowledgeCollect(id, isCollect = true) {
+      if (!id) return false;
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('收藏操作需要用户登录');
+        return false;
+      }
+
+      try {
+        let res;
+        if (isCollect) {
+          res = await knowledgeApi.collect({
+            id,
+            openid
+          });
+        } else {
+          res = await knowledgeApi.uncollect({
+            id,
+            openid
+          });
+        }
+        
+        return res.code === 200;
+      } catch (err) {
+        console.error('收藏操作失败:', err);
+        return false;
+      }
+    },
+
+    /**
+     * 更新知识
+     * @param {string|number} id 知识ID
+     * @param {object} data 更新数据
+     * @param {string} data.title 标题
+     * @param {string} data.content 内容
+     * @param {string} [data.tags] 标签，多个用逗号分隔
+     * @returns {Promise<object>} 更新后的知识详情
+     */
+    async _updateKnowledge(id, data) {
+      if (!id) {
+        throw new Error('知识ID不能为空');
+      }
+      
+      if (!data || !data.title || !data.content) {
+        throw new Error('标题和内容不能为空');
+      }
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('更新知识需要用户登录');
+        throw new Error('用户未登录');
+      }
+
+      try {
+        const params = {
+          id,
+          openid,
+          title: data.title,
+          content: data.content
+        };
+        
+        if (data.tags) params.tags = data.tags;
+        
+        const res = await knowledgeApi.update(params);
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '更新知识失败');
+        }
+        
+        return res.data;
+      } catch (err) {
+        console.error('更新知识失败:', err);
+        throw err;
+      }
+    },
+
+    /**
+     * 删除知识
+     * @param {string|number} id 知识ID
+     * @returns {Promise<boolean>} 是否成功
+     */
+    async _deleteKnowledge(id) {
+      if (!id) {
+        throw new Error('知识ID不能为空');
+      }
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('删除知识需要用户登录');
+        throw new Error('用户未登录');
+      }
+
+      try {
+        const res = await knowledgeApi.delete({
+          id,
+          openid
+        });
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '删除知识失败');
+        }
+        
+        return true;
+      } catch (err) {
+        console.error('删除知识失败:', err);
+        throw err;
+      }
+    },
+
+    /**
+     * 搜索帖子
+     * @param {string} query 搜索关键词
+     * @param {number} page 页码，默认1
+     * @param {number} page_size 每页记录数，默认10
+     * @param {string} sort_by 排序方式：time-时间，relevance-相关度，默认relevance
+     * @returns {Promise<object>} 搜索结果，包含帖子列表和分页信息
+     */
+    async _searchPost(query, page = 1, page_size = 10, sort_by = 'relevance') {
+      if (!query || !query.trim()) {
+        return null;
+      }
+
+      try {
+        const params = {
+          query: query.trim(),
+          search_type: 'post',
+          page,
+          page_size,
+          sort_by
+        };
+        
+        const res = await knowledgeApi.searchWxapp(params);
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '搜索帖子失败');
+        }
+        
+        return {
+          data: res.data || [],
+          pagination: res.pagination || {
+            total: 0,
+            page,
+            page_size,
+            total_pages: 0,
+            has_more: false
+          }
+        };
+      } catch (err) {
+        console.debug('搜索帖子失败:', err);
+        return null;
+      }
+    },
+
+    /**
+     * 搜索用户
+     * @param {string} query 搜索关键词
+     * @param {number} page 页码，默认1
+     * @param {number} page_size 每页记录数，默认10
+     * @param {string} sort_by 排序方式：time-时间，relevance-相关度，默认relevance
+     * @returns {Promise<object>} 搜索结果，包含用户列表和分页信息
+     */
+    async _searchUser(query, page = 1, page_size = 10, sort_by = 'relevance') {
+      if (!query || !query.trim()) {
+        return null;
+      }
+
+      try {
+        const params = {
+          query: query.trim(),
+          search_type: 'user',
+          page,
+          page_size,
+          sort_by
+        };
+        
+        const res = await knowledgeApi.searchWxapp(params);
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '搜索用户失败');
+        }
+        
+        return {
+          data: res.data || [],
+          pagination: res.pagination || {
+            total: 0,
+            page,
+            page_size,
+            total_pages: 0,
+            has_more: false
+          }
+        };
+      } catch (err) {
+        console.debug('搜索用户失败:', err);
+        return null;
       }
     }
   }

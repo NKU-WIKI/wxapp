@@ -5,7 +5,8 @@ const userApi = createApiClient('/api/wxapp/user', {
   profile: { method: 'GET',  path: '/profile', params: { openid: true } },
   update:  { method: 'POST', path: '/update',  params: { openid: true } },
   follow:  { method: 'POST', path: '/follow',  params: { follower_id: true, followed_id: true } },
-  status:  { method: 'GET',  path: '/status',  params: { openid: true, target_id: true, target_openid: false } }
+  status:  { method: 'GET',  path: '/status',  params: { openid: true, target_id: true, target_openid: false } },
+  list:    { method: 'GET',  path: '/list',    params: {} }
 });
 
 module.exports = Behavior({
@@ -13,6 +14,57 @@ module.exports = Behavior({
   methods: {
     // ==== 数据获取 ====
 
+    /**
+     * 获取用户列表，支持所有用户、粉丝、关注列表
+     * @param {Object} filter - 筛选条件
+     * @param {string} filter.type - 列表类型：all(所有用户)、follower(粉丝)、following(关注)
+     * @param {string} filter.openid - 用户openid（当type为follower或following时必填）
+     * @param {number} page - 页码，默认1
+     * @param {number} page_size - 每页数量，默认10
+     * @returns {Promise<Object>} API响应
+     */
+    async _getUserList(filter = {}, page = 1, page_size = 10) {
+      // 构建查询参数
+      const params = { page, page_size };
+      
+      // 如果filter是对象，提取支持的参数
+      if (typeof filter === 'object') {
+        // 支持type参数：all, follower, following
+        if (filter.type) {
+          params.type = filter.type;
+        }
+        
+        // 支持openid参数
+        if (filter.openid) {
+          params.openid = filter.openid;
+        }
+      }
+      
+      try {
+        const res = await userApi.list(params);
+        if (res.code !== 200) {
+          throw new Error(res.message || '获取用户列表失败');
+        }
+        
+        // 处理分页数据，确保返回标准格式
+        const result = {
+          data: res.data || [],
+          pagination: res.pagination || {
+            total: res.total || 0,
+            page: page,
+            page_size: page_size,
+            total_pages: Math.ceil((res.total || 0) / page_size) || 0,
+            has_more: res.has_more !== undefined ? res.has_more : 
+              ((page * page_size) < (res.total || 0))
+          }
+        };
+        
+        return result;
+      } catch (err) {
+        console.debug('获取用户列表失败:', err);
+        throw err;
+      }
+    },
 
     /**
      * 获取指定openid的用户公开信息
@@ -107,13 +159,32 @@ module.exports = Behavior({
       if (!openid) return null;
 
       try {
+        console.debug('更新用户资料, 数据:', JSON.stringify(profileData));
         const res = await userApi.update({ ...profileData, openid });
         if (res.code !== 200) throw new Error(res.message || '更新资料失败');
 
         const updatedUserInfo = res.data;
+        
+        // 确保更新的头像URL被正确保存
+        if (profileData.avatar && (!updatedUserInfo.avatar || updatedUserInfo.avatar !== profileData.avatar)) {
+          console.debug('发现头像URL不一致，手动更正');
+          updatedUserInfo.avatar = profileData.avatar;
+        }
+        
+        // 更新本地存储和全局数据
+        console.debug('更新资料成功，更新本地存储');
         storage.set('userInfo', updatedUserInfo);
+        
+        // 同时设置刷新标记
+        storage.set('needRefreshProfile', true);
+        storage.set('profileUpdateTime', Date.now());
+        
+        // 更新全局数据
         const app = getApp();
-        if (app?.globalData) app.globalData.userInfo = updatedUserInfo;
+        if (app?.globalData) {
+          app.globalData.userInfo = updatedUserInfo;
+          console.debug('全局用户数据已更新');
+        }
         
         return updatedUserInfo;
       } catch (err) {
@@ -160,43 +231,10 @@ module.exports = Behavior({
         
         console.debug('关注/取消关注操作结果:', res.data);
         
-        // 通知当前页面上的post-list组件更新状态
-        this._triggerPostListRefresh();
-        
         return res;
       } catch (err) {
         console.debug('关注操作失败:', err);
         return null;
-      }
-    },
-    
-    /**
-     * 触发所有post-list组件的刷新
-     * @private
-     */
-    _triggerPostListRefresh() {
-      try {
-        const pages = getCurrentPages();
-        const currentPage = pages[pages.length - 1];
-        
-        if (currentPage && currentPage.selectAllComponents) {
-          const postListComponents = currentPage.selectAllComponents('.post-list');
-          console.debug('找到post-list组件:', postListComponents.length);
-          
-          // 调用每个post-list组件的刷新方法
-          postListComponents.forEach(component => {
-            if (component && component.refresh) {
-              console.debug('刷新post-list组件');
-              // 重新获取所有帖子状态
-              const posts = component.data.post;
-              if (posts && posts.length > 0) {
-                component.updatePostsStatus(posts);
-              }
-            }
-          });
-        }
-      } catch (err) {
-        console.debug('触发组件刷新失败:', err);
       }
     }
   }

@@ -44,7 +44,7 @@
           wx:else 
           class="follow-button {{formattedUser.isFollowed ? 'followed' : ''}}" 
           size="mini" 
-          bindtap="onFollow"
+          bindtap="onTapFollow"
         >{{formattedUser.isFollowed ? '已关注' : '关注'}}</button>
       </view>
     </view>
@@ -55,7 +55,7 @@
         <view class="stat-value">{{formattedUser.post_count || 0}}</view>
         <view class="stat-label">帖子</view>
       </view>
-      <view class="stat-item" bindtap="onTapPosts" data-tab="2">
+      <view class="stat-item" bindtap="onTapFavorites" data-tab="1">
         <view class="stat-value">{{formattedUser.favorite_count || 0}}</view>
         <view class="stat-label">收藏</view>
       </view>
