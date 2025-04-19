@@ -492,19 +492,18 @@ Component({
       });
       
       try {
-        // 构建评论参数
-        const commentParams = {
-          content: savedCommentText,
-          resourceId: resourceId,
+        // 准备评论参数选项
+        const options = {
           resourceType: resourceType
         };
-
+        
         // 如果有回复ID，添加到参数中
         if (parentId) {
-          commentParams.parent_id = parentId;
+          options.parentId = parentId;
         }
 
-        const result = await this._createComment(commentParams);
+        // 调用评论行为中的方法创建评论
+        const result = await this._createComment(resourceId, savedCommentText, options);
         
         console.debug('评论API响应:', result);
         

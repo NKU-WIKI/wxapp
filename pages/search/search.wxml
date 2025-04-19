@@ -8,6 +8,7 @@
 	/>
 	
 	<search-bar
+		id="searchBar"
 		value="{{searchValue}}"
 		placeholder="@wiki探索校园知识"
 		focus="{{focus}}"
@@ -232,7 +233,6 @@
 	<!-- 输入了关键词但尚未搜索 -->
 	<view class="search-tips" wx:if="{{!isSearching && searchValue && !hasSearched && !showRagResults}}">
 		<icon name="search" size="64" color="#cccccc" />
-		<text>输入关键词后，按回车键开始搜索</text>
 		<view class="search-tips-prefixes">
 			<text>输入<text class="prefix">@wiki</text>进行智能问答</text>
 			<text>输入<text class="prefix">@user</text>搜索用户</text>
@@ -240,10 +240,10 @@
 			<text>输入<text class="prefix">@knowledge</text>搜索知识库</text>
 		</view>
 		
-		<!-- 添加搜索按钮提示 -->
+		<!-- 搜索按钮 -->
 		<view class="search-button" bindtap="search" data-value="{{searchValue}}">
 			<icon name="search" size="32" color="#3366cc" />
-			<text>输入内容后点击搜索</text>
+			<text>点击搜索</text>
 		</view>
 	</view>
 </view>

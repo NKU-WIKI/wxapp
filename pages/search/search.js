@@ -469,13 +469,27 @@ Page({
     
     console.debug('选择搜索选项:', option.text, '值:', value);
     
+    // 检查值是否只有前缀
+    const prefixOnly = value.trim().split(' ').length <= 1;
+    
     // 更新搜索值但不立即搜索
     this.setData({
       searchValue: value,
       selectedSearchType: option.type
     });
     
-    // 不要立即触发搜索，让用户输入内容
+    // 如果只有前缀，不执行搜索
+    if (prefixOnly) {
+      console.debug('只有前缀，不执行搜索');
+      return;
+    }
+    
+    // 如果有实际内容，则执行搜索
+    const cleanValue = value.trim();
+    if (cleanValue.length > option.value.length + 1) {
+      console.debug('有实际内容，执行搜索:', cleanValue);
+      this.search({ detail: { value: cleanValue } });
+    }
   },
   
   // 处理前缀选项点击
@@ -483,30 +497,26 @@ Page({
     const prefix = e.currentTarget.dataset.prefix;
     if (!prefix) return;
     
-    // 设置搜索前缀，但不直接触发搜索
     // 从searchOptions中找到匹配的选项
-    // const option = this.data.searchOptions.find(opt => opt.value === prefix);
-    // console.debug('option:', option);
-    // if (option) {
-    //   // 触发select事件，让search-bar组件处理前缀高亮
-    //   const detail = {
-    //     detail: {
-    //       option: option,
-    //       value: prefix + ' '
-    //     }
-    //   };
-    //   this.onSearchSelect(detail);
+    const option = this.data.searchOptions.find(opt => opt.value === prefix);
+    console.debug('选择搜索前缀:', prefix, '对应选项:', option);
+    
+    if (option) {
+      // 直接设置搜索值，确保带有空格
+      const newValue = prefix + ' ';
       
-      // 设置焦点，方便用户输入
-      // this.setData({ focus: true });
+      // 更新页面数据，设置焦点
+      this.setData({
+        searchValue: newValue,
+        selectedSearchType: option.type,
+        focus: true,
+        // 重要：确保不自动搜索
+        hasSearched: false
+      });
       
-      // 提示用户输入搜索内容
-    //   wx.showToast({
-    //     title: '请输入搜索内容',
-    //     icon: 'none',
-    //     duration: 1500
-    //   });
-    // }
+      // 日志记录，便于调试
+      console.debug('设置搜索前缀:', newValue, '类型:', option.type);
+    }
   },
   
   // 清空搜索
