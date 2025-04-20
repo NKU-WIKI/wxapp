@@ -259,11 +259,23 @@ function formatRelativeTime(timestamp) {
 
 function getSystemInfo() {
   try {
-    const appBaseInfo = wx.getAppBaseInfo()
-    const deviceInfo = wx.getDeviceInfo()
-    const windowInfo = wx.getWindowInfo()
-    const systemSetting = wx.getSystemSetting()
-    const appAuthorizeSetting = wx.getAppAuthorizeSetting()
+    // 使用新的API替代弃用的wx.getSystemInfoSync
+    const appBaseInfo = wx.getAppBaseInfo ? wx.getAppBaseInfo() : {};
+    const deviceInfo = wx.getDeviceInfo ? wx.getDeviceInfo() : {};
+    const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : {};
+    const systemSetting = wx.getSystemSetting ? wx.getSystemSetting() : {};
+    const appAuthorizeSetting = wx.getAppAuthorizeSetting ? wx.getAppAuthorizeSetting() : {};
+    
+    // 如果新API不可用，尝试使用旧API
+    if (!appBaseInfo.SDKVersion) {
+      try {
+        const legacyInfo = wx.getSystemInfoSync();
+        return legacyInfo || {};
+      } catch (e) {
+        console.error('获取系统信息失败', e);
+        return {};
+      }
+    }
     
     return {
       // 基础信息
@@ -279,7 +291,7 @@ function getSystemInfo() {
       brand: deviceInfo.brand,
       model: deviceInfo.model,
       system: deviceInfo.system,
-      platform: deviceInfo.platform,
+      devicePlatform: deviceInfo.platform,
       
       // 窗口信息
       screenWidth: windowInfo.screenWidth,
@@ -309,8 +321,8 @@ function getSystemInfo() {
       notificationSoundAuthorized: appAuthorizeSetting.notificationSoundAuthorized
     }
   } catch (err) {
-    console.debug('获取系统信息失败:', err)
-    return {}
+    console.error('获取系统信息失败:', err);
+    return {};
   }
 }
 
@@ -357,22 +369,41 @@ const ToastType = {
 }
 
 const ui = {
-  showToast: (title, { type = ToastType.NONE, duration = 1500, mask = false } = {}) => {
-    if (type === ToastType.LOADING) {
-      wx.showLoading({ title, mask })
+  showToast: (title, type = ToastType.NONE, duration = 1500, mask = false) => {
+    // 支持对象形式的参数
+    if (typeof type === 'object') {
+      const options = type;
+      type = options.type || ToastType.NONE;
+      duration = options.duration || 1500;
+      mask = options.mask || false;
+    }
+    
+    // 对于错误类型的长提示，使用模态框而不是Toast
+    if (title && (type === ToastType.ERROR || type === 'error')) {
+      wx.showModal({
+        title: '提示',
+        content: title,
+        showCancel: false,
+        confirmText: '知道了'
+      });
+      return;
+    }
+    
+    if (type === ToastType.LOADING || type === 'loading') {
+      wx.showLoading({ title, mask });
     } else {
       wx.showToast({
         title,
         icon: type,
         duration,
         mask
-      })
+      });
     }
   },
 
   hideToast: () => {
-    wx.hideLoading()
-    wx.hideToast()
+    wx.hideLoading();
+    wx.hideToast();
   },
 
   /**
@@ -961,6 +992,108 @@ const parseImageUrl = url => {
   return imageArray.map(u => parseUrl(u)).filter(Boolean);
 };
 
+// ==================== 内容安全 ====================
+
+/**
+ * 获取内容安全检测结果的可读描述
+ * @param {string} message API返回的message
+ * @param {string} labelText 违规类型文本
+ * @returns {string} 用户友好的错误信息
+ */
+function getSecCheckMessage(message, labelText) {
+  if (message === 'risky') {
+    return `包含${labelText}，无法发布`;
+  } else if (message === 'review') {
+    return `需要审核，包含${labelText}`;
+  } else {
+    return `包含敏感信息`;
+  }
+}
+
+/**
+ * 调用内容安全检测
+ * @param {string} content 要检测的内容
+ * @param {number} scene 场景值，1-资料；2-评论；3-论坛；4-社交日志
+ * @returns {Promise<Object>} 结果对象，包含pass、reason等字段
+ */
+function msgSecCheck(content, scene = 3) {
+  return new Promise((resolve) => {
+    // 如果内容为空，直接认为通过
+    if (!content || typeof content !== 'string' || content.trim() === '') {
+      resolve({
+        pass: true,
+        reason: '',
+        data: null
+      });
+      return;
+    }
+    
+    // 调用云函数进行内容检测
+    wx.cloud.callFunction({
+      name: 'msgSecCheck',
+      data: {
+        content,
+        scene
+      }
+    }).then(res => {
+      console.log('内容安全检测结果', res);
+      
+      if (res.result && res.result.code === 200) {
+        const message = res.result.message;
+        const result = res.result.data?.result || {};
+        
+        // 根据message判断是否通过
+        if (message === 'pass') {
+          resolve({
+            pass: true,
+            reason: '',
+            data: res.result.data
+          });
+        } else {
+          // 获取违规类型文本
+          const labelText = result.labelText || '未知类型';
+          // 构建原因描述
+          const baseReason = getSecCheckMessage(message, labelText);
+          
+          // 根据场景添加不同的前缀
+          let reasonWithPrefix = '';
+          if (scene === 2) {
+            reasonWithPrefix = `评论${baseReason}`;
+          } else if (scene === 1) {
+            reasonWithPrefix = `资料${baseReason}`;
+          } else {
+            reasonWithPrefix = `内容${baseReason}`;
+          }
+          
+          console.log('内容安全检测未通过，原因:', reasonWithPrefix);
+          resolve({
+            pass: false,
+            reason: reasonWithPrefix,
+            baseReason: baseReason,
+            data: res.result.data
+          });
+        }
+      } else {
+        // 云函数执行失败也放行内容
+        console.warn('内容检测云函数执行异常，默认放行:', res);
+        resolve({
+          pass: true,
+          reason: '',
+          data: res
+        });
+      }
+    }).catch(err => {
+      // 发生错误也默认放行内容
+      console.error('调用内容检测云函数失败:', err);
+      resolve({
+        pass: true,
+        reason: '',
+        data: err
+      });
+    });
+  });
+}
+
 module.exports = {
   // 初始化
   init,
@@ -1005,6 +1138,9 @@ module.exports = {
   parseImageUrl,
   getAboutInfo,
   getAppInfo,
+  
+  // 内容安全
+  msgSecCheck,
   
   // 日志工具
   logger

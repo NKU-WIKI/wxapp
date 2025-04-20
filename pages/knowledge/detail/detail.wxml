@@ -104,7 +104,9 @@
         class="comment-list-container"
         resourceId="{{id}}"
         resourceType="knowledge"
-        style="margin-top:0;padding-top:16rpx;">
+        style="margin-top:0;padding-top:16rpx;"
+        bind:submitComment="onCommentSubmit"
+        disableSubmit="{{!commentEnabled}}">
       </comment-list>
     </block>
   </view>

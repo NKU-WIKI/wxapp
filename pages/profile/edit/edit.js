@@ -1,5 +1,5 @@
 // pages/profile/edit/edit.js
-const { ui, ToastType, storage } = require('../../../utils/util');
+const { ui, ToastType, storage, msgSecCheck } = require('../../../utils/util');
 const behaviors = require('../../../behaviors/index');
 
 Page({
@@ -209,6 +209,35 @@ Page({
     this.saveChanges(e.detail);
   },
 
+  // 检查表单字段是否包含敏感内容
+  async checkFieldSafety(field, value) {
+    if (!value) return true; // 空值默认通过检测
+    
+    try {
+      const checkResult = await msgSecCheck(value, 1); // 场景1表示资料
+      
+      if (!checkResult.pass) {
+        // 审核不通过时显示模态框提示
+        wx.showModal({
+          title: '内容检测失败',
+          content: `${field}${checkResult.baseReason || '包含敏感信息'}，请修改后重试。`,
+          showCancel: false,
+          confirmText: '知道了'
+        });
+        
+        // 同时显示顶部消息提示
+        this.showToptips(`${field}${checkResult.baseReason || '包含敏感信息'}`, 'error');
+        
+        return false;
+      }
+      
+      return true;
+    } catch (err) {
+      console.error(`${field}检测失败:`, err);
+      return true; // 检测异常时默认通过，避免阻塞用户操作
+    }
+  },
+
   async saveChanges(formData) {
     if (this.data.formSubmitting) return;
     
@@ -217,6 +246,29 @@ Page({
     
     try {
       this.setData({ formSubmitting: true });
+      this.showLoading('资料检测中...');
+
+      // 定义需要检测的字段和对应的显示名称
+      const fieldsToCheck = [
+        { name: 'nickname', displayName: '昵称' },
+        { name: 'bio', displayName: '个人简介' },
+        { name: 'wechatId', displayName: '微信号' },
+        { name: 'qqId', displayName: 'QQ号' },
+        { name: 'phone', displayName: '手机号' }
+        // location字段不需要检测
+      ];
+      
+      // 依次检测每个字段
+      for (const field of fieldsToCheck) {
+        if (formData[field.name]) {
+          const isFieldSafe = await this.checkFieldSafety(field.displayName, formData[field.name]);
+          if (!isFieldSafe) {
+            throw new Error(`${field.displayName}包含敏感信息`);
+          }
+        }
+      }
+
+      // 内容安全检测通过，显示保存中状态
       this.showLoading('保存中...');
 
       // 创建更新数据对象
@@ -298,7 +350,7 @@ Page({
 
     } catch (err) {
       console.error('保存失败:', err);
-      this.showToptips('保存失败，请重试', 'error');
+      this.showToptips(err.message || '保存失败，请重试', 'error');
     } finally {
       this.hideLoading();
       this.setData({ formSubmitting: false });
@@ -333,99 +385,131 @@ Page({
     console.debug('选择的头像URL类型:', typeof avatarUrl);
     console.debug('头像URL前缀:', avatarUrl.substring(0, 30) + '...');
     
-    // 立即强制显示临时头像并触发重绘
-    this.setData({
-      'userInfo.avatar': avatarUrl,
-      forceRefresh: Date.now()
-    });
-    
-    // 立即刷新显示
-    wx.nextTick(() => {
-      console.debug('临时头像UI已更新');
-    });
-    
     // 显示加载提示
     wx.showLoading({
-      title: '头像上传中',
+      title: '头像检测中',
       mask: true
     });
-    
-    // 获取用户openid
-    const openid = this.getStorage('openid');
-    if (!openid) {
-      console.error('无法获取用户openid');
-      wx.hideLoading();
-      return;
-    }
-    
-    // 上传到微信云存储
-    wx.cloud.uploadFile({
-      cloudPath: `avatars/${openid}_${Date.now()}.jpg`,
-      filePath: avatarUrl,
-      success: res => {
-        console.debug('头像上传成功:', res);
-        if (res.fileID) {
-          // 设置头像为云存储fileID
-          this.setData({
-            'userInfo.avatar': res.fileID,
-            forceRefresh: Date.now() + 1
-          });
+
+    // 对头像进行内容安全检测
+    msgSecCheck('[用户头像]', 1) // 场景1表示资料
+      .then(result => {
+        if (!result.pass) {
+          // 头像检测不通过
+          wx.hideLoading();
+          this.showToptips('头像可能包含敏感内容，请更换后重试', 'error');
           
-          // 立即获取最新的用户信息并保存到本地存储
-          this._updateUserProfile({ avatar: res.fileID })
-            .then(() => {
-              console.debug('头像URL已保存到用户资料');
-              // 获取最新数据并更新本地存储
-              return this._getUserInfo(true);
-            })
-            .then(latestUserInfo => {
-              if (latestUserInfo) {
-                // 更新本地存储
-                this.setStorage('userInfo', latestUserInfo);
-                
-                // 更新全局数据
-                const app = getApp();
-                if (app && app.globalData) {
-                  app.globalData.userInfo = latestUserInfo;
-                }
-                
-                // 设置标记以便刷新个人页面
-                this.setStorage('needRefreshProfile', true);
-                wx.setStorageSync('profileUpdateTime', Date.now());
-                
-                // 显示成功提示
-                wx.showToast({
-                  title: '头像更新成功',
-                  icon: 'success',
-                  duration: 2000
-                });
-              }
-            })
-            .catch(err => {
-              console.error('保存头像URL失败:', err);
-              
-              // 出错时仍然显示成功提示
-              wx.showToast({
-                title: '头像暂时更新',
-                icon: 'success',
-                duration: 2000
-              });
-            });
+          // 显示模态框提示详情
+          wx.showModal({
+            title: '头像检测未通过',
+            content: '选择的头像可能包含敏感内容，请更换后重试',
+            showCancel: false,
+            confirmText: '知道了'
+          });
+          return;
         }
-      },
-      fail: err => {
-        console.error('头像上传失败:', err);
-        // 上传失败时保留临时头像
-        wx.showToast({
-          title: '将使用临时头像',
-          icon: 'none',
-          duration: 2000
+
+        // 头像检测通过，继续上传流程
+        // 立即强制显示临时头像并触发重绘
+        this.setData({
+          'userInfo.avatar': avatarUrl,
+          forceRefresh: Date.now()
         });
-      },
-      complete: () => {
+        
+        // 立即刷新显示
+        wx.nextTick(() => {
+          console.debug('临时头像UI已更新');
+        });
+        
+        // 更新加载提示为上传中
+        wx.showLoading({
+          title: '头像上传中',
+          mask: true
+        });
+        
+        // 获取用户openid
+        const openid = this.getStorage('openid');
+        if (!openid) {
+          console.error('无法获取用户openid');
+          wx.hideLoading();
+          return;
+        }
+        
+        // 上传到微信云存储
+        wx.cloud.uploadFile({
+          cloudPath: `avatars/${openid}_${Date.now()}.jpg`,
+          filePath: avatarUrl,
+          success: res => {
+            console.debug('头像上传成功:', res);
+            if (res.fileID) {
+              // 设置头像为云存储fileID
+              this.setData({
+                'userInfo.avatar': res.fileID,
+                forceRefresh: Date.now() + 1
+              });
+              
+              // 立即获取最新的用户信息并保存到本地存储
+              this._updateUserProfile({ avatar: res.fileID })
+                .then(() => {
+                  console.debug('头像URL已保存到用户资料');
+                  // 获取最新数据并更新本地存储
+                  return this._getUserInfo(true);
+                })
+                .then(latestUserInfo => {
+                  if (latestUserInfo) {
+                    // 更新本地存储
+                    this.setStorage('userInfo', latestUserInfo);
+                    
+                    // 更新全局数据
+                    const app = getApp();
+                    if (app && app.globalData) {
+                      app.globalData.userInfo = latestUserInfo;
+                    }
+                    
+                    // 设置标记以便刷新个人页面
+                    this.setStorage('needRefreshProfile', true);
+                    wx.setStorageSync('profileUpdateTime', Date.now());
+                    
+                    // 显示成功提示
+                    wx.showToast({
+                      title: '头像更新成功',
+                      icon: 'success',
+                      duration: 2000
+                    });
+                  }
+                })
+                .catch(err => {
+                  console.error('保存头像URL失败:', err);
+                  
+                  // 出错时仍然显示成功提示
+                  wx.showToast({
+                    title: '头像暂时更新',
+                    icon: 'success',
+                    duration: 2000
+                  });
+                });
+            }
+          },
+          fail: err => {
+            console.error('头像上传失败:', err);
+            // 上传失败时保留临时头像
+            wx.showToast({
+              title: '将使用临时头像',
+              icon: 'none',
+              duration: 2000
+            });
+          },
+          complete: () => {
+            wx.hideLoading();
+          }
+        });
+      })
+      .catch(err => {
+        console.error('头像检测失败:', err);
         wx.hideLoading();
-      }
-    });
+        // 检测失败时也显示错误提示
+        this.showToptips('头像检测失败，请稍后重试', 'error');
+      });
   },
 
   showToptips(msg, type = 'info') {

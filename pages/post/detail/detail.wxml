@@ -49,5 +49,4 @@
 </view>
 
 <!-- WEUI组件 -->
-<mp-toptips msg="{{toptips.msg}}" type="{{toptips.type}}" show="{{toptips.show}}"></mp-toptips>
 <mp-dialog title="{{dialog.title}}" show="{{dialog.show}}" buttons="{{dialog.buttons}}"></mp-dialog> 

@@ -5,7 +5,8 @@ Page({
     behaviors.baseBehavior,
     behaviors.authBehavior, 
     behaviors.userBehavior,
-    behaviors.knowledgeBehavior
+    behaviors.knowledgeBehavior,
+    behaviors.commentBehavior
   ],
 
   data: {
@@ -40,7 +41,10 @@ Page({
     actionSheet: {
       show: false,
       itemList: []
-    }
+    },
+    
+    // 评论功能控制
+    commentEnabled: false
   },
 
   async onLoad(options) {
@@ -579,7 +583,21 @@ Page({
     });
   },
   
-  // 用户分享
+  // 处理评论提交事件
+  onCommentSubmit(e) {
+    // 显示功能正在开发中的提示
+    wx.showModal({
+      title: '提示',
+      content: '知识库评论功能正在开发中，请耐心等待',
+      showCancel: false,
+      confirmText: '知道了'
+    });
+    
+    // 记录到日志
+    console.log('知识库评论功能尚未实现，评论内容:', e.detail);
+  },
+  
+  // 分享功能处理
   onShareAppMessage() {
     const { knowledgeDetail, id } = this.data;
     

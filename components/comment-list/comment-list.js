@@ -48,6 +48,11 @@ Component({
     allowReply: {
       type: Boolean,
       value: true
+    },
+    // 是否禁用评论提交功能
+    disableSubmit: {
+      type: Boolean,
+      value: false
     }
   },
 
@@ -115,9 +120,6 @@ Component({
   methods: {
     // 加载评论
     loadComments() {
-      if(this.data.resourceType=='knowledge'){
-        return;
-      }
       console.debug('加载评论');
       const resourceId = this.data.resourceId;
       const resourceType = this.data.resourceType;
@@ -137,6 +139,24 @@ Component({
         resourceType,
         page: this.data.page
       });
+
+      // 设置加载状态
+      this.setData({ loading: true });
+
+      // 对于知识库评论，可能需要特殊处理
+      if (resourceType === 'knowledge') {
+        // 知识库评论暂时使用空数据
+        setTimeout(() => {
+          this.setData({
+            comments: [],
+            total: 0,
+            hasMore: false,
+            loading: false,
+            error: false
+          });
+        }, 500);
+        return;
+      }
 
       this._getCommentList(this.data.resourceId, {
         resourceType: this.data.resourceType,
@@ -458,6 +478,19 @@ Component({
         return;
       }
       
+      // 检查是否禁用了评论提交功能
+      if (this.properties.disableSubmit) {
+        console.debug('评论功能已禁用');
+        // 触发自定义事件，通知父组件处理评论提交
+        this.triggerEvent('submitComment', {
+          content: this.data.commentText,
+          resourceId: this.data.resourceId,
+          resourceType: this.data.resourceType,
+          parentId: this.data.replyToComment?.id || null
+        });
+        return;
+      }
+      
       const content = this.data.commentText ? this.data.commentText.trim() : '';
       if (!content) {
         this.showToast('评论内容不能为空', 'error');
@@ -492,18 +525,13 @@ Component({
       });
       
       try {
-        // 准备评论参数选项
-        const options = {
-          resourceType: resourceType
-        };
-        
-        // 如果有回复ID，添加到参数中
-        if (parentId) {
-          options.parentId = parentId;
-        }
-
         // 调用评论行为中的方法创建评论
-        const result = await this._createComment(resourceId, savedCommentText, options);
+        const result = await this._createComment({
+          resource_id: resourceId,
+          resource_type: resourceType,
+          content: savedCommentText,
+          parent_id: parentId
+        });
         
         console.debug('评论API响应:', result);
         
@@ -611,7 +639,18 @@ Component({
         }
       } catch (error) {
         console.error('评论提交失败:', error);
-        this.showToast('评论提交失败，请重试', 'error');
+        
+        // 提取错误信息
+        const errorMessage = error.message || '评论提交失败，请重试';
+        console.log('评论提交错误信息:', errorMessage);
+        
+        // 使用模态框显示完整错误信息
+        wx.showModal({
+          title: '评论提交失败',
+          content: errorMessage,
+          showCancel: false,
+          confirmText: '知道了'
+        });
         
         this.setData({
           commentText: savedCommentText

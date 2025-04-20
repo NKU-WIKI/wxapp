@@ -1,7 +1,7 @@
 /**
  * 知识库行为 - 整合knowledge路径的API交互
  */
-const { storage, createApiClient } = require('../utils/util');
+const { storage, createApiClient, msgSecCheck, ui } = require('../utils/util');
 
 // 创建知识库API客户端
 const knowledgeApi = createApiClient('/api/knowledge', {
@@ -36,6 +36,11 @@ const knowledgeApi = createApiClient('/api/knowledge', {
     params: { openid: true }
   },
   // 新增API
+  create: {
+    method: 'POST',
+    path: '',
+    params: { openid: true, title: true, content: true }
+  },
   detail: {
     method: 'GET',
     path: '/:id',
@@ -449,41 +454,66 @@ module.exports = Behavior({
      * @returns {Promise<object>} 更新后的知识详情
      */
     async _updateKnowledge(id, data) {
-      if (!id) {
-        throw new Error('知识ID不能为空');
-      }
-      
-      if (!data || !data.title || !data.content) {
-        throw new Error('标题和内容不能为空');
-      }
-      
-      const openid = storage.get('openid');
-      if (!openid) {
-        console.debug('更新知识需要用户登录');
-        throw new Error('用户未登录');
-      }
-
-      try {
-        const params = {
-          id,
-          openid,
-          title: data.title,
-          content: data.content
-        };
-        
-        if (data.tags) params.tags = data.tags;
-        
-        const res = await knowledgeApi.update(params);
-        
-        if (res.code !== 200) {
-          throw new Error(res.message || '更新知识失败');
+      return new Promise(async (resolve, reject) => {
+        if (!id) {
+          reject(new Error('知识ID不能为空'));
+          return;
         }
         
-        return res.data;
-      } catch (err) {
-        console.error('更新知识失败:', err);
-        throw err;
-      }
+        if (!data || !data.title || !data.content) {
+          reject(new Error('标题和内容不能为空'));
+          return;
+        }
+        
+        const openid = storage.get('openid');
+        if (!openid) {
+          reject(new Error('用户未登录'));
+          return;
+        }
+
+        try {
+          ui.showToast('正在检查内容...');
+          
+          // 检查内容和标题
+          const contentCheck = msgSecCheck(data.content);
+          const titleCheck = msgSecCheck(data.title);
+          
+          const [contentResult, titleResult] = await Promise.all([contentCheck, titleCheck]);
+          
+          if (!contentResult.pass) {
+            ui.showToast(contentResult.reason, 'error', 3500);
+            reject(new Error(`内容${contentResult.reason}`));
+            return;
+          }
+          
+          if (!titleResult.pass) {
+            ui.showToast(titleResult.reason, 'error', 3500);
+            reject(new Error(`标题${titleResult.reason}`));
+            return;
+          }
+          
+          const params = {
+            id,
+            openid,
+            title: data.title,
+            content: data.content
+          };
+          
+          if (data.tags) params.tags = data.tags;
+          
+          const res = await knowledgeApi.update(params);
+          
+          if (res.code !== 200) {
+            reject(new Error(res.message || '更新知识失败'));
+            return;
+          }
+          
+          resolve(res.data);
+        } catch (err) {
+          console.error('更新知识失败:', err);
+          reject(err);
+        }
+      });
     },
 
     /**
@@ -605,6 +635,71 @@ module.exports = Behavior({
         console.debug('搜索用户失败:', err);
         return null;
       }
+    },
+
+    /**
+     * 创建知识
+     * @param {object} data 知识数据
+     * @param {string} data.title 标题
+     * @param {string} data.content 内容
+     * @param {string} [data.tags] 标签，多个用逗号分隔
+     * @returns {Promise<object>} 创建后的知识详情
+     */
+    _createKnowledge(data) {
+      return new Promise(async (resolve, reject) => {
+        if (!data || !data.title || !data.content) {
+          reject(new Error('标题和内容不能为空'));
+          return;
+        }
+        
+        const openid = storage.get('openid');
+        if (!openid) {
+          reject(new Error('用户未登录'));
+          return;
+        }
+
+        try {
+          ui.showToast('正在检查内容...');
+          
+          // 检查内容和标题
+          const contentCheck = msgSecCheck(data.content);
+          const titleCheck = msgSecCheck(data.title);
+          
+          const [contentResult, titleResult] = await Promise.all([contentCheck, titleCheck]);
+          
+          if (!contentResult.pass) {
+            ui.showToast(contentResult.reason, 'error', 3500);
+            reject(new Error(`内容${contentResult.reason}`));
+            return;
+          }
+          
+          if (!titleResult.pass) {
+            ui.showToast(titleResult.reason, 'error', 3500);
+            reject(new Error(`标题${titleResult.reason}`));
+            return;
+          }
+          
+          const params = {
+            openid,
+            title: data.title,
+            content: data.content
+          };
+          
+          if (data.tags) params.tags = data.tags;
+          
+          const res = await knowledgeApi.create(params);
+          
+          if (res.code !== 200) {
+            reject(new Error(res.message || '创建知识失败'));
+            return;
+          }
+          
+          resolve(res.data);
+        } catch (err) {
+          console.error('创建知识失败:', err);
+          reject(err);
+        }
+      });
     }
   }
 }); 

@@ -65,31 +65,32 @@
   
   <!-- 评论输入区域 -->
   <view class="comment-input-area">
-    <view class="comment-input-container">
+    <view class="comment-input-container {{disableSubmit ? 'disabled' : ''}}">
       <input 
         class="comment-input" 
-        placeholder="{{replyToComment ? (replyToReply ? '回复 @' + replyToReply.nickname : '回复 @' + replyToComment.nickname) : '写评论...'}}"
+        placeholder="{{disableSubmit ? '功能开发中...' : (replyToComment ? (replyToReply ? '回复 @' + replyToReply.nickname : '回复 @' + replyToComment.nickname) : '写评论...')}}"
         value="{{commentText}}"
         focus="{{commentFocus}}"
         bindfocus="onCommentFocus"
         bindinput="onCommentInput"
         confirm-type="send"
         bindconfirm="submitComment"
+        disabled="{{disableSubmit}}"
       />
       
       <!-- 取消回复按钮，仅在回复模式下显示 -->
       <view 
         class="cancel-reply-btn" 
-        wx:if="{{replyToComment}}"
+        wx:if="{{replyToComment && !disableSubmit}}"
         bindtap="cancelReply">
         <icon name="close" size="16"></icon>
       </view>
       
       <!-- 发送按钮 -->
       <view
-              class="submit-btn {{commentText ? 'active' : ''}} {{isSubmitting ? 'disabled' : ''}}"
+              class="submit-btn {{commentText ? 'active' : ''}} {{isSubmitting || disableSubmit ? 'disabled' : ''}}"
               bindtap="{{!isSubmitting && commentText ? 'submitComment' : ''}}"
-              disabled="{{isSubmitting || !commentText}}">
+              disabled="{{isSubmitting || !commentText || disableSubmit}}">
         <text>{{isSubmitting ? '发送中...' : '发送'}}</text>
       </view>
     </view>

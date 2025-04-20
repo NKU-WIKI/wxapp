@@ -104,6 +104,40 @@ Component({
       const value = e.detail.value;
       let newValue = value;
       
+      // 检测退格键 - 通过比较前后值的长度变化判断是否在删除
+      const isDeleting = this.data.inputValue.length > value.length;
+      
+      // 如果已选择了一个前缀，并且用户正在删除内容
+      if (this.data.hasSelected && this.data.selectedType && isDeleting) {
+        // 获取当前完整前缀，例如 "@wiki "
+        const fullPrefix = `@${this.data.selectedType} `;
+        
+        // 判断用户是否试图删除前缀的一部分
+        // 1. 如果当前值不再以前缀开头
+        // 2. 如果当前值等于前缀（带空格或不带空格），说明用户删除了所有内容后想继续删除前缀
+        // 3. 如果当前值长度小于等于前缀长度，说明用户删到了前缀部分
+        if (!value.startsWith(fullPrefix) || 
+            value === fullPrefix || 
+            value === `@${this.data.selectedType}` ||
+            value.length <= fullPrefix.length) {
+          
+          // 用户尝试删除前缀，直接清空整个搜索框
+          console.debug('检测到前缀删除操作，重置搜索框');
+          this.setData({
+            inputValue: '',
+            userInput: '',
+            hasSelected: false,
+            selectedType: '',
+            showSelector: false,
+            atPosition: -1
+          });
+          
+          // 触发输入事件，通知外部值已更改为空
+          this.triggerEvent('input', { value: '' });
+          return;
+        }
+      }
+      
       // 已选择类型的情况下，需要保持前缀
       if (this.data.hasSelected && this.data.selectedType) {
         // 检查用户是否删除了前缀（如果是普通输入模式，不应该发生这种情况）
