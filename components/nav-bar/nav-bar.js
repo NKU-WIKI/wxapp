@@ -1,5 +1,3 @@
-const { storage } = require("../../utils/util");
-
 Component({
   options: {
     // 启用简化的样式隔离

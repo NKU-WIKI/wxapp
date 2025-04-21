@@ -932,7 +932,8 @@ API接口的参数类型规范如下：
 ```json
 {
   "openid": "评论用户openid", // 必填
-  "post_id": 1, // 必填，整数类型
+  "resource_id": 1, // 必填，整数类型
+  "resource_type": "post", // 必填，资源类型：post-帖子, knowledge-知识
   "content": "评论内容", // 必填
   "parent_id": null, // 可选，父评论ID，整数类型
   "image": [] // 可选，评论图片
@@ -947,7 +948,8 @@ API接口的参数类型规范如下：
   "message": "success",
   "data": {
     "id": 5,
-    "post_id": 1,
+    "resource_id": 1,
+    "resource_type": "post",
     "parent_id": null,
     "openid": "评论用户openid",
     "nickname": null,
@@ -967,7 +969,7 @@ API接口的参数类型规范如下：
 }
 ```
 
-> **注意**：创建评论时，如果评论的是帖子（parent_id为null），并且评论者不是帖子作者，则会自动向帖子作者发送通知；如果评论的是评论（提供parent_id），并且评论者不是父评论作者，则会自动向父评论作者发送通知。
+> **注意**：创建评论时，如果评论的是资源（parent_id为null），并且评论者不是资源作者，则会自动向资源作者发送通知；如果评论的是评论（提供parent_id），并且评论者不是父评论作者，则会自动向父评论作者发送通知。
 
 ### 3.2 获取评论详情
 
@@ -986,7 +988,8 @@ API接口的参数类型规范如下：
   "data": {
     "id": 1,
     "openid": "评论用户openid",
-    "post_id": 1,
+    "resource_id": 1,
+    "resource_type": "post",
     "content": "评论内容",
     "parent_id": null,
     "nickname": "用户昵称",
@@ -1005,12 +1008,13 @@ API接口的参数类型规范如下：
 }
 ```
 
-### 3.3 获取帖子评论列表
+### 3.3 获取评论列表
 
 **接口**：`GET /api/wxapp/comment/list`  
-**描述**：获取指定帖子的评论列表  
+**描述**：获取指定资源的评论列表  
 **参数**：
-- `post_id` - 查询参数，帖子ID（必填，整数类型）
+- `resource_id` - 查询参数，资源ID（必填，整数类型）
+- `resource_type` - 查询参数，资源类型：post-帖子, knowledge-知识（必填，字符串类型）
 - `parent_id` - 查询参数，父评论ID，可选（整数类型，为null时获取一级评论）
 - `page_size` - 查询参数，每页记录数量，默认20，最大100
 - `page` - 查询参数，页码，从1开始，默认1
@@ -1025,7 +1029,8 @@ API接口的参数类型规范如下：
   "data": [
     {
       "id": 2,
-      "post_id": 3,
+      "resource_id": 3,
+      "resource_type": "post",
       "parent_id": null,
       "openid": "用户openid",
       "nickname": "用户昵称",

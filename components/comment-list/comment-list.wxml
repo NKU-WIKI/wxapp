@@ -31,11 +31,13 @@
   <scroll-view
     scroll-y="{{true}}"
     class="comment-scroll"
+    bindscrolltolower="loadMore"
+    lower-threshold="50"
     wx:elif="{{comments && comments.length > 0}}">
     <view class="comment-list">
       <comment-item
         wx:for="{{comments}}"
-        wx:key="id"
+        wx:key="{{item.id}}"
         comment="{{item}}"
         bind:reply="handleReply"
         bind:delete="handleDelete"

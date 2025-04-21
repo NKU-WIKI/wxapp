@@ -1,4 +1,4 @@
-const { storage } = require('../../utils/util');
+const { storage } = require('../../utils/index');
 
 Component({
   

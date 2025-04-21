@@ -1,8 +1,8 @@
-const { storage, ui, error, ToastType } = require('../../utils/util');
-const { baseBehavior, knowledgeBehavior, agentBehavior } = require('../../behaviors/index');
+const { storage, ui, ToastType } = require('../../utils/index');
+const behaviors = require('../../behaviors/index');
 
 Page({
-  behaviors: [baseBehavior, knowledgeBehavior, agentBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.knowledgeBehavior, behaviors.agentBehavior],
 
   data: {
     searchValue: '',

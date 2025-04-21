@@ -25,17 +25,17 @@ exports.main = async (event, context) => {
   }
 
   try {
-    // 调用微信官方安全检测接口
-    console.log('调用内容安全检测API, 内容:', content);
-    
     // 从云函数上下文中获取openid
     const openid = event.userInfo ? event.userInfo.openId : '';
+    
+    // 调用微信官方安全检测接口
+    console.log('调用内容安全检测API, 内容:', content);
     
     const result = await cloud.openapi.security.msgSecCheck({
       content: content,
       scene: event.scene || 3,
       version: event.version || 2,
-      openid: openid // 传入从上下文获取的openid
+      openid: openid
     });
     
     console.log('内容安全检测结果:', result);
@@ -58,6 +58,7 @@ exports.main = async (event, context) => {
     if (result && result.result) {
       const suggest = result.result.suggest;
       const label = result.result.label;
+      const isRisky = suggest !== 'pass';
       
       return {
         code: 200,
@@ -65,7 +66,8 @@ exports.main = async (event, context) => {
         data: {
           result: {
             ...result.result,
-            labelText: labelMap[label] || '未知类型'
+            labelText: labelMap[label] || '未知类型',
+            isRisky: isRisky
           }
         }
       };
@@ -77,20 +79,23 @@ exports.main = async (event, context) => {
       message: 'pass',
       data: {
         result: {
-          suggest: 'pass'
+          suggest: 'pass',
+          isRisky: false
         }
       }
     };
   } catch (error) {
-    // 记录错误并默认返回通过
     console.error('内容安全检测失败:', error);
     
+    // 发生错误时默认放行，但加上警告标记
     return {
       code: 200,
       message: 'pass',
       data: {
         result: {
-          suggest: 'pass'
+          suggest: 'pass',
+          warning: '内容检测遇到错误，请谨慎处理',
+          isRisky: false
         }
       }
     };

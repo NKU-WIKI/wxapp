@@ -1,12 +1,11 @@
-const { storage, ui } = require('../../../utils/util');
-const baseBehavior = require('../../../behaviors/baseBehavior');
-const userBehavior = require('../../../behaviors/userBehavior');
+const { storage, ui } = require('../../../utils/index');
+const behaviors = require('../../../behaviors/index');
 
 // 配置项存储键名前缀
 const STORAGE_PREFIX = 'setting_';
 
 Page({
-  behaviors: [baseBehavior, userBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.userBehavior],
 
   data: {
     settings: [

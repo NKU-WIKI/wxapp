@@ -1,5 +1,4 @@
-// pages/profile/edit/edit.js
-const { ui, ToastType, storage, msgSecCheck } = require('../../../utils/util');
+const {msgSecCheck } = require('../../../utils/index');
 const behaviors = require('../../../behaviors/index');
 
 Page({

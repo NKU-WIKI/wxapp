@@ -1,7 +1,7 @@
 /**
  * 评论行为 - 处理评论列表加载、发布、删除、回复等
  */
-const { storage, createApiClient, msgSecCheck, ui } = require('../utils/util');
+const { storage, createApiClient, msgSecCheck, ui } = require('/utils/index');
 
 // 创建评论API客户端
 const commentApi = createApiClient('/api/wxapp/comment', {
@@ -134,13 +134,14 @@ module.exports = Behavior({
                               JSON.stringify(data.reply_to || data.replyTo);
         }
         
-        // 不在这里显示toast，让组件来负责显示
-        
-        msgSecCheck(data.content, 2) // 使用场景2表示评论
+        // 增强内容安全检查，使用场景2表示评论
+        msgSecCheck(data.content, 2) 
           .then(result => {
             if (!result.pass) {
-              // 直接使用带前缀的reason
-              reject(new Error(result.reason));
+              // 使用提供的原因字段，如果没有则使用默认消息
+              const errorReason = result.reason || '内容含有违规信息，请修改后重试';
+              console.debug('内容安全检查未通过:', errorReason);
+              reject(new Error(errorReason));
               return;
             }
             

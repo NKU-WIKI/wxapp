@@ -1,8 +1,8 @@
-const { ui, error, ToastType, getAppInfo } = require('../../utils/util');
-const baseBehavior = require('../../behaviors/baseBehavior');
+const { ui, ToastType, getAppInfo } = require('../../utils/index');
+const behavior = require('../../behaviors/index');
 
 Page({
-  behaviors: [baseBehavior],
+  behaviors: [behavior.baseBehavior],
 
   data: {
     companyInfo: {
