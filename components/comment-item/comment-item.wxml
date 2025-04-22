@@ -137,7 +137,7 @@
             <text class="reply-action-text">回复</text>
           </view>
           
-          <view wx:if="{{item.openid === currentUserOpenid}}" class="reply-action-button delete-button" catchtap="onTapDeleteReply" data-id="{{item.id}}">
+          <view wx:if="{{role === 'admin' || item.openid === currentUserOpenid}}" class="reply-action-button delete-button" catchtap="onTapDeleteReply" data-id="{{item.id}}">
             <image class="reply-action-icon" src="/icons/clear.png" mode="aspectFit"></image>
             <text class="reply-action-text">删除</text>
           </view>
@@ -181,7 +181,7 @@
       </button>
       
       <!-- 删除按钮（仅评论作者可见） -->
-      <button wx:if="{{formattedComment.isOwner}}" 
+      <button wx:if="{{role === 'admin' || formattedComment.isOwner}}" 
               class="action-button delete-button"
               hover-class="button-hover" 
               size="mini" 

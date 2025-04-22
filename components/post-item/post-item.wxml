@@ -37,7 +37,7 @@
         </button>
       </view>
       <!-- 添加删除按钮 -->
-      <view wx:if="{{post.openid === currentUserOpenid}}" class="delete-container">
+      <view wx:if="{{role === 'admin' || post.openid === currentUserOpenid}}" class="delete-container">
         <icon 
           name="clear"
           size="40"

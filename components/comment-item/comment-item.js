@@ -35,16 +35,21 @@ Component({
     customStyle: {
       type: String,
       value: ''
+    },
+    role: {
+      type: String,
+      value: ''
     }
   },
 
   observers: {
     'comment': function(comment) {
       if (!comment || !comment.id) return;
-      
       this.setData({
-        formattedComment: this.formatComment(comment)
+        formattedComment: this.formatComment(comment),
+        role: storage.get('userInfo')?.role || ''
       });
+      console.debug('[comment-item] observers, role:', storage.get('userInfo')?.role, 'openid:', storage.get('openid'));
     }
   },
 
@@ -52,14 +57,18 @@ Component({
     formattedComment: null,
     isProcessing: false,
     _isLiking: false,
-    currentUserOpenid: ''
+    currentUserOpenid: '',
+    role: ''
   },
 
   lifetimes: {
     ready() {
-      // 获取当前用户openid
+      // 获取当前用户openid和role
       const openid = storage.get('openid');
-      this.setData({ currentUserOpenid: openid });
+      const userInfo = storage.get('userInfo') || {};
+      const role = userInfo.role || '';
+      this.setData({ currentUserOpenid: openid, role });
+      console.debug('[comment-item] ready, role:', role, 'openid:', openid);
     }
   },
 

@@ -32,7 +32,8 @@ Component({
     formattedTime: { type: String, value: '' },
     isMarkdown: { type: Boolean, value: true },
     previewHeight: { type: Number, value: 120 },
-    currentUserOpenid: { type: String, value: '' }
+    currentUserOpenid: { type: String, value: '' },
+    role: { type: String, value: '' }
   },
 
   data: {
@@ -71,7 +72,11 @@ Component({
 
   lifetimes: {
     async ready() {
-      this.setData({ currentUserOpenid: storage.get('openid') });
+      const openid = storage.get('openid');
+      const userInfo = storage.get('userInfo') || {};
+      const role = userInfo.role || '';
+      this.setData({ currentUserOpenid: openid, role });
+      console.debug('[post-item] ready, role:', role, 'openid:', openid);
       // 只在详情页面时刷新状态
       if (this.properties.detailPage) {
         // 添加防御性检查，避免post为null时产生错误

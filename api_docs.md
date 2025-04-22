@@ -1,4 +1,4 @@
-/# 南开Wiki API文档
+# 南开Wiki API文档
 
 本文档包含南开Wiki平台的所有API接口，主要分为三类：
 1. 微信小程序API：提供给微信小程序客户端使用的API
@@ -273,7 +273,8 @@ API接口的参数类型规范如下：
     "platform": "wxapp",
     "status": 1,
     "is_deleted": 0,
-    "extra": {"school": "南开大学"}
+    "extra": {"school": "南开大学"},
+    "role": "admin"
   },
   "details": {"message": "用户已存在"},
   "timestamp": "2023-01-01 12:00:00"
@@ -314,7 +315,8 @@ API接口的参数类型规范如下：
     "platform": "wxapp",
     "status": 1,
     "is_deleted": 0,
-    "extra": null
+    "extra": null,
+    "role": "admin"
   },
   "details": {"message": "新用户创建成功"},
   "timestamp": "2023-01-01 12:00:00"
@@ -363,7 +365,8 @@ API接口的参数类型规范如下：
     "platform": "wxapp",
     "status": 1,
     "is_deleted": 0,
-    "extra": {}
+    "extra": {},
+    "role": "admin"
   },
   "details": null,
   "timestamp": "2023-01-01 12:00:00"
@@ -542,7 +545,8 @@ API接口的参数类型规范如下：
     "extra": {
       "school": "南开大学",
       "major": "计算机科学与技术"
-    }
+    },
+    "role": "admin"
   },
   "details": {
     "message": "用户信息更新成功"

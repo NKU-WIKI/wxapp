@@ -52,7 +52,8 @@ Component({
     pageSize: 10,
     
     // 添加淡入淡出效果的样式
-    fadeStyle: ''
+    fadeStyle: '',
+    role: ''
   },
 
   lifetimes: {
@@ -83,6 +84,13 @@ Component({
     },
     
     detached() {
+    },
+
+    ready() {
+      const userInfo = require('../../utils/index').storage.get('userInfo') || {};
+      const role = userInfo.role || '';
+      this.setData({ role });
+      console.debug('[post-list] ready, role:', role);
     }
   },
 

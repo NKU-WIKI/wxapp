@@ -55,6 +55,11 @@ Component({
     disableSubmit: {
       type: Boolean,
       value: false
+    },
+    // 当前用户角色
+    role: {
+      type: String,
+      value: ''
     }
   },
 
@@ -83,16 +88,20 @@ Component({
     isSubmitting: false,
     
     // 当前用户信息
-    currentUserOpenid: ''
+    currentUserOpenid: '',
+    role: ''
   },
 
   lifetimes: {
     attached() {
       // 自动获取当前用户openid
       const openid = this.getStorage('openid');
-      
+      const role = this.getStorage('role');
       if (openid) {
         this.setData({ currentUserOpenid: openid });
+      }
+      if (role) {
+        this.setData({ role });
       }
       
       // 初始化behavior对象引用
