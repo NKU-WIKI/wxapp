@@ -175,8 +175,8 @@ module.exports = Behavior({
             
             if (!titleResult.pass) {
               // 使用baseReason，添加"标题"前缀
-              const titleError = titleResult.baseReason ? 
-                `标题${titleResult.baseReason}` : 
+              const titleError = titleResult.reason ? 
+                `标题${titleResult.reason}` : 
                 titleResult.reason.replace(/^内容/, '标题');
               reject(new Error(titleError));
               return;
@@ -230,8 +230,8 @@ module.exports = Behavior({
             
             if (!titleResult.pass) {
               // 使用baseReason，添加"标题"前缀
-              const titleError = titleResult.baseReason ? 
-                `标题${titleResult.baseReason}` : 
+              const titleError = titleResult.reason ? 
+                `标题${titleResult.reason}` : 
                 titleResult.reason.replace(/^内容/, '标题');
               reject(new Error(titleError));
               return;

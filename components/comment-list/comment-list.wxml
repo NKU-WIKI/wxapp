@@ -37,7 +37,7 @@
     <view class="comment-list">
       <comment-item
         wx:for="{{comments}}"
-        wx:key="{{item.id}}"
+        wx:key="id"
         comment="{{item}}"
         bind:reply="handleReply"
         bind:delete="handleDelete"

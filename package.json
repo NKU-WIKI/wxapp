@@ -4,9 +4,7 @@
   "description": "南开Wiki校园知识共享平台",
   "dependencies": {
     "miniprogram-sm-crypto": "^0.3.12",
-    "similarity": "^1.2.1",
-    "text-censor": "^1.0.2",
-    "word-pinyin": "^0.1.8"
+    "pinyin-pro": "^3.26.0"
   },
   "scripts": {
     "build": "echo \"Error: 请使用小程序开发工具构建\" && exit 1"

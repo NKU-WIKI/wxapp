@@ -39,15 +39,10 @@ async function init() {
     getOpenID().catch(err => {
       logger.debug('获取OPENID出错:', err);
       return null;
-    }),
-    // 从contentSecurity模块获取敏感词库初始化函数
-    require('./contentSecurity').initBanwords().catch(err => {
-      logger.debug('初始化敏感词库出错:', err);
-      return null;
     })
   ]);
   
-  const [aboutInfo, userProfile, openid, banwords] = results;
+  const [aboutInfo, userProfile, openid] = results;
   
   // 处理获取到的数据
   if (aboutInfo) {
@@ -66,8 +61,7 @@ async function init() {
   return {
     aboutInfo,
     userProfile,
-    openid,
-    banwords
+    openid
   };
 }
 

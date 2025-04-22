@@ -1,8 +1,6 @@
 /**
  * 统一导出工具函数
  */
-
-// 导入各模块
 const logger = require('./logger');
 const storage = require('./storage');
 const uiModule = require('./ui');
@@ -12,8 +10,8 @@ const datetime = require('./datetime');
 const system = require('./system');
 const error = require('./error');
 const format = require('./format');
-const contentSecurity = require('./contentSecurity');
 const chunkUtil = require('./chunkUtil');
+const textCensor = require('./textCensor');
 
 // 创建ui命名空间对象
 const ui = {
@@ -22,6 +20,23 @@ const ui = {
   showModal: uiModule.showModal,
   showActionSheet: uiModule.showActionSheet,
   copyText: uiModule.copyText
+};
+
+const msgSecCheck = async (content, scene = 2) => {
+  if (!content) {
+    return { pass: true, reason: null };
+  }
+  try {
+    const result = await textCensor.check(content);
+    return {
+      pass: !result.risk,
+      matches: result.matches,
+      reason: result.reason
+    };
+  } catch (error) {
+    logger.error('内容安全检测失败:', error);
+    return { pass: true, matches: [], reason: null };
+  }
 };
 
 // 合并导出
@@ -75,9 +90,7 @@ module.exports = {
   getAppInfo: system.getAppInfo,
   
   // 内容安全
-  msgSecCheck: contentSecurity.msgSecCheck,
-  contentSecurity,
-  
+  msgSecCheck,
   // 流式数据处理
   createChunkRes: chunkUtil.createChunkRes
 };
