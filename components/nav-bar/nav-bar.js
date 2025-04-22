@@ -1,4 +1,9 @@
+const startPolling = require("../../utils/startPolling");
+const notificationBehavior = require('../../behaviors/notificationBehavior');
+
 Component({
+  behaviors: [notificationBehavior],
+
   options: {
     // 启用简化的样式隔离
     styleIsolation: 'isolated',
