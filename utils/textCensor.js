@@ -1,22 +1,11 @@
 const logger = require('./logger');
 const pinyin = require('./pinyin');
 
-// 敏感词标签
-const WordTagEnum = {
-  POLITICS: 'politics',
-  PORN: 'porn',
-  GAMBLING: 'gambling',
-  VIOLENCE: 'violence',
-  ILLEGAL: 'illegal',
-  ABUSE: 'abuse',
-  AD: 'ad',
-  SPAM: 'spam'
-};
 
 // 从banwords.js导入敏感词定义
 const { library } = require('./banwords');
 
-const INTERFERE_CHARS = '[\s*_\.·　*/\\,，|+~:：;；!\?\(\)\[\]\{\}（）【】\'\"“”‘’…\-]'; // 干扰字符集合
+const INTERFERE_CHARS = '[\\s*_\\.·　*/\\\\,，|+~:：;；!\\?\\(\\)\\[\\]\\{\\}（）【】\'\"“”‘’…\\-]'; // 干扰字符集合
 const ABBR_INTERFERE_CHARS = '[^a-zA-Z]*'; // 缩写检测专用：所有非字母都视为干扰符号
 // 优化：不允许以正则元字符开头
 const SAFE_START = /^[\u4e00-\u9fa5a-zA-Z0-9@#￥$%&（）()\[\]【】_.·、，。？！：；""''《》-]/;
@@ -67,7 +56,9 @@ class TextCensor {
         if (logger && logger.debug) logger.debug(`敏感词拼音正则生成失败: ${def.word}`, e);
         return null;
       }
-    }).filter(Boolean);
+    })
+    // 只保留拼音长度大于3的
+    .filter(obj => obj && obj.word && pinyin.textToPinyin(obj.word, ' ').replace(/ /g, '').length > 3);
     // 不再生成拼音缩写正则
   }
 
@@ -91,7 +82,7 @@ class TextCensor {
             });
             // 生成首字母缩写及正则
             const abbr = pinyin.textToPinyin(w, ' ').split(' ').map(py => py[0]).join('');
-            if (abbr.length > 3 && /^[a-zA-Z]+$/.test(abbr)) {
+            if (abbr.length > 2 && /^[a-zA-Z]+$/.test(abbr)) {
               flattened.push({
                 word: abbr.toLowerCase(),
                 category,
@@ -132,7 +123,7 @@ class TextCensor {
         });
         // 自定义词也生成缩写
         const abbr = pinyin.textToPinyin(w, ' ').split(' ').map(py => py[0]).join('');
-        if (abbr.length > 3 && /^[a-zA-Z]+$/.test(abbr)) {
+        if (abbr.length > 2 && /^[a-zA-Z]+$/.test(abbr)) {
           flattened.push({
             word: abbr.toLowerCase(),
             category: 'custom',
