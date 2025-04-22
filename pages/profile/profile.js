@@ -1,5 +1,5 @@
 const behaviors = require('../../behaviors/index');
-const { storage, getAboutInfo, getOpenID } = require('../../utils/util');
+const { storage, getAboutInfo, getOpenID } = require('../../utils/index');
 // 常量配置
 const MENU_CONFIG = {
   SETTINGS: {

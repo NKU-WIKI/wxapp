@@ -1,10 +1,8 @@
-const baseBehavior = require('../../behaviors/baseBehavior');
-const postBehavior = require('../../behaviors/postBehavior');
-const userBehavior = require('../../behaviors/userBehavior');
-const { formatRelativeTime, parseJsonField, storage, post } = require('../../utils/util.js');
+const behaviors = require('../../behaviors/index');
+const { formatRelativeTime, parseJsonField, storage } = require('../../utils/index');
 
 Component({
-  behaviors: [baseBehavior, postBehavior, userBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.postBehavior, behaviors.userBehavior],
 
   options: {
     pureDataPattern: /^_/,

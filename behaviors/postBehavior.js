@@ -1,7 +1,7 @@
 /**
- * 帖子行为 - 统一帖子API交互逻辑
+ * 帖子行为 - 处理帖子数据的获取、发布、编辑、点赞等操作
  */
-const { createApiClient, msgSecCheck, ui, storage } = require('../utils/util');
+const { createApiClient, msgSecCheck, ui, storage } = require('../utils/index');
 
 // 创建帖子API客户端
 const postApi = createApiClient('/api/wxapp/post', {

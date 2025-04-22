@@ -1,8 +1,8 @@
 /**
- * 用户授权行为
- * 提供用户授权相关方法
+ * 认证行为
+ * 提供登录和权限相关操作
  */
-const { createApiClient, storage, ui, nav } = require('../utils/util');
+const { ui, storage, createApiClient } = require('../utils/index');
 
 // 创建用户API客户端
 const userApi = createApiClient('/api/wxapp/user', {

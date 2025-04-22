@@ -1,4 +1,5 @@
 const {init, logger} = require('./utils/index');
+
 App({
   async onLaunch() {
     try {
@@ -23,13 +24,16 @@ App({
       wx.reLaunch({
         url: '/pages/login/login'
       });
+
+     
     } catch (err) {
       console.error('应用启动失败', err);
     }
   },
+  
   // 实际使用的配置在utils/util.js中，这里仅作展示
   globalData: {
-    defaultAvatar: 'cloud://cloud1-7gu881ir0a233c29.636c-cloud1-7gu881ir0a233c29-1352978573/avatar1.png',
+    defaultAvatar: 'cloud://cloud1-7gu881ir0a233c29.636c-cloud1-7gu8881ir0a233c29-1352978573/avatar1.png',
     cloudEnv: 'cloud1-7gu881ir0a233c29',
     version: '0.0.1',
     API_CONFIG: {

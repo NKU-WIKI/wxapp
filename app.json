@@ -64,7 +64,7 @@
   "sitemapLocation": "sitemap.json",
   "usingComponents": {
     "icon": "./components/icon/icon"
-  },
+  },    
   "resolveAlias": {
     "/*": "/*"
   },

@@ -1,8 +1,8 @@
-const baseBehavior = require('../../behaviors/baseBehavior');
-const authBehavior = require('../../behaviors/authBehavior');
-const { getAboutInfo } = require('../../utils/util');
+const behavior = require('../../behaviors/index');
+const { getAboutInfo } = require('../../utils/index');
+
 Page({
-  behaviors: [baseBehavior, authBehavior],
+  behaviors: [behavior.baseBehavior, behavior.authBehavior],
 
   data: {
     aboutInfo: {

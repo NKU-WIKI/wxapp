@@ -1,4 +1,4 @@
-const { ToastType, msgSecCheck } = require('../../utils/util');
+const { ToastType, msgSecCheck } = require('../../utils/index');
 const behaviors = require('../../behaviors/index');
 
 Page({

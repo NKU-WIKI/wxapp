@@ -1,7 +1,7 @@
 /**
  * 知识库行为 - 整合knowledge路径的API交互
  */
-const { storage, createApiClient, msgSecCheck, ui } = require('../utils/util');
+const { storage, createApiClient, msgSecCheck, ui } = require('../utils/index');
 
 // 创建知识库API客户端
 const knowledgeApi = createApiClient('/api/knowledge', {
@@ -102,7 +102,7 @@ module.exports = Behavior({
         return null;
       }
       
-      const { get } = require('../utils/util');
+      const { get } = require('../utils/index');
       const openid = storage.get('openid');
       if (!openid) {
         console.debug('搜索需要用户登录');

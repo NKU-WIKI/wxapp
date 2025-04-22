@@ -1,4 +1,4 @@
-const { storage, startPolling } = require("../../utils/util");
+const startPolling = require("../../utils/startPolling");
 const notificationBehavior = require('../../behaviors/notificationBehavior');
 
 Component({
@@ -57,7 +57,7 @@ Component({
       type: Boolean,
       value: false,
       observer: function(newVal) {
-        this.pollingUpdateNotificationButtons()
+        this.updateQuickButtons();
       }
     },
     showAvatar: {
@@ -191,7 +191,7 @@ Component({
     },
 
     // 根据快捷属性更新按钮
-    async updateQuickButtons() {
+    updateQuickButtons() {
       // 如果已经通过navButtons设置，则不处理
       if (this.properties.navButtons && this.properties.navButtons.length > 0) {
         return;
@@ -220,13 +220,9 @@ Component({
           show: true
         });
       }
-
-      // 添加通知按钮
       if(this.properties.showNotification){
         const notificationButton = {...this.data.defaultButtonConfig.notification, show: true};
         notificationButton.position = 'left';
-        const res = await this._checkUnreadNotification();
-        notificationButton.hasUnread = res.hasUnread;
         buttons.push(notificationButton);
       }
       // 添加头像按钮 (左侧)
@@ -244,35 +240,10 @@ Component({
       });
     },
 
-    async updateNotificationButtons() {
-      const buttons = [];
-
-      // 添加通知按钮
-      if(this.properties.showNotification){
-        const notificationButton = {...this.data.defaultButtonConfig.notification, show: true};
-        notificationButton.position = 'left';
-        const res = await this._checkUnreadNotification();
-        notificationButton.hasUnread = res.hasUnread;
-        buttons.push(notificationButton);
-      }
-
-      this.setData({ buttons }, () => {
-        this.updateLayout();
-      });
-    },
-
-    async pollingUpdateNotificationButtons(){
-      //startPolling(this.updateNotificationButtons, 5000);
-      setInterval( ()=>{
-        this.updateNotificationButtons();
-      }, 5000);
-    },
-
     // 初始化导航按钮
     initNavButtons() {
       const navButtons = this.properties.navButtons || [];
       const buttons = [];
-
       const defaultButtons = {
         back: {
           type: 'back',
@@ -577,6 +548,6 @@ Component({
           }
           break;
       }
-    },
+    }
   }
-})
+}) 
