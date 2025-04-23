@@ -12,16 +12,16 @@ function fetchData(url){
             console.error(err);
         }
     });
-}
+};
 
-const startPolling = (func,delay)=> {
+const startPolling = (callback, delay, _this)=> {
+    const func = callback.bind(_this);
     setInterval(() => {
         func();
-        console.log('更新图标');
     }, delay)
-}
+};
 
 module.exports = {
     startPolling,
     fetchData
-}
+};

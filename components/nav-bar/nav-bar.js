@@ -1,4 +1,4 @@
-const startPolling = require("../../utils/startPolling");
+const {startPolling} = require("../../utils/startPolling");
 const notificationBehavior = require('../../behaviors/notificationBehavior');
 
 Component({
@@ -57,7 +57,7 @@ Component({
       type: Boolean,
       value: false,
       observer: function(newVal) {
-        this.pollingUpdateNotificationButtons()
+        this.pollingQuickButtons()
       }
     },
     showAvatar: {
@@ -244,28 +244,8 @@ Component({
       });
     },
 
-    async updateNotificationButtons() {
-      const buttons = [];
-
-      // 添加通知按钮
-      if(this.properties.showNotification){
-        const notificationButton = {...this.data.defaultButtonConfig.notification, show: true};
-        notificationButton.position = 'left';
-        const res = await this._checkUnreadNotification();
-        notificationButton.hasUnread = res.hasUnread;
-        buttons.push(notificationButton);
-      }
-
-      this.setData({ buttons }, () => {
-        this.updateLayout();
-      });
-    },
-
-    async pollingUpdateNotificationButtons(){
-      //startPolling(this.updateNotificationButtons, 5000);
-      setInterval( ()=>{
-        this.updateNotificationButtons();
-      }, 5000);
+    async pollingQuickButtons(){
+      startPolling(this.updateQuickButtons, 5000, this);
     },
 
     // 初始化导航按钮
