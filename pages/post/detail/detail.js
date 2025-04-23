@@ -31,14 +31,22 @@ Page({
     },
 
     // 记录是否需要聚焦到评论区
-    shouldFocusComment: false
+    shouldFocusComment: false,
+    // 当前用户角色
+    role: ''
   },
 
   async onLoad(options) {
     // 从页面参数中获取帖子ID
     const postId = options.id;
+    // 获取当前用户角色
+    let role = '';
+    try {
+      role = wx.getStorageSync('role') || '';
+    } catch (e) {}
     this.setData({
-      postId: postId
+      postId: postId,
+      role: role
     });
     
     // 处理评论ID和焦点参数

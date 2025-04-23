@@ -39,6 +39,7 @@
         wx:for="{{comments}}"
         wx:key="id"
         comment="{{item}}"
+        role="{{role}}"
         bind:reply="handleReply"
         bind:delete="handleDelete"
         class="comment-item comment-item-{{item.id}} {{item.highlighted ? 'highlighted' : ''}}"
