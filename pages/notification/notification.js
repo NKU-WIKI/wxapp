@@ -234,19 +234,23 @@ Page({
 
   // 处理通知点击
   async onNotificationTap(e) {
-    const { id, type, target_id, target_type, is_read } = e.currentTarget.dataset;
+    const { id, type, targetId, targetType, isRead, senderOpenid } = e.currentTarget.dataset;
     
     // 标记为已读
-    if (!is_read) {
+    if (!isRead) {
       await this._markNotificationAsRead(id).catch(err => {
       });
     }
 
     // 跳转到目标页面
-    const url = this.getTargetUrl(type, target_id, target_type);
-    if (url) {
+    let url
+    if (targetType === 'user')
+      url = this.getTargetUrl(type, senderOpenid, targetType);
+    else
+      url = this.getTargetUrl(type, targetId, targetType);
+
+    if (url)
       this.navigateTo(url);
-    }
   },
 
   // 获取目标URL
@@ -262,7 +266,7 @@ Page({
         }
         return `/pages/post/detail/detail?id=${target_id}&comment_id=${target_id}`;
       case 'user':
-        return `/pages/profile/profile?id=${target_id}`;
+        return `/pages/user/user?id=${target_id}`;
       default:
         return '';
     }

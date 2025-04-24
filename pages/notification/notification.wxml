@@ -46,6 +46,7 @@
           data-target-id="{{item.target_id}}"
           data-target-type="{{item.target_type}}"
           data-is-read="{{item.is_read}}"
+          data-sender-openid="{{item.sender.openid}}"
           bindtap="onNotificationTap"
           bindlongpress="onNotificationDelete"
         >
