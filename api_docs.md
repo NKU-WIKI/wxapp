@@ -273,7 +273,8 @@ API接口的参数类型规范如下：
     "platform": "wxapp",
     "status": 1,
     "is_deleted": 0,
-    "extra": {"school": "南开大学"}
+    "extra": {"school": "南开大学"},
+    "role": "admin"
   },
   "details": {"message": "用户已存在"},
   "timestamp": "2023-01-01 12:00:00"
@@ -314,7 +315,8 @@ API接口的参数类型规范如下：
     "platform": "wxapp",
     "status": 1,
     "is_deleted": 0,
-    "extra": null
+    "extra": null,
+    "role": "admin"
   },
   "details": {"message": "新用户创建成功"},
   "timestamp": "2023-01-01 12:00:00"
@@ -363,7 +365,8 @@ API接口的参数类型规范如下：
     "platform": "wxapp",
     "status": 1,
     "is_deleted": 0,
-    "extra": {}
+    "extra": {},
+    "role": "admin"
   },
   "details": null,
   "timestamp": "2023-01-01 12:00:00"
@@ -542,7 +545,8 @@ API接口的参数类型规范如下：
     "extra": {
       "school": "南开大学",
       "major": "计算机科学与技术"
-    }
+    },
+    "role": "admin"
   },
   "details": {
     "message": "用户信息更新成功"
@@ -917,8 +921,20 @@ API接口的参数类型规范如下：
 **响应**：
 
 ```json
-{"code":200,"message":"success","data":{"20":{"exist":true,"is_liked":false,"is_favorited":false,"is_author":false,"is_following":false,"like_count":0,"favorite_count":0,"comment_count":0,"view_count":2}},"details":null,"timestamp":"2025-04-12T21:08:44.098526","pagination":null}
+{"code":200,"message":"success","data":{"20":{"exist":true,"is_liked":false,"is_favorited":false,"is_commented":false,"is_author":false,"is_following":false,"like_count":0,"favorite_count":0,"comment_count":0,"view_count":2}},"details":null,"timestamp":"2025-04-12T21:08:44.098526","pagination":null}
 ```
+
+**响应字段说明**：
+- `exist` - 帖子是否存在
+- `is_liked` - 当前用户是否已点赞该帖子
+- `is_favorited` - 当前用户是否已收藏该帖子
+- `is_commented` - 当前用户是否对该帖子有评论
+- `is_author` - 当前用户是否为该帖作者
+- `is_following` - 当前用户是否已关注该帖作者
+- `like_count` - 点赞数
+- `favorite_count` - 收藏数
+- `comment_count` - 评论数
+- `view_count` - 浏览数
 
 
 ## 三、评论接口
@@ -932,7 +948,8 @@ API接口的参数类型规范如下：
 ```json
 {
   "openid": "评论用户openid", // 必填
-  "post_id": 1, // 必填，整数类型
+  "resource_id": 1, // 必填，整数类型
+  "resource_type": "post", // 必填，资源类型：post-帖子, knowledge-知识
   "content": "评论内容", // 必填
   "parent_id": null, // 可选，父评论ID，整数类型
   "image": [] // 可选，评论图片
@@ -947,7 +964,8 @@ API接口的参数类型规范如下：
   "message": "success",
   "data": {
     "id": 5,
-    "post_id": 1,
+    "resource_id": 1,
+    "resource_type": "post",
     "parent_id": null,
     "openid": "评论用户openid",
     "nickname": null,
@@ -967,7 +985,7 @@ API接口的参数类型规范如下：
 }
 ```
 
-> **注意**：创建评论时，如果评论的是帖子（parent_id为null），并且评论者不是帖子作者，则会自动向帖子作者发送通知；如果评论的是评论（提供parent_id），并且评论者不是父评论作者，则会自动向父评论作者发送通知。
+> **注意**：创建评论时，如果评论的是资源（parent_id为null），并且评论者不是资源作者，则会自动向资源作者发送通知；如果评论的是评论（提供parent_id），并且评论者不是父评论作者，则会自动向父评论作者发送通知。
 
 ### 3.2 获取评论详情
 
@@ -986,7 +1004,8 @@ API接口的参数类型规范如下：
   "data": {
     "id": 1,
     "openid": "评论用户openid",
-    "post_id": 1,
+    "resource_id": 1,
+    "resource_type": "post",
     "content": "评论内容",
     "parent_id": null,
     "nickname": "用户昵称",
@@ -1005,12 +1024,13 @@ API接口的参数类型规范如下：
 }
 ```
 
-### 3.3 获取帖子评论列表
+### 3.3 获取评论列表
 
 **接口**：`GET /api/wxapp/comment/list`  
-**描述**：获取指定帖子的评论列表  
+**描述**：获取指定资源的评论列表  
 **参数**：
-- `post_id` - 查询参数，帖子ID（必填，整数类型）
+- `resource_id` - 查询参数，资源ID（必填，整数类型）
+- `resource_type` - 查询参数，资源类型：post-帖子, knowledge-知识（必填，字符串类型）
 - `parent_id` - 查询参数，父评论ID，可选（整数类型，为null时获取一级评论）
 - `page_size` - 查询参数，每页记录数量，默认20，最大100
 - `page` - 查询参数，页码，从1开始，默认1
@@ -1025,7 +1045,8 @@ API接口的参数类型规范如下：
   "data": [
     {
       "id": 2,
-      "post_id": 3,
+      "resource_id": 3,
+      "resource_type": "post",
       "parent_id": null,
       "openid": "用户openid",
       "nickname": "用户昵称",
@@ -1470,6 +1491,14 @@ API接口的参数类型规范如下：
 
 ## 六、知识库接口
 
+南开Wiki知识库接口提供多种检索方式，满足不同场景的搜索需求：
+
+- **综合搜索** (`/search`)：基础的多平台内容搜索
+- **搜索建议** (`/suggestion`)：智能搜索补全功能
+- **Elasticsearch检索** (`/es-search`)：支持通配符的快速检索，响应速度最快
+- **高级检索** (`/advanced-search`)：使用RAG管道的智能检索，支持向量+BM25混合检索
+- **小程序搜索** (`/search-wxapp`)：专为小程序优化的帖子和用户搜索
+
 ### 6.1 综合搜索
 
 **接口**：`GET /api/knowledge/search`  
@@ -1525,6 +1554,7 @@ API接口的参数类型规范如下：
 | title | string | 标题 |
 | content | string | 内容 |
 | relevance | float | 相关度分数，范围0-1，越高表示越相关 |
+| is_official | boolean | 是否为官方内容 |
 
 **分页信息**：
 
@@ -1583,7 +1613,204 @@ GET /api/agent/search?query=南开&openid=test&page=2&page_size=20
 }
 ```
 
-### 6.3 小程序搜索
+### 6.3 Elasticsearch检索
+
+**接口**：`GET /api/knowledge/es-search`  
+**描述**：仅使用Elasticsearch进行检索，支持通配符查询和数据源筛选，适用于快速搜索场景  
+**参数**：
+- `query` - 查询参数，搜索关键词，支持通配符 * 和 ?（必填）
+- `openid` - 查询参数，用户openid（必填）
+- `platform` - 查询参数，平台筛选，支持指定特定表查询，多个用逗号分隔（可选）
+- `page` - 查询参数，分页页码，默认1
+- `page_size` - 查询参数，每页结果数，默认10
+- `max_content_length` - 查询参数，内容最大长度，默认300，超过将被截断
+
+**特色功能**：
+- **通配符支持**：支持 `*`（任意字符）和 `?`（单个字符）通配符
+- **前缀匹配**：如 `南开*` 匹配所有以"南开"开头的内容
+- **后缀匹配**：如 `*大学` 匹配所有以"大学"结尾的内容
+- **数据源筛选**：支持指定特定表查询，提高检索精度
+- **快速检索**：不依赖向量数据库，响应速度更快
+- **智能权重**：标题匹配权重高于内容匹配
+
+**支持的数据源**：
+- `website_nku`：南开大学官方网站内容
+- `wechat_nku`：微信公众号文章
+- `market_nku`：校园集市信息
+- `wxapp_post`：小程序用户帖子
+- `wxapp_comment`：小程序评论
+
+**响应**：
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "title": "南开大学简介",
+      "content": "南开大学是教育部直属重点综合性大学...",
+      "original_url": "https://www.nankai.edu.cn/about",
+      "publish_time": "2024-01-15T10:30:00",
+      "pagerank_score": 0.8567,
+      "platform": "website_nku",
+      "relevance": 12.34,
+      "is_truncated": false,
+      "is_official": true
+    }
+  ],
+  "pagination": {
+    "total": 1523,
+    "page": 1,
+    "page_size": 10,
+    "total_pages": 153
+  },
+  "details": {
+    "message": "ES检索成功",
+    "query": "南开*",
+    "response_time": 0.125
+  }
+}
+```
+
+**响应字段说明**：
+
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| title | string | 文档标题 |
+| content | string | 文档内容（可能被截断） |
+| original_url | string | 原文链接 |
+| publish_time | string | 发布时间 |
+| pagerank_score | float | PageRank权威性分数，0-1之间 |
+| platform | string | 平台标识 |
+| relevance | float | Elasticsearch相关性分数 |
+| is_truncated | boolean | 内容是否被截断 |
+| is_official | boolean | 是否为官方内容 |
+
+**通配符查询示例**：
+
+1. 前缀匹配：
+```
+GET /api/knowledge/es-search?query=南开*&openid=user123
+```
+
+2. 后缀匹配：
+```
+GET /api/knowledge/es-search?query=*大学&openid=user123
+```
+
+3. 中间匹配：
+```
+GET /api/knowledge/es-search?query=南开*大学&openid=user123
+```
+
+4. 普通查询：
+```
+GET /api/knowledge/es-search?query=计算机学院&openid=user123
+```
+
+5. 指定数据源查询：
+```
+GET /api/knowledge/es-search?query=南开大学&platform=website_nku&openid=user123
+```
+
+6. 多数据源查询：
+```
+GET /api/knowledge/es-search?query=南开&platform=website_nku,wechat_nku&openid=user123
+```
+
+7. 仅查询小程序帖子：
+```
+GET /api/knowledge/es-search?query=*学习*&platform=wxapp_post&openid=user123
+```
+
+**错误响应**：
+
+1. ES服务不可用：
+```json
+{
+  "code": 503,
+  "message": "ES检索失败: 无法连接到Elasticsearch (localhost:9200)",
+  "data": null
+}
+```
+
+2. 索引不存在：
+```json
+{
+  "code": 404,
+  "message": "ES检索失败: 索引 'nkuwiki' 不存在",
+  "data": null
+}
+```
+
+### 6.4 高级检索（RAG）
+
+**接口**：`GET /api/knowledge/advanced-search`  
+**描述**：使用ES-search召回文档，然后通过LLM生成回答的高级检索接口  
+**参数**：
+- `query` - 查询参数，搜索关键词（必填）
+- `openid` - 查询参数，用户openid，用于个性化推荐（必填）
+- `platform` - 查询参数，平台筛选，支持指定特定表查询，多个用逗号分隔（可选）
+- `top_k` - 查询参数，召回文档数量，默认10（可选）
+
+**特色功能**：
+- **智能召回**：使用Elasticsearch进行高效文档召回
+- **数据源筛选**：支持指定特定数据源进行精准检索
+- **LLM生成**：基于召回文档生成智能回答
+- **上下文返回**：同时返回原始文档供用户参考
+
+**响应**：
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "answer": "根据检索到的5个相关文档，关于'南开大学'的信息如下：\n\n• 南开大学简介\n• 南开大学历史沿革\n• 南开大学学科建设",
+    "contexts": [
+      {
+        "content": "南开大学是教育部直属重点综合性大学...",
+        "relevance": 12.34,
+        "metadata": {
+          "title": "南开大学简介",
+          "original_url": "https://www.nankai.edu.cn/about",
+          "platform": "website_nku",
+          "publish_time": "2024-01-15T10:30:00",
+          "pagerank_score": 0.8567,
+          "is_official": true
+        }
+      }
+    ]
+  },
+  "details": {
+    "message": "高级检索成功",
+    "retrieval_method": "elasticsearch",
+    "documents_retrieved": 5,
+    "response_time": 0.156,
+    "platform_filter": "all"
+  }
+}
+```
+
+**查询示例**：
+
+1. 基础查询：
+```
+GET /api/knowledge/advanced-search?query=南开大学&openid=user123
+```
+
+2. 指定数据源查询：
+```
+GET /api/knowledge/advanced-search?query=计算机学院&platform=website_nku&openid=user123
+```
+
+3. 多数据源查询：
+```
+GET /api/knowledge/advanced-search?query=南开&platform=website_nku,wechat_nku&openid=user123&top_k=15
+```
+
+### 6.5 小程序搜索
 
 **接口**：`GET /api/knowledge/search-wxapp`  
 **描述**：专为小程序优化的搜索接口，支持帖子和用户的综合搜索  

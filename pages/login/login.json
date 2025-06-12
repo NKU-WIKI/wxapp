@@ -1,8 +1,11 @@
 {
-  "navigationBarTitleText": "登录",
+  "navigationStyle": "custom",
   "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "backgroundColor": "#f7f9fc",
   "usingComponents": {
     "logo-section": "/components/logo-section/logo-section",
-    "login-card": "/components/login-card/login-card"
+    "login-card": "/components/login-card/login-card",
+    "nav-bar": "/components/nav-bar/nav-bar"
   }
 } 

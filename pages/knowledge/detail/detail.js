@@ -5,7 +5,8 @@ Page({
     behaviors.baseBehavior,
     behaviors.authBehavior, 
     behaviors.userBehavior,
-    behaviors.knowledgeBehavior
+    behaviors.knowledgeBehavior,
+    behaviors.commentBehavior
   ],
 
   data: {
@@ -40,7 +41,10 @@ Page({
     actionSheet: {
       show: false,
       itemList: []
-    }
+    },
+    
+    // 评论功能控制
+    commentEnabled: false
   },
 
   async onLoad(options) {
@@ -408,7 +412,8 @@ Page({
     itemList.push('复制链接');
     
     // 如果有原始链接，添加复制原始链接选项
-    if (knowledgeDetail.data.original_url) {
+    // 兼容不同的URL字段名：original_url 或 url
+    if (knowledgeDetail.data.original_url || knowledgeDetail.data.url) {
       itemList.push('复制原始链接');
       itemList.push('在浏览器中打开');
     }
@@ -476,10 +481,14 @@ Page({
   // 复制原始链接
   copyOriginalLink() {
     const { knowledgeDetail } = this.data;
-    if (!knowledgeDetail || !knowledgeDetail.data || !knowledgeDetail.data.original_url) return;
+    if (!knowledgeDetail || !knowledgeDetail.data) return;
+    
+    // 兼容不同的URL字段名：original_url 或 url
+    const originalUrl = knowledgeDetail.data.original_url || knowledgeDetail.data.url;
+    if (!originalUrl) return;
     
     wx.setClipboardData({
-      data: knowledgeDetail.data.original_url,
+      data: originalUrl,
       success: () => {
         this.showToptips('原始链接已复制', 'success');
       }
@@ -489,11 +498,15 @@ Page({
   // 在浏览器中打开原始链接
   openInBrowser() {
     const { knowledgeDetail } = this.data;
-    if (!knowledgeDetail || !knowledgeDetail.data || !knowledgeDetail.data.original_url) return;
+    if (!knowledgeDetail || !knowledgeDetail.data) return;
+    
+    // 兼容不同的URL字段名：original_url 或 url
+    const originalUrl = knowledgeDetail.data.original_url || knowledgeDetail.data.url;
+    if (!originalUrl) return;
     
     // 跳转到webview页面
     wx.navigateTo({
-      url: `/pages/webview/webview?url=${encodeURIComponent(knowledgeDetail.data.original_url)}&title=${encodeURIComponent(knowledgeDetail.data.title || '')}`
+      url: `/pages/webview/webview?url=${encodeURIComponent(originalUrl)}&title=${encodeURIComponent(knowledgeDetail.data.title || '')}`
     });
   },
   
@@ -579,7 +592,21 @@ Page({
     });
   },
   
-  // 用户分享
+  // 处理评论提交事件
+  onCommentSubmit(e) {
+    // 显示功能正在开发中的提示
+    wx.showModal({
+      title: '提示',
+      content: '知识库评论功能正在开发中，请耐心等待',
+      showCancel: false,
+      confirmText: '知道了'
+    });
+    
+    // 记录到日志
+    console.log('知识库评论功能尚未实现，评论内容:', e.detail);
+  },
+  
+  // 分享功能处理
   onShareAppMessage() {
     const { knowledgeDetail, id } = this.data;
     

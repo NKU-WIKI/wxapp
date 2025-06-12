@@ -2,7 +2,7 @@
  * 图片上传组件
  * 支持多图上传、预览、删除等功能
  */
-const { ui, error, ToastType, storage } = require('../../utils/util');
+const { storage } = require('../../utils/index');
 
 Component({
   properties: {

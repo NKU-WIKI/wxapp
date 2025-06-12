@@ -1,11 +1,23 @@
 {
-  "name": "nkuwiki-miniapp",
+  "name": "nkuwiki",
   "version": "0.0.1",
-  "description": "nkuwiki 微信小程序",
-  "main": "app.js",
-  "author": "",
-  "license": "ISC",
+  "description": "南开Wiki校园知识共享平台",
   "dependencies": {
-    "weui-miniprogram": "^1.5.6"
-  }
+    "miniprogram-sm-crypto": "^0.3.12",
+    "pinyin-pro": "^3.26.0"
+  },
+  "scripts": {
+    "build": "echo \"Error: 请使用小程序开发工具构建\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/nkuwiki.git"
+  },
+  "keywords": [
+    "微信小程序",
+    "南开大学",
+    "知识共享"
+  ],
+  "author": "nkuwiki团队",
+  "license": "MIT"
 }

@@ -1,8 +1,8 @@
 // webview.js
-const baseBehavior = require('../../behaviors/baseBehavior');
+const behaviors = require('../../behaviors/index');
 
 Page({
-  behaviors: [baseBehavior],
+  behaviors: [behaviors.baseBehavior],
   
   data: {
     url: '',

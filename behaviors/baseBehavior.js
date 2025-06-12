@@ -1,7 +1,7 @@
 /**
  * 基础行为 - 整合所有页面通用的功能
  */
-const { ui, nav, error, storage, ToastType } = require('../utils/util');
+const { ui, error, storage, ToastType } = require('../utils/index');
 
 // 验证规则
 const ValidationRules = {

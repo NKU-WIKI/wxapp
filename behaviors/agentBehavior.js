@@ -1,7 +1,7 @@
 /**
  * 智能体行为 - 封装智能体API交互逻辑
  */
-const { storage, createApiClient, createStreamApiClient, ui, ToastType } = require('../utils/util');
+const { storage, createApiClient, createStreamApiClient, ui, ToastType } = require('../utils/index');
 
 // 创建常规智能体API客户端
 const agentApi = createApiClient('/api/agent', {

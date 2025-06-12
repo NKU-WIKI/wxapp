@@ -1,0 +1,528 @@
+---
+description: 
+globs: *.wxss,*.wxml
+alwaysApply: false
+---
+# UI界面和样式开发规范
+
+## 布局设计原则
+
+### 1. 响应式设计
+- 统一使用 `rpx` 单位，确保在不同设备上的适配
+- 关键尺寸参考：750rpx = 设计稿宽度
+- 字体大小建议：24rpx-32rpx（正文），36rpx-48rpx（标题）
+
+### 2. 间距规范
+```css
+/* 统一的间距变量 */
+--spacing-xs: 8rpx;     /* 极小间距 */
+--spacing-sm: 16rpx;    /* 小间距 */
+--spacing-md: 24rpx;    /* 中等间距 */
+--spacing-lg: 32rpx;    /* 大间距 */
+--spacing-xl: 48rpx;    /* 超大间距 */
+```
+
+### 3. 颜色规范
+```css
+/* 主色调 */
+--primary-color: #1aad19;      /* 主要绿色 */
+--primary-light: #4fc3f7;     /* 浅绿色 */
+--primary-dark: #0d8c13;      /* 深绿色 */
+
+/* 辅助色 */
+--secondary-color: #f7f9fc;   /* 背景灰 */
+--accent-color: #ff5722;      /* 强调色（红/橙） */
+
+/* 功能色 */
+--success-color: #4caf50;     /* 成功绿 */
+--warning-color: #ff9800;     /* 警告橙 */
+--error-color: #f44336;       /* 错误红 */
+--info-color: #2196f3;        /* 信息蓝 */
+
+/* 文字颜色 */
+--text-primary: #333;         /* 主要文字 */
+--text-secondary: #666;       /* 次要文字 */
+--text-tertiary: #999;        /* 辅助文字 */
+--text-disabled: #ccc;        /* 禁用文字 */
+
+/* 边框颜色 */
+--border-light: #f0f0f0;      /* 浅色边框 */
+--border-medium: #e0e0e0;     /* 中等边框 */
+--border-dark: #d0d0d0;       /* 深色边框 */
+```
+
+## WXML 结构规范
+
+### 1. 语义化标签
+```xml
+<!-- 使用语义化的 class 命名 -->
+<view class="container">
+  <view class="header">
+    <text class="title">页面标题</text>
+  </view>
+  
+  <view class="content">
+    <view class="post-item" wx:for="{{posts}}" wx:key="id">
+      <view class="post-header">
+        <image class="avatar" src="{{item.avatar}}" />
+        <text class="author">{{item.author}}</text>
+      </view>
+      <view class="post-content">
+        <text class="post-text">{{item.content}}</text>
+      </view>
+      <view class="post-actions">
+        <button class="action-btn like-btn" bindtap="onLike">
+          <icon class="action-icon" name="like" />
+          <text class="action-text">点赞</text>
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
+```
+
+### 2. 数据绑定规范
+```xml
+<!-- 条件渲染 -->
+<view wx:if="{{userInfo}}" class="user-section">
+  <text>欢迎，{{userInfo.name}}</text>
+</view>
+<view wx:else class="guest-section">
+  <text>请先登录</text>
+</view>
+
+<!-- 列表渲染 -->
+<view class="list">
+  <view 
+    class="list-item {{item.active ? 'active' : ''}}"
+    wx:for="{{items}}" 
+    wx:key="id"
+    wx:for-item="item"
+    wx:for-index="idx"
+    bindtap="onItemTap"
+    data-index="{{idx}}"
+    data-item="{{item}}"
+  >
+    {{item.title}}
+  </view>
+</view>
+```
+
+## WXSS 样式规范
+
+### 1. 样式组织结构
+```css
+/* 1. 全局样式重置 */
+page {
+  background-color: var(--secondary-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+/* 2. 布局容器 */
+.container {
+  min-height: 100vh;
+  padding: var(--spacing-md);
+}
+
+/* 3. 组件样式 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 88rpx;
+  padding: 0 var(--spacing-md);
+  background: #fff;
+  border-bottom: 1rpx solid var(--border-light);
+}
+
+/* 4. 状态样式 */
+.active {
+  color: var(--primary-color);
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 5. 响应式适配 */
+@media (max-width: 480px) {
+  .container {
+    padding: var(--spacing-sm);
+  }
+}
+```
+
+### 2. Flexbox 布局最佳实践
+```css
+/* 水平居中 */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 水平分布 */
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 垂直布局 */
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 等分布局 */
+.flex-1 {
+  flex: 1;
+}
+
+/* 换行布局 */
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+```
+
+### 3. 常用组件样式
+```css
+/* 按钮样式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 40rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.btn-primary:active {
+  background: var(--primary-dark);
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: #fff;
+  color: var(--text-primary);
+  border: 1rpx solid var(--border-medium);
+}
+
+/* 卡片样式 */
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 列表项样式 */
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: #fff;
+  border-bottom: 1rpx solid var(--border-light);
+  transition: background-color 0.2s ease;
+}
+
+.list-item:active {
+  background-color: #f5f5f5;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+/* 头像样式 */
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-large {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+.avatar-small {
+  width: 60rpx;
+  height: 60rpx;
+}
+```
+
+## WeUI 组件使用规范
+
+### 1. 引入和使用
+```json
+// 在页面或组件的 json 文件中引入
+{
+  "usingComponents": {
+    "mp-cell": "weui-miniprogram/cell/cell",
+    "mp-cells": "weui-miniprogram/cells/cells",
+    "mp-dialog": "weui-miniprogram/dialog/dialog",
+    "mp-form": "weui-miniprogram/form/form"
+  }
+}
+```
+
+### 2. 常用组件示例
+```xml
+<!-- 单元格组件 -->
+<mp-cells title="基本信息">
+  <mp-cell 
+    title="用户名" 
+    value="{{userInfo.name}}" 
+    link
+    bindtap="onEditName"
+  />
+  <mp-cell 
+    title="手机号" 
+    value="{{userInfo.phone}}" 
+    link
+    bindtap="onEditPhone"
+  />
+</mp-cells>
+
+<!-- 表单组件 -->
+<mp-form bindsubmit="onSubmit">
+  <mp-cells title="发布文章">
+    <mp-cell>
+      <input 
+        name="title"
+        placeholder="请输入标题" 
+        class="weui-input"
+        value="{{formData.title}}"
+        bindinput="onTitleInput"
+      />
+    </mp-cell>
+    <mp-cell>
+      <textarea 
+        name="content"
+        placeholder="请输入内容" 
+        class="weui-textarea"
+        value="{{formData.content}}"
+        bindinput="onContentInput"
+      />
+    </mp-cell>
+  </mp-cells>
+  
+  <view class="weui-btn-area">
+    <button class="weui-btn weui-btn_primary" form-type="submit">
+      发布
+    </button>
+  </view>
+</mp-form>
+
+<!-- 对话框 -->
+<mp-dialog 
+  title="提示" 
+  show="{{showDialog}}"
+  bindbuttontap="onDialogTap"
+  buttons="{{dialogButtons}}"
+>
+  确定要删除这篇文章吗？
+</mp-dialog>
+```
+
+## 动画效果规范
+
+### 1. CSS 过渡动画
+```css
+/* 基础过渡 */
+.transition {
+  transition: all 0.3s ease;
+}
+
+/* 淡入淡出 */
+.fade-enter {
+  opacity: 0;
+  transform: translateY(20rpx);
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+/* 缩放动画 */
+.scale-enter {
+  transform: scale(0.8);
+  opacity: 0;
+}
+
+.scale-enter-active {
+  transform: scale(1);
+  opacity: 1;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 滑动动画 */
+.slide-up {
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.slide-up.active {
+  transform: translateY(0);
+}
+```
+
+### 2. 微信小程序动画 API
+```javascript
+// 在组件或页面中使用
+methods: {
+  createAnimation() {
+    const animation = wx.createAnimation({
+      duration: 300,
+      timingFunction: 'ease-in-out',
+      delay: 0
+    });
+    
+    // 链式调用
+    animation
+      .scale(1.2)
+      .rotate(360)
+      .step()
+      .scale(1)
+      .step();
+    
+    this.setData({
+      animationData: animation.export()
+    });
+  }
+}
+```
+
+## 图片和图标规范
+
+### 1. 图片处理
+```css
+/* 响应式图片 */
+.responsive-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8rpx;
+}
+
+/* 圆形图片 */
+.circular-image {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 图片占位符 */
+.image-placeholder {
+  background: var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: 24rpx;
+}
+```
+
+### 2. 图标使用规范
+```xml
+<!-- 使用项目中的 icon 组件 -->
+<icon name="like" size="32" color="#999" />
+<icon name="comment" size="32" color="#999" />
+<icon name="share" size="32" color="#999" />
+
+<!-- 图标配合文字 -->
+<view class="icon-text">
+  <icon name="location" size="24" color="#999" />
+  <text class="icon-label">北京市</text>
+</view>
+```
+
+## 无障碍访问规范
+
+### 1. ARIA 标签
+```xml
+<!-- 为重要元素添加 aria-label -->
+<button 
+  class="like-btn" 
+  bindtap="onLike"
+  aria-label="点赞按钮"
+>
+  <icon name="like" />
+</button>
+
+<!-- 为状态变化添加 aria-live -->
+<view aria-live="polite" class="status-message">
+  {{statusMessage}}
+</view>
+```
+
+### 2. 对比度和可读性
+```css
+/* 确保足够的颜色对比度 */
+.text-primary {
+  color: #333; /* 对白色背景的对比度 > 4.5:1 */
+}
+
+.text-secondary {
+  color: #666; /* 对白色背景的对比度 > 3:1 */
+}
+
+/* 聚焦状态 */
+.focusable:focus {
+  outline: 2rpx solid var(--primary-color);
+  outline-offset: 2rpx;
+}
+```
+
+## 性能优化建议
+
+### 1. 样式优化
+```css
+/* 使用 transform 替代改变位置属性 */
+.move {
+  transform: translateX(100rpx); /* 好 */
+  /* left: 100rpx; */ /* 避免 */
+}
+
+/* 合理使用 will-change */
+.animated {
+  will-change: transform, opacity;
+}
+
+/* 避免复杂的选择器 */
+.simple-class { /* 好 */
+  color: red;
+}
+
+/* .container > .wrapper > .content > .item > .text */ /* 避免 */
+```
+
+### 2. 图片优化
+- 使用适当尺寸的图片，避免大图缩放
+- 启用图片懒加载：`lazy-load="{{true}}"`
+- 合理设置图片的 `mode` 属性
+
+## 最佳实践总结
+
+1. **一致性**：保持设计语言和交互模式的一致性
+2. **简洁性**：避免过度设计，注重用户体验
+3. **性能**：优化样式性能，减少重排重绘
+4. **适配**：确保在不同设备和屏幕上的良好显示
+5. **可维护性**：使用变量和模块化的样式组织方式
+6. **可访问性**：考虑残障用户的使用需求

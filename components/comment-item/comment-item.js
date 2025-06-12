@@ -1,10 +1,8 @@
-const baseBehavior = require('../../behaviors/baseBehavior');
-const commentBehavior = require('../../behaviors/commentBehavior');
-const userBehavior = require('../../behaviors/userBehavior');
-const { formatRelativeTime, storage } = require('../../utils/util.js');
+const behaviors = require('../../behaviors/index');
+const { formatRelativeTime, storage,ui } = require('../../utils/index');
 
 Component({
-  behaviors: [baseBehavior, commentBehavior, userBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.commentBehavior, behaviors.userBehavior],
 
   options: {
     pureDataPattern: /^_/,
@@ -37,16 +35,25 @@ Component({
     customStyle: {
       type: String,
       value: ''
+    },
+    role: {
+      type: String,
+      value: ''
+    },
+    isLoggedIn: {
+      type: Boolean,
+      value: false
     }
   },
 
   observers: {
     'comment': function(comment) {
       if (!comment || !comment.id) return;
-      
       this.setData({
-        formattedComment: this.formatComment(comment)
+        formattedComment: this.formatComment(comment),
+        role: storage.get('userInfo')?.role || ''
       });
+      console.debug('[comment-item] observers, role:', storage.get('userInfo')?.role, 'openid:', storage.get('openid'));
     }
   },
 
@@ -54,14 +61,22 @@ Component({
     formattedComment: null,
     isProcessing: false,
     _isLiking: false,
-    currentUserOpenid: ''
+    currentUserOpenid: '',
+    role: ''
   },
 
   lifetimes: {
     ready() {
-      // 获取当前用户openid
-      const openid = storage.get('openid');
-      this.setData({ currentUserOpenid: openid });
+      // 获取当前用户openid和role
+      if (this.properties.isLoggedIn) {
+        const openid = storage.get('openid');
+        const userInfo = storage.get('userInfo') || {};
+        const role = userInfo.role || '';
+        this.setData({ currentUserOpenid: openid, role });
+      } else {
+        this.setData({ currentUserOpenid: '', role: '' });
+      }
+      console.debug('[comment-item] ready, role:', this.data.role, 'openid:', this.data.currentUserOpenid);
     }
   },
 
@@ -78,7 +93,6 @@ Component({
         try {
           formattedTime = formatRelativeTime(comment.create_time);
         } catch (err) {
-          console.debug('日期格式化错误:', err);
           formattedTime = '未知时间';
         }
       } else {
@@ -113,7 +127,6 @@ Component({
           // 过滤掉空字符串或无效URL
           imageArray = imageArray.filter(url => url && typeof url === 'string' && url.trim() !== '');
         } catch (err) {
-          console.debug('图片解析错误:', err);
           imageArray = [];
         }
       }
@@ -199,8 +212,6 @@ Component({
                 }
               }
             } catch (err) {
-              console.debug('解析reply_to失败:', err, reply.reply_to);
-              
               // 如果解析失败但有父评论信息，创建一个默认的回复对象
               if (reply.parent_nickname || reply.parent_openid) {
                 replyTo = {
@@ -219,12 +230,33 @@ Component({
             parentId = comment.id;
           }
           
+          // 确保用户信息字段
+          let nickname = reply.nickname;
+          let avatar = reply.avatar;
+          let replyOpenid = reply.openid;
+          
+          // 兼容处理user对象中的信息(旧格式数据)
+          if (reply.user) {
+            if (!nickname && reply.user.nickname) {
+              nickname = reply.user.nickname;
+            }
+            if (!avatar && reply.user.avatar) {
+              avatar = reply.user.avatar;
+            }
+            if (!replyOpenid && reply.user.id) {
+              replyOpenid = reply.user.id;
+            }
+          }
+          
           // 返回处理后的回复对象
           return {
             ...reply,
             create_time_formatted: replyFormattedTime,
             image: replyImageArray,
-            isOwner: reply.openid === openid,
+            nickname: nickname || '用户',
+            avatar: avatar || '',
+            openid: replyOpenid || '',
+            isOwner: replyOpenid === openid,
             reply_to: replyTo,
             parent_id: parentId,
             // 确保回复计数字段
@@ -272,12 +304,10 @@ Component({
       wx.navigateTo({
         url: `/pages/index/user-profile/user-profile?openid=${openid}`,
         fail: (err) => {
-          console.error('跳转到用户资料页面失败:', err);
           // 尝试备用路径
           wx.navigateTo({
             url: `/pages/profile/profile?id=${openid}&from=comment`,
             fail: (subErr) => {
-              console.error('备用路径跳转也失败:', subErr);
               // 最后尝试redirectTo
               wx.redirectTo({
                 url: `/pages/profile/profile?id=${openid}&from=comment`
@@ -328,7 +358,7 @@ Component({
           isLiked: !isCurrentlyLiked 
         });
       } catch (err) {
-        console.debug('点赞评论失败:', err);
+        // 点赞失败，已在UI上恢复
       } finally {
         this.setData({ isProcessing: false });
         setTimeout(() => {
@@ -380,7 +410,6 @@ Component({
           throw new Error(res?.message || '删除失败');
         }
       } catch (err) {
-        console.debug('删除评论失败:', err);
         this.showToast('删除失败', 'error');
         // 触发删除失败事件
         this.triggerEvent('delete', { id: commentId, success: false });
@@ -420,7 +449,6 @@ Component({
           isFollowing: !isCurrentlyFollowing 
         });
       } catch (err) {
-        console.debug('关注操作失败:', err);
         wx.showToast({
           title: '操作失败',
           icon: 'error'
@@ -479,14 +507,10 @@ Component({
       const { openid } = e.currentTarget.dataset;
       if (!openid) return;
       
-      // 将openid存入缓存，防止URL参数失效时作为备用
-      storage.set('temp_profile_openid', openid);
-      
-      // 跳转到用户主页
-      wx.reLaunch({
-        url: `/pages/profile/profile?openid=${openid}`,
+      wx.navigateTo({
+        url: `/pages/index/user-profile/user-profile?openid=${openid}`,
         fail: (err) => {
-          console.debug('跳转到个人主页失败:', err);
+          // 无法跳转到个人主页
         }
       });
     },
@@ -568,7 +592,6 @@ Component({
           throw new Error(res?.message || '删除失败');
         }
       } catch (err) {
-        console.debug('删除回复失败:', err);
         this.showToast('删除失败', 'error');
         // 触发删除失败事件
         this.triggerEvent('deleteReply', { 
@@ -583,7 +606,25 @@ Component({
     
     // 处理回复头像加载错误
     onReplyAvatarError(e) {
-      console.debug('回复头像加载失败:', e);
+      // 回复头像加载失败，不做处理
+    },
+    
+    // 复制评论内容
+    onTapCopy() {
+      if (!this.data.formattedComment || !this.data.formattedComment.content) {
+        ui.showToast('没有可复制的内容');
+        return;
+      }
+      
+      wx.setClipboardData({
+        data: this.data.formattedComment.content,
+        success: () => {
+          ui.showToast('复制成功', 'success');
+        },
+        fail: (err) => {
+          ui.showToast('复制失败');
+        }
+      });
     },
   }
 }); 

@@ -1,9 +1,61 @@
-.weui-cell_wxss.weui-cell_wxss::before {
+.weui-cell {
+  padding: 10px 15px;
+  position: relative;
   display: flex;
-}
-/* skyline 不支持 currentColor */
-.weui-cell_access .weui-cell__ft::after {
-  background-color: var(--weui-FG-2);
+  align-items: center;
 }
 
+.weui-cell::before {
+  content: " ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px solid rgba(0,0,0,.1);
+  color: rgba(0,0,0,.1);
+}
 
+.weui-cell:first-child::before {
+  display: none;
+}
+
+.weui-cell_active {
+  background-color: #ECECEC;
+}
+
+.weui-cell__icon {
+  margin-right: 5px;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+}
+
+.weui-cell__bd {
+  flex: 1;
+}
+
+.weui-cell__ft {
+  text-align: right;
+  color: rgba(0,0,0,.5);
+}
+
+.weui-cell_access .weui-cell__ft_in-access {
+  padding-right: 13px;
+  position: relative;
+}
+
+.weui-cell_access .weui-cell__ft_in-access:after {
+  content: " ";
+  display: inline-block;
+  height: 6px;
+  width: 6px;
+  border-width: 2px 2px 0 0;
+  border-color: #C8C8CD;
+  border-style: solid;
+  transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
+  position: absolute;
+  top: 50%;
+  margin-top: -4px;
+  right: 2px;
+} 

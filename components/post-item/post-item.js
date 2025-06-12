@@ -1,10 +1,8 @@
-const baseBehavior = require('../../behaviors/baseBehavior');
-const postBehavior = require('../../behaviors/postBehavior');
-const userBehavior = require('../../behaviors/userBehavior');
-const { formatRelativeTime, parseJsonField, storage, post } = require('../../utils/util.js');
+const behaviors = require('../../behaviors/index');
+const { formatRelativeTime, parseJsonField, storage } = require('../../utils/index');
 
 Component({
-  behaviors: [baseBehavior, postBehavior, userBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.postBehavior, behaviors.userBehavior],
 
   options: {
     pureDataPattern: /^_/,
@@ -34,7 +32,12 @@ Component({
     formattedTime: { type: String, value: '' },
     isMarkdown: { type: Boolean, value: true },
     previewHeight: { type: Number, value: 120 },
-    currentUserOpenid: { type: String, value: '' }
+    currentUserOpenid: { type: String, value: '' },
+    role: { type: String, value: '' },
+    isLoggedIn: {
+      type: Boolean,
+      value: false
+    }
   },
 
   data: {
@@ -43,6 +46,7 @@ Component({
 
   observers: {
     'post': function(post) {
+      console.debug('[post-item] received post data:', post);
       if (!post || !post.id) return;
       
       // 格式化时间
@@ -73,7 +77,19 @@ Component({
 
   lifetimes: {
     async ready() {
-      this.setData({ currentUserOpenid: storage.get('openid') });
+      let openid = '';
+      let role = '';
+      const isLoggedIn = this.properties.isLoggedIn;
+      if (isLoggedIn) {
+        const { storage } = require('../../utils/index');
+        openid = storage.get('openid');
+        const userInfo = storage.get('userInfo') || {};
+        role = userInfo.role || '';
+        this.setData({ currentUserOpenid: openid, role });
+      } else {
+        this.setData({ currentUserOpenid: '', role: '' });
+      }
+      console.debug('[post-item] ready, role:', role, 'openid:', openid);
       // 只在详情页面时刷新状态
       if (this.properties.detailPage) {
         // 添加防御性检查，避免post为null时产生错误
@@ -118,6 +134,7 @@ Component({
               is_liked, 
               is_favorited, 
               is_following, 
+              is_commented,
               like_count, 
               favorite_count, 
               comment_count,
@@ -131,6 +148,7 @@ Component({
             updatedPost.like_count = like_count || 0;
             updatedPost.favorite_count = favorite_count || 0;
             updatedPost.comment_count = comment_count || 0;
+            updatedPost.is_commented = !!is_commented;
             if (view_count !== undefined) {
               updatedPost.view_count = view_count || 0;
             }
@@ -247,6 +265,7 @@ Component({
     // 点击帖子
     onPostTap() {
       const postId = this.properties.post?.id;
+      console.debug('[post-item] onPostTap - postId:', postId);
       if (postId) {
         wx.navigateTo({ url: `/pages/post/detail/detail?id=${postId}` });
       }

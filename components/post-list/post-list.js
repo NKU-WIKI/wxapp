@@ -1,5 +1,6 @@
 const baseBehavior = require('../../behaviors/baseBehavior');
 const postBehavior = require('../../behaviors/postBehavior');
+const { storage } = require('../../utils/index');
 
 Component({
   behaviors: [baseBehavior, postBehavior],
@@ -52,15 +53,18 @@ Component({
     pageSize: 10,
     
     // 添加淡入淡出效果的样式
-    fadeStyle: ''
+    fadeStyle: '',
+    role: '',
+    isLoggedIn: false,
+    currentUserOpenid: ''
   },
 
   lifetimes: {
     attached() {
-      // 添加最后更新时间记录
       this.setData({
         _lastUpdateTime: 0,
-        _lastStatusUpdateTime: 0
+        _lastStatusUpdateTime: 0,
+        isLoggedIn: storage.get('isLoggedIn')
       });
       
       // 如果设置了auto_load=false并且有传入帖子数据，则不加载
@@ -71,7 +75,7 @@ Component({
         return;
       }
       
-      // 组件attached后异步加载数据
+      // 组件attached后异步加载数据（无论是否登录都加载数据）
       setTimeout(() => {
         this.loadInitialData().then(() => {
           // 再次确保帖子状态已更新
@@ -83,6 +87,16 @@ Component({
     },
     
     detached() {
+    },
+
+    ready() {
+      this.setData({ isLoggedIn: storage.get('isLoggedIn') });
+      console.log('post-list ready,islogin', storage.get('isLoggedIn'));
+      // 已登录才设置 role
+      const userInfo = storage.get('userInfo') || {};
+      const role = userInfo.role || '';
+      this.setData({ role });
+      console.debug('[post-list] ready, role:', role);
     }
   },
 
@@ -132,6 +146,20 @@ Component({
       if (posts && posts.length > 0) {
         this.updatePostsStatus(posts);
       }
+    },
+    'isLoggedIn': function(isLoggedIn) {
+      const { storage } = require('../../utils/index');
+      if (isLoggedIn) {
+        const userInfo = storage.get('userInfo') || {};
+        const role = userInfo.role || '';
+        const openid = storage.get('openid') || '';
+        this.setData({ role, currentUserOpenid: openid });
+        if (this.data.post && this.data.post.length > 0) {
+          this.updatePostsStatus(this.data.post);
+        }
+      } else {
+        this.setData({ role: '', currentUserOpenid: '' });
+      }
     }
   },
 
@@ -148,10 +176,6 @@ Component({
     
     // 加载初始数据
     async loadInitialData(force = false, smoothLoading = false) {
-      // 如果设置了auto_load=false并且不是强制刷新，则跳过加载
-      if (!this.properties.auto_load && !force) {
-        return Promise.resolve();
-      }
       
       if (force) {
         this.setData({
@@ -192,6 +216,7 @@ Component({
         if (result && result.data) {
           const posts = result.data || [];
           const pagination = result.pagination || {};
+          console.debug('[post-list] loadInitialData fetched posts:', posts);
           
           // 更新数据
           await this.setData({
@@ -244,6 +269,7 @@ Component({
     
     // 更新帖子状态
     async updatePostsStatus(posts) {
+      if (!storage.get('isLoggedIn')) return;
       if (!posts?.length) return;
 
       try {
@@ -253,10 +279,6 @@ Component({
           return;
         }
         this.setData({ _lastStatusUpdateTime: now });
-
-        // 检查登录状态
-        const openid = this.getStorage('openid');
-        if (!openid) return;
 
         // 获取所有帖子ID
         const postIds = posts.map(post => post.id).filter(Boolean);
@@ -284,6 +306,7 @@ Component({
             like_count: 'like_count',
             is_favorited: 'is_favorited',
             favorite_count: 'favorite_count',
+            is_commented: 'is_commented',
             comment_count: 'comment_count',
             is_following: 'is_following'
           };

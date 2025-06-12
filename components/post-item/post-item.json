@@ -1,7 +1,6 @@
 {
   "component": true,
   "usingComponents": {
-    "mp-badge": "/components/weui/badge/badge",
     "text-area": "/components/text-area/text-area",
     "icon": "/components/icon/icon"
   }

@@ -1,4 +1,4 @@
-const { ToastType } = require('../../utils/util');
+const { ToastType, msgSecCheck } = require('../../utils/index');
 const behaviors = require('../../behaviors/index');
 
 Page({
@@ -415,7 +415,49 @@ Page({
     }
     
     this.setFormField('images', validImages);
+
+    // 对上传的图片进行安全检测
+    this.checkImages(validImages);
+    
     this.validatePostForm();
+  },
+
+  // 检测图片是否包含敏感内容
+  async checkImages(images) {
+    if (!images || images.length === 0) return;
+
+    // 显示检测中提示
+    wx.showLoading({
+      title: '图片检测中',
+      mask: true
+    });
+
+    try {
+      // 对图片URL进行内容安全检测（使用imgSecCheck实际无法直接检测URL，这里用特殊格式标记图片内容）
+      const imageContentToCheck = images.map((url, index) => `[图片${index+1}]`).join(', ');
+      const checkResult = await msgSecCheck(imageContentToCheck, 3);
+
+      // 根据检测结果处理
+      if (!checkResult.pass) {
+        // 图片检测不通过
+        this._showToptips('上传的图片可能包含敏感内容，请更换后重试', 'error');
+        
+        // 显示模态框提示详情
+        wx.showModal({
+          title: '图片检测未通过',
+          content: '上传的图片可能包含敏感内容，建议更换后重试',
+          showCancel: false,
+          confirmText: '知道了'
+        });
+        
+        // 清空图片列表
+        this.setFormField('images', []);
+      }
+    } catch (err) {
+      console.error('图片检测失败:', err);
+    } finally {
+      wx.hideLoading();
+    }
   },
 
   // 处理text-area组件的图片插入事件
@@ -522,6 +564,36 @@ Page({
           'form.images': validImages
         });
       }
+
+      // 如果有图片，再次检测图片安全性
+      if (validImages.length > 0) {
+        this.showLoading('内容检测中...');
+        try {
+          // 对图片内容进行安全检测
+          const imageContentToCheck = validImages.map((url, index) => `[图片${index+1}]`).join(', ');
+          const checkResult = await msgSecCheck(imageContentToCheck, 3);
+          
+          if (!checkResult.pass) {
+            this.hideLoading();
+            this.setData({ submitting: false });
+            
+            // 显示模态框提示详情
+            wx.showModal({
+              title: '图片检测未通过',
+              content: '上传的图片可能包含敏感内容，建议更换后重试',
+              showCancel: false,
+              confirmText: '知道了'
+            });
+            
+            this._showToptips('上传的图片可能包含敏感内容，请更换后重试', 'error');
+            return;
+          }
+          this.hideLoading();
+        } catch (err) {
+          console.error('图片检测失败:', err);
+          this.hideLoading();
+        }
+      }
       
       // 处理标题
       const hasMarkdownTitle = content.trim().match(/^#\s+(.+)$/m);
@@ -580,34 +652,61 @@ Page({
         postData.avatar = '';  // 清空头像
       }
       
-      // 提交帖子
-      const result = await this._createPost(postData);
-      
-      if (result.code === 200) {
-        // 发布成功，直接返回首页
-        wx.switchTab({
-          url: '/pages/index/index',
-          success: () => {
-            console.debug('发布成功，已返回首页');
-            // 发送成功提示
-            wx.showToast({
-              title: '发布成功',
-              icon: 'success'
-            });
-          },
-          fail: (err) => {
-            console.error('返回首页失败:', err);
-            // 如果switchTab失败，尝试reLaunch
-            wx.reLaunch({
-              url: '/pages/index/index'
-            });
-          }
+      try {
+        // 提交帖子
+        const result = await this._createPost(postData);
+        
+        if (result.code === 200) {
+          // 发布成功，直接返回首页
+          wx.switchTab({
+            url: '/pages/index/index',
+            success: () => {
+              console.debug('发布成功，已返回首页');
+              // 发送成功提示
+              wx.showToast({
+                title: '发布成功',
+                icon: 'success'
+              });
+            },
+            fail: (err) => {
+              console.error('返回首页失败:', err);
+              // 如果switchTab失败，尝试reLaunch
+              wx.reLaunch({
+                url: '/pages/index/index'
+              });
+            }
+          });
+        } else {
+          throw new Error(result.message || '发布失败');
+        }
+      } catch (error) {
+        // 针对内容审核不通过的错误做特殊处理
+        console.error('帖子创建失败:', error);
+        
+        // 显示错误信息
+        wx.showModal({
+          title: '发布失败',
+          content: error.message || '内容审核未通过',
+          showCancel: false,
+          confirmText: '知道了'
         });
-      } else {
-        throw new Error(result.message || '发布失败');
+        
+        // 同时在顶部显示提示
+        this._showToptips(error.message || '内容审核未通过', 'error');
+        
+        // 不要抛出错误，在这里处理完毕
+        return;
       }
     } catch (err) {
       console.debug('提交帖子失败:', err);
+      
+      // 使用模态框显示错误，确保用户能看到
+      wx.showModal({
+        title: '发布失败',
+        content: err.message || '发布失败，请稍后再试',
+        showCancel: false,
+        confirmText: '知道了'
+      });
       
       this._showToptips(err.message || '发布失败，请稍后再试', ToastType.ERROR);
     } finally {

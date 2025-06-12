@@ -10,36 +10,66 @@
 
   <!-- 内容区域 -->
   <view class="content-area">
-    <!-- 用户卡片 - 直接使用其内置的cell-status -->
-    <user-card
-      userInfo="{{userInfo}}"
-      stats="{{stats}}"
-      isCurrentUser="{{userInfo && userInfo.openid === openid}}"
-      currentUserOpenid="{{openid}}"
-      loading="{{loading}}"
-      error="{{error}}"
-      errorMsg="{{errorMsg}}"
-      bind:retry="onRetry"
-      bind:refresh="syncUserAndInitPage"
-      hasMore="{{false}}"
-    />
-
-    <!-- 未登录提示 - 如果用户卡片不显示，则需要单独处理 -->
-    <view wx:if="{{!loading && !error && !userInfo}}" class="login-wrapper">
-      <login-card bind:login="login" />
+    <!-- 未登录自定义登录提示 -->
+    <view wx:if="{{!userInfo}}" class="login-wrapper">
+      <view class="login-card">
+        <view class="feature-section">
+          <view class="feature-header">
+            <icon name="profile" size="100" class="avatar-icon"></icon>
+            <view class="feature-texts">
+              <text class="feature-title">登录后体验更多功能</text>
+              <text class="feature-subtitle">登录后可以发帖、评论、收藏等</text>
+            </view>
+          </view>
+          <view class="feature-list">
+            <view class="feature-item">
+              <icon name="post" color="#4c6ef5"></icon>
+              <text>发帖</text>
+            </view>
+            <view class="feature-item">
+              <icon name="comment"></icon>
+              <text>评论</text>
+            </view>
+            <view class="feature-item">
+              <icon name="star" color="#4c6ef5"></icon>
+              <text>收藏</text>
+            </view>
+            <view class="feature-item">
+              <icon name="share"></icon>
+              <text>分享</text>
+            </view>
+          </view>
+        </view>
+        <view class="login-section">
+          <button class="login-btn" type="primary" bindtap="onLoginCardTap">去登陆</button>
+        </view>
+      </view>
     </view>
-
-    <!-- 设置菜单 -->
-    <menu-list
-      title="设置"
-      items="{{settingItems}}" 
-      loading="{{loading}}"
-      error="{{error}}"
-      errorMsg="{{errorMsg}}"
-      customStyle="settings-menu"
-      bind:itemTap="onSettingItemTap"
-      bind:retry="onSettingRetry"
-    />
+    <!-- 已登录显示 user-card 和菜单 -->
+    <block wx:if="{{userInfo}}">
+      <user-card
+        userInfo="{{userInfo}}"
+        stats="{{stats}}"
+        isCurrentUser="{{userInfo && userInfo.openid === openid}}"
+        currentUserOpenid="{{openid}}"
+        loading="{{loading}}"
+        error="{{error}}"
+        errorMsg="{{errorMsg}}"
+        bind:retry="onRetry"
+        bind:refresh="syncUserAndInitPage"
+        hasMore="{{false}}"
+      />
+      <menu-list
+        title="设置"
+        items="{{settingItems}}" 
+        loading="{{loading}}"
+        error="{{error}}"
+        errorMsg="{{errorMsg}}"
+        customStyle="settings-menu"
+        bind:itemTap="onSettingItemTap"
+        bind:retry="onSettingRetry"
+      />
+    </block>
   </view>
   
   <!-- WEUI组件 -->

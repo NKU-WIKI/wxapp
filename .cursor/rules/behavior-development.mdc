@@ -1,0 +1,545 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 微信小程序Behavior开发规范
+
+## Behavior设计原则
+
+### 1. 单一职责原则
+每个Behavior只负责一个特定功能领域，保持职责清晰和功能专一性。
+
+### 2. 高内聚低耦合
+- 设计独立性强的Behavior，避免Behavior间强依赖
+- 通过参数传递实现Behavior间的数据交换
+- 使用事件机制实现松耦合通信
+
+### 3. 可复用性
+- 提供通用的方法接口，支持不同场景复用
+- 避免硬编码特定业务逻辑
+- 通过配置参数支持不同使用方式
+
+## Behavior标准结构
+
+```javascript
+/**
+ * [功能名称]行为 - [功能描述]
+ */
+const { storage, createApiClient } = require('../utils/index');
+
+// 1. API客户端定义（可选）
+const apiClient = createApiClient('/api/base/path', {
+  method1: { method: 'GET', path: '/endpoint1', params: { param1: true } },
+  method2: { method: 'POST', path: '/endpoint2', params: { param1: true } }
+});
+
+module.exports = Behavior({
+  // 2. 生命周期定义（可选）
+  lifetimes: {
+    created() {
+      // Behavior实例创建时执行
+    },
+    attached() {
+      // Behavior实例进入页面节点树时执行
+    },
+    ready() {
+      // Behavior实例布局完成后执行
+    },
+    detached() {
+      // Behavior实例从页面节点树移除时执行
+      // 清理操作
+    }
+  },
+  
+  // 3. 页面生命周期（仅页面使用时有效）
+  pageLifetimes: {
+    show() {
+      // 页面显示时执行
+    },
+    hide() {
+      // 页面隐藏时执行
+    },
+    unload() {
+      // 页面卸载时执行
+      // 清理操作
+    }
+  },
+  
+  // 4. 数据定义（可选）
+  data: {
+    // 内部状态数据
+    _internalState: {},
+    // 缓存数据
+    _cache: {}
+  },
+  
+  // 5. 数据监听器（可选）
+  observers: {
+    '_internalState.**': function(state) {
+      // 监听内部状态变化
+    }
+  },
+  
+  // 6. 方法定义
+  methods: {
+    // ==================== 公共API方法 ====================
+    /**
+     * 获取数据列表
+     * @param {Object} filter - 筛选条件
+     * @param {number} page - 页码
+     * @param {number} pageSize - 每页数量
+     * @returns {Promise<Object>} API响应
+     */
+    async _getDataList(filter = {}, page = 1, pageSize = 10) {
+      try {
+        const params = { ...filter, page, page_size: pageSize };
+        const res = await apiClient.method1(params);
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '获取数据失败');
+        }
+        
+        return this._formatListResponse(res);
+      } catch (err) {
+        console.debug('获取数据列表失败:', err);
+        throw err;
+      }
+    },
+    
+    /**
+     * 创建数据
+     * @param {Object} data - 数据对象
+     * @returns {Promise<Object|null>} 创建结果
+     */
+    async _createData(data) {
+      try {
+        const res = await apiClient.method2(data);
+        if (res.code !== 200) {
+          throw new Error(res.message || '创建失败');
+        }
+        return res.data;
+      } catch (err) {
+        console.debug('创建数据失败:', err);
+        return null;
+      }
+    },
+    
+    // ==================== 内部辅助方法 ====================
+    /**
+     * 格式化列表响应数据
+     * @private
+     */
+    _formatListResponse(res) {
+      return {
+        data: res.data || [],
+        pagination: res.pagination || {
+          total: res.total || 0,
+          page: res.page || 1,
+          page_size: res.page_size || 10,
+          total_pages: Math.ceil((res.total || 0) / (res.page_size || 10)),
+          has_more: res.has_more !== undefined ? res.has_more : false
+        }
+      };
+    },
+    
+    /**
+     * 缓存管理
+     * @private
+     */
+    _getCache(key) {
+      return this.data._cache[key] || null;
+    },
+    
+    _setCache(key, value) {
+      const cache = { ...this.data._cache };
+      cache[key] = value;
+      this.setData({ '_cache': cache });
+    }
+  }
+});
+```
+
+## API集成规范
+
+### 1. API客户端定义
+```javascript
+// 使用统一的createApiClient创建API客户端
+const userApi = createApiClient('/api/wxapp/user', {
+  profile: { 
+    method: 'GET', 
+    path: '/profile', 
+    params: { openid: true } 
+  },
+  update: { 
+    method: 'POST', 
+    path: '/update', 
+    params: { openid: true } 
+  },
+  follow: { 
+    method: 'POST', 
+    path: '/follow', 
+    params: { follower_id: true, followed_id: true } 
+  }
+});
+```
+
+### 2. 参数配置规范
+```javascript
+// 参数配置说明
+const apiConfig = {
+  methodName: {
+    method: 'GET|POST|PUT|DELETE',  // HTTP方法
+    path: '/api/path',              // API路径
+    params: {                       // 参数配置
+      param1: true,                 // 必填参数
+      param2: false                 // 可选参数
+    }
+  }
+};
+```
+
+## 方法命名规范
+
+### 1. 公共方法命名
+- **获取数据**：`_getData`, `_getDataList`, `_getDataDetail`
+- **创建数据**：`_createData`, `_addData`
+- **更新数据**：`_updateData`, `_modifyData`
+- **删除数据**：`_deleteData`, `_removeData`
+- **状态切换**：`_toggleStatus`, `_switchState`
+
+### 2. 私有方法命名
+```javascript
+methods: {
+  // 格式化方法
+  _formatData(data) {},
+  _parseJsonFields(data) {},
+  
+  // 验证方法
+  _validateParams(params) {},
+  _checkPermission() {},
+  
+  // 缓存方法
+  _getCache(key) {},
+  _setCache(key, value) {},
+  _clearCache() {},
+  
+  // 工具方法
+  _buildParams(data) {},
+  _handleError(err) {}
+}
+```
+
+## 错误处理规范
+
+### 1. 统一错误处理
+```javascript
+async _apiMethod(params) {
+  try {
+    const res = await apiClient.method(params);
+    
+    // 检查响应状态
+    if (res.code !== 200) {
+      throw new Error(res.message || '操作失败');
+    }
+    
+    return res.data;
+  } catch (err) {
+    console.debug('API调用失败:', err);
+    
+    // 根据错误类型决定处理方式
+    if (err.message.includes('网络')) {
+      // 网络错误，可以考虑重试
+      throw err;
+    } else {
+      // 业务错误，返回null或默认值
+      return null;
+    }
+  }
+}
+```
+
+### 2. 错误分类处理
+```javascript
+_handleApiError(err, context = '') {
+  const errorType = this._classifyError(err);
+  
+  switch (errorType) {
+    case 'network':
+      console.debug(`${context} 网络错误:`, err);
+      return { success: false, message: '网络连接失败，请检查网络' };
+    case 'auth':
+      console.debug(`${context} 认证错误:`, err);
+      return { success: false, message: '登录已过期，请重新登录' };
+    case 'permission':
+      console.debug(`${context} 权限错误:`, err);
+      return { success: false, message: '权限不足' };
+    default:
+      console.debug(`${context} 未知错误:`, err);
+      return { success: false, message: '操作失败，请重试' };
+  }
+}
+```
+
+## 数据管理规范
+
+### 1. 状态数据定义
+```javascript
+data: {
+  // 使用下划线前缀标识内部数据
+  _loading: false,
+  _error: null,
+  _cache: {},
+  _config: {},
+  
+  // 业务数据
+  _dataList: [],
+  _currentItem: null,
+  _pagination: {
+    page: 1,
+    page_size: 10,
+    total: 0,
+    has_more: false
+  }
+}
+```
+
+### 2. 缓存管理
+```javascript
+methods: {
+  // 缓存策略
+  async _getCachedData(key, fetcher, ttl = 300000) { // 5分钟缓存
+    const cached = this._getCache(key);
+    
+    if (cached && Date.now() - cached.timestamp < ttl) {
+      return cached.data;
+    }
+    
+    try {
+      const freshData = await fetcher();
+      this._setCache(key, {
+        data: freshData,
+        timestamp: Date.now()
+      });
+      return freshData;
+    } catch (err) {
+      // 如果获取失败且有缓存，返回缓存数据
+      return cached ? cached.data : null;
+    }
+  }
+}
+```
+
+## 生命周期管理
+
+### 1. 资源初始化
+```javascript
+lifetimes: {
+  attached() {
+    // 初始化配置
+    this._initConfig();
+    
+    // 绑定事件监听
+    this._bindEventListeners();
+  },
+  
+  detached() {
+    // 清理资源
+    this._cleanup();
+    
+    // 移除事件监听
+    this._unbindEventListeners();
+  }
+}
+```
+
+### 2. 页面生命周期处理
+```javascript
+pageLifetimes: {
+  show() {
+    // 页面显示时刷新数据
+    this._refreshDataIfNeeded();
+  },
+  
+  hide() {
+    // 页面隐藏时保存状态
+    this._saveCurrentState();
+  },
+  
+  unload() {
+    // 页面卸载时清理
+    this._cleanup();
+  }
+}
+```
+
+## 性能优化技巧
+
+### 1. 防抖和节流
+```javascript
+methods: {
+  // 防抖处理
+  _debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func.apply(this, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  },
+  
+  // 节流处理
+  _throttle(func, limit) {
+    let inThrottle;
+    return function executedFunction(...args) {
+      if (!inThrottle) {
+        func.apply(this, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    };
+  }
+}
+```
+
+### 2. 批量操作
+```javascript
+methods: {
+  // 批量更新状态
+  _batchUpdateState(updates) {
+    const batchedUpdate = {};
+    
+    Object.keys(updates).forEach(key => {
+      batchedUpdate[key] = updates[key];
+    });
+    
+    this.setData(batchedUpdate);
+  },
+  
+  // 批量API调用
+  async _batchApiCall(requests) {
+    try {
+      const results = await Promise.all(requests);
+      return results;
+    } catch (err) {
+      console.debug('批量API调用失败:', err);
+      throw err;
+    }
+  }
+}
+```
+
+## 文档和注释
+
+### 1. Behavior注释模板
+```javascript
+/**
+ * Behavior名称：用户行为管理
+ * 功能描述：处理用户信息获取、更新、关注等操作
+ * 
+ * 公共方法：
+ * @method _getUserProfile(openid) - 获取用户信息
+ * @method _updateUserProfile(data) - 更新用户信息
+ * @method _toggleFollow(params) - 切换关注状态
+ * @method _getUserList(filter, page, pageSize) - 获取用户列表
+ * 
+ * 使用示例：
+ * behaviors: [behaviors.baseBehavior, behaviors.userBehavior]
+ * 
+ * 调用方法：
+ * const userInfo = await this._getUserProfile(openid);
+ */
+```
+
+### 2. 方法注释规范
+```javascript
+/**
+ * 获取用户信息
+ * @param {string} openid - 用户OpenID
+ * @param {boolean} useCache - 是否使用缓存，默认true
+ * @returns {Promise<Object|null>} 用户信息对象或null
+ * @throws {Error} 当网络请求失败时抛出错误
+ * 
+ * @example
+ * const userInfo = await this._getUserProfile('user123', false);
+ * if (userInfo) {
+ *   console.log('用户昵称:', userInfo.nickname);
+ * }
+ */
+async _getUserProfile(openid, useCache = true) {
+  // 实现逻辑
+}
+```
+
+## 使用示例
+
+### 1. 在页面中使用
+```javascript
+const behaviors = require('../../behaviors/index');
+
+Page({
+  behaviors: [behaviors.baseBehavior, behaviors.userBehavior, behaviors.postBehavior],
+  
+  data: {
+    userInfo: null,
+    postList: []
+  },
+  
+  async onLoad() {
+    // 使用behavior方法
+    await this.loadUserData();
+    await this.loadPostData();
+  },
+  
+  async loadUserData() {
+    try {
+      const openid = this.getStorage('openid');
+      const userInfo = await this._getUserProfile(openid);
+      this.setData({ userInfo });
+    } catch (err) {
+      this.showError('加载用户信息失败');
+    }
+  }
+});
+```
+
+### 2. 在组件中使用
+```javascript
+const behaviors = require('../../behaviors/index');
+
+Component({
+  behaviors: [behaviors.baseBehavior, behaviors.userBehavior],
+  
+  properties: {
+    openid: String
+  },
+  
+  observers: {
+    'openid': function(openid) {
+      if (openid) {
+        this.loadUserInfo(openid);
+      }
+    }
+  },
+  
+  methods: {
+    async loadUserInfo(openid) {
+      const userInfo = await this._getUserProfile(openid);
+      this.setData({ userInfo });
+    }
+  }
+});
+```
+
+## 最佳实践总结
+
+1. **职责单一**：每个Behavior专注于特定功能领域
+2. **接口统一**：使用一致的方法命名和参数格式
+3. **错误处理**：提供完善的错误处理和用户反馈
+4. **性能优化**：合理使用缓存、防抖、节流等技术
+5. **文档完善**：提供清晰的注释和使用示例
+6. **向前兼容**：修改接口时考虑向前兼容性
+7. **测试友好**：设计易于测试的方法接口

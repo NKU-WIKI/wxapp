@@ -37,7 +37,7 @@
         </button>
       </view>
       <!-- 添加删除按钮 -->
-      <view wx:if="{{post.openid === currentUserOpenid}}" class="delete-container">
+      <view wx:if="{{isLoggedIn && (role === 'admin' || post.openid === currentUserOpenid)}}" class="delete-container">
         <icon 
           name="clear"
           size="40"
@@ -117,7 +117,7 @@
               hover-class="button-hover" 
               size="mini" 
               catchtap="onCommentTap">
-        <image class="action-icon" src="/icons/{{!post.comment_count ? 'comment' : 'comment-active'}}.png" mode="aspectFit"></image>
+        <image class="action-icon" src="/icons/{{!isLoggedIn ? 'comment' : (post.is_commented ? 'comment-active' : 'comment')}}.png" mode="aspectFit"></image>
         <text class="action-count" wx:if="{{post.comment_count > 0}}">{{post.comment_count}}</text>
       </button>
       

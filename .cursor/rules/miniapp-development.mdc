@@ -1,0 +1,292 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 微信小程序开发规范
+
+## 项目概述
+这是nkuwiki微信小程序项目，基于微信小程序原生框架开发的社交平台应用。
+
+## 编码规范
+
+### 1. 文件结构和命名
+- 页面文件：`pages/模块名/页面名/` 目录结构，包含 js、wxml、wxss、json 四个文件
+- 组件文件：`components/组件名/` 目录结构，包含 js、wxml、wxss、json 四个文件
+- 工具类：`utils/` 目录下，使用驼峰命名
+- 行为：`behaviors/` 目录下，使用驼峰命名
+
+### 2. 代码风格
+- 使用2空格缩进
+- 字符串优先使用单引号
+- 对象属性名不需要引号时不加引号
+- 异步操作优先使用 async/await
+- 善用解构赋值简化代码
+
+### 3. 微信小程序特定规范
+
+#### Page 页面结构
+```javascript
+Page({
+  behaviors: [baseBehavior, authBehavior], // 先声明behaviors
+  
+  data: {
+    // 数据定义，按功能分组
+  },
+  
+  onLoad() {
+    // 页面加载逻辑
+    this.initSystemInfo(); // 初始化系统信息
+  },
+  
+  onShow() {
+    // 页面显示逻辑
+  },
+  
+  // 其他生命周期函数
+  
+  // 自定义方法
+})
+```
+
+#### Component 组件结构
+```javascript
+Component({
+  behaviors: [baseBehavior],
+  
+  options: {
+    pureDataPattern: /^_/,
+    multipleSlots: true,
+    addGlobalClass: true,
+    styleIsolation: 'apply-shared'
+  },
+  
+  properties: {
+    // 属性定义
+  },
+  
+  data: {
+    // 私有数据
+  },
+  
+  observers: {
+    // 数据监听器
+  },
+  
+  lifetimes: {
+    ready() {
+      // 组件生命周期
+    }
+  },
+  
+  methods: {
+    // 组件方法
+  }
+})
+```
+
+### 4. API 调用规范
+- 统一在 `utils/util.js` 中封装 API 方法
+- 使用 Promise 包装微信 API
+- 统一错误处理机制
+- API 方法命名：动词 + 名词，如 `getUserInfo`、`createPost`
+
+### 5. 状态管理
+- 使用 behaviors 实现跨页面/组件的状态共享
+- 本地存储使用 `storage` 工具类统一管理
+- 避免在 data 中存储大量数据，考虑性能优化
+
+### 6. 事件处理
+- 事件处理函数以 `on` 开头，如 `onTapSubmit`
+- 防抖处理：频繁操作需要加防抖机制
+- 使用 `catch` 前缀阻止冒泡：`catchtap`
+
+### 7. 样式规范
+- 使用 rpx 单位进行响应式布局
+- 统一使用 WeUI 组件库样式
+- 自定义样式在组件内部使用，避免全局污染
+- 颜色、字体等设计规范在 `app.wxss` 中定义
+
+### 8. 设备适配和布局规范
+
+#### 8.1 响应式单位使用
+- **首选 rpx 单位**：适配不同屏幕密度，750rpx = 设计稿宽度
+- **字体大小建议**：24-28rpx(正文)，32-36rpx(副标题)，40-48rpx(主标题)
+- **间距规范**：8rpx, 16rpx, 24rpx, 32rpx, 48rpx
+
+#### 8.2 动态位置计算
+对于需要相对定位的元素（如下拉框、弹窗等），避免使用固定像素值，应动态计算：
+
+```javascript
+// 获取系统信息进行动态计算
+calculatePosition() {
+  try {
+    const systemInfo = wx.getWindowInfo();
+    const statusBarHeight = systemInfo.statusBarHeight || 20;
+    const navBarHeight = 48; // 标准导航栏高度
+    
+    // 根据实际情况计算位置
+    const dropdownTop = statusBarHeight + navBarHeight + searchBarHeight + spacing;
+    
+    this.setData({
+      dynamicPosition: dropdownTop + 'px'
+    });
+  } catch (err) {
+    // 提供默认值作为兜底
+    this.setData({
+      dynamicPosition: '170rpx'
+    });
+  }
+}
+```
+
+#### 8.3 自定义导航栏适配
+```javascript
+// 获取系统信息，适配不同设备
+initSystemInfo() {
+  try {
+    const appBaseInfo = wx.getAppBaseInfo();
+    const windowInfo = wx.getWindowInfo();
+    
+    const statusBarHeight = windowInfo.statusBarHeight || 20;
+    let navBarHeight = 48;
+    
+    // 根据平台调整
+    if (appBaseInfo.platform === 'android') {
+      navBarHeight = 48;
+    } else if (appBaseInfo.platform === 'ios') {
+      navBarHeight = 44;
+    }
+    
+    this.setData({
+      statusBarHeight,
+      navBarHeight,
+      totalHeight: statusBarHeight + navBarHeight
+    });
+  } catch (err) {
+    // 兜底处理
+    this.setData({
+      statusBarHeight: 20,
+      navBarHeight: 48,
+      totalHeight: 68
+    });
+  }
+}
+```
+
+### 9. 组件复用和引入规范
+
+#### 9.1 组件引入原则
+- **必须声明**：使用组件前必须在页面json文件中声明
+- **按需引入**：只引入页面实际使用的组件
+- **路径规范**：使用相对路径或绝对路径，保持一致性
+
+```json
+{
+  "usingComponents": {
+    "loading": "/components/loading/loading",
+    "icon": "/components/icon/icon",
+    "nav-bar": "/components/nav-bar/nav-bar"
+  }
+}
+```
+
+#### 9.2 避免重复造轮子
+- **优先复用**：使用项目已有组件，如loading、icon等
+- **图标规范**：使用iconMap中定义的图标，避免使用不存在的图标名
+- **样式统一**：优先使用项目定义的样式变量和工具类
+
+### 10. 性能优化
+- 使用 `lazyCodeLoading` 按需加载
+- 大列表使用虚拟滚动或分页加载
+- 图片使用适当的压缩和懒加载
+- 避免频繁的 setData 操作
+- **条件渲染优化**：合理使用 wx:if 和 hidden
+- **数据结构优化**：使用 pureDataPattern 避免不必要的渲染
+
+### 11. 错误处理和用户体验
+
+#### 11.1 加载状态管理
+```javascript
+// 正确的加载状态处理
+async executeSearch() {
+  this.setData({ isSearching: true });
+  
+  try {
+    const result = await this._search(keyword);
+    this.setData({ 
+      searchResults: result.data,
+      isSearching: false 
+    });
+  } catch (error) {
+    this.setData({ isSearching: false });
+    ui.showToast('搜索失败，请重试', { type: 'error' });
+  }
+}
+```
+
+#### 11.2 错误处理规范
+- 网络请求必须有错误处理
+- 使用 try-catch 包装可能出错的代码
+- 用户友好的错误提示
+- 关键错误需要上报日志
+- **防御性编程**：对可能为空的数据进行检查
+
+### 12. 安全规范
+- 敏感信息不存储在小程序端
+- 用户身份验证通过服务端验证
+- 输入数据必须验证和过滤
+- 使用 HTTPS 协议
+
+## 开发注意事项
+
+### 1. 常见问题避免
+- **图标使用**：确认图标在iconMap中存在，使用`about`而非`question`
+- **组件引入**：使用前必须在json中声明，避免运行时错误
+- **位置计算**：避免硬编码位置值，使用动态计算
+- **单位统一**：样式中优先使用rpx，避免px和rpx混用
+
+### 2. 调试技巧
+- 使用 `console.debug` 进行调试日志，生产环境可控制
+- 利用微信开发者工具的调试功能
+- 在真机上测试不同设备的适配效果
+- 使用条件编译处理不同环境的代码
+
+### 3. 兼容性处理
+```javascript
+// API兼容性处理示例
+try {
+  const systemInfo = wx.getWindowInfo();
+  // 新API逻辑
+} catch (err) {
+  // 兜底到旧API
+  const systemInfo = wx.getSystemInfoSync();
+}
+```
+
+## 最佳实践
+
+### 1. 开发流程
+1. 充分利用小程序的组件化能力，提高代码复用性
+2. 合理使用 behaviors 实现横切关注点
+3. 注意小程序包大小限制，及时清理无用代码
+4. 重要操作提供loading状态和用户反馈
+5. 适配不同屏幕尺寸和机型
+
+### 2. 代码质量
+- **模块化设计**：功能相关的代码组织在一起
+- **命名规范**：使用有意义的变量和函数名
+- **注释完善**：关键逻辑和复杂算法添加注释
+- **错误处理**：完善的异常处理和用户提示
+
+### 3. 性能优先
+- **首屏优化**：关键内容优先加载
+- **资源管理**：及时释放不需要的资源
+- **缓存策略**：合理使用本地存储和缓存
+- **网络优化**：减少不必要的网络请求
+
+### 4. 用户体验
+- **响应及时**：操作反馈要及时明确
+- **界面友好**：错误提示要用户可理解
+- **交互顺畅**：避免卡顿和延迟
+- **适配完整**：在不同设备上体验一致

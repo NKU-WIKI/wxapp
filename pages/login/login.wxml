@@ -1,3 +1,8 @@
+<nav-bar title="登录" 
+	showBack="{{true}}" 
+	showAvatar="{{false}}" 
+	showNotification="{{false}}" 
+	/>
 <view class="container">
   <view class="main-content">
     <!-- Logo区域 -->
@@ -15,12 +20,13 @@
     </block>
     <!-- 登录卡片 -->
     <login-card 
+      class="login-card"
       bind:login="handleLogin"
-      bind:agreement="onAgreementTap"
     ></login-card>
-     <!-- 版权信息 -->
-      <view class="copyright">
-        <text>{{aboutInfo.copyright}}</text>
-      </view>
+  </view>
+  
+  <!-- 版权信息 -->
+  <view class="footer">
+    <text class="copyright">{{aboutInfo.copyright || '2025 nkuwiki team'}}</text>
   </view>
 </view>

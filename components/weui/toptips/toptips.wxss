@@ -1,14 +1,35 @@
 .weui-toptips {
-  display: flex;
+  position: fixed;
+  transform: translateZ(0) translateY(-100%);
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  font-size: 14px;
+  text-align: center;
+  color: #FFFFFF;
+  z-index: 5000;
+  word-wrap: break-word;
+  word-break: break-all;
+  transition: all .4s ease-in-out;
 }
-.weui-toptips_success {
-  background-color: var(--weui-BRAND);
+
+.weui-toptips_show {
+  transform: translateZ(0) translateY(0);
 }
+
+.weui-toptips_warn {
+  background-color: #FFBE00;
+}
+
 .weui-toptips_error {
-  background-color: var(--weui-RED);
+  background-color: #fa5151;
 }
+
 .weui-toptips_info {
-  background-color: var(--weui-BLUE);
+  background-color: #10AEFF;
 }
 
-
+.weui-toptips_success {
+  background-color: #07c160;
+} 

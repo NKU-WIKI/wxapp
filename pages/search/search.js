@@ -1,8 +1,8 @@
-const { storage, ui, error, ToastType } = require('../../utils/util');
-const { baseBehavior, knowledgeBehavior, agentBehavior } = require('../../behaviors/index');
+const { storage, ui, ToastType } = require('../../utils/index');
+const behaviors = require('../../behaviors/index');
 
 Page({
-  behaviors: [baseBehavior, knowledgeBehavior, agentBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.knowledgeBehavior, behaviors.agentBehavior],
 
   data: {
     searchValue: '',
@@ -15,6 +15,7 @@ Page({
     hasSearched: false, // 标记是否已执行过搜索
     currentSearchType: '', // 添加当前搜索类型标记
     focus: false, // 添加搜索框焦点状态
+    dropdownTopPosition: '170rpx', // 搜索历史下拉框位置
     // RAG相关数据
     showRagResults: false,
     ragQuery: '',
@@ -60,6 +61,7 @@ Page({
   onLoad() {
     this.loadSearchHistory();
     this.loadHotSearches();
+    this.calculateDropdownPosition();
   },
   
   // 搜索方法
@@ -130,7 +132,8 @@ Page({
       showRagResults: false,
       hasSearched: true, // 标记已执行过搜索
       'pagination.page': 1,
-      currentSearchType: searchType
+      currentSearchType: searchType,
+      focus: false // 开始搜索时，隐藏历史/建议下拉框
     });
     
     // 保存搜索历史
@@ -168,230 +171,127 @@ Page({
       return;
     }
     
+    this.saveSearchHistory(keyword);
+    
     this.setData({
       ragQuery: queryText,
       isSearching: true,
       showRagResults: true,
+      hasSearched: true, // 标记已执行过搜索
       suggestions: [],
-      ragResults: '正在查询改写',
+      ragResults: '正在思考中...',
       ragSources: [],
       ragSuggestions: []
     });
     
     try {
-      console.debug('发送RAG查询:', queryText);
+      console.debug('发送高级搜索RAG查询:', queryText);
       
-      // 添加分阶段的提示动画
-      setTimeout(() => {
-        if (this.data.isSearching) {
-          this.setData({ ragResults: '正在检索知识库' });
-        }
-      }, 1000);
+      // 调用新的高级搜索接口，该接口返回完整的RAG结果
+      const resultData = await this._advancedSearch(queryText);
       
-      setTimeout(() => {
-        if (this.data.isSearching) {
-          this.setData({ ragResults: '正在思考中' });
-        }
-      }, 3000);
-      
-      // 调用RAG接口
-      const resultData = await this._sendRagQuery(
-        queryText,                // 查询内容
-        'website,wechat,wxapp',   // 平台参数（必须是逗号分隔的字符串）
-        false,                    // 非流式返回
-        {
-          tag: 'wiki'             // 查询类型：默认wiki
-        }
-      );
-      
-      console.debug('RAG查询结果:', JSON.stringify(resultData));
+      console.debug('高级搜索RAG查询结果:', JSON.stringify(resultData));
       
       // 处理返回结果
       let response = '';
       let processedSources = [];
       let suggestions = [];
       
-      if (resultData && resultData.data) {
-        const data = resultData.data;
-        console.debug('处理RAG数据:', JSON.stringify(data));
-        
-        // 提取回答内容
-        response = data.response || '';
-        console.debug('提取的回答内容:', response);
-        
-        // 处理回答内容，去除多余空行和所有冒号
-        response = response
-          .split('\n')
-          .filter(line => line.trim() !== '') // 移除空行
-          .join('\n')
-          .replace(/[:：]/g, ''); // 移除所有中英文冒号
+      if (resultData && resultData.response) {
+        response = resultData.response;
         
         // 处理来源
-        if (data.sources && Array.isArray(data.sources)) {
-          processedSources = data.sources.map((source, index) => {
-            // 处理平台信息
-            let platform = source.platform
-            
-            // 确保有时间信息
-            let createTime = source.create_time || source.update_time
-            
-            // 处理相关度
-            let relevance = source.relevance
-            
-            // 确保有ID字段，这对于导航到知识详情页面是必须的
-            const sourceId = source.id || source.knowledge_id || source.article_id || `source_${index + 1}`;
-            
-            // 处理一些可能缺失的字段
+        if (resultData.sources && Array.isArray(resultData.sources)) {
+          processedSources = resultData.sources.map((source, index) => {
             return {
               ...source,
-              id: sourceId, // 确保有id
-              knowledge_id: sourceId, // 添加knowledge_id以兼容知识详情页面
-              index: index + 1, // 添加序号，从1开始
-              title: source.title || '',
-              content: source.content || '',
-              summary: source.content || '',
-              author: source.author || '',
-              platform: platform,
-              original_url: source.original_url || '',
-              create_time: createTime,
-              update_time: source.update_time || createTime,
-              publish_time: source.create_time || createTime,
-              relevance: relevance,
-              is_official: source.is_official !== undefined ? source.is_official : false,
-              // 添加类型标记，帮助source-list组件判断跳转目标
-              type: 'knowledge' 
+              id: source.id || source.knowledge_id || `source_${index + 1}`,
+              knowledge_id: source.id || source.knowledge_id || `source_${index + 1}`,
+              index: index + 1,
+              type: 'knowledge'
             };
           });
         }
         
         // 处理建议问题
-        if (data.suggested_questions && Array.isArray(data.suggested_questions)) {
-          suggestions = data.suggested_questions;
+        if (resultData.suggested_questions && Array.isArray(resultData.suggested_questions)) {
+          suggestions = resultData.suggested_questions;
         }
       } else {
-        response = '未能获取到有效回答，请稍后再试。';
+        response = '未能获取到有效回答，请稍后再试或换个问题。';
       }
       
-      console.debug('处理后的回答:', response);
-      console.debug('处理后的来源数量:', processedSources.length);
-      console.debug('处理后的建议问题:', suggestions);
-      // 在data中更新数据，确保字段名与wxml中一致
       this.setData({
-        ragQuery: resultData.data?.original_query || queryText,
+        ragQuery: resultData?.original_query || queryText,
         ragResults: response,
         ragSources: processedSources,
         ragSuggestions: suggestions,
         isSearching: false
       });
+        
     } catch (error) {
-      console.error('RAG查询失败:', error);
+      console.error('高级搜索RAG查询失败:', error);
       this.setData({
-        ragResults: '查询失败，请稍后再试',
+        ragResults: '查询失败，请检查网络或稍后再试。',
         isSearching: false
       });
       ui.showToast('查询失败，请稍后再试', { type: ToastType.ERROR });
     }
   },
   
-  // 执行搜索
+  // 执行普通搜索
   async executeSearch(keyword, type = '') {
-    if (!keyword) return;
-    
-    console.debug('执行搜索:', keyword, '类型:', type, '页码:', this.data.pagination.page);
-    
-    this.setData({ 
-      loading: true,
-      currentSearchType: type // 设置当前搜索类型
+    this.setData({
+      isSearching: true,
+      'pagination.page': 1,
+      hasSearched: true,
+      searchResults: [],
+      focus: false // 开始搜索时，隐藏历史/建议下拉框
     });
-    
+
     try {
-      // 准备搜索参数
-      const searchParams = {
-        page: this.data.pagination.page,
-        page_size: this.data.pagination.page_size,
-        sort_by: 'relevance' // 默认按相关度排序
-      };
-      
-      let result;
-      
-      // 根据搜索类型使用不同的搜索函数
+      let resultsData;
       if (type === 'post') {
-        result = await this._searchPost(
-          keyword,
-          searchParams.page,
-          searchParams.page_size,
-          searchParams.sort_by
-        );
+        resultsData = await this._searchPost(keyword, 1, this.data.pagination.page_size);
       } else if (type === 'user') {
-        result = await this._searchUser(
-          keyword,
-          searchParams.page,
-          searchParams.page_size,
-          searchParams.sort_by
-        );
-      } else {
-        // 其他类型使用通用搜索
-        result = await this._search(keyword, {
-          ...searchParams,
-          platform: 'wxapp,wechat,website'
-        });
+        resultsData = await this._searchUser(keyword, 1, this.data.pagination.page_size);
+      } else { 
+        // @knowledge 和 普通搜索 都使用ES搜索接口
+        const searchOptions = {
+          page: 1,
+          page_size: this.data.pagination.page_size
+        };
+        
+        // 根据搜索类型设置数据源
+        if (type === 'knowledge') {
+          // @knowledge 搜索全表（所有数据源）
+          // 不设置 source 参数，默认搜索所有数据源
+        }
+        // 注意：@user 和 @post 不走ES搜索，它们有专门的搜索方法
+        
+        resultsData = await this._search(keyword, searchOptions);
+        
+        if (!resultsData) {
+          // 处理无结果情况
+          resultsData = {
+            data: [],
+            pagination: { total: 0, page: 1, page_size: 10, total_pages: 0, has_more: false }
+          };
+        }
       }
       
-      console.debug('搜索结果数据:', JSON.stringify(result));
-      
-      if (result && result.data) {
-        // 直接使用API返回的原始数据，不做处理
-        const searchResults = result.data;
-        
-        // 更新分页信息
-        const pagination = result.pagination || {};
-        
-        // 如果是第一页，直接替换结果，否则追加
-        const newResults = this.data.pagination.page === 1 
-          ? searchResults 
-          : [...this.data.searchResults, ...searchResults];
-        
-        // 判断是否有更多数据
-        const hasMore = pagination.has_more !== undefined 
-          ? pagination.has_more 
-          : (pagination.total_pages 
-              ? this.data.pagination.page < pagination.total_pages 
-              : searchResults.length >= searchParams.page_size);
-        
-        console.debug('更新搜索结果, 总数:', newResults.length, 'has_more:', hasMore);
-        
-        this.setData({
-          searchResults: newResults,
-          pagination: {
-            page: this.data.pagination.page,
-            page_size: this.data.pagination.page_size,
-            total: pagination.total || 0,
-            total_pages: pagination.total_pages || 0,
-            has_more: hasMore
-          },
-          isSearching: false,
-          hasSearched: true
-        });
-      } else {
-        throw new Error('搜索失败');
-      }
-    } catch (err) {
-      console.debug('搜索失败:', err);
-      wx.showToast({
-        title: '搜索失败: ' + (err.message || '未知错误'),
-        icon: 'none'
-      });
-      
-      // 确保在出错时也设置hasSearched为true
       this.setData({
-        hasSearched: true,
-        searchResults: []
+        isSearching: false,
+        searchResults: resultsData.data,
+        pagination: resultsData.pagination
       });
-    } finally {
-      this.setData({ 
-        loading: false,
+      
+    } catch (error) {
+      console.error('搜索执行失败:', error);
+      this.setData({
         isSearching: false
       });
+      ui.showToast('搜索服务出错了', { type: 'error' });
     }
   },
   
@@ -423,18 +323,16 @@ Page({
   },
   
   // 加载更多
-  loadMore() {
-    if (this.data.loading || !this.data.pagination.has_more) {
-      console.debug('不需要加载更多：loading=', this.data.loading, 'has_more=', this.data.pagination.has_more);
-      return;
-    }
+  async loadMore() {
+    if (this.data.loading || !this.data.pagination.has_more) return;
     
     console.debug('触发加载更多, 当前类型:', this.data.currentSearchType, '当前页:', this.data.pagination.page);
     
     this.setData({
-      'pagination.page': this.data.pagination.page + 1,
       loading: true
-    }, () => {
+    });
+
+    try {
       // 提取真正的搜索关键词（去除前缀）
       let searchKeyword = this.data.searchValue;
       if (this.data.currentSearchType) {
@@ -443,21 +341,55 @@ Page({
         searchKeyword = searchKeyword.replace(/@(post|user|knowledge)/, '').trim();
       }
       
-      console.debug('执行搜索加载更多，关键词:', searchKeyword, '类型:', this.data.currentSearchType, '页码:', this.data.pagination.page);
+      const nextPage = this.data.pagination.page + 1;
+      console.debug('执行搜索加载更多，关键词:', searchKeyword, '类型:', this.data.currentSearchType, '页码:', nextPage);
       
-      // 执行搜索获取更多数据
-      this.executeSearch(searchKeyword, this.data.currentSearchType);
-    });
+      let moreData;
+      const type = this.data.currentSearchType;
+      
+      if (type === 'post') {
+        moreData = await this._searchPost(searchKeyword, nextPage, this.data.pagination.page_size);
+      } else if (type === 'user') {
+        moreData = await this._searchUser(searchKeyword, nextPage, this.data.pagination.page_size);
+      } else {
+        // ES搜索
+        const searchOptions = {
+          page: nextPage,
+          page_size: this.data.pagination.page_size
+        };
+        
+        // @knowledge 和默认搜索都是全表搜索，不限制数据源
+        
+        moreData = await this._search(searchKeyword, searchOptions);
+      }
+      
+      if (moreData && moreData.data) {
+        // 合并数据
+        const newResults = [...this.data.searchResults, ...moreData.data];
+        this.setData({
+          searchResults: newResults,
+          pagination: moreData.pagination,
+          loading: false
+        });
+      } else {
+        this.setData({ loading: false });
+      }
+      
+    } catch (err) {
+      console.debug('加载更多失败:', err);
+      this.setData({ loading: false });
+      ui.showToast('加载失败，请重试', { type: ToastType.ERROR });
+    }
   },
   
   // 输入变化
   onSearchInput(e) {
-    const value = e.detail.value;
-    this.setData({ searchValue: value });
-    
-    // 获取搜索建议
-    if (value && value.length >= 2 && !value.includes('@')) {
-      this.getSuggestions(value);
+    const keyword = e.detail.value;
+    this.setData({
+      searchValue: keyword,
+    });
+    if (keyword) {
+      this.getSuggestions(keyword);
     } else {
       this.setData({ suggestions: [] });
     }
@@ -465,17 +397,31 @@ Page({
   
   // 处理搜索框选项选择
   onSearchSelect(e) {
-    const { option, value } = e.detail;
+    const { value } = e.currentTarget.dataset;
     
-    console.debug('选择搜索选项:', option.text, '值:', value);
+    console.debug('选择搜索选项:', value);
+    
+    // 检查值是否只有前缀
+    const prefixOnly = value.trim().split(' ').length <= 1;
     
     // 更新搜索值但不立即搜索
     this.setData({
       searchValue: value,
-      selectedSearchType: option.type
+      selectedSearchType: value
     });
     
-    // 不要立即触发搜索，让用户输入内容
+    // 如果只有前缀，不执行搜索
+    if (prefixOnly) {
+      console.debug('只有前缀，不执行搜索');
+      return;
+    }
+    
+    // 如果有实际内容，则执行搜索
+    const cleanValue = value.trim();
+    if (cleanValue.length > value.length + 1) {
+      console.debug('有实际内容，执行搜索:', cleanValue);
+      this.search(e);
+    }
   },
   
   // 处理前缀选项点击
@@ -483,30 +429,26 @@ Page({
     const prefix = e.currentTarget.dataset.prefix;
     if (!prefix) return;
     
-    // 设置搜索前缀，但不直接触发搜索
     // 从searchOptions中找到匹配的选项
-    // const option = this.data.searchOptions.find(opt => opt.value === prefix);
-    // console.debug('option:', option);
-    // if (option) {
-    //   // 触发select事件，让search-bar组件处理前缀高亮
-    //   const detail = {
-    //     detail: {
-    //       option: option,
-    //       value: prefix + ' '
-    //     }
-    //   };
-    //   this.onSearchSelect(detail);
+    const option = this.data.searchOptions.find(opt => opt.value === prefix);
+    console.debug('选择搜索前缀:', prefix, '对应选项:', option);
+    
+    if (option) {
+      // 直接设置搜索值，确保带有空格
+      const newValue = prefix + ' ';
       
-      // 设置焦点，方便用户输入
-      // this.setData({ focus: true });
+      // 更新页面数据，设置焦点
+      this.setData({
+        searchValue: newValue,
+        selectedSearchType: option.type,
+        focus: true,
+        // 重要：确保不自动搜索
+        hasSearched: false
+      });
       
-      // 提示用户输入搜索内容
-    //   wx.showToast({
-    //     title: '请输入搜索内容',
-    //     icon: 'none',
-    //     duration: 1500
-    //   });
-    // }
+      // 日志记录，便于调试
+      console.debug('设置搜索前缀:', newValue, '类型:', option.type);
+    }
   },
   
   // 清空搜索
@@ -518,6 +460,7 @@ Page({
       showRagResults: false,
       ragResults: null,
       hasSearched: false, // 重置搜索状态
+      isSearching: false, // 重置加载状态
       'pagination.page': 1,
       focus: false // 重置focus状态
     });
@@ -525,57 +468,41 @@ Page({
 
   // 点击搜索建议
   onSuggestionTap(e) {
-    const keyword = e.currentTarget.dataset.keyword;
-    this.setData({ searchValue: keyword });
-    this.search({ detail: { value: keyword } });
+    this.setData({
+      searchValue: e.currentTarget.dataset.value,
+      suggestions: []
+    });
+    this.search(e);
   },
 
   // 点击热门搜索
   onHotSearchTap(e) {
-    const keyword = e.currentTarget.dataset.keyword;
-    this.setData({ searchValue: keyword });
-    this.search({ detail: { value: keyword } });
+    this.setData({
+      searchValue: e.currentTarget.dataset.keyword
+    });
+    this.search(e);
   },
 
   // 点击历史记录
   onHistoryItemTap(e) {
     const keyword = e.currentTarget.dataset.keyword;
-    this.setData({ searchValue: keyword });
-    this.search({ detail: { value: keyword } });
+    this.setData({ searchValue: keyword, focus: false });
+    this.search(e);
   },
 
   // 加载搜索历史
   async loadSearchHistory() {
-    try {
-      let history = [];
-      
-      // 尝试从API获取搜索历史
-      if (typeof this._getSearchHistory === 'function') {
-        try {
-          history = await this._getSearchHistory();
-        } catch (apiErr) {
-          console.debug('从API加载搜索历史失败:', apiErr);
-          // 如果API调用失败，尝试从本地存储加载
-          history = storage.get('searchHistory') || [];
-        }
-      } else {
-        // 如果API方法不存在，从本地存储加载
-        history = storage.get('searchHistory') || [];
-      }
-      
-      // 过滤掉null值和空字符串
-      const validHistory = Array.isArray(history) 
-        ? history.filter(item => item && (
-            (typeof item === 'string' && item.trim() !== '') || 
-            (typeof item === 'object' && item.query && item.query.trim() !== '')
-          )).map(item => typeof item === 'string' ? item : item.query) 
-        : [];
-      
-      this.setData({ searchHistory: validHistory });
-    } catch (err) {
-      console.debug('加载搜索历史失败:', err);
-      this.setData({ searchHistory: [] });
-    }
+    const history = await storage.get('searchHistory', []);
+    
+    // 过滤掉null值和空字符串
+    const validHistory = Array.isArray(history) 
+      ? history.filter(item => item && (
+          (typeof item === 'string' && item.trim() !== '') || 
+          (typeof item === 'object' && item.query && item.query.trim() !== '')
+        )).map(item => typeof item === 'string' ? item : item.query) 
+      : [];
+    
+    this.setData({ searchHistory: validHistory });
   },
 
   // 保存搜索历史
@@ -620,28 +547,16 @@ Page({
 
   // 清空搜索历史
   async clearSearchHistory() {
-    // 清空本地数据
-    this.setData({ searchHistory: [] });
-    storage.set('searchHistory', []);
-    
-    // 尝试清空服务器数据
-    if (typeof this._clearSearchHistory === 'function') {
-      try {
-        await this._clearSearchHistory();
-      } catch (err) {
-        console.debug('清空服务器搜索历史失败:', err);
-      }
-    }
-    
-    wx.showToast({
-      title: '搜索历史已清空',
-      icon: 'success'
+    await storage.remove('searchHistory');
+    this.setData({
+      searchHistory: []
     });
+    ui.showToast('历史记录已清空', { type: ToastType.SUCCESS });
   },
 
   // 处理推荐问题点击
   handleRecommendedQuestion(e) {
-    const { question } = e.currentTarget.dataset;
+    const question = e.currentTarget.dataset.question;
     if (!question) return;
     
     // 使用@wiki前缀
@@ -661,6 +576,73 @@ Page({
       // 不同时直接设置
       this.setData({ searchValue: searchValue }, () => {
         this.search({ detail: { value: searchValue } });
+      });
+    }
+  },
+
+  // 新增方法
+  onSearchBarFocus() {
+    this.loadSearchHistory();
+    this.setData({ focus: true });
+  },
+
+  onSearchBarBlur() {
+    // 延迟以允许下拉框中的点击事件触发
+    setTimeout(() => {
+      this.setData({ focus: false });
+    }, 200);
+  },
+  
+  hideHistoryDropdown() {
+    this.setData({ focus: false });
+  },
+
+  // 测试ES搜索功能（开发调试用）
+  async testEsSearch() {
+    console.debug('开始测试ES搜索功能...');
+    
+    try {
+      // 测试基础搜索
+      const basicResult = await this._search('南开大学', {
+        page: 1,
+        page_size: 5
+      });
+      console.debug('基础搜索结果:', basicResult);
+      
+      // 测试通配符搜索
+      const wildcardResult = await this._wildcardSearch('南开*', '', 1, 3);
+      console.debug('通配符搜索结果:', wildcardResult);
+      
+      // 测试官方内容搜索
+      const officialResult = await this._searchOfficial('招生', 1, 3);
+      console.debug('官方内容搜索结果:', officialResult);
+      
+      console.debug('ES搜索测试完成');
+    } catch (err) {
+      console.debug('ES搜索测试失败:', err);
+    }
+  },
+
+  // 计算搜索历史下拉框位置
+  calculateDropdownPosition() {
+    try {
+      const systemInfo = wx.getWindowInfo();
+      const statusBarHeight = systemInfo.statusBarHeight || 20;
+      const navBarHeight = 48; // 导航栏高度
+      const searchBarHeight = 40; // 搜索框高度(80rpx转换为px约40px)
+      const spacing = 5; // 间距
+      
+      const dropdownTop = statusBarHeight + navBarHeight + searchBarHeight + spacing;
+      
+      // 动态设置CSS变量
+      this.setData({
+        dropdownTopPosition: dropdownTop + 'px'
+      });
+    } catch (err) {
+      console.debug('计算下拉框位置失败:', err);
+      // 使用默认值
+      this.setData({
+        dropdownTopPosition: '170rpx'
       });
     }
   },

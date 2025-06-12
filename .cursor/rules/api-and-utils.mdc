@@ -1,0 +1,539 @@
+---
+description: 
+globs: utils/*,behaviors/*,cloudfunctions/*/*
+alwaysApply: false
+---
+# API调用和工具类开发规范
+
+## API 封装规范
+
+### 1. 统一的网络请求封装
+```javascript
+// utils/request.js
+const request = (options) => {
+  return new Promise((resolve, reject) => {
+    const { url, method = 'GET', data = {}, header = {} } = options;
+    
+    // 统一添加 token
+    const token = storage.get('token');
+    if (token) {
+      header.Authorization = `Bearer ${token}`;
+    }
+    
+    // 统一的请求头
+    const defaultHeader = {
+      'Content-Type': 'application/json',
+      ...header
+    };
+    
+    wx.request({
+      url: `${API_BASE_URL}${url}`,
+      method,
+      data,
+      header: defaultHeader,
+      success: (res) => {
+        if (res.statusCode === 200) {
+          resolve(res.data);
+        } else {
+          reject(new Error(`HTTP ${res.statusCode}: ${res.data?.message || '请求失败'}`));
+        }
+      },
+      fail: (err) => {
+        reject(new Error(`网络错误: ${err.errMsg}`));
+      }
+    });
+  });
+};
+```
+
+### 2. API 方法命名规范
+- GET 请求：`get` + 资源名，如 `getUserInfo`, `getPostList`
+- POST 请求：`create` + 资源名，如 `createPost`, `createComment`
+- PUT/PATCH 请求：`update` + 资源名，如 `updatePost`, `updateUserProfile`
+- DELETE 请求：`delete` + 资源名，如 `deletePost`, `deleteComment`
+
+### 3. API 方法结构
+```javascript
+// utils/api.js
+const api = {
+  // 用户相关
+  async getUserInfo(openid) {
+    try {
+      const res = await request({
+        url: `/user/${openid}`,
+        method: 'GET'
+      });
+      return { code: 200, data: res.data, message: 'success' };
+    } catch (error) {
+      console.error('获取用户信息失败:', error);
+      return { code: 500, data: null, message: error.message };
+    }
+  },
+  
+  async createPost(postData) {
+    try {
+      const res = await request({
+        url: '/posts',
+        method: 'POST',
+        data: postData
+      });
+      return { code: 200, data: res.data, message: 'success' };
+    } catch (error) {
+      console.error('创建帖子失败:', error);
+      return { code: 500, data: null, message: error.message };
+    }
+  }
+};
+```
+
+## 工具类开发规范
+
+### 1. 存储工具类
+```javascript
+// utils/storage.js
+const storage = {
+  set(key, value) {
+    try {
+      wx.setStorageSync(key, JSON.stringify(value));
+      return true;
+    } catch (error) {
+      console.error('存储失败:', error);
+      return false;
+    }
+  },
+  
+  get(key, defaultValue = null) {
+    try {
+      const value = wx.getStorageSync(key);
+      return value ? JSON.parse(value) : defaultValue;
+    } catch (error) {
+      console.error('读取存储失败:', error);
+      return defaultValue;
+    }
+  },
+  
+  remove(key) {
+    try {
+      wx.removeStorageSync(key);
+      return true;
+    } catch (error) {
+      console.error('删除存储失败:', error);
+      return false;
+    }
+  },
+  
+  clear() {
+    try {
+      wx.clearStorageSync();
+      return true;
+    } catch (error) {
+      console.error('清空存储失败:', error);
+      return false;
+    }
+  }
+};
+```
+
+### 2. 时间格式化工具
+```javascript
+// utils/date.js
+const formatRelativeTime = (dateString) => {
+  const now = new Date();
+  const date = new Date(dateString);
+  const diff = now - date;
+  
+  const minute = 60 * 1000;
+  const hour = minute * 60;
+  const day = hour * 24;
+  const week = day * 7;
+  const month = day * 30;
+  const year = day * 365;
+  
+  if (diff < minute) {
+    return '刚刚';
+  } else if (diff < hour) {
+    return `${Math.floor(diff / minute)}分钟前`;
+  } else if (diff < day) {
+    return `${Math.floor(diff / hour)}小时前`;
+  } else if (diff < week) {
+    return `${Math.floor(diff / day)}天前`;
+  } else if (diff < month) {
+    return `${Math.floor(diff / week)}周前`;
+  } else if (diff < year) {
+    return `${Math.floor(diff / month)}个月前`;
+  } else {
+    return `${Math.floor(diff / year)}年前`;
+  }
+};
+```
+
+### 3. 数据验证工具
+```javascript
+// utils/validator.js
+const validator = {
+  // 验证手机号
+  isPhone(phone) {
+    const reg = /^1[3-9]\d{9}$/;
+    return reg.test(phone);
+  },
+  
+  // 验证邮箱
+  isEmail(email) {
+    const reg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return reg.test(email);
+  },
+  
+  // 验证非空
+  isNotEmpty(value) {
+    return value !== null && value !== undefined && value.toString().trim() !== '';
+  },
+  
+  // 验证长度范围
+  isLengthValid(value, min, max) {
+    const length = value ? value.toString().length : 0;
+    return length >= min && length <= max;
+  },
+  
+  // 验证URL
+  isUrl(url) {
+    const reg = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
+    return reg.test(url);
+  }
+};
+```
+
+## Behaviors 开发规范
+
+### 1. 基础 Behavior 结构
+```javascript
+// behaviors/baseBehavior.js
+const baseBehavior = Behavior({
+  data: {
+    loading: false,
+    error: null
+  },
+  
+  methods: {
+    // 显示加载状态
+    showLoading(text = '加载中...') {
+      this.setData({ loading: true });
+      wx.showLoading({ title: text, mask: true });
+    },
+    
+    // 隐藏加载状态
+    hideLoading() {
+      this.setData({ loading: false });
+      wx.hideLoading();
+    },
+    
+    // 显示成功提示
+    showSuccess(message, duration = 2000) {
+      wx.showToast({
+        title: message,
+        icon: 'success',
+        duration
+      });
+    },
+    
+    // 显示错误提示
+    showError(message, duration = 2000) {
+      wx.showToast({
+        title: message,
+        icon: 'none',
+        duration
+      });
+      this.setData({ error: message });
+    },
+    
+    // 安全的页面跳转
+    navigateTo(options) {
+      // 防止快速重复点击
+      const now = Date.now();
+      if (this._lastNavigateTime && now - this._lastNavigateTime < 500) {
+        return;
+      }
+      this._lastNavigateTime = now;
+      
+      wx.navigateTo(options);
+    }
+  }
+});
+```
+
+### 2. 认证 Behavior
+```javascript
+// behaviors/authBehavior.js
+const authBehavior = Behavior({
+  methods: {
+    // 检查登录状态
+    async _checkLogin(showLoginModal = false) {
+      const openid = storage.get('openid');
+      const userInfo = storage.get('userInfo');
+      
+      if (!openid || !userInfo) {
+        if (showLoginModal) {
+          this._showLoginModal();
+        }
+        return false;
+      }
+      
+      return true;
+    },
+    
+    // 显示登录弹窗
+    _showLoginModal() {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再进行此操作',
+        showCancel: true,
+        cancelText: '取消',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/login/login'
+            });
+          }
+        }
+      });
+    },
+    
+    // 登出
+    async logout() {
+      storage.remove('openid');
+      storage.remove('userInfo');
+      storage.remove('token');
+      
+      wx.showToast({
+        title: '已退出登录',
+        icon: 'success'
+      });
+      
+      // 跳转到登录页
+      wx.reLaunch({
+        url: '/pages/login/login'
+      });
+    }
+  }
+});
+```
+
+## 错误处理规范
+
+### 1. 统一错误处理
+```javascript
+// utils/errorHandler.js
+const errorHandler = {
+  // 处理 API 错误
+  handleApiError(error, showToast = true) {
+    let message = '操作失败，请重试';
+    
+    if (error.code) {
+      switch (error.code) {
+        case 401:
+          message = '登录已过期，请重新登录';
+          // 跳转到登录页
+          wx.reLaunch({ url: '/pages/login/login' });
+          break;
+        case 403:
+          message = '权限不足';
+          break;
+        case 404:
+          message = '资源不存在';
+          break;
+        case 500:
+          message = '服务器错误，请稍后重试';
+          break;
+        default:
+          message = error.message || message;
+      }
+    }
+    
+    if (showToast) {
+      wx.showToast({
+        title: message,
+        icon: 'none',
+        duration: 2000
+      });
+    }
+    
+    // 上报错误
+    this.reportError(error);
+    
+    return message;
+  },
+  
+  // 上报错误
+  reportError(error) {
+    // 开发环境打印错误
+    if (process.env.NODE_ENV === 'development') {
+      console.error('错误详情:', error);
+    }
+    
+    // 生产环境上报错误
+    if (process.env.NODE_ENV === 'production') {
+      // 这里可以接入错误监控服务
+      console.log('上报错误:', error);
+    }
+  }
+};
+```
+
+### 2. 防抖和节流工具
+```javascript
+// utils/throttle.js
+// 防抖函数
+const debounce = (func, wait, immediate = false) => {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      timeout = null;
+      if (!immediate) func.apply(this, args);
+    };
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(this, args);
+  };
+};
+
+// 节流函数
+const throttle = (func, limit) => {
+  let inThrottle;
+  return function executedFunction(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+};
+```
+
+## 数据处理规范
+
+### 1. JSON 字段解析
+```javascript
+// utils/dataProcessor.js
+const parseJsonField = (data, fieldName) => {
+  if (!data || !data[fieldName]) return null;
+  
+  try {
+    if (typeof data[fieldName] === 'string') {
+      return JSON.parse(data[fieldName]);
+    }
+    return data[fieldName];
+  } catch (error) {
+    console.warn(`解析 ${fieldName} 字段失败:`, error);
+    return null;
+  }
+};
+
+// 批量解析 JSON 字段
+const parseJsonFields = (data, fields) => {
+  const result = { ...data };
+  fields.forEach(field => {
+    result[field] = parseJsonField(data, field);
+  });
+  return result;
+};
+```
+
+### 2. 数据格式化
+```javascript
+// utils/formatter.js
+const formatter = {
+  // 格式化数字（千分位）
+  formatNumber(num) {
+    if (!num) return '0';
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  },
+  
+  // 格式化文件大小
+  formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  },
+  
+  // 截断文本
+  truncateText(text, maxLength, suffix = '...') {
+    if (!text || text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + suffix;
+  }
+};
+```
+
+## 云函数开发规范
+
+### 1. 云函数基础结构
+```javascript
+// cloudfunctions/functionName/index.js
+const cloud = require('wx-server-sdk');
+cloud.init();
+
+exports.main = async (event, context) => {
+  const { action, data } = event;
+  
+  try {
+    // 根据 action 分发处理逻辑
+    switch (action) {
+      case 'getData':
+        return await getData(data);
+      case 'updateData':
+        return await updateData(data);
+      default:
+        throw new Error('未知的操作类型');
+    }
+  } catch (error) {
+    console.error('云函数执行错误:', error);
+    return {
+      code: 500,
+      message: error.message,
+      data: null
+    };
+  }
+};
+
+async function getData(params) {
+  // 具体业务逻辑
+  return {
+    code: 200,
+    message: 'success',
+    data: {}
+  };
+}
+```
+
+### 2. 云函数调用封装
+```javascript
+// utils/cloudFunction.js
+const callCloudFunction = async (functionName, data) => {
+  try {
+    const res = await wx.cloud.callFunction({
+      name: functionName,
+      data
+    });
+    
+    if (res.result.code === 200) {
+      return res.result;
+    } else {
+      throw new Error(res.result.message);
+    }
+  } catch (error) {
+    console.error(`调用云函数 ${functionName} 失败:`, error);
+    throw error;
+  }
+};
+```
+
+## 最佳实践
+
+1. **错误处理**：所有异步操作都要有错误处理
+2. **参数校验**：工具函数要对输入参数进行校验
+3. **性能优化**：使用防抖节流避免频繁调用
+4. **缓存策略**：合理使用本地存储缓存数据
+5. **日志记录**：关键操作要有日志记录
+6. **兼容性**：考虑不同版本微信的兼容性

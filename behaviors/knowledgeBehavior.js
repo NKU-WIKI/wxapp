@@ -1,13 +1,18 @@
 /**
  * 知识库行为 - 整合knowledge路径的API交互
  */
-const { storage, createApiClient } = require('../utils/util');
+const { storage, createApiClient, msgSecCheck, ui } = require('../utils/index');
 
 // 创建知识库API客户端
 const knowledgeApi = createApiClient('/api/knowledge', {
-  search: { 
+  esSearch: { 
     method: 'GET', 
-    path: '/search', 
+    path: '/es-search', 
+    params: { query: true, openid: true }
+  },
+  advancedSearch: {
+    method: 'GET',
+    path: '/advanced-search',
     params: { query: true, openid: true }
   },
   searchWxapp: { 
@@ -36,6 +41,11 @@ const knowledgeApi = createApiClient('/api/knowledge', {
     params: { openid: true }
   },
   // 新增API
+  create: {
+    method: 'POST',
+    path: '',
+    params: { openid: true, title: true, content: true }
+  },
   detail: {
     method: 'GET',
     path: '/:id',
@@ -81,15 +91,13 @@ const knowledgeApi = createApiClient('/api/knowledge', {
 module.exports = Behavior({
   methods: {
     /**
-     * 综合搜索
-     * @param {string} query 搜索关键词
+     * Elasticsearch搜索 - 支持通配符的快速检索
+     * @param {string} query 搜索关键词，支持通配符 * 和 ?
      * @param {object} options 搜索选项
-     * @param {string} options.platform 平台标识，可选值：wechat/website/market/wxapp
-     * @param {string} options.tag 标签，多个用逗号分隔
-     * @param {number} options.max_results 单表最大结果数
-     * @param {number} options.page 分页页码
-     * @param {number} options.page_size 每页结果数
-     * @param {string} options.sort_by 排序方式：relevance-相关度，time-时间
+     * @param {string} options.source 数据源筛选，多个用逗号分隔，如：website_nku,wechat_nku,wxapp_post
+     * @param {number} options.page 分页页码，默认1
+     * @param {number} options.page_size 每页结果数，默认10
+     * @param {number} options.max_content_length 内容最大长度，默认300
      * @returns {Promise<object>} 搜索结果
      */
     async _search(query, options = {}) {
@@ -97,7 +105,6 @@ module.exports = Behavior({
         return null;
       }
       
-      const { get } = require('../utils/util');
       const openid = storage.get('openid');
       if (!openid) {
         console.debug('搜索需要用户登录');
@@ -112,17 +119,15 @@ module.exports = Behavior({
         };
         
         // 添加可选参数
-        if (options.platform) params.platform = options.platform;
-        if (options.tag) params.tag = options.tag;
-        if (options.max_results) params.max_results = options.max_results;
+        if (options.source) params.source = options.source;
         if (options.page) params.page = options.page;
         if (options.page_size) params.page_size = options.page_size;
-        if (options.sort_by) params.sort_by = options.sort_by;
+        if (options.max_content_length) params.max_content_length = options.max_content_length;
         
-        // 直接调用API接口
-        const res = await get('/api/knowledge/search', params);
+        // 调用ES搜索接口
+        const res = await knowledgeApi.esSearch(params);
         
-        console.debug('搜索API响应:', JSON.stringify(res));
+        console.debug('ES搜索API响应:', JSON.stringify(res));
         
         if (res.code !== 200) {
           throw new Error(res.message || '搜索失败');
@@ -139,7 +144,92 @@ module.exports = Behavior({
           }
         };
       } catch (err) {
-        console.debug('搜索API失败:', err);
+        console.debug('ES搜索API失败:', err);
+        return null;
+      }
+    },
+
+    /**
+     * 通配符搜索 - 便捷的ES搜索封装
+     * @param {string} query 搜索关键词，支持通配符
+     * @param {string} source 数据源，可选值：website_nku,wechat_nku,market_nku,wxapp_post,wxapp_comment
+     * @param {number} page 分页页码，默认1
+     * @param {number} pageSize 每页结果数，默认10
+     * @returns {Promise<object>} 搜索结果
+     */
+    async _wildcardSearch(query, source = '', page = 1, pageSize = 10) {
+      return await this._search(query, {
+        source,
+        page,
+        page_size: pageSize
+      });
+    },
+
+    /**
+     * 搜索官方内容（网站+微信公众号）
+     * @param {string} query 搜索关键词
+     * @param {number} page 分页页码，默认1
+     * @param {number} pageSize 每页结果数，默认10
+     * @returns {Promise<object>} 搜索结果
+     */
+    async _searchOfficial(query, page = 1, pageSize = 10) {
+      return await this._search(query, {
+        source: 'website_nku,wechat_nku',
+        page,
+        page_size: pageSize
+      });
+    },
+
+    /**
+     * 搜索用户内容（帖子+评论）
+     * @param {string} query 搜索关键词
+     * @param {number} page 分页页码，默认1
+     * @param {number} pageSize 每页结果数，默认10
+     * @returns {Promise<object>} 搜索结果
+     */
+    async _searchUserContent(query, page = 1, pageSize = 10) {
+      return await this._search(query, {
+        source: 'wxapp_post,wxapp_comment',
+        page,
+        page_size: pageSize
+      });
+    },
+
+    /**
+     * 高级RAG搜索
+     * @param {string} query 搜索关键词
+     * @returns {Promise<object>} 搜索结果
+     */
+    async _advancedSearch(query) {
+      if (!query || !query.trim()) {
+        return null;
+      }
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('高级搜索需要用户登录');
+        ui.showToast('请先登录', { type: 'error' });
+        return null;
+      }
+      
+      try {
+        const res = await knowledgeApi.advancedSearch({
+          query: query.trim(),
+          openid
+        });
+        
+        console.debug('高级搜索API响应:', JSON.stringify(res));
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '搜索失败');
+        }
+
+        // 直接返回RAG管道的结果
+        return res.data;
+
+      } catch (err) {
+        console.debug('高级搜索API失败:', err);
+        ui.showToast(err.message || '搜索失败', { type: 'error' });
         return null;
       }
     },
@@ -449,41 +539,66 @@ module.exports = Behavior({
      * @returns {Promise<object>} 更新后的知识详情
      */
     async _updateKnowledge(id, data) {
-      if (!id) {
-        throw new Error('知识ID不能为空');
-      }
-      
-      if (!data || !data.title || !data.content) {
-        throw new Error('标题和内容不能为空');
-      }
-      
-      const openid = storage.get('openid');
-      if (!openid) {
-        console.debug('更新知识需要用户登录');
-        throw new Error('用户未登录');
-      }
-
-      try {
-        const params = {
-          id,
-          openid,
-          title: data.title,
-          content: data.content
-        };
-        
-        if (data.tags) params.tags = data.tags;
-        
-        const res = await knowledgeApi.update(params);
-        
-        if (res.code !== 200) {
-          throw new Error(res.message || '更新知识失败');
+      return new Promise(async (resolve, reject) => {
+        if (!id) {
+          reject(new Error('知识ID不能为空'));
+          return;
         }
         
-        return res.data;
-      } catch (err) {
-        console.error('更新知识失败:', err);
-        throw err;
-      }
+        if (!data || !data.title || !data.content) {
+          reject(new Error('标题和内容不能为空'));
+          return;
+        }
+        
+        const openid = storage.get('openid');
+        if (!openid) {
+          reject(new Error('用户未登录'));
+          return;
+        }
+
+        try {
+          ui.showToast('正在检查内容...');
+          
+          // 检查内容和标题
+          const contentCheck = msgSecCheck(data.content);
+          const titleCheck = msgSecCheck(data.title);
+          
+          const [contentResult, titleResult] = await Promise.all([contentCheck, titleCheck]);
+          
+          if (!contentResult.pass) {
+            ui.showToast(contentResult.reason, 'error', 3500);
+            reject(new Error(`内容${contentResult.reason}`));
+            return;
+          }
+          
+          if (!titleResult.pass) {
+            ui.showToast(titleResult.reason, 'error', 3500);
+            reject(new Error(`标题${titleResult.reason}`));
+            return;
+          }
+          
+          const params = {
+            id,
+            openid,
+            title: data.title,
+            content: data.content
+          };
+          
+          if (data.tags) params.tags = data.tags;
+          
+          const res = await knowledgeApi.update(params);
+          
+          if (res.code !== 200) {
+            reject(new Error(res.message || '更新知识失败'));
+            return;
+          }
+          
+          resolve(res.data);
+        } catch (err) {
+          console.error('更新知识失败:', err);
+          reject(err);
+        }
+      });
     },
 
     /**
@@ -605,6 +720,71 @@ module.exports = Behavior({
         console.debug('搜索用户失败:', err);
         return null;
       }
+    },
+
+    /**
+     * 创建知识
+     * @param {object} data 知识数据
+     * @param {string} data.title 标题
+     * @param {string} data.content 内容
+     * @param {string} [data.tags] 标签，多个用逗号分隔
+     * @returns {Promise<object>} 创建后的知识详情
+     */
+    _createKnowledge(data) {
+      return new Promise(async (resolve, reject) => {
+        if (!data || !data.title || !data.content) {
+          reject(new Error('标题和内容不能为空'));
+          return;
+        }
+        
+        const openid = storage.get('openid');
+        if (!openid) {
+          reject(new Error('用户未登录'));
+          return;
+        }
+
+        try {
+          ui.showToast('正在检查内容...');
+          
+          // 检查内容和标题
+          const contentCheck = msgSecCheck(data.content);
+          const titleCheck = msgSecCheck(data.title);
+          
+          const [contentResult, titleResult] = await Promise.all([contentCheck, titleCheck]);
+          
+          if (!contentResult.pass) {
+            ui.showToast(contentResult.reason, 'error', 3500);
+            reject(new Error(`内容${contentResult.reason}`));
+            return;
+          }
+          
+          if (!titleResult.pass) {
+            ui.showToast(titleResult.reason, 'error', 3500);
+            reject(new Error(`标题${titleResult.reason}`));
+            return;
+          }
+          
+          const params = {
+            openid,
+            title: data.title,
+            content: data.content
+          };
+          
+          if (data.tags) params.tags = data.tags;
+          
+          const res = await knowledgeApi.create(params);
+          
+          if (res.code !== 200) {
+            reject(new Error(res.message || '创建知识失败'));
+            return;
+          }
+          
+          resolve(res.data);
+        } catch (err) {
+          console.error('创建知识失败:', err);
+          reject(err);
+        }
+      });
     }
   }
 }); 

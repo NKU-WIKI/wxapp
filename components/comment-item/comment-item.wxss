@@ -212,6 +212,11 @@
   color: #ff6b6b;
 }
 
+.copy-button .action-icon {
+  width: 34rpx;
+  height: 34rpx;
+}
+
 .action-icon {
   width: 36rpx;
   height: 36rpx;

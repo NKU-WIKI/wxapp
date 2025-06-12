@@ -1,11 +1,8 @@
-const baseBehavior = require('../../behaviors/baseBehavior');
-const userBehavior = require('../../behaviors/userBehavior');
-const { storage } = require('../../utils/util');
-
-
+const behaviors = require('../../behaviors/index');
+const { storage } = require('../../utils/index');
 
 Component({
-  behaviors: [baseBehavior, userBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.userBehavior],
 
   properties: {
     user: {

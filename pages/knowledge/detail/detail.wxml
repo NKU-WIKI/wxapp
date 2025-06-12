@@ -47,7 +47,7 @@
           
           <!-- 原始链接 -->
           <view class="original-link-container">
-            <view class="original-link-btn" wx:if="{{knowledgeDetail.data.original_url}}" bindtap="openInBrowser">
+            <view class="original-link-btn" wx:if="{{knowledgeDetail.data.original_url || knowledgeDetail.data.url}}" bindtap="openInBrowser">
               <icon name="website" size="28" />
               <text>查看原文</text>
             </view>
@@ -104,7 +104,9 @@
         class="comment-list-container"
         resourceId="{{id}}"
         resourceType="knowledge"
-        style="margin-top:0;padding-top:16rpx;">
+        style="margin-top:0;padding-top:16rpx;"
+        bind:submitComment="onCommentSubmit"
+        disableSubmit="{{!commentEnabled}}">
       </comment-list>
     </block>
   </view>

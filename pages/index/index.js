@@ -53,7 +53,6 @@ Page({
     });
     
     try {
-      // 帖子加载完后再进行登录检查和通知检查
       this._checkLogin(false).then(isLoggedIn => {
         if (isLoggedIn) {
           // 用户已登录，获取最新用户信息并检查未读通知
@@ -88,6 +87,9 @@ Page({
       console.log('刷新帖子');
       const postList = this.selectComponent('#postList');
       if (postList) {
+        // 主动同步 isLoggedIn
+        const isLoggedIn = require('../../utils/index').storage.get('isLoggedIn');
+        postList.setData({ isLoggedIn });
         setTimeout(async () => {
           await postList.refresh();
         }, 200);

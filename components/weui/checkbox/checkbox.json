@@ -1,8 +1,0 @@
-{
-  "component": true,
-  "styleIsolation": "apply-shared",
-  "usingComponents": {
-    "mp-cell": "../cell/cell",
-    "mp-checkbox-group": "../checkbox-group/checkbox-group"
-  }
-}

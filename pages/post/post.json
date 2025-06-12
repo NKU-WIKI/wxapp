@@ -10,7 +10,6 @@
     "icon": "/components/icon/icon",
     "picker-field": "/components/picker-field/picker-field",
     "category-tab": "/components/category-tab/category-tab",
-    "input-field": "/components/input-field/input-field",
-    "mp-dialog": "/components/weui/dialog/dialog"
+    "input-field": "/components/input-field/input-field"
   }
 }

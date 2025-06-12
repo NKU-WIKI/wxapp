@@ -1,4 +1,7 @@
-const { storage, createApiClient } = require('../utils/util');
+/**
+ * 用户行为 - 处理用户信息、登录状态和权限
+ */
+const { storage, createApiClient } = require('../utils/index');
 
 // 使用createApiClient创建统一的用户API
 const userApi = createApiClient('/api/wxapp/user', {

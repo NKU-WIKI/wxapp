@@ -8,6 +8,7 @@
 	/>
 	
 	<search-bar
+		id="searchBar"
 		value="{{searchValue}}"
 		placeholder="@wiki探索校园知识"
 		focus="{{focus}}"
@@ -16,11 +17,36 @@
 		bindclear="clearSearch"
 		bindconfirm="search"
 		bindselect="onSearchSelect"
+		bindfocus="onSearchBarFocus"
+    	bindblur="onSearchBarBlur"
 		options="{{searchOptions}}"
 	/>
 
+	<!-- 新的搜索历史下拉框 -->
+	<view 
+		class="search-history-dropdown" 
+		style="top: {{dropdownTopPosition}}"
+		wx:if="{{focus && !searchValue && searchHistory.length > 0}}"
+	>
+		<view class="history-dropdown-list">
+			<view 
+			class="history-dropdown-item" 
+			wx:for="{{searchHistory}}" 
+			wx:key="index" 
+			bindtap="onHistoryItemTap" 
+			data-keyword="{{item}}">
+			<icon name="history" size="32" color="#cccccc" />
+			<text class="history-text">{{item}}</text>
+			</view>
+		</view>
+		<view class="history-dropdown-footer">
+			<view class="footer-btn" bindtap="hideHistoryDropdown">关闭历史</view>
+			<view class="footer-btn" bindtap="clearSearchHistory">清空历史</view>
+		</view>
+	</view>
+
 	<!-- 热门搜索和历史 -->
-	<block wx:if="{{!isSearching && !searchValue}}">
+	<block wx:if="{{!isSearching && !searchValue && !focus}}">
 		<!-- 搜索前缀说明 -->
 		<view class="search-prefix-guide">
 			<view class="section-title">搜索技巧</view>
@@ -75,31 +101,19 @@
 		</view>
 
 		<!-- 搜索历史 -->
-		<view class="search-history" wx:if="{{searchHistory.length > 0}}">
-			<view class="section-title">
-				<text>搜索历史</text>
-				<text class="clear-btn" bindtap="clearSearchHistory">清空</text>
-			</view>
-			<view class="history-list">
-				<view 
-					class="history-item" 
-					wx:for="{{searchHistory}}" 
-					wx:key="index"
-					bindtap="onHistoryItemTap"
-					data-keyword="{{item}}"
-				>{{item}}</view>
-			</view>
-		</view>
+		<!-- 此处旧的搜索历史已被移除 -->
 	</block>
 
 	<!-- 加载中 -->
-	<view class="loading" wx:if="{{isSearching && !hasSearched && !showRagResults}}">
-		<view class="loading-icon"></view>
-		<text>搜索中...</text>
-	</view>
+	<loading 
+		wx:if="{{isSearching && !showRagResults}}"
+		show="{{true}}"
+		text="搜索中..."
+		type="inline"
+	/>
 
 	<!-- 搜索结果 -->
-	<view class="search-results" wx:if="{{hasSearched && !showRagResults}}">
+	<view class="search-results" wx:if="{{hasSearched && !isSearching && !showRagResults}}">
 		<!-- 帖子列表 -->
 		<post-list 
 			wx:if="{{currentSearchType === 'post'}}"
@@ -146,7 +160,7 @@
 						bindtap="handleRecommendedQuestion"
 						data-question="{{item}}"
 					>
-						<icon name="question" size="32" color="#6369e8" />
+						<icon name="about" size="32" color="#6369e8" />
 						<text>{{item}}</text>
 					</view>
 				</view>
@@ -173,7 +187,7 @@
 	</view>
 
 	<!-- RAG结果区域 -->
-	<view class="rag-results" wx:elif="{{showRagResults}}">
+	<view class="rag-results" wx:elif="{{showRagResults && !isSearching}}">
 		<view class="rag-answer-container">
 			<view class="rag-header">
 				<view class="rag-avatar">
@@ -182,23 +196,13 @@
 				<text class="rag-nickname">南开小知</text>
 			</view>
 			<view class="rag-content">
-				<!-- 判断是否在加载中 -->
-				<block wx:if="{{isSearching}}">
-					<view class="rag-loading">
-						<view class="rag-loading-text">
-							{{ragResults}}<text class="rag-loading-dots"></text>
-						</view>
-					</view>
-				</block>
-				<block wx:else>
-					<text-area 
-						value="{{ragResults}}" 
-						readOnly="{{true}}" 
-						markdownMode="{{true}}"
-						height="{{600}}"
-						showToolbar="{{false}}"
-					></text-area>
-				</block>
+				<text-area 
+					value="{{ragResults}}" 
+					readOnly="{{true}}" 
+					markdownMode="{{true}}"
+					height="{{600}}"
+					showToolbar="{{false}}"
+				></text-area>
 			</view>
 			
 			<!-- 信息来源 -->
@@ -221,7 +225,7 @@
 						bindtap="handleRecommendedQuestion"
 						data-question="{{item}}"
 					>
-						<icon name="question" size="32" color="#6369e8" />
+						<icon name="about" size="32" color="#6369e8" />
 						<text>{{item}}</text>
 					</view>
 				</view>
@@ -229,21 +233,35 @@
 		</view>
 	</view>
 
+	<!-- RAG加载状态 -->
+	<view class="rag-loading-container" wx:elif="{{showRagResults && isSearching}}">
+		<view class="rag-answer-container">
+			<view class="rag-header">
+				<view class="rag-avatar">
+					<icon name="wiki" size="64" />
+				</view>
+				<text class="rag-nickname">南开小知</text>
+			</view>
+			<view class="rag-content">
+				<view class="rag-loading">
+					<loading 
+						show="{{true}}"
+						text="{{ragResults}}"
+						type="dots"
+						size="small"
+					/>
+				</view>
+			</view>
+		</view>
+	</view>
+
 	<!-- 输入了关键词但尚未搜索 -->
 	<view class="search-tips" wx:if="{{!isSearching && searchValue && !hasSearched && !showRagResults}}">
-		<icon name="search" size="64" color="#cccccc" />
-		<text>输入关键词后，按回车键开始搜索</text>
 		<view class="search-tips-prefixes">
 			<text>输入<text class="prefix">@wiki</text>进行智能问答</text>
 			<text>输入<text class="prefix">@user</text>搜索用户</text>
 			<text>输入<text class="prefix">@post</text>搜索帖子</text>
 			<text>输入<text class="prefix">@knowledge</text>搜索知识库</text>
-		</view>
-		
-		<!-- 添加搜索按钮提示 -->
-		<view class="search-button" bindtap="search" data-value="{{searchValue}}">
-			<icon name="search" size="32" color="#3366cc" />
-			<text>输入内容后点击搜索</text>
 		</view>
 	</view>
 </view>

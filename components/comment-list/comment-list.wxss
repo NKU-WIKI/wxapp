@@ -418,11 +418,18 @@
 
 .comment-input-container {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 24px;
-  padding: 8px 16px;
+  background-color: #f8f8f8;
+  border-radius: 36rpx;
+  padding: 0 20rpx;
   position: relative;
+}
+
+/* 禁用状态样式 */
+.comment-input-container.disabled {
+  opacity: 0.8;
+  background-color: #f0f0f0;
 }
 
 .comment-input {

@@ -1,7 +1,7 @@
 /**
- * 帖子行为 - 统一帖子API交互逻辑
+ * 帖子行为 - 处理帖子数据的获取、发布、编辑、点赞等操作
  */
-const { createApiClient } = require('../utils/util');
+const { createApiClient, msgSecCheck, ui, storage } = require('../utils/index');
 
 // 创建帖子API客户端
 const postApi = createApiClient('/api/wxapp/post', {
@@ -152,69 +152,50 @@ module.exports = Behavior({
      * @param {object} postData 帖子数据
      * @returns {Promise<Object>} API响应
      */
-    async _createPost(postData) {
-      if (!postData || !postData.content) {
-        throw new Error('帖子内容不能为空');
-      }
-      
-      // 如果不是Markdown模式（通过判断标题是否为空字符串而不是null或undefined）
-      if (postData.title !== '' && !postData.title) {
-        throw new Error('帖子标题不能为空');
-      }
-      
-      try {
-        // 准备API所需参数
-        const apiParams = { 
-          title: postData.title,
-          content: postData.content 
-        };
-        
-        // 处理分类ID，确保是数字类型
-        if (postData.category_id !== undefined) {
-          // 转换为数字
-          apiParams.category_id = parseInt(postData.category_id) || 1;
-        } else {
-          // 默认分类ID
-          apiParams.category_id = 1;
+    _createPost(data) {
+      return new Promise((resolve, reject) => {
+        if (!data || (!data.content && !data.title)) {
+          reject(new Error('内容不能为空'));
+          return;
         }
+
+        // 不在这里显示toast，让组件来负责显示
         
-        // 处理标签
-        if (postData.tag) {
-          if (typeof postData.tag === 'string') {
-            apiParams.tag = postData.tag;
-          } else if (Array.isArray(postData.tag)) {
-            apiParams.tag = JSON.stringify(postData.tag);
-          }
-          console.debug('处理标签字段', { 原始值: postData.tag, 处理后值: apiParams.tag });
-        }
+        // 检查内容和标题
+        // const contentCheck = data.content ? msgSecCheck(data.content) : Promise.resolve({pass: true});
+        // const titleCheck = data.title ? msgSecCheck(data.title) : Promise.resolve({pass: true});
         
-        // 处理图片，使用正确的字段名image
-        if (postData.images) {
-          if (typeof postData.images === 'string') {
-            apiParams.image = postData.images;
-          } else if (Array.isArray(postData.images)) {
-            apiParams.image = JSON.stringify(postData.images);
-          }
-          console.debug('处理图片字段', { 原始值: postData.images, 处理后值: apiParams.image });
-        }
-        
-        // 处理其他字段
-        if (postData.is_public !== undefined) apiParams.is_public = postData.is_public;
-        if (postData.allow_comment !== undefined) apiParams.allow_comment = postData.allow_comment;
-        if (postData.location) apiParams.location = JSON.stringify(postData.location);
-        if (postData.nickname) apiParams.nickname = postData.nickname;
-        if (postData.avatar) apiParams.avatar = postData.avatar;
-        if (postData.wiki_knowledge !== undefined) apiParams.wiki_knowledge = postData.wiki_knowledge;
-        if (postData.style) apiParams.style = postData.style;
-        
-        const res = await postApi.create(apiParams);
-        if (res.code !== 200) {
-          throw new Error(res.message || '创建帖子失败');
-        }
-        return res;
-      } catch (err) {
-        throw err;
-      }
+        const contentCheck = Promise.resolve({pass: true});
+        const titleCheck = Promise.resolve({pass: true});
+        Promise.all([contentCheck, titleCheck])
+          .then(([contentResult, titleResult]) => {
+            if (!contentResult.pass) {
+              // 直接使用带前缀的reason
+              reject(new Error(contentResult.reason));
+              return;
+            }
+            
+            if (!titleResult.pass) {
+              // 使用baseReason，添加"标题"前缀
+              const titleError = titleResult.reason ? 
+                `标题${titleResult.reason}` : 
+                titleResult.reason.replace(/^内容/, '标题');
+              reject(new Error(titleError));
+              return;
+            }
+            
+            // 内容安全，创建帖子
+            data.openid = storage.get('openid'); // 确保有openid参数
+            postApi.create(data).then(res => {
+              resolve(res);
+            }).catch(err => {
+              reject(err);
+            });
+          })
+          .catch(err => {
+            reject(err);
+          });
+      });
     },
     
     /**
@@ -223,46 +204,57 @@ module.exports = Behavior({
      * @param {object} postData 更新的帖子数据
      * @returns {Promise<Object>} API响应
      */
-    async _updatePost(postId, postData) {
-      if (!postId) {
-        throw new Error('未指定帖子ID');
-      }
-      
-      try {
-        // 准备API参数
-        const apiParams = { post_id: postId };
-        
-        // 处理可更新字段
-        if (postData.title !== undefined) apiParams.title = postData.title;
-        if (postData.content !== undefined) apiParams.content = postData.content;
-        if (postData.category_id !== undefined) apiParams.category_id = postData.category_id;
-        
-        // 处理图片
-        if (postData.image !== undefined) {
-          if (typeof postData.image === 'string') {
-            apiParams.image = postData.image;
-          } else if (Array.isArray(postData.image)) {
-            apiParams.image = JSON.stringify(postData.image);
-          }
+    _updatePost(postId, data) {
+      return new Promise((resolve, reject) => {
+        if (!postId) {
+          reject(new Error('缺少帖子ID'));
+          return;
         }
         
-        // 处理标签
-        if (postData.tag !== undefined) {
-          if (typeof postData.tag === 'string') {
-            apiParams.tag = postData.tag;
-          } else if (Array.isArray(postData.tag)) {
-            apiParams.tag = JSON.stringify(postData.tag);
-          }
+        if (!data || Object.keys(data).length === 0) {
+          reject(new Error('更新数据不能为空'));
+          return;
         }
+
+        // 不在这里显示toast，让组件来负责显示
         
-        const res = await postApi.update(apiParams);
-        if (res.code !== 200) {
-          throw new Error(res.message || '更新帖子失败');
-        }
-        return res;
-      } catch (err) {
-        throw err;
-      }
+        // 只检查更新的内容
+        const contentCheck = data.content ? msgSecCheck(data.content) : Promise.resolve({pass: true});
+        const titleCheck = data.title ? msgSecCheck(data.title) : Promise.resolve({pass: true});
+        
+        Promise.all([contentCheck, titleCheck])
+          .then(([contentResult, titleResult]) => {
+            if (!contentResult.pass) {
+              // 直接使用带前缀的reason
+              reject(new Error(contentResult.reason));
+              return;
+            }
+            
+            if (!titleResult.pass) {
+              // 使用baseReason，添加"标题"前缀
+              const titleError = titleResult.reason ? 
+                `标题${titleResult.reason}` : 
+                titleResult.reason.replace(/^内容/, '标题');
+              reject(new Error(titleError));
+              return;
+            }
+            
+            // 内容安全，更新帖子
+            const params = {
+              post_id: postId,
+              openid: storage.get('openid'),
+              ...data
+            };
+            postApi.update(params).then(res => {
+              resolve(res);
+            }).catch(err => {
+              reject(err);
+            });
+          })
+          .catch(err => {
+            reject(err);
+          });
+      });
     },
     
     /**

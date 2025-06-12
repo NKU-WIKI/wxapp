@@ -1,0 +1,437 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# nkuwiki 微信小程序组件使用说明
+
+本文档介绍了 nkuwiki 项目中可复用组件的使用方法和最佳实践。
+
+## 核心组件分类
+
+### 1. 布局组件
+- **nav-bar**: 自定义导航栏
+- **tab-bar**: 标签栏
+- **floating-button**: 悬浮按钮
+
+### 2. 表单组件  
+- **search-bar**: 智能搜索框
+- **text-area**: 富文本编辑器
+- **input-field**: 输入框
+- **picker-field**: 选择器
+- **image-uploader**: 图片上传
+
+### 3. 数据展示组件
+- **post-list**: 帖子列表
+- **post-item**: 帖子项
+- **user-list**: 用户列表
+- **user-card**: 用户卡片
+- **comment-list**: 评论列表
+- **comment-item**: 评论项
+- **source-list**: 来源列表
+
+### 4. 反馈组件
+- **loading**: 加载状态
+- **cell-status**: 单元格状态
+
+### 5. 通用组件
+- **icon**: 图标
+- **card**: 卡片
+- **menu-list**: 菜单列表
+
+## 常用组件详细用法
+
+### nav-bar 导航栏
+
+**基础用法**:
+```xml
+<nav-bar 
+  title="页面标题"
+  showBack="{{true}}"
+  showAvatar="{{false}}"
+  showNotification="{{true}}"
+/>
+```
+
+**属性说明**:
+- `title`: 导航栏标题
+- `showBack`: 是否显示返回按钮
+- `showHome`: 是否显示首页按钮  
+- `showAvatar`: 是否显示头像按钮
+- `showNotification`: 是否显示通知按钮
+- `textColor`: 文字颜色，默认 `#000000`
+- `bgColor`: 背景颜色，默认 `#ffffff`
+
+**使用场景**: 所有需要自定义导航栏的页面
+
+### search-bar 智能搜索框
+
+**基础用法**:
+```xml
+<search-bar
+  value="{{searchValue}}"
+  placeholder="搜索校园知识"
+  focus="{{false}}"
+  show-action="{{true}}"
+  action-text="搜索"
+  bindinput="onSearchInput"
+  bindclear="clearSearch"
+  bindconfirm="search"
+  bindaction="search"
+/>
+```
+
+**支持搜索前缀**:
+```xml
+<search-bar
+  value="{{searchValue}}"
+  placeholder="@wiki探索校园知识"
+  options="{{searchOptions}}"
+  bindselect="onSearchSelect"
+/>
+
+<!-- searchOptions 示例 -->
+<!-- 
+[
+  { text: '南开小知', value: '@wiki', type: 'wiki', icon: 'robot' },
+  { text: '帖子', value: '@post', type: 'post', icon: 'book' },
+  { text: '用户', value: '@user', type: 'user', icon: 'profile' },
+  { text: '知识库', value: '@knowledge', type: 'knowledge', icon: 'life' }
+]
+-->
+```
+
+**属性说明**:
+- `value`: 搜索框的值
+- `placeholder`: 占位符文本
+- `focus`: 是否获得焦点
+- `showAction`: 是否显示操作按钮
+- `actionText`: 操作按钮文本
+- `options`: 搜索选项配置
+
+### post-item 帖子项
+
+**基础用法**:
+```xml
+<post-item 
+  post="{{item}}" 
+  showAction="{{true}}"
+  showComment="{{true}}"
+  bind:postDeleted="onPostDeleted"
+/>
+```
+
+**详情页用法**:
+```xml
+<post-item 
+  post="{{postDetail.data}}" 
+  detailPage="{{true}}"
+  showAction="{{true}}"
+  role="{{role}}"
+/>
+```
+
+**属性说明**:
+- `post`: 帖子数据对象
+- `showAction`: 是否显示操作按钮
+- `showComment`: 是否显示评论
+- `showFollow`: 是否显示关注按钮
+- `detailPage`: 是否为详情页模式
+- `role`: 用户角色
+
+**事件**:
+- `postDeleted`: 帖子删除事件
+
+### post-list 帖子列表
+
+**基础用法**:
+```xml
+<post-list 
+  id="postList"
+  filter="{{filter}}"
+/>
+```
+
+**自定义模式**:
+```xml
+<post-list 
+  post="{{searchResults}}"
+  auto_load="{{false}}"
+  loading="{{loading}}"
+  has-more="{{pagination.has_more}}"
+  bind:loadmore="loadMore"
+  emptyText="没有找到相关帖子"
+/>
+```
+
+**属性说明**:
+- `filter`: 过滤条件
+- `post`: 帖子数据数组
+- `auto_load`: 是否自动加载
+- `loading`: 加载状态
+- `has-more`: 是否有更多数据
+- `emptyText`: 空状态文本
+
+### user-card 用户卡片
+
+**基础用法**:
+```xml
+<user-card
+  userInfo="{{userInfo}}"
+  stats="{{stats}}"
+  isCurrentUser="{{true}}"
+  loading="{{loading}}"
+  bind:refresh="onRefresh"
+/>
+```
+
+**属性说明**:
+- `userInfo`: 用户信息对象
+- `stats`: 用户统计数据
+- `isCurrentUser`: 是否为当前用户
+- `loading`: 加载状态
+
+### icon 图标组件
+
+**基础用法**:
+```xml
+<icon name="like" size="32" color="#999" />
+<icon name="comment" size="32" color="#999" />
+<icon name="share" size="32" color="#999" />
+```
+
+**可用图标**:
+```
+// 操作图标
+like, like-active, comment, favorite, share, close, delete, add, 
+loading, copy, clear, refresh, image, eye, book
+
+// 状态图标  
+success, error, empty
+
+// 导航图标
+home, home-active, discover, discover-active, profile, profile-active,
+search, notification, setting, back, arrow-right
+
+// 内容图标
+study, lost, life, job, club, market, website, robot, about, wiki
+
+// 用户相关
+profile, avatar1, avatar2
+
+// 其他
+history, star, logout, footprint, coins, token, message
+```
+
+**注意事项**:
+- 使用前确认图标在iconMap中存在
+- 不要使用不存在的图标名称如`question`，应使用`about`
+- 图标大小建议使用32rpx、48rpx、64rpx等规范尺寸
+
+### loading 加载组件
+
+**基础用法**:
+```xml
+<loading 
+  show="{{true}}"
+  text="加载中..."
+  type="inline"
+/>
+```
+
+**类型和样式**:
+```xml
+<!-- 内联加载 -->
+<loading type="inline" text="搜索中..." />
+
+<!-- 点状加载 -->
+<loading type="dots" size="small" text="思考中..." />
+
+<!-- 全屏加载 -->
+<loading type="fullscreen" mask="{{true}}" text="处理中..." />
+```
+
+### text-area 富文本编辑器
+
+**基础用法**:
+```xml
+<text-area 
+  value="{{content}}" 
+  readOnly="{{false}}" 
+  markdownMode="{{true}}"
+  showToolbar="{{true}}"
+  bindinput="onContentInput"
+/>
+```
+
+**只读模式**:
+```xml
+<text-area 
+  value="{{ragResults}}" 
+  readOnly="{{true}}" 
+  markdownMode="{{true}}"
+  height="{{600}}"
+  showToolbar="{{false}}"
+/>
+```
+
+## 页面组件使用模式
+
+### 首页模式
+```json
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar",
+    "search-bar": "/components/search-bar/search-bar", 
+    "post-list": "/components/post-list/post-list",
+    "category-tab": "/components/category-tab/category-tab",
+    "floating-button": "/components/floating-button/floating-button"
+  }
+}
+```
+
+### 详情页模式
+```json
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar",
+    "post-item": "/components/post-item/post-item",
+    "comment-list": "/components/comment-list/comment-list"
+  }
+}
+```
+
+### 个人中心模式
+```json
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar",
+    "user-card": "/components/user-card/user-card",
+    "menu-list": "/components/menu-list/menu-list"
+  }
+}
+```
+
+### 搜索页模式
+```json
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar",
+    "search-bar": "/components/search-bar/search-bar",
+    "post-list": "/components/post-list/post-list",
+    "user-list": "/components/user-list/user-list",
+    "source-list": "/components/source-list/source-list",
+    "text-area": "/components/text-area/text-area",
+    "loading": "/components/loading/loading",
+    "icon": "/components/icon/icon"
+  }
+}
+```
+
+## 最佳实践
+
+### 1. 组件引用原则
+- 只引入页面实际使用的组件
+- 核心组件(nav-bar, icon)几乎每个页面都需要
+- 根据页面功能选择合适的数据展示组件
+- **重要**: 使用组件前必须在页面json文件中引入
+
+**组件引入示例**:
+```json
+{
+  "usingComponents": {
+    "loading": "/components/loading/loading",
+    "icon": "/components/icon/icon"
+  }
+}
+```
+
+### 2. 避免使用不存在的组件
+- 使用loading组件而不是自定义loading样式
+- 使用现有的icon而不是创建新图标
+- 优先复用项目已有组件，避免重复造轮子
+
+### 3. 高复用组件
+- **nav-bar**: 100%复用，所有页面必备
+- **icon**: 95%复用，图标统一管理
+- **post-list/post-item**: 90%复用，内容展示核心
+- **loading**: 85%复用，用户反馈必备
+- **search-bar**: 50%复用，搜索功能页面
+
+### 4. 数据绑定规范
+```xml
+<!-- 正确的数据绑定 -->
+<post-item 
+  post="{{item}}" 
+  bind:postDeleted="onPostDeleted"
+  data-index="{{index}}"
+/>
+
+<!-- 事件处理 -->
+onPostDeleted(e) {
+  const { index } = e.currentTarget.dataset;
+  // 处理删除逻辑
+}
+```
+
+### 5. 样式定制
+```xml
+<!-- 使用自定义样式类 -->
+<user-card 
+  userInfo="{{userInfo}}"
+  custom-class="my-user-card"
+/>
+```
+
+```css
+/* 页面样式中定制 */
+.my-user-card {
+  margin: 20rpx 0;
+  border-radius: 16rpx;
+}
+```
+
+### 6. 组件通信
+```javascript
+// 父向子传递数据
+this.setData({ 
+  postData: newData 
+});
+
+// 子向父发送事件
+this.triggerEvent('customEvent', { 
+  data: eventData 
+});
+
+// 父组件监听
+onCustomEvent(e) {
+  const { data } = e.detail;
+  // 处理事件
+}
+```
+
+## 性能优化建议
+
+### 1. 懒加载
+```xml
+<!-- 使用条件渲染优化性能 -->
+<post-list wx:if="{{shouldShowList}}" />
+```
+
+### 2. 数据优化
+```javascript
+// 使用纯数据模式
+options: {
+  pureDataPattern: /^_/
+},
+
+data: {
+  _cacheData: {},     // 不触发渲染
+  renderData: {}      // 参与渲染
+}
+```
+
+### 3. 组件复用
+- 同类型页面复用相同的组件配置
+- 通过属性控制组件行为，避免重复开发
+- 合理使用behaviors共享逻辑

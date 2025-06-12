@@ -1,7 +1,8 @@
 {
   "pages": [
-    "pages/login/login",
     "pages/index/index",
+    "pages/login/login",
+    "pages/login/privacy/privacy",
     "pages/notification/notification",
     "pages/post/post",
     "pages/post/detail/detail",
@@ -63,7 +64,7 @@
   "sitemapLocation": "sitemap.json",
   "usingComponents": {
     "icon": "./components/icon/icon"
-  },
+  },    
   "resolveAlias": {
     "/*": "/*"
   },

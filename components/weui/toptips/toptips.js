@@ -1,1 +1,57 @@
-var globalThis=this,self=this;module.exports=require("../_commons/0.js")([{ids:[22],modules:{9:function(t,e,s){t.exports=s(97)},97:function(t,e){var s={warn:"weui-toptips_warn",info:"weui-toptips_info",success:"weui-toptips_success",error:"weui-toptips_error"};Component({options:{},properties:{type:{type:String,value:"error",observer:"_typeChange"},show:{type:Boolean,value:!1,observer:"_showChange"},msg:{type:String,value:""},delay:{type:Number,value:2e3},extClass:{type:String,value:""},rootPortal:{type:Boolean,value:!1}},data:{wrapperShow:!1,innerShow:!1},lifetimes:{ready:function(){this._showChange(this.data.show)},attached:function(){this._typeChange(this.data.type)}},methods:{_typeChange:function(t){this.setData({className:s[t]||""})},_showChange:function(t){t?this._showToptips():this._hideToptips()},_showToptips:function(){var t=this;this.data.delay&&setTimeout((function(){t._hideToptips(),t.setData({show:!1},(function(){t.triggerEvent("hide",{},{})}))}),this.data.delay),this.setData({wrapperShow:!0,innerShow:!0})},_hideToptips:function(){var t=this;this.data.innerShow&&(this.setData({innerShow:!1}),setTimeout((function(){t.setData({wrapperShow:!1})}),300))}}})}},entries:[[9,0]]}]);
+Component({
+  options: {
+    addGlobalClass: true
+  },
+  properties: {
+    extClass: {
+      type: String,
+      value: ''
+    },
+    type: {
+      type: String,
+      value: 'error'
+    },
+    show: {
+      type: Boolean,
+      value: false,
+      observer: '_showChange'
+    },
+    msg: {
+      type: String,
+      value: ''
+    },
+    delay: {
+      type: Number,
+      value: 3000
+    }
+  },
+  data: {
+    timer: null
+  },
+  lifetimes: {
+    detached: function() {
+      this._clearTimer();
+    }
+  },
+  methods: {
+    _showChange(newValue) {
+      this._clearTimer();
+      if (newValue) {
+        const delay = this.data.delay;
+        if (delay && delay > 0) {
+          this.data.timer = setTimeout(() => {
+            this.setData({
+              show: false
+            });
+          }, delay);
+        }
+      }
+    },
+    _clearTimer() {
+      if (this.data.timer) {
+        clearTimeout(this.data.timer);
+        this.data.timer = null;
+      }
+    }
+  }
+}) 

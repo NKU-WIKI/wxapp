@@ -1,8 +1,7 @@
 /**
- * 通知行为
- * 提供通知检查和处理相关方法
+ * 消息通知行为 - 管理用户消息和通知
  */
-const { createApiClient, storage } = require('../utils/util');
+const { createApiClient, storage } = require('../utils/index');
 
 // 通知API客户端
 const notificationApi = createApiClient('/api/wxapp/notification', {

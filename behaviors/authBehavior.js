@@ -1,8 +1,8 @@
 /**
- * 用户授权行为
- * 提供用户授权相关方法
+ * 认证行为
+ * 提供登录和权限相关操作
  */
-const { createApiClient, storage, ui, nav } = require('../utils/util');
+const { ui, storage, createApiClient } = require('../utils/index');
 
 // 创建用户API客户端
 const userApi = createApiClient('/api/wxapp/user', {
@@ -44,7 +44,6 @@ module.exports = Behavior({
       } catch (err) {
       }
     },
-
     /**
      * 同步用户信息 (验证登录状态) - 内部核心方法
      */
@@ -69,49 +68,36 @@ module.exports = Behavior({
         throw err;
       }
     },
-
     /**
      * 检查用户是否已登录 (核心检查方法，强制同步验证)
      * @param {Boolean} showInteraction - 是否显示提示和交互弹窗
      * @returns {Promise<Boolean>} 返回 Promise<true> 表示已登录, Promise<false> 表示未登录或验证失败
      */
     async _checkLogin(showInteraction = true) {
-      // 先检查本地存储的登录状态
       const isLoggedIn = storage.get('isLoggedIn');
-      const openid = storage.get('openid');
-      
-      // 如果已登录并且有openid，直接返回true
-      if (isLoggedIn && openid) {
+      // 如果已登录直接返回true
+      if (isLoggedIn) {
         return true;
       }
-      
-      // 如果未登录但有openid，尝试同步一次用户信息
-      if (openid && !isLoggedIn) {
-        try {
-          const res = await this._syncUserInfo();
-          if (res && res.code === 200) {
-            return true;
-          }
-        } catch (err) {
-        }
-      }
-      
       // 如果需要显示交互，则显示登录提示
       if (showInteraction) {
         try {
-          const res = await ui.showModal({
+          const res = await wx.showModal({
             content: '您尚未登录或登录已过期，是否前往登录页面？',
             confirmText: '去登录',
+            cancelText: '返回首页',
             showCancel: true
           });
+          console.log('showModal res:', res);
           if (res.confirm) {
-            this.navigateTo('/pages/login/login');
+            wx.navigateTo({ url: '/pages/login/login' });
+          } else if (res.cancel) {
+            wx.switchTab({ url: '/pages/index/index' });
           }
         } catch (modalErr) {
           throw modalErr;
         }
       }
-      
       return false;
     },
 
@@ -144,8 +130,8 @@ module.exports = Behavior({
         icon: 'none',
         duration: 2000
       });
-      storage.set('isLoggedIn', false);
-      this.switchTab('/pages/index/index');
+      storage.clear();
+      wx.reLaunch({ url: '/pages/index/index' });
     }
   }
 }); 

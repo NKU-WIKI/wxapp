@@ -1,6 +1,6 @@
 # nkuwiki微信小程序
 
-[![Version](https://img.shields.io/badge/version-0.0.5-blue.svg)](https://github.com/your-org/nkuwiki/releases)
+[![Version](https://img.shields.io/badge/version-0.0.6-blue.svg)](https://github.com/your-org/nkuwiki/releases)
 
 <img src="https://raw.githubusercontent.com/aokimi0/image-hosting-platform/main/img/20250404144927.png" width="200" />
 
@@ -71,7 +71,6 @@ services/app/
 │   ├── card/           # 卡片
 │   ├── category-tab/  # 分类标签页
 │   ├── cell-status/    # 单元格状态组件
-│   ├── comment-input/  # 评论输入框
 │   ├── comment-item/   # 评论项
 │   ├── comment-list/   # 评论列表
 │   ├── floating-button/ # 浮动按钮

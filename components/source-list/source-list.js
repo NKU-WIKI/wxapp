@@ -277,58 +277,63 @@ Component({
         wx.navigateTo({
           url: `/pages/post/detail/detail?id=${item.id}`
         });
-      } else if (item.original_url) {
-        // 检查是否是nkuwiki.com域名
-        const isNkuwikiDomain = item.original_url.includes('nkuwiki.com');
+      } else {
+        // 兼容不同的URL字段名：original_url 或 url
+        const itemUrl = item.original_url || item.url;
         
-        if (isNkuwikiDomain) {
-          // nkuwiki.com域名下的网站用webview打开
-          wx.navigateTo({
-            url: `/pages/webview/webview?url=${encodeURIComponent(item.original_url)}&title=${encodeURIComponent(item.title || '')}`
-          });
-        } else {
-          // 其他网站跳转到knowledge/detail页面
-          if (item.id) {
-            // 先获取父组件的数据
-            const pages = getCurrentPages();
-            const currentPage = pages[pages.length - 1];
-            
-            // 准备要传递的数据
-            let dataToPass = null;
-            // 如果当前页面是搜索页面，使用原始的搜索结果
-            if (currentPage && currentPage.route && currentPage.route.includes('search')) {
-              if (currentPage.data.showRagResults && currentPage.data.ragSources) {
-                // 如果是RAG搜索结果，直接传递当前项目
-                dataToPass = item;
-              } else {
-                // 否则使用普通搜索结果
-                dataToPass = { data: currentPage.data.searchResults };
-              }
-            } else {
-              dataToPass = item;
-            }
-            
-            // 将数据编码为URL参数
-            const encodedData = encodeURIComponent(JSON.stringify(dataToPass));
-            
+        if (itemUrl) {
+          // 检查是否是nkuwiki.com域名
+          const isNkuwikiDomain = itemUrl.includes('nkuwiki.com');
+          
+          if (isNkuwikiDomain) {
+            // nkuwiki.com域名下的网站用webview打开
             wx.navigateTo({
-              url: `/pages/knowledge/detail/detail?id=${item.id}&data=${encodedData}`
+              url: `/pages/webview/webview?url=${encodeURIComponent(itemUrl)}&title=${encodeURIComponent(item.title || '')}`
             });
           } else {
-            console.debug('无法跳转到知识详情页，ID缺失:', item);
-            wx.showToast({
-              title: '无法打开此内容',
-              icon: 'none'
-            });
+            // 其他网站跳转到knowledge/detail页面
+            if (item.id) {
+              // 先获取父组件的数据
+              const pages = getCurrentPages();
+              const currentPage = pages[pages.length - 1];
+              
+              // 准备要传递的数据
+              let dataToPass = null;
+              // 如果当前页面是搜索页面，使用原始的搜索结果
+              if (currentPage && currentPage.route && currentPage.route.includes('search')) {
+                if (currentPage.data.showRagResults && currentPage.data.ragSources) {
+                  // 如果是RAG搜索结果，直接传递当前项目
+                  dataToPass = item;
+                } else {
+                  // 否则使用普通搜索结果
+                  dataToPass = { data: currentPage.data.searchResults };
+                }
+              } else {
+                dataToPass = item;
+              }
+              
+              // 将数据编码为URL参数
+              const encodedData = encodeURIComponent(JSON.stringify(dataToPass));
+              
+              wx.navigateTo({
+                url: `/pages/knowledge/detail/detail?id=${item.id}&data=${encodedData}`
+              });
+            } else {
+              console.debug('无法跳转到知识详情页，ID缺失:', item);
+              wx.showToast({
+                title: '无法打开此内容',
+                icon: 'none'
+              });
+            }
           }
+        } else {
+          // 无法确定跳转方式的情况，记录日志
+          console.debug('无法确定项目跳转方式:', item);
+          wx.showToast({
+            title: '无法打开此内容',
+            icon: 'none'
+          });
         }
-      } else {
-        // 无法确定跳转方式的情况，记录日志
-        console.debug('无法确定项目跳转方式:', item);
-        wx.showToast({
-          title: '无法打开此内容',
-          icon: 'none'
-        });
       }
     },
     

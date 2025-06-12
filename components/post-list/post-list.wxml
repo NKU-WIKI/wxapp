@@ -22,6 +22,7 @@
         showFollow="{{true}}"
         index="{{index}}"
         isProcessing="{{false}}"
+        isLoggedIn="{{isLoggedIn}}"
         bind:delete="handlePostDelete"
       />
     </block>

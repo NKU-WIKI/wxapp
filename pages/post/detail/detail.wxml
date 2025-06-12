@@ -32,6 +32,7 @@
         detailPage="{{true}}"
         showAction="{{true}}"
         bind:postDeleted="onPostDeleted"
+        role="{{role}}"
         style="margin-bottom:0;border-bottom:none;">
       </post-item>
 
@@ -42,6 +43,7 @@
         resourceId="{{postId}}"
         resourceType="post"
         postId="{{postId}}"
+        role="{{role}}"
         style="margin-top:0;padding-top:0;">
       </comment-list>
     </block>
@@ -49,5 +51,4 @@
 </view>
 
 <!-- WEUI组件 -->
-<mp-toptips msg="{{toptips.msg}}" type="{{toptips.type}}" show="{{toptips.show}}"></mp-toptips>
 <mp-dialog title="{{dialog.title}}" show="{{dialog.show}}" buttons="{{dialog.buttons}}"></mp-dialog> 

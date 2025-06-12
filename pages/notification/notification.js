@@ -1,10 +1,5 @@
-const { ui, error, formatRelativeTime, storage } = require('../../utils/util');
-const baseBehavior = require('../../behaviors/baseBehavior');
-const authBehavior = require('../../behaviors/authBehavior');
-const userBehavior = require('../../behaviors/userBehavior'); 
-const notificationBehavior = require('../../behaviors/notificationBehavior');
-const postBehavior = require('../../behaviors/postBehavior');
-const commentBehavior = require('../../behaviors/commentBehavior');
+const { formatRelativeTime } = require('../../utils/index');
+const behavior = require('../../behaviors/index');
 
 // 通知类型配置
 const NotificationType = {
@@ -38,7 +33,14 @@ const NotificationConfig = {
 };
 
 Page({
-  behaviors: [baseBehavior, authBehavior, userBehavior, notificationBehavior, postBehavior, commentBehavior],
+  behaviors: [
+    behavior.baseBehavior, 
+    behavior.authBehavior, 
+    behavior.userBehavior, 
+    behavior.notificationBehavior, 
+    behavior.postBehavior, 
+    behavior.commentBehavior
+  ],
 
   data: {
     activeTab: 0,

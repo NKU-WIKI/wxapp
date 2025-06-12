@@ -1,5 +1,5 @@
 const behaviors = require('../../behaviors/index');
-const { storage, getAboutInfo, getOpenID } = require('../../utils/util');
+const { storage, getAboutInfo, getOpenID } = require('../../utils/index');
 // 常量配置
 const MENU_CONFIG = {
   SETTINGS: {
@@ -30,7 +30,7 @@ const MENU_CONFIG = {
         icon: true,
         iconName: 'logout',
         title: '退出登录',
-        path: '/pages/profile/logout/logout'
+        path: '/pages/profile/profile'
       }
     ]
   }
@@ -68,77 +68,63 @@ Page({
   },
 
   async onLoad(options) {
+    // 进入页面即弹窗判断登录
+    const res = await this._checkLogin();
+    if (!res) {
+      return;
+    }
     const targetOpenid = options.openid || options.id;
     const currentOpenid = storage.get('openid');
     const isFromExternalView = options.from === 'post' || options.from === 'card' || options.from === 'comment';
-    
     this.setData({ 
       openid: currentOpenid || '',
       isFromExternalView: isFromExternalView
     });
-
     console.debug('Profile页面加载，目标openid:', targetOpenid, '当前用户openid:', currentOpenid, '来源:', options.from);
-
     if (targetOpenid && targetOpenid !== currentOpenid) {
-      // 查看其他用户的个人资料
       await this.syncUserAndInitPage(targetOpenid);
     } else {
-      // 查看自己的个人资料
       await this.syncUserAndInitPage();
     }
   },
 
   async onShow() {
-    // 如果是从外部视图进入（如点击他人头像），则不通过temp_profile_openid改变当前页面
+    const res = await this._checkLogin();
+    if (!res) {
+      return;
+    }
+    console.log('profile onShow');
     if (this.data.isFromExternalView) {
       return;
     }
-    
-    // 检查是否有从其他页面传入的临时openid
     try {
       const tempOpenid = this.getStorage('temp_profile_openid');
       const currentOpenid = storage.get('openid');
-      
       if (tempOpenid && tempOpenid !== currentOpenid) {
         console.debug('检测到临时openid:', tempOpenid, '当前用户openid:', currentOpenid);
-        
-        // 清除临时openid，避免反复加载
         this.setStorage('temp_profile_openid', null);
-        
-        // 加载目标用户资料
         await this.syncUserAndInitPage(tempOpenid);
         return;
       }
-      
-      // 检查是否需要刷新个人资料
       const needRefresh = this.getStorage('needRefreshProfile');
       const profileUpdateTime = wx.getStorageSync('profileUpdateTime');
-      
-      // 每次从edit页面返回时强制刷新
       const pages = getCurrentPages();
       const previousPage = pages.length > 1 ? pages[pages.length - 2] : null;
       const fromEditPage = previousPage && previousPage.route && previousPage.route.includes('/profile/edit/');
-      
       if (needRefresh || profileUpdateTime || fromEditPage) {
         console.debug('检测到需要刷新个人资料, 来源:', 
           needRefresh ? 'needRefresh标记' : '', 
           profileUpdateTime ? 'profileUpdateTime标记' : '',
           fromEditPage ? '从编辑页面返回' : ''
         );
-        
-        // 清除刷新标志，避免重复刷新
         this.setStorage('needRefreshProfile', null);
         wx.removeStorageSync('profileUpdateTime');
-        
-        // 重新加载自己的资料
         await this.syncUserAndInitPage();
         return;
       }
     } catch (err) {
       console.debug('检查刷新状态失败:', err);
     }
-    
-    // 只检查通知状态，用户信息由user-card组件自行检查刷新
     this.checkUnreadNotifications();
   },
 
@@ -346,8 +332,25 @@ Page({
   },
 
   // 设置菜单点击
-  onSettingItemTap(e) {
+  onSettingItemTap: async function(e) {
     const { item } = e.detail;
+    if (item && item.id === 'logout') {
+      this.setData({
+        userInfo: null,
+        openid: '',
+        stats: { posts: 0, likes: 0, favorites: 0, comments: 0 },
+        loading: false,
+        error: false,
+        errorMsg: '',
+        refreshing: false,
+        settingItems: [],
+        hasUnreadNotification: false,
+        otherUserInfo: null,
+        isFromExternalView: false
+      });
+      this._logout();
+      return;
+    }
     this._routeMenuItem(item);
   },
   
@@ -380,5 +383,9 @@ Page({
     if (item.path) {
       this.navigateTo(item.path);
     }
+  },
+
+  onLoginCardTap() {
+    wx.navigateTo({ url: '/pages/login/login' });
   },
 });

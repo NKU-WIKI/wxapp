@@ -1,7 +1,7 @@
 /**
  * 评论行为 - 处理评论列表加载、发布、删除、回复等
  */
-const { storage, createApiClient } = require('../utils/util');
+const { storage, createApiClient, msgSecCheck, ui } = require('/utils/index');
 
 // 创建评论API客户端
 const commentApi = createApiClient('/api/wxapp/comment', {
@@ -92,52 +92,71 @@ module.exports = Behavior({
      * @param {object} [options.replyTo] - 回复对象信息，回复的回复时使用
      * @returns {Promise<object>} 创建的评论或API响应
      */
-    async _createComment(resourceId, content, options = {}) {
-      if (!resourceId) {
-        return { code: 400, message: '缺少资源ID' };
-      }
-      if (!content?.trim()) {
-        return { code: 400, message: '评论内容不能为空' };
-      }
-      
-      const { resourceType = 'post', parentId = null, replyTo = null } = options;
-      
-      const openid = storage.get('openid');
-      if (!openid) {
-        return { code: 401, message: '用户未登录' };
-      }
-
-      try {
-        const params = { 
-          resource_id: resourceId,
-          resource_type: resourceType,
-          content: content.trim(), 
-          parent_id: parentId, 
-          openid 
-        };
+    _createComment(data) {
+      return new Promise((resolve, reject) => {
+        console.log('提交评论参数:', data);
         
-        // 兼容旧版本API，如果是post类型，同时设置post_id参数
-        if (resourceType === 'post') {
-          params.post_id = Number(resourceId);
+        // 检查参数格式
+        if (!data) {
+          reject(new Error('评论参数不能为空'));
+          return;
         }
         
-        // 如果是回复的回复，添加回复对象信息
-        if (replyTo) {
-          params.reply_to = JSON.stringify(replyTo);
+        // 检查内容是否存在
+        if (!data.content || data.content.trim() === '') {
+          reject(new Error('评论内容不能为空'));
+          return;
         }
         
-        const res = await commentApi.create(params);
+        // 检查资源ID
+        if (!data.resourceId && !data.resource_id) {
+          reject(new Error('资源ID不能为空'));
+          return;
+        }
         
-        // 直接返回API响应
-        return res;
-      } catch (err) {
-        // 返回错误响应而不是null
-        return { 
-          code: 500, 
-          message: err.message || '评论创建失败', 
-          error: err 
+        // 构造API所需参数
+        const apiParams = {
+          resource_id: data.resource_id || data.resourceId,
+          resource_type: data.resource_type || data.resourceType || 'post',
+          content: data.content.trim(),
+          parent_id: data.parent_id || data.parentId
         };
-      }
+        
+        // 如果是post类型，同时设置post_id参数兼容旧API
+        if (apiParams.resource_type === 'post') {
+          apiParams.post_id = Number(apiParams.resource_id);
+        }
+        
+        // 如果有回复对象信息
+        if (data.reply_to || data.replyTo) {
+          apiParams.reply_to = typeof data.reply_to === 'string' ? 
+                              data.reply_to : 
+                              JSON.stringify(data.reply_to || data.replyTo);
+        }
+        
+        // 增强内容安全检查，使用场景2表示评论
+        msgSecCheck(data.content, 2) 
+          .then(result => {
+            if (!result.pass) {
+              // 使用提供的原因字段，如果没有则使用默认消息
+              const errorReason = result.reason || '内容含有违规信息，请修改后重试';
+              console.debug('内容安全检查未通过:', errorReason);
+              reject(new Error(errorReason));
+              return;
+            }
+            
+            // 内容安全，创建评论
+            apiParams.openid = storage.get('openid'); // 确保有openid参数
+            commentApi.create(apiParams).then(res => {
+              resolve(res);
+            }).catch(err => {
+              reject(err);
+            });
+          })
+          .catch(err => {
+            reject(err);
+          });
+      });
     },
 
     /**

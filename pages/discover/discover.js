@@ -1,8 +1,7 @@
-const { storage } = require('../../utils/util');
-const baseBehavior = require('../../behaviors/baseBehavior');
+const behavior = require('../../behaviors/index');
 
 Page({
-  behaviors: [baseBehavior],
+  behaviors: [behavior.baseBehavior],
   
   data: {
     recommendQuestions: [

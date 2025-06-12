@@ -58,7 +58,7 @@
     
     <!-- 回复区域 -->
     <view class="replies" wx:if="{{formattedComment.replies && formattedComment.replies.length > 0}}">
-      <view wx:for="{{formattedComment.replies}}" wx:key="id" class="reply-item">
+      <view wx:for="{{formattedComment.replies}}" wx:key="{{item.id}}" class="reply-item">
         <view class="reply-header">
           <!-- 回复者头像 -->
           <view class="reply-avatar-container" catchtap="onTapReplyUser" data-openid="{{item.openid}}">
@@ -115,7 +115,7 @@
             <view wx:if="{{item.parent_comment_count > 0 || item.sub_replies && item.sub_replies.length > 0}}" class="sub-replies">
               <!-- 子回复列表 -->
               <block wx:if="{{item.sub_replies && item.sub_replies.length > 0}}">
-                <view wx:for="{{item.sub_replies}}" wx:for-item="subReply" wx:key="id" class="sub-reply-item">
+                <view wx:for="{{item.sub_replies}}" wx:for-item="subReply" wx:key="{{subReply.id}}" class="sub-reply-item">
                   <view class="sub-reply-header">
                     <text class="sub-reply-author" catchtap="onTapReplyUser" data-openid="{{subReply.openid}}">{{subReply.nickname || '用户'}}</text>
                     <text wx:if="{{subReply.reply_to && subReply.reply_to.nickname}}" class="sub-reply-to">回复 <text class="sub-reply-to-user" catchtap="onTapReplyUser" data-openid="{{subReply.reply_to.openid}}">@{{subReply.reply_to.nickname}}</text>：</text>
@@ -137,7 +137,7 @@
             <text class="reply-action-text">回复</text>
           </view>
           
-          <view wx:if="{{item.openid === currentUserOpenid}}" class="reply-action-button delete-button" catchtap="onTapDeleteReply" data-id="{{item.id}}">
+          <view wx:if="{{isLoggedIn && (role === 'admin' || item.openid === currentUserOpenid)}}" class="reply-action-button delete-button" catchtap="onTapDeleteReply" data-id="{{item.id}}">
             <image class="reply-action-icon" src="/icons/clear.png" mode="aspectFit"></image>
             <text class="reply-action-text">删除</text>
           </view>
@@ -172,8 +172,16 @@
         <text class="action-count" wx:if="{{formattedComment.reply_count > 0}}">{{formattedComment.reply_count}}</text>
       </button>
       
+      <!-- 复制按钮 -->
+      <button class="action-button copy-button" 
+              hover-class="button-hover" 
+              size="mini" 
+              catchtap="onTapCopy">
+        <image class="action-icon" src="/icons/copy.png" mode="aspectFit"></image>
+      </button>
+      
       <!-- 删除按钮（仅评论作者可见） -->
-      <button wx:if="{{formattedComment.isOwner}}" 
+      <button wx:if="{{isLoggedIn && (role === 'admin' || formattedComment.isOwner)}}" 
               class="action-button delete-button"
               hover-class="button-hover" 
               size="mini" 

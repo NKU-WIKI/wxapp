@@ -1,0 +1,70 @@
+## 环境
+
+WSL ubuntu24.04
+这是一个微信小程序项目，运行在手机上，写样式时需要自适应设备屏幕参数。
+
+### 日志
+
+一般情况日志使用debug级别，不要使用info级别，只有最重要的信息采用info级别。
+
+## 代码规范
+
+代码简洁、高效，不要过长，不要加过多健壮性代码。
+绝大多数情况命名用小写单数。
+markdown代码遵循vscode的markdownlint规范。
+你应该熟悉微信小程序开发的特殊语法，微信云+私有云混合开发最佳实践，搜索互联网，现代微信小程序开发和页面美化最佳实践。
+命名默认小写，缩写用大写，类名首字母大写，驼峰命名用大写，如果下划线能清楚分割用小写。
+绝大多数情况用**单数**命名字段和路径等。
+
+## 项目简介
+
+nkuwiki校园知识共享平台
+
+## 前端
+
+项目结构
+pages/ 页面
+icons/ 图标
+behaviors/ 行为
+components/ 自定义组件
+    icon/
+    post-list/
+    text-area/
+    image-uploader/
+    source-list/
+    towxml/
+    weui/
+utils/ 通用工具函数
+    util.js
+app.json 配置
+app.js 入口
+api_docs.md api文档
+README.md 项目简介，开发指南
+sitemap.json 爬虫配置
+project.config.json 项目配置
+
+**你应该先了解项目中已经实现的方法或组件再写新代码，不要造轮子**
+最大程度复用utils/有的代码
+
+
+## 任务
+
+构建内容审核系统。
+
+
+banwords.js单纯存储敏感词库和模式
+text-censor.js中写检测方法，可以调用云函数msgSecCheck，可以根据banwords.js自动生成模式和组合，可以调用word-pinyin，text-censor等第三方库，
+
+不要在text-censor.js硬编码以及特殊处理，保证泛化能力
+
+
+
+
+
+
+
+
+
+
+
+

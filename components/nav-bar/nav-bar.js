@@ -1,6 +1,9 @@
-const { storage } = require("../../utils/util");
+const {startPolling} = require("../../utils/startPolling");
+const notificationBehavior = require('../../behaviors/notificationBehavior');
 
 Component({
+  behaviors: [notificationBehavior],
+
   options: {
     // 启用简化的样式隔离
     styleIsolation: 'isolated',
@@ -54,7 +57,7 @@ Component({
       type: Boolean,
       value: false,
       observer: function(newVal) {
-        this.updateQuickButtons();
+        this.pollingQuickButtons()
       }
     },
     showAvatar: {
@@ -188,7 +191,7 @@ Component({
     },
 
     // 根据快捷属性更新按钮
-    updateQuickButtons() {
+    async updateQuickButtons() {
       // 如果已经通过navButtons设置，则不处理
       if (this.properties.navButtons && this.properties.navButtons.length > 0) {
         return;
@@ -217,9 +220,13 @@ Component({
           show: true
         });
       }
+
+      // 添加通知按钮
       if(this.properties.showNotification){
         const notificationButton = {...this.data.defaultButtonConfig.notification, show: true};
         notificationButton.position = 'left';
+        const res = await this._checkUnreadNotification();
+        notificationButton.hasUnread = res.hasUnread;
         buttons.push(notificationButton);
       }
       // 添加头像按钮 (左侧)
@@ -237,10 +244,15 @@ Component({
       });
     },
 
+    async pollingQuickButtons(){
+      startPolling(this.updateQuickButtons, 5000, this);
+    },
+
     // 初始化导航按钮
     initNavButtons() {
       const navButtons = this.properties.navButtons || [];
       const buttons = [];
+
       const defaultButtons = {
         back: {
           type: 'back',
@@ -545,6 +557,6 @@ Component({
           }
           break;
       }
-    }
+    },
   }
-}) 
+})

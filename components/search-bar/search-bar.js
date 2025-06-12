@@ -65,6 +65,33 @@ Component({
     'value': function(value) {
       // 当外部value属性变化时，更新inputValue
       if (value !== this.data.inputValue) {
+        // 检查是否包含已知前缀
+        const prefixMatch = value && typeof value === 'string' ? value.match(/^@(wiki|user|post|knowledge)\s/) : null;
+        
+        if (prefixMatch) {
+          const prefixType = prefixMatch[1]; // 例如 "wiki"
+          const userInputPart = value.substring(prefixMatch[0].length); // 前缀后面的内容
+          
+          console.debug('外部设置前缀:', prefixType, '用户输入:', userInputPart);
+          
+          // 找到对应的选项
+          const option = this.data.selectorOptions.find(opt => opt.type === prefixType);
+          
+          if (option) {
+            // 设置高亮前缀
+            this.setData({
+              inputValue: value,
+              userInput: userInputPart,
+              hasSelected: true,
+              selectedType: prefixType,
+              showSelector: false,
+              atPosition: -1
+            });
+            return;
+          }
+        }
+        
+        // 如果没有前缀匹配，正常更新值
         this.setData({
           inputValue: value
         });
@@ -77,10 +104,48 @@ Component({
       const value = e.detail.value;
       let newValue = value;
       
+      // 检测退格键 - 通过比较前后值的长度变化判断是否在删除
+      const isDeleting = this.data.inputValue.length > value.length;
+      
+      // 如果已选择了一个前缀，并且用户正在删除内容
+      if (this.data.hasSelected && this.data.selectedType && isDeleting) {
+        // 获取当前完整前缀，例如 "@wiki "
+        const fullPrefix = `@${this.data.selectedType} `;
+        
+        // 判断用户是否试图删除前缀的一部分
+        // 1. 如果当前值不再以前缀开头
+        // 2. 如果当前值等于前缀（带空格或不带空格），说明用户删除了所有内容后想继续删除前缀
+        // 3. 如果当前值长度小于等于前缀长度，说明用户删到了前缀部分
+        if (!value.startsWith(fullPrefix) || 
+            value === fullPrefix || 
+            value === `@${this.data.selectedType}` ||
+            value.length <= fullPrefix.length) {
+          
+          // 用户尝试删除前缀，直接清空整个搜索框
+          console.debug('检测到前缀删除操作，重置搜索框');
+          this.setData({
+            inputValue: '',
+            userInput: '',
+            hasSelected: false,
+            selectedType: '',
+            showSelector: false,
+            atPosition: -1
+          });
+          
+          // 触发输入事件，通知外部值已更改为空
+          this.triggerEvent('input', { value: '' });
+          return;
+        }
+      }
+      
       // 已选择类型的情况下，需要保持前缀
       if (this.data.hasSelected && this.data.selectedType) {
-        // 在输入内容前添加前缀
-        newValue = `@${this.data.selectedType}${value}`;
+        // 检查用户是否删除了前缀（如果是普通输入模式，不应该发生这种情况）
+        if (!value.startsWith(`@${this.data.selectedType}`)) {
+          // 确保在输入内容前添加前缀和空格
+          newValue = `@${this.data.selectedType} ${value}`;
+          console.debug('保持前缀:', newValue);
+        }
       }
       
       this.setData({
@@ -89,11 +154,18 @@ Component({
       
       // 已经选择了选项的情况
       if (this.data.hasSelected) {
-        // 无需再次触发选项选择
+        // 记录前缀后的实际用户输入部分
+        const prefixLength = `@${this.data.selectedType} `.length;
+        const userInputPart = newValue.substring(prefixLength);
+        
+        // 更新用户输入部分
         this.setData({
+          userInput: userInputPart,
           showSelector: false,
           atPosition: -1
         });
+        
+        console.debug('用户输入更新:', userInputPart);
         this.triggerEvent('input', { value: newValue });
         return;
       }
@@ -191,6 +263,11 @@ Component({
     },
 
     onFocus(e) {
+      // 记录当前焦点状态，但不清除已选择的前缀
+      if (this.data.hasSelected && this.data.selectedType) {
+        console.debug('保持前缀高亮状态:', this.data.selectedType);
+      }
+      
       this.triggerEvent('focus', e.detail);
     },
 
@@ -213,9 +290,21 @@ Component({
       // 如果选择框显示且有选中选项，则选择该选项
       if (this.data.showSelector && this.data.selectedOption >= 0) {
         this.handleOptionSelected(this.data.selectedOption);
-      } else {
-        this.triggerEvent('confirm', { value: this.data.inputValue });
+        return;
       }
+      
+      // 检查是否只有前缀没有实际内容
+      if (this.data.hasSelected && this.data.selectedType) {
+        const value = this.data.inputValue || '';
+        // 仅有前缀时，不触发搜索
+        if (!this.data.userInput || this.data.userInput.trim() === '') {
+          console.debug('输入框确认时只有前缀，不触发搜索');
+          return;
+        }
+      }
+      
+      // 正常触发确认事件
+      this.triggerEvent('confirm', { value: this.data.inputValue });
     },
 
     onAction() {
@@ -252,6 +341,16 @@ Component({
         newValue = option.value || `@${option.type}`;
       }
       
+      // 提取实际用户输入部分
+      let userInputPart = '';
+      if (newValue.includes(' ')) {
+        // 如果有空格，取空格后面的内容作为用户输入部分
+        const parts = newValue.split(' ');
+        if (parts.length > 1) {
+          userInputPart = parts.slice(1).join(' ');
+        }
+      }
+      
       // 触发选择事件
       this.triggerEvent('select', {
         option,
@@ -264,12 +363,20 @@ Component({
       // 清空用户输入内容，只保留前缀
       this.setData({
         inputValue: newValue,
-        userInput: '', // 实际输入框中显示的内容
+        userInput: userInputPart, // 实际输入框中显示的内容
         showSelector: false,
         atPosition: -1,
         hasSelected: true,
         selectedType: option.type,
         focus: true
+      });
+      
+      console.debug('设置搜索框前缀高亮:', {
+        option: option,
+        newValue: newValue,
+        userInput: userInputPart,
+        hasSelected: true,
+        selectedType: option.type
       });
     },
 
@@ -278,7 +385,7 @@ Component({
       // 用户输入的内容（不含前缀）
       const value = e.detail.value || '';
       // 构建完整的带前缀的值
-      const prefixedValue = `@${this.data.selectedType}${value}`;
+      const prefixedValue = `@${this.data.selectedType} ${value}`;
       
       console.debug('输入带前缀的内容:', value, '完整值:', prefixedValue);
       
@@ -287,6 +394,7 @@ Component({
         userInput: value // 用户实际输入的部分
       });
       
+      // 触发输入事件，向外传递完整值
       this.triggerEvent('input', { value: prefixedValue });
     },
 
