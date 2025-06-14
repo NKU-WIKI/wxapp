@@ -292,11 +292,11 @@ Component({
             });
           } else {
             // 其他网站跳转到knowledge/detail页面
+            const pages = getCurrentPages();
+            const currentPage = pages[pages.length - 1];
+
             if (item.id) {
               // 先获取父组件的数据
-              const pages = getCurrentPages();
-              const currentPage = pages[pages.length - 1];
-              
               // 准备要传递的数据
               let dataToPass = null;
               // 如果当前页面是搜索页面，使用原始的搜索结果
@@ -319,10 +319,14 @@ Component({
                 url: `/pages/knowledge/detail/detail?id=${item.id}&data=${encodedData}`
               });
             } else {
-              console.debug('无法跳转到知识详情页，ID缺失:', item);
-              wx.showToast({
-                title: '无法打开此内容',
-                icon: 'none'
+              // ID缺失，但仍然尝试跳转，只传递数据
+              const dataToPass = item;
+              const encodedData = encodeURIComponent(JSON.stringify(dataToPass));
+              
+              console.debug('项目ID缺失，将仅使用data跳转:', item);
+              
+              wx.navigateTo({
+                url: `/pages/knowledge/detail/detail?data=${encodedData}`
               });
             }
           }

@@ -355,7 +355,7 @@ module.exports = Behavior({
         
         // 可选参数
         tag: options.tag || 'nku', // 默认nku标签
-        max_results: options.max_results || 3,
+        max_results: options.max_results || 10,
         stream: !!stream, // 确保是布尔值
         format: options.format || this.data.session.format || 'markdown'
       };
@@ -504,7 +504,7 @@ module.exports = Behavior({
             'session.loading': false
           });
           
-          return res;
+          return res.data;
         } catch (err) {
           console.debug('发送RAG查询失败:', err);
           

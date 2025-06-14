@@ -185,12 +185,14 @@ Page({
     });
     
     try {
-      console.debug('发送高级搜索RAG查询:', queryText);
+      console.debug('发送RAG查询:', queryText);
       
-      // 调用新的高级搜索接口，该接口返回完整的RAG结果
-      const resultData = await this._advancedSearch(queryText);
+      // 调用 agentBehavior 中的 _sendRagQuery 方法
+      const resultData = await this._sendRagQuery(queryText, 'all', false, {
+        max_results: 10
+      });
       
-      console.debug('高级搜索RAG查询结果:', JSON.stringify(resultData));
+      console.debug('RAG查询结果:', JSON.stringify(resultData));
       
       // 处理返回结果
       let response = '';
@@ -208,7 +210,7 @@ Page({
               id: source.id || source.knowledge_id || `source_${index + 1}`,
               knowledge_id: source.id || source.knowledge_id || `source_${index + 1}`,
               index: index + 1,
-              type: 'knowledge'
+              type: 'knowledge' // 类型统一为knowledge，方便前端组件渲染
             };
           });
         }
@@ -222,7 +224,7 @@ Page({
       }
       
       this.setData({
-        ragQuery: resultData?.original_query || queryText,
+        ragQuery: resultData?.rewritten_query || queryText,
         ragResults: response,
         ragSources: processedSources,
         ragSuggestions: suggestions,
@@ -230,7 +232,7 @@ Page({
       });
         
     } catch (error) {
-      console.error('高级搜索RAG查询失败:', error);
+      console.error('RAG查询失败:', error);
       this.setData({
         ragResults: '查询失败，请检查网络或稍后再试。',
         isSearching: false

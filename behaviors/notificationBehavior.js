@@ -13,12 +13,26 @@ const notificationApi = createApiClient('/api/wxapp/notification', {
 });
 
 module.exports = Behavior({
+  data: {
+    _lastCheckTime: 0, // 上次检查时间
+    _checkInterval: 60000, // 检查间隔，单位毫秒，例如60秒
+  },
+
   methods: {
     /**
-     * 检查是否有未读通知
+     * 检查是否有未读通知 (使用全局storage节流)
      * @returns {Promise<Boolean|Object>} 未读通知信息或false
      */
     async _checkUnreadNotification() {
+      const checkInterval = 60000; // 检查间隔，单位毫秒，例如60秒
+      const lastCheckTime = storage.get('notification_last_check_time') || 0;
+      const now = Date.now();
+      
+      if (now - lastCheckTime < checkInterval) {
+        // console.debug('通知检查：操作过于频繁，已跳过');
+        return false; // 在节流间隔内，不执行检查
+      }
+
       const openid = storage.get('openid');
       if (!openid) {
         console.debug('通知检查：用户未登录');
@@ -28,6 +42,8 @@ module.exports = Behavior({
       try {
         const res = await notificationApi.summary({ openid });
         if (res.code === 200 && res.data) {
+          // 仅在成功获取数据后更新时间戳
+          storage.set('notification_last_check_time', now);
           return {
             hasUnread: res.data.unread_count > 0,
             count: res.data.unread_count
