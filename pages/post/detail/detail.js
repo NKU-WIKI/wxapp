@@ -5,11 +5,12 @@ Page({
     behaviors.baseBehavior,
     behaviors.authBehavior, 
     behaviors.userBehavior,
-    behaviors.postBehavior
+    behaviors.postBehavior,
+    behaviors.systemAdaptBehavior
   ],
 
   data: {
-    statusBarHeight: 0,
+
     isPostLoading: true,
     loadError: '',
     postDetail: null,
@@ -63,16 +64,7 @@ Page({
       });
     }
     
-    try {
-      const windowInfo = wx.getWindowInfo();
-      this.setData({
-        statusBarHeight: windowInfo.statusBarHeight,
-      });
-    } catch (err) {
-      this.setData({
-        statusBarHeight: 20, // 默认状态栏高度
-      });
-    }
+
     
     // 加载帖子详情
     await this.loadPostDetail();

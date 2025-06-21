@@ -42,7 +42,8 @@ Page({
     behaviors.authBehavior, 
     behaviors.userBehavior,
     behaviors.notificationBehavior,
-    behaviors.weuiBehavior
+    behaviors.weuiBehavior,
+    behaviors.systemAdaptBehavior
   ],
 
   data: {

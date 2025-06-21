@@ -5,65 +5,85 @@ alwaysApply: true
 ---
 # API 调用与工具类开发规范
 
-本文档旨在为 nkuwiki 小程序项目的 API 调用和工具类使用提供一套最佳实践，确保代码的一致性、可维护性和高质量。
+本文档为 nkuwiki 小程序项目提供API调用和工具类使用的最佳实践，确保代码一致性、可维护性和高质量。
+
+## 0. API 文档与字段名规范
+
+### a. API 文档位置
+所有后端API的详细定义和说明文档均位于项目根目录的 `api/` 文件夹下。在进行任何API相关的开发之前，**必须**查阅此目录中的相关文档，以了解接口的用途、参数和返回结构。
+
+当前API文档结构：
+- `api/wxapp/` - 小程序相关接口 (用户、帖子、评论、通知、动作)
+- `api/knowledge/` - 知识库接口 (搜索、洞察、历史)  
+- `api/agent/` - 智能体接口 (RAG问答)
+
+### b. 字段名一致性
+为了减少前端和后端之间的沟通成本和潜在错误，前端在进行数据绑定和API交互时，所使用的字段名**必须**与后端API文档中定义的字段名保持严格一致。**严禁**在前端对字段名进行任何形式的转换（如下划线转驼峰）。
 
 ## 1. API 客户端 (`utils/apiClient.js`)
 
-项目中所有的后端接口调用都应通过 `apiClient` 来创建。它提供了一个统一的、声明式的方式来定义 API，并自动处理了基础路径、请求参数、用户认证等通用逻辑。
+项目中所有的后端接口调用都应通过 `createApiClient` 来创建。它提供了一个统一的、声明式的方式来定义 API，并自动处理了基础路径、请求参数、用户认证等通用逻辑。
 
 ### 核心理念
 
-- **声明式定义**：将 API 的定义（方法、路径、参数）与调用分离。
-- **配置优于编码**：通过配置文件来管理 API，而不是在业务代码中硬编码 URL。
-- **自动注入**：自动处理 `openid` 等通用参数，简化调用。
+- **声明式定义**：将 API 的定义（方法、路径、参数）与调用分离
+- **配置优于编码**：通过配置对象来管理 API，而不是在业务代码中硬编码 URL
+- **自动注入**：自动处理 `openid` 等通用参数，简化调用
 
 ### 如何使用
 
-1.  **定义 API 客户端**:
-    在对应的 `behavior` 或 `js` 文件顶部，使用 `createApiClient` 创建一个实例。
+1. **定义 API 客户端**:
+   在对应的 `behavior` 文件顶部，使用 `createApiClient` 创建一个实例。
 
-    ```javascript
-    // 例如：在 userBehavior.js 中
-    const { createApiClient } = require('../utils/index');
+   ```javascript
+   // 例如：在 userBehavior.js 中
+   const { createApiClient } = require('../utils/index');
 
-    const userApi = createApiClient('/api/wxapp/user', {
-      profile: { method: 'GET', path: '/profile', params: { openid: true } },
-      update: { method: 'POST', path: '/update', params: { openid: true } },
-      login: { method: 'POST', path: '/login' }
-    });
-    ```
+   const userApi = createApiClient('/api/wxapp/user', {
+     profile: { method: 'GET', path: '/profile', params: { openid: true } },
+     myProfile: { method: 'GET', path: '/my/profile', params: { openid: true } },
+     update: { method: 'POST', path: '/update', params: { openid: true } },
+     list: { method: 'GET', path: '/list', params: { page: false, page_size: false } }
+   });
+   ```
 
-2.  **调用 API 方法**:
-    在需要的地方，直接调用你定义好的方法。
+2. **调用 API 方法**:
+   在需要的地方，直接调用你定义好的方法。
 
-    ```javascript
-    async function _getUserProfile(userId) {
-      try {
-        // apiClient 会自动从 storage 中获取 openid 并附加到请求中
-        const res = await userApi.profile({ openid: userId });
-        if (res.code === 200) {
-          return res.data;
-        }
-        return null;
-      } catch (err) {
-        console.error('获取用户信息失败', err);
-        return null;
-      }
-    }
-    ```
+   ```javascript
+   async _getUserProfile(openid) {
+     try {
+       // apiClient 会自动从 storage 中获取 openid 并附加到请求中
+       const res = await userApi.profile({ openid });
+       if (res.code === 200) {
+         return res.data;
+       }
+       return null;
+     } catch (err) {
+       logger.error('获取用户信息失败', err);
+       return null;
+     }
+   }
+   ```
+
+### 参数配置说明
+
+- `params` 对象中的 `true` 表示必填参数，会自动注入
+- `params` 对象中的 `false` 表示可选参数，由调用方提供
+- 支持 `GET` 和 `POST` 请求方法
 
 ## 2. 核心工具函数 (`utils/`)
 
-`utils/` 目录提供了一系列高复用性的工具函数。在开发前，请先查阅 `utils/index.js`，优先使用已有的工具，避免重复造轮子。
+`utils/` 目录提供了15+个高复用性的工具模块。在开发前，请先查阅 `utils/index.js`，优先使用已有的工具，避免重复造轮子。
 
 ### a. 全局存储 (`utils/storage.js`)
 
-`storage` 工具是对微信 `wx.setStorageSync` 等原生 API 的封装，提供了更便捷、更安全的接口，并自动处理了 JSON 序列化和反序列化。
+`storage` 工具是对微信原生存储API的封装，提供了更便捷、更安全的接口，并自动处理JSON序列化和反序列化。
 
 **严禁直接使用 `wx.getStorageSync` 或 `wx.setStorageSync`**，请务必使用此模块。
 
 ```javascript
-const { storage } = require('/utils/index');
+const { storage } = require('../utils/index');
 
 // 写入数据 (自动转换为JSON字符串)
 storage.set('userInfo', { name: 'Nankai', level: 99 });
@@ -79,31 +99,17 @@ const token = storage.get('token', '');
 storage.remove('userInfo');
 ```
 
-### b. 时间与日期 (`utils/datetime.js`)
-
-提供了多种时间格式化功能，特别是相对时间的展示。
-
-```javascript
-const { datetime } = require('/utils/index');
-
-// 格式化为相对时间，如：5分钟前, 3天前
-const postTime = datetime.formatRelativeTime('2023-10-27T10:00:00Z');
-
-// 格式化为标准日期时间
-const specificTime = datetime.format('YYYY-MM-DD HH:mm', new Date());
-```
-
-### c. 日志系统 (`utils/logger.js`)
+### b. 日志系统 (`utils/logger.js`)
 
 项目集成了统一的日志系统，可以根据环境（开发/生产）和配置来控制日志的输出级别，并支持将日志上报到服务器。
 
-- **`logger.debug()`**: 用于开发调试，生产环境默认不输出。
-- **`logger.info()`**: 用于记录关键的业务流程信息。
-- **`logger.warn()`**: 用于记录可预期的、非致命的异常情况。
-- **`logger.error()`**: 用于记录严重的、导致功能失败的错误。
+- **`logger.debug()`**: 用于开发调试，默认级别，用于一般信息记录
+- **`logger.info()`**: 用于记录关键的业务流程信息，只在重要场合使用
+- **`logger.warn()`**: 用于记录可预期的、非致命的异常情况
+- **`logger.error()`**: 用于记录严重的、导致功能失败的错误
 
 ```javascript
-const logger = require('/utils/logger');
+const { logger } = require('../utils/index');
 
 function someFunction(data) {
   logger.debug('进入 someFunction', { data });
@@ -114,25 +120,25 @@ function someFunction(data) {
 
   try {
     // ...
-    logger.info('操作成功', { result: 'some_result' });
+    logger.info('关键操作成功', { result: 'some_result' });
   } catch (err) {
     logger.error('关键操作失败', { error: err, data });
   }
 }
 ```
 
-### d. UI 反馈 (`utils/ui.js`)
+### c. UI 反馈 (`utils/ui.js`)
 
-封装了小程序常用的交互反馈，如 `Toast`、`Modal`，统一了调用方式和样式。
+封装了小程序常用的交互反馈，统一了调用方式和样式。
 
 ```javascript
-const ui = require('/utils/ui');
+const { ui, ToastType } = require('../utils/index');
 
 // 显示成功提示
-ui.showToast('操作成功', { icon: 'success' });
+ui.showToast('操作成功', { type: ToastType.SUCCESS });
 
-// 显示错误提示
-ui.showToast('网络开小差了', { icon: 'error' });
+// 显示错误提示  
+ui.showToast('网络开小差了', { type: ToastType.ERROR });
 
 // 显示确认对话框
 const isConfirmed = await ui.showModal({
@@ -143,9 +149,136 @@ const isConfirmed = await ui.showModal({
 if (isConfirmed) {
   // ... 执行删除操作
 }
+
+// 显示操作菜单
+const result = await ui.showActionSheet({
+  itemList: ['编辑', '删除', '分享']
+});
+
+// 复制文本
+ui.copyText('要复制的内容');
 ```
 
-## 3. 错误处理
+### d. 时间与日期 (`utils/datetime.js`)
+
+提供了多种时间格式化功能，特别是相对时间的展示。
+
+```javascript
+const { formatRelativeTime, formatTime, formatNumber } = require('../utils/index');
+
+// 格式化为相对时间，如：5分钟前, 3天前
+const postTime = formatRelativeTime('2023-10-27T10:00:00Z');
+
+// 格式化为标准日期时间
+const specificTime = formatTime(new Date());
+
+// 格式化数字
+const formattedNumber = formatNumber(1234); // "1,234"
+```
+
+### e. HTTP 请求 (`utils/http.js`)
+
+提供基础的HTTP请求方法，已集成到apiClient中。
+
+```javascript
+const { get, post } = require('../utils/index');
+
+// 直接使用HTTP方法（通常不需要，优先使用apiClient）
+const data = await get('/api/endpoint');
+const result = await post('/api/endpoint', { data: 'value' });
+```
+
+### f. 系统信息 (`utils/system.js`)
+
+提供系统信息获取和用户信息管理功能。
+
+```javascript
+const { getSystemInfo, getUserProfile, getOpenID, getAboutInfo, getAppInfo } = require('../utils/index');
+
+// 获取系统信息
+const systemInfo = getSystemInfo();
+
+// 获取用户资料
+const userProfile = await getUserProfile();
+
+// 获取OpenID
+const openid = getOpenID();
+
+// 获取应用信息
+const appInfo = getAppInfo();
+```
+
+### g. 格式化工具 (`utils/format.js`)
+
+提供数据格式化和工具函数。
+
+```javascript
+const { 
+  parseUrl, parseImageUrl, parseJsonField, 
+  isEmptyObject, isValidArray, 
+  debounce, throttle 
+} = require('../utils/index');
+
+// URL解析
+const urlInfo = parseUrl('https://example.com/path');
+
+// 图片URL处理
+const imageUrl = parseImageUrl(imageData);
+
+// JSON字段解析
+const jsonData = parseJsonField(jsonString);
+
+// 数据验证
+const isEmpty = isEmptyObject({});
+const isValid = isValidArray([1, 2, 3]);
+
+// 防抖和节流
+const debouncedFn = debounce(() => console.log('debounced'), 300);
+const throttledFn = throttle(() => console.log('throttled'), 1000);
+```
+
+### h. 错误处理 (`utils/error.js`)
+
+提供统一的错误处理机制。
+
+```javascript
+const { error, ErrorType } = require('../utils/index');
+
+// 使用错误类型
+if (err.type === ErrorType.NETWORK) {
+  // 处理网络错误
+}
+```
+
+### i. 内容安全 (`utils/textCensor.js`)
+
+提供内容安全检查功能。
+
+```javascript
+const { msgSecCheck } = require('../utils/index');
+
+// 内容安全检查
+const checkResult = await msgSecCheck(content, 2);
+if (checkResult.pass) {
+  // 内容安全，可以发布
+} else {
+  // 内容存在风险
+  ui.showToast('内容包含敏感信息，请修改后重试', { type: ToastType.ERROR });
+}
+```
+
+### j. 流式数据处理 (`utils/chunkUtil.js`)
+
+用于处理流式数据响应。
+
+```javascript
+const { createChunkRes } = require('../utils/index');
+
+// 创建流式响应处理器
+const chunkRes = createChunkRes(responseData);
+```
+
+## 3. 错误处理规范
 
 项目中应使用 `try...catch` 来捕获异步操作中可能出现的错误，并结合 `logger` 进行记录。
 
@@ -153,18 +286,83 @@ if (isConfirmed) {
 async function fetchData() {
   try {
     const data = await someApi.getData();
-    // ...
+    return data;
   } catch (err) {
     // 记录错误详情
     logger.error('获取数据失败', { error: err });
     
-    // 给用户一个友好的提示
-    ui.showToast('数据加载失败，请稍后重试', { icon: 'error' });
+    // 给用户友好的提示
+    ui.showToast('数据加载失败，请稍后重试', { type: ToastType.ERROR });
     
     // 可以选择向上抛出错误或返回null
     return null;
   }
 }
 ```
+
+## 4. 工具集合导出
+
+所有工具函数都通过 `utils/index.js` 统一导出，包括：
+
+### 配置和初始化
+- `init` - 系统初始化
+
+### 日志工具  
+- `logger` - 日志记录器
+
+### 存储操作
+- `storage` - 本地存储工具
+
+### UI操作
+- `ui` - UI交互工具集合
+- `ToastType` - 提示类型枚举
+
+### 错误处理
+- `error` - 错误处理工具
+- `ErrorType` - 错误类型枚举
+
+### HTTP请求
+- `get`, `post` - HTTP请求方法
+
+### API客户端
+- `createApiClient` - API客户端工厂
+- `createStreamApiClient` - 流式API客户端工厂
+
+### 时间日期
+- `formatTime`, `formatNumber`, `formatRelativeTime` - 时间格式化
+
+### 系统信息
+- `getSystemInfo`, `getUserProfile`, `getOpenID`, `getAboutInfo`, `getAppInfo` - 系统信息获取
+
+### 格式化工具
+- `parseUrl`, `parseImageUrl`, `parseJsonField` - 数据解析
+- `isEmptyObject`, `isValidArray` - 数据验证  
+- `debounce`, `throttle` - 性能优化
+
+### 内容安全
+- `msgSecCheck` - 内容安全检测
+
+### 流式处理
+- `createChunkRes` - 流式数据处理
+
+## 5. 最佳实践
+
+### API调用最佳实践
+1. **优先查阅API文档** - 在 `api/` 目录中找到对应的接口文档
+2. **使用behavior封装** - 在对应的behavior中实现API调用逻辑
+3. **统一错误处理** - 使用try-catch + logger + ui提示的组合
+4. **参数自动注入** - 利用apiClient的自动参数注入功能
+
+### 工具使用最佳实践
+1. **避免重复造轮子** - 优先使用utils中已有的工具函数
+2. **统一导入方式** - 从 `utils/index.js` 导入所需工具
+3. **日志级别控制** - 一般使用debug，重要信息使用info
+4. **UI反馈一致性** - 使用统一的ui工具进行用户交互
+
+### 代码组织最佳实践
+1. **模块化导入** - 按需导入所需的工具函数
+2. **命名规范** - 保持与工具函数原有命名一致
+3. **注释完善** - 在复杂逻辑处添加说明注释
+4. **性能考虑** - 合理使用debounce和throttle优化性能
 
 通过遵循以上规范，我们可以构建一个更加健壮、可维护和易于协作的小程序项目。

@@ -39,7 +39,8 @@ Page({
     behavior.userBehavior, 
     behavior.notificationBehavior, 
     behavior.postBehavior, 
-    behavior.commentBehavior
+    behavior.commentBehavior,
+    behavior.systemAdaptBehavior
   ],
 
   data: {
@@ -56,19 +57,11 @@ Page({
     error: null,
     NotificationType,
     NotificationConfig,
-    navBarHeight: 44  // 默认导航栏高度
+
   },
 
   onLoad: async function() {
     try {
-      // 获取系统信息，计算导航栏高度
-      // const systemInfo = storage.get('systemInfo');
-      const navBarHeight = 44;  // 默认导航栏高度
-      
-      this.setData({
-        navBarHeight
-      });
-      
       // 检查登录状态
       if (!(await this._checkLogin(true))) {
         return;

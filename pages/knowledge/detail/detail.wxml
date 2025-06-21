@@ -1,11 +1,11 @@
 <!-- 知识详情页 -->
-<nav-bar 
-  title="知识详情"
-  showBack="{{true}}"
-  showAvatar="{{false}}"
-/>
-
 <view class="knowledge-container">
+  <nav-bar 
+    title="知识详情"
+    showBack="{{true}}"
+    showAvatar="{{false}}"
+    fixed="{{true}}"
+  />
   <!-- 知识内容和评论的包装器 -->
   <view class="knowledge-content-wrapper">
     <!-- 加载状态 -->

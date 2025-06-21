@@ -1,11 +1,14 @@
 .nav-bar {
   width: 100%;
-  position: fixed;
   top: 0;
   left: 0;
   z-index: 999;
   background: #ffffff;
   transition: all 0.3s;
+}
+
+.nav-bar.is-fixed {
+  position: fixed;
 }
 
 .with-shadow {

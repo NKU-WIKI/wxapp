@@ -1,11 +1,11 @@
-<nav-bar 
-  title="用户"
-  showBack="{{true}}"
-  showAvatar="{{true}}"
-  showNotification="{{true}}"
-></nav-bar>
-
 <view class="container">
+  <nav-bar 
+    title="用户"
+    showBack="{{true}}"
+    showAvatar="{{true}}"
+    showNotification="{{true}}"
+    fixed="{{true}}"
+  ></nav-bar>
   <!-- 内容区域 -->
   <view class="content-area">
     <user-card

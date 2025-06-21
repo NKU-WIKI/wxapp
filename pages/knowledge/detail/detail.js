@@ -6,11 +6,12 @@ Page({
     behaviors.authBehavior, 
     behaviors.userBehavior,
     behaviors.knowledgeBehavior,
-    behaviors.commentBehavior
+    behaviors.commentBehavior,
+    behaviors.systemAdaptBehavior
   ],
 
   data: {
-    statusBarHeight: 0,
+
     isLoading: true,
     loadError: '',
     knowledgeDetail: null,
@@ -100,16 +101,7 @@ Page({
       });
     }
     
-    try {
-      const windowInfo = wx.getWindowInfo();
-      this.setData({
-        statusBarHeight: windowInfo.statusBarHeight,
-      });
-    } catch (err) {
-      this.setData({
-        statusBarHeight: 20, // 默认状态栏高度
-      });
-    }
+
     
     // 如果没有传入数据，则加载知识详情
     if (!knowledgeData) {

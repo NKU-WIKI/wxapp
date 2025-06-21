@@ -2,7 +2,7 @@ const { ui, ToastType, getAppInfo } = require('../../utils/index');
 const behavior = require('../../behaviors/index');
 
 Page({
-  behaviors: [behavior.baseBehavior],
+  behaviors: [behavior.baseBehavior, behavior.systemAdaptBehavior],
 
   data: {
     companyInfo: {

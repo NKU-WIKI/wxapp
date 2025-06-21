@@ -2,7 +2,7 @@ const { storage, ui, ToastType } = require('../../utils/index');
 const behaviors = require('../../behaviors/index');
 
 Page({
-  behaviors: [behaviors.baseBehavior, behaviors.knowledgeBehavior, behaviors.agentBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.knowledgeBehavior, behaviors.agentBehavior, behaviors.systemAdaptBehavior],
 
   data: {
     searchValue: '',
@@ -61,7 +61,6 @@ Page({
   onLoad() {
     this.loadSearchHistory();
     this.loadHotSearches();
-    this.calculateDropdownPosition();
   },
   
   // 搜索方法
@@ -625,28 +624,6 @@ Page({
     }
   },
 
-  // 计算搜索历史下拉框位置
-  calculateDropdownPosition() {
-    try {
-      const systemInfo = wx.getWindowInfo();
-      const statusBarHeight = systemInfo.statusBarHeight || 20;
-      const navBarHeight = 48; // 导航栏高度
-      const searchBarHeight = 40; // 搜索框高度(80rpx转换为px约40px)
-      const spacing = 5; // 间距
-      
-      const dropdownTop = statusBarHeight + navBarHeight + searchBarHeight + spacing;
-      
-      // 动态设置CSS变量
-      this.setData({
-        dropdownTopPosition: dropdownTop + 'px'
-      });
-    } catch (err) {
-      console.debug('计算下拉框位置失败:', err);
-      // 使用默认值
-      this.setData({
-        dropdownTopPosition: '170rpx'
-      });
-    }
-  },
+
 
 });

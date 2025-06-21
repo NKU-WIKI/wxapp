@@ -38,6 +38,11 @@ Component({
       type: Boolean,
       value: true
     },
+    // 是否启用固定定位
+    fixed: {
+      type: Boolean,
+      value: true
+    },
     // 快捷按钮属性 (简化调用)
     showBack: {
       type: Boolean,
@@ -129,7 +134,6 @@ Component({
   lifetimes: {
     attached() {
       this.initSystemInfo();
-      // 初始化时优先处理navButtons，如果为空，则使用快捷属性
       if (this.properties.navButtons && this.properties.navButtons.length > 0) {
         this.initNavButtons();
       } else {
@@ -145,49 +149,66 @@ Component({
   },
 
   methods: {
+    _init() {
+      try {
+        const systemInfo = wx.getWindowInfo();
+        this.setData({
+          statusBarHeight: systemInfo.statusBarHeight,
+          navBarHeight: systemInfo.platform === 'ios' ? 44 : 48
+        });
+      } catch (e) {
+        this.setData({
+          statusBarHeight: 20,
+          navBarHeight: 48
+        });
+      }
+    },
+
+    // 通知父页面导航栏高度变化（保持兼容性）
+    triggerHeightChangeEvent() {
+      this.notifyHeightChange();
+    },
+
+    // 通知父页面导航栏高度信息
+    notifyHeightChange() {
+      const totalHeight = this.data.totalHeight;
+      this.triggerEvent('heightchange', { 
+        height: totalHeight,
+        statusBarHeight: this.data.statusBarHeight,
+        navBarHeight: this.data.navBarHeight,
+        totalHeight: totalHeight
+      });
+    },
+
     // 初始化系统信息
     initSystemInfo() {
-      try {
-        // 使用新API替代旧的getSystemInfoSync
-        const appBaseInfo = wx.getAppBaseInfo();
-        const windowInfo = wx.getWindowInfo();
-        
-        // 状态栏高度
-        const statusBarHeight = windowInfo.statusBarHeight || 20;
-        
-        // 根据不同平台设置导航栏高度
-        let navBarHeight = 48;
-        if (appBaseInfo.platform === 'android') {
-          navBarHeight = 48;
-        } else if (appBaseInfo.platform === 'ios') {
-          navBarHeight = 44;
-        }
-        
-        // 设置总高度
-        const totalHeight = statusBarHeight + navBarHeight;
-        
+      const app = getApp();
+      const systemInfo = app.globalData.systemInfo;
+
+      if (systemInfo && !systemInfo.isFallback) {
         this.setData({
-          statusBarHeight,
-          navBarHeight,
-          totalHeight,
-          // 保存系统信息以供其他方法使用
+          statusBarHeight: systemInfo.statusBarHeight,
+          navBarHeight: systemInfo.navBarHeight,
+          totalHeight: systemInfo.navBarTotalHeight,
           _systemInfo: {
-            platform: appBaseInfo.platform,
-            windowWidth: windowInfo.windowWidth
+            platform: systemInfo.platform,
+            windowWidth: systemInfo.windowWidth
           }
         });
-
-        // 延迟执行一次布局计算
-        setTimeout(() => this.updateLayout(), 50);
-      } catch (err) {
-        console.error('初始化导航栏尺寸失败:', err);
-        // 使用默认值
+      } else {
+        // Fallback for safety, though it should rarely be used
         this.setData({
           statusBarHeight: 20,
           navBarHeight: 48,
           totalHeight: 68
         });
       }
+      
+      // 延迟执行一次布局计算和高度通知
+      setTimeout(() => {
+        this.updateLayout();
+        this.notifyHeightChange();
+      }, 50);
     },
 
     // 根据快捷属性更新按钮

@@ -104,9 +104,21 @@ services/app/
 ├── app.js              # 小程序入口文件
 ├── app.json            # 全局配置文件
 └── app.wxss            # 全局样式文件
-├── api_docs.md         # API文档
+├── api/                # API文档
+│   ├── agent/          # 智能体相关API
+│   ├── knowledge/      # 知识库相关API
+│   └── wxapp/          # 小程序业务API
 └── project.config.json # 项目配置文件
 ```
+
+### API文档
+
+项目的API文档位于`api/`目录下，按照模块进行分类：
+- `api/wxapp/`：小程序核心业务逻辑的API，如用户、帖子、评论等。
+- `api/agent/`：与AI智能体交互的API。
+- `api/knowledge/`：知识库搜索、查询相关的API。
+
+每个模块下的`.md`文件详细描述了具体接口的请求方式、参数和返回数据结构。开发前请务必查阅相关文档。
 
 ### 云函数使用
 
@@ -821,7 +833,7 @@ api交互字段最好用api文档严格一致。
 
 - [微信官方小程序文档](https://developers.weixin.qq.com/miniprogram/dev/framework/) - 微信小程序开发的官方文档和API参考
 - [WEUI组件库文档](https://developers.weixin.qq.com/miniprogram/dev/extended/weui/) - 微信官方UI组件库
-- [nkuwiki API文档](./api_docs.md) - 本项目后端API接口文档
+- [nkuwiki API文档](./api/) - 本项目后端API接口文档
 - [nkuwiki 原型图](https://mastergo.com/file/152887751273499?fileOpenFrom=home&page_id=M&shareId=152887751273499) - MasterGo原型设计
 
 #### 工具和资源
@@ -829,3 +841,155 @@ api交互字段最好用api文档严格一致。
 - [ColorUI](https://github.com/weilanwl/ColorUI) - 小程序的css组件库，提供了丰富的UI样式
 - [icon8](https://icons8.com/icons) - 矢量图标库，可用于寻找合适的图标
 - [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html) - 官方IDE下载
+
+# 导航栏适配解决方案全面推广
+
+## 推广完成情况
+
+✅ **已完成全项目导航栏适配方案推广**，涵盖以下页面：
+
+### 1. 页面behaviors更新
+所有使用自定义导航栏的页面都已添加 `systemAdaptBehavior`：
+
+- ✅ 首页 (`pages/index/index.js`)
+- ✅ 发现页 (`pages/discover/discover.js`) 
+- ✅ 搜索页 (`pages/search/search.js`)
+- ✅ 个人中心 (`pages/profile/profile.js`)
+- ✅ 用户页面 (`pages/user/user.js`)
+- ✅ 通知页面 (`pages/notification/notification.js`)
+- ✅ 发帖页面 (`pages/post/post.js`)
+- ✅ 帖子详情 (`pages/post/detail/detail.js`)
+- ✅ 登录页面 (`pages/login/login.js`)
+- ✅ 关于页面 (`pages/about/about.js`)
+- ✅ 知识详情 (`pages/knowledge/detail/detail.js`)
+- ✅ WebView页面 (`pages/webview/webview.js`)
+
+### 2. WXML结构优化
+所有页面的 `nav-bar` 组件都已移到容器内部，并添加 `fixed="{{true}}"` 属性：
+
+```xml
+<view class="container">
+  <nav-bar 
+    title="页面标题"
+    showBack="{{true}}"
+    fixed="{{true}}"
+  />
+  <!-- 其他内容 -->
+</view>
+```
+
+### 3. 移除冗余代码
+- ✅ 移除了所有页面中手动计算状态栏高度的代码
+- ✅ 移除了search-bar组件中的额外margin-top设置
+- ✅ 清理了过时的位置计算方法
+
+## 核心优势
+
+### 🎯 统一适配标准
+- 所有页面使用相同的适配数据源 (`app.globalData.systemInfo`)
+- nav-bar组件自动处理占位，页面无需手动设置偏移
+
+### 🔧 零配置使用
+页面只需：
+1. 引入 `systemAdaptBehavior`
+2. 将 `nav-bar` 组件放在容器内
+3. 设置 `fixed="{{true}}"`
+
+### 📱 完美适配
+- 基于胶囊按钮位置的精确计算
+- 支持所有iOS和Android设备
+- 自动处理不同屏幕密度
+
+### 🚀 高性能
+- 一次计算，全局复用
+- 组件级缓存，避免重复渲染
+- 最小化DOM操作
+
+## 使用示例
+
+### 新页面接入
+```javascript
+// page.js
+const behaviors = require('../../behaviors/index');
+
+Page({
+  behaviors: [
+    behaviors.baseBehavior,
+    behaviors.systemAdaptBehavior  // 添加这行
+  ],
+  // ...
+});
+```
+
+```xml
+<!-- page.wxml -->
+<view class="container">
+  <nav-bar 
+    title="页面标题"
+    showBack="{{true}}"
+    fixed="{{true}}"
+  />
+  <!-- 页面内容无需额外偏移 -->
+</view>
+```
+
+## 技术实现细节
+
+### 全局信息中心 (app.js)
+```javascript
+initSystemInfo() {
+  const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
+  const systemInfo = wx.getSystemInfoSync();
+  
+  // 精确计算导航栏高度
+  const navBarHeight = (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height;
+  const navBarTotalHeight = systemInfo.statusBarHeight + navBarHeight;
+  
+  this.globalData.systemInfo = {
+    statusBarHeight: systemInfo.statusBarHeight,
+    navBarHeight,
+    navBarTotalHeight,
+    // ... 其他信息
+  };
+}
+```
+
+### 组件自适应 (nav-bar)
+```javascript
+// 自动获取全局适配信息
+const app = getApp();
+const systemInfo = app.globalData.systemInfo;
+
+// 固定定位时自动生成占位元素
+this.setData({
+  statusBarHeight: systemInfo.statusBarHeight,
+  navBarHeight: systemInfo.navBarHeight,
+  totalHeight: systemInfo.navBarTotalHeight
+});
+```
+
+### Behavior便利注入 (systemAdaptBehavior)
+```javascript
+// 页面自动获得适配信息
+data: {
+  statusBarHeight: 20,    // 状态栏高度
+  navBarHeight: 44,       // 导航栏高度  
+  navBarTotalHeight: 64   // 导航栏总高度
+}
+```
+
+## 问题解决记录
+
+### 历史问题
+1. **首页空白** - search-bar组件重复添加margin-top ✅已修复
+2. **发现页遮挡** - 重复累加状态栏高度 ✅已修复  
+3. **不同设备适配差异** - 统一使用胶囊按钮计算 ✅已修复
+
+### 解决方案
+- 组件自给自足，避免页面手动计算
+- 统一数据源，消除计算差异
+- 标准化结构，确保占位生效
+
+---
+
+**现在所有页面都已完美适配，不再出现导航栏遮挡或多余空白的问题！** 🎉

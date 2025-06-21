@@ -2,7 +2,7 @@ const behavior = require('../../behaviors/index');
 const { getAboutInfo} = require('../../utils/index');
 
 Page({
-  behaviors: [behavior.baseBehavior, behavior.authBehavior],
+  behaviors: [behavior.baseBehavior, behavior.authBehavior, behavior.systemAdaptBehavior],
 
   data: {
     aboutInfo: {

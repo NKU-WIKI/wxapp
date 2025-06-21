@@ -6,7 +6,7 @@ alwaysApply: true
 # 微信小程序开发规范
 
 ## 项目概述
-这是nkuwiki微信小程序项目，基于微信小程序原生框架开发的社交平台应用。
+这是nkuwiki微信小程序项目，基于微信小程序原生框架开发的校园知识共享平台，集成了帖子社区、智能问答、多源知识检索等功能。
 
 ## 编码规范
 
@@ -28,7 +28,11 @@ alwaysApply: true
 #### Page 页面结构
 ```javascript
 Page({
-  behaviors: [baseBehavior, authBehavior], // 先声明behaviors
+  behaviors: [
+    behaviors.baseBehavior,          // 基础功能
+    behaviors.authBehavior,          // 认证管理
+    behaviors.systemAdaptBehavior    // 系统适配（必需）
+  ],
   
   data: {
     // 数据定义，按功能分组
@@ -36,7 +40,7 @@ Page({
   
   onLoad() {
     // 页面加载逻辑
-    this.initSystemInfo(); // 初始化系统信息
+    // 注意：不需要手动调用initSystemInfo，systemAdaptBehavior会自动处理
   },
   
   onShow() {
@@ -52,7 +56,7 @@ Page({
 #### Component 组件结构
 ```javascript
 Component({
-  behaviors: [baseBehavior],
+  behaviors: [behaviors.baseBehavior],
   
   options: {
     pureDataPattern: /^_/,
@@ -66,7 +70,7 @@ Component({
   },
   
   data: {
-    // 私有数据
+    // 私有数据（使用_前缀的数据不会触发渲染）
   },
   
   observers: {
@@ -86,15 +90,39 @@ Component({
 ```
 
 ### 4. API 调用规范
-- 统一在 `utils/util.js` 中封装 API 方法
-- 使用 Promise 包装微信 API
-- 统一错误处理机制
-- API 方法命名：动词 + 名词，如 `getUserInfo`、`createPost`
+- 统一使用 `createApiClient` 创建API客户端
+- 在对应的behavior中封装API调用逻辑
+- 统一错误处理机制：try-catch + logger + ui提示
+- API方法命名以下划线开头：`_getUserProfile`、`_createPost`
+
+#### API调用示例
+```javascript
+const { createApiClient, logger, ui, ToastType } = require('../utils/index');
+
+const userApi = createApiClient('/api/wxapp/user', {
+  profile: { method: 'GET', path: '/profile', params: { openid: true } }
+});
+
+async _getUserProfile(openid) {
+  try {
+    const res = await userApi.profile({ openid });
+    if (res.code === 200) {
+      return res.data;
+    }
+    return null;
+  } catch (err) {
+    logger.error('获取用户信息失败', err);
+    ui.showToast('获取用户信息失败', { type: ToastType.ERROR });
+    return null;
+  }
+}
+```
 
 ### 5. 状态管理
 - 使用 behaviors 实现跨页面/组件的状态共享
 - 本地存储使用 `storage` 工具类统一管理
 - 避免在 data 中存储大量数据，考虑性能优化
+- 使用 `pureDataPattern: /^_/` 避免不必要的渲染
 
 ### 6. 事件处理
 - 事件处理函数以 `on` 开头，如 `onTapSubmit`
@@ -107,152 +135,180 @@ Component({
 - 自定义样式在组件内部使用，避免全局污染
 - 颜色、字体等设计规范在 `app.wxss` 中定义
 
-### 8. 设备适配和布局规范
+### 8. 系统适配规范（重要）
 
-#### 8.1 响应式单位使用
-- **首选 rpx 单位**：适配不同屏幕密度，750rpx = 设计稿宽度
-- **字体大小建议**：24-28rpx(正文)，32-36rpx(副标题)，40-48rpx(主标题)
-- **间距规范**：8rpx, 16rpx, 24rpx, 32rpx, 48rpx
+本项目采用三层系统适配架构，**所有页面都必须使用 `systemAdaptBehavior`**：
 
-#### 8.2 动态位置计算
-对于需要相对定位的元素（如下拉框、弹窗等），避免使用固定像素值，应动态计算：
+#### 8.1 三层适配架构
+- **全局层 (app.js)**: 基于胶囊按钮精确计算导航栏高度
+- **Behavior层 (systemAdaptBehavior)**: 提供适配工具方法和自动注入
+- **组件层 (nav-bar)**: 自动处理固定定位和占位
 
+#### 8.2 标准页面结构
 ```javascript
-// 获取系统信息进行动态计算
-calculatePosition() {
-  try {
-    const systemInfo = wx.getWindowInfo();
-    const statusBarHeight = systemInfo.statusBarHeight || 20;
-    const navBarHeight = 48; // 标准导航栏高度
-    
-    // 根据实际情况计算位置
-    const dropdownTop = statusBarHeight + navBarHeight + searchBarHeight + spacing;
-    
-    this.setData({
-      dynamicPosition: dropdownTop + 'px'
-    });
-  } catch (err) {
-    // 提供默认值作为兜底
-    this.setData({
-      dynamicPosition: '170rpx'
-    });
-  }
-}
+Page({
+  behaviors: [
+    behaviors.baseBehavior,
+    behaviors.systemAdaptBehavior  // 必须包含
+  ],
+  
+  // 不需要手动调用任何适配方法，behavior会自动处理
+})
 ```
 
-#### 8.3 自定义导航栏适配
-```javascript
-// 获取系统信息，适配不同设备
-initSystemInfo() {
-  try {
-    const appBaseInfo = wx.getAppBaseInfo();
-    const windowInfo = wx.getWindowInfo();
-    
-    const statusBarHeight = windowInfo.statusBarHeight || 20;
-    let navBarHeight = 48;
-    
-    // 根据平台调整
-    if (appBaseInfo.platform === 'android') {
-      navBarHeight = 48;
-    } else if (appBaseInfo.platform === 'ios') {
-      navBarHeight = 44;
-    }
-    
-    this.setData({
-      statusBarHeight,
-      navBarHeight,
-      totalHeight: statusBarHeight + navBarHeight
-    });
-  } catch (err) {
-    // 兜底处理
-    this.setData({
-      statusBarHeight: 20,
-      navBarHeight: 48,
-      totalHeight: 68
-    });
-  }
-}
+#### 8.3 WXML结构规范
+```xml
+<view class="page-container">
+  <nav-bar 
+    title="页面标题"
+    fixed="{{true}}"
+    showBack="{{true}}"
+  />
+  
+  <!-- 页面内容 -->
+  <view class="page-content">
+    <!-- 内容区域 -->
+  </view>
+</view>
 ```
+
+#### 8.4 禁止的做法
+- ❌ 不要手动计算状态栏高度
+- ❌ 不要在页面中添加 `initSystemInfo` 方法
+- ❌ 不要在WXML中手动设置 `margin-top`
+- ❌ 不要使用固定像素值进行布局
 
 ### 9. 组件复用和引入规范
 
 #### 9.1 组件引入原则
 - **必须声明**：使用组件前必须在页面json文件中声明
 - **按需引入**：只引入页面实际使用的组件
-- **路径规范**：使用相对路径或绝对路径，保持一致性
+- **路径规范**：使用绝对路径，保持一致性
 
 ```json
 {
   "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar",
     "loading": "/components/loading/loading",
     "icon": "/components/icon/icon",
-    "nav-bar": "/components/nav-bar/nav-bar"
+    "post-list": "/components/post-list/post-list"
   }
 }
 ```
 
-#### 9.2 避免重复造轮子
+#### 9.2 高复用组件
+项目中的核心组件及其使用场景：
+
+- **nav-bar** (100%复用): 所有页面必备，支持固定定位
+- **icon** (95%复用): 统一图标管理，60+图标可选
+- **loading** (85%复用): 统一加载状态，支持多种样式
+- **post-list/post-item** (80%复用): 内容展示核心组件
+- **search-bar** (50%复用): 智能搜索框，支持前缀选择
+
+#### 9.3 避免重复造轮子
 - **优先复用**：使用项目已有组件，如loading、icon等
-- **图标规范**：使用iconMap中定义的图标，避免使用不存在的图标名
+- **图标规范**：使用iconMap中定义的图标，常用图标包括：
+  - 操作类：`like`, `comment`, `favorite`, `share`
+  - 导航类：`home`, `discover`, `profile`, `search`
+  - 内容类：`study`, `life`, `job`, `club`, `market`
+  - 状态类：`success`, `error`, `loading`
 - **样式统一**：优先使用项目定义的样式变量和工具类
 
 ### 10. 性能优化
+
+#### 10.1 基础优化
 - 使用 `lazyCodeLoading` 按需加载
 - 大列表使用虚拟滚动或分页加载
 - 图片使用适当的压缩和懒加载
 - 避免频繁的 setData 操作
-- **条件渲染优化**：合理使用 wx:if 和 hidden
-- **数据结构优化**：使用 pureDataPattern 避免不必要的渲染
+
+#### 10.2 数据优化
+```javascript
+options: {
+  pureDataPattern: /^_/  // _开头的数据不触发渲染
+},
+
+data: {
+  _cacheData: {},     // 缓存数据，不参与渲染
+  renderData: {}      // 渲染数据
+}
+```
+
+#### 10.3 条件渲染优化
+```xml
+<!-- 合理使用 wx:if 和 hidden -->
+<post-list wx:if="{{shouldShowList}}" />
+<loading wx:if="{{isLoading}}" />
+```
 
 ### 11. 错误处理和用户体验
 
-#### 11.1 加载状态管理
+#### 11.1 统一错误处理
 ```javascript
-// 正确的加载状态处理
-async executeSearch() {
-  this.setData({ isSearching: true });
-  
+const { logger, ui, ToastType } = require('../utils/index');
+
+async executeApiCall() {
   try {
-    const result = await this._search(keyword);
-    this.setData({ 
-      searchResults: result.data,
-      isSearching: false 
-    });
+    const result = await someApi.getData();
+    return result;
   } catch (error) {
-    this.setData({ isSearching: false });
-    ui.showToast('搜索失败，请重试', { type: 'error' });
+    logger.error('API调用失败', { error, context: 'executeApiCall' });
+    ui.showToast('操作失败，请重试', { type: ToastType.ERROR });
+    return null;
   }
 }
 ```
 
-#### 11.2 错误处理规范
-- 网络请求必须有错误处理
-- 使用 try-catch 包装可能出错的代码
-- 用户友好的错误提示
-- 关键错误需要上报日志
-- **防御性编程**：对可能为空的数据进行检查
+#### 11.2 加载状态管理
+```javascript
+async loadData() {
+  this.setData({ isLoading: true });
+  
+  try {
+    const data = await this._getData();
+    this.setData({ 
+      data,
+      isLoading: false 
+    });
+  } catch (error) {
+    this.setData({ isLoading: false });
+    // 错误处理
+  }
+}
+```
 
-### 12. 安全规范
-- 敏感信息不存储在小程序端
-- 用户身份验证通过服务端验证
-- 输入数据必须验证和过滤
-- 使用 HTTPS 协议
+#### 11.3 用户反馈规范
+- **操作反馈**：所有用户操作都要有明确反馈
+- **加载状态**：异步操作显示loading状态
+- **错误提示**：友好的错误提示信息
+- **成功确认**：重要操作完成后的成功提示
 
-## 开发注意事项
+### 12. 调试和开发技巧
 
-### 1. 常见问题避免
-- **图标使用**：确认图标在iconMap中存在，使用`about`而非`question`
-- **组件引入**：使用前必须在json中声明，避免运行时错误
-- **位置计算**：避免硬编码位置值，使用动态计算
-- **单位统一**：样式中优先使用rpx，避免px和rpx混用
+#### 12.1 日志规范
+```javascript
+const { logger } = require('../utils/index');
 
-### 2. 调试技巧
-- 使用 `console.debug` 进行调试日志，生产环境可控制
-- 利用微信开发者工具的调试功能
+// 开发调试 - 默认级别
+logger.debug('调试信息', { data });
+
+// 关键信息 - 重要场合使用
+logger.info('用户登录成功', { openid });
+
+// 警告信息
+logger.warn('数据格式异常但可继续', { data });
+
+// 错误信息
+logger.error('API调用失败', { error, context });
+```
+
+#### 12.2 开发调试技巧
+- 使用微信开发者工具的调试功能
 - 在真机上测试不同设备的适配效果
+- 利用 `console.debug` 进行临时调试
 - 使用条件编译处理不同环境的代码
 
-### 3. 兼容性处理
+#### 12.3 兼容性处理
 ```javascript
 // API兼容性处理示例
 try {
@@ -264,29 +320,53 @@ try {
 }
 ```
 
-## 最佳实践
+## 最佳实践总结
 
 ### 1. 开发流程
-1. 充分利用小程序的组件化能力，提高代码复用性
-2. 合理使用 behaviors 实现横切关注点
-3. 注意小程序包大小限制，及时清理无用代码
-4. 重要操作提供loading状态和用户反馈
-5. 适配不同屏幕尺寸和机型
+1. **查阅API文档**：在 `api/` 目录中查找对应接口
+2. **behavior实现**：在对应behavior中实现API调用逻辑
+3. **组件复用**：优先使用现有组件，避免重复开发
+4. **页面组装**：使用标准的页面结构和适配方案
+5. **测试验证**：在不同设备上验证功能和适配效果
 
 ### 2. 代码质量
 - **模块化设计**：功能相关的代码组织在一起
-- **命名规范**：使用有意义的变量和函数名
-- **注释完善**：关键逻辑和复杂算法添加注释
-- **错误处理**：完善的异常处理和用户提示
+- **统一规范**：API调用、错误处理、UI反馈都有统一标准
+- **组件复用**：通过高复用组件提高开发效率
+- **行为复用**：通过behavior共享通用逻辑
 
 ### 3. 性能优先
-- **首屏优化**：关键内容优先加载
+- **系统适配**：使用三层适配架构，零配置使用
+- **组件优化**：合理使用条件渲染和数据优化
 - **资源管理**：及时释放不需要的资源
-- **缓存策略**：合理使用本地存储和缓存
-- **网络优化**：减少不必要的网络请求
+- **缓存策略**：合理使用本地存储和数据缓存
 
 ### 4. 用户体验
 - **响应及时**：操作反馈要及时明确
 - **界面友好**：错误提示要用户可理解
 - **交互顺畅**：避免卡顿和延迟
 - **适配完整**：在不同设备上体验一致
+
+### 5. 维护性
+- **文档完善**：API文档和代码注释齐全
+- **规范统一**：编码规范和架构设计一致
+- **工具完善**：通过utils工具库避免重复造轮子
+- **错误监控**：完善的日志记录和错误收集
+
+## 注意事项
+
+### 1. 常见问题避免
+- **系统适配**：必须使用 `systemAdaptBehavior`，不要手动计算
+- **组件引入**：使用前必须在json中声明，避免运行时错误
+- **图标使用**：确认图标在iconMap中存在
+- **API调用**：统一使用apiClient，不要直接调用wx.request
+
+### 2. 新功能开发检查清单
+- [ ] 查阅了相关API文档
+- [ ] 在对应behavior中实现了API逻辑
+- [ ] 复用了现有组件
+- [ ] 使用了systemAdaptBehavior
+- [ ] 添加了错误处理和用户反馈
+- [ ] 在不同设备上测试了适配效果
+
+通过遵循这些规范，可以确保项目的代码质量、用户体验和可维护性都达到较高水准。

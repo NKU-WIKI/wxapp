@@ -7,7 +7,8 @@ Page({
     behaviors.postBehavior,
     behaviors.authBehavior,
     behaviors.userBehavior,
-    behaviors.weuiBehavior
+    behaviors.weuiBehavior,
+    behaviors.systemAdaptBehavior
   ],
 
   data: {

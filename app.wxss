@@ -78,6 +78,7 @@ page {
 
 .weui-btn_primary {
   background-color: #07c160 !important;
+  border-radius: 8rpx !important;
 }
 
 /* 表单 */
@@ -146,4 +147,6 @@ page {
   height: 180rpx !important;
   border-radius: 8rpx !important;
 }
+
+.container {}
 

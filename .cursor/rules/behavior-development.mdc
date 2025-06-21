@@ -20,18 +20,38 @@ alwaysApply: true
 - 避免硬编码特定业务逻辑
 - 通过配置参数支持不同使用方式
 
+## 项目Behavior架构
+
+项目中共有10个核心Behavior，按职责分类：
+
+### 基础设施层
+- **baseBehavior** - 页面基础功能 (生命周期、通用方法)
+- **authBehavior** - 认证状态管理 (登录验证、权限控制)  
+- **systemAdaptBehavior** - 系统适配 (设备信息、导航栏适配)
+- **weuiBehavior** - WeUI组件支持
+
+### 业务逻辑层
+- **userBehavior** - 用户操作 (用户信息、关注功能)
+- **postBehavior** - 帖子管理 (CRUD、互动、过滤)
+- **commentBehavior** - 评论系统 (评论管理、回复功能)
+- **notificationBehavior** - 通知管理 (消息处理、状态更新)
+
+### 功能服务层
+- **knowledgeBehavior** - 知识库操作 (搜索、洞察、历史)
+- **agentBehavior** - 智能问答 (RAG对话、推荐问题)
+
 ## Behavior标准结构
 
 ```javascript
 /**
  * [功能名称]行为 - [功能描述]
  */
-const { storage, createApiClient } = require('../utils/index');
+const { createApiClient, logger, ui, ToastType } = require('../utils/index');
 
-// 1. API客户端定义（可选）
+// 1. API客户端定义（如果需要API调用）
 const apiClient = createApiClient('/api/base/path', {
-  method1: { method: 'GET', path: '/endpoint1', params: { param1: true } },
-  method2: { method: 'POST', path: '/endpoint2', params: { param1: true } }
+  getData: { method: 'GET', path: '/data', params: { openid: true } },
+  createData: { method: 'POST', path: '/create', params: { openid: true } }
 });
 
 module.exports = Behavior({
@@ -68,15 +88,15 @@ module.exports = Behavior({
   
   // 4. 数据定义（可选）
   data: {
-    // 内部状态数据
-    _internalState: {},
+    // 内部状态数据（使用_前缀避免渲染）
+    _behaviorState: {},
     // 缓存数据
     _cache: {}
   },
   
   // 5. 数据监听器（可选）
   observers: {
-    '_internalState.**': function(state) {
+    '_behaviorState.**': function(state) {
       // 监听内部状态变化
     }
   },
@@ -94,7 +114,7 @@ module.exports = Behavior({
     async _getDataList(filter = {}, page = 1, pageSize = 10) {
       try {
         const params = { ...filter, page, page_size: pageSize };
-        const res = await apiClient.method1(params);
+        const res = await apiClient.getData(params);
         
         if (res.code !== 200) {
           throw new Error(res.message || '获取数据失败');
@@ -102,7 +122,8 @@ module.exports = Behavior({
         
         return this._formatListResponse(res);
       } catch (err) {
-        console.debug('获取数据列表失败:', err);
+        logger.error('获取数据列表失败', { error: err, filter, page, pageSize });
+        ui.showToast('获取数据失败，请重试', { type: ToastType.ERROR });
         throw err;
       }
     },
@@ -114,13 +135,15 @@ module.exports = Behavior({
      */
     async _createData(data) {
       try {
-        const res = await apiClient.method2(data);
+        const res = await apiClient.createData(data);
         if (res.code !== 200) {
           throw new Error(res.message || '创建失败');
         }
+        ui.showToast('创建成功', { type: ToastType.SUCCESS });
         return res.data;
       } catch (err) {
-        console.debug('创建数据失败:', err);
+        logger.error('创建数据失败', { error: err, data });
+        ui.showToast('创建失败，请重试', { type: ToastType.ERROR });
         return null;
       }
     },
@@ -155,6 +178,10 @@ module.exports = Behavior({
       const cache = { ...this.data._cache };
       cache[key] = value;
       this.setData({ '_cache': cache });
+    },
+    
+    _clearCache() {
+      this.setData({ '_cache': {} });
     }
   }
 });
@@ -163,24 +190,29 @@ module.exports = Behavior({
 ## API集成规范
 
 ### 1. API客户端定义
+基于项目实际API结构定义客户端：
+
 ```javascript
-// 使用统一的createApiClient创建API客户端
+// 用户相关API
 const userApi = createApiClient('/api/wxapp/user', {
-  profile: { 
-    method: 'GET', 
-    path: '/profile', 
-    params: { openid: true } 
-  },
-  update: { 
-    method: 'POST', 
-    path: '/update', 
-    params: { openid: true } 
-  },
-  follow: { 
-    method: 'POST', 
-    path: '/follow', 
-    params: { follower_id: true, followed_id: true } 
-  }
+  profile: { method: 'GET', path: '/profile', params: { openid: true } },
+  myProfile: { method: 'GET', path: '/my/profile', params: { openid: true } },
+  update: { method: 'POST', path: '/update', params: { openid: true } },
+  list: { method: 'GET', path: '/list', params: { page: false, page_size: false } }
+});
+
+// 帖子相关API  
+const postApi = createApiClient('/api/wxapp/post', {
+  list: { method: 'GET', path: '/list', params: { page: false, page_size: false } },
+  detail: { method: 'GET', path: '/detail', params: { post_id: true } },
+  create: { method: 'POST', path: '/create', params: { openid: true } },
+  update: { method: 'POST', path: '/update', params: { post_id: true, openid: true } },
+  delete: { method: 'POST', path: '/delete', params: { post_id: true, openid: true } }
+});
+
+// 通用动作API (点赞、收藏、关注等)
+const actionApi = createApiClient('/api/wxapp/action', {
+  toggle: { method: 'POST', path: '/toggle', params: { openid: true } }
 });
 ```
 
@@ -189,14 +221,177 @@ const userApi = createApiClient('/api/wxapp/user', {
 // 参数配置说明
 const apiConfig = {
   methodName: {
-    method: 'GET|POST|PUT|DELETE',  // HTTP方法
-    path: '/api/path',              // API路径
-    params: {                       // 参数配置
-      param1: true,                 // 必填参数
-      param2: false                 // 可选参数
+    method: 'GET|POST',           // HTTP方法
+    path: '/api/path',            // API路径
+    params: {                     // 参数配置
+      openid: true,               // 必填参数，自动注入
+      post_id: true,              // 必填参数，调用时提供
+      page: false,                // 可选参数
+      page_size: false            // 可选参数
     }
   }
 };
+```
+
+## 核心Behavior实现
+
+### 1. userBehavior - 用户行为
+```javascript
+const userApi = createApiClient('/api/wxapp/user', {
+  profile: { method: 'GET', path: '/profile', params: { openid: true } },
+  myProfile: { method: 'GET', path: '/my/profile', params: { openid: true } },
+  update: { method: 'POST', path: '/update', params: { openid: true } },
+  list: { method: 'GET', path: '/list', params: { page: false, page_size: false } }
+});
+
+const actionApi = createApiClient('/api/wxapp/action', {
+  toggle: { method: 'POST', path: '/toggle', params: { openid: true } }
+});
+
+module.exports = Behavior({
+  methods: {
+    // 获取用户信息
+    async _getUserProfile(openid, current_openid = null) {
+      try {
+        const params = { openid };
+        if (current_openid) params.current_openid = current_openid;
+        
+        const res = await userApi.profile(params);
+        return res.code === 200 ? res.data : null;
+      } catch (err) {
+        logger.error('获取用户信息失败', { error: err, openid });
+        return null;
+      }
+    },
+    
+    // 关注/取消关注
+    async _toggleFollow(followed_id) {
+      try {
+        const res = await actionApi.toggle({
+          action_type: 'follow',
+          target_id: followed_id
+        });
+        
+        if (res.code === 200) {
+          ui.showToast(res.data.is_active ? '关注成功' : '取消关注', { type: ToastType.SUCCESS });
+          return res.data;
+        }
+        return null;
+      } catch (err) {
+        logger.error('关注操作失败', { error: err, followed_id });
+        ui.showToast('操作失败，请重试', { type: ToastType.ERROR });
+        return null;
+      }
+    }
+  }
+});
+```
+
+### 2. postBehavior - 帖子行为
+```javascript
+const postApi = createApiClient('/api/wxapp/post', {
+  list: { method: 'GET', path: '/list', params: { page: false, page_size: false } },
+  detail: { method: 'GET', path: '/detail', params: { post_id: true } },
+  create: { method: 'POST', path: '/create', params: { openid: true } },
+  delete: { method: 'POST', path: '/delete', params: { post_id: true, openid: true } }
+});
+
+module.exports = Behavior({
+  methods: {
+    // 获取帖子列表
+    async _getPostList(filter = {}) {
+      try {
+        const res = await postApi.list(filter);
+        return res.code === 200 ? this._formatListResponse(res) : { data: [], pagination: {} };
+      } catch (err) {
+        logger.error('获取帖子列表失败', { error: err, filter });
+        return { data: [], pagination: {} };
+      }
+    },
+    
+    // 点赞/取消点赞
+    async _toggleLike(post_id) {
+      try {
+        const res = await actionApi.toggle({
+          action_type: 'like',
+          target_type: 'post',
+          target_id: post_id
+        });
+        
+        if (res.code === 200) {
+          return res.data;
+        }
+        return null;
+      } catch (err) {
+        logger.error('点赞操作失败', { error: err, post_id });
+        return null;
+      }
+    },
+    
+    // 收藏/取消收藏
+    async _toggleFavorite(post_id) {
+      try {
+        const res = await actionApi.toggle({
+          action_type: 'favorite',
+          target_type: 'post',
+          target_id: post_id
+        });
+        
+        if (res.code === 200) {
+          return res.data;
+        }
+        return null;
+      } catch (err) {
+        logger.error('收藏操作失败', { error: err, post_id });
+        return null;
+      }
+    }
+  }
+});
+```
+
+### 3. systemAdaptBehavior - 系统适配
+```javascript
+const { getSystemInfo } = require('../utils/index');
+
+module.exports = Behavior({
+  data: {
+    // 系统信息会自动从全局获取
+    _systemInfo: null
+  },
+  
+  lifetimes: {
+    attached() {
+      // 自动注入系统适配信息
+      const systemInfo = getSystemInfo();
+      this.setData({
+        _systemInfo: systemInfo,
+        statusBarHeight: systemInfo.statusBarHeight,
+        navBarHeight: systemInfo.navBarHeight,
+        totalNavHeight: systemInfo.totalNavHeight
+      });
+    }
+  },
+  
+  methods: {
+    // 获取适配样式
+    getAdaptedStyle() {
+      const { statusBarHeight, navBarHeight, totalNavHeight } = this.data;
+      return {
+        statusBarHeight: `${statusBarHeight}px`,
+        navBarHeight: `${navBarHeight}px`,
+        totalNavHeight: `${totalNavHeight}px`,
+        contentTop: `${totalNavHeight}px`
+      };
+    },
+    
+    // 计算相对导航栏的位置
+    calculatePositionFromNavBar(offset = 0) {
+      const { totalNavHeight } = this.data;
+      return `${totalNavHeight + offset}px`;
+    }
+  }
+});
 ```
 
 ## 方法命名规范
@@ -206,7 +401,7 @@ const apiConfig = {
 - **创建数据**：`_createData`, `_addData`
 - **更新数据**：`_updateData`, `_modifyData`
 - **删除数据**：`_deleteData`, `_removeData`
-- **状态切换**：`_toggleStatus`, `_switchState`
+- **状态切换**：`_toggleStatus`, `_toggleLike`, `_toggleFollow`
 
 ### 2. 私有方法命名
 ```javascript
@@ -214,6 +409,7 @@ methods: {
   // 格式化方法
   _formatData(data) {},
   _parseJsonFields(data) {},
+  _formatListResponse(res) {},
   
   // 验证方法
   _validateParams(params) {},
@@ -226,7 +422,8 @@ methods: {
   
   // 工具方法
   _buildParams(data) {},
-  _handleError(err) {}
+  _handleError(err) {},
+  _debounce(func, wait) {}
 }
 ```
 
@@ -245,14 +442,14 @@ async _apiMethod(params) {
     
     return res.data;
   } catch (err) {
-    console.debug('API调用失败:', err);
+    logger.error('API调用失败', { error: err, params, context: '_apiMethod' });
     
     // 根据错误类型决定处理方式
     if (err.message.includes('网络')) {
-      // 网络错误，可以考虑重试
+      ui.showToast('网络连接失败，请检查网络', { type: ToastType.ERROR });
       throw err;
     } else {
-      // 业务错误，返回null或默认值
+      ui.showToast('操作失败，请重试', { type: ToastType.ERROR });
       return null;
     }
   }
@@ -261,23 +458,33 @@ async _apiMethod(params) {
 
 ### 2. 错误分类处理
 ```javascript
-_handleApiError(err, context = '') {
+_handleApiError(err, context = '', showToast = true) {
   const errorType = this._classifyError(err);
+  
+  let message = '操作失败，请重试';
   
   switch (errorType) {
     case 'network':
-      console.debug(`${context} 网络错误:`, err);
-      return { success: false, message: '网络连接失败，请检查网络' };
+      message = '网络连接失败，请检查网络';
+      break;
     case 'auth':
-      console.debug(`${context} 认证错误:`, err);
-      return { success: false, message: '登录已过期，请重新登录' };
+      message = '登录已过期，请重新登录';
+      break;
     case 'permission':
-      console.debug(`${context} 权限错误:`, err);
-      return { success: false, message: '权限不足' };
-    default:
-      console.debug(`${context} 未知错误:`, err);
-      return { success: false, message: '操作失败，请重试' };
+      message = '权限不足';
+      break;
+    case 'validation':
+      message = err.message || '参数验证失败';
+      break;
   }
+  
+  logger.error(`${context} 失败`, { error: err, type: errorType });
+  
+  if (showToast) {
+    ui.showToast(message, { type: ToastType.ERROR });
+  }
+  
+  return { success: false, message, type: errorType };
 }
 ```
 
@@ -286,7 +493,7 @@ _handleApiError(err, context = '') {
 ### 1. 状态数据定义
 ```javascript
 data: {
-  // 使用下划线前缀标识内部数据
+  // 使用下划线前缀标识内部数据（不触发渲染）
   _loading: false,
   _error: null,
   _cache: {},
@@ -307,11 +514,12 @@ data: {
 ### 2. 缓存管理
 ```javascript
 methods: {
-  // 缓存策略
+  // 智能缓存策略
   async _getCachedData(key, fetcher, ttl = 300000) { // 5分钟缓存
     const cached = this._getCache(key);
     
     if (cached && Date.now() - cached.timestamp < ttl) {
+      logger.debug('使用缓存数据', { key });
       return cached.data;
     }
     
@@ -321,10 +529,15 @@ methods: {
         data: freshData,
         timestamp: Date.now()
       });
+      logger.debug('更新缓存数据', { key });
       return freshData;
     } catch (err) {
       // 如果获取失败且有缓存，返回缓存数据
-      return cached ? cached.data : null;
+      if (cached) {
+        logger.warn('API失败，使用过期缓存', { key, error: err });
+        return cached.data;
+      }
+      throw err;
     }
   }
 }
@@ -332,7 +545,7 @@ methods: {
 
 ## 生命周期管理
 
-### 1. 资源初始化
+### 1. 资源初始化和清理
 ```javascript
 lifetimes: {
   attached() {
@@ -341,6 +554,9 @@ lifetimes: {
     
     // 绑定事件监听
     this._bindEventListeners();
+    
+    // 初始化缓存
+    this.setData({ '_cache': {} });
   },
   
   detached() {
@@ -349,6 +565,9 @@ lifetimes: {
     
     // 移除事件监听
     this._unbindEventListeners();
+    
+    // 清理缓存
+    this._clearCache();
   }
 }
 ```
@@ -425,52 +644,10 @@ methods: {
       const results = await Promise.all(requests);
       return results;
     } catch (err) {
-      console.debug('批量API调用失败:', err);
+      logger.error('批量API调用失败', { error: err, requests });
       throw err;
     }
   }
-}
-```
-
-## 文档和注释
-
-### 1. Behavior注释模板
-```javascript
-/**
- * Behavior名称：用户行为管理
- * 功能描述：处理用户信息获取、更新、关注等操作
- * 
- * 公共方法：
- * @method _getUserProfile(openid) - 获取用户信息
- * @method _updateUserProfile(data) - 更新用户信息
- * @method _toggleFollow(params) - 切换关注状态
- * @method _getUserList(filter, page, pageSize) - 获取用户列表
- * 
- * 使用示例：
- * behaviors: [behaviors.baseBehavior, behaviors.userBehavior]
- * 
- * 调用方法：
- * const userInfo = await this._getUserProfile(openid);
- */
-```
-
-### 2. 方法注释规范
-```javascript
-/**
- * 获取用户信息
- * @param {string} openid - 用户OpenID
- * @param {boolean} useCache - 是否使用缓存，默认true
- * @returns {Promise<Object|null>} 用户信息对象或null
- * @throws {Error} 当网络请求失败时抛出错误
- * 
- * @example
- * const userInfo = await this._getUserProfile('user123', false);
- * if (userInfo) {
- *   console.log('用户昵称:', userInfo.nickname);
- * }
- */
-async _getUserProfile(openid, useCache = true) {
-  // 实现逻辑
 }
 ```
 
@@ -481,7 +658,13 @@ async _getUserProfile(openid, useCache = true) {
 const behaviors = require('../../behaviors/index');
 
 Page({
-  behaviors: [behaviors.baseBehavior, behaviors.userBehavior, behaviors.postBehavior],
+  behaviors: [
+    behaviors.baseBehavior, 
+    behaviors.authBehavior,
+    behaviors.systemAdaptBehavior,  // 必须包含
+    behaviors.userBehavior, 
+    behaviors.postBehavior
+  ],
   
   data: {
     userInfo: null,
@@ -489,18 +672,23 @@ Page({
   },
   
   async onLoad() {
-    // 使用behavior方法
-    await this.loadUserData();
-    await this.loadPostData();
+    // 系统适配自动处理，不需要手动调用
+    await this.loadData();
   },
   
-  async loadUserData() {
+  async loadData() {
     try {
-      const openid = this.getStorage('openid');
+      // 使用behavior方法
+      const openid = this.getOpenID();
       const userInfo = await this._getUserProfile(openid);
-      this.setData({ userInfo });
+      const postData = await this._getPostList({ author: openid });
+      
+      this.setData({ 
+        userInfo,
+        postList: postData.data 
+      });
     } catch (err) {
-      this.showError('加载用户信息失败');
+      logger.error('加载数据失败', { error: err });
     }
   }
 });
@@ -511,24 +699,35 @@ Page({
 const behaviors = require('../../behaviors/index');
 
 Component({
-  behaviors: [behaviors.baseBehavior, behaviors.userBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.postBehavior],
   
   properties: {
-    openid: String
+    postId: String
   },
   
   observers: {
-    'openid': function(openid) {
-      if (openid) {
-        this.loadUserInfo(openid);
+    'postId': function(postId) {
+      if (postId) {
+        this.loadPostDetail(postId);
       }
     }
   },
   
   methods: {
-    async loadUserInfo(openid) {
-      const userInfo = await this._getUserProfile(openid);
-      this.setData({ userInfo });
+    async loadPostDetail(postId) {
+      const postDetail = await this._getPostDetail(postId);
+      this.setData({ postDetail });
+    },
+    
+    async onLike() {
+      const result = await this._toggleLike(this.data.postDetail.id);
+      if (result) {
+        // 更新点赞状态
+        this.setData({
+          'postDetail.is_liked': result.is_active,
+          'postDetail.like_count': result.count
+        });
+      }
     }
   }
 });
@@ -540,6 +739,9 @@ Component({
 2. **接口统一**：使用一致的方法命名和参数格式
 3. **错误处理**：提供完善的错误处理和用户反馈
 4. **性能优化**：合理使用缓存、防抖、节流等技术
-5. **文档完善**：提供清晰的注释和使用示例
-6. **向前兼容**：修改接口时考虑向前兼容性
-7. **测试友好**：设计易于测试的方法接口
+5. **系统适配**：所有页面必须包含systemAdaptBehavior
+6. **API集成**：统一使用createApiClient进行API调用
+7. **日志记录**：完善的日志记录便于问题排查
+8. **用户体验**：操作反馈及时，错误提示友好
+
+通过遵循这些规范，可以构建出高质量、易维护、性能优良的Behavior体系。

@@ -1,9 +1,10 @@
-<nav-bar title="登录" 
-	showBack="{{true}}" 
-	showAvatar="{{false}}" 
-	showNotification="{{false}}" 
-	/>
 <view class="container">
+  <nav-bar title="登录" 
+    showBack="{{true}}" 
+    showAvatar="{{false}}" 
+    showNotification="{{false}}" 
+    fixed="{{true}}"
+  />
   <view class="main-content">
     <!-- Logo区域 -->
     <block wx:if="{{aboutInfo && aboutInfo.version}}">

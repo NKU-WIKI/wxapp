@@ -3,14 +3,21 @@
  */
 const { storage, createApiClient } = require('../utils/index');
 
-// 使用createApiClient创建统一的用户API
+// API客户端：用户
 const userApi = createApiClient('/api/wxapp/user', {
-  profile: { method: 'GET',  path: '/profile', params: { openid: true } },
-  update:  { method: 'POST', path: '/update',  params: { openid: true } },
-  follow:  { method: 'POST', path: '/follow',  params: { follower_id: true, followed_id: true } },
-  status:  { method: 'GET',  path: '/status',  params: { openid: true, target_id: true, target_openid: false } },
-  list:    { method: 'GET',  path: '/list',    params: {} }
+  profile:    { method: 'GET',  path: '/profile' }, // params: openid, current_openid
+  myProfile:  { method: 'GET',  path: '/my/profile' }, // params: openid
+  update:     { method: 'POST', path: '/update' }, // params: openid, ...
+  list:       { method: 'GET',  path: '/list' }, // params: page, page_size, nickname, sort_by
+  followers:  { method: 'GET',  path: '/followers' }, // params: openid, page, page_size
+  followings: { method: 'GET',  path: '/followings' },// params: openid, page, page_size
 });
+
+// API客户端：通用互动
+const actionApi = createApiClient('/api/wxapp/action', {
+  toggle: { method: 'POST', path: '/toggle' } // params: target_id, target_type, action_type, openid
+});
+
 
 module.exports = Behavior({
   
@@ -22,49 +29,55 @@ module.exports = Behavior({
      * @param {Object} filter - 筛选条件
      * @param {string} filter.type - 列表类型：all(所有用户)、follower(粉丝)、following(关注)
      * @param {string} filter.openid - 用户openid（当type为follower或following时必填）
+     * @param {string} filter.nickname - 昵称搜索关键词
      * @param {number} page - 页码，默认1
-     * @param {number} page_size - 每页数量，默认10
+     * @param {number} pageSize - 每页数量，默认10
      * @returns {Promise<Object>} API响应
      */
-    async _getUserList(filter = {}, page = 1, page_size = 10) {
-      // 构建查询参数
-      const params = { page, page_size };
-      
-      // 如果filter是对象，提取支持的参数
-      if (typeof filter === 'object') {
-        // 支持type参数：all, follower, following
-        if (filter.type) {
-          params.type = filter.type;
-        }
-        
-        // 支持openid参数
-        if (filter.openid) {
-          params.openid = filter.openid;
-        }
+    async _getUserList(filter = {}, page = 1, pageSize = 10) {
+      const params = { page, page_size: pageSize };
+      const { type, openid, nickname } = filter;
+
+      let apiCall;
+
+      switch (type) {
+        case 'follower':
+          if (!openid) throw new Error('获取粉丝列表必须提供 openid');
+          params.openid = openid;
+          apiCall = userApi.followers(params);
+          break;
+        case 'following':
+          if (!openid) throw new Error('获取关注列表必须提供 openid');
+          params.openid = openid;
+          apiCall = userApi.followings(params);
+          break;
+        default: // 'all' or other
+          if (nickname) {
+            params.nickname = nickname;
+          }
+          apiCall = userApi.list(params);
+          break;
       }
       
       try {
-        const res = await userApi.list(params);
+        const res = await apiCall;
         if (res.code !== 200) {
           throw new Error(res.message || '获取用户列表失败');
         }
         
         // 处理分页数据，确保返回标准格式
-        const result = {
+        return {
           data: res.data || [],
           pagination: res.pagination || {
-            total: res.total || 0,
+            total: 0,
             page: page,
-            page_size: page_size,
-            total_pages: Math.ceil((res.total || 0) / page_size) || 0,
-            has_more: res.has_more !== undefined ? res.has_more : 
-              ((page * page_size) < (res.total || 0))
+            page_size: pageSize,
+            total_pages: 0,
+            has_more: false
           }
         };
-        
-        return result;
       } catch (err) {
-        console.debug('获取用户列表失败:', err);
+        console.debug(`获取用户列表失败 (type: ${type}):`, err);
         throw err;
       }
     },
@@ -72,18 +85,46 @@ module.exports = Behavior({
     /**
      * 获取指定openid的用户公开信息
      * @param {string} targetOpenid - 要获取信息的用户openid
+     * @param {boolean} checkFollowStatus - 是否要检查当前用户的关注状态
      * @returns {Promise<object|null>} 用户信息或 null
      */
-    async _getUserProfileByOpenid(targetOpenid) {
+    async _getUserProfile(targetOpenid, checkFollowStatus = false) {
       if (!targetOpenid) return null;
+      
+      const params = { openid: targetOpenid };
+      if (checkFollowStatus) {
+        const currentOpenid = storage.get('openid');
+        if (currentOpenid) {
+          params.current_openid = currentOpenid;
+        }
+      }
+
       try {
-        const res = await userApi.profile({
-          openid: targetOpenid
-        });
+        const res = await userApi.profile(params);
         if (res.code !== 200) throw new Error(res.message || '获取用户信息失败');
         return res.data;
       } catch (err) {
         console.debug('获取用户信息失败:', err);
+        return null;
+      }
+    },
+
+    /**
+     * 获取当前登录用户的完整信息
+     * @returns {Promise<object|null>}
+     */
+    async _getMyProfile() {
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('获取我的信息失败: openid 不存在');
+        return null;
+      }
+      try {
+        const res = await userApi.myProfile({ openid });
+        if (res.code !== 200) throw new Error(res.message || '获取我的信息失败');
+        return res.data;
+      } catch (err) {
+        console.debug('获取我的信息失败:', err);
         return null;
       }
     },
@@ -97,7 +138,7 @@ module.exports = Behavior({
       if (!post || !post.openid) return post;
       
       try {
-        const userInfo = await this._getUserProfileByOpenid(post.openid);
+        const userInfo = await this._getUserProfile(post.openid);
         if (userInfo) {
           return {
             ...post,
@@ -110,44 +151,6 @@ module.exports = Behavior({
       }
       
       return post;
-    },
-
-    /**
-     * 获取当前用户与目标用户的关系状态 (如是否关注)
-     * @param {string} targetUserId - 目标用户ID
-     * @returns {Promise<object|null>} 关系状态或 null
-     */
-    async _getUserStatus(targetUserId) {
-      if (!targetUserId) return null;
-      const openid = storage.get('openid');
-      if (!openid) return null;
-
-      try {
-        const res = await userApi.status({ openid, target_id: targetUserId });
-        return res.code === 200 ? res.data : null;
-      } catch (err) {
-        console.debug('获取用户关系状态失败:', err);
-        return null;
-      }
-    },
-
-    /**
-     * 获取当前用户与目标用户的关系状态(使用openid)
-     * @param {string} targetOpenid - 目标用户openid
-     * @returns {Promise<object|null>} 关系状态或 null
-     */
-    async _getUserStatusByOpenid(targetOpenid) {
-      if (!targetOpenid) return null;
-      const openid = storage.get('openid');
-      if (!openid) return null;
-
-      try {
-        const res = await userApi.status({ openid, target_openid: targetOpenid });
-        return res.code === 200 ? res.data : null;
-      } catch (err) {
-        console.debug('获取用户关系状态失败:', err);
-        return null;
-      }
     },
 
     // ==== 用户操作 ====
@@ -198,35 +201,31 @@ module.exports = Behavior({
 
     /**
      * 切换对目标用户的关注状态
-     * @param {object|string} params - 关注参数对象或被关注用户ID
-     * @returns {Promise<object|null>} 操作结果或 null
+     * @param {string} targetOpenid - 被关注用户的 openid
+     * @returns {Promise<object|null>} 操作结果或 null, data.is_active 表示操作后是否为关注状态
      */
-    async _toggleFollow(params) {
+    async _toggleFollow(targetOpenid) {
       const openid = storage.get('openid');
-      if (!openid) return null;
+      if (!openid) {
+        console.debug('关注操作失败: 未登录');
+        return null;
+      }
+      if (!targetOpenid) {
+        console.debug('关注操作失败: 缺少目标用户 openid');
+        return null;
+      }
 
       try {
-        console.debug('执行关注/取消关注操作');
+        console.debug(`执行关注/取消关注操作 -> ${targetOpenid}`);
         
-        // 兼容两种调用方式
-        let apiParams;
-        if (typeof params === 'string') {
-          // 旧方式：直接传入被关注用户ID
-          apiParams = { 
-            followed_id: params, 
-            follower_id: openid 
-          };
-        } else {
-          // 新方式：传入完整参数对象
-          apiParams = { ...params };
-          // 确保至少有follower_id
-          if (!apiParams.follower_id) {
-            apiParams.follower_id = openid;
-          }
-        }
+        const params = {
+          target_id: targetOpenid,
+          target_type: 'user',
+          action_type: 'follow',
+          openid: openid
+        };
         
-        // API请求
-        const res = await userApi.follow(apiParams);
+        const res = await actionApi.toggle(params);
         
         if (res.code !== 200 || !res.data) {
           throw new Error(res.message || '操作失败');

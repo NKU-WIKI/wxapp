@@ -1,12 +1,12 @@
 <!-- 帖子详情页 -->
-<nav-bar 
-  title="{{postDetail.data.title}}"
-  showBack="{{true}}"
-  showAvatar="{{false}}"
-  showNotice="{{false}}"
-/>
-
 <view class="post-container">
+  <nav-bar 
+    title="{{postDetail.data.title}}"
+    showBack="{{true}}"
+    showAvatar="{{false}}"
+    showNotice="{{false}}"
+    fixed="{{true}}"
+  />
   <!-- 帖子内容和评论的包装器 -->
   <view class="post-content-wrapper" style="overflow:hidden;">
     <!-- 加载状态 -->

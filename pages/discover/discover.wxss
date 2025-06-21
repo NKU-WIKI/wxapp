@@ -5,6 +5,12 @@
   padding-bottom: 30rpx;
 }
 
+:host {
+  --official-color: #6369e8;
+  --community-color: #ffb800;
+  --market-color: #ff5722;
+}
+
 /* 开发中提示样式 */
 .developing-container {
   display: flex;
@@ -53,31 +59,47 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 30rpx 30rpx 20rpx;
+  margin: 40rpx 30rpx 20rpx;
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
   font-size: 34rpx;
   font-weight: bold;
   color: #333;
   position: relative;
-  padding-left: 20rpx;
+}
+
+.title-icon {
+  margin-right: 16rpx;
 }
 
 .section-title::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 12rpx;
-  height: 32rpx;
-  width: 8rpx;
-  background-color: #6369e8;
-  border-radius: 4rpx;
+  display: none;
+}
+
+.official .title-icon {
+  color: var(--official-color);
+}
+.community .title-icon {
+  color: var(--community-color);
+}
+.market .title-icon {
+  color: var(--market-color);
+}
+
+.official .section-title::before,
+.community .section-title::before,
+.market .section-title::before {
+  display: none;
 }
 
 .more-link {
-  font-size: 28rpx;
-  color: #6369e8;
+  font-size: 26rpx;
+  color: #999;
+  display: flex;
+  align-items: center;
 }
 
 /* 推荐问题卡片 - 修改为横向布局 */
@@ -151,7 +173,13 @@
   border-radius: 16rpx;
   padding: 24rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+.wiki-topic-card:active {
+  transform: translateY(-2rpx);
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.1);
 }
 
 .topic-content {
@@ -164,12 +192,37 @@
   color: #333;
   line-height: 1.5;
   margin-bottom: 16rpx;
+  font-weight: 500;
 }
 
 .topic-tag {
   font-size: 24rpx;
   color: #6369e8;
   font-weight: 500;
+  margin-top: 12rpx;
+}
+
+.official .topic-tag {
+  color: var(--official-color);
+}
+.community .topic-tag {
+  color: var(--community-color);
+}
+.market .topic-tag {
+  color: var(--market-color);
+}
+
+.topic-preview {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 16rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin-top: 8rpx;
 }
 
 /* 热榜区域 */

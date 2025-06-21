@@ -5,100 +5,23 @@ const { storage, createApiClient, msgSecCheck, ui } = require('../utils/index');
 
 // 创建知识库API客户端
 const knowledgeApi = createApiClient('/api/knowledge', {
-  esSearch: { 
-    method: 'GET', 
-    path: '/es-search', 
-    params: { query: true, openid: true }
-  },
-  advancedSearch: {
-    method: 'GET',
-    path: '/advanced-search',
-    params: { query: true, openid: true }
-  },
-  searchWxapp: { 
-    method: 'GET', 
-    path: '/search-wxapp', 
-    params: { query: true}
-  },
-  suggestion: { 
-    method: 'GET', 
-    path: '/suggestion', 
-    params: { query: true, openid: true }
-  },
-  history: { 
-    method: 'GET', 
-    path: '/history', 
-    params: { openid: true }
-  },
-  clearHistory: { 
-    method: 'POST', 
-    path: '/history/clear', 
-    params: { openid: true }
-  },
-  hot: { 
-    method: 'GET', 
-    path: '/hot', 
-    params: { openid: true }
-  },
-  // 新增API
-  create: {
-    method: 'POST',
-    path: '',
-    params: { openid: true, title: true, content: true }
-  },
-  detail: {
-    method: 'GET',
-    path: '/:id',
-    params: { id: true, openid: true }
-  },
-  viewCount: {
-    method: 'POST',
-    path: '/:id/view',
-    params: { id: true, openid: true }
-  },
-  like: {
-    method: 'POST',
-    path: '/:id/like',
-    params: { id: true, openid: true }
-  },
-  unlike: {
-    method: 'DELETE',
-    path: '/:id/like',
-    params: { id: true, openid: true }
-  },
-  collect: {
-    method: 'POST',
-    path: '/:id/collect',
-    params: { id: true, openid: true }
-  },
-  uncollect: {
-    method: 'DELETE',
-    path: '/:id/collect',
-    params: { id: true, openid: true }
-  },
-  update: {
-    method: 'PUT',
-    path: '/:id',
-    params: { id: true, openid: true, title: true, content: true }
-  },
-  delete: {
-    method: 'DELETE',
-    path: '/:id',
-    params: { id: true, openid: true }
-  }
+  esSearch:     { method: 'GET', path: '/es-search' },      // params: query, openid, platform, page, ...
+  suggestion:   { method: 'GET', path: '/suggestion' },     // params: query, openid
+  history:      { method: 'GET', path: '/history' },        // params: openid
+  clearHistory: { method: 'POST',path: '/history/clear' },  // params: openid
+  insight:      { method: 'GET', path: '/insight' },        // params: date, page, page_size
 });
 
 module.exports = Behavior({
   methods: {
     /**
-     * Elasticsearch搜索 - 支持通配符的快速检索
-     * @param {string} query 搜索关键词，支持通配符 * 和 ?
+     * Elasticsearch搜索
+     * @param {string} query 搜索关键词
      * @param {object} options 搜索选项
-     * @param {string} options.source 数据源筛选，多个用逗号分隔，如：website_nku,wechat_nku,wxapp_post
-     * @param {number} options.page 分页页码，默认1
-     * @param {number} options.page_size 每页结果数，默认10
-     * @param {number} options.max_content_length 内容最大长度，默认300
-     * @returns {Promise<object>} 搜索结果
+     * @param {string} options.platform 数据源筛选，多个用逗号分隔
+     * @param {number} options.page 分页页码
+     * @param {number} options.page_size 每页结果数
+     * @returns {Promise<object|null>} 搜索结果
      */
     async _search(query, options = {}) {
       if (!query || !query.trim()) {
@@ -112,22 +35,13 @@ module.exports = Behavior({
       }
       
       try {
-        // 构建请求参数
         const params = {
           query: query.trim(),
-          openid
+          openid,
+          ...options
         };
         
-        // 添加可选参数
-        if (options.source) params.source = options.source;
-        if (options.page) params.page = options.page;
-        if (options.page_size) params.page_size = options.page_size;
-        if (options.max_content_length) params.max_content_length = options.max_content_length;
-        
-        // 调用ES搜索接口
         const res = await knowledgeApi.esSearch(params);
-        
-        console.debug('ES搜索API响应:', JSON.stringify(res));
         
         if (res.code !== 200) {
           throw new Error(res.message || '搜索失败');
@@ -136,262 +50,107 @@ module.exports = Behavior({
         return {
           data: res.data || [],
           pagination: res.pagination || {
-            total: res.total || 0,
+            total: 0,
             page: params.page || 1,
             page_size: params.page_size || 10,
-            total_pages: Math.ceil((res.total || 0) / (params.page_size || 10)),
-            has_more: ((params.page || 1) * (params.page_size || 10)) < (res.total || 0)
-          }
-        };
-      } catch (err) {
-        console.debug('ES搜索API失败:', err);
-        return null;
-      }
-    },
-
-    /**
-     * 通配符搜索 - 便捷的ES搜索封装
-     * @param {string} query 搜索关键词，支持通配符
-     * @param {string} source 数据源，可选值：website_nku,wechat_nku,market_nku,wxapp_post,wxapp_comment
-     * @param {number} page 分页页码，默认1
-     * @param {number} pageSize 每页结果数，默认10
-     * @returns {Promise<object>} 搜索结果
-     */
-    async _wildcardSearch(query, source = '', page = 1, pageSize = 10) {
-      return await this._search(query, {
-        source,
-        page,
-        page_size: pageSize
-      });
-    },
-
-    /**
-     * 搜索官方内容（网站+微信公众号）
-     * @param {string} query 搜索关键词
-     * @param {number} page 分页页码，默认1
-     * @param {number} pageSize 每页结果数，默认10
-     * @returns {Promise<object>} 搜索结果
-     */
-    async _searchOfficial(query, page = 1, pageSize = 10) {
-      return await this._search(query, {
-        source: 'website_nku,wechat_nku',
-        page,
-        page_size: pageSize
-      });
-    },
-
-    /**
-     * 搜索用户内容（帖子+评论）
-     * @param {string} query 搜索关键词
-     * @param {number} page 分页页码，默认1
-     * @param {number} pageSize 每页结果数，默认10
-     * @returns {Promise<object>} 搜索结果
-     */
-    async _searchUserContent(query, page = 1, pageSize = 10) {
-      return await this._search(query, {
-        source: 'wxapp_post,wxapp_comment',
-        page,
-        page_size: pageSize
-      });
-    },
-
-    /**
-     * 高级RAG搜索
-     * @param {string} query 搜索关键词
-     * @returns {Promise<object>} 搜索结果
-     */
-    async _advancedSearch(query) {
-      if (!query || !query.trim()) {
-        return null;
-      }
-      
-      const openid = storage.get('openid');
-      if (!openid) {
-        console.debug('高级搜索需要用户登录');
-        ui.showToast('请先登录', { type: 'error' });
-        return null;
-      }
-      
-      try {
-        const res = await knowledgeApi.advancedSearch({
-          query: query.trim(),
-          openid
-        });
-        
-        console.debug('高级搜索API响应:', JSON.stringify(res));
-        
-        if (res.code !== 200) {
-          throw new Error(res.message || '搜索失败');
-        }
-
-        // 直接返回RAG管道的结果
-        return res.data;
-
-      } catch (err) {
-        console.debug('高级搜索API失败:', err);
-        ui.showToast(err.message || '搜索失败', { type: 'error' });
-        return null;
-      }
-    },
-
-    /**
-     * 小程序专用搜索
-     * @param {string} query 搜索关键词
-     * @param {number} page 分页页码
-     * @param {number} page_size 每页条数
-     * @returns {Promise<object>} 搜索结果
-     */
-    async _searchWxapp(query, page = 1, page_size = 10) {
-      if (!query || !query.trim()) {
-        return null;
-      }
-      
-      const openid = storage.get('openid');
-      if (!openid) {
-        console.debug('搜索需要用户登录');
-        return null;
-      }
-
-      try {
-        const res = await knowledgeApi.searchWxapp({
-          query: query.trim(),
-          openid,
-          page,
-          page_size
-        });
-        
-        if (res.code !== 200) {
-          throw new Error(res.message || '搜索失败');
-        }
-        
-        return {
-          data: res.data?.results || [],
-          pagination: res.data?.pagination || {
-            total: 0,
-            page,
-            page_size,
-            total_pages: 0,
             has_more: false
           }
         };
       } catch (err) {
-        console.debug('小程序搜索失败:', err);
+        console.debug('ES搜索API失败:', err);
+        throw err;
+      }
+    },
+
+    /**
+     * 获取搜索建议
+     * @param {string} query 搜索关键词
+     * @param {number} pageSize 返回数量
+     * @returns {Promise<Array|null>}
+     */
+    async _getSuggestions(query, pageSize = 5) {
+      if (!query || !query.trim()) {
+        return null;
+      }
+      const openid = storage.get('openid');
+      if (!openid) return null;
+
+      try {
+        const res = await knowledgeApi.suggestion({ query, openid, page_size: pageSize });
+        if (res.code !== 200) throw new Error(res.message);
+        return res.data;
+      } catch (err) {
+        console.debug('获取搜索建议失败:', err);
         return null;
       }
     },
-    
-    /**
-     * 获取搜索建议
-     * @param {string} query 搜索前缀
-     * @param {number} page_size 返回结果数量
-     * @returns {Promise<string[]>} 搜索建议列表
-     */
-    async _getSuggestions(query, page_size = 5) {
-      if (!query || !query.trim()) {
-        return [];
-      }
-      
-      const openid = storage.get('openid');
-      if (!openid) {
-        console.debug('获取搜索建议需要用户登录');
-        return [];
-      }
 
-      try {
-        const res = await knowledgeApi.suggestion({
-          query: query.trim(),
-          openid,
-          page_size
-        });
-        
-        if (res.code !== 200) {
-          throw new Error(res.message || '获取搜索建议失败');
-        }
-        
-        return res.data || [];
-      } catch (err) {
-        console.debug('获取搜索建议失败:', err);
-        return [];
-      }
-    },
-    
     /**
      * 获取搜索历史
-     * @param {number} page_size 返回结果数量
-     * @returns {Promise<object[]>} 搜索历史列表
+     * @param {number} pageSize 返回数量
+     * @returns {Promise<Array|null>}
      */
-    async _getSearchHistory(page_size = 10) {
+    async _getSearchHistory(pageSize = 10) {
       const openid = storage.get('openid');
-      if (!openid) {
-        console.debug('获取搜索历史需要用户登录');
-        return [];
-      }
+      if (!openid) return null;
 
       try {
-        const res = await knowledgeApi.history({
-          openid,
-          page_size
-        });
-        
-        if (res.code !== 200) {
-          throw new Error(res.message || '获取搜索历史失败');
-        }
-        
-        return res.data || [];
+        const res = await knowledgeApi.history({ openid, page_size: pageSize });
+        if (res.code !== 200) throw new Error(res.message);
+        return res.data;
       } catch (err) {
         console.debug('获取搜索历史失败:', err);
-        return [];
+        return null;
       }
     },
-    
+
     /**
-     * 清除搜索历史
-     * @returns {Promise<boolean>} 是否成功
+     * 清空搜索历史
+     * @returns {Promise<boolean>}
      */
     async _clearSearchHistory() {
       const openid = storage.get('openid');
-      if (!openid) {
-        console.debug('清除搜索历史需要用户登录');
-        return false;
-      }
+      if (!openid) return false;
 
       try {
         const res = await knowledgeApi.clearHistory({ openid });
         return res.code === 200;
       } catch (err) {
-        console.debug('清除搜索历史失败:', err);
+        console.debug('清空搜索历史失败:', err);
         return false;
       }
     },
-    
+
     /**
-     * 获取热门搜索关键词
-     * @param {number} page_size 返回结果数量
-     * @returns {Promise<object[]>} 热门搜索关键词列表
+     * 获取指定日期的洞察报告
+     * @param {string} date 日期，格式 YYYY-MM-DD
+     * @param {object} options 分页选项 { page, page_size, category }
+     * @returns {Promise<object|null>}
      */
-    async _getHotSearches(page_size = 10) {
-      const openid = storage.get('openid');
-      if (!openid) {
-        console.debug('获取热门搜索需要用户登录');
-        return [];
-      }
+    async _getInsight(date, options = {}) {
+      if (!date) return null;
+      const { page = 1, pageSize = 10, category } = options;
 
       try {
-        const res = await knowledgeApi.hot({
-          openid,
-          page_size
-        });
-        
-        console.debug('热门搜索接口响应:', JSON.stringify(res));
-        
-        if (res.code !== 200) {
-          throw new Error(res.message || '获取热门搜索失败');
+        const params = { 
+          date, 
+          page,
+          page_size: pageSize,
+        };
+        if (category) {
+          params.category = category;
         }
+
+        const res = await knowledgeApi.insight(params);
+        if (res.code !== 200) throw new Error(res.message);
         
-        return res.data || [];
+        return {
+          data: res.data || [],
+          pagination: res.pagination || { has_more: false }
+        };
       } catch (err) {
-        console.debug('获取热门搜索失败:', err);
-        return [];
+        console.debug(`获取洞察失败 (日期: ${date}):`, err);
+        throw err;
       }
     },
 

@@ -1,18 +1,15 @@
 /**
- * 智能体行为 - 封装智能体API交互逻辑
+ * 智能体行为 - 封装RAG API交互逻辑
  */
 const { storage, createApiClient, createStreamApiClient, ui, ToastType } = require('../utils/index');
 
-// 创建常规智能体API客户端
+// 创建常规RAG API客户端
 const agentApi = createApiClient('/api/agent', {
-  status: { method: 'GET', path: '/status', params: {} },
-  chat: { method: 'POST', path: '/chat', params: { openid: true, query: true } },
   rag: { method: 'POST', path: '/rag', params: { openid: true, query: true } }
 });
 
-// 创建流式智能体API客户端
+// 创建流式RAG API客户端
 const agentStreamApi = createStreamApiClient('/api/agent', {
-  chat: { method: 'POST', path: '/chat', params: { openid: true, query: true } },
   rag: { method: 'POST', path: '/rag', params: { openid: true, query: true } }
 });
 
@@ -29,9 +26,7 @@ module.exports = Behavior({
     session: {
       type: Object,
       value: {
-        botTag: 'general', // 使用的机器人类型
         format: 'markdown', // 回复格式
-        hasMore: false,     // 是否有更多消息
         loading: false      // 是否正在加载
       }
     }
@@ -40,506 +35,115 @@ module.exports = Behavior({
   methods: {
     /**
      * 初始化智能体会话
-     * @param {string} botTag - 机器人标识，默认为general
      * @param {string} format - 回复格式，支持markdown和text，默认为markdown
      * @returns {boolean} 初始化结果
      */
-    _initAgentSession(botTag = 'general', format = 'markdown') {
-      // 检查智能体状态
-      this._checkAgentStatus();
-      
-      // 设置会话参数
+    _initAgentSession(format = 'markdown') {
       this.setData({
-        'session.botTag': botTag,
         'session.format': format,
         'session.loading': false,
         messages: []
       });
       
-      console.debug('智能体会话初始化完成:', {botTag, format});
+      console.debug('智能体会话初始化完成:', { format });
       return true;
     },
     
     /**
-     * 检查智能体服务状态
-     * @returns {Promise<boolean>} 检查结果
-     */
-    async _checkAgentStatus() {
-      try {
-        const res = await agentApi.status();
-        if (res.code !== 200) {
-          console.debug('智能体服务状态异常:', res);
-          return false;
-        }
-        console.debug('智能体服务状态正常');
-        return true;
-      } catch (err) {
-        console.debug('检查智能体状态失败:', err);
-        return false;
-      }
-    },
-    
-    /**
-     * 发送消息给智能体（普通方式）
+     * 发送RAG查询
      * @param {string} query - 用户问题
-     * @returns {Promise<Object>} 智能体回复
+     * @param {boolean} stream - 是否使用流式响应
+     * @param {object} options - 其他API参数，如 platform, max_results
      */
-    async _sendMessageToAgent(query) {
+    async _sendRagQuery(query, stream = false, options = {}) {
       if (!query || !query.trim()) {
         ui.showToast('请输入内容', { type: ToastType.ERROR });
-        return null;
+        return;
       }
       
-      // 添加用户消息
-      const userMessage = {
-        role: 'user',
-        content: query
-      };
-      
-      const messages = [...this.data.messages, userMessage];
-      this.setData({
-        messages,
-        'session.loading': true
-      });
-      
-      try {
-        // 准备请求参数
-        const requestData = {
-          openid: storage.get('openid'),
-          query: query,
-          bot_tag: this.data.session.botTag,
-          stream: false,
-          format: this.data.session.format
-        };
-        
-        // 发送请求
-        const res = await agentApi.chat(requestData);
-        
-        if (res.code !== 200) {
-          throw new Error(res.message || '智能体响应异常');
-        }
-        
-        // 添加智能体回复
-        const assistantMessage = {
-          role: 'assistant',
-          content: res.data.message,
-          format: res.data.format,
-          usage: res.data.usage
-        };
-        
-        messages.push(assistantMessage);
-        this.setData({
-          messages,
-          'session.loading': false
-        });
-        
-        return assistantMessage;
-      } catch (err) {
-        console.debug('发送消息给智能体失败:', err);
-        
-        // 添加错误消息
-        const errorMessage = {
-          role: 'assistant',
-          content: '抱歉，我暂时无法回答您的问题，请稍后再试。',
-          error: true
-        };
-        
-        messages.push(errorMessage);
-        this.setData({
-          messages,
-          'session.loading': false
-        });
-        
-        ui.showToast(err.message || '发送消息失败', { type: ToastType.ERROR });
-        return null;
-      }
-    },
-    
-    /**
-     * 发送消息给智能体（流式方式）
-     * @param {string} query - 用户问题
-     * @returns {Promise<boolean>} 发送结果
-     */
-    async _sendStreamMessageToAgent(query) {
-      if (!query || !query.trim()) {
-        ui.showToast('请输入内容', { type: ToastType.ERROR });
-        return false;
-      }
-      
-      // 添加用户消息
-      const userMessage = {
-        role: 'user',
-        content: query
-      };
-      
-      // 添加智能体的空消息占位符
-      const assistantMessage = {
-        role: 'assistant',
-        content: '',
-        loading: true
-      };
+      const userMessage = { role: 'user', content: query };
+      const assistantMessage = { role: 'assistant', content: '', loading: true, sources: [] };
       
       const messages = [...this.data.messages, userMessage, assistantMessage];
-      this.setData({
-        messages,
-        'session.loading': true
-      });
+      const assistantIndex = messages.length - 1;
+      
+      this.setData({ messages, 'session.loading': true });
+
+      const openid = storage.get('openid');
+      if (!openid) {
+        messages[assistantIndex].content = '发送失败，请重新登录。';
+        messages[assistantIndex].error = true;
+        messages[assistantIndex].loading = false;
+        this.setData({ messages, 'session.loading': false });
+        return;
+      }
+
+      const requestData = {
+        openid,
+        query: query.trim(),
+        stream,
+        ...options
+      };
       
       try {
-        // 准备请求参数
-        const requestData = {
-          openid: storage.get('openid'),
-          query: query,
-          bot_tag: this.data.session.botTag,
-          stream: true,
-          format: this.data.session.format
-        };
-        
-        // 获取最后一条消息的索引，用于后续更新
-        const assistantIndex = messages.length - 1;
-        
-        // 发起流式请求
-        agentStreamApi.chat(
-          requestData,
-          {
-            // 处理流式数据块
+        if (stream) {
+          // 处理流式请求
+          agentStreamApi.rag(requestData, {
             onMessage: (chunks) => {
               chunks.forEach(chunk => {
                 try {
                   const data = JSON.parse(chunk);
-                  
-                  // 处理不同类型的事件
-                  if (data.content) {
-                    // 更新内容
+                  if (data.type === 'delta' && data.content) {
                     messages[assistantIndex].content += data.content;
-                    this.setData({ messages });
+                    this.setData({ [`messages[${assistantIndex}].content`]: messages[assistantIndex].content });
+                  } else if (data.type === 'sources') {
+                    messages[assistantIndex].sources = data.sources;
                   } else if (data.type === 'error') {
-                    // 处理错误
                     messages[assistantIndex].error = true;
-                    messages[assistantIndex].content = data.message || '发生错误，请稍后再试';
-                    this.setData({ messages });
+                    messages[assistantIndex].content = data.message;
                   }
-                } catch (err) {
-                  console.debug('解析流式数据块失败:', err, chunk);
-                }
+                } catch (err) { /* ignore parse error */ }
               });
             },
-            
-            // 处理请求完成
-            onComplete: (chunks) => {
-              if (chunks && chunks.length) {
-                chunks.forEach(chunk => {
-                  try {
-                    const data = JSON.parse(chunk);
-                    
-                    // 完成后处理最后的内容块
-                    if (data.content) {
-                      messages[assistantIndex].content += data.content;
-                    } else if (data.type === 'done') {
-                      // 标记完成
-                      messages[assistantIndex].loading = false;
-                    }
-                  } catch (err) {
-                    console.debug('解析最终数据块失败:', err, chunk);
-                  }
-                });
-              }
-              
-              // 无论如何，标记为已完成
+            onComplete: () => {
               messages[assistantIndex].loading = false;
-              this.setData({
-                messages,
-                'session.loading': false
+              this.setData({ 
+                [`messages[${assistantIndex}].loading`]: false,
+                'session.loading': false 
               });
-              
-              console.debug('流式对话完成');
-            },
-            
-            // 处理错误
-            onError: (error) => {
-              console.debug('流式请求出错:', error);
-              
-              // 更新消息为错误状态
-              messages[assistantIndex].loading = false;
-              messages[assistantIndex].error = true;
-              messages[assistantIndex].content = '抱歉，对话出错，请稍后再试';
-              
-              this.setData({
-                messages,
-                'session.loading': false
-              });
-              
-              ui.showToast('对话出错，请稍后再试', { type: ToastType.ERROR });
             }
-          }
-        );
-        
-        return true;
-      } catch (err) {
-        console.debug('发起流式对话失败:', err);
-        
-        // 更新消息为错误状态
-        const assistantIndex = messages.length - 1;
-        messages[assistantIndex].loading = false;
-        messages[assistantIndex].error = true;
-        messages[assistantIndex].content = '抱歉，对话出错，请稍后再试';
-        
-        this.setData({
-          messages,
-          'session.loading': false
-        });
-        
-        ui.showToast(err.message || '发送消息失败', { type: ToastType.ERROR });
-        return false;
-      }
-    },
-    
-    /**
-     * 发送RAG检索增强生成查询
-     * @param {string} query - 查询内容
-     * @param {string|Array} platform - 要检索的平台，如'wechat,website,wxapp'
-     * @param {boolean} stream - 是否使用流式返回
-     * @param {Object} options - 额外选项
-     * @returns {Promise<Object|boolean>} 查询结果或发送结果
-     */
-    async _sendRagQuery(query, platform = 'wxapp,website,wechat', stream = false, options = {}) {
-      if (!query || !query.trim()) {
-        ui.showToast('请输入内容', { type: ToastType.ERROR });
-        return null;
-      }
-      
-      const openid = storage.get('openid');
-      if (!openid) {
-        console.debug('缺少必要参数：openid');
-        return null;
-      }
-      
-      // 添加用户消息
-      const userMessage = {
-        role: 'user',
-        content: query
-      };
-      
-      let messages;
-      let assistantIndex;
-      
-      if (stream) {
-        // 流式模式：添加智能体的空消息占位符
-        const assistantMessage = {
-          role: 'assistant',
-          content: '',
-          loading: true,
-          sources: []
-        };
-        
-        messages = [...this.data.messages, userMessage, assistantMessage];
-        assistantIndex = messages.length - 1;
-      } else {
-        // 非流式模式：只添加用户消息
-        messages = [...this.data.messages, userMessage];
-      }
-      
-      this.setData({
-        messages,
-        'session.loading': true
-      });
-      
-      // 准备请求参数 - 根据API文档完整添加
-      const requestData = {
-        // 必填参数
-        openid: openid,
-        query: query.trim(),
-        
-        // 平台参数 - 确保是字符串
-        platform: Array.isArray(platform) ? platform.join(',') : platform,
-        
-        // 可选参数
-        tag: options.tag || 'nku', // 默认nku标签
-        max_results: options.max_results || 10,
-        stream: !!stream, // 确保是布尔值
-        format: options.format || this.data.session.format || 'markdown'
-      };
-      
-      if (stream) {
-        // 流式请求
-        try {
-          // 发起流式请求
-          agentStreamApi.rag(
-            requestData,
-            {
-              // 处理流式数据块
-              onMessage: (chunks) => {
-                chunks.forEach(chunk => {
-                  try {
-                    const data = JSON.parse(chunk);
-                    
-                    // 处理不同类型的事件
-                    if (data.type === 'content' && data.chunk) {
-                      // 更新内容
-                      messages[assistantIndex].content += data.chunk;
-                      this.setData({ messages });
-                    } else if (data.type === 'sources' && data.sources) {
-                      // 更新知识源
-                      messages[assistantIndex].sources = data.sources;
-                      this.setData({ messages });
-                    } else if (data.type === 'suggested' && data.questions) {
-                      // 更新推荐问题
-                      messages[assistantIndex].suggested_questions = data.questions;
-                      this.setData({ messages });
-                    } else if (data.type === 'query') {
-                      // 更新查询
-                      messages[assistantIndex].original_query = data.original;
-                      messages[assistantIndex].rewritten_query = data.rewritten;
-                      this.setData({ messages });
-                    } else if (data.type === 'error') {
-                      // 处理错误
-                      messages[assistantIndex].error = true;
-                      messages[assistantIndex].content = data.message || '发生错误，请稍后再试';
-                      this.setData({ messages });
-                    }
-                  } catch (err) {
-                    console.debug('解析RAG流式数据块失败:', err, chunk);
-                  }
-                });
-              },
-              
-              // 处理请求完成
-              onComplete: (chunks) => {
-                if (chunks && chunks.length) {
-                  chunks.forEach(chunk => {
-                    try {
-                      const data = JSON.parse(chunk);
-                      
-                      // 完成后处理最后的内容块
-                      if (data.type === 'content' && data.chunk) {
-                        messages[assistantIndex].content += data.chunk;
-                      } else if (data.type === 'done') {
-                        // 标记完成
-                        messages[assistantIndex].loading = false;
-                      }
-                    } catch (err) {
-                      console.debug('解析RAG最终数据块失败:', err, chunk);
-                    }
-                  });
-                }
-                
-                // 无论如何，标记为已完成
-                messages[assistantIndex].loading = false;
-                this.setData({
-                  messages,
-                  'session.loading': false
-                });
-                
-                console.debug('RAG流式查询完成');
-              },
-              
-              // 处理错误
-              onError: (error) => {
-                console.debug('RAG流式请求出错:', error);
-                
-                // 更新消息为错误状态
-                messages[assistantIndex].loading = false;
-                messages[assistantIndex].error = true;
-                messages[assistantIndex].content = '抱歉，查询出错，请稍后再试';
-                
-                this.setData({
-                  messages,
-                  'session.loading': false
-                });
-                
-                ui.showToast('查询出错，请稍后再试', { type: ToastType.ERROR });
-              }
-            }
-          );
-          
-          return true;
-        } catch (err) {
-          console.debug('发起RAG流式查询失败:', err);
-          
-          // 更新消息为错误状态
-          messages[assistantIndex].loading = false;
-          messages[assistantIndex].error = true;
-          messages[assistantIndex].content = '抱歉，查询出错，请稍后再试';
-          
-          this.setData({
-            messages,
-            'session.loading': false
           });
-          
-          ui.showToast(err.message || '查询失败', { type: ToastType.ERROR });
-          return false;
-        }
-      } else {
-        // 非流式请求
-        try {
-          console.debug('发送非流式RAG请求:', JSON.stringify(requestData));
-          
-          // 发送请求
+        } else {
+          // 处理非流式请求
           const res = await agentApi.rag(requestData);
-          
-          console.debug('收到RAG响应:', JSON.stringify(res));
-          
           if (res.code !== 200) {
-            throw new Error(res.message || '查询响应异常');
+            throw new Error(res.message || '智能体响应异常');
           }
           
-          if (!res.data) {
-            throw new Error('查询结果数据为空');
-          }
+          messages[assistantIndex].content = res.data.response;
+          messages[assistantIndex].sources = res.data.sources;
+          messages[assistantIndex].loading = false;
           
-          // 添加智能体回复
-          const assistantMessage = {
-            role: 'assistant',
-            content: res.data.response || '',
-            format: res.data.format || 'markdown',
-            sources: res.data.sources || [],
-            suggested_questions: res.data.suggested_questions || [],
-            original_query: res.data.original_query,
-            rewritten_query: res.data.rewritten_query
-          };
-          
-          messages.push(assistantMessage);
-          this.setData({
-            messages,
-            'session.loading': false
-          });
-          
-          return res.data;
-        } catch (err) {
-          console.debug('发送RAG查询失败:', err);
-          
-          if (err.response) {
-            console.debug('错误响应:', JSON.stringify(err.response));
-          }
-          
-          // 添加错误消息
-          const errorMessage = {
-            role: 'assistant',
-            content: '抱歉，我暂时无法回答您的问题，请稍后再试。',
-            error: true
-          };
-          
-          messages.push(errorMessage);
-          this.setData({
-            messages,
-            'session.loading': false
-          });
-          
-          ui.showToast(err.message || '查询失败', { type: ToastType.ERROR });
-          return null;
+          this.setData({ messages, 'session.loading': false });
         }
+      } catch (err) {
+        console.debug('发送RAG查询失败:', err);
+        messages[assistantIndex].content = '抱歉，我暂时无法回答您的问题，请稍后再试。';
+        messages[assistantIndex].error = true;
+        messages[assistantIndex].loading = false;
+        this.setData({ messages, 'session.loading': false });
+        ui.showToast(err.message || '发送失败', { type: ToastType.ERROR });
       }
     },
-    
+
     /**
-     * 清空当前会话
+     * 清空会话
      */
     _clearAgentSession() {
       this.setData({
         messages: [],
         'session.loading': false
       });
-    },
-
+    }
   }
 });

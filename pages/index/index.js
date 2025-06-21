@@ -6,7 +6,8 @@ Page({
     behaviors.authBehavior, 
     behaviors.userBehavior,
     behaviors.postBehavior,
-    behaviors.notificationBehavior
+    behaviors.notificationBehavior,
+    behaviors.systemAdaptBehavior,
   ],
 
   data: {

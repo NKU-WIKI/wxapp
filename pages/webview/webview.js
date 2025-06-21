@@ -2,7 +2,7 @@
 const behaviors = require('../../behaviors/index');
 
 Page({
-  behaviors: [behaviors.baseBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.systemAdaptBehavior],
   
   data: {
     url: '',

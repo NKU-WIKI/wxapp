@@ -36,9 +36,10 @@ components/ 自定义组件
     weui/
 utils/ 通用工具函数
     util.js
+api/ 后端api文档
 app.json 配置
 app.js 入口
-api_docs.md api文档
+
 README.md 项目简介，开发指南
 sitemap.json 爬虫配置
 project.config.json 项目配置
@@ -49,16 +50,7 @@ project.config.json 项目配置
 
 ## 任务
 
-构建内容审核系统。
-
-
-banwords.js单纯存储敏感词库和模式
-text-censor.js中写检测方法，可以调用云函数msgSecCheck，可以根据banwords.js自动生成模式和组合，可以调用word-pinyin，text-censor等第三方库，
-
-不要在text-censor.js硬编码以及特殊处理，保证泛化能力
-
-
-
+后端api经历了一轮重构，重构后的api文档在api/目录下，你需要根据api文档逐个更新前端代码接口和使用方法。
 
 
 
