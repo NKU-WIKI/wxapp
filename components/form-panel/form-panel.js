@@ -1,4 +1,4 @@
-const baseBehavior = require('../../behaviors/baseBehavior');
+const behaviors = require('../../behaviors/index');
 
 Component({
   options: {
@@ -8,7 +8,7 @@ Component({
     addGlobalClass: true,
   },
   
-  behaviors: [baseBehavior],
+  behaviors: [behaviors.baseBehavior],
   
   properties: {
     fields: {

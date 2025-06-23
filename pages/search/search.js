@@ -61,6 +61,65 @@ Page({
   onLoad() {
     this.loadSearchHistory();
     this.loadHotSearches();
+    // 计算搜索历史下拉框的正确位置
+    this.calculateDropdownPosition();
+  },
+
+  onShow() {
+    // 页面显示时重新计算位置，确保适配信息已更新
+    setTimeout(() => {
+      this.calculateDropdownPosition();
+    }, 200);
+  },
+
+  // 计算搜索历史下拉框位置
+  calculateDropdownPosition() {
+    // 使用页面元素查询来获取实际位置
+    wx.nextTick(() => {
+      const query = this.createSelectorQuery();
+      
+      // 查询search-bar组件的位置和大小
+      query.select('#searchBar').boundingClientRect((rect) => {
+        if (rect) {
+          // 下拉框应该出现在search-bar下方，留一点间距
+          const dropdownTop = rect.bottom + 10;
+          
+          console.debug('动态计算下拉框位置:', {
+            searchBarRect: rect,
+            dropdownTop: dropdownTop + 'px'
+          });
+          
+          this.setData({
+            dropdownTopPosition: dropdownTop + 'px'
+          });
+        } else {
+          // 如果查询失败，使用备用计算方式
+          console.debug('元素查询失败，使用备用计算');
+          this.calculateDropdownPositionFallback();
+        }
+      }).exec();
+    });
+  },
+
+  // 备用的下拉框位置计算方法
+  calculateDropdownPositionFallback() {
+    const totalNavHeight = this.data.totalNavHeight || 88;
+    const searchBarHeight = 80;
+    const containerPadding = 20;
+    
+    // 更保守的计算：确保下拉框不会遮挡搜索框
+    const dropdownTop = totalNavHeight + searchBarHeight + containerPadding + 20;
+    
+    console.debug('备用下拉框位置计算:', {
+      totalNavHeight,
+      searchBarHeight,
+      containerPadding,
+      dropdownTop: dropdownTop + 'rpx'
+    });
+    
+    this.setData({
+      dropdownTopPosition: dropdownTop + 'rpx'
+    });
   },
   
   // 搜索方法
@@ -585,6 +644,10 @@ Page({
   onSearchBarFocus() {
     this.loadSearchHistory();
     this.setData({ focus: true });
+    // 重新计算下拉框位置，确保准确
+    setTimeout(() => {
+      this.calculateDropdownPosition();
+    }, 50);
   },
 
   onSearchBarBlur() {

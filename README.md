@@ -199,7 +199,7 @@ services/app/
 主要方法：
 - `_getPostList(filter, page, limit)`: 获取帖子列表，支持分类、排序等筛选
 - `_getPostDetail(postId)`: 获取帖子详情
-- `_getPostStatus(postIds)`: 获取帖子状态(点赞、收藏等)
+
 - `_createPost(postData)`: 创建帖子
 - `_updatePost(postId, postData)`: 更新帖子
 - `_deletePost(postId)`: 删除帖子
@@ -586,7 +586,7 @@ Page({
 ##### 网络请求与API工厂
 
 ```javascript
-const { createApiClient } = require('../../utils/util');
+const { createApiClient } = require('../../utils/index');
 
 // 创建API客户端
 const postApi = createApiClient('/api/wxapp/post', {
@@ -625,7 +625,7 @@ async function fetchPosts() {
 `util.js`中封装了本地存储的操作方法，统一通过`storage`对象使用：
 
 ```javascript
-const { storage } = require('../../utils/util');
+const { storage } = require('../../utils/index');
 
 // 读取存储
 const openid = storage.get('openid');
@@ -658,7 +658,7 @@ if (storage.get('token')) {
 ##### 界面交互工具
 
 ```javascript
-const { ui, ToastType } = require('../../utils/util');
+const { ui, ToastType } = require('../../utils/index');
 
 // 显示提示
 ui.showToast('操作成功', { type: ToastType.SUCCESS });
@@ -674,7 +674,7 @@ const confirmed = await ui.showDialog({
 ##### 错误处理工具
 
 ```javascript
-const { error, ErrorType } = require('../../utils/util');
+const { error, ErrorType } = require('../../utils/index');
 
 try {
   // 业务逻辑
@@ -700,7 +700,7 @@ const {
   parseImageUrl,
   isEmptyObject,
   isValidArray 
-} = require('../../utils/util');
+} = require('../../utils/index');
 
 // 格式化时间
 const now = new Date();

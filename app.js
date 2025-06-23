@@ -19,7 +19,7 @@ App({
       }
       // 使用一个函数完成所有初始化操作
       await init();
-      storage.set('isLoggedIn', false);
+      // storage.set('isLoggedIn', false);
       
       // 在这里计算并存储全局设备信息
       this.initSystemInfo();

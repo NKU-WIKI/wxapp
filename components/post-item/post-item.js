@@ -117,18 +117,17 @@ Component({
         const openid = storage.get('openid');
         
         if (openid) {
-          // 不需要传递openid参数，postBehavior中的_getPostStatus会自动获取openid
           const res = await this._getPostStatus(postId);
           
           if (res?.code === 200 && res.data) {
             // 返回的数据结构是：{ "postId1": {状态1}, "postId2": {状态2}, ... }
-            // 需要根据当前帖子ID获取对应状态
             const postStatus = res.data[postId];
             
             if (!postStatus) {
               console.debug('找不到该帖子的状态:', postId);
               return;
             }
+            
             // 更新状态数据，按照API文档中的规范解构
             const { 
               is_liked, 
@@ -152,12 +151,12 @@ Component({
             if (view_count !== undefined) {
               updatedPost.view_count = view_count || 0;
             }
+            
             // 更新整个post对象，不显示加载状态
             this.setData({ 
               post: updatedPost,
               isProcessing: false
             }, () => {
-              // 在回调中打印日志，确保数据更新完成
               console.debug('更新帖子状态成功 [ID:' + postId + ']');
             });
           }

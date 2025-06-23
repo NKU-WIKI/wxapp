@@ -479,7 +479,7 @@ page {
 /* 新增搜索历史下拉框样式 */
 .search-history-dropdown {
   position: absolute;
-  top: 170rpx; /* 使用rpx单位，并根据nav-bar(88rpx) + search-bar(80rpx) + 间距计算 */
+  /* top值由JavaScript动态计算，不再使用固定值 */
   left: 20rpx;
   right: 20rpx;
   background-color: #ffffff;

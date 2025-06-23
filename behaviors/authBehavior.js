@@ -110,15 +110,27 @@ module.exports = Behavior({
       if (!forceRefresh && cachedUserInfo?.id) {
         return cachedUserInfo;
       }
+      
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('获取用户信息失败: openid 不存在');
+        return null;
+      }
+      
       try {
-        const res = await userApi.profile();
+        const res = await userApi.profile({ openid });
         if (res.code === 200 && res.data?.id) {
           const userInfo = res.data;
+          // 更新缓存
+          storage.set('userInfo', userInfo);
           return userInfo;
         } else {
           return null;
         }
-      } catch (err) {throw err;}
+      } catch (err) {
+        console.debug('获取用户信息失败:', err);
+        throw err;
+      }
     },
 
     /**

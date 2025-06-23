@@ -158,6 +158,8 @@ Component({
     updateState() {
       const { status } = this.properties;
       
+      console.debug('[cell-status] updateState 被调用，status:', status);
+      
       // 重置所有状态
       const state = {
         isLoading: false,
@@ -186,6 +188,8 @@ Component({
         default:
           state.isNormal = true;
       }
+      
+      console.debug('[cell-status] 计算出的状态:', state);
       
       // 更新状态
       this.setData({ _state: state });

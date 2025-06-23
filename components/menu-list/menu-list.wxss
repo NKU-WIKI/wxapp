@@ -69,16 +69,7 @@
   margin-right: 10rpx;
 }
 
-/* 添加右箭头图标 */
-.menu-item-right::after {
-  content: '';
-  display: inline-block;
-  width: 16rpx;
-  height: 16rpx;
-  border-top: 2rpx solid #ccc;
-  border-right: 2rpx solid #ccc;
-  transform: rotate(45deg);
-}
+/* 移除CSS箭头，使用icon组件 */
 
 /* 徽章样式 */
 .badge {
@@ -113,6 +104,35 @@
 
 /* 额外内容样式 */
 .extra-content {
+  font-size: 24rpx;
+  color: #888;
+  margin-right: 10rpx;
+}
+
+/* 简单菜单列表样式 */
+.simple-menu-list {
+  background-color: #fff;
+  border-radius: 12rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.simple-menu-item {
+  padding: 0 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  background-color: #fff;
+  transition: background-color 0.2s;
+}
+
+.simple-menu-item:last-child {
+  border-bottom: none;
+}
+
+.simple-menu-item:active {
+  background-color: #f8f8f8;
+}
+
+.extra-text {
   font-size: 24rpx;
   color: #888;
   margin-right: 10rpx;

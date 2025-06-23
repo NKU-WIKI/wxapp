@@ -10,8 +10,30 @@
   ></nav-bar>
 
   <view class="content-wrapper">
-    <!-- 官方动态 -->
-    <view class="wiki-hot-section official" wx:if="{{officialInsights.length > 0}}">
+    <!-- 加载状态 -->
+    <loading wx:if="{{loading}}" show="{{true}}" text="加载中..." type="inline" />
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:elif="{{!hasData}}">
+      <icon name="empty" size="120" color="#cccccc" />
+      <view class="empty-text">暂无洞察数据</view>
+      <view class="empty-desc">系统正在分析最新数据，请稍后再来看看</view>
+      <view class="retry-btn" bindtap="loadDiscoverData">
+        <icon name="refresh" size="32" color="#6369e8" />
+        <text>重新加载</text>
+      </view>
+    </view>
+    
+    <!-- 数据展示区域 -->
+    <view wx:elif="{{hasData}}">
+      <!-- 日期标识 -->
+      <view class="date-info" wx:if="{{currentDate}}">
+        <icon name="history" size="24" color="#999" />
+        <text>{{currentDate}} 的洞察</text>
+      </view>
+      
+      <!-- 官方动态 -->
+      <view class="wiki-hot-section official" wx:if="{{officialInsights.length > 0}}">
       <view class="section-header-with-action">
         <view class="section-title">
           <icon name="wiki" size="40" custom-class="title-icon"></icon>
@@ -83,6 +105,8 @@
         </block>
       </view>
     </view>
+    
+    </view> <!-- 结束 hasData 条件区域 -->
 
   </view>
 </view>

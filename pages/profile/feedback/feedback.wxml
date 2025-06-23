@@ -1,2 +1,70 @@
-<!--pages/profile/feedback/feedback.wxml-->
-<text>pages/profile/feedback/feedback.wxml</text>
+<!-- 意见反馈页面 -->
+<view class="container">
+  <!-- 顶部消息提示 -->
+  <mp-toptips msg="{{toptipsMsg}}" type="{{toptipsType}}" show="{{toptipsShow}}"/>
+
+  <!-- 导航栏 -->
+  <nav-bar 
+    title="意见反馈"
+    showBack="{{true}}"
+    showAvatar="{{false}}"
+  ></nav-bar>
+
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-subtitle">遇到问题？告诉我们改进</text>
+  </view>
+
+  <view class="feedback-form">
+    <!-- 反馈类型 -->
+    <view class="form-group">
+      <view class="form-label">反馈类型</view>
+      <picker-field 
+        placeholder="请选择反馈类型"
+        value="{{typeName}}"
+        options="{{typeLabels}}"
+        bind:change="onTypeChange"
+      />
+    </view>
+
+    <!-- 反馈内容 -->
+    <view class="form-group">
+      <view class="form-label">反馈内容</view>
+      <text-area 
+        value="{{content}}" 
+        placeholder="请详细描述问题或建议（5-500字）" 
+        maxlength="500"
+        height="300"
+        show-count="{{true}}"
+        markdown-mode="{{true}}"
+        show-toolbar="{{true}}"
+        bind:input="onContentInput"
+      ></text-area>
+    </view>
+
+    <!-- 联系方式 -->
+    <view class="form-group">
+      <view class="form-label">联系方式</view>
+      <input-field 
+        placeholder="手机/邮箱/微信（选填）" 
+        value="{{contact}}"
+        bind:input="onContactInput"
+      />
+    </view>
+
+    <!-- 设备信息 -->
+    <view class="device-info">
+      <text class="info-label">设备信息：</text>
+      <text class="info-text">{{deviceInfo.model}} ({{deviceInfo.system}})</text>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <button 
+    class="submit-button"
+    type="primary"
+    disabled="{{!content || submitting}}"
+    loading="{{submitting}}"
+    bindtap="submitFeedback"
+  >提交反馈</button>
+</view> 

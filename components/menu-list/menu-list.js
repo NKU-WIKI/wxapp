@@ -39,11 +39,14 @@ Component({
 
   data: {
     // 处理后的菜单项
-    processedItems: []
+    processedItems: [],
+    // 计算出的状态
+    computedStatus: 'normal'
   },
 
   observers: {
     'items': function(items) {
+      console.debug('[menu-list] items 变化:', items);
       // 处理菜单项，确保所有必要字段都存在
       if (Array.isArray(items)) {
         const processedItems = items.map(item => {
@@ -54,8 +57,27 @@ Component({
             iconName: item.iconName || ''
           };
         });
+        console.debug('[menu-list] processedItems:', processedItems);
         this.setData({ processedItems });
       }
+    },
+    
+    // 监听 loading 和 error 状态变化，计算最终状态
+    'loading, error, items': function(loading, error, items) {
+      let status = 'normal';
+      
+      console.debug('[menu-list] 状态变化 - loading:', loading, 'error:', error, 'items length:', items?.length);
+      
+      if (loading) {
+        status = 'loading';
+      } else if (error) {
+        status = 'error';
+      } else if (!items || items.length === 0) {
+        status = 'empty';
+      }
+      
+      console.debug('[menu-list] 计算出的状态:', status);
+      this.setData({ computedStatus: status });
     }
   },
 

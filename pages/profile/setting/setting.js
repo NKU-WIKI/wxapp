@@ -1,66 +1,133 @@
-// pages/profile/setting/setting.js
+const { storage, ui } = require('../../../utils/index');
+const behaviors = require('../../../behaviors/index');
+
+// 配置项存储键名前缀
+const STORAGE_PREFIX = 'setting_';
+
 Page({
+  behaviors: [behaviors.baseBehavior, behaviors.userBehavior],
 
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    settings: [
+      {
+        type: 'selector',
+        id: 'theme',
+        title: '主题设置',
+        options: ['浅色', '深色', '跟随系统'],
+        value: 0
+      },
+      {
+        type: 'switch',
+        id: 'notification',
+        title: '消息通知',
+        value: true
+      },
+      {
+        type: 'action',
+        id: 'cache',
+        title: '清除缓存',
+        buttonText: '立即清理'
+      },
+      {
+        type: 'selector',
+        id: 'fontsize',
+        title: '正文字号',
+        options: ['小', '中', '大'],
+        value: 1
+      },
+      {
+        type: 'switch',
+        id: 'debug',
+        title: '调试模式',
+        value: false,
+        hidden: true
+      }
+    ],
+    loading: false,
+    error: null
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad(options) {
-
+  onLoad() {
+    this.loadSettings();
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
+  // 加载设置
+  async loadSettings() {
+    try {
+      this.setData({ loading: true, error: null });
+      
+      const settings = await Promise.all(
+        this.data.settings.map(async item => ({
+          ...item,
+          value: storage.getSync(STORAGE_PREFIX + item.id) ?? item.value
+        }))
+      );
 
+      // 新增过滤后数据
+      const filteredSettings = settings.filter(item => !item.hidden);
+
+      this.setData({ 
+        settings,
+        filteredSettings, // 新增过滤后的设置项
+        loading: false 
+      });
+    } catch (err) {
+      this.setData({ error: err.message, loading: false });
+    }
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
+  // 处理设置变更
+  handleSettingChange(e) {
+    const { id, value } = e.detail;
+    const index = this.data.settings.findIndex(item => item.id === id);
+    
+    if (index === -1) return;
 
+    this.updateSetting(index, value);
   },
 
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
+  // 更新设置
+  updateSetting(index, value) {
+    const { id } = this.data.settings[index];
+    storage.set(STORAGE_PREFIX + id, value);
+    
+    this.setData({
+      [`settings[${index}].value`]: value
+    });
 
+    ui.showToptips('设置已保存', 'success');
+    
+    // 特殊处理清除缓存
+    if (id === 'cache') {
+      this.clearCache();
+    }
   },
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
+  // 清除缓存
+  clearCache() {
+    try {
+      const preservedData = {
+        userInfo: storage.getSync('userInfo'),
+        openid: storage.getSync('openid'),
+        isLoggedIn: storage.getSync('isLoggedIn')
+      };
 
+      storage.clearSync();
+
+      // 恢复必要数据
+      Object.entries(preservedData).forEach(([key, value]) => {
+        if (value) storage.set(key, value);
+      });
+
+      ui.showToptips('缓存已清除', 'success');
+      this.loadSettings();
+    } catch (err) {
+      ui.showToptips('清除缓存失败', 'error');
+    }
   },
 
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
+  // 重试加载
+  onRetry() {
+    this.loadSettings();
   }
-})
+}); 

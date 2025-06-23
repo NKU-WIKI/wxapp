@@ -1,18 +1,18 @@
 <cell-status
-  loading="{{loading}}" 
-  error="{{error}}"
+  status="{{computedStatus}}"
   error-text="{{errorMsg}}"
   bindretry="onRetry"
   showNoMore="{{false}}"
   class="menu-list-wrapper {{customStyle}}">
   <view class="menu-section">
     <view class="menu-title {{!showTitleDecoration ? 'no-decoration' : ''}}">{{title}}</view>
-    <mp-cells ext-class="menu-cells">
-      <mp-cell 
+    
+    <!-- 暂时用简单的结构替代 mp-cells -->
+    <view class="simple-menu-list">
+      <view 
         wx:for="{{processedItems.length > 0 ? processedItems : items}}" 
         wx:key="index"
-        link
-        hover
+        class="simple-menu-item"
         data-index="{{index}}"
         bindtap="onItemTap"
       >
@@ -20,14 +20,14 @@
           <view class="menu-item-left">
             <icon wx:if="{{item.icon}}" name="{{item.iconName}}" size="44"></icon>
             <text class="menu-text">{{item.title}}</text>
-            <view wx:if="{{item.badge}}" class="badge {{item.badgeType || ''}}">{{item.badge}}</view>
+            <view wx:if="{{item.badge}}" class="badge {{item.badgeType || 'red'}}">{{item.badge}}</view>
           </view>
           <view class="menu-item-right">
-            <text wx:if="{{item.value !== undefined && item.value !== null}}" class="menu-value">{{item.value}}</text>
-            <view wx:if="{{item.extraContent}}" class="extra-content">{{item.extraContent}}</view>
+            <text wx:if="{{item.extraContent}}" class="extra-text">{{item.extraContent}}</text>
+            <icon name="arrow-right" size="24" color="#c8c9cc"></icon>
           </view>
         </view>
-      </mp-cell>
-    </mp-cells>
+      </view>
+    </view>
   </view>
 </cell-status> 

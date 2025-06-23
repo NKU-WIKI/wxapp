@@ -8,6 +8,7 @@ const postApi = createApiClient('/api/wxapp/post', {
   list:     { method: 'GET',  path: '/list' },
   detail:   { method: 'GET',  path: '/detail' }, // params: post_id, openid
   search:   { method: 'GET',  path: '/search' },
+  status:   { method: 'GET',  path: '/status' }, // params: post_id, openid
   create:   { method: 'POST', path: '/create' },
   delete:   { method: 'POST', path: '/delete' }, // params: post_id, openid
   update:   { method: 'POST', path: '/update' }, // params: post_id, openid, ...
@@ -37,9 +38,12 @@ module.exports = Behavior({
         Object.assign(params, filter);
       }
       
-      // 当需要获取收藏或关注的帖子时，自动附加openid
-      if ((params.favorite || params.following) && !params.openid) {
-        params.openid = storage.get('openid');
+      // 自动附加openid以获取帖子状态信息（点赞、收藏等）
+      if (!params.openid) {
+        const openid = storage.get('openid');
+        if (openid) {
+          params.openid = openid;
+        }
       }
 
       try {
@@ -198,6 +202,48 @@ module.exports = Behavior({
       } catch (err) {
         console.debug('删除帖子失败:', err);
         throw err;
+      }
+    },
+
+    /**
+     * 批量获取帖子状态
+     * @param {Array|string} postIds 帖子ID数组或单个ID
+     * @returns {Promise<Object|null>} API响应
+     */
+    async _getPostStatus(postIds) {
+      const openid = storage.get('openid');
+      if (!openid) {
+        console.debug('获取帖子状态失败: 未登录');
+        return null;
+      }
+
+      try {
+        // 处理帖子ID参数
+        let postIdStr;
+        if (Array.isArray(postIds)) {
+          postIdStr = postIds.filter(Boolean).join(',');
+        } else {
+          postIdStr = String(postIds);
+        }
+
+        if (!postIdStr) {
+          return null;
+        }
+
+        const params = {
+          post_id: postIdStr,
+          openid: openid
+        };
+
+        const res = await postApi.status(params);
+        if (res.code !== 200) {
+          throw new Error(res.message || '获取帖子状态失败');
+        }
+
+        return res;
+      } catch (err) {
+        console.debug('获取帖子状态失败:', err);
+        return null;
       }
     },
 

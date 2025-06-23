@@ -155,19 +155,10 @@ Page({
       // 查看目标用户资料
       if (targetOpenid && targetOpenid !== currentOpenid) {
         console.debug('获取目标用户资料:', targetOpenid);
-        const profileRes = await this._getUserProfileByOpenid(targetOpenid);
+        const profileRes = await this._getUserProfile(targetOpenid, true);
         
         if (profileRes && profileRes.id) {
-          // 获取当前用户与目标用户的关注状态
-          try {
-            const statusRes = await this._getUserStatusByOpenid(targetOpenid);
-            if (statusRes) {
-              // 合并关注状态到用户信息中
-              profileRes.isFollowed = statusRes.is_following || false;
-            }
-          } catch (err) {
-            console.debug('获取关注状态失败:', err);
-          }
+          // 关注状态已经包含在 profileRes 中，不需要单独获取
           
           // 更新页面数据
           this.setData({
@@ -181,8 +172,8 @@ Page({
             loading: false
           });
           
-          // 处理菜单项 - 查看他人主页时保留设置菜单
-          this.processMenuItems();
+          // 处理菜单项 - 查看他人主页时不显示设置菜单
+          // this.processMenuItems(); // 注释掉，不在查看他人资料时显示设置菜单
         } else {
           // 获取目标用户失败，显示错误信息
           this.setData({ 
@@ -207,7 +198,7 @@ Page({
       await this._syncUserInfo();
       
       // 获取最新的用户资料（包含统计数据）
-      const profileRes = await this._getUserInfo(true);
+      const profileRes = await this._getMyProfile();
       
       if (profileRes && profileRes.id) {
         // 更新本地存储
@@ -295,10 +286,12 @@ Page({
 
   // 处理菜单项
   async processMenuItems() {
+    console.debug('processMenuItems 开始执行');
     try {
       // 获取应用信息
       const appInfo = await getAboutInfo();
-      const version = appInfo ? `版本 ${appInfo.version}` : '版本 0.0.1';
+      const version = appInfo ? `版本 ${appInfo.version}` : '版本 1.0.0';
+      console.debug('获取到版本信息:', version);
       
       // 设置菜单添加额外内容
       const settingItems = MENU_CONFIG.SETTINGS.items.map(item => {
@@ -312,20 +305,23 @@ Page({
         return newItem;
       });
       
+      console.debug('设置 settingItems:', settingItems);
       this.setData({
         settingItems
       });
+      console.debug('设置菜单完成，settingItems数量:', settingItems.length);
     } catch (err) {
-      console.error('获取版本信息失败:', err);
-      // 使用默认菜单
+      console.error('处理菜单项失败:', err);
+      // 使用兜底菜单
       const settingItems = MENU_CONFIG.SETTINGS.items.map(item => {
         const newItem = { ...item };
         if (item.id === 'about') {
-          newItem.extraContent = '版本 0.0.1';
+          newItem.extraContent = '版本 1.0.0';
         }
         return newItem;
       });
       
+      console.debug('使用兜底 settingItems:', settingItems);
       this.setData({
         settingItems
       });

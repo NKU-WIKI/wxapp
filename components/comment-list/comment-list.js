@@ -534,7 +534,7 @@ Component({
           }
           
           try {
-            const userInfo = await this._getUserProfileByOpenid(openid);
+            const userInfo = await this._getUserProfile(openid);
             
             if (userInfo) {
               const { nickname, avatar, bio } = userInfo;

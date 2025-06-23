@@ -94,20 +94,15 @@ Page({
     if(!targetOpenid){
       return;
     }
-    console.debug('获取目标用户资料:', targetOpenid);
-    const profileRes = await this._getUserProfileByOpenid(targetOpenid);
+    
+    // 确保 targetOpenid 是一个字符串
+    const openidStr = (typeof targetOpenid === 'object' && targetOpenid.openid) ? targetOpenid.openid : targetOpenid;
+
+    console.debug('获取目标用户资料:', openidStr);
+    const profileRes = await this._getUserProfile(openidStr, true);
     
     if (profileRes && profileRes.id) {
-      // 获取当前用户与目标用户的关注状态
-      try {
-        const statusRes = await this._getUserStatusByOpenid(targetOpenid);
-        if (statusRes) {
-          // 合并关注状态到用户信息中
-          profileRes.isFollowed = statusRes.is_following || false;
-        }
-      } catch (err) {
-        console.debug('获取关注状态失败:', err);
-      }
+      // 关注状态已经包含在 profileRes 中，不需要单独获取
       
       // 更新页面数据
       this.setData({
