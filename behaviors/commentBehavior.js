@@ -5,9 +5,9 @@ const { storage, createApiClient } = require('../utils/util');
 
 // 创建评论API客户端
 const commentApi = createApiClient('/api/wxapp/comment', {
-  list:   { method: 'GET',  path: '/list',   params: { openid: true, post_id: true } }, // Required: post_id
+  list:   { method: 'GET',  path: '/list',   params: { openid: true, resource_id: true, resource_type: true } }, // Required: resource_id, resource_type
   detail: { method: 'GET',  path: '/detail', params: { openid: true, comment_id: true } },
-  create: { method: 'POST', path: '',        params: { openid: true, post_id: true, content: true } }, // Required: post_id, content
+  create: { method: 'POST', path: '',        params: { openid: true, resource_id: true, resource_type: true, content: true } }, // Required: resource_id, resource_type, content
   delete: { method: 'POST', path: '/delete', params: { openid: true, comment_id: true } },
   like:   { method: 'POST', path: '/like',   params: { openid: true, comment_id: true } }
 });
@@ -16,26 +16,33 @@ module.exports = Behavior({
   methods: {
     /**
      * 获取评论列表
-     * @param {number} postId - 帖子ID
+     * @param {number|string} resourceId - 资源ID
      * @param {object} [options={}] - 可选参数
+     * @param {string} [options.resourceType='post'] - 资源类型，如post、knowledge等
      * @param {string} [options.parentId] - 父评论ID，获取回复列表时使用
      * @param {number} [options.page=1] - 页码
      * @param {number} [options.page_size=20] - 每页数量
      * @returns {Promise<Object|null>} 评论列表和分页信息
      */
-    async _getCommentList(postId, options = {}) {
-      if (!postId) return null;
+    async _getCommentList(resourceId, options = {}) {
+      if (!resourceId) return null;
       
-      const { parentId, page = 1, page_size = 20, limit } = options;
+      const { resourceType = 'post', parentId, page = 1, page_size = 20, limit } = options;
 
       const openid = storage.get('openid');
       const params = { 
-        post_id: Number(postId), // 确保 post_id 是数字类型
+        resource_id: resourceId,
+        resource_type: resourceType,
         parent_id: parentId, 
         page, 
         page_size: page_size || limit || 20,  // 优先使用page_size，兼容旧的limit参数
         openid 
       };
+
+      // 兼容旧版本API，如果是post类型，同时设置post_id参数
+      if (resourceType === 'post') {
+        params.post_id = Number(resourceId);
+      }
 
       try {
         const res = await commentApi.list(params);
@@ -77,66 +84,75 @@ module.exports = Behavior({
 
     /**
      * 创建评论或回复
-     * @param {string} postId - 帖子ID
+     * @param {string|number} resourceId - 资源ID
      * @param {string} content - 评论内容
-     * @param {string} [parentId] - 父评论ID，回复时使用
-     * @returns {Promise<object|null>} 创建的评论
+     * @param {object} [options={}] - 可选参数
+     * @param {string} [options.resourceType='post'] - 资源类型，如post、knowledge等
+     * @param {string} [options.parentId] - 父评论ID，回复时使用
+     * @param {object} [options.replyTo] - 回复对象信息，回复的回复时使用
+     * @returns {Promise<object>} 创建的评论或API响应
      */
-    async _createComment(postId, content, parentId = null) {
-      if (!postId) return null;
-      if (!content?.trim()) return null;
+    async _createComment(resourceId, content, options = {}) {
+      if (!resourceId) {
+        return { code: 400, message: '缺少资源ID' };
+      }
+      if (!content?.trim()) {
+        return { code: 400, message: '评论内容不能为空' };
+      }
+      
+      const { resourceType = 'post', parentId = null, replyTo = null } = options;
       
       const openid = storage.get('openid');
-      if (!openid) return null;
+      if (!openid) {
+        return { code: 401, message: '用户未登录' };
+      }
 
       try {
-        const res = await commentApi.create({ 
-          post_id: postId, 
+        const params = { 
+          resource_id: resourceId,
+          resource_type: resourceType,
           content: content.trim(), 
           parent_id: parentId, 
           openid 
-        });
+        };
         
-        if (res.code !== 200) {
-          throw new Error(res.message || '评论失败');
+        // 兼容旧版本API，如果是post类型，同时设置post_id参数
+        if (resourceType === 'post') {
+          params.post_id = Number(resourceId);
         }
         
-        // 处理新的响应格式，从details中获取comment_id
-        if (res.details?.comment_id) {
-          // 如果details中有comment_id，创建一个简单的评论对象返回
-          return {
-            id: res.details.comment_id,
-            post_id: postId,
-            content: content.trim(),
-            parent_id: parentId,
-            openid,
-            // 添加创建时间
-            create_time: new Date().toISOString()
-          };
-        } else if (res.data) {
-          // 兼容旧格式，如果data中有完整评论数据
-          return res.data;
+        // 如果是回复的回复，添加回复对象信息
+        if (replyTo) {
+          params.reply_to = JSON.stringify(replyTo);
         }
         
-        throw new Error('评论创建成功但未返回评论数据');
+        const res = await commentApi.create(params);
+        
+        // 直接返回API响应
+        return res;
       } catch (err) {
-        return null;
+        // 返回错误响应而不是null
+        return { 
+          code: 500, 
+          message: err.message || '评论创建失败', 
+          error: err 
+        };
       }
     },
 
     /**
      * 删除评论
      * @param {string} commentId - 评论ID
-     * @returns {Promise<boolean>} 是否删除成功
+     * @returns {Promise<object>} API响应
      */
     async _deleteComment(commentId) {
       if (!commentId) {
-        return false;
+        return { code: 400, message: '缺少评论ID' };
       }
       
       const openid = storage.get('openid');
       if (!openid) {
-        return false;
+        return { code: 401, message: '用户未登录' };
       }
 
       try {
@@ -147,10 +163,10 @@ module.exports = Behavior({
         
         const res = await commentApi.delete(params);
         
-        if (res.code !== 200) throw new Error(res.message || '删除评论失败');
-        return true;
+        // 直接返回API响应，不再转换为布尔值
+        return res;
       } catch (err) {
-        return false;
+        return { code: 500, message: err.message || '删除评论失败' };
       }
     },
 

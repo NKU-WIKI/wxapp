@@ -14,12 +14,11 @@
     <user-card
       userInfo="{{userInfo}}"
       stats="{{stats}}"
-      isCurrentUser="{{true}}"
+      isCurrentUser="{{userInfo && userInfo.openid === openid}}"
       currentUserOpenid="{{openid}}"
       loading="{{loading}}"
       error="{{error}}"
       errorMsg="{{errorMsg}}"
-      bind:edit="navigateToEditProfile"
       bind:retry="onRetry"
       bind:refresh="syncUserAndInitPage"
       hasMore="{{false}}"

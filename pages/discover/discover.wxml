@@ -1,4 +1,4 @@
-<!-- 发现页面 - 开发中 -->
+<!-- 发现页面 -->
 <view class="container">
   <!-- 导航栏 -->
   <nav-bar 
@@ -8,10 +8,99 @@
     showAvatar="{{true}}"
   ></nav-bar>
 
-  <!-- 开发中提示 -->
-  <view class="developing-container">
-    <icon name="develop" size="80" color="#cccccc"></icon>
-    <view class="developing-text">功能开发中</view>
-    <view class="developing-subtext">敬请期待更多精彩内容</view>
+  <!-- 推荐区域 -->
+  <view class="recommend-section">
+    <view class="section-header">为您推荐</view>
+    <view class="question-cards">
+      <view class="question-card" bindtap="onQuestionTap" data-question="校园跑步打卡活动规则?">
+        <view class="question-icon">
+          <icon name="footprint" size="40" color="#6369e8"></icon>
+        </view>
+        <view class="question-content">
+          <view class="question-text">校园跑步打卡活动规则?</view>
+          <view class="question-meta">756 人提问</view>
+        </view>
+      </view>
+      
+      <view class="question-card" bindtap="onQuestionTap" data-question="如何加入校园社团?">
+        <view class="question-icon">
+          <icon name="group" size="40" color="#6369e8"></icon>
+        </view>
+        <view class="question-content">
+          <view class="question-text">如何加入校园社团?</view>
+          <view class="question-meta">543 人提问</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- wiki热点区域 -->
+  <view class="wiki-hot-section">
+    <view class="section-header-with-action">
+      <view class="section-title">wiki 今日南开热点</view>
+      <view class="refresh-icon" bindtap="refreshHotTopics">
+        <icon name="refresh" size="32" color="#6369e8"></icon>
+      </view>
+    </view>
+
+    <view class="wiki-topics">
+      <!-- 热点1 -->
+      <view class="wiki-topic-card" bindtap="onTopicTap" data-tag="南开纳米新材料">
+        <view class="topic-content">
+          <view class="topic-title">科研突破：化学学院在《自然》发表新型纳米材料研究，相关成果获央视报道。</view>
+          <view class="topic-tag">#南开纳米新材料</view>
+        </view>
+      </view>
+
+      <!-- 热点2 -->
+      <view class="wiki-topic-card" bindtap="onTopicTap" data-tag="强基计划招公平性">
+        <view class="topic-content">
+          <view class="topic-title">招生争议：如乎热帖讨论"强基计划面试公平性"，校方官微两小时内回应称"全程录像可复核"。</view>
+          <view class="topic-tag">#强基计划面试公平性</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 校园热榜 -->
+  <view class="hot-ranking-section">
+    <view class="section-header-with-action">
+      <view class="section-title">校园热榜</view>
+      <view class="more-link" bindtap="viewMoreHotTopics">
+        查看更多
+      </view>
+    </view>
+
+    <view class="hot-ranking-list">
+      <!-- 热榜项目1 -->
+      <view class="hot-ranking-item" bindtap="onHotTopicTap" data-id="1">
+        <view class="ranking-number hot">1</view>
+        <view class="ranking-content">
+          <view class="ranking-title">期末考试时间调整通知：12 月 20 日起陆续开始</view>
+          <view class="ranking-meta">2.8 万讨论</view>
+        </view>
+        <view class="hot-tag">热</view>
+      </view>
+
+      <!-- 热榜项目2 -->
+      <view class="hot-ranking-item" bindtap="onHotTopicTap" data-id="2">
+        <view class="ranking-number hot">2</view>
+        <view class="ranking-content">
+          <view class="ranking-title">新图书馆开放时间延长至晚上 11 点</view>
+          <view class="ranking-meta">1.5 万讨论</view>
+        </view>
+        <view class="hot-tag">热</view>
+      </view>
+
+      <!-- 热榜项目3 -->
+      <view class="hot-ranking-item" bindtap="onHotTopicTap" data-id="3">
+        <view class="ranking-number hot">3</view>
+        <view class="ranking-content">
+          <view class="ranking-title">校园跑步打卡活动正式启动</view>
+          <view class="ranking-meta">9,826 讨论</view>
+        </view>
+        <view class="hot-tag">热</view>
+      </view>
+    </view>
   </view>
 </view>

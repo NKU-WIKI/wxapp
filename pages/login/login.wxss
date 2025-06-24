@@ -62,6 +62,31 @@ page {
   z-index: 2; /* 确保内容在装饰元素之上 */
 }
 
+/* 加载占位符 */
+.loading-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400rpx;
+  width: 100%;
+  margin-bottom: 40rpx;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid rgba(0, 0, 0, 0.1);
+  border-top: 4rpx solid #07c160;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* 底部版权信息 */
 .footer {
   width: 100%;

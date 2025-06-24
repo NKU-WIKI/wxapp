@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f8f8;
+}
+
+.content-area {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 80px; 
+  padding-bottom: env(safe-area-inset-bottom);
+} 

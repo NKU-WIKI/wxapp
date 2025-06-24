@@ -1,0 +1,26 @@
+<cell-status
+  loading="{{loading}}"
+  error="{{error}}"
+  errorMsg="{{errorText}}"
+  empty="{{users.length === 0 && !loading && !error}}"
+  emptyText="{{emptyText}}"
+  hasMore="{{hasMore}}"
+  loadMoreText="{{loadMoreText}}"
+  noMoreText="{{noMoreText}}"
+  showNoMore="{{true}}"
+  bindretry="handleRetry"
+  bindloadmore="loadMore"
+>
+  <view class="user-list" style="{{fadeStyle || ''}}">
+    <!-- 用户列表 -->
+    <block wx:for="{{users}}" wx:key="openid">
+      <view class="user-item">
+        <user-card 
+          user="{{item}}" 
+          showFollow="{{true}}"
+          bindfollow="handleUserFollow"
+        />
+      </view>
+    </block>
+  </view>
+</cell-status> 

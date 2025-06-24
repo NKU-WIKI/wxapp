@@ -3,6 +3,7 @@
   <nav-bar 
     title="关于我们" 
     showBack="{{true}}"
+    showAvatar="{{false}}"
   ></nav-bar>
   <!-- 内容区域 -->
   <view class="content-area">

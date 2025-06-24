@@ -7,6 +7,6 @@
   <view class="app-info">
     <text class="app-name">{{appName}}</text>
     <text class="subtitle">{{subtitle}}</text>
-    <text class="version">v{{version}}</text>
+    <text class="version" wx:if="{{version}}">v{{version}}</text>
   </view>
 </view> 

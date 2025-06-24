@@ -2,6 +2,7 @@
 .container {
   min-height: 100vh;
   background-color: #f7f7f7;
+  padding-bottom: 30rpx;
 }
 
 /* 开发中提示样式 */
@@ -25,4 +26,213 @@
   font-size: 14px;
   color: #999;
   margin-top: 10px;
+}
+
+/* 通用区域样式 */
+.section-header {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333;
+  margin: 30rpx 30rpx 20rpx;
+  position: relative;
+  padding-left: 20rpx;
+}
+
+.section-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12rpx;
+  height: 32rpx;
+  width: 8rpx;
+  background-color: #6369e8;
+  border-radius: 4rpx;
+}
+
+.section-header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30rpx 30rpx 20rpx;
+}
+
+.section-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333;
+  position: relative;
+  padding-left: 20rpx;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12rpx;
+  height: 32rpx;
+  width: 8rpx;
+  background-color: #6369e8;
+  border-radius: 4rpx;
+}
+
+.more-link {
+  font-size: 28rpx;
+  color: #6369e8;
+}
+
+/* 推荐问题卡片 - 修改为横向布局 */
+.recommend-section {
+  margin-top:100rpx;
+  margin-bottom: 10rpx;
+}
+
+.question-cards {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.question-card {
+  width: calc(50% - 10rpx);
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 16rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.question-icon {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
+.question-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.question-text {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 4rpx;
+  line-height: 1.4;
+}
+
+.question-meta {
+  font-size: 22rpx;
+  color: #999;
+}
+
+/* Wiki热点区域 */
+.wiki-hot-section {
+  margin-bottom: 20rpx;
+}
+
+.refresh-icon {
+  padding: 10rpx;
+}
+
+.wiki-topics {
+  padding: 0 20rpx;
+}
+
+.wiki-topic-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+}
+
+.topic-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.topic-title {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.5;
+  margin-bottom: 16rpx;
+}
+
+.topic-tag {
+  font-size: 24rpx;
+  color: #6369e8;
+  font-weight: 500;
+}
+
+/* 热榜区域 */
+.hot-ranking-section {
+  margin-bottom: 30rpx;
+}
+
+.hot-ranking-list {
+  padding: 0 20rpx;
+}
+
+.hot-ranking-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+}
+
+.ranking-number {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  color: #999;
+  border-radius: 50%;
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.ranking-number.hot {
+  background-color: #6369e8;
+  color: #fff;
+}
+
+.ranking-content {
+  flex: 1;
+}
+
+.ranking-title {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+  line-height: 1.4;
+}
+
+.ranking-meta {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.hot-tag {
+  margin-left: 20rpx;
+  padding: 6rpx 12rpx;
+  background-color: #ff4d4f;
+  color: #fff;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+  font-weight: bold;
 }

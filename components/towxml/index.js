@@ -25,13 +25,9 @@ module.exports = (str,type,option)=>{
     switch (type) {
         case 'markdown':
             let r = md(str)
-            // 添加如下代码，过滤 \r\n
-            r = r.replace(/(\r|\n){1,}/g, str => {
-                return new Array(str.length).join("<p>&nbsp;</p>")
-            });
-            r = r.replace(/\r|\n/g, str => {
-                return "\r"
-            });
+            // 修改换行处理逻辑
+            r = r.replace(/(\r|\n){2,}/g, '\n'); // 多个连续换行替换为单个换行
+            r = r.replace(/\r|\n/g, '<br/>'); // 单个换行替换为<br/>
 
             result = parse(r,option);
         break;

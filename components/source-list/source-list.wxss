@@ -120,7 +120,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 160rpx;
+  max-width: 120rpx;
 }
 
 .official-tag {
@@ -140,7 +140,8 @@
   font-size: 22rpx;
   color: #999;
   flex-shrink: 0;
-  max-width: 40%;
+  max-width: 60%;
+  overflow: hidden;
 }
 
 .author {
@@ -149,18 +150,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100rpx;
+  max-width: 320rpx;
+  flex-shrink: 1;
 }
 
 .divider {
   margin: 0 6rpx;
   color: #ccc;
+  flex-shrink: 0;
 }
 
 .create-time {
   font-size: 22rpx;
   color: #999;
   white-space: nowrap;
+  flex-shrink: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 标题样式 */
@@ -200,22 +206,17 @@
   justify-content: flex-end;
 }
 
-.relevance {
-  font-size: 22rpx;
-  color: #999;
-  margin-top: 4rpx;
-}
-
-.platform {
+.stat-item {
+  margin-left: 12rpx;
   display: flex;
   align-items: center;
-  margin-right: 20rpx;
 }
 
-.platform text {
-  margin-left: 6rpx;
+.stat-item text {
+  margin-left: 4rpx;
 }
 
+/* 为兼容旧版本保留 */
 .views {
   margin-right: 12rpx;
   display: flex;
@@ -265,5 +266,22 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  max-width: 60%;
+  max-width: 40%;
+  overflow: hidden;
+}
+
+.relevance {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.platform {
+  display: flex;
+  align-items: center;
+  margin-right: 20rpx;
+}
+
+.platform text {
+  margin-left: 6rpx;
 } 

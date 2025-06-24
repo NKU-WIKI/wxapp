@@ -5,7 +5,7 @@ const { createApiClient } = require('../utils/util');
 
 // 创建帖子API客户端
 const postApi = createApiClient('/api/wxapp/post', {
-  list:     { method: 'GET',  path: '/list',    params: { openid: true } },
+  list:     { method: 'GET',  path: '/list',    params: {} },
   detail:   { method: 'GET',  path: '/detail',  params: { openid: true, post_id: true } },
   like:     { method: 'POST', path: '/like',    params: { openid: true, post_id: true } },
   favorite: { method: 'POST', path: '/favorite',params: { openid: true, post_id: true } },
@@ -19,6 +19,7 @@ module.exports = Behavior({
   methods: {
     /**
      * 获取帖子列表
+     * @param {string} openid 用户ID
      * @param {number|object} filter 分类ID或筛选条件对象
      * @param {number} page 页码
      * @param {number} page_size 每页数量
@@ -34,11 +35,9 @@ module.exports = Behavior({
       } 
       // 支持传入对象形式的筛选条件
       else if (typeof filter === 'object') {
-        // 提取通用筛选条件
+        // 提取支持的筛选条件
         const validFilters = [
-          'category_id', 'openid', 'tag', 'keyword', 
-          'status', 'is_public', 'sort', 'favorite', 
-          'followed', 'hot', 'type', 'order_by'
+          'category_id', 'tag', 'openid', 'favorite', 'order_by'
         ];
         
         // 将有效的筛选条件添加到参数中
@@ -63,8 +62,6 @@ module.exports = Behavior({
       }
       
       try {
-        // 减少不必要的日志输出
-        // console.debug('API请求参数:', params);
         const res = await postApi.list(params);
         if (res.code !== 200) {
           throw new Error(res.message || '获取帖子列表失败');
