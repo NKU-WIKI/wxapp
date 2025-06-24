@@ -1,16 +1,13 @@
 /**
  * 通用工具函数集合
  */
+const app = getApp();
+
 const config = {
   defaultAvatar: 'cloud://cloud1-7gu881ir0a233c29.636c-cloud1-7gu881ir0a233c29-1352978573/avatar1.png',
   cloudEnv: 'cloud1-7gu881ir0a233c29',
   version: '0.0.1',
-  API_CONFIG: {
-    base_url: 'https://nkuwiki.com',
-    api_prefix: '/api',
-    prefixes: {wxapp: '/wxapp', agent: '/agent'},
-    headers: {'Content-Type': 'application/json'}
-  },
+  API_CONFIG: app.globalData.API_CONFIG,
   // 添加日志级别配置
   LOG_LEVEL: {
     DEBUG: 4,

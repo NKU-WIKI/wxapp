@@ -1,4 +1,20 @@
 const {init, nav, logger} = require('./utils/index');
+
+const env = 'prod'; // 'prod' 为生产环境, 'dev' 为开发环境
+
+const environments = {
+  prod: {
+    baseUrl: 'https://nkuwiki.com',
+    apiPrefix: '/api'
+  },
+  dev: {
+    baseUrl: 'https://nkuwiki.com',
+    apiPrefix: '/dev/api'
+  }
+};
+
+const currentEnvConfig = environments[env] || environments.prod;
+
 App({
   async onLaunch() {
     try {
@@ -33,8 +49,8 @@ App({
     cloudEnv: 'cloud1-7gu881ir0a233c29',
     version: '0.0.1',
     API_CONFIG: {
-      base_url: 'https://nkuwiki.com',
-      api_prefix: '/api',
+      base_url: currentEnvConfig.baseUrl,
+      api_prefix: currentEnvConfig.apiPrefix,
       prefixes: {wxapp: '/wxapp', agent: '/agent'},
       headers: {'Content-Type': 'application/json'}
     }
