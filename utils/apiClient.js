@@ -5,6 +5,7 @@
 const storage = require('./storage');
 const logger = require('./logger');
 const http = require('./http');
+const config = require('./config');
 
 // API客户端缓存，避免重复创建相同的客户端
 const apiClientCache = {};
@@ -204,10 +205,9 @@ function createStreamApiClient(basePath, endpoints = {}) {
         // 准备请求数据
         const openid = storage.get('openid');
         const finalUrl = url.startsWith('/') ? url : '/' + url;
-        const API_CONFIG = storage.get('API_CONFIG');
-        const apiUrl = finalUrl.startsWith(API_CONFIG.api_prefix) ? finalUrl : API_CONFIG.api_prefix + finalUrl;
+        const apiUrl = finalUrl;
         
-        let requestUrl = `${API_CONFIG.base_url}${apiUrl}`;
+        let requestUrl = `${config.API_CONFIG.base_url}${apiUrl}`;
         let requestData = { ...data };
         
         // 对GET请求，构建查询字符串
@@ -228,7 +228,8 @@ function createStreamApiClient(basePath, endpoints = {}) {
           method: method,
           data: method === 'POST' ? requestData : undefined,
           header: {
-            ...API_CONFIG.headers,
+            ...config.API_CONFIG.headers,
+            'X-Branch': config.API_CONFIG.branch,
             ...(openid ? {'X-User-OpenID': openid} : {})
           },
           enableChunked: true,  // 启用分块传输

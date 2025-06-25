@@ -4,7 +4,7 @@
 const { storage, createApiClient } = require('../utils/index');
 
 // API客户端：用户
-const userApi = createApiClient('/api/wxapp/user', {
+const userApi = createApiClient('/wxapp/user', {
   profile:    { method: 'GET',  path: '/profile' }, // params: openid, current_openid
   myProfile:  { method: 'GET',  path: '/my/profile' }, // params: openid
   update:     { method: 'POST', path: '/update' }, // params: openid, ...
@@ -14,7 +14,7 @@ const userApi = createApiClient('/api/wxapp/user', {
 });
 
 // API客户端：通用互动
-const actionApi = createApiClient('/api/wxapp/action', {
+const actionApi = createApiClient('/wxapp/action', {
   toggle: { method: 'POST', path: '/toggle' } // params: target_id, target_type, action_type, openid
 });
 

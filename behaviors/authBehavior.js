@@ -5,7 +5,7 @@
 const { ui, storage, createApiClient } = require('../utils/index');
 
 // 创建用户API客户端
-const userApi = createApiClient('/api/wxapp/user', {
+const userApi = createApiClient('/wxapp/user', {
   sync: { method: 'POST', path: '/sync', params: { openid: true } },
   profile: { method: 'GET', path: '/profile', params: { openid: true } }
 });

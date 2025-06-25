@@ -4,12 +4,12 @@
 const { storage, createApiClient, createStreamApiClient, ui, ToastType } = require('../utils/index');
 
 // 创建常规RAG API客户端
-const agentApi = createApiClient('/api/agent', {
+const agentApi = createApiClient('/agent', {
   rag: { method: 'POST', path: '/rag', params: { openid: true, query: true } }
 });
 
 // 创建流式RAG API客户端
-const agentStreamApi = createStreamApiClient('/api/agent', {
+const agentStreamApi = createStreamApiClient('/agent', {
   rag: { method: 'POST', path: '/rag', params: { openid: true, query: true } }
 });
 

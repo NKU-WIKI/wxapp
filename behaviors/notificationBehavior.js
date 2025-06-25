@@ -4,7 +4,7 @@
 const { createApiClient, storage } = require('../utils/index');
 
 // 通知API客户端
-const notificationApi = createApiClient('/api/wxapp/notification', {
+const notificationApi = createApiClient('/wxapp/notification', {
   list:    { method: 'GET',  path: '/list' },
   detail:  { method: 'GET',  path: '/detail' },
   count:   { method: 'GET',  path: '/count' },

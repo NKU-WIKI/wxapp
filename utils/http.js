@@ -4,6 +4,7 @@
 
 const storage = require('./storage');
 const logger = require('./logger');
+const config = require('./config');
 
 /**
  * GET请求
@@ -17,7 +18,7 @@ const get = async (apiUrl, requestData = {}) => {
     return Promise.reject({ code: -1, message: '未指定API路径' });
   }
   
-  let requestUrl = `${storage.get('API_CONFIG').base_url}${apiUrl}`;
+  let requestUrl = `${config.API_CONFIG.base_url}${apiUrl}`;
   if (Object.keys(requestData).length) {
     const queryParams = Object.entries(requestData)
       .filter(([_, value]) => value !== undefined && value !== null && value !== '')
@@ -34,7 +35,8 @@ const get = async (apiUrl, requestData = {}) => {
       url: requestUrl,
       method: 'GET',
       header: {
-        ...storage.get('API_CONFIG').headers,
+        ...config.API_CONFIG.headers,
+        'X-Branch': config.API_CONFIG.branch,
         ...(openid ? {'X-User-OpenID': openid} : {})
       },
       success(res) {
@@ -70,8 +72,8 @@ const get = async (apiUrl, requestData = {}) => {
 const post = async (url, data = {}) => {
   const openid = storage.get('openid');
   const finalUrl = url.startsWith('/') ? url : '/' + url;
-  const apiUrl = finalUrl.startsWith(storage.get('API_CONFIG').api_prefix) ? finalUrl : storage.get('API_CONFIG').api_prefix + finalUrl;
-  const requestUrl = `${storage.get('API_CONFIG').base_url}${apiUrl}`;
+  const apiUrl = finalUrl;
+  const requestUrl = `${config.API_CONFIG.base_url}${apiUrl}`;
   
   const requestData = { ...data };
   if (openid && !requestData.openid) {
@@ -87,7 +89,8 @@ const post = async (url, data = {}) => {
       method: 'POST',
       data: requestData,
       header: {
-        ...storage.get('API_CONFIG').headers,
+        ...config.API_CONFIG.headers,
+        'X-Branch': config.API_CONFIG.branch,
         ...(openid ? {'X-User-OpenID': openid} : {})
       },
       success(res) {

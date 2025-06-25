@@ -144,7 +144,7 @@ function getSystemInfo() {
  */
 const getAboutInfo = async () => {
   const { createApiClient } = require('./apiClient');
-  const aboutApi = createApiClient('/api/wxapp', {about: {method: 'GET', path: '/about'}});
+  const aboutApi = createApiClient('/wxapp', {about: {method: 'GET', path: '/about'}});
   try {
     const res = await aboutApi.about();
     if (res.code === 200) {

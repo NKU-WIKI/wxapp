@@ -4,7 +4,7 @@
 const { storage, createApiClient, msgSecCheck, ui } = require('../utils/index');
 
 // 创建知识库API客户端
-const knowledgeApi = createApiClient('/api/knowledge', {
+const knowledgeApi = createApiClient('/knowledge', {
   esSearch:     { method: 'GET', path: '/es-search' },      // params: query, openid, platform, page, ...
   suggestion:   { method: 'GET', path: '/suggestion' },     // params: query, openid
   history:      { method: 'GET', path: '/history' },        // params: openid

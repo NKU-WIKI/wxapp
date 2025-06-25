@@ -4,7 +4,7 @@
 const { createApiClient, msgSecCheck, storage } = require('../utils/index');
 
 // 创建帖子API客户端
-const postApi = createApiClient('/api/wxapp/post', {
+const postApi = createApiClient('/wxapp/post', {
   list:     { method: 'GET',  path: '/list' },
   detail:   { method: 'GET',  path: '/detail' }, // params: post_id, openid
   search:   { method: 'GET',  path: '/search' },
@@ -15,7 +15,7 @@ const postApi = createApiClient('/api/wxapp/post', {
 });
 
 // API客户端：通用互动
-const actionApi = createApiClient('/api/wxapp/action', {
+const actionApi = createApiClient('/wxapp/action', {
   toggle: { method: 'POST', path: '/toggle' } // params: target_id, target_type, action_type, openid
 });
 

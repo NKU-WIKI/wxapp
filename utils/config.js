@@ -7,10 +7,10 @@ const config = {
   cloudEnv: 'cloud1-7gu881ir0a233c29',
   version: '0.0.1',
   API_CONFIG: {
-    base_url: 'http://localhost:8000',
-    api_prefix: '/api',
-    prefixes: {wxapp: '/wxapp', agent: '/agent'},
-    headers: {'Content-Type': 'application/json'}
+    base_url: 'https://nkuwiki.com/api',
+    prefixes: {wxapp: '/wxapp', agent: '/agent', knowledge: '/knowledge'},
+    headers: {'Content-Type': 'application/json'},
+    branch: 'main' // 'main' or 'dev'
   },
   // 日志级别配置
   LOG_LEVEL: {
