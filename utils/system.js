@@ -8,9 +8,10 @@ const config = require('./config');
 
 /**
  * 初始化函数
+ * @param {Object} systemInfo 系统信息
  * @returns {Promise<Object>} 初始化结果
  */
-async function init() {
+async function init(systemInfo) {
   storage.set('defaultAvatar', config.defaultAvatar);
   storage.set('cloudEnv', config.cloudEnv);
   storage.set('API_CONFIG', config.API_CONFIG);
@@ -23,7 +24,6 @@ async function init() {
     });
   }
   storage.set('API_CONFIG', storage.get('API_CONFIG'));
-  const systemInfo = getSystemInfo();
   storage.set('systemInfo', systemInfo);
   
   // 并行执行所有异步操作
@@ -66,76 +66,74 @@ async function init() {
 }
 
 /**
+ * 初始化系统信息并缓存到全局
+ * @param {Object} app App 实例
+ */
+function initSystemInfo(app) {
+  if (!app) {
+    logger.error('initSystemInfo failed: app instance is null or undefined.');
+    return;
+  }
+
+  if (app.globalData && app.globalData.systemInfo) {
+    return;
+  }
+
+  try {
+    const windowInfo = wx.getWindowInfo();
+    const capsule = wx.getMenuButtonBoundingClientRect();
+
+    const statusBarHeight = windowInfo.statusBarHeight || 20;
+    const navBarHeight = (capsule.top - statusBarHeight) * 2 + capsule.height;
+    const navBarTotalHeight = statusBarHeight + navBarHeight;
+
+    const systemInfo = {
+      ...wx.getSystemInfoSync(),
+      statusBarHeight,
+      navBarHeight,
+      navBarTotalHeight,
+      capsule,
+      windowInfo
+    };
+    
+    if (!app.globalData) {
+      app.globalData = {};
+    }
+    app.globalData.systemInfo = systemInfo;
+    logger.debug('System info initialized and cached.', systemInfo);
+
+  } catch (err) {
+    logger.error('Failed to initialize system info', err);
+    const fallbackSystemInfo = {
+        statusBarHeight: 20,
+        navBarHeight: 44,
+        navBarTotalHeight: 64
+    };
+    if (!app.globalData) {
+      app.globalData = {};
+    }
+    app.globalData.systemInfo = fallbackSystemInfo;
+  }
+}
+
+/**
  * 获取系统信息
  * @returns {Object} 系统信息
  */
 function getSystemInfo() {
-  try {
-    // 使用新的API替代弃用的wx.getSystemInfoSync
-    const appBaseInfo = wx.getAppBaseInfo ? wx.getAppBaseInfo() : {};
-    const deviceInfo = wx.getDeviceInfo ? wx.getDeviceInfo() : {};
-    const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : {};
-    const systemSetting = wx.getSystemSetting ? wx.getSystemSetting() : {};
-    const appAuthorizeSetting = wx.getAppAuthorizeSetting ? wx.getAppAuthorizeSetting() : {};
-    
-    // 如果新API不可用，尝试使用旧API
-    if (!appBaseInfo.SDKVersion) {
-      try {
-        const legacyInfo = wx.getSystemInfoSync();
-        return legacyInfo || {};
-      } catch (e) {
-        console.error('获取系统信息失败', e);
-        return {};
-      }
-    }
-    
-    return {
-      // 基础信息
-      platform: appBaseInfo.platform,
-      language: appBaseInfo.language,
-      version: appBaseInfo.version,
-      SDKVersion: appBaseInfo.SDKVersion,
-      theme: appBaseInfo.theme,
-      enableDebug: appBaseInfo.enableDebug,
-      host: appBaseInfo.host,
-      
-      // 设备信息
-      brand: deviceInfo.brand,
-      model: deviceInfo.model,
-      system: deviceInfo.system,
-      devicePlatform: deviceInfo.platform,
-      
-      // 窗口信息
-      screenWidth: windowInfo.screenWidth,
-      screenHeight: windowInfo.screenHeight,
-      windowWidth: windowInfo.windowWidth,
-      windowHeight: windowInfo.windowHeight,
-      statusBarHeight: windowInfo.statusBarHeight,
-      safeArea: windowInfo.safeArea,
-      pixelRatio: windowInfo.pixelRatio,
-      
-      // 系统设置
-      bluetoothEnabled: systemSetting.bluetoothEnabled,
-      locationEnabled: systemSetting.locationEnabled,
-      wifiEnabled: systemSetting.wifiEnabled,
-      deviceOrientation: systemSetting.deviceOrientation,
-      
-      // 授权设置
-      albumAuthorized: appAuthorizeSetting.albumAuthorized,
-      bluetoothAuthorized: appAuthorizeSetting.bluetoothAuthorized,
-      cameraAuthorized: appAuthorizeSetting.cameraAuthorized,
-      locationAuthorized: appAuthorizeSetting.locationAuthorized,
-      locationReducedAccuracy: appAuthorizeSetting.locationReducedAccuracy,
-      microphoneAuthorized: appAuthorizeSetting.microphoneAuthorized,
-      notificationAuthorized: appAuthorizeSetting.notificationAuthorized,
-      notificationAlertAuthorized: appAuthorizeSetting.notificationAlertAuthorized,
-      notificationBadgeAuthorized: appAuthorizeSetting.notificationBadgeAuthorized,
-      notificationSoundAuthorized: appAuthorizeSetting.notificationSoundAuthorized
-    };
-  } catch (err) {
-    console.error('获取系统信息失败:', err);
-    return {};
+  const app = getApp();
+  // 确保在调用此函数时, initSystemInfo 已经执行过
+  if (app.globalData && app.globalData.systemInfo) {
+    return app.globalData.systemInfo;
   }
+  
+  // 如果globalData还没有准备好，提供一个回退方案
+  logger.warn('getSystemInfo called before initialization, returning fallback.');
+  return {
+    statusBarHeight: 20,
+    navBarHeight: 44,
+    navBarTotalHeight: 64
+  };
 }
 
 /**
@@ -222,6 +220,7 @@ const getOpenID = async () => {
 
 module.exports = {
   init,
+  initSystemInfo,
   getSystemInfo,
   getAboutInfo,
   getAppInfo,

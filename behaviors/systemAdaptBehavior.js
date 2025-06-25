@@ -4,6 +4,8 @@
  * 提供统一的设备适配解决方案
  */
 
+const { getSystemInfo, logger } = require('../utils/index');
+
 module.exports = Behavior({
   data: {
     // 系统信息 - 默认值，将在attached生命周期中被覆盖
@@ -33,8 +35,7 @@ module.exports = Behavior({
      */
     initSystemAdaptInfo() {
       // 从全局数据中获取已计算好的系统信息
-      const app = getApp();
-      const systemInfo = app.globalData.systemInfo;
+      const systemInfo = getSystemInfo();
       
       if (systemInfo) {
         this.setData({
@@ -47,6 +48,8 @@ module.exports = Behavior({
           windowHeight: systemInfo.windowHeight,
           contentTopOffset: systemInfo.navBarTotalHeight, // 内容区域默认偏移量
         });
+      } else {
+        logger.warn('systemAdaptBehavior: Failed to get system info.');
       }
     },
     

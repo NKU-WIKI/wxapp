@@ -1,8 +1,14 @@
 const {init, nav, logger} = require('./utils/index');
 const config = require('./utils/config');
+const { initSystemInfo } = require('./utils/system');
 
 App({
+  globalData: {},
+  
   async onLaunch() {
+    // 同步初始化系统关键信息，确保在任何页面或组件加载前完成
+    initSystemInfo(this);
+
     this.updateEnvConfig();
     
     try {
@@ -22,10 +28,10 @@ App({
       }
       
       // 使用一个函数完成所有初始化操作
-      await init();
-      // 强制先进一下登录页，展示logo和版本信息
+      await init(this.globalData.systemInfo);
+      // 跳转到首页
       wx.reLaunch({
-        url: '/pages/login/login'
+        url: '/pages/index/index'
       });
     } catch (err) {
       console.error('应用启动失败', err);
@@ -46,19 +52,6 @@ App({
     } catch (e) {
       logger.error('Failed to get account info, defaulting to main branch.', e);
       config.API_CONFIG.branch = 'main';
-    }
-  },
-
-  // 实际使用的配置在utils/config.js中，这里仅作展示
-  globalData: {
-    defaultAvatar: 'cloud://cloud1-7gu881ir0a233c29.636c-cloud1-7gu881ir0a233c29-1352978573/avatar1.png',
-    cloudEnv: 'cloud1-7gu881ir0a233c29',
-    version: '0.0.1',
-    API_CONFIG: {
-      base_url: config.API_CONFIG.base_url,
-      api_prefix: config.API_CONFIG.api_prefix,
-      prefixes: {wxapp: '/wxapp', agent: '/agent'},
-      headers: {'Content-Type': 'application/json'}
     }
   }
 });
