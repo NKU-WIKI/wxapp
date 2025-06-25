@@ -245,57 +245,27 @@ Page({
     try {
       console.debug('发送RAG查询:', queryText);
       
-      // 调用 agentBehavior 中的 _sendRagQuery 方法
-      const resultData = await this._sendRagQuery(queryText, 'all', false, {
+      const resultData = await this._sendRagQuery(queryText, false, {
         max_results: 10
       });
-      
-      console.debug('RAG查询结果:', JSON.stringify(resultData));
-      
-      // 处理返回结果
-      let response = '';
-      let processedSources = [];
-      let suggestions = [];
-      
+
       if (resultData && resultData.response) {
-        response = resultData.response;
-        
-        // 处理来源
-        if (resultData.sources && Array.isArray(resultData.sources)) {
-          processedSources = resultData.sources.map((source, index) => {
-            return {
-              ...source,
-              id: source.id || source.knowledge_id || `source_${index + 1}`,
-              knowledge_id: source.id || source.knowledge_id || `source_${index + 1}`,
-              index: index + 1,
-              type: 'knowledge' // 类型统一为knowledge，方便前端组件渲染
-            };
-          });
-        }
-        
-        // 处理建议问题
-        if (resultData.suggested_questions && Array.isArray(resultData.suggested_questions)) {
-          suggestions = resultData.suggested_questions;
-        }
+        this.setData({
+          ragResults: resultData.response,
+          ragSources: resultData.sources || [],
+          ragSuggestions: resultData.suggested_questions || [],
+          isSearching: false
+        });
       } else {
-        response = '未能获取到有效回答，请稍后再试或换个问题。';
+        throw new Error('未能获取到有效回答');
       }
       
+    } catch (err) {
+      console.error('RAG查询处理失败', err);
       this.setData({
-        ragQuery: resultData?.rewritten_query || queryText,
-        ragResults: response,
-        ragSources: processedSources,
-        ragSuggestions: suggestions,
+        ragResults: '抱歉，查询出错了，请稍后重试。',
         isSearching: false
       });
-        
-    } catch (error) {
-      console.error('RAG查询失败:', error);
-      this.setData({
-        ragResults: '查询失败，请检查网络或稍后再试。',
-        isSearching: false
-      });
-      ui.showToast('查询失败，请稍后再试', { type: ToastType.ERROR });
     }
   },
   
@@ -686,7 +656,5 @@ Page({
       console.debug('ES搜索测试失败:', err);
     }
   },
-
-
 
 });

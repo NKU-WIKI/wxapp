@@ -89,7 +89,16 @@ module.exports = Behavior({
      * @returns {Promise<object|null>} 用户信息或 null
      */
     async _getUserProfile(targetOpenid, checkFollowStatus = false) {
-      if (!targetOpenid) return null;
+      // 防御性编程：处理可能传入对象的情况
+      if (typeof targetOpenid === 'object' && targetOpenid !== null && targetOpenid.openid) {
+        console.warn('_getUserProfile 接收到对象参数，已自动修正。请检查调用源。', targetOpenid);
+        targetOpenid = targetOpenid.openid;
+      }
+      
+      if (!targetOpenid || typeof targetOpenid !== 'string') {
+        console.error('_getUserProfile 接收到无效的 openid 参数:', targetOpenid);
+        return null;
+      }
       
       const params = { openid: targetOpenid };
       if (checkFollowStatus) {
