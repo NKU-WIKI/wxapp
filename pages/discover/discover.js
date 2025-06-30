@@ -51,7 +51,7 @@ Page({
       ];
       
       const insightPromises = categories.map(cat => 
-        this._getInsight(availableDate, { category: cat.name, pageSize: 3 })
+        this._getInsight(availableDate, { category: cat.name, pageSize: 5 })
       );
       
       const results = await Promise.all(insightPromises);

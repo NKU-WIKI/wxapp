@@ -160,10 +160,10 @@ Component({
         return;
       }
 
-      this._getCommentList(this.data.resourceId, {
-        resourceType: this.data.resourceType,
+      this._getCommentList({
+        resourceId: this.data.resourceId,
         page: this.data.page,
-        page_size: this.data.pageSize
+        pageSize: this.data.pageSize
       })
         .then(res => {
           if (res) {
@@ -207,11 +207,11 @@ Component({
         // 如果评论没有回复但reply_count > 0，加载前几条回复
         if ((!comment.replies || comment.replies.length === 0) && comment.reply_count > 0) {
           // 获取该评论的所有回复
-          this._getCommentList(this.data.resourceId, {
-            resourceType: this.data.resourceType,
+          this._getCommentList({
+            resourceId: this.data.resourceId,
             parentId: comment.id,
             page: 1,
-            page_size: 5
+            pageSize: 5
           })
           .then(result => {
             if (result && result.list && result.list.length > 0) {
@@ -236,11 +236,11 @@ Component({
     loadCommentReplies(commentId, page = 1, pageSize = 5) {
       if (!commentId) return Promise.reject(new Error('缺少评论ID'));
 
-      return this._getCommentList(this.data.resourceId, {
-        resourceType: this.data.resourceType,
+      return this._getCommentList({
+        resourceId: this.data.resourceId,
         parentId: commentId,
         page,
-        page_size: pageSize
+        pageSize: pageSize
       })
       .then(result => {
         if (result && result.list) {

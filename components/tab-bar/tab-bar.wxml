@@ -1,5 +1,5 @@
 <!-- 纯标签栏组件 -->
-<view class="tab-container {{fixed ? 'fixed' : ''}}" style="{{fixed && navBarHeight ? 'top:' + navBarHeight + 'px;' : ''}}">
+<view class="tab-container {{fixed ? 'is-fixed' : ''}}" style="{{customStyle}} {{ fixed ? 'top:' + totalNavHeight + 'px;' : '' }}">
   <scroll-view 
     scroll-x="{{scrollable}}" 
     class="tab-scroll-view" 
@@ -7,8 +7,8 @@
     show-scrollbar="{{false}}"
     style="background-color: {{bgColor}};">
     
-    <!-- 标准标签栏 -->
-    <view class="tab-bar {{equalWidth ? 'equal-width' : ''}}" style="{{customStyle}}">
+    <!-- 标签内容 -->
+    <view class="tab-bar-content {{equalWidth ? 'equal-width' : ''}}">
       <!-- 使用自定义标签 -->
       <block wx:if="{{useCustomTabs}}">
         <view 
@@ -17,7 +17,7 @@
           class="tab-item {{activeTab === index ? 'active' : ''}} {{item.class || ''}}"
           bind:tap="onTabChange"
           data-index="{{index}}"
-          style="color: {{activeTab === index ? (item.activeColor || activeColor) : (item.color || textColor)}}; {{activeTab === index ? 'background-color: #f0f9f0;' : ''}} {{item.style || ''}}"
+          style="color: {{activeTab === index ? (item.activeColor || activeColor) : (item.color || textColor)}}; {{active-tab === index ? 'background-color: #f0f9f0;' : ''}} {{item.style || ''}}"
         >
           <!-- 内容插槽（图标+文本） -->
           <view class="tab-content">

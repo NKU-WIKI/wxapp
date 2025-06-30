@@ -3,6 +3,7 @@
   <nav-bar title="发布帖子" showBack="{{true}}" fixed="{{true}}" />
 
   <tab-bar
+    id="mode-tabs"
     tabs="{{tabTitles}}"
     activeTab="{{isMarkdownMode ? 1 : 0}}"
     equalWidth="{{true}}"
@@ -23,7 +24,6 @@
       value="{{form.content}}"
       placeholder="分享你的想法..."
       maxlength="300"
-      height="300"
       showCount="{{true}}"
       markdownMode="{{isMarkdownMode}}"
       showToolbar="{{true}}"

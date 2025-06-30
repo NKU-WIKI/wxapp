@@ -11,15 +11,21 @@
   min-height: 100vh;
   background-color: #f7f7f7;
   padding-bottom: 30rpx;
+  box-sizing: border-box;
 }
 
 /* ================= 表单区域 ================= */
 .post-form {
   padding: 20rpx 20rpx 10rpx;
   background-color: #fff;
-  margin-top: 140rpx;
   border-radius: 12rpx 12rpx 0 0;
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  padding-top: 75rpx;
+}
+
+.post-form text-area {
+  width: 100%;
+  min-height: 25vh;
 }
 
 .post-title {

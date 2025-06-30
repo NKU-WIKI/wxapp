@@ -9,8 +9,8 @@ const userApi = createApiClient('/wxapp/user', {
   myProfile:  { method: 'GET',  path: '/my/profile' }, // params: openid
   update:     { method: 'POST', path: '/update' }, // params: openid, ...
   list:       { method: 'GET',  path: '/list' }, // params: page, page_size, nickname, sort_by
-  followers:  { method: 'GET',  path: '/followers' }, // params: openid, page, page_size
-  followings: { method: 'GET',  path: '/followings' },// params: openid, page, page_size
+  followers:  { method: 'GET',  path: '/follower' }, // params: openid, page, page_size
+  followings: { method: 'GET',  path: '/following' },// params: openid, page, page_size
 });
 
 // API客户端：通用互动

@@ -4,7 +4,7 @@
 const { storage, createApiClient, msgSecCheck } = require('../utils/index');
 
 // 创建评论API客户端
-const commentApi = createApiClient('/wxapp/comment', {
+const commentApi = createApiClient('/api/wxapp/comment', {
   list:     { method: 'GET',  path: '/list' },      // params: post_id, page, page_size
   replies:  { method: 'GET',  path: '/replies' },   // params: comment_id, openid, page, page_size
   userList: { method: 'GET',  path: '/user' },      // params: target_openid, page, page_size

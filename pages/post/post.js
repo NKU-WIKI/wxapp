@@ -528,194 +528,92 @@ Page({
 
   // 提交表单
   async submitForm() {
-    // 防止重复提交
-    if (this.data.submitting) return;
-
-    // 验证表单
-    if (!this.validatePostForm()) {
-      wx.showToast({
-        title: '请完善内容',
-        icon: 'none'
-      });
+    console.debug('开始提交表单');
+    
+    // 再次验证表单
+    this.validatePostForm();
+    if (!this.data.canSubmit) {
+      this._showToptips('请填写完整信息', ToastType.ERROR);
       return;
     }
 
-    // 设置提交状态
     this.setData({ submitting: true });
 
-    try {
-      // 准备提交数据
-      const formData = this.data.form;
-      let content = formData.content || '';
-      let title = formData.title || '无标题';
-      
-      // 过滤掉无效图片
-      const validImages = (formData.images || []).filter(img => {
-        return img && (
-          img.startsWith('cloud://') || 
-          img.startsWith('http://') || 
-          img.startsWith('https://')
-        );
-      });
-      
-      if (validImages.length !== formData.images.length) {
-        console.debug('过滤掉无效上传图片:', formData.images.length - validImages.length);
-        // 更新表单中的图片列表
-        this.setData({
-          'form.images': validImages
-        });
-      }
+    // 组合标题和内容
+    let finalContent = this.data.form.content;
+    let finalTitle = this.data.form.title;
 
-      // 如果有图片，再次检测图片安全性
-      if (validImages.length > 0) {
-        this.showLoading('内容检测中...');
-        try {
-          // 对图片内容进行安全检测
-          const imageContentToCheck = validImages.map((url, index) => `[图片${index+1}]`).join(', ');
-          const checkResult = await msgSecCheck(imageContentToCheck, 3);
-          
-          if (!checkResult.pass) {
-            this.hideLoading();
-            this.setData({ submitting: false });
-            
-            // 显示模态框提示详情
-            wx.showModal({
-              title: '图片检测未通过',
-              content: '上传的图片可能包含敏感内容，建议更换后重试',
-              showCancel: false,
-              confirmText: '知道了'
-            });
-            
-            this._showToptips('上传的图片可能包含敏感内容，请更换后重试', 'error');
-            return;
-          }
-          this.hideLoading();
-        } catch (err) {
-          console.error('图片检测失败:', err);
-          this.hideLoading();
-        }
-      }
-      
-      // 处理标题
-      const hasMarkdownTitle = content.trim().match(/^#\s+(.+)$/m);
-      if (hasMarkdownTitle) {
-        // 已有标题，提取出来
-        title = hasMarkdownTitle[1].trim();
+    // 如果是 Markdown 模式，从内容中提取标题
+    if (this.data.isMarkdownMode) {
+      const titleMatch = finalContent.match(/^#\s+(.+)$/m);
+      if (titleMatch && titleMatch[1]) {
+        finalTitle = titleMatch[1].trim();
+        finalContent = finalContent.replace(/^#\s+(.+)$/m, '').trim();
       } else {
-        // 没有标题，添加一个
-        content = `# ${title}\n\n${content}`;
+        // 如果没有一级标题，使用内容的前20个字符作为标题
+        finalTitle = finalContent.substring(0, 20);
       }
-      
-      // 如果是富文本模式且有图片，将图片以Markdown格式附加到内容末尾
-      if (!this.data.isMarkdownMode && validImages.length > 0) {
-        console.debug('富文本模式：将图片附加到内容末尾');
-        
-        // 确保内容末尾有足够的换行
-        if (!content.endsWith('\n\n')) {
-          content = content.trim() + '\n\n';
-        }
-        
-        
-        // 将每张图片转换为Markdown图片格式并附加到内容末尾
-        validImages.forEach((imageUrl, index) => {
-          // 确保图片URL不为空
-          if (imageUrl && imageUrl.trim()) {
-            content += `![图片${index + 1}](${imageUrl})\n\n`;
-            console.debug(`添加图片${index + 1}:`, imageUrl);
-          }
-        });
-      }
-      
-      // 添加明确的日志记录最终提交内容
-      console.debug('最终提交内容长度:', content.length);
-      console.debug('最终提交图片数量:', validImages.length);
-      
-      // 构建API提交数据
-      const postData = {
-        title,
-        content,
-        image: validImages,
-        category_id: formData.category_id || 1,
-        is_public: formData.isPublic,
-        allow_comment: formData.allowComment,
-        tag: formData.tags || []
-      };
-      
-      // 只有在公开模式下才添加联系方式
-      if (formData.isPublic) {
-        postData.phone = formData.phone || '';
-        postData.wechat = formData.wechat || '';
-        postData.qq = formData.qq || '';
-      } else {
-        // 匿名模式下设置为匿名用户
-        // postData.anonymous = true;  // 设置匿名标志
-        postData.nickname = '匿名用户';  // 设置昵称为匿名用户
-        postData.avatar = '';  // 清空头像
-      }
-      
-      try {
-        // 提交帖子
-        const result = await this._createPost(postData);
-        
-        if (result.code === 200) {
-          // 发布成功，直接返回首页
-          wx.switchTab({
-            url: '/pages/index/index',
-            success: () => {
-              console.debug('发布成功，已返回首页');
-              // 发送成功提示
-              wx.showToast({
-                title: '发布成功',
-                icon: 'success'
-              });
-            },
-            fail: (err) => {
-              console.error('返回首页失败:', err);
-              // 如果switchTab失败，尝试reLaunch
-              wx.reLaunch({
-                url: '/pages/index/index'
-              });
-            }
-          });
-        } else {
-          throw new Error(result.message || '发布失败');
-        }
-      } catch (error) {
-        // 针对内容审核不通过的错误做特殊处理
-        console.error('帖子创建失败:', error);
-        
-        // 显示错误信息
+    }
+    
+    // 准备提交的数据
+    const postData = {
+      ...this.data.form,
+      title: finalTitle,
+      content: finalContent
+    };
+
+    try {
+      // 内容安全检查
+      const contentToCheck = `${postData.title}\n${postData.content}`;
+      const checkResult = await msgSecCheck(contentToCheck, 2);
+
+      if (!checkResult.pass) {
+        this._showToptips('内容包含敏感信息，请修改后重试', ToastType.ERROR);
         wx.showModal({
-          title: '发布失败',
-          content: error.message || '内容审核未通过',
+          title: '内容审核未通过',
+          content: `原因：${checkResult.message || '可能包含敏感词'}`,
           showCancel: false,
-          confirmText: '知道了'
+          confirmText: '返回修改'
         });
-        
-        // 同时在顶部显示提示
-        this._showToptips(error.message || '内容审核未通过', 'error');
-        
-        // 不要抛出错误，在这里处理完毕
+        this.setData({ submitting: false });
         return;
       }
+      
+      // 调用 behavior 中的 _createPost 方法
+      const result = await this._createPost(postData);
+
+      if (result) {
+        // 发布成功
+        this.showToast('发布成功', ToastType.SUCCESS);
+        
+        // 通知首页刷新
+        const pages = getCurrentPages();
+        if (pages.length > 1) {
+          const prePage = pages[pages.length - 2];
+          if (prePage && typeof prePage.onPullDownRefresh === 'function') {
+            console.debug('调用首页刷新');
+            prePage.onPullDownRefresh();
+          }
+        }
+
+        // 延迟返回
+        setTimeout(() => {
+          wx.navigateBack();
+        }, 1500);
+        
+      } else {
+        // 发布失败
+        this._showToptips('发布失败，请稍后重试', ToastType.ERROR);
+        this.setData({ submitting: false });
+      }
     } catch (err) {
-      console.debug('提交帖子失败:', err);
-      
-      // 使用模态框显示错误，确保用户能看到
-      wx.showModal({
-        title: '发布失败',
-        content: err.message || '发布失败，请稍后再试',
-        showCancel: false,
-        confirmText: '知道了'
-      });
-      
-      this._showToptips(err.message || '发布失败，请稍后再试', ToastType.ERROR);
-    } finally {
+      console.error('发布帖子失败', err);
+      this._showToptips(err.message || '发布失败，请检查网络', ToastType.ERROR);
       this.setData({ submitting: false });
     }
   },
 
-  // 显示顶部消息提示
+  // 显示顶部提示
   _showToptips(msg, type = 'error') {
     this.setData({
       toptipsShow: true,

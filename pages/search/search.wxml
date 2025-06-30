@@ -82,24 +82,6 @@
 			</view>
 		</view>
 
-		<!-- 热门搜索 -->
-		<view class="hot-searches" wx:if="{{hotSearches.length > 0}}">
-			<view class="section-title">热门搜索</view>
-			<view class="hot-list">
-				<view 
-					class="hot-item" 
-					wx:for="{{hotSearches}}" 
-					wx:key="index"
-					bindtap="onHotSearchTap"
-					data-keyword="{{item.keyword || item}}"
-				>
-					<text class="hot-rank {{index < 3 ? 'top' : ''}}">{{index + 1}}</text>
-					<text>{{item.keyword || item}}</text>
-					<text wx:if="{{item.count}}" class="count">{{item.count}}</text>
-				</view>
-			</view>
-		</view>
-
 		<!-- 搜索历史 -->
 		<!-- 此处旧的搜索历史已被移除 -->
 	</block>
@@ -145,6 +127,15 @@
 				<view class="section-title">信息来源({{pagination.total || searchResults.length || ragSources.length}})</view>
 				<source-list 
 					sources="{{showRagResults ? ragSources : searchResults}}" 
+					show-rank="{{true}}"
+				/>
+			</view>
+			
+			<!-- 临时强制显示：用于测试数据是否存在 -->
+			<view wx:elif="{{searchResults && searchResults.length > 0}}" style="background: #fffacd; padding: 20rpx; margin: 20rpx;">
+				<text style="color: #ff6600; font-weight: bold;">临时测试显示 - 检测到{{searchResults.length}}条数据:</text>
+				<source-list 
+					sources="{{searchResults}}" 
 					show-rank="{{true}}"
 				/>
 			</view>

@@ -56,7 +56,7 @@
         error="{{error}}"
         errorMsg="{{errorMsg}}"
         bind:retry="onRetry"
-        bind:refresh="syncUserAndInitPage"
+        bind:refresh="onUserCardRefresh"
         hasMore="{{false}}"
       />
       <menu-list

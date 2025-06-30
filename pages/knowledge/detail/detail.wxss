@@ -14,7 +14,6 @@
   margin: 20rpx;
   padding: 30rpx;
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.08);
-  margin-top:90rpx;
 }
 
 /* 加载状态 */

@@ -2,7 +2,7 @@ const behaviors = require('../../behaviors/index');
 const { formatRelativeTime, parseJsonField, storage } = require('../../utils/index');
 
 Component({
-  behaviors: [behaviors.baseBehavior, behaviors.postBehavior, behaviors.userBehavior],
+  behaviors: [behaviors.baseBehavior, behaviors.postBehavior, behaviors.userBehavior, behaviors.authBehavior],
 
   options: {
     pureDataPattern: /^_/,
@@ -285,39 +285,42 @@ Component({
     
     // 点赞
     async onLikeTap() {
-      if (this.properties.isProcessing) return;
-      
-      const postId = this.properties.post?.id;
-      if (!postId) return;
-      
-      const openid = storage.get('openid');
-      if (!openid) {
-        this.showToast('请先登录', 'error');
+      if (this.data.isProcessing) return;
+      if (!this.data.isLoggedIn) {
+        this._checkLogin(true);
         return;
       }
-      
+
       this.setData({ isProcessing: true });
-      
+
+      const originalPost = this.properties.post;
+      const originalIsLiked = originalPost.is_liked;
+      const originalLikeCount = originalPost.like_count || 0;
+
       try {
-        const res = await this._likePost(postId);
-        
-        // 点赞成功后更新UI状态
-        if (res && res.code === 200 && res.data) {
-          // API返回的数据格式：{ is_liked: true/false, like_count: 数量 }
-          const { is_liked, like_count } = res.data;
+        const res = await this._likePost(this.properties.post.id);
+        if (res && res.data) {
+          const { is_active } = res.data;
+          let newLikeCount = originalLikeCount;
+
+          if (is_active && !originalIsLiked) {
+            newLikeCount++;
+          } else if (!is_active && originalIsLiked) {
+            newLikeCount--;
+          }
           
-          // 更新UI显示，使用typeof判断是否存在like_count字段
+          if (newLikeCount < 0) {
+            newLikeCount = 0;
+          }
+
           this.setData({
-            'post.is_liked': !!is_liked,
-            'post.like_count': typeof like_count === 'number' ? like_count : this.properties.post.like_count || 0
+            'post.is_liked': is_active,
+            'post.like_count': newLikeCount
           });
-          
-          // 输出调试信息
-          console.debug('点赞操作结果:', res.data, '，UI已更新为:', this.data.post.is_liked, this.data.post.like_count);
         }
       } catch (err) {
-        console.error('点赞失败:', err);
-        this.showToast('点赞失败', 'error');
+        console.debug('点赞失败', err);
+        // 如果API调用失败，可以回滚UI，但暂时保持简单
       } finally {
         this.setData({ isProcessing: false });
       }
@@ -325,39 +328,42 @@ Component({
     
     // 收藏
     async onFavoriteTap() {
-      if (this.properties.isProcessing) return;
-      
-      const postId = this.properties.post?.id;
-      if (!postId) return;
-      
-      const openid = storage.get('openid');
-      if (!openid) {
-        this.showToast('请先登录', 'error');
+      if (this.data.isProcessing) return;
+      if (!this.data.isLoggedIn) {
+        this._checkLogin(true);
         return;
       }
-      
+
       this.setData({ isProcessing: true });
       
+      const originalPost = this.properties.post;
+      const originalIsFavorited = originalPost.is_favorited;
+      const originalFavoriteCount = originalPost.favorite_count || 0;
+
       try {
-        const res = await this._favoritePost(postId);
-        
-        // 收藏成功后更新UI状态
-        if (res && res.code === 200 && res.data) {
-          // API返回的数据格式：{ is_favorited: true/false, favorite_count: 数量 }
-          const { is_favorited, favorite_count } = res.data;
+        const res = await this._favoritePost(this.properties.post.id);
+
+        if (res && res.data) {
+          const { is_active } = res.data;
+          let newFavoriteCount = originalFavoriteCount;
+
+          if (is_active && !originalIsFavorited) {
+            newFavoriteCount++;
+          } else if (!is_active && originalIsFavorited) {
+            newFavoriteCount--;
+          }
           
-          // 更新UI显示，使用typeof判断是否存在favorite_count字段
+          if (newFavoriteCount < 0) {
+            newFavoriteCount = 0;
+          }
+
           this.setData({
-            'post.is_favorited': !!is_favorited,
-            'post.favorite_count': typeof favorite_count === 'number' ? favorite_count : this.properties.post.favorite_count || 0
+            'post.is_favorited': is_active,
+            'post.favorite_count': newFavoriteCount
           });
-          
-          // 输出调试信息
-          console.debug('收藏操作结果:', res.data, '，UI已更新为:', this.data.post.is_favorited, this.data.post.favorite_count);
         }
       } catch (err) {
-        console.error('收藏失败:', err);
-        this.showToast('收藏失败', 'error');
+        console.debug('收藏失败', err);
       } finally {
         this.setData({ isProcessing: false });
       }

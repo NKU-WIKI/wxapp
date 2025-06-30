@@ -143,6 +143,10 @@ Page({
     this.setData({ refreshing: false });
   },
 
+  onUserCardRefresh() {
+    this.syncUserAndInitPage();
+  },
+
   // 同步用户并初始化页面
   async syncUserAndInitPage(targetOpenid) {
     this.setData({ loading: true, error: false });

@@ -8,7 +8,6 @@ Page({
     searchValue: '',
     searchHistory: [],
     searchResults: [],
-    hotSearches: [],
     suggestions: [],
     loading: false,
     isSearching: false,
@@ -60,8 +59,6 @@ Page({
 
   onLoad() {
     this.loadSearchHistory();
-    this.loadHotSearches();
-    // 计算搜索历史下拉框的正确位置
     this.calculateDropdownPosition();
   },
 
@@ -182,6 +179,12 @@ Page({
     }
     
     console.debug('执行普通搜索:', searchKeyword, '类型:', searchType || '全部');
+    
+    console.debug('开始搜索，设置状态:', {
+      searchValue: keyword,
+      searchType: searchType,
+      currentSearchType: searchType
+    });
     
     this.setData({ 
       searchValue: keyword,
@@ -310,10 +313,27 @@ Page({
         }
       }
       
+      console.debug('搜索完成，设置数据:', {
+        resultsLength: resultsData.data.length,
+        pagination: resultsData.pagination,
+        searchType: type
+      });
+      
       this.setData({
         isSearching: false,
         searchResults: resultsData.data,
         pagination: resultsData.pagination
+      });
+      
+      // 添加状态验证调试信息
+      console.debug('搜索状态验证:', {
+        hasSearched: this.data.hasSearched,
+        isSearching: this.data.isSearching,
+        showRagResults: this.data.showRagResults,
+        currentSearchType: this.data.currentSearchType,
+        searchResultsLength: this.data.searchResults.length,
+        renderCondition: this.data.hasSearched && !this.data.isSearching && !this.data.showRagResults,
+        innerCondition: !this.data.showRagResults && this.data.searchResults.length > 0
       });
       
     } catch (error) {
@@ -322,17 +342,6 @@ Page({
         isSearching: false
       });
       ui.showToast('搜索服务出错了', { type: 'error' });
-    }
-  },
-  
-  // 加载热门搜索
-  async loadHotSearches() {
-    try {
-      const hotSearches = await this._getHotSearches(10);
-      console.debug('热门搜索数据:', JSON.stringify(hotSearches));
-      this.setData({ hotSearches });
-    } catch (err) {
-      console.debug('加载热门搜索失败:', err);
     }
   },
   
@@ -470,7 +479,7 @@ Page({
       // 更新页面数据，设置焦点
       this.setData({
         searchValue: newValue,
-        selectedSearchType: option.type,
+        currentSearchType: option.type,
         focus: true,
         // 重要：确保不自动搜索
         hasSearched: false
@@ -488,51 +497,45 @@ Page({
       searchResults: [],
       suggestions: [],
       showRagResults: false,
-      ragResults: null,
-      hasSearched: false, // 重置搜索状态
-      isSearching: false, // 重置加载状态
+      hasSearched: false,
+      isSearching: false,
       'pagination.page': 1,
-      focus: false // 重置focus状态
+      focus: false
     });
   },
 
   // 点击搜索建议
   onSuggestionTap(e) {
-    this.setData({
-      searchValue: e.currentTarget.dataset.value,
-      suggestions: []
-    });
-    this.search(e);
-  },
-
-  // 点击热门搜索
-  onHotSearchTap(e) {
-    this.setData({
-      searchValue: e.currentTarget.dataset.keyword
-    });
+    const { keyword } = e.currentTarget.dataset;
+    this.setData({ searchValue: keyword, suggestions: [] });
     this.search(e);
   },
 
   // 点击历史记录
   onHistoryItemTap(e) {
-    const keyword = e.currentTarget.dataset.keyword;
-    this.setData({ searchValue: keyword, focus: false });
+    const { keyword } = e.currentTarget.dataset;
+    if (!keyword) return;
+    this.setData({ searchValue: keyword });
     this.search(e);
   },
 
   // 加载搜索历史
   async loadSearchHistory() {
-    const history = await storage.get('searchHistory', []);
-    
-    // 过滤掉null值和空字符串
-    const validHistory = Array.isArray(history) 
-      ? history.filter(item => item && (
-          (typeof item === 'string' && item.trim() !== '') || 
-          (typeof item === 'object' && item.query && item.query.trim() !== '')
-        )).map(item => typeof item === 'string' ? item : item.query) 
-      : [];
-    
-    this.setData({ searchHistory: validHistory });
+    try {
+      const history = storage.get('searchHistory') || [];
+      
+      // 过滤掉null值和空字符串
+      const validHistory = Array.isArray(history) 
+        ? history.filter(item => item && (
+            (typeof item === 'string' && item.trim() !== '') || 
+            (typeof item === 'object' && item.query && item.query.trim() !== '')
+          )).map(item => typeof item === 'string' ? item : item.query) 
+        : [];
+      
+      this.setData({ searchHistory: validHistory });
+    } catch (err) {
+      console.debug('加载搜索历史失败:', err);
+    }
   },
 
   // 保存搜索历史

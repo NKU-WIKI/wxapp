@@ -141,8 +141,8 @@ Page({
     }
   },
 
-  // 表单字段变更事件处理
-  onFieldChange(e) {
+  // 表单字段变更事件处理 (此方法将被移除，逻辑由form-panel内部处理)
+  /* onFieldChange(e) {
     const { name, value } = e.detail;
     console.debug('字段变更:', name, value);
     
@@ -150,7 +150,7 @@ Page({
     this.setData({
       [`userInfo.${name}`]: value
     });
-  },
+  }, */
   
   // 初始化form-panel组件
   initFormPanel() {
@@ -187,28 +187,14 @@ Page({
       });
       
       // 添加调试日志，检查联系方式字段
-      console.debug('用户数据映射到表单:', 
-        `nickname=${this.data.userInfo.nickname || '空'}`, 
-        `bio=${this.data.userInfo.bio || '空'}`,
-        `wechatId=${this.data.userInfo.wechatId || '空'}`, 
-        `qqId=${this.data.userInfo.qqId || '空'}`,
-        `phone=${this.data.userInfo.phone || '空'}`,
-        `country=${this.data.userInfo.country || '空'}`,
-        `city=${this.data.userInfo.city || '空'}`
-      );
+      console.debug('用户数据映射到表单:', `nickname=${formData.nickname || '空'}`);
     }
 
     console.debug('设置表单数据:', formData);
 
-    // 设置表单数据
+    // 直接更新form-panel的formData
     formPanel.setData({
-      formData,
-      _initialized: true
-    });
-    
-    // 刷新组件
-    this.setData({
-      _formPanelRefreshKey: Date.now()
+      formData
     });
   },
 

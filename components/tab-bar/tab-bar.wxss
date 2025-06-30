@@ -8,12 +8,11 @@
 }
 
 /* 固定在顶部 */
-.tab-container.fixed {
+.tab-container.is-fixed {
   position: fixed;
   left: 0;
   right: 0;
-  /* 默认定位在顶部，也可以通过navBarHeight属性调整 */
-  top: 0;
+  /* top 值由内联样式动态设置 */
 }
 
 /* 滚动视图 */
@@ -22,19 +21,19 @@
   white-space: nowrap;
 }
 
-/* 标签栏 */
-.tab-bar {
+/* 标签栏内容 */
+.tab-bar-content {
   display: flex;
   min-width: 100%;
   padding: 0;
 }
 
 /* 等宽标签栏 */
-.tab-bar.equal-width {
+.tab-bar-content.equal-width {
   width: 100%;
 }
 
-.tab-bar.equal-width .tab-item {
+.tab-bar-content.equal-width .tab-item {
   flex: 1;
   width: 0;
 }
@@ -54,17 +53,6 @@
   font-weight: 500;
   color: #07c160;
   position: relative;
-}
-
-.tab-item.active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 30%;
-  width: 40%;
-  height: 4rpx;
-  background-color: #07c160;
-  border-radius: 2rpx;
 }
 
 /* 标签内容 */

@@ -54,7 +54,6 @@
         ranges="{{ranges}}"
         submitText="保存修改"
         submitTextBackground="#666"
-        bind:change="onFieldChange"
         bind:submit="onFormSubmit"
       ></form-panel>
       
