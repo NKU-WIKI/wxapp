@@ -1,4 +1,4 @@
-const { storage, ui, ToastType } = require('../../utils/index');
+const { storage, ui, ToastType, generatePageShareContent } = require('../../utils/index');
 const behaviors = require('../../behaviors/index');
 
 Page({
@@ -658,6 +658,70 @@ Page({
     } catch (err) {
       console.debug('ES搜索测试失败:', err);
     }
+  },
+
+  // 自定义分享内容
+  onShareAppMessage(res) {
+    const { searchValue, hasSearched, currentSearchType, showRagResults } = this.data;
+    
+    let shareTitle = 'nkuwiki - 南开校园知识搜索';
+    let sharePath = '/pages/search/search';
+    
+    // 如果有搜索内容，包含搜索关键词
+    if (hasSearched && searchValue) {
+      if (showRagResults) {
+        shareTitle = `nkuwiki问答 "${searchValue}" - 南开小知为你解答`;
+      } else {
+        const typeText = currentSearchType === 'knowledge' ? '知识库' :
+                        currentSearchType === 'user' ? '用户' :
+                        currentSearchType === 'post' ? '帖子' : '';
+        const searchText = typeText ? `${typeText}搜索` : '搜索';
+        shareTitle = `nkuwiki ${searchText} "${searchValue}" - 发现更多精彩内容`;
+      }
+      
+      // 如果有搜索关键词，在分享路径中包含关键词
+      const cleanKeyword = searchValue.replace(/@\w+\s*/, '').trim();
+      if (cleanKeyword) {
+        sharePath += `?keyword=${encodeURIComponent(cleanKeyword)}`;
+      }
+    }
+    
+    return generatePageShareContent({
+      title: shareTitle,
+      path: sharePath,
+      imageUrl: '/icons/logo.png',
+      desc: '在nkuwiki搜索南开校园知识，发现学习、生活、就业等各类精彩内容'
+    });
+  },
+
+  // 自定义分享到朋友圈
+  onShareTimeline() {
+    const { searchValue, hasSearched, currentSearchType, showRagResults } = this.data;
+    
+    let shareTitle = 'nkuwiki - 南开校园知识搜索平台';
+    let query = '';
+    
+    if (hasSearched && searchValue) {
+      if (showRagResults) {
+        shareTitle = `我在nkuwiki问了"${searchValue}"，南开小知给出了专业解答`;
+      } else {
+        const typeText = currentSearchType === 'knowledge' ? '知识库' :
+                        currentSearchType === 'user' ? '用户' :
+                        currentSearchType === 'post' ? '帖子' : '';
+        shareTitle = `我在nkuwiki${typeText ? typeText + '中' : ''}搜索"${searchValue}"，发现了很多有用信息`;
+      }
+      
+      const cleanKeyword = searchValue.replace(/@\w+\s*/, '').trim();
+      if (cleanKeyword) {
+        query = `keyword=${encodeURIComponent(cleanKeyword)}`;
+      }
+    }
+    
+    return {
+      title: shareTitle,
+      query: query,
+      imageUrl: '/icons/logo.png'
+    };
   },
 
 });

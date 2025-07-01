@@ -1,5 +1,5 @@
 const behaviors = require('../../behaviors/index');
-const { storage } = require('../../utils/index');
+const { storage, generatePageShareContent } = require('../../utils/index');
 // 常量配置
 
 Page({
@@ -125,5 +125,57 @@ Page({
       });
     }
     return; // 直接返回，不再执行后续代码
-  }
+  },
+
+  // 自定义分享内容
+  onShareAppMessage(res) {
+    const { userInfo } = this.data;
+    
+    if (!userInfo) {
+      return generatePageShareContent({
+        title: 'nkuwiki - 南开校园知识分享',
+        path: '/pages/index/index',
+        imageUrl: '/icons/logo.png'
+      });
+    }
+    
+    const nickname = userInfo.nickname || '南开用户';
+    const bio = userInfo.bio || '';
+    const shareTitle = `${nickname}的个人主页 - nkuwiki`;
+    const shareDesc = bio ? `${bio} | 在nkuwiki分享校园知识` : '在nkuwiki分享校园知识的南开同学';
+    
+    return generatePageShareContent({
+      title: shareTitle,
+      path: `/pages/user/user?openid=${userInfo.openid || userInfo.id}`,
+      imageUrl: userInfo.avatar || '/icons/logo.png',
+      desc: shareDesc
+    });
+  },
+
+  // 自定义分享到朋友圈
+  onShareTimeline() {
+    const { userInfo } = this.data;
+    
+    if (!userInfo) {
+      return {
+        title: 'nkuwiki - 南开校园知识分享平台',
+        query: '',
+        imageUrl: '/icons/logo.png'
+      };
+    }
+    
+    const nickname = userInfo.nickname || '南开用户';
+    const bio = userInfo.bio || '';
+    let shareTitle = `${nickname}在nkuwiki分享校园知识`;
+    
+    if (bio && bio.length > 0) {
+      shareTitle = `${nickname}：${bio} | nkuwiki`;
+    }
+    
+    return {
+      title: shareTitle,
+      query: `openid=${userInfo.openid || userInfo.id}`,
+      imageUrl: userInfo.avatar || '/icons/logo.png'
+    };
+  },
 });

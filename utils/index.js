@@ -12,7 +12,7 @@ const error = require('./error');
 const format = require('./format');
 const chunkUtil = require('./chunkUtil');
 const textCensor = require('./textCensor');
-const urlLink = require('./urlLink');
+const share = require('./share');
 
 // 创建ui命名空间对象
 const ui = {
@@ -95,6 +95,10 @@ module.exports = {
   // 流式数据处理
   createChunkRes: chunkUtil.createChunkRes,
   
-  // URL链接生成
-  generatePostUrlLink: urlLink.generatePostUrlLink
+  // 分享功能
+  generatePostShareContent: share.generatePostShareContent,
+  generateTimelineShareContent: share.generateTimelineShareContent,
+  generatePageShareContent: share.generatePageShareContent,
+  getCurrentPagePath: share.getCurrentPagePath,
+  createShareMixin: share.createShareMixin
 };

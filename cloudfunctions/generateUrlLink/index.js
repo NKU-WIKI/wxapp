@@ -16,21 +16,23 @@ exports.main = async (event, context) => {
       };
     }
 
-    const result = await cloud.openapi.urllink.generate({
-      path: `pages/post/detail/detail?id=${postId}`,
-      query: '',
-      expire_type: 0,
-      expire_interval: 1
+    const result = await cloud.openapi.urlscheme.generate({
+      jumpWxa: {
+        path: 'pages/post/detail/detail',
+        query: `id=${postId}`
+      },
+      expireType: 0,
+      expireInterval: 1
     });
 
-    console.log('生成url_link成功:', result);
+    console.log('生成url_scheme成功:', result);
 
-    if (result && result.urlLink) {
+    if (result && result.openlink) {
       return {
         code: 200,
         message: 'success',
         data: {
-          urlLink: result.urlLink
+          urlLink: result.openlink
         }
       };
     } else {

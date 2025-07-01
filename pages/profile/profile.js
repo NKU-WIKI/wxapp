@@ -1,5 +1,5 @@
 const behaviors = require('../../behaviors/index');
-const { storage, getAboutInfo, getOpenID } = require('../../utils/index');
+const { storage, getAboutInfo, getOpenID, generatePageShareContent } = require('../../utils/index');
 // 常量配置
 const MENU_CONFIG = {
   SETTINGS: {
@@ -388,5 +388,80 @@ Page({
 
   onLoginCardTap() {
     wx.navigateTo({ url: '/pages/login/login' });
+  },
+
+  // 自定义分享内容
+  onShareAppMessage(res) {
+    const { userInfo } = this.data;
+    const currentOpenid = storage.get('openid');
+    
+    // 如果没有用户信息，分享应用首页
+    if (!userInfo) {
+      return generatePageShareContent({
+        title: 'nkuwiki - 南开校园知识分享',
+        path: '/pages/index/index',
+        imageUrl: '/icons/logo.png',
+        desc: '南开大学校园知识分享平台，汇聚学习交流、校园生活、就业创业等优质内容'
+      });
+    }
+    
+    const nickname = userInfo.nickname || '南开用户';
+    const bio = userInfo.bio || '';
+    
+    // 如果是查看自己的资料
+    if (userInfo.openid === currentOpenid || userInfo.id === currentOpenid) {
+      const shareTitle = `我在nkuwiki分享校园知识 - ${nickname}`;
+      const shareDesc = bio ? `${bio} | 欢迎关注我在nkuwiki的分享` : '欢迎关注我在nkuwiki的分享';
+      
+      return generatePageShareContent({
+        title: shareTitle,
+        path: `/pages/user/user?openid=${userInfo.openid || userInfo.id}`,
+        imageUrl: userInfo.avatar || '/icons/logo.png',
+        desc: shareDesc
+      });
+    } else {
+      // 如果是查看他人的资料
+      const shareTitle = `${nickname}的个人主页 - nkuwiki`;
+      const shareDesc = bio ? `${bio} | 在nkuwiki分享校园知识` : '在nkuwiki分享校园知识的南开同学';
+      
+      return generatePageShareContent({
+        title: shareTitle,
+        path: `/pages/user/user?openid=${userInfo.openid || userInfo.id}`,
+        imageUrl: userInfo.avatar || '/icons/logo.png',
+        desc: shareDesc
+      });
+    }
+  },
+
+  // 自定义分享到朋友圈
+  onShareTimeline() {
+    const { userInfo } = this.data;
+    const currentOpenid = storage.get('openid');
+    
+    if (!userInfo) {
+      return {
+        title: 'nkuwiki - 南开校园知识分享平台',
+        query: '',
+        imageUrl: '/icons/logo.png'
+      };
+    }
+    
+    const nickname = userInfo.nickname || '南开用户';
+    const bio = userInfo.bio || '';
+    
+    let shareTitle;
+    if (userInfo.openid === currentOpenid || userInfo.id === currentOpenid) {
+      // 分享自己的资料
+      shareTitle = bio ? `${nickname}：${bio} | 我在nkuwiki分享校园知识` : `${nickname} | 我在nkuwiki分享校园知识`;
+    } else {
+      // 分享他人的资料
+      shareTitle = bio ? `${nickname}：${bio} | nkuwiki` : `${nickname}在nkuwiki分享校园知识`;
+    }
+    
+    return {
+      title: shareTitle,
+      query: `openid=${userInfo.openid || userInfo.id}`,
+      imageUrl: userInfo.avatar || '/icons/logo.png'
+    };
   },
 });

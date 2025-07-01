@@ -1,4 +1,5 @@
 const behavior = require('../../behaviors/index');
+const { generatePageShareContent } = require('../../utils/index');
 
 Page({
   behaviors: [behavior.baseBehavior, behavior.knowledgeBehavior, behavior.systemAdaptBehavior],
@@ -128,5 +129,30 @@ Page({
   onPullDownRefresh() {
     this.loadDiscoverData();
     wx.stopPullDownRefresh();
-  }
+  },
+
+  // 自定义分享内容
+  onShareAppMessage(res) {
+    const { currentDate } = this.data;
+    const dateTitle = currentDate ? `每日洞察 ${currentDate}` : '校园洞察';
+    
+    return generatePageShareContent({
+      title: `nkuwiki ${dateTitle} - 发现校园新动态`,
+      path: '/pages/discover/discover',
+      imageUrl: '/icons/logo.png',
+      desc: '了解南开校园最新动态，发现官方资讯、社区热点和集市活动'
+    });
+  },
+
+  // 自定义分享到朋友圈
+  onShareTimeline() {
+    const { currentDate } = this.data;
+    const dateTitle = currentDate ? `每日洞察 ${currentDate}` : '校园洞察';
+    
+    return {
+      title: `nkuwiki ${dateTitle} | 发现南开校园新动态`,
+      query: '',
+      imageUrl: '/icons/logo.png'
+    };
+  },
 });

@@ -99,6 +99,119 @@ Page({
 
   },
 
+  // 自定义分享内容
+  onShareAppMessage(res) {
+    const { postDetail } = this.data;
+    
+    // 检查是否是从分享按钮触发
+    if (res.from === 'button') {
+      console.log('从分享按钮分享', res.target);
+    }
+    
+    // 如果帖子数据还没加载完成，提供默认分享内容
+    if (!postDetail || !postDetail.data) {
+      return {
+        title: 'nkuwiki - 南开校园知识分享',
+        path: `/pages/post/detail/detail?id=${this.data.postId}`,
+        imageUrl: '/icons/logo.png'
+      };
+    }
+    
+    const post = postDetail.data;
+    
+    // 生成分享标题 - 优化显示
+    let shareTitle = post.title || '南开校园分享';
+    if (shareTitle.length > 30) {
+      shareTitle = shareTitle.substring(0, 27) + '...';
+    }
+    
+    // 添加作者信息
+    const author = post.user_info?.nickname || post.nickname || '匿名用户';
+    shareTitle = `${shareTitle} - @${author}`;
+    
+    // 构造分享路径
+    const sharePath = `/pages/post/detail/detail?id=${post.id}`;
+    
+    // 选择分享图片
+    let shareImageUrl = '/icons/logo.png'; // 默认图片
+    
+    // 如果帖子有图片，使用第一张图片
+    if (post.image && post.image.length > 0) {
+      try {
+        const images = typeof post.image === 'string' 
+          ? JSON.parse(post.image) 
+          : post.image;
+        if (Array.isArray(images) && images.length > 0) {
+          shareImageUrl = images[0];
+        }
+      } catch (e) {
+        console.log('解析帖子图片失败', e);
+      }
+    }
+    
+    console.log('生成分享内容', {
+      title: shareTitle,
+      path: sharePath,
+      imageUrl: shareImageUrl
+    });
+    
+    return {
+      title: shareTitle,
+      path: sharePath,
+      imageUrl: shareImageUrl
+    };
+  },
+
+  // 自定义分享到朋友圈
+  onShareTimeline() {
+    const { postDetail } = this.data;
+    
+    if (!postDetail || !postDetail.data) {
+      return {
+        title: 'nkuwiki - 南开校园知识分享',
+        query: `id=${this.data.postId}`,
+        imageUrl: '/icons/logo.png'
+      };
+    }
+    
+    const post = postDetail.data;
+    let shareTitle = post.title || '南开校园分享';
+    
+    // 朋友圈标题稍长一些
+    if (shareTitle.length > 50) {
+      shareTitle = shareTitle.substring(0, 47) + '...';
+    }
+    
+    const author = post.user_info?.nickname || post.nickname || '匿名用户';
+    shareTitle = `${shareTitle} | ${author} 在nkuwiki分享`;
+    
+    // 选择分享图片
+    let shareImageUrl = '/icons/logo.png';
+    if (post.image && post.image.length > 0) {
+      try {
+        const images = typeof post.image === 'string' 
+          ? JSON.parse(post.image) 
+          : post.image;
+        if (Array.isArray(images) && images.length > 0) {
+          shareImageUrl = images[0];
+        }
+      } catch (e) {
+        console.log('解析帖子图片失败', e);
+      }
+    }
+    
+    console.log('生成朋友圈分享内容', {
+      title: shareTitle,
+      query: `id=${post.id}`,
+      imageUrl: shareImageUrl
+    });
+    
+    return {
+      title: shareTitle,
+      query: `id=${post.id}`,
+      imageUrl: shareImageUrl
+    };
+  },
 
   
   // 显示顶部提示

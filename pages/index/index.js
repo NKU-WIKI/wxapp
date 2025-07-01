@@ -1,4 +1,5 @@
 const behaviors = require('../../behaviors/index');
+const { generatePageShareContent } = require('../../utils/index');
 
 Page({
   behaviors: [
@@ -250,5 +251,24 @@ Page({
         }
       });
     }
+  },
+
+  // 自定义分享内容
+  onShareAppMessage(res) {
+    return generatePageShareContent({
+      title: 'nkuwiki - 南开校园知识分享',
+      path: '/pages/index/index',
+      imageUrl: '/icons/logo.png',
+      desc: '南开大学校园知识分享平台，汇聚学习交流、校园生活、就业创业等优质内容'
+    });
+  },
+
+  // 自定义分享到朋友圈
+  onShareTimeline() {
+    return {
+      title: 'nkuwiki - 南开校园知识分享平台',
+      query: '',
+      imageUrl: '/icons/logo.png'
+    };
   },
 });

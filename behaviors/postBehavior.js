@@ -1,7 +1,7 @@
 /**
  * 帖子行为 - 处理帖子数据的获取、发布、编辑、点赞等操作
  */
-const { createApiClient, msgSecCheck, storage, generatePostUrlLink, logger } = require('../utils/index');
+const { createApiClient, msgSecCheck, storage, logger } = require('../utils/index');
 
 // 创建帖子API客户端
 const postApi = createApiClient('/wxapp/post', {
@@ -125,29 +125,44 @@ module.exports = Behavior({
       
       try {
         // 第一步：创建帖子
+        logger.debug('准备调用 postApi.create', { data });
         const result = await postApi.create(data);
+        logger.debug('postApi.create 调用完成', { result });
         
         if (result && result.code === 200 && result.data && result.data.id) {
           const postId = result.data.id;
-          logger.debug('帖子创建成功，开始生成url_link', { postId });
+          logger.debug('帖子创建成功，准备直接调用云函数生成url_link', { postId });
           
-          // 第二步：生成url_link
-          const urlLink = await generatePostUrlLink(postId);
-          if (urlLink) {
-            logger.debug('url_link生成成功，准备更新到后端', { postId, urlLink });
-            
-            // 第三步：更新帖子，将url_link保存到后端
-            try {
+          // 第二步：生成url_link (异步执行，不阻塞帖子发布)
+          try {
+            const res = await wx.cloud.callFunction({
+              name: 'generateUrlLink',
+              data: { postId: String(postId) }
+            });
+
+            if (res && res.result && res.result.code === 200 && res.result.data && res.result.data.urlLink) {
+              const urlLink = res.result.data.urlLink;
+              logger.debug('url_link生成成功，准备更新到后端', { postId, urlLink });
+              
+              // 第三步：更新帖子，将url_link保存到后端
               await this._updatePost(postId, { url_link: urlLink });
               result.data.urlLink = urlLink;
-              logger.debug('url_link已保存到后端', { postId, urlLink });
-            } catch (updateErr) {
-              logger.warn('url_link保存到后端失败，但帖子创建成功', { postId, error: updateErr });
-              // 更新失败不影响帖子创建，只是记录警告
-              result.data.urlLink = urlLink;
+              logger.info('url_link已成功保存到后端', { postId, urlLink });
+
+            } else {
+              const errorInfo = {
+                postId,
+                resultCode: res && res.result ? res.result.code : 'undefined',
+                resultMessage: res && res.result ? res.result.message : 'undefined'
+              };
+              logger.warn('云函数返回数据异常或未成功', errorInfo);
             }
-          } else {
-            logger.warn('url_link生成失败', { postId });
+          } catch (urlLinkError) {
+            logger.warn('调用generateUrlLink云函数失败', { 
+              postId, 
+              errorMessage: urlLinkError && urlLinkError.message ? urlLinkError.message : String(urlLinkError),
+              errorStack: urlLinkError && urlLinkError.stack ? urlLinkError.stack : 'no stack trace'
+            });
           }
         }
         

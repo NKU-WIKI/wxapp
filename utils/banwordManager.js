@@ -1,4 +1,10 @@
 const logger = require('./logger');
+const { createApiClient } = require('./apiClient');
+
+// 创建专用于敏感词的API客户端
+const banwordsApi = createApiClient('/wxapp', {
+  getLibrary: { method: 'GET', path: '/banwords/library' }
+});
 
 /**
  * 敏感词管理器
@@ -50,51 +56,16 @@ class BanwordManager {
    */
   async fetchFromServer() {
     try {
-      const requestConfig = {
-        url: '/api/wxapp/banwords',
-        method: 'GET',
-        header: {
-          'Content-Type': 'application/json'
-        }
-      };
-
-      // 判断是否为微信小程序环境
-      if (typeof wx !== 'undefined' && wx.request) {
-        const response = await this.wxRequest(requestConfig);
-        
-        if (response.statusCode === 200 && response.data) {
-          const result = response.data;
-          if (result.status === 'success' && result.data && result.data.library) {
-            this.library = result.data.library;
-            this.lastUpdateTime = Date.now();
-            logger.info('敏感词库更新成功');
-            return this.library;
-          } else {
-            throw new Error(result.message || '获取敏感词失败');
-          }
-        } else {
-          throw new Error(`服务器响应错误: ${response.statusCode}`);
-        }
+      const result = await banwordsApi.getLibrary();
+      
+      // apiClient已经处理了code和基础的data层，直接检查业务数据
+      if (result && result.data && result.data.library) {
+        this.library = result.data.library;
+        this.lastUpdateTime = Date.now();
+        logger.info('敏感词库更新成功');
+        return this.library;
       } else {
-        // 非微信环境，使用fetch
-        const response = await fetch(requestConfig.url, {
-          method: requestConfig.method,
-          headers: requestConfig.header
-        });
-        
-        if (response.ok) {
-          const result = await response.json();
-          if (result.status === 'success' && result.data && result.data.library) {
-            this.library = result.data.library;
-            this.lastUpdateTime = Date.now();
-            logger.info('敏感词库更新成功');
-            return this.library;
-          } else {
-            throw new Error(result.message || '获取敏感词失败');
-          }
-        } else {
-          throw new Error(`服务器响应错误: ${response.status}`);
-        }
+        throw new Error('获取敏感词库数据格式错误');
       }
     } catch (error) {
       logger.error('获取敏感词库失败:', error);
@@ -107,21 +78,6 @@ class BanwordManager {
       
       return this.library;
     }
-  }
-
-  /**
-   * 微信小程序请求封装
-   * @param {Object} config 请求配置
-   * @returns {Promise<Object>} 响应结果
-   */
-  wxRequest(config) {
-    return new Promise((resolve, reject) => {
-      wx.request({
-        ...config,
-        success: resolve,
-        fail: reject
-      });
-    });
   }
 
   /**

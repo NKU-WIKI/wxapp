@@ -9,6 +9,9 @@ App({
     // 同步初始化系统关键信息，确保在任何页面或组件加载前完成
     initSystemInfo(this);
 
+    // 初始化云开发
+    this.initCloud();
+
     this.updateEnvConfig();
     
     try {
@@ -52,6 +55,23 @@ App({
     } catch (e) {
       logger.error('Failed to get account info, defaulting to main branch.', e);
       config.API_CONFIG.branch = 'main';
+    }
+  },
+
+  initCloud() {
+    try {
+      if (!wx.cloud) {
+        logger.error('当前微信版本不支持云开发，请更新至最新版本微信客户端');
+        return;
+      }
+
+      wx.cloud.init({
+        env: config.cloudEnv
+      });
+
+      logger.debug('云开发初始化成功', { env: config.cloudEnv });
+    } catch (err) {
+      logger.error('云开发初始化失败', err);
     }
   }
 });

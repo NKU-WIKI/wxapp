@@ -77,5 +77,6 @@
   "requiredPrivateInfos": [
     "getLocation"
   ],
+  "cloud": true,
   "requiredBackgroundModes": []
 }
