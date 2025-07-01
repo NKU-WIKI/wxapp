@@ -12,6 +12,7 @@ const error = require('./error');
 const format = require('./format');
 const chunkUtil = require('./chunkUtil');
 const textCensor = require('./textCensor');
+const urlLink = require('./urlLink');
 
 // 创建ui命名空间对象
 const ui = {
@@ -92,5 +93,8 @@ module.exports = {
   // 内容安全
   msgSecCheck,
   // 流式数据处理
-  createChunkRes: chunkUtil.createChunkRes
+  createChunkRes: chunkUtil.createChunkRes,
+  
+  // URL链接生成
+  generatePostUrlLink: urlLink.generatePostUrlLink
 };

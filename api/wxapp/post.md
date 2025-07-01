@@ -28,6 +28,7 @@
 | `nickname` | `string` | 否 | 用户昵称 (冗余字段)。 |
 | `avatar` | `string` | 否 | 用户头像 (冗余字段)。 |
 | `bio` | `string` | 否 | 用户简介 (冗余字段)。 |
+| `url_link` | `string` | 否 | 微信小程序分享链接。 |
 
 ### 响应 (200 OK)
 

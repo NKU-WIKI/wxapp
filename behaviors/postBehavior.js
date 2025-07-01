@@ -1,7 +1,7 @@
 /**
  * 帖子行为 - 处理帖子数据的获取、发布、编辑、点赞等操作
  */
-const { createApiClient, msgSecCheck, storage } = require('../utils/index');
+const { createApiClient, msgSecCheck, storage, generatePostUrlLink, logger } = require('../utils/index');
 
 // 创建帖子API客户端
 const postApi = createApiClient('/wxapp/post', {
@@ -124,9 +124,36 @@ module.exports = Behavior({
       }
       
       try {
-        return await postApi.create(data);
+        // 第一步：创建帖子
+        const result = await postApi.create(data);
+        
+        if (result && result.code === 200 && result.data && result.data.id) {
+          const postId = result.data.id;
+          logger.debug('帖子创建成功，开始生成url_link', { postId });
+          
+          // 第二步：生成url_link
+          const urlLink = await generatePostUrlLink(postId);
+          if (urlLink) {
+            logger.debug('url_link生成成功，准备更新到后端', { postId, urlLink });
+            
+            // 第三步：更新帖子，将url_link保存到后端
+            try {
+              await this._updatePost(postId, { url_link: urlLink });
+              result.data.urlLink = urlLink;
+              logger.debug('url_link已保存到后端', { postId, urlLink });
+            } catch (updateErr) {
+              logger.warn('url_link保存到后端失败，但帖子创建成功', { postId, error: updateErr });
+              // 更新失败不影响帖子创建，只是记录警告
+              result.data.urlLink = urlLink;
+            }
+          } else {
+            logger.warn('url_link生成失败', { postId });
+          }
+        }
+        
+        return result;
       } catch (err) {
-        console.debug('创建帖子失败:', err);
+        logger.error('创建帖子失败:', err);
         throw err;
       }
     },
