@@ -50,33 +50,68 @@
 		<!-- 搜索前缀说明 -->
 		<view class="search-prefix-guide">
 			<view class="section-title">搜索技巧</view>
-			<view class="prefix-list">
-				<view class="prefix-item" bindtap="onPrefixTap" data-prefix="@wiki">
-					<view class="prefix-icon"><icon name="robot" size="40" /></view>
-					<view class="prefix-content">
+			<view class="prefix-grid">
+				<view class="prefix-card" bindtap="onPrefixTap" data-prefix="@wiki">
+					<view class="prefix-card-header">
+						<view class="prefix-icon wiki-icon">
+							<icon name="robot" size="48" color="#6369e8" />
+						</view>
+						<view class="prefix-badge">AI</view>
+					</view>
+					<view class="prefix-card-content">
 						<view class="prefix-name">@wiki</view>
-						<view class="prefix-desc">智能问答，可提问任何南开相关问题</view>
+						<view class="prefix-desc">提问任何南开相关问题</view>
+					</view>
+					<view class="prefix-card-example">
+						<text>例：@wiki 推荐今晚吃什么</text>
 					</view>
 				</view>
-				<view class="prefix-item" bindtap="onPrefixTap" data-prefix="@user">
-					<view class="prefix-icon"><icon name="profile" size="40" /></view>
-					<view class="prefix-content">
+				
+				<view class="prefix-card" bindtap="onPrefixTap" data-prefix="@user">
+					<view class="prefix-card-header">
+						<view class="prefix-icon user-icon">
+							<icon name="profile" size="48" color="#10b981" />
+						</view>
+						<view class="prefix-badge user-badge">用户</view>
+					</view>
+					<view class="prefix-card-content">
 						<view class="prefix-name">@user</view>
-						<view class="prefix-desc">查找用户，查看和关注感兴趣的人</view>
+						<view class="prefix-desc">查看和关注感兴趣的人</view>
+					</view>
+					<view class="prefix-card-example">
+						<text>例：@user 张三</text>
 					</view>
 				</view>
-				<view class="prefix-item" bindtap="onPrefixTap" data-prefix="@post">
-					<view class="prefix-icon"><icon name="book" size="40" /></view>
-					<view class="prefix-content">
+				
+				<view class="prefix-card" bindtap="onPrefixTap" data-prefix="@post">
+					<view class="prefix-card-header">
+						<view class="prefix-icon post-icon">
+							<icon name="book" size="48" color="#f59e0b" />
+						</view>
+						<view class="prefix-badge post-badge">帖子</view>
+					</view>
+					<view class="prefix-card-content">
 						<view class="prefix-name">@post</view>
 						<view class="prefix-desc">查找帖子，发现校园热点内容</view>
 					</view>
+					<view class="prefix-card-example">
+						<text>例：@post 校园活动</text>
+					</view>
 				</view>
-				<view class="prefix-item" bindtap="onPrefixTap" data-prefix="@knowledge">
-					<view class="prefix-icon"><icon name="life" size="40" /></view>
-					<view class="prefix-content">
+				
+				<view class="prefix-card" bindtap="onPrefixTap" data-prefix="@knowledge">
+					<view class="prefix-card-header">
+						<view class="prefix-icon knowledge-icon">
+							<icon name="life" size="48" color="#ef4444" />
+						</view>
+						<view class="prefix-badge knowledge-badge">知识库</view>
+					</view>
+					<view class="prefix-card-content">
 						<view class="prefix-name">@knowledge</view>
-						<view class="prefix-desc">搜索知识库，获取校园资讯与知识</view>
+						<view class="prefix-desc">搜索知识库，获取校园资讯</view>
+					</view>
+					<view class="prefix-card-example">
+						<text>例：@knowledge 选课指南</text>
 					</view>
 				</view>
 			</view>
@@ -246,13 +281,75 @@
 		</view>
 	</view>
 
-	<!-- 输入了关键词但尚未搜索 -->
-	<view class="search-tips" wx:if="{{!isSearching && searchValue && !hasSearched && !showRagResults}}">
-		<view class="search-tips-prefixes">
-			<text>输入<text class="prefix">@wiki</text>进行智能问答</text>
-			<text>输入<text class="prefix">@user</text>搜索用户</text>
-			<text>输入<text class="prefix">@post</text>搜索帖子</text>
-			<text>输入<text class="prefix">@knowledge</text>搜索知识库</text>
+	<!-- 输入了关键词但尚未搜索 - 重新设计 -->
+	<view class="search-waiting" wx:if="{{!isSearching && searchValue && !hasSearched && !showRagResults}}">
+		<view class="waiting-container">
+			<!-- 主要提示 -->
+			<view class="waiting-main">
+				<view class="waiting-icon">
+					<icon name="search" size="80" color="#6369e8" />
+				</view>
+				<view class="waiting-text">
+					<text class="waiting-title">准备搜索"{{searchValue}}"</text>
+					<text class="waiting-subtitle">按回车键开始搜索，或选择搜索类型</text>
+				</view>
+			</view>
+			
+			<!-- 搜索类型选择 -->
+			<view class="search-type-selector">
+				<view class="type-selector-title">选择搜索类型</view>
+				<view class="type-options">
+					<view class="type-option wiki-option" bindtap="onPrefixTap" data-prefix="@wiki">
+						<view class="type-icon">
+							<icon name="robot" size="48" color="#6369e8" />
+						</view>
+						<view class="type-content">
+							<text class="type-name">智能问答</text>
+							<text class="type-desc">AI为你解答问题</text>
+						</view>
+						<view class="type-badge ai-badge">AI</view>
+					</view>
+					
+					<view class="type-option user-option" bindtap="onPrefixTap" data-prefix="@user">
+						<view class="type-icon">
+							<icon name="profile" size="48" color="#10b981" />
+						</view>
+						<view class="type-content">
+							<text class="type-name">搜索用户</text>
+							<text class="type-desc">查找感兴趣的人</text>
+						</view>
+						<view class="type-badge user-badge">用户</view>
+					</view>
+					
+					<view class="type-option post-option" bindtap="onPrefixTap" data-prefix="@post">
+						<view class="type-icon">
+							<icon name="book" size="48" color="#f59e0b" />
+						</view>
+						<view class="type-content">
+							<text class="type-name">搜索帖子</text>
+							<text class="type-desc">查找相关内容</text>
+						</view>
+						<view class="type-badge post-badge">帖子</view>
+					</view>
+					
+					<view class="type-option knowledge-option" bindtap="onPrefixTap" data-prefix="@knowledge">
+						<view class="type-icon">
+							<icon name="life" size="48" color="#ef4444" />
+						</view>
+						<view class="type-content">
+							<text class="type-name">搜索知识库</text>
+							<text class="type-desc">获取校园资讯</text>
+						</view>
+						<view class="type-badge knowledge-badge">知识库</view>
+					</view>
+				</view>
+			</view>
+			
+			<!-- 快速搜索按钮 -->
+			<view class="quick-search-btn" bindtap="search">
+				<icon name="search" size="32" color="#fff" />
+				<text>直接搜索"{{searchValue}}"</text>
+			</view>
 		</view>
 	</view>
 </view>

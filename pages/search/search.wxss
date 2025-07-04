@@ -145,54 +145,163 @@ page {
 /* 搜索前缀指南 */
 .search-prefix-guide {
   margin: 30rpx 0;
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  padding: 0;
+  animation: fadeInUp 0.6s ease-out;
 }
 
-.prefix-list {
-  display: flex;
-  flex-direction: column;
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30rpx);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.prefix-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
   margin-top: 20rpx;
 }
 
-.prefix-item {
-  display: flex;
-  align-items: center;
-  padding: 20rpx;
-  border-bottom: 1px solid #f5f5f5;
+/* 小屏幕适配 */
+@media screen and (max-width: 600rpx) {
+  .prefix-grid {
+    grid-template-columns: 1fr;
+    gap: 16rpx;
+  }
 }
 
-.prefix-item:last-child {
-  border-bottom: none;
+.prefix-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.prefix-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.prefix-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.prefix-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.prefix-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.prefix-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.12);
+}
+
+.prefix-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
 }
 
 .prefix-icon {
-  margin-right: 20rpx;
-  width: 80rpx;
-  height: 80rpx;
+  width: 68rpx;
+  height: 68rpx;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f8f8f8;
-  border-radius: 50%;
+  border-radius: 16rpx;
+  background: rgba(99, 105, 232, 0.1);
 }
 
-.prefix-content {
-  flex: 1;
+.prefix-icon.wiki-icon {
+  background: rgba(99, 105, 232, 0.1);
+}
+
+.prefix-icon.user-icon {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.prefix-icon.post-icon {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.prefix-icon.knowledge-icon {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.prefix-badge {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+  color: #fff;
+  background: #6369e8;
+  font-weight: 500;
+}
+
+.prefix-badge.user-badge {
+  background: #10b981;
+}
+
+.prefix-badge.post-badge {
+  background: #f59e0b;
+}
+
+.prefix-badge.knowledge-badge {
+  background: #ef4444;
+}
+
+.prefix-card-content {
+  margin-bottom: 16rpx;
 }
 
 .prefix-name {
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 6rpx;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8rpx;
 }
 
 .prefix-desc {
-  font-size: 26rpx;
-  color: #666;
+  font-size: 24rpx;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.prefix-card-example {
+  padding: 12rpx 16rpx;
+  background: #f9fafb;
+  border-radius: 12rpx;
+  border-left: 4rpx solid #6369e8;
+}
+
+.prefix-card:nth-child(2) .prefix-card-example {
+  border-left-color: #10b981;
+}
+
+.prefix-card:nth-child(3) .prefix-card-example {
+  border-left-color: #f59e0b;
+}
+
+.prefix-card:nth-child(4) .prefix-card-example {
+  border-left-color: #ef4444;
+}
+
+.prefix-card-example text {
+  font-size: 22rpx;
+  color: #6b7280;
+  font-style: italic;
 }
 
 /* 搜索为空状态 */
@@ -236,36 +345,191 @@ page {
   margin: 0 4rpx;
 }
 
-/* 搜索提示前缀列表 */
-.search-tips {
+/* 搜索等待界面 - 重新设计 */
+.search-waiting {
+  padding: 40rpx 20rpx;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.waiting-container {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx 30rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 主要提示区域 */
+.waiting-main {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40rpx;
+  padding-bottom: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.waiting-icon {
+  margin-right: 24rpx;
+  padding: 20rpx;
+  background: linear-gradient(135deg, #f0f5ff 0%, #e8f0fe 100%);
+  border-radius: 20rpx;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 100rpx 0;
 }
 
-.search-tips-prefixes {
+.waiting-text {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  margin-top: 40rpx;
-  background: #f8f8f8;
-  border-radius: 12rpx;
-  padding: 20rpx;
-  width: 80%;
 }
 
-.search-tips-prefixes text {
-  display: block;
-  margin-bottom: 5px;
-  color: #999;
-  font-size: 14px;
-}
-
-.search-tips-prefixes .prefix {
+.waiting-title {
+  font-size: 32rpx;
   font-weight: bold;
-  color: #6369e8;
-  margin: 0 4px;
+  color: #333;
+  margin-bottom: 8rpx;
+  line-height: 1.4;
+}
+
+.waiting-subtitle {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* 搜索类型选择器 */
+.search-type-selector {
+  margin-bottom: 40rpx;
+}
+
+.type-selector-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+  padding-left: 8rpx;
+}
+
+.type-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.type-option {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.type-option:active {
+  transform: scale(0.98);
+  background: #e9ecef;
+}
+
+.type-option .type-icon {
+  margin-right: 20rpx;
+  width: 68rpx;
+  height: 68rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+}
+
+.wiki-option .type-icon {
+  background: linear-gradient(135deg, #f0f5ff 0%, #e8f0fe 100%);
+}
+
+.user-option .type-icon {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+}
+
+.post-option .type-icon {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.knowledge-option .type-icon {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.type-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.type-name {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.type-desc {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.3;
+}
+
+.type-badge {
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: bold;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.ai-badge {
+  background: linear-gradient(135deg, #6369e8 0%, #5b63d8 100%);
+}
+
+.user-badge {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.post-badge {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.knowledge-badge {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* 快速搜索按钮 */
+.quick-search-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6369e8 0%, #5b63d8 100%);
+  color: #fff;
+  padding: 20rpx 32rpx;
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  box-shadow: 0 4rpx 16rpx rgba(99, 105, 232, 0.3);
+  transition: all 0.3s ease;
+}
+
+.quick-search-btn:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 8rpx rgba(99, 105, 232, 0.3);
+}
+
+.quick-search-btn icon {
+  margin-right: 12rpx;
+}
+
+.quick-search-btn text {
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: bold;
 }
 
 /* 热门搜索 */
