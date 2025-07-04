@@ -42,7 +42,8 @@ Component({
     selectedOption: 0,
     atPosition: -1,
     hasSelected: false,
-    selectedType: ''
+    selectedType: '',
+    isFocused: false
   },
 
   lifetimes: {
@@ -268,6 +269,7 @@ Component({
         console.debug('保持前缀高亮状态:', this.data.selectedType);
       }
       
+      this.setData({ isFocused: true });
       this.triggerEvent('focus', e.detail);
     },
 
@@ -275,7 +277,8 @@ Component({
       // 延迟隐藏选择框，以便能够点击选项
       setTimeout(() => {
         this.setData({
-          showSelector: false
+          showSelector: false,
+          isFocused: false
         });
       }, 200);
       this.triggerEvent('blur', e.detail);

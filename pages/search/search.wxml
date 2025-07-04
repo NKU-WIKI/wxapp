@@ -290,8 +290,8 @@
 					<icon name="search" size="80" color="#6369e8" />
 				</view>
 				<view class="waiting-text">
-					<text class="waiting-title">准备搜索"{{searchValue}}"</text>
-					<text class="waiting-subtitle">按回车键开始搜索，或选择搜索类型</text>
+					<text class="waiting-title">准备搜索"{{searchValue}}了吗？"</text>
+					<text class="waiting-subtitle">按确认键开始搜索，或选择搜索类型</text>
 				</view>
 			</view>
 			
@@ -305,9 +305,9 @@
 						</view>
 						<view class="type-content">
 							<text class="type-name">智能问答</text>
-							<text class="type-desc">AI为你解答问题</text>
+							<text class="type-desc">让WIKI为你解答问题</text>
 						</view>
-						<view class="type-badge ai-badge">AI</view>
+						<view class="type-badge ai-badge">WIKI</view>
 					</view>
 					
 					<view class="type-option user-option" bindtap="onPrefixTap" data-prefix="@user">
@@ -345,11 +345,11 @@
 				</view>
 			</view>
 			
-			<!-- 快速搜索按钮 -->
+			<!-- 快速搜索按钮
 			<view class="quick-search-btn" bindtap="search">
 				<icon name="search" size="32" color="#fff" />
 				<text>直接搜索"{{searchValue}}"</text>
-			</view>
+			</view> -->
 		</view>
 	</view>
 </view>

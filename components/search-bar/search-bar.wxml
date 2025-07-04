@@ -1,18 +1,45 @@
 <!-- 添加WXS模块用于计算样式 -->
 <wxs module="searchUtil">
-  function getInputStyle(bgColor) {
-    return 'background-color: ' + bgColor;
+  function getInputStyle(bgColor, isFocused) {
+    var baseStyle = '';
+    if (bgColor && bgColor !== '#f8f9fa') {
+      baseStyle = 'background-color: ' + bgColor + ';';
+    }
+    return baseStyle;
+  }
+  
+  function getSearchIconStyle(isFocused) {
+    return isFocused ? 'transform: scale(1.05); transition: transform 0.2s ease;' : 'transition: transform 0.2s ease;';
+  }
+  
+  function getIconColor(isFocused, type) {
+    if (type === 'search') {
+      return isFocused ? '#007aff' : '#8e8e93';
+    }
+    if (type === 'clear') {
+      return '#8e8e93';
+    }
+    return '#007aff';
+  }
+  
+  function getOptionIconColor(isSelected) {
+    return isSelected ? '#007aff' : '#8e8e93';
   }
   
   module.exports = {
-    getInputStyle: getInputStyle
+    getInputStyle: getInputStyle,
+    getSearchIconStyle: getSearchIconStyle,
+    getIconColor: getIconColor,
+    getOptionIconColor: getOptionIconColor
   };
 </wxs>
 
 <view class="search-bar-container">
   <view class="search-bar">
-    <view class="search-input" style="{{searchUtil.getInputStyle(backgroundColor)}}">
-      <icon name="search" size="32" color="#999999" />
+    <view class="search-input {{isFocused ? 'focused' : ''}}" style="{{searchUtil.getInputStyle(backgroundColor, isFocused)}}">
+      <view class="search-icon-wrapper" style="{{searchUtil.getSearchIconStyle(isFocused)}}">
+        <view class="search-icon" style="color: {{searchUtil.getIconColor(isFocused, 'search')}}"></view>
+      </view>
       <block wx:if="{{hasSelected && selectedType}}">
         <view class="prefix-tag">@{{selectedType}}</view>
         <input
@@ -44,14 +71,13 @@
           confirm-type="search"
         />
       </block>
-      <icon
+      <view
         wx:if="{{inputValue.length > 0}}"
-        name="close"
-        size="32"
-        color="#999999"
-        class="clear-icon"
+        class="clear-icon-wrapper"
         bindtap="onClear"
-      />
+      >
+        <view class="clear-icon" style="color: {{searchUtil.getIconColor(false, 'clear')}}"></view>
+      </view>
     </view>
     <view wx:if="{{showAction}}" class="action" bindtap="onAction">
       {{actionText}}
@@ -73,7 +99,7 @@
         bindtap="onSelectOption"
       >
         <view class="option-icon">
-          <icon name="{{item.icon || 'search'}}" size="32" />
+          <icon name="{{item.icon || 'search'}}" size="28" color="{{searchUtil.getOptionIconColor(selectedOption === index)}}" />
         </view>
         <view class="option-text">
           {{item.text}}
