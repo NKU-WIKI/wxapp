@@ -87,7 +87,7 @@
   <!-- 添加遮罩层 -->
   <view class="selector-mask" wx:if="{{showSelector && selectorOptions.length > 0 && !hasSelected}}" bindtap="onClear"></view>
   
-  <!-- 选择器选项 -->
+  <!-- 选择器 -->
   <view class="selector-container" style="{{selectorStyle}}" wx:if="{{showSelector && selectorOptions.length > 0 && !hasSelected}}">
     <view class="selector-options">
       <view 
