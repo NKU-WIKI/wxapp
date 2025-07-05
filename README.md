@@ -117,10 +117,21 @@
 - **Commit Message**:
     - **规范**: 遵循 [Angular 提交规范](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit)。
     - **格式**: `<type>(<scope>): <subject>` (e.g., `feat(profile): add user avatar component`)。
-    - **工具**:
-        - `commitizen`: 通过 `npm run commit` 引导式地创建规范的 commit message。
-        - `commitlint`: 在 `commit-msg` 钩子中自动校验 message 格式。
-        - `lint-staged`: 在 `pre-commit` 钩子中自动格式化和检查暂存区代码。
+    - **常用类型 (`type`)**:
+        - `feat`: 新增功能 (feature)
+        - `fix`: 修复 Bug
+        - `docs`: 仅修改文档 (documentation)
+        - `style`: 修改代码格式，不影响代码逻辑 (空格、格式化等)
+        - `refactor`: 代码重构，既不是新增功能也不是修复 Bug
+        - `perf`: 提升性能的修改
+        - `test`: 增加或修改测试用例
+        - `build`: 修改项目构建系统或外部依赖
+        - `ci`: 修改 CI/CD 配置文件或脚本
+        - `chore`: 其他不修改 `src` 或测试文件的杂项变动
+    - **自动化工具**:
+        - **`commitizen`**: 通过 `npm run commit` 引导式地创建规范的 commit message。
+        - **`commitlint`**: 在 `commit-msg` 钩子中自动校验 message 格式。
+        - **`lint-staged`**: 在 `pre-commit` 钩子中自动格式化和检查暂存区代码。
 
 ## 🤝 参与贡献
 
