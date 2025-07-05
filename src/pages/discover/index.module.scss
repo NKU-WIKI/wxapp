@@ -1,0 +1,214 @@
+/* 全局变量 */
+:export {
+  primary-color: #4A90E2;
+  text-color-primary: #333333;
+  text-color-secondary: #9B9B9B;
+  background-color: #F5F5F5;
+  card-background-color: #FFFFFF;
+}
+
+/* 页面整体 */
+.discoverPage {
+  background-color: var(--background-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 自定义 Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  padding-top: calc(env(safe-area-inset-top) + 12px); /* 适配状态栏 */
+  background-color: var(--card-background-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.headerTitle {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.headerIcons {
+  display: flex;
+  align-items: center;
+}
+
+.headerIcon {
+  width: 24px;
+  height: 24px;
+  margin-left: 16px;
+}
+
+/* 主内容滚动区域 */
+.content {
+  padding: 0 16px; /* 移除上下内边距，左右保持16px */
+  flex: 1;
+  background-color: #ffffff;
+  padding-top: 16px;
+  box-sizing: border-box; /* 关键修复：确保 padding 不会撑大容器 */
+}
+
+/* Section 样式 */
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--text-color-primary);
+}
+
+.sectionExtra {
+  font-size: 14px;
+  color: var(--text-color-secondary);
+}
+
+.sectionContent {
+  /* 内容区域不需要额外样式，由子元素控制 */
+}
+
+/* 校园热点 */
+.hotspotsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hotspotItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.hotspotImage {
+  width: 100%;
+  height: 160px; /* 增加图片高度 */
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background-color: #f0f0f0;
+}
+
+.hotspotInfo {
+  padding: 0 4px; /* 轻微的左右内边距，让文字不贴边 */
+}
+
+.hotspotTitle {
+  font-size: 16px; /* 增大字体 */
+  font-weight: 500;
+  color: var(--text-color-primary);
+  margin-bottom: 6px;
+}
+
+.hotspotDiscussions {
+  font-size: 12px;
+  color: var(--text-color-secondary);
+}
+
+/* AI 助手 */
+.aiAssistantsContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.aiAssistantCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #f5f4fa; /* 淡紫色背景 */
+  border-radius: 10px;
+  width: calc(33.33% - 10px); /* 调整宽度计算 */
+  box-sizing: border-box;
+}
+
+.aiAssistantIcon {
+  width: 32px;
+  height: 32px;
+}
+
+.aiAssistantName {
+  font-size: 14px;
+  color: var(--text-color-primary);
+}
+
+/* 校园活动 */
+.activityCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.activityImage {
+  width: 90px;
+  height: 90px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+}
+
+.activityInfo {
+  flex: 1;
+}
+
+.activityTitle {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.activityDetail {
+  font-size: 14px;
+  color: #666;
+  &:not(:last-child) {
+    margin-bottom: 4px;
+  }
+}
+
+/* 学习资源 */
+.resourcesContainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resourceCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  background-color: #f7f7f7;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.resourceInfo {
+}
+
+.resourceTitle {
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.resourceCount {
+  font-size: 12px;
+  color: var(--text-color-secondary);
+}
+
+.resourceIcon {
+  width: 36px;
+  height: 36px;
+}

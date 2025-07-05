@@ -1,0 +1,32 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-sizing: border-box; /* 增加 box-sizing 确保 padding 不会撑大宽度 */
+}
+
+.backButton {
+  width: 24px;
+  height: 24px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.placeholder {
+  width: 24px; /* 用于占位，使标题居中 */
+}
+
+.extraContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 24px;
+} 

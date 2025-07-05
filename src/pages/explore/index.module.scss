@@ -1,0 +1,198 @@
+/* 页面整体 */
+.explorePage {
+  background-color: #f8f9ff;
+  min-height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* 通用 Section Header */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 搜索区域 */
+.searchSection {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.searchInputContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.searchIcon,
+.micIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.searchInput {
+  flex: 1;
+  margin: 0 12px;
+  font-size: 14px;
+  color: #666;
+}
+
+.sourceToggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+}
+
+.toggleItem {
+  display: flex;
+  align-items: center;
+}
+
+.toggleLabel {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* 为您推荐 */
+.recommendations {
+  margin-bottom: 24px;
+}
+
+.recommendationContainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.recommendationCard {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.recommendationCard:first-child {
+  background-color: #ebf2ff;
+}
+
+.recommendationCard:last-child {
+  background-color: #fff2f0;
+}
+
+.recommendationText {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.recommendationUsers {
+  font-size: 12px;
+  color: #9b9b9b;
+  display: flex;
+  align-items: center;
+}
+
+.usersIcon {
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+}
+
+/* Wiki 热点 */
+.wikiSection {
+  margin-bottom: 24px;
+}
+
+.refreshIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.wikiItem {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+  display: block;
+  color: #666;
+}
+
+.wikiLinkItem {
+  font-size: 14px;
+  line-height: 1.6;
+  display: block;
+  color: #4a90e2;
+}
+
+/* 校园热榜 */
+.rankingSection {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.seeMore {
+  font-size: 14px;
+  color: #9b9b9b;
+}
+
+.rankingItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.rankingItem:last-child {
+  margin-bottom: 0;
+}
+
+.rankingIndex {
+  font-size: 18px;
+  font-weight: 600;
+  color: #9b9b9b;
+  width: 24px;
+}
+
+.topRank {
+  color: #d0021b;
+}
+
+.rankingInfo {
+  flex: 1;
+  margin: 0 12px;
+}
+
+.rankingText {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.rankingViews {
+  font-size: 12px;
+  color: #9b9b9b;
+}
+
+.hotTag {
+  background-color: #fff2f0;
+  color: #d0021b;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+}

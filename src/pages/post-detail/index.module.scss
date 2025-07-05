@@ -1,0 +1,144 @@
+/* 变量定义 */
+$page-bg-color: #f8f8f8;
+$card-bg-color: #ffffff;
+$primary-text-color: #333333;
+$secondary-text-color: #888888;
+$accent-color: #4a90e2;
+
+/* 页面整体布局 */
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $page-bg-color;
+}
+
+.content {
+  flex: 1;
+  padding-bottom: 60px; /* 为底部输入框留出空间 */
+  box-sizing: border-box;
+}
+
+.loading {
+  padding: 20px;
+  text-align: center;
+  color: $secondary-text-color;
+}
+
+/* --- 评论区 --- */
+.commentsSection {
+  background-color: $card-bg-color;
+  padding: 16px;
+  margin-top: 8px;
+}
+
+.commentsTitle {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.commentItem {
+  display: flex;
+  gap: 12px;
+  &:not(:last-child) {
+    margin-bottom: 24px;
+  }
+}
+
+.commentAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.commentContent {
+  flex: 1;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.commentAuthor {
+  font-size: 15px;
+  color: $secondary-text-color;
+}
+
+.aiTag {
+  background-color: lighten($accent-color, 30%);
+  color: $accent-color;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin: 0 8px;
+}
+
+.commentTime {
+  margin-left: auto;
+  font-size: 12px;
+  color: #b0b0b0;
+}
+
+.commentText {
+  font-size: 15px;
+  line-height: 1.5;
+  color: $primary-text-color;
+  margin-bottom: 8px;
+}
+
+.commentFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+.commentLike {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: $secondary-text-color;
+}
+
+.commentLikeIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.replyButton {
+  font-size: 13px;
+  color: $secondary-text-color;
+}
+
+/* --- 底部输入框 --- */
+.inputBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
+}
+
+.commentInput {
+  flex: 1;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 15px;
+  margin-right: 12px;
+}
+
+.sendIcon {
+  width: 28px;
+  height: 28px;
+} 

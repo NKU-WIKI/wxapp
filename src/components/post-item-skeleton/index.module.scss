@@ -1,0 +1,54 @@
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.skeletonCard {
+  .line,
+  .avatar {
+    background-color: #f0f0f0;
+    background-image: linear-gradient(
+      to right,
+      #f0f0f0 0%,
+      #e0e0e0 20%,
+      #f0f0f0 40%,
+      #f0f0f0 100%
+    );
+    background-repeat: no-repeat;
+    background-size: 800px 104px;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 4px;
+  }
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.authorInfo {
+  flex: 1;
+}
+
+.line {
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+.postContent {
+  .line {
+    height: 16px;
+  }
+}

@@ -1,0 +1,23 @@
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.emptyIcon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 24px;
+  opacity: 0.7;
+}
+
+.emptyText {
+  font-size: 16px;
+  color: #9b9b9b;
+  line-height: 1.6;
+}

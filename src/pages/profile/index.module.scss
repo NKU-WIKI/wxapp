@@ -1,0 +1,193 @@
+/* 变量定义 */
+$page-bg-color: #f8f8f8;
+$card-bg-color: #ffffff;
+$primary-text-color: #333333;
+$secondary-text-color: #9B9B9B;
+$accent-color: #4a90e2;
+$border-color: #f0f0f0;
+$page-padding-lr: 16px;
+
+/* 页面整体布局 */
+.profilePage {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: $page-bg-color;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px $page-padding-lr;
+  padding-top: calc(env(safe-area-inset-top) + 12px); /* 适配状态栏 */
+  background-color: $card-bg-color;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.pageTitle {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.settingsIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.content {
+  flex: 1;
+  padding: 12px $page-padding-lr;
+  box-sizing: border-box; /* 关键修复：确保 padding 不会撑大容器 */
+}
+
+/* 通用卡片样式 */
+%card {
+  background-color: $card-bg-color;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  padding: 16px;
+}
+
+/* 用户信息卡片 */
+.userInfoCard {
+  @extend %card;
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0; /* 允许 flex item 收缩 */
+}
+
+.nickname {
+  font-size: 20px;
+  font-weight: bold;
+  color: $primary-text-color;
+  margin-bottom: 6px;
+}
+
+.university,
+.bio {
+  font-size: 14px;
+  color: $secondary-text-color;
+  line-height: 1.5;
+}
+
+.editButton {
+  border: 1px solid $accent-color;
+  border-radius: 20px;
+  padding: 6px 14px;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.editButtonText {
+  color: $accent-color;
+  font-size: 14px;
+}
+
+/* 数据统计卡片 */
+.statsCard {
+  @extend %card;
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.statItem {
+  flex: 1;
+}
+
+.statValue {
+  font-size: 18px;
+  font-weight: bold;
+  color: $primary-text-color;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: $secondary-text-color;
+}
+
+/* 操作入口卡片 */
+.actionsCard {
+  @extend %card;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4列网格 */
+  gap: 16px;
+  text-align: center;
+}
+
+.actionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.actionIconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: #f5f4fa; /* 淡灰色背景 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.actionIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.actionName {
+  font-size: 13px;
+  color: $primary-text-color;
+}
+
+/* 设置列表卡片 */
+.settingsCard {
+  @extend %card;
+  padding: 0; /* 移除卡片内边距，由列表项控制 */
+}
+
+.settingItem {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid $border-color;
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.settingIcon {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+}
+
+.settingName {
+  flex: 1;
+  font-size: 16px;
+  color: $primary-text-color;
+}
+
+.arrowIcon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.5;
+}
