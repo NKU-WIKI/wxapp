@@ -6,5 +6,8 @@ export default {
     stats: true
   },
   mini: {},
-  h5: {}
+  h5: {},
+  defineConstants: {
+    BASE_URL: JSON.stringify('https://nkuwiki.com'),
+  },
 } satisfies UserConfigExport<'webpack5'>

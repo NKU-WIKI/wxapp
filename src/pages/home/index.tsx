@@ -1,14 +1,16 @@
 import { View, ScrollView, Text, Input, Image } from "@tarojs/components";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Taro from "@tarojs/taro";
-import PostItem from "../../components/post-item";
-import PostItemSkeleton from "../../components/post-item-skeleton";
-import EmptyState from "../../components/empty-state";
-import emptyIcon from "../../assets/empty.png";
-import { Post } from "../../types/post";
-import { MOCK_POSTS } from "../../services/mock";
+import { useDispatch, useSelector } from 'react-redux';
+import PostItem from "@/components/post-item";
+import PostItemSkeleton from "@/components/post-item-skeleton";
+import EmptyState from "@/components/empty-state";
+import emptyIcon from "@/assets/empty.png";
 import styles from "./index.module.scss";
-import CustomHeader from "../../components/custom-header";
+import CustomHeader from "@/components/custom-header";
+import { AppDispatch } from '@/store';
+import { fetchPosts } from '@/store/slices/postSlice';
+import { RootState } from '@/store/rootReducer';
 
 const iconColor = "4A90E2"; // 主色调
 const mockCategories = [
@@ -35,16 +37,13 @@ const mockCategories = [
 ];
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState<Post[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const { list: posts, loading } = useSelector((state: RootState) => state.posts);
+  const isLoading = loading === 'pending';
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setPosts(MOCK_POSTS);
-      setLoading(false);
-    }, 1000); // 模拟1秒加载时间
-    return () => clearTimeout(timer);
-  }, []);
+    dispatch(fetchPosts({ page: 1, pageSize: 10 }));
+  }, [dispatch]);
 
   const handleFabClick = () => {
     Taro.navigateTo({
@@ -53,7 +52,7 @@ export default function Home() {
   };
 
   const renderContent = () => {
-    if (loading) {
+    if (isLoading) {
       return Array.from({ length: 3 }).map((_, index) => (
         <PostItemSkeleton key={index} />
       ));

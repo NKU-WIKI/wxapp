@@ -1,3 +1,5 @@
+import { PaginationParams } from "./common";
+
 export interface Author {
   name: string;
   avatar: string;
@@ -26,4 +28,11 @@ export interface Post {
   commentsCount: number;
   stars?: number;
   comments?: Comment[];
+}
+
+/**
+ * 获取帖子列表的请求参数
+ */
+export interface GetPostsParams extends PaginationParams {
+  tab?: 'recommend' | 'hot' | 'new';
 } 

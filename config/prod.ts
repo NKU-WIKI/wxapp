@@ -10,8 +10,9 @@ export default {
       ]
     },
     /**
-     * WebpackChain 插件配置
-     * @docs https://github.com/neutrinojs/webpack-chain
+     * WebpackChain 思想贯穿 Taro 开发全过程。
+     * 未加特殊说明，Devlopment 下的配置均适用于 Production。
+     * 例如：扩展 Devlopment 下的 MiniProgram 体积 Gzip 功能。
      */
     // webpackChain (chain) {
     //   /**
@@ -35,5 +36,8 @@ export default {
     //       postProcess: (context) => ({ ...context, outputPath: path.join(staticDir, 'index.html') })
     //     }))
     // }
-  }
+  },
+  defineConstants: {
+    BASE_URL: JSON.stringify('https://nkuwiki.com'),
+  },
 } satisfies UserConfigExport<'webpack5'>
