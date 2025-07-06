@@ -43,14 +43,15 @@ App({
 
   updateEnvConfig() {
     try {
-      const accountInfo = wx.getAccountInfoSync();
-      const envVersion = accountInfo.miniProgram.envVersion;
+      // envVersion在微信开发者工具会直接判定为dev，弃用这段代码
+      // const accountInfo = wx.getAccountInfoSync();
+      // const envVersion = accountInfo.miniProgram.envVersion;
       
-      if (envVersion === 'release') {
-        config.API_CONFIG.branch = 'main';
-      } else { // 'develop' or 'trial'
-        config.API_CONFIG.branch = 'dev';
-      }
+      // if (envVersion === 'release') {
+      //   config.API_CONFIG.branch = 'main';
+      // } else { // 'develop' or 'trial'
+      //   config.API_CONFIG.branch = 'dev';
+      // }
       logger.info('Current branch set to:', config.API_CONFIG.branch);
     } catch (e) {
       logger.error('Failed to get account info, defaulting to main branch.', e);
