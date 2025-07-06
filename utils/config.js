@@ -9,7 +9,7 @@ const config = {
     base_url: 'https://nkuwiki.com/api',
     prefixes: {wxapp: '/wxapp', agent: '/agent', knowledge: '/knowledge'},
     headers: {'Content-Type': 'application/json'},
-    branch: 'main' // 'main' or 'dev'
+    branch: 'dev' // 'main' or 'dev'
   },
   // 日志级别配置
   LOG_LEVEL: {
