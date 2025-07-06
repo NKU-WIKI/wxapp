@@ -55,7 +55,7 @@ App({
       logger.info('Current branch set to:', config.API_CONFIG.branch);
     } catch (e) {
       logger.error('Failed to get account info, defaulting to main branch.', e);
-      config.API_CONFIG.branch = 'main';
+      config.API_CONFIG.branch = 'dev';
     }
   },
 
