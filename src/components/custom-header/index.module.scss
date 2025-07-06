@@ -1,32 +1,68 @@
-.header {
+.navBarPlaceholder {
+  width: 100%;
+}
+
+.navBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+.navBarContent {
+  position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
-  background-color: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-sizing: border-box; /* 增加 box-sizing 确保 padding 不会撑大宽度 */
 }
 
-.backButton {
+.left, .right {
+  display: flex;
+  align-items: center;
+}
+
+.left {
+  justify-content: flex-start;
+}
+
+.right {
+  justify-content: flex-end;
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%; // 限制标题宽度，防止过长
+  text-align: center;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.backIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.notificationIcon {
   width: 24px;
   height: 24px;
 }
 
 .title {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.placeholder {
-  width: 24px; /* 用于占位，使标题居中 */
-}
-
-.extraContainer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: 24px;
+  font-size: 17px; // 根据微信设计规范调整
+  font-weight: 600; // bold
+  color: #000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 } 

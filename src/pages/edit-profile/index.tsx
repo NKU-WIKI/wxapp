@@ -1,10 +1,9 @@
 import { View, Text, Image, Input, Textarea, Picker } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from './index.module.scss';
-import backIcon from '../../assets/back.png';
 import cameraIcon from '../../assets/camera.png';
 import arrowRightIcon from '../../assets/arrow-right.png';
+import CustomHeader from '../../components/custom-header';
 
 const mockProfile = {
   avatar: "https://picsum.photos/id/1025/200/200",
@@ -16,26 +15,12 @@ const mockProfile = {
 };
 
 const EditProfile = () => {
-  const [headerPaddingTop, setHeaderPaddingTop] = useState(20);
   const [profile, setProfile] = useState(mockProfile);
   const [nickname, setNickname] = useState(profile.nickname);
   const [birthday, setBirthday] = useState(profile.birthday);
   const [wechatId, setWechatId] = useState(profile.wechat);
   const [qq, setQq] = useState(profile.qq);
   const [bio, setBio] = useState(profile.bio);
-  const [statusBarHeight, setStatusBarHeight] = useState(20);
-
-  useEffect(() => {
-    const getStatusBarHeight = async () => {
-      const res = await Taro.getSystemInfoAsync();
-      setStatusBarHeight(res.statusBarHeight || 0);
-    };
-    getStatusBarHeight();
-  }, []);
-
-  useEffect(() => {
-    setProfile({ ...profile, nickname, birthday, wechat: wechatId, qq, bio });
-  }, [nickname, birthday, wechatId, qq, bio]);
 
   const handleDateChange = e => {
     setBirthday(e.detail.value);
@@ -49,15 +34,7 @@ const EditProfile = () => {
 
   return (
     <View className={styles.page}>
-      <View
-        className={styles.pageHeader}
-        style={{ paddingTop: `${headerPaddingTop}px` }}
-      >
-        <Image src={backIcon} className={styles.backIcon} />
-        <Text className={styles.pageTitle}>编辑资料</Text>
-        <Text className={styles.saveButton}>保存</Text>
-      </View>
-
+      <CustomHeader title="编辑资料" />
       <View className={styles.content}>
         <View className={styles.avatarSection}>
           <View className={styles.avatarWrapper}>

@@ -116,26 +116,26 @@
     - **图片压缩**: `src/assets` 中的图片资源在部署前应进行压缩。
     - **虚拟列表**: 对于长列表，考虑使用虚拟列表技术。
     - **移除 console**: 生产环境中自动移除 `console`。
-- **自定义导航栏**: 必须通过 `Taro.getSystemInfoAsync()` 获取 `statusBarHeight` 进行适配。
-- **全局盒模型**: 在 `src/app.scss` 中全局设置 `box-sizing: border-box;`。
-
-## 🌿 Git 工作流
-
-- **分支模型**: 遵循 `Git Flow`。
-    - `main`: 主分支，用于发布。
-    - `develop`: 开发主分支。
-    - `feature/xxx`: 功能分支。
-    - `fix/xxx`: Bug 修复分支。
-
-- **Commit Message**:
-    - **规范**: 遵循 [Angular 提交规范](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit)。
-    - **格式**: `<type>(<scope>): <subject>` (e.g., `feat(profile): add user avatar component`)。
-    - **常用类型 (`type`)**:
-        - `feat`: 新增功能 (feature)
-        - `fix`: 修复 Bug
-        - `docs`: 仅修改文档 (documentation)
-        - `style`: 修改代码格式，不影响代码逻辑 (空格、格式化等)
-        - `refactor`: 代码重构，既不是新增功能也不是修复 Bug
-        - `perf`: 提升性能的修改
-        - `test`: 增加或修改测试用例
-        - `
+- **自定义导航栏适配**: 必须通过 `Taro.getSystemInfoAsync()` 获取 `statusBarHeight` 进行适配。
+- **内容防遮挡布局 (强制)**: 在 `src/app.scss` 中全局设置 `
+- `
+- ## 🌿 Git 工作流
+- 
+- - **分支模型**: 遵循 `Git Flow`。
+-     - `main`: 主分支，用于发布。
+-     - `develop`: 开发主分支。
+-     - `feature/xxx`: 功能分支。
+-     - `fix/xxx`: Bug 修复分支。
+- 
+- - **Commit Message**:
+-     - **规范**: 遵循 [Angular 提交规范](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit)。
+-     - **格式**: `<type>(<scope>): <subject>` (e.g., `feat(profile): add user avatar component`)。
+-     - **常用类型 (`type`)**:
+-         - `feat`: 新增功能 (feature)
+-         - `fix`: 修复 Bug
+-         - `docs`: 仅修改文档 (documentation)
+-         - `style`: 修改代码格式，不影响代码逻辑 (空格、格式化等)
+-         - `refactor`: 代码重构，既不是新增功能也不是修复 Bug
+-         - `perf`: 提升性能的修改
+-         - `test`: 增加或修改测试用例
+-         - `

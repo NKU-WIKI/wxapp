@@ -3,7 +3,6 @@ import { useState } from "react";
 import Taro from "@tarojs/taro";
 import styles from "./index.module.scss";
 import likeIcon from "../../assets/like.png";
-import moreIcon from "../../assets/more.png";
 import CustomHeader from "../../components/custom-header";
 
 // 模拟数据
@@ -48,10 +47,6 @@ const TABS = ["点赞", "收藏", "评论"];
 export default function Notifications() {
   const [activeTab, setActiveTab] = useState(0);
 
-  const handleBack = () => {
-    Taro.navigateBack();
-  };
-  
   const renderList = () => {
     const data = mockNotifications.likes; // 暂时只用点赞数据
     if (data.length === 0) {
@@ -77,7 +72,6 @@ export default function Notifications() {
     <View className={styles.container}>
       <CustomHeader
         title="消息通知"
-        extra={<Image src={moreIcon} className={styles.moreIcon} />}
       />
 
       {/* Tab */}

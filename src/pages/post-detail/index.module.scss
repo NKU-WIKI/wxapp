@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /* 变量定义 */
 $page-bg-color: #f8f8f8;
 $card-bg-color: #ffffff;
@@ -14,7 +16,7 @@ $accent-color: #4a90e2;
 }
 
 .content {
-  flex: 1;
+  height: 100%;
   padding-bottom: 60px; /* 为底部输入框留出空间 */
   box-sizing: border-box;
 }
@@ -69,7 +71,7 @@ $accent-color: #4a90e2;
 }
 
 .aiTag {
-  background-color: lighten($accent-color, 30%);
+  background-color: color.adjust($accent-color, $lightness: 30%);
   color: $accent-color;
   font-size: 10px;
   padding: 2px 6px;

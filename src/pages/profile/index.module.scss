@@ -38,7 +38,7 @@ $page-padding-lr: 16px;
 }
 
 .content {
-  flex: 1;
+  height: 100%;
   padding: 12px $page-padding-lr;
   box-sizing: border-box; /* 关键修复：确保 padding 不会撑大容器 */
 }

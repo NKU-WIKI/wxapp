@@ -8,6 +8,7 @@ import emptyIcon from "../../assets/empty.png";
 import { Post } from "../../types/post";
 import { MOCK_POSTS } from "../../services/mock";
 import styles from "./index.module.scss";
+import CustomHeader from "../../components/custom-header";
 
 const iconColor = "4A90E2"; // 主色调
 const mockCategories = [
@@ -67,28 +68,30 @@ export default function Home() {
 
   return (
     <View className={styles.homeContainer}>
-      <View className={styles.header}>
-        <View className={styles.searchBar}>
-          <Input className={styles.searchInput} placeholder="搜索话题" />
-        </View>
-        <View className={styles.categories}>
-          {mockCategories.map((category) => (
-            <View key={category.name} className={styles.categoryItem}>
-              <View className={styles.categoryIconContainer}>
-                <Image
-                  src={category.icon}
-                  className={styles.categoryIcon}
-                  mode="aspectFit"
-                />
+      <CustomHeader showNotificationIcon />
+      <View style={{ flex: 1, overflow: 'hidden' }}>
+        <ScrollView className={styles.home} scrollY>
+          {/* The content that was inside the old header */}
+          <View className={styles.searchBar}>
+            <Input className={styles.searchInput} placeholder="搜索话题" />
+          </View>
+          <View className={styles.categories}>
+            {mockCategories.map((category) => (
+              <View key={category.name} className={styles.categoryItem}>
+                <View className={styles.categoryIconContainer}>
+                  <Image
+                    src={category.icon}
+                    className={styles.categoryIcon}
+                    mode="aspectFit"
+                  />
+                </View>
+                <Text className={styles.categoryName}>{category.name}</Text>
               </View>
-              <Text className={styles.categoryName}>{category.name}</Text>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+          {renderContent()}
+        </ScrollView>
       </View>
-      <ScrollView className={styles.home} scrollY>
-        {renderContent()}
-      </ScrollView>
       <View className={styles.fab} onClick={handleFabClick}>
         <Text className={styles.fabIcon}>+</Text>
       </View>

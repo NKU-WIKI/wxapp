@@ -8,6 +8,8 @@ windows11
 
 appid：wx4af1d8244dee8b7e
 
+本规范应该不断根据最新信息和最佳实践进行迭代。
+
 ## 🛠️ 技术栈与核心依赖
 
 - **核心框架**: Taro 4.x (插件化架构)
@@ -137,7 +139,19 @@ npx @tarojs/cli init project_name
     - **包体积分析**: 使用 `webpack-bundle-analyzer` 定期分析项目打包后的体积，识别并优化过大的模块。
     - **移除console**: 在生产环境中，配置 `babel-plugin-transform-remove-console` 自动移除代码中的 `console` 调用。
     - **lodash 按需加载**: 若项目中使用 `lodash`，配合 `babel-plugin-lodash` 和 `lodash-webpack-plugin` 实现按需加载，减小打包体积。
-- **自定义导航栏适配**: 在实现自定义顶部导航栏时，必须通过 `Taro.getSystemInfoAsync()` API 获取 `statusBarHeight`，并将其动态设置为导航栏容器的 `padding-top`，以完美适配所有设备，防止与系统状态栏重叠。
+- **自定义导航栏适配**: 在实现自定义顶部导航栏时，必须通过 `Taro.getWindowInfo()` 和 `Taro.getMenuButtonBoundingClientRect()` API 精确计算导航栏尺寸，并封装为统一的 `<CustomHeader>` 组件。所有使用该组件的页面，必须在 `index.config.ts` 中设置 `navigationStyle: 'custom'`。
+- **⚠️ 内容防遮挡布局 (强制性血泪教训)**: **所有**使用自定义导航栏的页面，**必须**采用以下 `flex` 布局模式，以从根源上解决内容被导航栏遮挡的问题。这是一个强制性规范，以确保统一的页面表现。
+  ```tsx
+  <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
+    <CustomHeader />
+    {/* 👇 必须使用这个 View 包裹层来撑开剩余空间 */}
+    <View style={{ flex: 1, overflow: 'hidden' }}>
+      <ScrollView scrollY style={{ height: '100%' }}>
+        {/* 页面可滚动内容 */}
+      </ScrollView>
+    </View>
+  </View>
+  ```
 - **全局盒模型**: 为从根源上解决布局偏移问题（如内容偏右），建议在全局样式文件 `src/app.scss` 中为通用容器或页面根元素设置 `box-sizing: border-box;`。
 - **代码检查**: 集成 ESLint, Prettier 和 Stylelint，并配置 `husky` 和 `lint-staged` 在 `pre-commit` 钩子中自动检查和格式化暂存区代码，保证代码质量。
 - **移动端调试**: 在开发阶段，可以集成 `vconsole-webpack-plugin`，它会在开发包中注入一个轻量级的移动端调试面板，方便在真机上查看日志、网络请求等信息。

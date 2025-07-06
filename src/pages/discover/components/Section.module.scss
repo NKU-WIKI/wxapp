@@ -1,0 +1,28 @@
+.section {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.sectionExtra {
+  font-size: 14px;
+  color: #999;
+}
+
+.sectionContent {
+  /* Content styles are specific to each section */
+} 
