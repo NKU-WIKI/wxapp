@@ -38,18 +38,16 @@ npx @tarojs/cli init project_name
 ```
 .
 ├── config                   # Taro 编译配置目录
-│   ├── dev.js
+│   ├── dev.ts
 │   ├── index.ts             # 默认配置文件 (推荐使用 .ts)
-│   └── prod.js
+│   └── prod.ts
 ├── src                      # 源码目录
 │   ├── app.config.ts        # 全局配置文件
 │   ├── app.scss             # 全局样式文件
 │   ├── app.tsx              # 入口组件
 │   ├── assets               # 静态资源 (图片、字体等)
 │   ├── components           # 全局可复用组件
-│   ├── core                 # 核心代码 (非业务相关)
-│   │   ├── hooks            # 通用自定义 Hooks
-│   │   └── utils            # 通用工具函数
+│   ├── constants            # 全局常量
 │   ├── pages                # 页面
 │   │   └── page-name        # 以页面为单位创建文件夹
 │   │       ├── components   # 页面级私有组件
@@ -57,14 +55,29 @@ npx @tarojs/cli init project_name
 │   │       ├── index.module.scss
 │   │       └── index.tsx
 │   ├── services             # API 请求服务
-│   │   ├── api.ts
+│   │   ├── api              # 按模块划分的 API
 │   │   ├── mock.ts
 │   │   └── request.ts
 │   ├── store                # Redux store
-│   │   ├── modules          # 按模块划分的 slice
-│   │   └── index.ts
-│   └── types                # TypeScript 类型定义
-└── package.json
+│   │   ├── slices           # Redux Toolkit Slices
+│   │   ├── rootReducer.ts   # Root Reducer
+│   │   └── index.ts         # Store 配置
+│   └── types                # TypeScript 类型定义 (业务)
+│       └── api              # API 相关类型
+├── types                    # TypeScript 类型定义 (全局)
+│   └── global.d.ts
+├── backend-api              # 后端接口文档
+├── .cursorrules             # Cursor AI 配置文件
+├── .editorconfig            # 编辑器配置文件
+├── .eslintrc                # ESLint 配置文件
+├── .gitignore               # Git 忽略文件配置
+├── .npmrc                   # NPM 配置文件
+├── babel.config.js          # Babel 配置文件
+├── commitlint.config.mjs    # Commitlint 配置文件
+├── package.json             # 项目依赖与脚本
+├── project.config.json      # 小程序项目配置文件
+├── stylelint.config.mjs     # Stylelint 配置文件
+└── tsconfig.json            # TypeScript 配置文件
 ```
 
 > **注意**: 推荐使用 `config/index.ts` 并配合 `defineConfig` 工具函数来获得类型提示与校验，提升配置代码的健壮性。
