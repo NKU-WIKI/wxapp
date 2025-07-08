@@ -49,31 +49,49 @@
       </view>
     </view>
     
-    <!-- 用户数据统计 - 添加点击事件导航到对应页面 -->
-    <view class="user-stats">
-      <view class="stat-item" bindtap="onTapPosts" data-tab="0">
-        <view class="stat-value">{{formattedUser.post_count || 0}}</view>
-        <view class="stat-label">帖子</view>
+    <!-- 用户数据统计 - 改为网格布局，添加图标 -->
+    <view class="user-stats-grid">
+      <view class="stat-grid-item" bindtap="onTapPosts" data-tab="0">
+        <view class="stat-icon-wrapper posts">
+          <icon name="post" size="24" color="#667eea"></icon>
+        </view>
+        <view class="stat-text">我的帖子</view>
+        <view class="stat-count">{{formattedUser.post_count || 0}}</view>
       </view>
-      <view class="stat-item" bindtap="onTapFavorites" data-tab="1">
-        <view class="stat-value">{{formattedUser.favorite_count || 0}}</view>
-        <view class="stat-label">收藏</view>
+      <view class="stat-grid-item" bindtap="onTapFavorites" data-tab="1">
+        <view class="stat-icon-wrapper favorites">
+          <icon name="favorite" size="24" color="#fd79a8"></icon>
+        </view>
+        <view class="stat-text">我的收藏</view>
+        <view class="stat-count">{{formattedUser.favorite_count || 0}}</view>
       </view>
-      <view class="stat-item" bindtap="onTapFollowing">
-        <view class="stat-value">{{formattedUser.following_count || 0}}</view>
-        <view class="stat-label">关注</view>
+      <view class="stat-grid-item" bindtap="onTapFollowing">
+        <view class="stat-icon-wrapper following">
+          <icon name="group" size="24" color="#00cec9"></icon>
+        </view>
+        <view class="stat-text">我的关注</view>
+        <view class="stat-count">{{formattedUser.following_count || 0}}</view>
       </view>
-      <view class="stat-item" bindtap="onTapFollowers">
-        <view class="stat-value">{{formattedUser.follower_count || 0}}</view>
-        <view class="stat-label">粉丝</view>
+      <view class="stat-grid-item" bindtap="onTapFollowers">
+        <view class="stat-icon-wrapper followers">
+          <icon name="group" size="24" color="#fd79a8"></icon>
+        </view>
+        <view class="stat-text">我的粉丝</view>
+        <view class="stat-count">{{formattedUser.follower_count || 0}}</view>
       </view>
-      <view class="stat-item">
-        <view class="stat-value">{{formattedUser.like_count || 0}}</view>
-        <view class="stat-label">获赞</view>
+      <view class="stat-grid-item">
+        <view class="stat-icon-wrapper likes">
+          <icon name="thumb" size="24" color="#f39c12"></icon>
+        </view>
+        <view class="stat-text">获赞</view>
+        <view class="stat-count">{{formattedUser.like_count || 0}}</view>
       </view>
-      <view class="stat-item" bindtap="onTapPoints">
-        <view class="stat-value">{{formattedUser.token || 0}}</view>
-        <view class="stat-label">积分</view>
+      <view class="stat-grid-item" bindtap="onTapPoints">
+        <view class="stat-icon-wrapper points">
+          <icon name="token" size="24" color="#9b59b6"></icon>
+        </view>
+        <view class="stat-text">积分</view>
+        <view class="stat-count">{{formattedUser.token || 0}}</view>
       </view>
     </view>
     

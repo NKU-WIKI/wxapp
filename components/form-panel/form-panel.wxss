@@ -1,80 +1,138 @@
 .form-panel {
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  position: relative;
+  z-index: 2;
 }
 
 /* 表单项样式 */
 .form-panel input-field,
 .form-panel picker-field {
-  position: relative;
-  margin-bottom: 24rpx;
-  display: block;
+  margin-bottom: 0;
+  padding: 12rpx 32rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.form-panel input-field:last-child,
+.form-panel picker-field:last-child {
+  border-bottom: none;
+}
+
+.form-panel input-field:hover,
+.form-panel picker-field:hover {
+  background: rgba(102, 126, 234, 0.02);
 }
 
 /* 标签样式 */
 .form-label {
-  font-size: 26rpx;
-  color: #999;
-  margin-bottom: 8rpx;
-  font-weight: normal;
+  font-size: 28rpx;
+  color: #636e72;
+  font-weight: 500;
+  margin-bottom: 6rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.form-label::before {
+  content: "";
+  width: 4rpx;
+  height: 16rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2rpx;
 }
 
 .form-field {
-  padding-top: 8rpx;
+  padding-top: 2rpx;
 }
 
 /* 字段分组 */
 .field-group {
-  margin-bottom: 40rpx;
-  background: transparent;
+  margin-bottom: 20rpx;
+  background: white;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.field-group:last-child {
+  margin-bottom: 0;
 }
 
 .group-title {
-  font-size: 30rpx;
-  font-weight: 500;
-  color: #333;
-  margin: 20rpx 0;
-  padding-bottom: 16rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2d3436;
+  margin: 0;
+  padding: 20rpx 32rpx 16rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f4 100%);
+  letter-spacing: 0.5rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.group-title::before {
+  content: "";
+  width: 6rpx;
+  height: 6rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
 }
 
 /* 输入框样式 */
 .weui-input {
-  font-size: 32rpx;
-  color: #333;
-  width: 100%;
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 24rpx 30rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  font-size: 30rpx;
+  color: #2d3436;
+  background: transparent;
+  border-radius: 0;
+  padding: 8rpx 0;
+  border: none;
+  border-bottom: 2rpx solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+.weui-input:focus {
+  border-bottom-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+  box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.1);
 }
 
 .weui-textarea {
-  font-size: 32rpx;
-  color: #333;
+  font-size: 30rpx;
+  color: #2d3436;
   width: 100%;
-  min-height: 100rpx;
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 24rpx 30rpx;
+  min-height: 120rpx;
+  background: #fafafa;
+  border: 2rpx solid #f0f0f0;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.weui-textarea:focus {
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.1);
 }
 
 .weui-input__placeholder,
 .weui-textarea__placeholder {
   color: #bbb;
-  font-size: 32rpx;
+  font-size: 28rpx;
 }
-
 
 /* 分组样式 */
 .form-group {
   margin-bottom: 24rpx;
   background: #fff;
-  border-radius: 12rpx;
+  border-radius: 20rpx;
   overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
 }
 
 .form-group:last-child {
@@ -83,80 +141,111 @@
 
 .form-group-title {
   font-size: 28rpx;
-  color: #666;
-  padding: 20rpx 30rpx;
-  background: #f7f8fa;
+  color: #636e72;
+  font-weight: 600;
+  padding: 24rpx 32rpx 16rpx;
+  background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f4 100%);
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
-/* 移除连接的边框样式 */
+/* 单元格样式 */
 .weui-cell {
-  padding: 24rpx 30rpx;
-  border-bottom: none;  /* 移除底部边框 */
+  padding: 14rpx 32rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
   background: #fff;
-  border-radius: 12rpx;
-  margin-bottom: 24rpx;
+  border-radius: 0;
+  margin-bottom: 0;
+  transition: all 0.3s ease;
 }
 
 .weui-cell:last-child {
-  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.weui-cell:active {
+  background: rgba(102, 126, 234, 0.02);
 }
 
 .panel-header {
-  padding: 30rpx 40rpx;
-  border-bottom: 1rpx solid #eee;
+  padding: 32rpx 32rpx 24rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f4 100%);
 }
 
 .panel-header .title {
-  font-size: 34rpx;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 10rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3436;
+  margin-bottom: 8rpx;
+  letter-spacing: 0.5rpx;
 }
 
 .panel-header .subtitle {
-  font-size: 28rpx;
-  color: #999;
+  font-size: 26rpx;
+  color: #636e72;
+  opacity: 0.8;
 }
 
 .panel-content {
-  padding: 24rpx 40rpx;
-  min-height: 200rpx;
+  padding: 0;
+  min-height: auto;
 }
 
 .panel-footer {
-  padding: 30rpx 40rpx;
-  border-top: 1rpx solid #eee;
+  padding: 24rpx 32rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.05);
+  background: #f8f9fa;
 }
-
 
 /* 确保表单项有足够高度 */
 .form-item {
   display: block;
-  margin-bottom: 24rpx;
+  margin-bottom: 0;
+  padding: 12rpx 32rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-item:hover {
+  background: rgba(102, 126, 234, 0.02);
 }
 
 /* 支持占位符显示 */
 .placeholder {
-  color: #999;
+  color: #bbb;
+  font-size: 28rpx;
 }
 
 /* 表单项容器 */
 .form-events-wrapper {
-  padding: 10rpx 0;
+  padding: 0;
 }
 
 /* 面板间距优化 */
 .form-panel.weui-panel {
-  margin: 24rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.04);
+  margin: 0;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+  background: transparent;
 }
 
 /* 表单项间距调整 */
 .form-panel .weui-cells_form {
-  --weui-cell-vertical-padding: 28rpx;
-  --weui-cell-horizontal-padding: 32rpx;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+  margin-top: 0;
+}
+
+.form-panel .weui-cells_form::before,
+.form-panel .weui-cells_form::after {
+  border: none;
 }
 
 /* 动态字段模板样式 */
@@ -172,64 +261,104 @@
 /* 自定义插槽样式 */
 .form-panel .custom-slot {
   padding: 24rpx 32rpx;
-  background: var(--weui-BG-1);
+  background: transparent;
 }
 
-/* 修改前（错误写法） */
+/* 缓存按钮样式 */
 .cache-button {
-  padding: 16rpx 32rpx;
-  background: #fff2f0;
-  border-radius: 8rpx;
+  padding: 20rpx 32rpx;
+  background: rgba(255, 77, 79, 0.1);
+  border-radius: 12rpx;
+  margin: 16rpx 32rpx;
+  transition: all 0.3s ease;
+}
+
+.cache-button:active {
+  background: rgba(255, 77, 79, 0.15);
 }
 
 .cache-button .button-text {
   color: #ff4d4f;
   font-size: 28rpx;
+  font-weight: 500;
 }
 
+/* 字段列表样式 */
 .field-list {
-  margin-bottom: 30rpx;
+  margin-bottom: 0;
+  background: transparent;
 }
 
 .field-item {
-  margin-bottom: 20rpx;
+  margin-bottom: 0;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+  padding: 12rpx 32rpx;
+  transition: all 0.3s ease;
 }
 
+.field-item:last-child {
+  border-bottom: none;
+}
 
-/* 最后一个field-list不需要底部间距 */
-.field-list:last-child {
-  margin-bottom: 0;
+.field-item:hover {
+  background: rgba(102, 126, 234, 0.02);
 }
 
 /* 按钮居中容器 */
 .button-wrapper {
   display: flex;
   justify-content: center;
-  padding: 30rpx 0 40rpx;
+  padding: 24rpx 24rpx 20rpx;
+  background: transparent;
 }
 
-/* 提交按钮样式 */
+/* 提交按钮样式 - 增强版 */
 .submit-button {
-  width: 85% !important;
-  height: 88rpx !important;
-  font-size: 34rpx !important;
-  font-weight: 500 !important;
-  border-radius: 44rpx !important;
-  background-color: #07c160 !important;
+  width: 100% !important;
+  height: 96rpx !important;
+  font-size: 32rpx !important;
+  font-weight: 600 !important;
+  border-radius: 48rpx !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: #fff !important;
-  line-height: 88rpx !important;
+  line-height: 96rpx !important;
   box-sizing: border-box !important;
-  box-shadow: 0 6rpx 16rpx rgba(7, 193, 96, 0.25) !important;
-  border: none !important;
+  box-shadow: 0 16rpx 48rpx rgba(102, 126, 234, 0.4) !important;
+  transition: all 0.3s ease !important;
   margin: 0 !important;
-  padding: 0 !important;
-  letter-spacing: 2rpx !important;
+  border: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.submit-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.submit-button:active::before {
+  left: 100%;
+}
+
+.submit-button:active {
+  transform: translateY(2rpx) !important;
+  box-shadow: 0 12rpx 36rpx rgba(102, 126, 234, 0.3) !important;
 }
 
 /* 提交按钮悬停态 */
 .submit-button.button-hover {
-  background-color: #06ad56 !important;
   opacity: 0.9 !important;
   transform: translateY(2rpx);
-  box-shadow: 0 2rpx 8rpx rgba(7, 193, 96, 0.2) !important;
-} 
+  box-shadow: 0 12rpx 36rpx rgba(102, 126, 234, 0.3) !important;
+}

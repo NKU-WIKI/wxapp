@@ -65,7 +65,8 @@ Page({
     statusBarHeight: 0,
     // 用户详情页相关数据
     otherUserInfo: null,
-    isFromExternalView: false
+    isFromExternalView: false,
+    pageReady: false // 页面是否准备好标志
   },
 
   async onLoad(options) {
@@ -89,6 +90,7 @@ Page({
     }
   },
 
+  // 页面交互优化
   async onShow() {
     const res = await this._checkLogin();
     if (!res) {
@@ -98,6 +100,10 @@ Page({
     if (this.data.isFromExternalView) {
       return;
     }
+    
+    // 添加页面进入动画
+    this.triggerPageAnimation();
+    
     try {
       const tempOpenid = this.getStorage('temp_profile_openid');
       const currentOpenid = storage.get('openid');
@@ -127,6 +133,33 @@ Page({
       console.debug('检查刷新状态失败:', err);
     }
     this.checkUnreadNotifications();
+  },
+
+  // 触发页面动画
+  triggerPageAnimation() {
+    if (!this.data.pageReady) {
+      this.setData({ pageReady: true });
+    }
+  },
+
+  // 添加触摸反馈
+  onActionTouchStart(e) {
+    // 添加触摸开始的视觉反馈
+    const target = e.currentTarget;
+    if (target) {
+      target.style.transform = 'scale(0.98)';
+      target.style.transition = 'transform 0.1s ease';
+    }
+  },
+
+  onActionTouchEnd(e) {
+    // 恢复触摸结束的状态
+    const target = e.currentTarget;
+    if (target) {
+      setTimeout(() => {
+        target.style.transform = 'scale(1)';
+      }, 150);
+    }
   },
 
   async onPullDownRefresh() {
@@ -388,6 +421,57 @@ Page({
 
   onLoginCardTap() {
     wx.navigateTo({ url: '/pages/login/login' });
+  },
+
+  // 快捷操作导航
+  navigateToContent(e) {
+    const { tab } = e.currentTarget.dataset;
+    if (tab !== undefined) {
+      wx.navigateTo({
+        url: `/pages/profile/content/content?tab=${tab}`
+      });
+    }
+  },
+
+  // 性能优化：防抖处理
+  _debounceTimer: null,
+  
+  // 防抖版本的导航方法
+  navigateToContentDebounced(e) {
+    if (this._debounceTimer) {
+      clearTimeout(this._debounceTimer);
+    }
+    
+    this._debounceTimer = setTimeout(() => {
+      this.navigateToContent(e);
+    }, 300);
+  },
+
+  // 添加错误边界处理
+  onError(err) {
+    console.error('Profile页面错误:', err);
+    this.setData({
+      error: true,
+      errorMsg: '页面出现异常，请重试'
+    });
+  },
+
+  // 页面卸载时清理
+  onUnload() {
+    if (this._debounceTimer) {
+      clearTimeout(this._debounceTimer);
+      this._debounceTimer = null;
+    }
+  },
+
+  // 添加页面进入动画效果
+  onReady() {
+    // 页面渲染完成后添加动画效果
+    wx.nextTick(() => {
+      this.setData({
+        pageReady: true
+      });
+    });
   },
 
   // 自定义分享内容

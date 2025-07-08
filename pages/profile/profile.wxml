@@ -1,74 +1,127 @@
 <!-- profile.wxml -->
-<view class="container">
+<view class="container {{pageReady ? 'page-ready' : ''}}">
   <!-- 自定义导航栏 -->
   <nav-bar 
     title="我的"
     showBack="{{false}}"
     showAvatar="{{false}}"
     showNotification="{{true}}"
+    fixed="{{true}}"
   ></nav-bar>
 
   <!-- 内容区域 -->
   <view class="content-area">
-    <!-- 未登录自定义登录提示 -->
-    <view wx:if="{{!userInfo}}" class="login-wrapper">
+    <!-- 加载状态 -->
+    <view wx:if="{{loading && !userInfo}}" class="loading-state">
+      <icon name="loading" size="60" color="rgba(255,255,255,0.8)"></icon>
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 错误状态 -->
+    <view wx:elif="{{error}}" class="error-state">
+      <icon name="error" size="80" color="rgba(255,255,255,0.6)"></icon>
+      <text>{{errorMsg || '网络异常，请稍后再试'}}</text>
+      <button class="retry-btn" bindtap="syncUserAndInitPage">重试</button>
+    </view>
+    
+    <!-- 未登录状态 -->
+    <view wx:elif="{{!userInfo && !loading}}" class="login-wrapper">
       <view class="login-card">
+        <!-- 渐变背景装饰 -->
+        <view class="gradient-decoration"></view>
+        
         <view class="feature-section">
           <view class="feature-header">
-            <icon name="profile" size="100" class="avatar-icon"></icon>
+            <view class="avatar-container">
+              <icon name="profile" size="120" class="avatar-icon"></icon>
+              <view class="avatar-ring"></view>
+            </view>
             <view class="feature-texts">
-              <text class="feature-title">登录后体验更多功能</text>
-              <text class="feature-subtitle">登录后可以发帖、评论、收藏等</text>
+              <text class="feature-title">发现校园精彩</text>
+              <text class="feature-subtitle">登录后畅享更多功能</text>
             </view>
           </view>
-          <view class="feature-list">
+          
+          <view class="feature-grid">
             <view class="feature-item">
-              <icon name="post" color="#4c6ef5"></icon>
-              <text>发帖</text>
+              <view class="feature-icon-wrapper">
+                <icon name="post" size="32" color="#667eea"></icon>
+              </view>
+              <text class="feature-text">发帖分享</text>
             </view>
             <view class="feature-item">
-              <icon name="comment"></icon>
-              <text>评论</text>
+              <view class="feature-icon-wrapper">
+                <icon name="comment" size="32" color="#f093fb"></icon>
+              </view>
+              <text class="feature-text">互动评论</text>
             </view>
             <view class="feature-item">
-              <icon name="star" color="#4c6ef5"></icon>
-              <text>收藏</text>
+              <view class="feature-icon-wrapper">
+                <icon name="star" size="32" color="#ffeaa7"></icon>
+              </view>
+              <text class="feature-text">精选收藏</text>
             </view>
             <view class="feature-item">
-              <icon name="share"></icon>
-              <text>分享</text>
+              <view class="feature-icon-wrapper">
+                <icon name="share" size="32" color="#00b894"></icon>
+              </view>
+              <text class="feature-text">便捷分享</text>
             </view>
           </view>
         </view>
+        
         <view class="login-section">
-          <button class="login-btn" type="primary" bindtap="onLoginCardTap">去登陆</button>
+          <button class="login-btn" bindtap="onLoginCardTap">
+            <text class="login-btn-text">立即登录</text>
+            <icon name="arrow-right" size="20" color="#fff"></icon>
+          </button>
         </view>
       </view>
     </view>
-    <!-- 已登录显示 user-card 和菜单 -->
-    <block wx:if="{{userInfo}}">
-      <user-card
-        userInfo="{{userInfo}}"
-        stats="{{stats}}"
-        isCurrentUser="{{userInfo && userInfo.openid === openid}}"
-        currentUserOpenid="{{openid}}"
-        loading="{{loading}}"
-        error="{{error}}"
-        errorMsg="{{errorMsg}}"
-        bind:retry="onRetry"
-        bind:refresh="onUserCardRefresh"
-        hasMore="{{false}}"
-      />
-      <menu-list
-        title="设置"
-        items="{{settingItems}}" 
-        loading="{{loading}}"
-        error="{{error}}"
-        errorMsg="{{errorMsg}}"
-        customStyle="settings-menu"
-        bind:itemTap="onSettingItemTap"
-        bind:retry="onSettingRetry"
-      />
+    
+    <!-- 已登录状态 -->
+    <block wx:else>
+      <!-- 个人信息卡片 -->
+      <view class="profile-header">
+        <view class="profile-bg">
+          <view class="gradient-bg"></view>
+          <view class="pattern-overlay"></view>
+        </view>
+        
+        <user-card
+          userInfo="{{userInfo}}"
+          stats="{{stats}}"
+          isCurrentUser="{{userInfo && userInfo.openid === openid}}"
+          currentUserOpenid="{{openid}}"
+          loading="{{loading}}"
+          error="{{error}}"
+          errorMsg="{{errorMsg}}"
+          bind:retry="onRetry"
+          bind:refresh="onUserCardRefresh"
+          hasMore="{{false}}"
+          class="enhanced-user-card"
+        />
+      </view>
+      
+      <!-- 功能菜单区域 -->
+      <view class="menu-section">
+        <!-- 设置菜单卡片 -->
+        <view class="settings-card">
+          <view class="card-header">
+            <text class="card-title">应用设置</text>
+            <icon name="settings" size="20" color="#636e72"></icon>
+          </view>
+          <menu-list
+            items="{{settingItems}}" 
+            loading="{{loading}}"
+            error="{{error}}"
+            errorMsg="{{errorMsg}}"
+            customStyle="enhanced-menu"
+            bind:itemTap="onSettingItemTap"
+            bind:retry="onSettingRetry"
+          />
+        </view>
+      </view>
     </block>
   </view>
   

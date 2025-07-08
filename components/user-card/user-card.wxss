@@ -120,58 +120,107 @@ button.follow-button {
   color: #999;
 }
 
-.user-stats {
+/* 新的网格布局统计样式 */
+.user-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rpx;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 16rpx;
+  overflow: hidden;
+  margin-top: 24rpx;
+}
+
+.stat-grid-item {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  border-top: 1rpx solid #f0f0f0;
-  padding-top: 24rpx;
-  padding-bottom: 10rpx;
-}
-
-.stat-item {
-  text-align: center;
-  flex: 0 0 33.33%;
-  padding: 12rpx 0;
-  transition: background-color 0.2s;
-  border-radius: 8rpx;
+  flex-direction: column;
+  align-items: center;
+  padding: 32rpx 20rpx;
+  background: white;
+  transition: all 0.3s ease;
   position: relative;
+}
+
+.stat-grid-item:active {
+  background: #f8f9fa;
+  transform: scale(0.98);
+}
+
+.stat-icon-wrapper {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 12rpx;
+  transition: all 0.3s ease;
 }
 
-/* 为可点击的数据项添加点击状态 */
-.stat-item:active {
-  background-color: #f5f5f5;
+.stat-icon-wrapper.posts {
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.15),
+    rgba(102, 126, 234, 0.05)
+  );
 }
 
-/* 添加一个小指示器，提示可点击 */
-.stat-item::after {
-  content: '';
-  position: absolute;
-  bottom: -4rpx;
-  left: 50%;
-  width: 16rpx;
-  height: 4rpx;
-  background-color: transparent;
-  border-radius: 2rpx;
-  transform: translateX(-50%);
-  transition: background-color 0.2s;
+.stat-icon-wrapper.favorites {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 121, 168, 0.15),
+    rgba(253, 121, 168, 0.05)
+  );
 }
 
-.stat-item:active::after {
-  background-color: #1890ff;
+.stat-icon-wrapper.following {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 206, 201, 0.15),
+    rgba(0, 206, 201, 0.05)
+  );
 }
 
-.stat-value {
-  font-size: 32rpx;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 4rpx;
+.stat-icon-wrapper.followers {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 121, 168, 0.15),
+    rgba(253, 121, 168, 0.05)
+  );
 }
 
-.stat-label {
+.stat-icon-wrapper.likes {
+  background: linear-gradient(
+    135deg,
+    rgba(243, 156, 18, 0.15),
+    rgba(243, 156, 18, 0.05)
+  );
+}
+
+.stat-icon-wrapper.points {
+  background: linear-gradient(
+    135deg,
+    rgba(155, 89, 182, 0.15),
+    rgba(155, 89, 182, 0.05)
+  );
+}
+
+.stat-text {
   font-size: 24rpx;
-  color: #999;
+  color: #636e72;
+  margin-bottom: 8rpx;
+  font-weight: 500;
+}
+
+.stat-count {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #2d3436;
+}
+
+/* 旧的统计样式 - 保留以兼容，但隐藏 */
+.user-stats {
+  display: none;
 }
 
 /* 占位符样式 */
@@ -217,4 +266,4 @@ button.follow-button {
   border-radius: 12rpx;
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
   margin: 20rpx 10rpx 0 10rpx;
-} 
+}

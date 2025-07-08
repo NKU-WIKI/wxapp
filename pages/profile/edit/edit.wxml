@@ -1,14 +1,24 @@
 <!--pages/profile/edit/edit.wxml-->
 <!-- 顶部消息提示 -->
 <mp-toptips msg="{{toptipsMsg}}" type="{{toptipsType}}" show="{{toptipsShow}}"></mp-toptips>
-<nav-bar 
-  showBack="{{true}}"
-  showAvatar="{{false}}"
-  showNotification="{{false}}"
-  title="编辑资料"
-></nav-bar>
 
 <view class="container">
+  <!-- 渐变背景 - 与"我的"页面保持一致 -->
+  <view class="profile-bg">
+    <view class="gradient-bg"></view>
+    <view class="pattern-overlay"></view>
+  </view>
+
+  <!-- 自定义导航栏 -->
+  <nav-bar 
+    showBack="{{true}}"
+    showAvatar="{{false}}"
+    showNotification="{{false}}"
+    title="编辑资料"
+    backgroundColor="transparent"
+    color="#fff"
+  ></nav-bar>
+
   <!-- 内容区域 -->
   <view class="content-area">
     <cell-status
@@ -17,45 +27,65 @@
       errorMsg="{{errorMsg}}"
       bindretry="onRetry">
 
-      <!-- 头像 - 使用icon组件替代 -->
-      <view class="avatar-section">
-        <button 
-          class="avatar-wrapper {{uploadingAvatar ? 'uploading' : ''}}" 
-          open-type="chooseAvatar" 
-          bindchooseavatar="onChooseAvatar"
-          disabled="{{uploadingAvatar}}">
-          <icon 
-            wx:if="{{userInfo.avatar}}"
-            useImage="{{true}}"
-            imageSrc="{{userInfo.avatar}}"
-            size="180"
-            class="avatar-icon"
-            binderror="onAvatarError">
-          </icon>
-          <icon 
-            wx:else
-            name="profile"
-            size="180"
-            color="#6369e8"
-            class="avatar-icon">
-          </icon>
-          <view wx:if="{{uploadingAvatar}}" class="upload-overlay">
-            <icon name="loading" size="32" color="#fff"></icon>
+      <!-- 头像编辑大卡片 -->
+      <view class="avatar-card">
+        <view class="avatar-section">
+          <view class="avatar-container">
+            <button 
+              class="avatar-wrapper {{uploadingAvatar ? 'uploading' : ''}}" 
+              open-type="chooseAvatar" 
+              bindchooseavatar="onChooseAvatar"
+              disabled="{{uploadingAvatar}}">
+              <icon 
+                wx:if="{{userInfo.avatar}}"
+                useImage="{{true}}"
+                imageSrc="{{userInfo.avatar}}"
+                size="160"
+                class="avatar-icon"
+                binderror="onAvatarError">
+              </icon>
+              <icon 
+                wx:else
+                name="profile"
+                size="160"
+                color="#6369e8"
+                class="avatar-icon">
+              </icon>
+              <view wx:if="{{uploadingAvatar}}" class="upload-overlay">
+                <icon name="loading" size="32" color="#fff"></icon>
+              </view>
+              <view class="edit-avatar-btn">
+                <icon name="image" size="18" color="#fff"></icon>
+              </view>
+            </button>
+            <view class="avatar-ring"></view>
           </view>
-        </button>
-        <view class="avatar-hint">{{uploadingAvatar ? '上传中...' : '点击更换头像'}}</view>
+          <view class="avatar-info">
+            <view class="user-name">{{userInfo.nickname || userInfo.name || '未设置昵称'}}</view>
+            <view class="user-id" wx:if="{{userInfo.user_id}}">ID: {{userInfo.user_id}}</view>
+            <view class="avatar-hint">{{uploadingAvatar ? '上传中...' : '点击更换头像'}}</view>
+          </view>
+        </view>
       </view>
 
-      <!-- 使用表单面板组件 -->
-      <form-panel 
-        id="profileForm"
-        fields="{{formFields}}"
-        groups="{{groups}}"
-        ranges="{{ranges}}"
-        submitText="保存修改"
-        submitTextBackground="#666"
-        bind:submit="onFormSubmit"
-      ></form-panel>
+      <!-- 基本资料卡片 -->
+      <view class="form-section">
+        <view class="section-header">
+          <icon name="profile" size="24" color="#667eea"></icon>
+          <text class="section-title">基本资料</text>
+        </view>
+        <view class="form-card">
+          <form-panel 
+            id="profileForm"
+            fields="{{formFields}}"
+            groups="{{groups}}"
+            ranges="{{ranges}}"
+            submitText="保存修改"
+            submitTextBackground="#667eea"
+            bind:submit="onFormSubmit"
+          ></form-panel>
+        </view>
+      </view>
       
     </cell-status>
   </view>

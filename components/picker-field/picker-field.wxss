@@ -1,45 +1,79 @@
 /* 选择器字段 */
 .picker-field {
-  margin-bottom: 24rpx;
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 20rpx 24rpx;
+  margin-bottom: 0;
+  background: transparent;
+  border-radius: 0;
+  padding: 12rpx 0;
   position: relative;
+  transition: all 0.3s ease;
+}
+
+.picker-field:hover {
+  background: rgba(102, 126, 234, 0.02);
 }
 
 /* 字段标签 */
 .field-label {
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 12rpx;
+  font-size: 28rpx;
+  color: #636e72;
+  margin-bottom: 6rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.field-label::before {
+  content: "";
+  width: 4rpx;
+  height: 16rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2rpx;
+  opacity: 0.7;
 }
 
 /* 字段值 */
 .field-value {
-  font-size: 28rpx;
-  color: #333;
+  font-size: 30rpx;
+  color: #2d3436;
   position: relative;
-  padding-right: 40rpx;
+  padding: 8rpx 48rpx 8rpx 0;
   line-height: 1.4;
-  min-height: 40rpx;
+  min-height: 36rpx;
+  display: flex;
+  align-items: center;
+  border-bottom: 2rpx solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.field-value:active {
+  border-bottom-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
 }
 
 /* 占位符 */
 .placeholder {
-  color: #999;
+  color: #bdc3c7;
+  font-size: 28rpx;
 }
 
 /* 箭头 */
 .arrow {
   position: absolute;
-  right: 0;
+  right: 12rpx;
   top: 50%;
-  margin-top: -4rpx;
-  width: 10rpx;
-  height: 10rpx;
-  border-right: 2rpx solid #999;
-  border-bottom: 2rpx solid #999;
+  margin-top: -6rpx;
+  width: 12rpx;
+  height: 12rpx;
+  border-right: 2rpx solid #636e72;
+  border-bottom: 2rpx solid #636e72;
   transform: rotate(45deg);
+  transition: all 0.3s ease;
+}
+
+.field-value:active .arrow {
+  border-color: #667eea;
+  transform: rotate(45deg) scale(1.1);
 }
 
 /* 弹出层 */
@@ -137,14 +171,15 @@
 }
 
 .picker-item.active::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 12rpx;
   top: 50%;
   transform: translateY(-50%);
   width: 24rpx;
   height: 24rpx;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2307c160'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E") no-repeat center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2307c160'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E")
+    no-repeat center;
   background-size: contain;
 }
 
@@ -220,4 +255,4 @@
 /* 调整picker弹出层的样式 */
 .picker-modal {
   font-size: 36rpx !important;
-} 
+}
