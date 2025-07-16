@@ -95,4 +95,4 @@ const http = {
     request<T>('POST', url, data, options),
 };
 
-export default http; 
+export default http;

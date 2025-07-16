@@ -4,6 +4,7 @@ export interface Author {
   name: string;
   avatar: string;
   school?: string;
+  level?: number; // 新增：用户等级
 }
 
 export interface Comment {
@@ -17,6 +18,7 @@ export interface Comment {
 
 export interface Post {
   id: number;
+  title?: string; // 新增标题字段
   author: Author;
   time: string;
   content: string;
@@ -26,7 +28,7 @@ export interface Post {
   location?: string;
   likes: number | string;
   commentsCount: number;
-  stars?: number;
+  favorites?: number;
   comments?: Comment[];
 }
 
@@ -35,4 +37,4 @@ export interface Post {
  */
 export interface GetPostsParams extends PaginationParams {
   tab?: 'recommend' | 'hot' | 'new';
-} 
+}

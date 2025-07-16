@@ -8,23 +8,23 @@ const convertCloudUrl = (cloudUrl: string): string => {
   if (!cloudUrl || !cloudUrl.startsWith('cloud://')) {
     return cloudUrl;
   }
-  
+
   // 将 cloud:// 链接转换为 HTTP 链接
   // cloud://cloud1-7gu881ir0a233c29.636c-cloud1-7gu881ir0a233c29-1352978573/avatars/xxx.jpg
   // 转换为: https://636c-cloud1-7gu881ir0a233c29-1352978573.tcb.qcloud.la/avatars/xxx.jpg
-  
+
   try {
     const cloudPath = cloudUrl.replace('cloud://', '');
     const parts = cloudPath.split('/');
     const envId = parts[0]; // cloud1-7gu881ir0a233c29.636c-cloud1-7gu881ir0a233c29-1352978573
     const filePath = parts.slice(1).join('/'); // avatars/xxx.jpg
-    
+
     // 提取环境ID中的关键部分
     const envMatch = envId.match(/636c-cloud1-7gu881ir0a233c29-1352978573/);
     if (envMatch) {
       return `https://${envMatch[0]}.tcb.qcloud.la/${filePath}`;
     }
-    
+
     // 如果匹配失败，返回原链接
     return cloudUrl;
   } catch (error) {
@@ -67,6 +67,7 @@ export const fetchPosts = createAsyncThunk(
 
         return {
           id: post.id,
+          title: post.title || '',
           author: {
             name: post.user_info?.nickname || post.nickname || '匿名用户',
             avatar: convertCloudUrl(post.user_info?.avatar || post.avatar || ''),
@@ -134,4 +135,4 @@ const postsSlice = createSlice({
   },
 });
 
-export default postsSlice.reducer; 
+export default postsSlice.reducer;

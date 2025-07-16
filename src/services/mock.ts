@@ -1,12 +1,14 @@
-import { Post } from '../types/post';
+import { Post } from '../types/api/post';
 
 export const MOCK_POSTS: Post[] = [
   {
     id: 1,
+    title: '南开校园随拍', // 新增标题
     author: {
       name: '南开艺术学院的小艺',
       avatar: 'https://picsum.photos/id/1027/80/80',
       school: '在校学生',
+      level: 5, // 新增等级
     },
     time: '2小时前',
     content:
@@ -19,7 +21,7 @@ export const MOCK_POSTS: Post[] = [
     tags: ['#南开大学', '#大学生活'],
     location: '南开大学八里台校区',
     likes: '2.8k',
-    stars: 128,
+    favorites: 128,
     commentsCount: 128,
     comments: [
       {
@@ -49,10 +51,12 @@ export const MOCK_POSTS: Post[] = [
   },
   {
     id: 2,
+    title: '新生求助：课程选择建议',
     author: {
       name: '千堆雪',
       avatar: 'https://picsum.photos/id/1005/40/40',
       school: '本科生',
+      level: 2,
     },
     time: '10分钟前',
     content:
@@ -60,13 +64,16 @@ export const MOCK_POSTS: Post[] = [
     tags: ['#新生求助', '#课程咨询', '#计算机', '#算法'],
     likes: 18,
     commentsCount: 23,
+    favorites: 8, // 新增
   },
   {
     id: 3,
+    title: '互联网创业经验分享会预告',
     author: {
       name: '大列巴',
       avatar: 'https://picsum.photos/id/1011/40/40',
       school: '硕士生',
+      level: 4,
     },
     time: '2小时前',
     content:
@@ -75,9 +82,10 @@ export const MOCK_POSTS: Post[] = [
     tags: ['#创业分享', '#校园活动', '#讲座', '#校友'],
     likes: 45,
     commentsCount: 32,
+    favorites: 15, // 新增
   },
 ];
 
 export const getPostById = (id: number): Post | undefined => {
   return MOCK_POSTS.find(post => post.id === id);
-} 
+}
