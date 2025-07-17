@@ -1,0 +1,33 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.extra {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.link {
+  font-size: 14px;
+  color: #8b5cf6; // purple-600
+  // In a real web project, you'd add a hover effect
+  // &:hover { text-decoration: underline; }
+}
+
+.content {
+  // This class is just a wrapper, content styles are in the parent component
+} 

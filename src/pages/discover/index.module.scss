@@ -1,0 +1,128 @@
+/* 全局变量 */
+:export {
+  primary-color: #4A90E2;
+  text-color-primary: #333333;
+  text-color-secondary: #9B9B9B;
+  background-color: #F5F5F5;
+  card-background-color: #FFFFFF;
+}
+
+.discoverPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f8f8f8;
+}
+
+.scrollView {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px; // space-y-6
+}
+
+/* Campus Hotspots */
+.hotspotsContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.hotspotItem {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.hotspotImage {
+  width: 100%;
+  height: 128px; // h-32
+  object-fit: cover;
+}
+
+.hotspotInfo {
+  padding: 12px;
+}
+
+.hotspotTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  // line-clamp
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.hotspotDiscussions {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* AI Assistant */
+.aiAssistantsContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.aiAssistantCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #faf5ff; // bg-purple-50
+  border-radius: 8px;
+  height: 96px; // h-24
+  padding: 12px;
+  text-align: center;
+}
+
+.aiAssistantIcon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+}
+
+.aiAssistantName {
+  font-size: 14px;
+  color: #1f2937;
+}
+
+/* Campus Activities */
+.activityCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.activityImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.activityInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activityTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.activityDetail {
+  font-size: 14px;
+  color: #374151;
+}

@@ -1,0 +1,216 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.contentWrapper {
+  flex: 1;
+  overflow: hidden;
+}
+
+.scrollView {
+  height: 100%;
+  box-sizing: border-box;
+  padding-bottom: 80px; // 为底部按钮留出空间
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  padding: 16px;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e5e5;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.publishButtonWrapper {
+  flex-shrink: 0;
+}
+
+.publishButton {
+  width: 90%;
+  max-width: 400px;
+  background-color: #4A90E2;
+  color: #fff;
+  border-radius: 24px;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+// Common card style
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.titleInput,
+.contentInput {
+  border: none;
+  width: 100%;
+  font-size: 16px;
+  box-sizing: border-box; // Ensure padding is included in width
+  &:focus {
+    outline: none;
+  }
+}
+
+.titleInput {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.contentInput {
+  min-height: 200px;
+  resize: none;
+}
+
+.imagePreviewContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 0 16px;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.deleteIcon {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  color: #ef4444; // text-red-500
+}
+
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toolbarIcon {
+  width: 20px;
+  height: 20px;
+  color: #374151;
+  margin-right: 16px; // Adjust as needed
+}
+
+.wikiBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #f5f3ff; // bg-purple-100
+  color: #8b5cf6;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.wikiIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagItem {
+  background-color: #f3f4f6;
+  color: #374151;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 14px;
+
+  &.addTag {
+    border: 1px dashed #d1d5db;
+    background-color: transparent;
+  }
+}
+
+.suggestionCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.suggestionIcon {
+  width: 20px;
+  height: 20px;
+  color: #8b5cf6;
+  margin-top: 4px;
+}
+
+.suggestionContent {
+  flex: 1;
+}
+
+.suggestionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.applyBtn {
+  color: #8b5cf6;
+  font-size: 14px;
+}
+
+.suggestionText {
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.stylesContainer {
+  display: flex;
+  gap: 8px;
+}
+
+.styleItem {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: transparent;
+  color: #374151;
+
+  &.selected {
+    background-color: #8b5cf6;
+    color: white;
+    border-color: #8b5cf6;
+  }
+} 

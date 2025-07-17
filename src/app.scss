@@ -1,0 +1,42 @@
+@use "taro-ui/dist/style/index.scss";
+
+page {
+  background-color: #f5f5f5;
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* 全局设置盒模型，防止 padding 和 border 影响元素最终尺寸 */
+page,
+view,
+scroll-view,
+swiper,
+movable-area,
+movable-view,
+cover-view,
+cover-image,
+icon,
+text,
+rich-text,
+progress,
+button,
+checkbox-group,
+checkbox,
+form,
+input,
+label,
+picker,
+picker-view,
+radio-group,
+radio,
+slider,
+switch,
+textarea,
+navigator,
+image {
+  box-sizing: border-box;
+}
+
+.container {
+  padding: 20px;
+}

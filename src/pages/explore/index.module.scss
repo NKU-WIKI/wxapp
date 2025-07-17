@@ -1,0 +1,324 @@
+.explorePage {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9fafb; // bg-gray-50
+}
+
+.pageContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.searchBarWrapper {
+  padding: 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: #f3f4f6; // bg-gray-100
+  border-radius: 9999px; // rounded-full
+  padding: 8px 12px;
+}
+
+.searchIcon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280; // text-gray-500
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background-color: transparent;
+  margin: 0 8px;
+  font-size: 14px;
+  &:focus {
+    outline: none;
+  }
+}
+
+/* Search Skills View */
+.searchSkillsContainer {
+  flex: 1;
+  padding: 16px;
+  background-color: #ffffff;
+  height: 100%; /* Ensure it takes full height of its container */
+}
+
+.skillsHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.skillsTitleDecorator {
+  width: 4px;
+  height: 20px;
+  background-color: #8b5cf6; // bg-purple-600
+  border-radius: 9999px;
+  margin-right: 8px;
+}
+
+.skillsTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827; // text-gray-900
+}
+
+.skillsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.skillCard {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #f3f4f6;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.skillIconContainer {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eff6ff; // bg-blue-50
+}
+
+.skillIcon {
+  width: 24px;
+  height: 24px;
+  color: #3b82f6; // text-blue-600
+}
+
+/* Specific colors for skill icons */
+.skillCard:nth-child(2) .skillIconContainer { background-color: #f0fdf4; } // bg-green-50
+.skillCard:nth-child(2) .skillIcon { color: #22c55e; } // text-green-600
+.skillCard:nth-child(3) .skillIconContainer { background-color: #fff7ed; } // bg-orange-50
+.skillCard:nth-child(3) .skillIcon { color: #f97316; } // text-orange-600
+.skillCard:nth-child(4) .skillIconContainer { background-color: #fef2f2; } // bg-red-50
+.skillCard:nth-child(4) .skillIcon { color: #ef4444; } // text-red-600
+
+.skillTitle {
+  font-weight: 600;
+  color: #111827;
+}
+
+.skillDesc {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.skillExample {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Default Explore View */
+.scrollView {
+  height: 100%;
+}
+
+.sourceNav {
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sourceScrollView {
+  display: flex;
+  white-space: nowrap;
+}
+
+.sourceItem {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  color: #374151;
+  &:first-child {
+    padding-left: 0;
+  }
+}
+
+.sourceIcon {
+  width: 32px;
+  height: 32px;
+}
+
+.sourceName {
+  font-size: 12px;
+}
+
+.contributionSection {
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contributionIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.contributionText {
+  font-size: 14px;
+  color: #374151;
+}
+
+.mainContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.recommendations {
+  // container for title + grid
+}
+
+.recGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.recCard {
+  background-color: #f3e8ff; // bg-purple-50
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.recIcon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+}
+
+.recText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.recCount {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.wikiCard, .hotListCard {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #f3f4f6;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  .sectionTitle {
+    margin-bottom: 0;
+  }
+}
+
+.refreshIcon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+}
+
+.wikiContent {
+  font-size: 14px;
+  color: #374151;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wikiItem {
+  line-height: 1.5;
+}
+.wikiSource {
+  color: #6b7280;
+}
+
+.seeMore {
+  font-size: 14px;
+  color: #9333ea; // text-purple-600
+}
+
+.hotList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hotListItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hotListRank {
+  font-size: 18px;
+  font-weight: bold;
+  color: #374151;
+  width: 20px;
+  text-align: center;
+}
+
+.hotListItemInfo {
+  flex: 1;
+}
+
+.hotListTitle {
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.hotListMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.hotTag {
+  color: #ef4444; // text-red-500
+  font-weight: 500;
+}

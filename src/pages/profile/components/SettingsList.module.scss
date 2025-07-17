@@ -1,0 +1,63 @@
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  padding: 0 16px; // Match overall page padding
+}
+
+.settingsList {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.settingsItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+
+  // Use adjacent sibling selector to add a border to all but the first item
+  & + & {
+    border-top: 1px solid #f3f4f6;
+  }
+
+  &:hover {
+    background-color: #f9fafb;
+  }
+}
+
+.itemLeft, .itemRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.itemIcon {
+  width: 20px;
+  height: 20px;
+  color: #374151;
+}
+
+.itemText {
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.itemExtra {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.arrowIcon {
+  width: 20px;
+  height: 20px;
+  color: #9ca3af;
+} 
