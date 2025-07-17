@@ -1,14 +1,10 @@
-import { View, Text, Image } from "@tarojs/components";
-import { Post } from "../../types/post";
+import { View, Image, Text } from "@tarojs/components";
 import styles from "./index.module.scss";
-import likedIcon from "../../assets/liked.png";
-import starIcon from "../../assets/star.png";
+import likedIcon from "../../assets/liked.svg";
+import starIcon from "../../assets/star.svg";
+import { Post } from "@/types/api/post";
 
-interface PostCardProps {
-  post: Post;
-}
-
-export default function PostCard({ post }: PostCardProps) {
+const PostCard = ({ post }: { post: Post }) => {
   return (
     <View className={styles.postContainer}>
       {/* 作者信息 */}
@@ -71,4 +67,4 @@ export default function PostCard({ post }: PostCardProps) {
       </View>
     </View>
   );
-} 
+};

@@ -13,18 +13,27 @@
     "noUnusedParameters": true,
     "strictNullChecks": true,
     "sourceMap": true,
+    "baseUrl": ".",
     "rootDir": ".",
     "jsx": "react-jsx",
     "allowJs": true,
     "resolveJsonModule": true,
     "typeRoots": [
-      "node_modules/@types"
+      "node_modules/@types",
+      "types"
+    ],
+    "types": [
+      "@tarojs/taro"
     ],
     "paths": {
-      // TS5090 leading './'
-      "@/*": ["./src/*"]
+      "@/*": [
+        "src/*"
+      ]
     }
   },
-  "include": ["./src", "./types", "./config"],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "compileOnSave": false
 }

@@ -1,12 +1,19 @@
 /// <reference types="@tarojs/taro" />
 
 declare const BASE_URL: string;
+declare const APP_NAME: string;
 
 declare module '*.png';
 declare module '*.gif';
-declare module '*.jpg';
+declare module '*.jpg' {
+  const content: any;
+  export default content;
+}
 declare module '*.jpeg';
-declare module '*.svg';
+declare module '*.svg' {
+  const content: any;
+  export default content;
+}
 declare module '*.css';
 declare module '*.less';
 declare module '*.scss';

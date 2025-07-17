@@ -1,11 +1,29 @@
 import http from '../request';
-import { LoginParams, LoginResponse, UserInfo } from '@/types/api/user';
+import { LoginParams, LoginResponse, User } from '@/types/api/user';
+import { PaginatedData } from '@/types/api/common';
 
 export const userApi = {
-  login: (params: LoginParams) => {
-    return http.post<LoginResponse>('/wxapp/auth/login', params);
+  login: (data: LoginParams) => {
+    return http.post<LoginResponse>('/wxapp/auth/login', data);
   },
-  getProfile: () => {
-    return http.get<UserInfo>('/wxapp/user/my/profile');
+
+  getMyProfile: () => {
+    return http.get<User>('/wxapp/user/my/profile');
+  },
+
+  updateUserProfile: (data: Partial<User>) => {
+    return http.post<User>('/wxapp/user/update', data);
+  },
+
+  getUserProfile: (userId: number) => {
+    return http.get<User>(`/wxapp/user/profile?user_id=${userId}`);
+  },
+
+  getFollowers: (userId: number, page: number = 1, pageSize: number = 10) => {
+    return http.get<PaginatedData<User>>(`/wxapp/user/followers?user_id=${userId}&page=${page}&page_size=${pageSize}`);
+  },
+
+  getFollowing: (userId: number, page: number = 1, pageSize: number = 10) => {
+    return http.get<PaginatedData<User>>(`/wxapp/user/following?user_id=${userId}&page=${page}&page_size=${pageSize}`);
   }
 }; 

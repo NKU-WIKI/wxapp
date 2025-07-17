@@ -1,8 +1,8 @@
-import starIcon from "../../assets/star.png";
-import historyIcon from "../../assets/history.png";
+import starIcon from "../../assets/star.svg";
+import historyIcon from "../../assets/history.svg";
 import commentIcon from "../../assets/comment.png";
 import likeIcon from "../../assets/like.png";
-import draftIcon from "../../assets/draft.png";
+import favoriteIcon from "../../assets/favorite.png";
 import feedbackIcon from "../../assets/feedback.png";
 import notificationIcon from "../../assets/notification.png";
 import clearIcon from "../../assets/clear.png";
@@ -27,7 +27,8 @@ export const mockUser = {
     { name: "浏览历史", icon: historyIcon },
     { name: "我的评论", icon: commentIcon },
     { name: "我的点赞", icon: likeIcon },
-    { name: "草稿箱", icon: draftIcon },
+    { name: "我的收藏", icon: favoriteIcon },
+    { name: "草稿箱", icon: starIcon },
     { name: "意见反馈", icon: feedbackIcon },
     { name: "设置", icon: settingsIcon },
   ],

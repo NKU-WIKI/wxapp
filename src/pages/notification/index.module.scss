@@ -1,0 +1,86 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f8f8f8;
+}
+
+.tabsContainer {
+  padding: 16px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Customizing taro-ui AtTabs */
+.tabs {
+  :global(.at-tabs__header) {
+    background-color: #f3f4f6;
+    border-radius: 9999px;
+    padding: 4px;
+    height: auto;
+  }
+
+  :global(.at-tabs__item) {
+    color: #374151;
+    border-radius: 9999px;
+    padding: 8px 0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  :global(.at-tabs__item--active) {
+    background-color: #8b5cf6;
+    color: white !important;
+  }
+
+  :global(.at-tabs__underline) {
+    display: none; // Hide the default underline
+  }
+}
+
+.tabContent {
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emptyText {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px 0;
+}
+
+.moreIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.footer {
+  background-color: #ffffff;
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+  padding-bottom: calc(12px + constant(safe-area-inset-bottom));
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.markAllReadButton {
+  width: 100%;
+  padding: 12px;
+  background-color: #8b5cf6;
+  color: white;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.footerIcon {
+  width: 20px;
+  height: 20px;
+} 

@@ -2,9 +2,9 @@ import { View, Text, Image } from "@tarojs/components";
 import { useState, useEffect } from "react";
 import Taro from "@tarojs/taro";
 import styles from "./index.module.scss";
-import React from 'react';
-import backIcon from "../../assets/back.png";
-import notificationIcon from '../../assets/notification.png';
+import React from "react";
+import backIcon from "../../assets/arrow-left.svg";
+import notificationIcon from "../../assets/bell.svg";
 
 interface NavStyle {
   navBarHeight: number;
@@ -18,14 +18,16 @@ interface CustomHeaderProps {
   title?: string;
   hideBack?: boolean;
   showNotificationIcon?: boolean;
+  renderRight?: React.ReactNode; // Add rightContent prop
   background?: string;
 }
 
-const CustomHeader = ({ 
-  title, 
-  hideBack = false, 
+const CustomHeader = ({
+  title,
+  hideBack = false,
   showNotificationIcon = false,
-  background = '#FFFFFF' 
+  renderRight, // Destructure rightContent
+  background = "#FFFFFF",
 }: CustomHeaderProps) => {
   const [navStyle, setNavStyle] = useState<NavStyle>({
     navBarHeight: 88, // 默认总高度
@@ -44,15 +46,19 @@ const CustomHeader = ({
         const statusBarHeight = windowInfo.statusBarHeight || 0;
         const menuButtonTop = menuButtonInfo.top;
         const menuButtonHeight = menuButtonInfo.height;
-        
+
         // 导航栏内容区高度
         const navBarContentHeight = menuButtonHeight;
         // 导航栏内容区上边界 = 胶囊上边界
         const navBarContentTop = menuButtonTop;
         // 导航栏总高度 = 状态栏高度 + 内容区高度 + (内容区上边界 - 状态栏高度) * 2 (即上下边距)
-        const navBarHeight = statusBarHeight + navBarContentHeight + (navBarContentTop - statusBarHeight) * 2;
+        const navBarHeight =
+          statusBarHeight +
+          navBarContentHeight +
+          (navBarContentTop - statusBarHeight) * 2;
         // 右侧安全间距
-        const menuButtonRightGap = windowInfo.windowWidth - menuButtonInfo.right;
+        const menuButtonRightGap =
+          windowInfo.windowWidth - menuButtonInfo.right;
 
         setNavStyle({
           navBarHeight,
@@ -74,7 +80,7 @@ const CustomHeader = ({
   };
 
   const handleNotificationClick = () => {
-    Taro.navigateTo({ url: "/pages/notifications/index" });
+    Taro.navigateTo({ url: "/pages/notification/index" });
   };
 
   // 整体容器，负责占位
@@ -107,13 +113,24 @@ const CustomHeader = ({
           <View className={styles.left}>
             {/* 当显示通知图标时，强制隐藏返回按钮 */}
             {!hideBack && !showNotificationIcon && (
-              <View onClick={handleBack} style={leftIconStyle} className={styles.iconWrapper}>
+              <View
+                onClick={handleBack}
+                style={leftIconStyle}
+                className={styles.iconWrapper}
+              >
                 <Image src={backIcon} className={styles.backIcon} />
               </View>
             )}
             {showNotificationIcon && (
-              <View onClick={handleNotificationClick} style={leftIconStyle} className={styles.iconWrapper}>
-                <Image src={notificationIcon} className={styles.notificationIcon} />
+              <View
+                onClick={handleNotificationClick}
+                style={leftIconStyle}
+                className={styles.iconWrapper}
+              >
+                <Image
+                  src={notificationIcon}
+                  className={styles.notificationIcon}
+                />
               </View>
             )}
           </View>
@@ -122,13 +139,18 @@ const CustomHeader = ({
           <View className={styles.center}>
             {title && <Text className={styles.title}>{title}</Text>}
           </View>
-          
-          {/* 右侧为了平衡，留出与左侧等宽的距离 */}
-          <View className={styles.right} style={{marginRight: `${navStyle.menuButtonRightGap}px`}} />
+
+          {/* Right section now renders custom content */}
+          <View
+            className={styles.right}
+            style={{ marginRight: `${navStyle.menuButtonRightGap}px` }}
+          >
+            {renderRight}
+          </View>
         </View>
       </View>
     </View>
   );
 };
 
-export default CustomHeader; 
+export default CustomHeader;

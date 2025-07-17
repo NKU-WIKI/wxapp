@@ -1,18 +1,14 @@
-import 'abort-controller/polyfill';
-import { PropsWithChildren, useEffect } from 'react'
+import "abort-controller/polyfill";
+import { PropsWithChildren } from 'react'
 import { useLaunch } from '@tarojs/taro'
 import { Provider } from 'react-redux'
 import 'taro-ui/dist/style/index.scss'
 import { store } from './store'
-import { checkAuth } from './store/slices/userSlice'
 import './app.scss'
 
 function App({ children }: PropsWithChildren) {
-
-  useEffect(() => {
-    store.dispatch(checkAuth())
-  }, [])
-
+  // The auth check is handled by the initial state in userSlice,
+  // so the useEffect hook for checkAuth is not needed here.
   return <Provider store={store}>{children}</Provider>
 }
 

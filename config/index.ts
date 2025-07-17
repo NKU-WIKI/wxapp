@@ -4,6 +4,8 @@ import path from "path";
 import devConfig from "./dev";
 import prodConfig from "./prod";
 
+const packageJson = require('../package.json');
+
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<"webpack5">(async (merge) => {
   const baseConfig: UserConfigExport<"webpack5"> = {
@@ -19,7 +21,9 @@ export default defineConfig<"webpack5">(async (merge) => {
     sourceRoot: "src",
     outputRoot: "dist",
     plugins: ["@tarojs/plugin-generator"],
-    defineConstants: {},
+    defineConstants: {
+      APP_NAME: JSON.stringify(packageJson.name),
+    },
     alias: {
       '@': path.resolve(__dirname, '..', 'src'),
     },
@@ -54,27 +58,31 @@ export default defineConfig<"webpack5">(async (merge) => {
       },
       webpackChain(chain) {
         chain.resolve.plugin("tsconfig-paths").use(TsconfigPathsPlugin);
+        chain.module
+          .rule('images')
+          .include
+          .add(path.resolve(__dirname, '..', 'src'))
       },
-      compile: {
-        include: [
-          (filename: string) =>
-            /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
-              filename
-            ),
-          (filename: string) =>
-            /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
-              filename
-            ),
-          (filename: string) =>
-            /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
-              filename
-            ),
-          (filename: string) =>
-            /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
-              filename
-            ),
-        ],
-      },
+      // compile: {
+      //   include: [
+      //     (filename: string) =>
+      //       /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
+      //         filename
+      //       ),
+      //     (filename: string) =>
+      //       /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
+      //         filename
+      //       ),
+      //     (filename: string) =>
+      //       /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
+      //         filename
+      //       ),
+      //     (filename: string) =>
+      //       /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
+      //         filename
+      //       ),
+      //   ],
+      // },
     },
     h5: {
       publicPath: "/",

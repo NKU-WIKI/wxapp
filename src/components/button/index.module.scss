@@ -1,0 +1,88 @@
+// Base button styles
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: 6px; // Corresponds to rounded-md
+  font-size: 14px;   // Corresponds to text-sm
+  font-weight: 500; // Corresponds to font-medium
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  border: 1px solid transparent; // Base border
+  
+  // Reset default Taro button styles
+  &::after {
+    border: none;
+  }
+}
+
+// Variants
+.variant-default {
+  background-color: #8b5cf6; // primary (purple-600)
+  color: #ffffff; // primary-foreground
+  &:hover {
+    background-color: #7c3aed; // primary/90 (purple-700)
+  }
+}
+
+.variant-destructive {
+  background-color: #ef4444; // destructive (red-500)
+  color: #ffffff;
+  &:hover {
+    background-color: #dc2626; // destructive/90 (red-600)
+  }
+}
+
+.variant-outline {
+  border-color: #d1d5db; // border-input (gray-300)
+  background-color: transparent;
+  &:hover {
+    background-color: #f3f4f6; // bg-accent (gray-100)
+    color: #1f2937; // text-accent-foreground (gray-800)
+  }
+}
+
+.variant-secondary {
+  background-color: #f3f4f6; // secondary (gray-100)
+  color: #1f2937;
+  &:hover {
+    background-color: #e5e7eb; // secondary/80 (gray-200)
+  }
+}
+
+.variant-ghost {
+  background-color: transparent;
+  &:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+}
+
+.variant-link {
+  color: #8b5cf6;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  background-color: transparent;
+}
+
+// Sizes
+.size-default {
+  height: 40px;
+  padding: 8px 16px;
+}
+
+.size-sm {
+  height: 36px;
+  padding: 8px 12px;
+}
+
+.size-lg {
+  height: 44px;
+  padding: 8px 32px;
+}
+
+.size-icon {
+  height: 40px;
+  width: 40px;
+  padding: 0;
+} 

@@ -1,8 +1,9 @@
-import RobotIcon from "../../assets/robot.png";
-import TranslateIcon from "../../assets/translate.png";
-import PlanIcon from "../../assets/plan.png";
-import BookIcon from "../../assets/book.png";
-import CodeIcon from "../../assets/code.png";
+import RobotIcon from "../../assets/robot.svg";
+import TranslateIcon from "../../assets/translate.svg";
+import PlanIcon from "../../assets/plan.svg";
+import BookIcon from "../../assets/book.svg";
+import CodeIcon from "../../assets/code.svg";
+import MarketIcon from "../../assets/market.svg";
 
 export const hotspots = [
   {

@@ -22,11 +22,14 @@ export interface BaseResponse<T = any> {
 }
 
 /**
- * 分页数据通用结构
+ * 分页数据通用结构 (扁平化)
  */
 export interface PaginatedData<T> {
   items: T[];
-  pagination: Pagination;
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
 }
 
 /**

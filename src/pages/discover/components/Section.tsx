@@ -1,22 +1,27 @@
-import { View, Text } from "@tarojs/components";
-import styles from "./Section.module.scss";
-import React from 'react';
+import { View, Text } from '@tarojs/components'
+import styles from './Section.module.scss'
 
 interface SectionProps {
   title: string;
   extraText?: string;
+  isLink?: boolean; // Make isLink optional
   children: React.ReactNode;
-  titleStyle?: React.CSSProperties;
 }
 
-const Section = ({ title, extraText, children, titleStyle = {} }: SectionProps) => (
-  <View className={styles.section}>
-    <View className={styles.sectionHeader}>
-      <Text className={styles.sectionTitle} style={titleStyle}>{title}</Text>
-      {extraText && <Text className={styles.sectionExtra}>{extraText}</Text>}
+export default function Section({ title, extraText, isLink, children }: SectionProps) {
+  return (
+    <View className={styles.section}>
+      <View className={styles.header}>
+        <Text className={styles.title}>{title}</Text>
+        {extraText && (
+          <View className={isLink ? styles.link : styles.extra}>
+             <Text>{extraText}</Text>
+          </View>
+        )}
+      </View>
+      <View className={styles.content}>
+        {children}
+      </View>
     </View>
-    <View className={styles.sectionContent}>{children}</View>
-  </View>
-);
-
-export default Section; 
+  )
+} 

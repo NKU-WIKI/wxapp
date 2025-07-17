@@ -1,55 +1,44 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import Taro from '@tarojs/taro';
-import { userApi } from '@/services/api/user';
-import { UserInfo } from '@/types/api/user';
+import { userApi } from '../../services/api/user';
+import { User } from '../../types/api/user';
 
 interface UserState {
-  userInfo: UserInfo | null;
-  loading: 'idle' | 'pending' | 'succeeded' | 'failed';
-  error: string | null;
+  userInfo: User | null;
   token: string | null;
   isLoggedIn: boolean;
 }
 
 const initialState: UserState = {
   userInfo: null,
-  loading: 'idle',
-  error: null,
   token: Taro.getStorageSync('token') || null,
   isLoggedIn: !!Taro.getStorageSync('token'),
 };
 
-export const loginWithWechat = createAsyncThunk<any, void, { rejectValue: string }>(
-  'user/loginWithWechat',
-  async (_, { rejectWithValue }) => {
-    try {
-      const loginRes = await Taro.login();
-      const code = loginRes.code;
-      const response = await userApi.login({ code });
-      Taro.setStorageSync('token', response.data.token);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Login failed');
-    }
+export const login = createAsyncThunk(
+  'user/login',
+  async (code: string) => {
+    const response = await userApi.login({ code });
+    Taro.setStorageSync('token', response.data.token);
+    return response.data;
   }
 );
 
-export const checkAuth = createAsyncThunk<any, void, { rejectValue: string }>(
-  'user/checkAuth',
-  async (_, { dispatch, rejectWithValue }) => {
-    const token = Taro.getStorageSync('token');
-    if (!token) {
-      return rejectWithValue('No token found');
-    }
-    try {
-      // 这里应该调用一个后端接口来验证 token 的有效性
-      // 暂时我们假设只要有 token 就是有效的
-      const response = await userApi.getProfile();
-      return response.data;
-    } catch (error: any) {
-      dispatch(logout());
-      return rejectWithValue('Token is invalid or expired');
-    }
+export const fetchUserProfile = createAsyncThunk(
+  'user/fetchProfile',
+  async () => {
+    const response = await userApi.getMyProfile();
+    return response.data;
+  }
+);
+
+export const updateUserProfile = createAsyncThunk(
+  'user/updateProfile',
+  async (data: Partial<User>) => {
+    // 这里的 response 已经是经过拦截器处理后的业务数据包 { code, data, ... }
+    const response = await userApi.updateUserProfile(data);
+    // 我们需要的是 data 字段里的具体用户信息
+    return response.data;
   }
 );
 
@@ -58,38 +47,30 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
+      state.isLoggedIn = false;
       state.userInfo = null;
       state.token = null;
-      state.isLoggedIn = false;
       Taro.removeStorageSync('token');
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginWithWechat.pending, (state) => {
-        state.loading = 'pending';
-        state.error = null;
-      })
-      .addCase(loginWithWechat.fulfilled, (state, action) => {
-        state.loading = 'succeeded';
-        state.userInfo = action.payload.user_info;
+      .addCase(login.fulfilled, (state, action) => {
         state.token = action.payload.token;
+        state.userInfo = action.payload.user_info;
         state.isLoggedIn = true;
       })
-      .addCase(loginWithWechat.rejected, (state, action) => {
-        state.loading = 'failed';
-        state.error = action.payload || 'Login failed';
-        state.isLoggedIn = false;
-      })
-      .addCase(checkAuth.fulfilled, (state, action) => {
-        state.isLoggedIn = true;
+      .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.userInfo = action.payload;
-        state.loading = 'succeeded';
       })
-      .addCase(checkAuth.rejected, (state) => {
-        state.isLoggedIn = false;
-        state.userInfo = null;
-        state.token = null;
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        // 此时 action.payload 就是最新的用户信息对象
+        if (state.userInfo) {
+          // 合并更新，而不是完全替换
+          state.userInfo = { ...state.userInfo, ...action.payload };
+        } else {
+          state.userInfo = action.payload;
+        }
       });
   },
 });

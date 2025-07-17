@@ -1,4 +1,3 @@
-// 发布页面样式
 .pageContainer {
   display: flex;
   flex-direction: column;
@@ -9,112 +8,127 @@
 .contentWrapper {
   flex: 1;
   overflow: hidden;
-  position: relative;
 }
 
 .scrollView {
   height: 100%;
-  padding: 16px;
-  padding-bottom: 80px; // 为底部按钮留出空间
   box-sizing: border-box;
+  padding-bottom: 80px; // 为底部按钮留出空间
 }
 
-// 基础卡片样式
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  padding: 16px;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e5e5;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.publishButtonWrapper {
+  flex-shrink: 0;
+}
+
+.publishButton {
+  width: 90%;
+  max-width: 400px;
+  background-color: #4A90E2;
+  color: #fff;
+  border-radius: 24px;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+// Common card style
 .card {
   background-color: #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-// 主编辑区
-.editorCard {
-  background-color: #fff;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.titleInput,
+.contentInput {
+  border: none;
+  width: 100%;
+  font-size: 16px;
+  box-sizing: border-box; // Ensure padding is included in width
+  &:focus {
+    outline: none;
+  }
 }
 
 .titleInput {
   font-size: 18px;
   font-weight: 600;
-  padding: 24px 16px 16px; // 增加顶部内边距避免遮挡
-  border: none;
-  width: 100%;
-  box-sizing: border-box;
-  color: #333;
-}
-
-.divider {
-  height: 1px;
-  background-color: #f0f0f0;
-  margin: 0 16px;
 }
 
 .contentInput {
+  min-height: 200px;
+  resize: none;
+}
+
+.imagePreviewContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 0 16px;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.previewImage {
   width: 100%;
-  padding: 16px;
-  font-size: 16px;
-  line-height: 1.5;
-  min-height: 120px;
-  box-sizing: border-box;
-  border: none;
-  color: #333;
+  height: 100%;
+  border-radius: 8px;
 }
 
-// 工具栏
-.toolbarCard {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.deleteIcon {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  color: #ef4444; // text-red-500
 }
 
+
+/* Toolbar */
 .toolbar {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-}
-
-.toolbarLeft {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.toolbarBtn {
-  font-size: 16px;
-  font-weight: 600;
-  color: #666;
-  padding: 6px 8px;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-  min-width: 28px;
-  text-align: center;
-}
-
-.boldBtn {
-  font-weight: 700;
-}
-
-.italicBtn {
-  font-style: italic;
 }
 
 .toolbarIcon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
+  color: #374151;
+  margin-right: 16px; // Adjust as needed
 }
 
 .wikiBtn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background-color: #4a90e2;
-  border-radius: 16px;
+  gap: 4px;
+  background-color: #f5f3ff; // bg-purple-100
+  color: #8b5cf6;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
 }
 
 .wikiIcon {
@@ -122,20 +136,12 @@
   height: 16px;
 }
 
-.wikiBtnText {
-  color: #fff;
-  font-size: 14px;
-}
-
-// 通用标题
 .sectionTitle {
   font-size: 16px;
   font-weight: 600;
-  color: #333;
   margin-bottom: 12px;
 }
 
-// 标签容器
 .tagsContainer {
   display: flex;
   flex-wrap: wrap;
@@ -143,54 +149,53 @@
 }
 
 .tagItem {
-  background-color: #e8f4fd;
-  color: #4a90e2;
+  background-color: #f3f4f6;
+  color: #374151;
   padding: 6px 12px;
-  border-radius: 16px;
+  border-radius: 9999px;
   font-size: 14px;
+
+  &.addTag {
+    border: 1px dashed #d1d5db;
+    background-color: transparent;
+  }
 }
 
-.addTag {
-  background-color: #f8f8f8;
-  color: #666;
-}
-
-// AI建议
-.suggestionHeader {
+.suggestionCard {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.suggestionTitle {
-  display: flex;
-  align-items: center;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .suggestionIcon {
   width: 20px;
   height: 20px;
-  margin-right: 8px;
+  color: #8b5cf6;
+  margin-top: 4px;
+}
+
+.suggestionContent {
+  flex: 1;
+}
+
+.suggestionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
 .applyBtn {
-  color: #4a90e2;
+  color: #8b5cf6;
   font-size: 14px;
-  font-weight: 500;
 }
 
 .suggestionText {
   font-size: 14px;
-  line-height: 1.8; // 增加行高
-  color: #666;
-  background-color: #f8f9fa;
-  padding: 16px; // 增加内边距
-  border-radius: 8px;
-  min-height: 80px; // 增加最小高度确保文本完整显示
+  color: #4b5563;
+  line-height: 1.5;
 }
 
-// 文风选择
 .stylesContainer {
   display: flex;
   gap: 8px;
@@ -198,95 +203,14 @@
 
 .styleItem {
   padding: 8px 16px;
-  border-radius: 16px;
-  border: 1px solid #e0e0e0;
-  background-color: #fff;
-  color: #666;
-  font-size: 14px;
-  text-align: center;
-  min-width: 50px;
-}
-
-.styleItem.selected {
-  background-color: #4a90e2;
-  color: #fff;
-  border-color: #4a90e2;
-}
-
-// 设置项 - 紧凑水平布局
-.settingsCard {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  display: flex;
-  gap: 8px;
-}
-
-.settingBtn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background-color: #f5f5f5;
-  border-radius: 20px;
-  padding: 12px 16px;
-}
-
-.settingBtnWithSwitch {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #f5f5f5;
-  border-radius: 20px;
-  padding: 12px 16px;
-}
-
-.settingBtnContent {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.settingBtnIcon {
-  width: 18px;
-  height: 18px;
-}
-
-.settingBtnText {
-  font-size: 14px;
-  color: #333;
-}
-
-// 底部安全距离
-.bottomSafeArea {
-  height: 20px;
-}
-
-// 底部发布按钮
-.publishFooter {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  padding: 12px 16px;
-  border-top: 1px solid #f0f0f0;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.publishButton {
-  background-color: #4a90e2;
   border-radius: 8px;
-  padding: 14px;
-  text-align: center;
-}
+  border: 1px solid #d1d5db;
+  background-color: transparent;
+  color: #374151;
 
-.publishButtonText {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
+  &.selected {
+    background-color: #8b5cf6;
+    color: white;
+    border-color: #8b5cf6;
+  }
 } 

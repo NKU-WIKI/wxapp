@@ -39,62 +39,37 @@ export const fetchPosts = createAsyncThunk<PaginatedData<Post>, GetPostsParams>(
   async (params: GetPostsParams, { rejectWithValue }) => {
     try {
       // postApi.getPosts() 现在返回完整的业务响应体: { code, message, data, pagination, ... }
-      const response = await postApi.getPosts(params) as any;
+      const response = await postApi.getPosts(params);
 
-      // 根据实际API响应结构，将返回的数据转换成前端统一的结构
-      const transformedPosts = response.data.map((post: any) => {
-        // 解析标签（从JSON字符串转为数组）
-        let tags: string[] = [];
-        try {
-          if (post.tag && post.tag !== 'null') {
-            tags = JSON.parse(post.tag);
-          }
-        } catch (e) {
-          tags = [];
-        }
-
-        // 解析图片（从JSON字符串数组中取第一张作为预览图）
-        let image: string | undefined = undefined;
-        try {
-          if (post.image && post.image !== 'null' && post.image !== '[]') {
-            const images = JSON.parse(post.image);
-            if (Array.isArray(images) && images.length > 0) {
-              image = images[0];
-            }
-          }
-        } catch (e) {
-          image = undefined;
-        }
-
-        return {
-          id: post.id,
-          title: post.title || '',
-          author: {
-            name: post.user_info?.nickname || post.nickname || '匿名用户',
-            avatar: convertCloudUrl(post.user_info?.avatar || post.avatar || ''),
-            school: post.user_info?.bio || '未知学校'
-          },
-          time: post.create_time || '',
-          content: post.content || '',
-          image: image ? convertCloudUrl(image) : undefined,
-          tags: tags,
-          location: post.location,
-          likes: post.like_count || 0,
-          commentsCount: post.comment_count || 0
-        };
-      });
-
+      // API 返回的数据结构已经和 Post 类型匹配，无需手动转换
+      // 直接返回 data 和 pagination
+      const pagination = response.pagination || { page: 1, page_size: 10, total: 0, total_pages: 0 };
       const paginatedData: PaginatedData<Post> = {
-        items: transformedPosts,
-        page: response.pagination.page,
-        pageSize: response.pagination.page_size,
-        total: response.pagination.total,
-        totalPages: response.pagination.total_pages,
+        items: response.data, // response.data 就是 Post[]
+        page: pagination.page,
+        pageSize: pagination.page_size,
+        total: pagination.total,
+        totalPages: pagination.total_pages,
       };
 
       return paginatedData;
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch (error: any) {
+      // 确保传递给 rejectWithValue 的是可序列化的值
+      return rejectWithValue(error.message || 'Failed to fetch posts');
+    }
+  }
+);
+
+export const createPost = createAsyncThunk<void, CreatePostParams, { rejectValue: string }>(
+  'posts/createPost',
+  async (params, { dispatch, rejectWithValue }) => {
+    try {
+      await postApi.createPost(params);
+      // 发帖成功后，立即刷新帖子列表
+      dispatch(fetchPosts({ page: 1, pageSize: 10 }));
+    } catch (error: any) {
+      // 确保传递给 rejectWithValue 的是可序列化的值
+      return rejectWithValue(error.message || 'Create post failed');
     }
   }
 );
@@ -121,17 +96,20 @@ const postsSlice = createSlice({
     builder
       .addCase(fetchPosts.pending, (state) => {
         state.loading = 'pending';
-        state.error = null;
       })
-      .addCase(fetchPosts.fulfilled, (state, action: PayloadAction<PaginatedData<Post>>) => {
+      .addCase(fetchPosts.fulfilled, (state, action) => {
         state.loading = 'succeeded';
-        const { items, ...pagination } = action.payload;
-        state.list = items;
-        state.pagination = pagination;
+        state.list = action.payload.items;
+        state.pagination = {
+          page: action.payload.page,
+          pageSize: action.payload.pageSize,
+          total: action.payload.total,
+          totalPages: action.payload.totalPages,
+        };
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.loading = 'failed';
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(createPost.pending, (state) => {
         state.loading = 'pending';

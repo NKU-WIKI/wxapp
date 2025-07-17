@@ -1,15 +1,17 @@
+import { User } from "./user";
 import { PaginationParams } from "./common";
 
-export interface Author {
-  name: string;
-  avatar: string;
-  school?: string;
-  level?: number; // 新增：用户等级
-}
+// Author 接口不再需要，用户信息直接使用 User 类型
+// export interface Author {
+//   name: string;
+//   avatar: string;
+//   school?: string;
+//   level?: number;
+// }
 
 export interface Comment {
   id: number;
-  author: Author;
+  author: User; // 使用 User 类型
   content: string;
   time: string;
   likes: number;
@@ -20,25 +22,28 @@ export interface Post {
   id: number;
   user_id: number;
   title: string;
-  time: string;
   content: string;
-  image?: string; // 用于帖子列表的单张预览图
-  images?: string[]; // 用于详情页的图片画廊
-  tags: string[];
-  location?: string;
-  likes: number | string;
-  commentsCount: number;
-  favorites?: number;
-  comments?: Comment[];
+  image_urls: string[] | null; // API 返回的是 image_urls
+  tag: string | null;
+  location: string | null;
+  view_count: number;
+  like_count: number;
+  comment_count: number;
+  favorite_count: number;
+  create_time: string;
+  author_info: User; // 使用 author_info 和 User 类型
+  is_liked: boolean;
   is_favorited: boolean;
   is_following_author: boolean;
+  comments?: Comment[];
 }
 
 export interface CreatePostParams {
   title: string;
   content: string;
-  is_public: boolean;
-  allow_comment: boolean;
+  image_urls?: string[];
+  is_public?: boolean;
+  allow_comment?: boolean;
 }
 
 export interface CreatePostResponse {

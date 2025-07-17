@@ -1,12 +1,12 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import postReducer from './slices/postSlice';
 import userReducer from './slices/userSlice';
+import postReducer from './slices/postSlice';
+import aboutReducer from './slices/aboutSlice'; // 导入 aboutReducer
 
 const rootReducer = combineReducers({
-  posts: postReducer,
   user: userReducer,
+  post: postReducer,
+  about: aboutReducer, // 添加 aboutReducer
 });
-
-export type RootState = ReturnType<typeof rootReducer>;
 
 export default rootReducer;

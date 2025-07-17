@@ -196,60 +196,68 @@ $page-padding-lr: 16px;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f7f8fa;
+  background-color: #f8f8f8;
 }
 
-// 未登录提示
-.loginPromptContainer {
+.scrollView {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 16px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+/* Styles for LoginPrompt can remain if needed, or be refactored */
+.loginPromptContainer {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 }
 
 .promptCard {
-  background-color: #fff;
+  width: 100%;
+  background-color: #ffffff;
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .userInfo {
   display: flex;
   align-items: center;
+  gap: 12px;
   margin-bottom: 24px;
 }
 
 .avatar {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background-color: #e9ecef;
-  margin-right: 16px;
 }
 
 .infoText {
-  display: flex;
-  flex-direction: column;
+  text-align: left;
 }
 
 .mainText {
   font-size: 18px;
-  font-weight: 600;
-  color: #333;
+  font-weight: bold;
 }
 
 .subText {
   font-size: 14px;
-  color: #888;
-  margin-top: 4px;
+  color: #6b7280;
 }
 
 .actions {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   margin-bottom: 24px;
-  padding: 16px 0;
-  border-top: 1px solid #f0f0f0;
-  border-bottom: 1px solid #f0f0f0;
 }
 
 .actionItem {
@@ -257,26 +265,23 @@ $page-padding-lr: 16px;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: #666;
+  font-size: 12px;
+  color: #374151;
 }
 
 .actionIcon {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
 }
 
 .loginButton {
   width: 100%;
-  background-color: #07c160;
-  color: #fff;
-  border-radius: 20px;
+  padding: 12px;
+  border-radius: 9999px;
+  background-color: #8b5cf6;
+  color: white;
   font-size: 16px;
-  padding: 12px 0;
-  margin-top: 16px;
-  &:after {
-    border: none;
-  }
+  border: none;
 }
 
 // 已登录样式 (占位)

@@ -1,92 +1,87 @@
-import { View, Image, Text, Button } from "@tarojs/components";
+import { View, Image, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { Post } from "../../types/api/post";
 import styles from "./index.module.scss";
+import heartIcon from '@/assets/heart.svg';
+import messageSquareIcon from '@/assets/message-square.svg';
+import starIcon from '@/assets/star.svg';
+import sendIcon from '@/assets/send.svg';
+import { formatRelativeTime } from "@/utils/time";
 
 interface PostItemProps {
   post: Post;
+  className?: string;
 }
 
-export default function PostItem({ post }: PostItemProps) {
+export default function PostItem({ post, className }: PostItemProps) {
   const handleNavigate = () => {
     Taro.navigateTo({
       url: `/pages/post-detail/index?id=${post.id}`,
     });
   };
 
-  const handleFollow = (e) => {
-    e.stopPropagation();
-    // 这里可以添加关注逻辑，比如请求接口或本地提示
-    Taro.showToast({ title: "已关注", icon: "success", duration: 1000 });
-  };
-
-  const handleStar = (e) => {
-    e.stopPropagation();
-    Taro.showToast({ title: "已收藏", icon: "success", duration: 1000 });
-  };
-
-  const handleShare = (e) => {
-    e.stopPropagation();
-    Taro.showToast({ title: "已分享", icon: "success", duration: 1000 });
-  };
-
-  if (!post || !post.author) {
+  if (!post || !post.author_info) {
     return null;
   }
 
   return (
-    <View className={styles.postItem} onClick={handleNavigate}>
-      <View className={styles.postHeader}>
-        <Image src={post.author.avatar || ''} className={styles.avatar} />
+    <View className={`${styles.postCard} ${className || ''}`} onClick={handleNavigate}>
+      {/* Card Header */}
+      <View className={styles.cardHeader}>
         <View className={styles.authorInfo}>
-          <View className={styles.authorRow}>
-            <Text className={styles.authorName}>{post.author.name || '匿名'}</Text>
-            {post.author.level && (
-              <Text className={styles.levelBadge}>Lv.{post.author.level}</Text>
-            )}
-            <Button className={styles.followBtn} onClick={handleFollow}>关注</Button>
+          <Image src={post.author_info.avatar || ''} className={styles.avatar} />
+          <View className={styles.authorDetails}>
+            <View className={styles.authorNameRow}>
+              <Text className={styles.authorName}>{post.author_info.nickname || '匿名'}</Text>
+              {/* {post.author.level && (
+                <View className={styles.levelBadge}>
+                  <Text>Lv.{post.author.level}</Text>
+                </View>
+              )} */}
+            </View>
+            <Text className={styles.postTime}>{formatRelativeTime(post.create_time)}</Text>
           </View>
-          <Text className={styles.authorSchool}>{post.author.school || '未知学校'}</Text>
         </View>
-        <Text className={styles.postTime}>{post.time || '时间未知'}</Text>
+        <View className={styles.headerActions}>
+           <View className={styles.followButton}>
+            <Text>关注</Text>
+           </View>
+           {/* You can add logic for 'New' or 'Hot' badges here */}
+           {/* <View className={styles.badgeNew}><Text>New</Text></View> */}
+        </View>
       </View>
-      {/* 新增标题显示 */}
-      {post.title && (
-        <View className={styles.postTitle}>
-          <Text className={styles.postTitleText}>{post.title}</Text>
-        </View>
-      )}
+
+      {/* Post Content */}
       <View className={styles.postContent}>
-        <Text>{post.content || '内容为空'}</Text>
-        {post.image && (
+        <Text className={styles.postTitle}>{post.title}</Text>
+        <Text className={styles.postExcerpt}>{post.content}</Text>
+        {post.image_urls && post.image_urls[0] && (
           <Image
-            src={post.image}
+            src={post.image_urls[0]}
             className={styles.postImage}
             mode="aspectFill"
           />
         )}
       </View>
-      <View className={styles.postTags}>
-        {(post.tags || []).map((tag) => (
-          <Text key={tag} className={styles.tag}>
-            {tag}
-          </Text>
-        ))}
-      </View>
-      <View className={styles.postFooter}>
-        <View className={styles.footerAction}>
-          <Text>👍 {post.likes || 0}</Text>
+
+      {/* Card Footer */}
+      <View className={styles.cardFooter}>
+        <View className={styles.actions}>
+          <View className={styles.actionItem}>
+            <Image src={heartIcon} className={styles.actionIcon} />
+            <Text>{post.like_count || 0}</Text>
+          </View>
+          <View className={styles.actionItem}>
+            <Image src={messageSquareIcon} className={styles.actionIcon} />
+            <Text>{post.comment_count || 0}</Text>
+          </View>
+          <View className={styles.actionItem}>
+            <Image src={starIcon} className={styles.actionIcon} />
+            <Text>{post.favorite_count || 0}</Text>
+          </View>
         </View>
-        <View className={styles.footerAction}>
-          <Text>💬 {post.commentsCount || 0}</Text>
-        </View>
-        <View className={styles.footerAction} onClick={handleStar}>
-          <Text>⭐ {post.favorites || 0}</Text>
-        </View>
-        {/* 新增分享按钮 */}
-        <View className={styles.footerAction + ' ' + styles.shareAction} onClick={handleShare}>
-          <Text className={styles.shareIcon}>🔗</Text>
-          <Text className={styles.shareText}>分享</Text>
+        <View className={styles.chatButton}>
+            <Image src={sendIcon} className={styles.actionIcon} />
         </View>
       </View>
     </View>

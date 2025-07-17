@@ -2,22 +2,24 @@ export interface LoginParams {
   code: string;
 }
 
-export interface UserInfo {
+export interface User {
   id: number;
   nickname: string;
   avatar: string;
   gender: number;
-  country: string;
-  province: string;
-  city: string;
-  language: string;
-  role: string;
-  create_time: string;
-  last_login_time: string;
+  bio?: string;
+  wechatId?: string;
+  qqId?: string;
+  phone?: string;
+  post_count?: number;
+  follower_count?: number;
+  following_count?: number;
+  create_time?: string;
+  role?: string;
 }
 
 export interface LoginResponse {
   token: string;
   token_type: string;
-  user_info: UserInfo;
+  user_info: User;
 } 

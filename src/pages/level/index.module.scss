@@ -1,0 +1,169 @@
+.levelPage {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9fafb; // bg-gray-50
+}
+
+.content {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Base Card Style */
+.currentLevelCard,
+.levelDescriptionCard,
+.tasksCard {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #f3f4f6;
+}
+
+/* Current Level Info Card */
+.currentLevelCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.levelInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.levelIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.levelName {
+  font-size: 20px;
+  font-weight: bold;
+  color: #111827; // text-gray-900
+}
+
+.levelDetail {
+  font-size: 14px;
+  color: #4b5563; // text-gray-600
+}
+
+.expRow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 14px;
+  color: #374151; // text-gray-700
+}
+
+.progressContainer {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb; // bg-gray-200
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: #8b5cf6; // bg-purple-600
+  border-radius: 9999px;
+}
+
+.expRatio {
+  font-size: 12px;
+  color: #6b7280; // text-gray-500
+}
+
+/* Level Descriptions Grid */
+.levelsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.levelDescriptionCard {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+
+  &.activeLevel {
+    background-color: #f5f3ff; // bg-purple-50
+    border: 2px solid #8b5cf6; // border-purple-600
+    .levelDescriptionTitle {
+      color: #8b5cf6; // text-purple-600
+    }
+  }
+}
+
+.levelDescriptionTitle {
+  font-weight: 600;
+  color: #111827;
+}
+
+.levelDescriptionExp {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+/* Gain Experience Section Card */
+.tasksCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tasksTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.taskItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.taskInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.taskIcon {
+  width: 20px;
+  height: 20px;
+  color: #4b5563;
+}
+
+.taskName {
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.taskStatus {
+  font-size: 14px;
+
+  &.incomplete {
+    color: #6b7280; // text-gray-500
+  }
+  &.complete {
+    color: #8b5cf6; // text-purple-600
+  }
+}

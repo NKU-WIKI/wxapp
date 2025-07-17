@@ -4,11 +4,12 @@ export default defineAppConfig({
     "pages/explore/index",
     "pages/discover/index",
     "pages/profile/index",
-    "pages/notifications/index",
+    "pages/notification/index",
     "pages/post-detail/index",
     "pages/publish/index",
     "pages/edit-profile/index",
     "pages/login/index",
+    "pages/level/index"
   ],
   window: {
     backgroundTextStyle: "light",

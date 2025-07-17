@@ -1,177 +1,285 @@
-/* 变量 */
-$page-bg: #f8f8f8;
-$card-bg: #fff;
-$text-primary: #333;
-$text-secondary: #888;
-$text-tertiary: #aaa;
-$accent-blue: #eef5fe;
-$accent-pink: #fff0f3;
-$brand-color: #4a90e2;
-$border-color: #f0f0f0;
-
 .explorePage {
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: $page-bg;
+  min-height: 100vh;
+  background-color: #f9fafb; // bg-gray-50
 }
 
-.scrollView {
-  height: 100%;
-}
-
-.contentWrapper {
-  padding: 12px 16px;
+.pageContent {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  overflow: hidden;
 }
 
-/* 搜索栏 */
-.searchBar {
+.searchBarWrapper {
+  padding: 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.searchContainer {
   display: flex;
   align-items: center;
-  background-color: $card-bg;
-  border-radius: 22px;
+  background-color: #f3f4f6; // bg-gray-100
+  border-radius: 9999px; // rounded-full
   padding: 8px 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.searchIcon, .micIcon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
+.searchIcon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280; // text-gray-500
 }
 
 .searchInput {
   flex: 1;
+  border: none;
+  background-color: transparent;
   margin: 0 8px;
   font-size: 14px;
-  color: $text-secondary;
+  &:focus {
+    outline: none;
+  }
 }
 
-/* 搜索范围 */
-.scopesGrid {
+/* Search Skills View */
+.searchSkillsContainer {
+  flex: 1;
+  padding: 16px;
+  background-color: #ffffff;
+  height: 100%; /* Ensure it takes full height of its container */
+}
+
+.skillsHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.skillsTitleDecorator {
+  width: 4px;
+  height: 20px;
+  background-color: #8b5cf6; // bg-purple-600
+  border-radius: 9999px;
+  margin-right: 8px;
+}
+
+.skillsTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827; // text-gray-900
+}
+
+.skillsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px 16px;
-  background-color: $card-bg;
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.scopeItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.scopeLabel {
-  font-size: 15px;
-  color: $text-primary;
-}
-
-/* 通用样式 */
-.sectionTitle {
-  font-size: 16px;
-  font-weight: 500;
-  color: $text-primary;
-}
-
-.card {
-  background-color: $card-bg;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
   gap: 12px;
 }
 
-.cardHeader {
+.skillCard {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #f3f4f6;
+  padding: 16px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
+  gap: 8px;
 }
 
-.refreshIcon {
-  width: 18px;
-  height: 18px;
-  opacity: 0.7;
+.skillIconContainer {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eff6ff; // bg-blue-50
 }
 
-.seeMore {
+.skillIcon {
+  width: 24px;
+  height: 24px;
+  color: #3b82f6; // text-blue-600
+}
+
+/* Specific colors for skill icons */
+.skillCard:nth-child(2) .skillIconContainer { background-color: #f0fdf4; } // bg-green-50
+.skillCard:nth-child(2) .skillIcon { color: #22c55e; } // text-green-600
+.skillCard:nth-child(3) .skillIconContainer { background-color: #fff7ed; } // bg-orange-50
+.skillCard:nth-child(3) .skillIcon { color: #f97316; } // text-orange-600
+.skillCard:nth-child(4) .skillIconContainer { background-color: #fef2f2; } // bg-red-50
+.skillCard:nth-child(4) .skillIcon { color: #ef4444; } // text-red-600
+
+.skillTitle {
+  font-weight: 600;
+  color: #111827;
+}
+
+.skillDesc {
   font-size: 14px;
-  color: $text-secondary;
+  color: #4b5563;
 }
 
-/* 为您推荐 */
-.recommendations {
+.skillExample {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Default Explore View */
+.scrollView {
+  height: 100%;
+}
+
+.sourceNav {
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sourceScrollView {
+  display: flex;
+  white-space: nowrap;
+}
+
+.sourceItem {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  color: #374151;
+  &:first-child {
+    padding-left: 0;
+  }
+}
+
+.sourceIcon {
+  width: 32px;
+  height: 32px;
+}
+
+.sourceName {
+  font-size: 12px;
+}
+
+.contributionSection {
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contributionIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.contributionText {
+  font-size: 14px;
+  color: #374151;
+}
+
+.mainContent {
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 24px;
 }
 
-.recCards {
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.recommendations {
+  // container for title + grid
+}
+
+.recGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
 .recCard {
+  background-color: #f3e8ff; // bg-purple-50
+  border-radius: 8px;
   padding: 12px;
-  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  &:nth-child(1) { background-color: $accent-blue; }
-  &:nth-child(2) { background-color: $accent-pink; }
-}
-
-.recText {
-  font-size: 15px;
-  font-weight: 500;
-  color: $text-primary;
-}
-
-.recMeta {
-  display: flex;
   align-items: center;
+  text-align: center;
   gap: 4px;
 }
 
 .recIcon {
-  width: 16px;
-  height: 16px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+}
+
+.recText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
 }
 
 .recCount {
   font-size: 12px;
-  color: $text-secondary;
+  color: #6b7280;
 }
 
-/* Wiki 总结 */
+.wikiCard, .hotListCard {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #f3f4f6;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  .sectionTitle {
+    margin-bottom: 0;
+  }
+}
+
+.refreshIcon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+}
+
 .wikiContent {
   font-size: 14px;
-  line-height: 1.6;
-  color: $text-primary;
+  color: #374151;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.wikiSources {
-  margin-top: 8px;
-  font-size: 12px;
-  color: $brand-color;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.wikiItem {
+  line-height: 1.5;
 }
-.wikiSourceItem{
-  opacity: 0.8;
+.wikiSource {
+  color: #6b7280;
 }
 
-/* 校园热榜 */
+.seeMore {
+  font-size: 14px;
+  color: #9333ea; // text-purple-600
+}
+
 .hotList {
   display: flex;
   flex-direction: column;
@@ -180,49 +288,37 @@ $border-color: #f0f0f0;
 
 .hotListItem {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
 }
 
 .hotListRank {
   font-size: 18px;
   font-weight: bold;
-  font-style: italic;
+  color: #374151;
   width: 20px;
   text-align: center;
-  color: $text-tertiary;
-
-  &.rank1 { color: #ff5722; }
-  &.rank2 { color: #ff9800; }
-  &.rank3 { color: #ffc107; }
 }
 
 .hotListItemInfo {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .hotListTitle {
-  font-size: 15px;
-  color: $text-primary;
-  line-height: 1.4;
+  color: #1f2937;
+  font-size: 14px;
 }
 
-.hotListDiscussions {
+.hotListMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 12px;
-  color: $text-secondary;
+  color: #6b7280;
+  margin-top: 4px;
 }
 
 .hotTag {
-  background-color: #fff4e5;
-  border-radius: 4px;
-  padding: 2px 6px;
-}
-
-.hotTagText {
-  font-size: 12px;
-  color: #ff9800;
+  color: #ef4444; // text-red-500
   font-weight: 500;
 }
