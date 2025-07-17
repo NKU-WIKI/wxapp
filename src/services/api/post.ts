@@ -1,8 +1,8 @@
 import http from '../request';
-import { PaginatedData } from '@/types/api/common';
-import { GetPostsParams, Post } from '@/types/api/post';
+import { BaseResponse, PaginatedData } from '@/types/api/common';
+import { Post, GetPostsParams, CreatePostParams, CreatePostResponse } from '@/types/api/post';
 
-const postApi = {
+export const postApi = {
   /**
    * 获取帖子列表
    * @param params
@@ -14,7 +14,8 @@ const postApi = {
       page_size: params.pageSize,
       sort_by: params.tab === 'hot' ? 'popular' : 'latest',
     };
-    return http.get<PaginatedData<Post>>('/wxapp/post/list', finalParams);
+    // 注意：这里假设响应体直接是 PaginatedData<Post>，如果不是，需要根据实际情况调整
+    return http.get<PaginatedData<Post>>('/wxapp/post/list', params);
   },
 
   /**
@@ -29,8 +30,8 @@ const postApi = {
    * 创建一个新帖子
    * @param data
    */
-  createPost: (data: Partial<Post>) => {
-    return http.post<Post>('/wxapp/post/create', data);
+  createPost: (params: CreatePostParams) => {
+    return http.post<CreatePostResponse>('/wxapp/post/create', params);
   },
 };
 

@@ -4,11 +4,11 @@
   "description": "nkuwiki",
   "appid": "wx4af1d8244dee8b7e",
   "setting": {
-    "urlCheck": true,
-    "es6": false,
-    "enhance": false,
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
     "compileHotReLoad": false,
-    "postcss": false,
+    "postcss": true,
     "minified": false
   },
   "compileType": "miniprogram"

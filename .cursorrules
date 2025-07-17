@@ -197,6 +197,7 @@ npx @tarojs/cli init project_name
 - **性能优化**:
     - **分包加载**: 对非核心页面和资源使用 `subPackages` 配置。
     - **图片资源**: 统一存放于 `src/assets` 并压缩。对于小于 10KB 的图片，可配置 `url-loader` 将其转换为 Base64 编码，以减少网络请求。
+    - **图标资源 (强制)**: **禁止**使用外部 CDN 或 URL 动态加载图标（如 Iconify）。所有图标必须存放于 `src/assets` 目录中，并通过静态 `import` 在组件中使用。这可以避免不必要的网络请求，并确保资源的可靠性。
     - **虚拟列表**: 对于长列表，考虑使用虚拟列表技术。
     - **包体积分析**: 使用 `webpack-bundle-analyzer` 定期分析项目打包后的体积，识别并优化过大的模块。
     - **移除console**: 在生产环境中，配置 `babel-plugin-transform-remove-console` 自动移除代码中的 `console` 调用。
@@ -217,6 +218,17 @@ npx @tarojs/cli init project_name
 - **全局盒模型**: 为从根源上解决布局偏移问题（如内容偏右），建议在全局样式文件 `src/app.scss` 中为通用容器或页面根元素设置 `box-sizing: border-box;`。
 - **代码检查**: 集成 ESLint, Prettier 和 Stylelint，并配置 `husky` 和 `lint-staged` 在 `pre-commit` 钩子中自动检查和格式化暂存区代码，保证代码质量。
 - **移动端调试**: 在开发阶段，可以集成 `vconsole-webpack-plugin`，它会在开发包中注入一个轻量级的移动端调试面板，方便在真机上查看日志、网络请求等信息。
+- **图标资源工作流**:
+    - **来源**: 为保证设计风格统一，项目优先选用 [Iconify](https://iconify.design/) 提供的 **Solar** 图标库。
+    - **规范**: 所有图标**必须**下载到本地 `src/assets/` 目录后，再通过静态 `import` 在组件中使用。严禁直接通过 URL 引用。
+    - **下载命令**: 可以使用以下 `curl` 命令模板从 Iconify 下载图标：
+      ```bash
+      curl -o src/assets/icon-name.svg "https://api.iconify.design/solar/icon-name-in-solar-set.svg"
+      ```
+    - **示例**: 下载一个名为 `gallery-bold` 的图标并保存为 `gallery.svg`:
+      ```bash
+      curl -o src/assets/gallery.svg "https://api.iconify.design/solar/gallery-bold.svg"
+      ```
 
 ## UI/UX 规范
 

@@ -1,5 +1,7 @@
 /// <reference types="@tarojs/taro" />
 
+declare const BASE_URL: string;
+
 declare module '*.png';
 declare module '*.gif';
 declare module '*.jpg';

@@ -17,7 +17,8 @@ export interface Comment {
 
 export interface Post {
   id: number;
-  author: Author;
+  user_id: number;
+  title: string;
   time: string;
   content: string;
   image?: string; // 用于帖子列表的单张预览图
@@ -28,6 +29,19 @@ export interface Post {
   commentsCount: number;
   stars?: number;
   comments?: Comment[];
+  is_favorited: boolean;
+  is_following_author: boolean;
+}
+
+export interface CreatePostParams {
+  title: string;
+  content: string;
+  is_public: boolean;
+  allow_comment: boolean;
+}
+
+export interface CreatePostResponse {
+  id: number;
 }
 
 /**

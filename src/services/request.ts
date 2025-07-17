@@ -2,7 +2,6 @@ import Taro from '@tarojs/taro';
 import {
   NO_ERROR_TOAST_CODES,
   RESPONSE_SUCCESS_CODE,
-  BASE_URL,
   HEADER_BRANCH_KEY
 } from '@/constants';
 import { BaseResponse } from '@/types/api/common';
@@ -39,7 +38,7 @@ const interceptor = (chain: any) => {
       const responseData = res.data as BaseResponse;
       // 业务码成功
       if (responseData.code === RESPONSE_SUCCESS_CODE) {
-        // 返回完整的业务数据包，而不仅仅是 data 字段
+        // 返回完整的业务数据包
         return responseData;
       }
 
@@ -51,6 +50,7 @@ const interceptor = (chain: any) => {
           duration: 2000,
         });
       }
+      // 对于业务失败，直接 reject 整个响应体，方便上层捕获 details
       return Promise.reject(responseData);
     }
 
@@ -78,7 +78,6 @@ const request = <T = any>(
   data?: object,
   options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>
 ): Promise<BaseResponse<T>> => {
-  // 统一拼接 /api 前缀，严格遵循 backend-api/README.md 规范
   const finalUrl = `${BASE_URL}/api${url}`;
   return Taro.request({
     url: finalUrl,

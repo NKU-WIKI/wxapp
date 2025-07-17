@@ -191,3 +191,101 @@ $page-padding-lr: 16px;
   height: 16px;
   opacity: 0.5;
 }
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f7f8fa;
+}
+
+// 未登录提示
+.loginPromptContainer {
+  padding: 16px;
+  flex: 1;
+}
+
+.promptCard {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  margin-right: 16px;
+}
+
+.infoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.mainText {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.subText {
+  font-size: 14px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 24px;
+  padding: 16px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.actionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.actionIcon {
+  width: 28px;
+  height: 28px;
+}
+
+.loginButton {
+  width: 100%;
+  background-color: #07c160;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 16px;
+  padding: 12px 0;
+  margin-top: 16px;
+  &:after {
+    border: none;
+  }
+}
+
+// 已登录样式 (占位)
+.profileCard {
+  padding: 16px;
+}
+
+.loggedInAvatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}

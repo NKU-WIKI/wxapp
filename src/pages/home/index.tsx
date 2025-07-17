@@ -10,7 +10,7 @@ import styles from "./index.module.scss";
 import CustomHeader from "@/components/custom-header";
 import { AppDispatch } from '@/store';
 import { fetchPosts } from '@/store/slices/postSlice';
-import { RootState } from '@/store/rootReducer';
+import { RootState } from '@/store'; // 修正了 RootState 的导入路径
 
 const iconColor = "4A90E2"; // 主色调
 const mockCategories = [
@@ -39,6 +39,7 @@ const mockCategories = [
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
   const { list: posts, loading } = useSelector((state: RootState) => state.posts);
+  const { isLoggedIn } = useSelector((state: RootState) => state.user);
   const isLoading = loading === 'pending';
 
   useEffect(() => {
@@ -46,9 +47,21 @@ export default function Home() {
   }, [dispatch]);
 
   const handleFabClick = () => {
-    Taro.navigateTo({
-      url: "/pages/publish/index",
-    });
+    if (isLoggedIn) {
+      Taro.navigateTo({
+        url: "/pages/publish/index",
+      });
+    } else {
+      Taro.showModal({
+        title: '登录提示',
+        content: '发布帖子需要先登录，是否前往登录？',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/login/index' });
+          }
+        },
+      });
+    }
   };
 
   const renderContent = () => {

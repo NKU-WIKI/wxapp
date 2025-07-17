@@ -1,92 +1,106 @@
-/* 变量定义 */
-$page-bg-color: #f8f8f8;
-$card-bg-color: #ffffff;
-$primary-text-color: #333333;
-$secondary-text-color: #888888;
-$accent-color: #4a90e2;
-$border-color: #f0f0f0;
-
-/* 页面整体布局 */
-.page {
+// 发布页面样式
+.pageContainer {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: $page-bg-color;
+  background-color: #f5f5f5;
 }
 
-.pageHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  /* padding-top: calc(env(safe-area-inset-top) + 12px); */ /* 已由JS动态处理 */
-  background-color: $card-bg-color;
-  border-bottom: 1px solid $border-color;
+.contentWrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
 }
 
-.backIcon {
-  width: 24px;
-  height: 24px;
-}
-
-.pageTitle {
-  font-size: 18px;
-  font-weight: bold;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.publishButton {
-  background-color: $accent-color;
-  padding: 6px 16px;
-  border-radius: 20px;
-}
-
-.publishButtonText {
-  color: #fff;
-  font-size: 14px;
-}
-
-.content {
+.scrollView {
   height: 100%;
   padding: 16px;
-  padding-bottom: 80px; /* 为底部发布按钮留出空间 */
+  padding-bottom: 80px; // 为底部按钮留出空间
   box-sizing: border-box;
 }
 
+// 基础卡片样式
 .card {
-  background-color: $card-bg-color;
+  background-color: #fff;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 输入区域 */
+// 主编辑区
+.editorCard {
+  background-color: #fff;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 .titleInput {
   font-size: 18px;
-  font-weight: bold;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid $border-color;
+  font-weight: 600;
+  padding: 24px 16px 16px; // 增加顶部内边距避免遮挡
+  border: none;
+  width: 100%;
+  box-sizing: border-box;
+  color: #333;
+}
+
+.divider {
+  height: 1px;
+  background-color: #f0f0f0;
+  margin: 0 16px;
 }
 
 .contentInput {
   width: 100%;
-  min-height: 150px;
+  padding: 16px;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.5;
+  min-height: 120px;
+  box-sizing: border-box;
+  border: none;
+  color: #333;
 }
 
-/* 工具栏 */
+// 工具栏
 .toolbarCard {
+  background-color: #fff;
+  border-radius: 12px;
   padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .toolbar {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.toolbarBtn {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  min-width: 28px;
+  text-align: center;
+}
+
+.boldBtn {
+  font-weight: 700;
+}
+
+.italicBtn {
+  font-style: italic;
 }
 
 .toolbarIcon {
@@ -94,151 +108,185 @@ $border-color: #f0f0f0;
   height: 24px;
 }
 
-.toolbarText {
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-}
-
-.boldText {
-  font-weight: bold;
-}
-
-.italicText {
-  font-style: italic;
-}
-
-.aiPolishButton {
+.wikiBtn {
   display: flex;
   align-items: center;
   gap: 6px;
-  background-color: #f0f5ff;
-  color: $accent-color;
   padding: 6px 12px;
-  border-radius: 8px;
-  margin-left: auto;
+  background-color: #4a90e2;
+  border-radius: 16px;
+}
+
+.wikiIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.wikiBtnText {
+  color: #fff;
   font-size: 14px;
 }
 
-.aiIcon {
-  width: 20px;
-  height: 20px;
-}
-
-/* 通用分区标题 */
+// 通用标题
 .sectionTitle {
   font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 16px;
-  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
 }
 
-/* 话题选择 */
+// 标签容器
 .tagsContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .tagItem {
-  background-color: #f5f5f5;
-  color: $secondary-text-color;
+  background-color: #e8f4fd;
+  color: #4a90e2;
   padding: 6px 12px;
   border-radius: 16px;
   font-size: 14px;
 }
 
 .addTag {
-  color: $accent-color;
-  background-color: #f0f5ff;
+  background-color: #f8f8f8;
+  color: #666;
 }
 
-/* AI 建议 */
+// AI建议
 .suggestionHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
   margin-bottom: 12px;
-  .sectionTitle {
-    margin-bottom: 0;
-  }
 }
 
-.applyButton {
-  margin-left: auto;
-  color: $accent-color;
+.suggestionTitle {
+  display: flex;
+  align-items: center;
+}
+
+.suggestionIcon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+
+.applyBtn {
+  color: #4a90e2;
   font-size: 14px;
+  font-weight: 500;
 }
 
 .suggestionText {
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.8; // 增加行高
   color: #666;
+  background-color: #f8f9fa;
+  padding: 16px; // 增加内边距
+  border-radius: 8px;
+  min-height: 80px; // 增加最小高度确保文本完整显示
 }
 
-/* 文风选择 */
+// 文风选择
 .stylesContainer {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .styleItem {
-  background-color: #f5f5f5;
-  color: #666;
   padding: 8px 16px;
-  border-radius: 18px;
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+  background-color: #fff;
+  color: #666;
   font-size: 14px;
-  &.selected {
-    background-color: #4a90e2;
-    color: #fff;
-    font-weight: 500;
-  }
+  text-align: center;
+  min-width: 50px;
 }
 
-/* 底部操作栏 */
-.optionsCard {
+.styleItem.selected {
+  background-color: #4a90e2;
+  color: #fff;
+  border-color: #4a90e2;
+}
+
+// 设置项 - 紧凑水平布局
+.settingsCard {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 16px 20px;
+  gap: 8px;
 }
 
-.optionItem {
+.settingBtn {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: #666;
+  justify-content: center;
+  gap: 8px;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  padding: 12px 16px;
 }
 
-.optionIcon {
+.settingBtnWithSwitch {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  padding: 12px 16px;
+}
+
+.settingBtnContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settingBtnIcon {
   width: 18px;
   height: 18px;
 }
 
+.settingBtnText {
+  font-size: 14px;
+  color: #333;
+}
+
+// 底部安全距离
+.bottomSafeArea {
+  height: 20px;
+}
+
+// 底部发布按钮
 .publishFooter {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   background-color: #fff;
-  padding: 16px;
-  padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  padding: 12px 16px;
+  border-top: 1px solid #f0f0f0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .publishButton {
   background-color: #4a90e2;
-  color: #fff;
+  border-radius: 8px;
+  padding: 14px;
   text-align: center;
-  padding: 12px;
-  border-radius: 24px;
 }
 
 .publishButtonText {
+  color: #fff;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
 } 

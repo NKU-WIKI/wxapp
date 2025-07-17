@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { PaginatedData } from '@/types/api/common';
-import { GetPostsParams, Post } from '@/types/api/post';
-import postApi from '@/services/api/post';
+import { GetPostsParams, Post, CreatePostParams, CreatePostResponse } from '@/types/api/post';
+import { postApi } from '@/services/api/post';
 
 // 云存储链接转换函数
 const convertCloudUrl = (cloudUrl: string): string => {
@@ -33,66 +33,27 @@ const convertCloudUrl = (cloudUrl: string): string => {
   }
 };
 
-export const fetchPosts = createAsyncThunk(
+// 获取帖子列表的 Thunk
+export const fetchPosts = createAsyncThunk<PaginatedData<Post>, GetPostsParams>(
   'posts/fetchPosts',
-  async (params: GetPostsParams, { rejectWithValue }) => {
+  async (params) => {
+    const response = await postApi.getPosts(params);
+    return {
+      items: response.data,
+      pagination: response.pagination!,
+    };
+  }
+);
+
+// 创建帖子的 Thunk
+export const createPost = createAsyncThunk<CreatePostResponse, CreatePostParams, { rejectValue: string }>(
+  'posts/createPost',
+  async (params, { rejectWithValue }) => {
     try {
-      // postApi.getPosts() 现在返回完整的业务响应体: { code, message, data, pagination, ... }
-      const response = await postApi.getPosts(params) as any;
-
-      // 根据实际API响应结构，将返回的数据转换成前端统一的结构
-      const transformedPosts = response.data.map((post: any) => {
-        // 解析标签（从JSON字符串转为数组）
-        let tags: string[] = [];
-        try {
-          if (post.tag && post.tag !== 'null') {
-            tags = JSON.parse(post.tag);
-          }
-        } catch (e) {
-          tags = [];
-        }
-
-        // 解析图片（从JSON字符串数组中取第一张作为预览图）
-        let image: string | undefined = undefined;
-        try {
-          if (post.image && post.image !== 'null' && post.image !== '[]') {
-            const images = JSON.parse(post.image);
-            if (Array.isArray(images) && images.length > 0) {
-              image = images[0];
-            }
-          }
-        } catch (e) {
-          image = undefined;
-        }
-
-        return {
-          id: post.id,
-          author: {
-            name: post.user_info?.nickname || post.nickname || '匿名用户',
-            avatar: convertCloudUrl(post.user_info?.avatar || post.avatar || ''),
-            school: post.user_info?.bio || '未知学校'
-          },
-          time: post.create_time || '',
-          content: post.content || '',
-          image: image ? convertCloudUrl(image) : undefined,
-          tags: tags,
-          location: post.location,
-          likes: post.like_count || 0,
-          commentsCount: post.comment_count || 0
-        };
-      });
-
-      const paginatedData: PaginatedData<Post> = {
-        items: transformedPosts,
-        page: response.pagination.page,
-        pageSize: response.pagination.page_size,
-        total: response.pagination.total,
-        totalPages: response.pagination.total_pages,
-      };
-
-      return paginatedData;
-    } catch (error) {
-      return rejectWithValue(error);
+      const response = await postApi.createPost(params);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Create post failed');
     }
   }
 );
@@ -130,6 +91,17 @@ const postsSlice = createSlice({
       .addCase(fetchPosts.rejected, (state, action) => {
         state.loading = 'failed';
         state.error = action.payload;
+      })
+      .addCase(createPost.pending, (state) => {
+        state.loading = 'pending';
+        state.error = null;
+      })
+      .addCase(createPost.fulfilled, (state) => {
+        state.loading = 'succeeded';
+      })
+      .addCase(createPost.rejected, (state, action) => {
+        state.loading = 'failed';
+        state.error = action.payload as string || 'Failed to create post';
       });
   },
 });
