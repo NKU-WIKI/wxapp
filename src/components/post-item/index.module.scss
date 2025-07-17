@@ -31,11 +31,45 @@ $page-padding: 16px;
   flex: 1;
 }
 
+.authorRow {
+  display: flex;
+  align-items: center;
+}
+
 .authorName {
   font-size: 16px;
   font-weight: 500;
   display: block;
   color: $primary-text-color;
+  margin-right: 6px;
+}
+
+.levelBadge {
+  font-size: 11px;
+  color: #fff;
+  background: linear-gradient(90deg, #fbbe27 60%, #f6a10d 100%);
+  border-radius: 3px;
+  padding: 0 6px;
+  margin-right: 6px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.followBtn {
+  font-size: 12px;
+  color: $accent-color;
+  border: 1px solid $accent-color;
+  border-radius: 5px;
+  padding: 2px 10px;
+  margin-left: 2px;
+  background: #f0f4ff;
+
+  // Button 组件会自带 pointer
+  line-height: 37rpx;
+  height: 48rpx;
+  width: 89rpx;
 }
 
 .authorSchool {
@@ -83,17 +117,51 @@ $page-padding: 16px;
 
 .postFooter {
   display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
   color: $secondary-text-color;
   font-size: 14px;
-  border-top: 1px solid #f5f5f5;
-  padding-top: 12px;
-  margin-top: 4px;
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+  background: transparent;
+  position: relative;
 }
 
-.footerAction {
-  flex: 1;
-  text-align: center;
+.shareAction {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  color: $accent-color;
+  cursor: pointer;
+}
+
+.shareIcon {
+  font-size: 16px;
+  margin-right: 2px;
+}
+
+.shareText {
+  font-size: 14px;
+}
+
+.starIcon {
+  font-size: 16px;
+  color: #f6a10d;
+  margin-left: 0; // 保证和gap一致
+  display: flex;
+  align-items: center;
+}
+
+.postTitle {
+  margin: 4px 0 2px 0;
+}
+
+.postTitleText {
+  font-size: 16px; // 比正文大一号
+  font-weight: bold;
+  color: #222;
+  line-height: 1.3;
 }
