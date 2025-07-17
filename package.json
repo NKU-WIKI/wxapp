@@ -1,23 +1,73 @@
 {
-  "name": "nkuwiki",
-  "version": "0.0.1",
+  "name": "taro-wxapp",
+  "version": "0.2.0",
+  "private": true,
   "description": "南开Wiki校园知识共享平台",
-  "dependencies": {
-    "miniprogram-sm-crypto": "^0.3.12",
-    "pinyin-pro": "^3.26.0"
+  "templateInfo": {
+    "name": "default",
+    "typescript": true,
+    "css": "Sass",
+    "framework": "React"
   },
   "scripts": {
-    "build": "echo \"Error: 请使用小程序开发工具构建\" && exit 1"
+    "prepare": "husky",
+    "new": "taro new",
+    "build:weapp": "taro build --type weapp",
+    "dev:weapp": "npm run build:weapp -- --watch"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yourusername/nkuwiki.git"
-  },
-  "keywords": [
-    "微信小程序",
-    "南开大学",
-    "知识共享"
+  "browserslist": [
+    "last 3 versions",
+    "Android >= 4.1",
+    "ios >= 8"
   ],
-  "author": "nkuwiki团队",
-  "license": "MIT"
+  "author": "aokimi",
+  "dependencies": {
+    "@babel/runtime": "^7.24.4",
+    "@reduxjs/toolkit": "^2.8.2",
+    "@tarojs/components": "4.1.4",
+    "@tarojs/helper": "4.1.4",
+    "@tarojs/plugin-framework-react": "4.1.4",
+    "@tarojs/plugin-platform-weapp": "4.1.4",
+    "@tarojs/react": "4.1.4",
+    "@tarojs/runtime": "4.1.4",
+    "@tarojs/shared": "4.1.4",
+    "@tarojs/taro": "4.1.4",
+    "@types/classnames": "^2.3.0",
+    "abort-controller": "^3.0.0",
+    "classnames": "^2.5.1",
+    "dayjs": "^1.11.13",
+    "react": "^18.0.0",
+    "react-redux": "^9.2.0",
+    "redux": "^5.0.1",
+    "taro-skeleton": "^2.0.4",
+    "taro-ui": "^3.3.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/plugin-transform-class-properties": "7.25.9",
+    "@babel/preset-react": "^7.24.1",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@tarojs/cli": "4.1.4",
+    "@tarojs/plugin-generator": "4.1.4",
+    "@tarojs/webpack5-runner": "4.1.4",
+    "@types/node": "^20.19.4",
+    "@types/react": "^18.0.0",
+    "@types/webpack-env": "^1.13.6",
+    "babel-preset-taro": "4.1.4",
+    "eslint": "^8.57.0",
+    "eslint-config-taro": "4.1.4",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "postcss": "^8.4.38",
+    "sass": "^1.75.0",
+    "stylelint": "^16.4.0",
+    "stylelint-config-standard": "^38.0.0",
+    "terser-webpack-plugin": "^5.3.14",
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
+    "typescript": "^5.4.5",
+    "webpack": "^5.99.9"
+  }
 }

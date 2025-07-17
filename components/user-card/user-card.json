@@ -1,6 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "cell-status": "../cell-status/cell-status"
-  }
-} 

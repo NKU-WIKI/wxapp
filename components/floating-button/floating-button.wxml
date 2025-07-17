@@ -1,7 +1,0 @@
-<button 
-  class="floating-button {{position}} type-{{type}} size-{{size}} {{disabled ? 'disabled' : ''}}"
-  hover-class="{{!disabled ? 'button-hover' : ''}}"
-  disabled="{{disabled}}"
-  bindtap="onClick">
-  <icon name="{{icon}}" color="#ffffff" size="40"/>
-</button> 

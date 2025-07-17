@@ -1,7 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "text-area": "/components/text-area/text-area",
-    "icon": "/components/icon/icon"
-  }
-} 

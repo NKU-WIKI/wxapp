@@ -1,8 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "towxml": "/components/towxml/towxml",
-    "icon": "/components/icon/icon",
-    "image-uploader": "/components/image-uploader/image-uploader"
-  }
-} 

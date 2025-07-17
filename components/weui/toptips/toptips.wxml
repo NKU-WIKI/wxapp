@@ -1,3 +1,0 @@
-<view class="weui-toptips {{extClass}} {{show ? 'weui-toptips_show' : ''}} {{type ? 'weui-toptips_' + type : 'weui-toptips_warn'}}">
-  {{msg}}
-</view> 

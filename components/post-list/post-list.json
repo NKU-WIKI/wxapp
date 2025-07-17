@@ -1,7 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "cell-status": "/components/cell-status/cell-status",
-    "post-item": "/components/post-item/post-item"
-  }
-} 
