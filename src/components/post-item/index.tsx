@@ -48,23 +48,30 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
 
   return (
     <View className={`${styles.postCard} ${className}`} onClick={navigateToDetail}>
-      <View className={styles.header}>
-        <Image src={post.author_info.avatar} className={styles.avatar} />
+      <View className={styles.cardHeader}>
         <View className={styles.authorInfo}>
-          <Text className={styles.authorName}>{post.author_info.nickname}</Text>
-          <Text className={styles.postTime}>
-            {formatRelativeTime(post.create_time)}
-          </Text>
+          <Image src={post.author_info.avatar || ''} className={styles.avatar} />
+          <View className={styles.authorDetails}>
+            <View className={styles.authorMainRow}>
+              <Text className={styles.authorName}>{post.author_info.nickname || '匿名'}</Text>
+              <View className={styles.levelBadge}><Text>Lv.3</Text></View>
+              <View className={styles.followButton}><Text>关注</Text></View>
+            </View>
+            <Text className={styles.authorBio}>计算机科学与技术专业 | 喜欢分享技术心得</Text>
+          </View>
         </View>
-        <Button
-          size="sm"
-          className={styles.followButton}
-          onClick={(e) => handleActionClick(e, "follow")}
-        >
-          关注
-        </Button>
+        <View className={styles.headerActions}>
+          <Text className={styles.postTime}>{formatRelativeTime(post.create_time)}</Text>
+          <View className={styles.moreButton}>
+            <View 
+              className={styles.moreIcon}
+              style={{ '--icon-url': `url(${require('@/assets/more-horizontal.svg')})` } as React.CSSProperties}
+            />
+          </View>
+        </View>
       </View>
 
+      {/* Post Content */}
       <View className={styles.content}>
         <Text className={styles.title}>{post.title}</Text>
         <Text className={styles.text} numberOfLines={3}>
