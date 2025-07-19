@@ -1,206 +1,250 @@
 @import "../../styles/variables.scss";
 
 /* 页面整体布局 */
-.profilePage {
-  height: 100vh;
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f5f5f5;
   display: flex;
   flex-direction: column;
-  background-color: $bg-page;
 }
 
-.pageHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  padding-top: calc(env(safe-area-inset-top) + 12px);
-  background-color: $bg-card;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* 头部样式 */
+.header {
+  background-color: white;
+  text-align: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
 }
 
-.pageTitle {
+.headerTitle {
   font-size: 18px;
-  font-weight: bold;
-}
-
-.settingsIcon {
-  width: 24px;
-  height: 24px;
-}
-
-.content {
-  height: 100%;
-  padding: 12px 16px;
-  box-sizing: border-box;
-}
-
-/* 通用卡片样式 */
-%card {
-  @include card-style;
-  margin-bottom: 12px;
-  padding: 16px;
+  font-weight: 500;
+  color: #374151;
 }
 
 /* 用户信息卡片 */
-.userInfoCard {
-  @extend %card;
+.userCard {
+  background-color: white;
+  padding: 24px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.userInfoRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.avatarContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.avatarWrapper {
+  position: relative;
 }
 
 .avatar {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  margin-right: 16px;
-  flex-shrink: 0;
+  border: 2px solid #4F46E5;
 }
 
-.userInfo {
+.userDetails {
   flex: 1;
-  min-width: 0;
+  margin-left: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .nickname {
-  font-size: 20px;
+  color: #374151;
   font-weight: bold;
-  color: $text-primary;
-  margin-bottom: 6px;
-}
-
-.university,
-.bio {
-  font-size: 14px;
-  color: $text-secondary-gray;
-  line-height: 1.5;
-}
-
-.editButton {
-  border: 1px solid $theme-primary;
-  border-radius: 20px;
-  padding: 6px 14px;
-  flex-shrink: 0;
-  margin-left: 12px;
-}
-
-.editButtonText {
-  color: $theme-primary;
-  font-size: 14px;
-}
-
-/* 数据统计卡片 */
-.statsCard {
-  @extend %card;
-  display: flex;
-  justify-content: space-around;
-  text-align: center;
-}
-
-.statItem {
-  flex: 1;
-}
-
-.statValue {
   font-size: 18px;
-  font-weight: bold;
-  color: $text-primary;
   margin-bottom: 4px;
+  display: block;
+  width: 100%;
 }
 
-.statLabel {
-  font-size: 13px;
-  color: $text-secondary-gray;
+.userId {
+  color: #6B7280;
+  font-size: 12px;
+  margin-top: 0;
+  display: block;
+  width: 100%;
 }
 
-/* 操作入口卡片 */
-.actionsCard {
-  @extend %card;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4列网格 */
-  gap: 16px;
-  text-align: center;
-}
-
-.actionItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.actionIconWrapper {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background-color: #f5f4fa; /* 淡灰色背景 */
+.levelBadge {
+  background-color: rgba(255, 193, 7, 0.2);
+  padding: 4px 12px;
+  border-radius: 9999px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 8px;
-}
-
-.actionIcon {
-  width: 24px;
-  height: 24px;
-}
-
-.actionName {
-  font-size: 13px;
-  color: $text-primary;
-}
-
-/* 设置列表卡片 */
-.settingsCard {
-  @extend %card;
-  padding: 0; /* 移除卡片内边距，由列表项控制 */
-}
-
-.settingItem {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid $border-base;
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.settingIcon {
-  width: 20px;
-  height: 20px;
+  gap: 4px;
   margin-right: 12px;
 }
 
-.settingName {
-  flex: 1;
-  font-size: 16px;
-  color: $text-primary;
+.starIcon {
+  color: #FFC107;
 }
 
-.arrowIcon {
-  width: 16px;
-  height: 16px;
-  opacity: 0.5;
+.levelText {
+  color: #FFC107;
+  font-size: 14px;
 }
 
-.pageContainer {
+.editButton {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #f8f8f8;
+  align-items: center;
+  gap: 4px;
+  background-color: #4F46E5;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  border: none;
+  
+  &::after {
+    border: none;
+  }
 }
 
-.scrollView {
+.editIcon {
+  font-size: 12px;
+}
+
+/* 统计数据 */
+.statsContainer {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 16px;
-  box-sizing: border-box;
-  height: 100%;
 }
 
-/* Styles for LoginPrompt can remain if needed, or be refactored */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  color: #374151;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.statLabelRow {
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.statIcon {
+  color: #7B68EE;
+  font-size: 12px;
+}
+
+.statLabel {
+  color: #374151;
+  font-size: 14px;
+}
+
+/* 菜单卡片 */
+.menuCard {
+  background-color: white;
+  border-radius: 16px;
+  margin: 24px 16px 16px 16px;
+  padding: 16px;
+}
+
+.menuList {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.menuItem {
+  padding: 16px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  &:not(:last-child) {
+    border-bottom: 1px solid #f5f5f5;
+  }
+  
+  &:hover {
+    background-color: #f9fafb;
+  }
+}
+
+.menuLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menuIcon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
+.menuText {
+  color: #44359B;
+  font-size: 16px;
+}
+
+.chevron {
+  color: #9CA3AF;
+  font-size: 16px;
+}
+
+/* 退出登录 */
+.logoutSection {
+  margin: 12px 16px 12px 16px;
+}
+
+.logoutButton {
+  width: 100%;
+  background-color: #EF4444;
+  color: white;
+  padding: 10px 0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  
+  &::after {
+    border: none;
+  }
+  
+  &:hover {
+    background-color: #DC2626;
+  }
+}
+
+.logoutIcon {
+  font-size: 16px;
+}
+
+/* 未登录状态样式 */
 .loginPromptContainer {
   flex: 1;
   display: flex;
@@ -225,12 +269,6 @@
   margin-bottom: 24px;
 }
 
-.avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-}
-
 .infoText {
   text-align: left;
 }
@@ -248,7 +286,8 @@
 .actions {
   display: flex;
   gap: 16px;
-  background-color: #4F46E5;
+  justify-content: space-around;
+  margin-bottom: 24px;
 }
 
 .actionItem {
@@ -261,27 +300,19 @@
 }
 
 .actionIcon {
-  width: 24px;
-  height: 24px;
+  font-size: 24px;
 }
 
 .loginButton {
   width: 100%;
   padding: 12px;
   border-radius: 9999px;
-  background-color: #8b5cf6;
+  background-color: #4F46E5;
   color: white;
   font-size: 16px;
   border: none;
-}
-
-// 已登录样式 (占位)
-.profileCard {
-  padding: 16px;
-}
-
-.loggedInAvatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+  
+  &::after {
+    border: none;
+  }
 }

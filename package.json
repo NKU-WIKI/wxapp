@@ -23,7 +23,7 @@
   "author": "aokimi",
   "dependencies": {
     "@babel/runtime": "^7.24.4",
-    "@reduxjs/toolkit": "^2.8.2",
+    "@reduxjs/toolkit": "^1.9.7",
     "@tarojs/components": "4.1.4",
     "@tarojs/helper": "4.1.4",
     "@tarojs/plugin-framework-react": "4.1.4",
@@ -33,7 +33,6 @@
     "@tarojs/shared": "4.1.4",
     "@tarojs/taro": "4.1.4",
     "@types/classnames": "^2.3.0",
-    "abort-controller": "^3.0.0",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.13",
     "react": "^18.0.0",
