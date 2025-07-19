@@ -1,5 +1,5 @@
 import { View, ScrollView, Text, Input, Image } from "@tarojs/components";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Taro from "@tarojs/taro";
 import { useDispatch, useSelector } from "react-redux";
 import PostItem from "@/components/post-item";
@@ -12,24 +12,24 @@ import { AppDispatch, RootState } from "@/store";
 import { fetchPosts } from "@/store/slices/postSlice";
 import { fetchUserProfile } from "@/store/slices/userSlice";
 import searchIcon from "@/assets/search.svg";
-import bookIcon from "@/assets/book-bold-duotone.svg";
-import buildingsIcon from "@/assets/buildings-2-bold-duotone.svg";
-import rocketIcon from "@/assets/rocket-bold-duotone.svg";
-import usersGroupIcon from "@/assets/users-group-rounded-bold-duotone.svg";
-import magniferIcon from "@/assets/magnifer-bold-duotone.svg";
+import studyIcon from "@/assets/school.svg";
+import hatIcon from "@/assets/hat.svg";
+import starIcon from "@/assets/star2.svg";
+import usersGroupIcon from "@/assets/p2p-fill.svg";
+import bagIcon from "@/assets/bag.svg";
 
 const mockCategories = [
   {
     name: "学习交流",
-    icon: bookIcon,
+    icon: studyIcon,
   },
   {
     name: "校园生活",
-    icon: buildingsIcon,
+    icon: hatIcon,
   },
   {
     name: "就业创业",
-    icon: rocketIcon,
+    icon: starIcon,
   },
   {
     name: "社团活动",
@@ -37,7 +37,7 @@ const mockCategories = [
   },
   {
     name: "失物招领",
-    icon: magniferIcon,
+    icon: bagIcon,
   },
 ];
 
@@ -49,6 +49,8 @@ export default function Home() {
   );
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
   const isLoading = loading === "pending";
+
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchPosts({ page: 1, pageSize: 10 }));
@@ -76,6 +78,10 @@ export default function Home() {
         },
       });
     }
+  };
+
+  const handleCategoryClick = (categoryName: string) => {
+    setSelectedCategory(selectedCategory === categoryName ? null : categoryName);
   };
 
   const renderContent = () => {
@@ -113,7 +119,11 @@ export default function Home() {
               showScrollbar={false}
             >
               {mockCategories.map((category) => (
-                <View key={category.name} className={styles.categoryItem}>
+                <View
+                  key={category.name}
+                  className={styles.categoryItem}
+                  onClick={() => handleCategoryClick(category.name)}
+                >
                   <View className={styles.categoryIconContainer}>
                     <Image
                       src={category.icon}
@@ -121,7 +131,15 @@ export default function Home() {
                       mode="aspectFit"
                     />
                   </View>
-                  <Text className={styles.categoryName}>{category.name}</Text>
+                  <Text
+                    className={`${styles.categoryName} ${
+                      selectedCategory === category.name
+                        ? styles.categoryNameSelected
+                        : styles.categoryNameDefault
+                    }`}
+                  >
+                    {category.name}
+                  </Text>
                 </View>
               ))}
             </ScrollView>
