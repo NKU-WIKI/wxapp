@@ -1,7 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { PaginatedData } from '@/types/api/common';
-import { GetPostsParams, Post, CreatePostParams, CreatePostResponse } from '@/types/api/post';
-import { postApi } from '@/services/api/post';
+import { PaginatedData, Pagination } from '@/types/api/common';
+import { GetPostsParams, Post } from '@/types/api/post';
+import postApi from '@/services/api/post';
+import actionApi from '@/services/api/action';
+import { ToggleActionParams, ToggleActionResponse } from '@/types/api/action.d';
+import { RootState } from '..';
 
 // 云存储链接转换函数
 const convertCloudUrl = (cloudUrl: string): string => {
@@ -36,47 +39,76 @@ const convertCloudUrl = (cloudUrl: string): string => {
 // 获取帖子列表的 Thunk
 export const fetchPosts = createAsyncThunk<PaginatedData<Post>, GetPostsParams>(
   'posts/fetchPosts',
-  async (params: GetPostsParams, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      // postApi.getPosts() 现在返回完整的业务响应体: { code, message, data, pagination, ... }
+      // response的类型是BackendPaginatedResponse<Post>
+      // 结构：{code, msg, data: Post[], pagination: Pagination}
       const response = await postApi.getPosts(params);
-
-      // API 返回的数据结构已经和 Post 类型匹配，无需手动转换
-      // 直接返回 data 和 pagination
-      const pagination = response.pagination || { page: 1, page_size: 10, total: 0, total_pages: 0 };
+      
+      // 将后端的扁平结构转换为前端Redux store需要的嵌套结构
       const paginatedData: PaginatedData<Post> = {
-        items: response.data, // response.data 就是 Post[]
-        page: pagination.page,
-        pageSize: pagination.page_size,
-        total: pagination.total,
-        totalPages: pagination.total_pages,
+        items: response.data, // 后端的data字段是Post[]
+        pagination: response.pagination, // 后端的pagination字段
       };
 
       return paginatedData;
     } catch (error: any) {
-      // 确保传递给 rejectWithValue 的是可序列化的值
       return rejectWithValue(error.message || 'Failed to fetch posts');
     }
   }
 );
 
-export const createPost = createAsyncThunk<void, CreatePostParams, { rejectValue: string }>(
-  'posts/createPost',
-  async (params, { dispatch, rejectWithValue }) => {
-    try {
-      await postApi.createPost(params);
-      // 发帖成功后，立即刷新帖子列表
-      dispatch(fetchPosts({ page: 1, pageSize: 10 }));
-    } catch (error: any) {
-      // 确保传递给 rejectWithValue 的是可序列化的值
-      return rejectWithValue(error.message || 'Create post failed');
-    }
+// 通用动作 Thunk (点赞/收藏/关注)
+export const toggleAction = createAsyncThunk<
+  { postId: number; actionType: ToggleActionParams['action_type']; response: ToggleActionResponse },
+  { postId: number; actionType: ToggleActionParams['action_type'] },
+  { state: RootState; rejectValue: string }
+>('posts/toggleAction', async ({ postId, actionType }, { rejectWithValue }) => {
+  try {
+    const targetType = actionType === 'follow' ? 'user' : 'post';
+    const response = await actionApi.toggleAction({
+      target_type: targetType,
+      target_id: postId,
+      action_type: actionType,
+    });
+    // response的类型是BaseResponse<ToggleActionResponse>，需要提取data字段
+    return { postId, actionType, response: response.data };
+  } catch (error: any) {
+    return rejectWithValue(error.message || `Failed to toggle ${actionType}`);
   }
-);
+});
+
+// 创建帖子 Thunk
+export const createPost = createAsyncThunk<
+  { id: number },
+  { title: string; content: string; category_id?: number; tag?: string[]; image?: string[]; allow_comment?: boolean; is_public?: boolean },
+  { rejectValue: string }
+>('posts/createPost', async (postData, { rejectWithValue }) => {
+  try {
+    const response = await postApi.createPost(postData);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.message || 'Failed to create post');
+  }
+});
+
+// 删除帖子 Thunk
+export const deletePost = createAsyncThunk<
+  { postId: number },
+  { postId: number },
+  { rejectValue: string }
+>('posts/deletePost', async ({ postId }, { rejectWithValue }) => {
+  try {
+    await postApi.deletePost(postId);
+    return { postId };
+  } catch (error: any) {
+    return rejectWithValue(error.message || 'Failed to delete post');
+  }
+});
 
 interface PostsState {
   list: Post[];
-  pagination: Omit<PaginatedData<any>, 'items'> | null;
+  pagination: Pagination | null;
   loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   error: any;
 }
@@ -90,37 +122,74 @@ const initialState: PostsState = {
 
 const postsSlice = createSlice({
   name: 'posts',
-  initialState,
+  initialState: {
+    list: [] as Post[],
+    pagination: null as Pagination | null,
+    loading: 'idle' as 'idle' | 'pending' | 'succeeded' | 'failed',
+    error: null as any,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchPosts.pending, (state) => {
         state.loading = 'pending';
       })
-      .addCase(fetchPosts.fulfilled, (state, action) => {
-        state.loading = 'succeeded';
-        state.list = action.payload.items;
-        state.pagination = {
-          page: action.payload.page,
-          pageSize: action.payload.pageSize,
-          total: action.payload.total,
-          totalPages: action.payload.totalPages,
-        };
-      })
+      .addCase(
+        fetchPosts.fulfilled,
+        (state, action: PayloadAction<PaginatedData<Post>>) => {
+          state.loading = 'succeeded';
+          state.list = action.payload.items;
+          state.pagination = action.payload.pagination;
+        }
+      )
       .addCase(fetchPosts.rejected, (state, action) => {
         state.loading = 'failed';
         state.error = action.payload as string;
+      })
+      .addCase(toggleAction.fulfilled, (state, action) => {
+        const { postId, actionType, response } = action.payload;
+        if (actionType === 'follow') {
+          // 在 post slice 中不直接处理关注状态的 UI 更新，
+          // 因为一个用户的关注状态可能影响多个帖子。
+          // 这种状态应该由 user slice 或其他地方管理。
+          // 这里可以只记录一个日志或者什么都不做。
+          console.log(`Follow action for user ${postId} completed.`);
+          return;
+        }
+
+        const postIndex = state.list.findIndex((p) => p.id === postId);
+        if (postIndex !== -1) {
+          const post = state.list[postIndex];
+          switch (actionType) {
+            case 'like':
+              post.is_liked = response.is_active;
+              post.like_count = response.count;
+              break;
+            case 'favorite':
+              post.is_favorited = response.is_active;
+              post.favorite_count = response.count;
+              break;
+            default:
+              break;
+          }
+        }
+      })
+      .addCase(createPost.fulfilled, (state, action) => {
+        // 创建成功后，可以重置loading状态
+        // 注意：创建成功后通常会导航到新帖子页面，所以这里不需要更新列表
+        state.loading = 'succeeded';
       })
       .addCase(createPost.pending, (state) => {
         state.loading = 'pending';
         state.error = null;
       })
-      .addCase(createPost.fulfilled, (state) => {
-        state.loading = 'succeeded';
-      })
       .addCase(createPost.rejected, (state, action) => {
         state.loading = 'failed';
-        state.error = action.payload as string || 'Failed to create post';
+        state.error = action.payload as string;
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        const { postId } = action.payload;
+        state.list = state.list.filter((p) => p.id !== postId);
       });
   },
 });

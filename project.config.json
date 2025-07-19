@@ -1,6 +1,5 @@
 {
   "miniprogramRoot": "dist/",
-  "projectname": "taro-wxapp",
   "description": "nkuwiki",
   "appid": "wxe0c82418cb888db0",
   "setting": {
@@ -15,18 +14,22 @@
       "disablePlugins": [],
       "outputPath": ""
     },
-    "ignoreUploadUnusedFiles": true
+    "ignoreUploadUnusedFiles": true,
+    "coverView": false,
+    "showShadowRootInWxmlPanel": false,
+    "packNpmRelationList": []
   },
   "compileType": "miniprogram",
-  "libVersion": "3.8.10",
   "srcMiniprogramRoot": "dist/",
-  "packOptions": {
-    "ignore": [],
-    "include": []
-  },
   "condition": {},
   "editorSetting": {
     "tabIndent": "auto",
     "tabSize": 2
-  }
+  },
+  "libVersion": "3.8.10",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "projectname": "taro-wxapp"
 }

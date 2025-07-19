@@ -1,3 +1,5 @@
+@import "../../styles/variables.scss";
+
 .navBarPlaceholder {
   width: 100%;
 }
@@ -8,24 +10,23 @@
   left: 0;
   width: 100%;
   z-index: 1000;
-  box-sizing: border-box;
+  background-color: $theme-primary;
+  transition: background-color 0.2s;
 }
 
 .navBarContent {
   position: relative;
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
 }
 
-.left, .right {
+.left,
+.right {
   display: flex;
   align-items: center;
-}
-
-.left {
-  justify-content: flex-start;
+  flex: 1;
 }
 
 .right {
@@ -34,11 +35,20 @@
 
 .center {
   position: absolute;
-  top: 50%;
   left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
-  width: 60%; // 限制标题宽度，防止过长
   text-align: center;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  color: $theme-primary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
 }
 
 .iconWrapper {
@@ -46,9 +56,11 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+  padding: 0 10px;
 }
 
-.backIcon {
+.backIcon,
+.notificationIcon {
   width: 20px;
   height: 20px;
 }
@@ -57,6 +69,14 @@
   width: 24px;
   height: 24px;
   margin-left: 15rpx;
+  mask-image: var(--icon-url);
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: var(--icon-url);
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
 }
 
 .title {

@@ -1,368 +1,66 @@
-## 环境
+# NKU-Wiki 项目规范
 
-windows11
+欢迎来到 NKU-Wiki 项目！为了保证代码质量和开发效率，我们将所有的开发规范、最佳实践和工作流都进行了文档化。
 
-## 🎯 项目目标
+原有的 `.cursorrules` 文件已被模块化拆分，以提高可读性和可维护性。请根据您关心的主题，查阅以下位于 `.cursor/rules/` 目录下的具体规范文档：
 
-本项目的目标是使用 Taro 框架构建一个高质量、可维护、性能优良的微信小程序。
+- **[项目总览](./.cursor/rules/overview.mdc)**
+  - 了解项目目标、技术栈、目录结构和核心功能模块。
+- **[编码规范](./.cursor/rules/style-guide.mdc)**
+  - 遵循统一的命名规范和代码风格（TypeScript, React, SCSS）。
+- **[组件开发](./.cursor/rules/development.mdc)**
+  - 学习如何进行组件化开发，以及 UI/UX 规范。
+- **[最佳实践](./.cursor/rules/practices.mdc)**
+  - 查看性能优化、跨端兼容、布局、颜色和图标处理等通用最佳实践。
+- **[API 对接](./.cursor/rules/api.mdc)**
+  - 掌握与后端对接的强制工作流和网络请求规范。
+- **[状态管理](./.cursor/rules/state.mdc)**
+  - 深入理解项目中 Redux (RTK) 的使用方式。
+- **[项目工作流](./.cursor/rules/workflow.mdc)**
+  - 包含 Git 分支规范、自动化流程、测试、CI/CD 以及核心重构任务。
 
-本规范应该不断根据最新信息和最佳实践进行迭代。
-## 🛠️ 技术栈与核心依赖
+**请在开始开发前，务必熟悉与您工作内容相关的规范文档。**
 
-- **核心框架**: Taro 4.x (插件化架构)
-- **UI 语言**: React (Hooks-first)
-- **UI 组件库**: 优先使用微信小程序原生组件库比如weui，其次使用Taro UI
-- **状态管理**: Redux (配合 React Hooks)
-- **开发语言**: TypeScript
-- **CSS 预处理器**: SCSS (`.scss`)
-- **主要目标平台**: 微信小程序 (`weapp`)
+---
+## 核心规范摘要
 
-npx @tarojs/cli init project_name
+### 项目总览 (overview.mdc)
+- **目标**: 使用 Taro 框架构建高质量的微信小程序。
+- **技术栈**: Taro 4.x, React, Redux, TypeScript, SCSS。
+- **目录结构**: 遵循官方推荐，对 `src` 目录进行精细化划分 (`assets`, `components`, `constants`, `pages`, `services`, `store`, `types`)。
+- **核心模块**: 首页、发现、发布、消息、我的。
 
-为了保证项目正常运行，除了 `package.json` 中的业务依赖外，请确保以下核心插件已安装在 `devDependencies` 中：
+### 编码规范 (style-guide.mdc)
+- **命名**: 目录和非组件文件用 `kebab-case`，React 组件用 `PascalCase`，变量和函数用 `camelCase`，常量用 `UPPER_SNAKE_CASE`。
+- **TypeScript**: 开启 `strict` 模式，明确类型定义，优先使用 `interface`。
+- **React**: 全面使用函数式组件和 Hooks，自定义 Hooks 以 `use` 开头，组件保持功能单一。
+- **SCSS**: 强制使用 `*.module.scss`，全局样式写入 `src/app.scss`，使用 `px` 单位。
 
-- **框架插件**: `@tarojs/plugin-framework-react`
-- **平台插件**: `@tarojs/plugin-platform-weapp`
-- **CLI 工具**: `@tarojs/cli`
-- **Babel 预设**: `babel-preset-taro` (处理 TSX/JSX 语法)
-- **代码检查与格式化**: `ESLint`, `Prettier`, `stylelint`
-- **Git工作流**: `Husky`, `lint-staged`, `commitizen`
+### 组件开发 (development.mdc)
+- **组件库**: 优先使用 `Taro UI`，并按需引入。
+- **自定义组件**: 在 `src/components` 下创建原子组件和业务组件。
+- **UI/UX**: 简洁、卡片式布局，主色调为蓝色 (#4A90E2)，标题 18px Bold，正文 16px Regular。
 
-## 📁 项目结构
+### 最佳实践 (practices.mdc)
+- **性能**: 使用分包加载、图片压缩、虚拟列表、`webpack-bundle-analyzer` 进行包体积分析。
+- **布局 (强制)**: 所有页面必须使用 `<CustomHeader>` + `<ScrollView>` 的“防内容遮挡”顶级布局结构。
+- **安全区域 (强制)**: 禁止在自定义导航栏右上角区域放置任何可交互控件。
+- **图标 (强制)**: 所有图标必须是本地资源，存放于 `src/assets`，禁止使用外部 CDN 或第三方库。推荐使用 `mask-image` + CSS 变量动态修改颜色。
 
-遵循 Taro 官方推荐的目录结构，并建议对 `src` 目录进行更精细的划分，以提高代码的可维护性：
+### API 对接 (api.mdc)
+- **工作流 (强制)**: 严格遵循“读文档 -> 定义类型 -> 创建 Service -> 创建 Thunk -> 组件使用”的五步流程。
+- **请求封装**: 在 `src/services/request.ts` 中统一封装请求，`src/services/api/` 按模块管理接口。
+- **数据转换**: 在 Redux Thunk 中将后端返回的数据结构 (`snake_case`, 扁平分页) 转换为前端需要的结构 (`camelCase`, 嵌套分页)。
 
-```
-.
-├── config                   # Taro 编译配置目录
-│   ├── dev.ts
-│   ├── index.ts             # 默认配置文件 (推荐使用 .ts)
-│   └── prod.ts
-├── src                      # 源码目录
-│   ├── app.config.ts        # 全局配置文件
-│   ├── app.scss             # 全局样式文件
-│   ├── app.tsx              # 入口组件
-│   ├── assets               # 静态资源 (图片、字体等)
-│   ├── components           # 全局可复用组件
-│   ├── constants            # 全局常量
-│   ├── pages                # 页面
-│   │   └── page-name        # 以页面为单位创建文件夹
-│   │       ├── components   # 页面级私有组件
-│   │       ├── index.config.ts
-│   │       ├── index.module.scss
-│   │       └── index.tsx
-│   ├── services             # API 请求服务
-│   │   ├── api              # 按模块划分的 API
-│   │   ├── mock.ts
-│   │   └── request.ts
-│   ├── store                # Redux store
-│   │   ├── slices           # Redux Toolkit Slices
-│   │   ├── rootReducer.ts   # Root Reducer
-│   │   └── index.ts         # Store 配置
-│   └── types                # TypeScript 类型定义 (业务)
-│       └── api              # API 相关类型
-├── types                    # TypeScript 类型定义 (全局)
-│   └── global.d.ts
-├── backend-api              # 后端接口文档
-├── .cursorrules             # Cursor AI 配置文件
-├── .editorconfig            # 编辑器配置文件
-├── .eslintrc                # ESLint 配置文件
-├── .gitignore               # Git 忽略文件配置
-├── .npmrc                   # NPM 配置文件
-├── babel.config.js          # Babel 配置文件
-├── commitlint.config.mjs    # Commitlint 配置文件
-├── package.json             # 项目依赖与脚本
-├── project.config.json      # 小程序项目配置文件
-├── stylelint.config.mjs     # Stylelint 配置文件
-└── tsconfig.json            # TypeScript 配置文件
-```
+### 状态管理 (state.mdc)
+- **库**: 选用 Redux Toolkit (RTK) 进行全局状态管理。
+- **目录**: 使用 `slice` 文件组织 `actions`, `reducers`，存放于 `src/store/slices`。
+- **数据流**: 遵循单向数据流，接口请求通过 `createAsyncThunk` 更新 store。
+- **持久化**: 对用户 Token 等数据使用 `redux-persist`。
 
-> **注意**: 推荐使用 `config/index.ts` 并配合 `defineConfig` 工具函数来获得类型提示与校验，提升配置代码的健壮性。
-
-## 🏷️ 命名规范
-
-- **目录和非组件文件**: 使用 `kebab-case` (小写短横线连接)。例如: `user-list`, `request.ts`。
-- **页面/组件**:
-    - 文件夹: `kebab-case`。例如: `src/pages/user-list`。
-    - React 组件文件: `PascalCase`。例如: `UserList.tsx`。如果目录内只有一个组件，可命名为 `index.tsx`。
-- **变量**: `camelCase` (小驼峰)。例如: `const userName = 'Taro';`。
-- **常量**: `UPPER_SNAKE_CASE` (大写下划线连接)。例如: `const MAX_COUNT = 10;`。
-- **函数/方法**: `camelCase`。例如: `function getUserInfo() {}`。
-- **CSS 类名**: `kebab-case` 或 BEM 规范。推荐使用 CSS Modules，在 `*.module.scss` 文件中编写。
-- **推荐库**:
-    - `classnames`: 便捷地、有条件地组合 CSS 类名。
-    - `lodash`: 提供大量实用的工具函数，按需引入。
-
-## ✍️ 代码风格与规范
-
-### TypeScript
-
-- 始终开启 `strict` 模式。
-- 明确定义函数参数和返回值的类型。
-- 优先使用 `interface` 定义对象类型，使用 `type` 定义联合类型、交叉类型等。
-
-### React
-
-- **函数式组件优先**: 全面使用函数式组件和 Hooks (`useState`, `useEffect`, `useContext` 等)。
-- **Hooks**:
-    - 使用 `useMemo` 和 `useCallback` 进行性能优化，避免不必要的重渲染。
-    - 自定义 Hooks 应用于封装可复用的逻辑，应以 `use` 开头。推荐将项目通用的 Hooks 抽离至 `src/core/hooks` 中，例如封装一个 `useList` 来处理通用列表加载逻辑。
-- **组件封装**:
-    - 组件应保持功能单一。
-    - 超过 100 行的组件建议拆分。
-    - 避免使用匿名函数作为组件属性，如 `<View onClick={() => {}} />`。
-
-### 样式 (SCSS)
-
-- **CSS Modules**: 强制使用 `*.module.scss` 避免全局样式污染。
-- **全局样式**: 全局变量、主题等写入 `src/app.scss`。
-- **单位**: 推荐使用 `px`，Taro 会自动转换为 `rpx`。
-- **新兴方案**: 可关注 `UnoCSS` 或 `TailwindCSS` 等原子化 CSS 方案，它们通过提供大量原子类来快速构建界面，可能会在特定场景下提升开发效率。
-
-### 网络请求
-
-- **统一封装**: 在 `src/services/request.ts` 中封装 `Taro.request`，统一处理请求头、错误、Loading 状态等。
-- **API 管理**: 在 `src/services/api.ts` 中统一管理所有接口。
-- **环境配置**: 在 `config/dev.js` `config/prod.js`中管理项目的基础配置，如 `baseUrl` 等。
-- **路径别名**: 在 `config/index.ts` 中配置 `@` 作为 `src` 目录的别名，简化模块导入路径。
-  ```typescript
-  // config/index.ts
-  const config = {
-    // ...
-    alias: {
-      '@': path.resolve(__dirname, '..', 'src')
-    },
-    // ...
-  }
-  ```
-  同时，需要安装 `tsconfig-paths-webpack-plugin` 并在 `webpackChain` 中进行配置，确保 Webpack 能够正确解析别名。
-
-### 📡 API 对接工作流
-
-为了保证与后端接口的高效、规范对接，所有涉及网络请求的代码都必须遵循以下工作流。这是一个**强制性规范**，旨在从根源上杜绝路径错误、参数不匹配和数据解析失败等问题。
-
-1.  **第一步：阅读 API 文档 (强制)**
-    -   在编写任何代码之前，**必须**首先在 `backend-api/` 目录下找到并仔细阅读对应的接口文档（例如 `backend-api/wxapp/post.md`）。
-    -   重点关注：
-        -   **Endpoint 路径**: 确认是 `GET` 还是 `POST`，以及完整的路径（例如 `/wxapp/post/list`）。
-        -   **请求参数**: 确认参数是在 Query 中还是 Body 中，以及参数的命名规范（`snake_case` 还是 `camelCase`）。
-        -   **响应结构**: 确认成功响应的数据结构，特别是列表数据（`data`）和分页信息（`pagination`）是否为平级字段。
-
-2.  **第二步：定义类型 (Types)**
-    -   在 `src/types/api/` 目录下为模块创建或更新类型定义文件（例如 `post.d.ts`）。
-    -   定义请求参数 `interface` 和响应数据 `interface`。
-
-3.  **第三步：创建或更新 API 服务 (Service)**
-    -   在 `src/services/api/` 目录下创建或更新对应的服务文件（例如 `post.ts`）。
-    -   所有请求**必须**使用 `src/services/request.ts` 中导出的 `http` 对象 (`http.get` 或 `http.post`)。
-    -   在这一层，负责将前端的驼峰式参数 (`camelCase`) 转换为后端需要的蛇形参数 (`snake_case`)。
-
-4.  **第四步：创建或更新 Redux Thunk (Slice)**
-    -   在 `src/store/slices/` 中创建或更新对应的 `slice.ts` 文件。
-    -   使用 `createAsyncThunk` 创建异步 action。
-    -   **关键**：在 `asyncThunk` 的 `payloadCreator` 函数中，调用 API service 后，**必须**对返回的响应体进行转换，将其适配为前端 Redux store 需要的统一数据结构（例如，将 `{ data: [...], pagination: {...} }` 转换为统一的 `PaginatedData` 对象）。
-
-    ```typescript
-    // 示例: 在 createAsyncThunk 中进行数据结构转换
-    export const fetchPosts = createAsyncThunk(
-      'posts/fetchPosts',
-      async (params: GetPostsParams) => {
-        // response 的结构是 API 文档中定义的原始结构
-        const response = await postApi.getPosts(params) as any;
-
-        // 在这里将 API 结构转换为前端需要的结构
-        const paginatedData: PaginatedData<Post> = {
-          items: response.data,
-          page: response.pagination.page,
-          pageSize: response.pagination.page_size,
-          // ... 其他字段
-        };
-        return paginatedData; // 返回转换后的数据
-      }
-    );
-    ```
-
-5.  **第五步：组件中使用**
-    -   在组件中通过 `useDispatch` 派发异步 action。
-    -   通过 `useSelector` 从 store 中获取数据并渲染。
-
-## ✅ 最佳实践
-
-- **跨端兼容**:
-    - 优先使用 Taro 提供的跨端组件和 API。
-    - 需要条件编译时，使用 `process.env.TARO_ENV` 变量。
-- **性能优化**:
-    - **分包加载**: 对非核心页面和资源使用 `subPackages` 配置。
-    - **图片资源**: 统一存放于 `src/assets` 并压缩。对于小于 10KB 的图片，可配置 `url-loader` 将其转换为 Base64 编码，以减少网络请求。
-    - **图标资源 (强制)**: **禁止**使用外部 CDN 或 URL 动态加载图标（如 Iconify）。所有图标必须存放于 `src/assets` 目录中，并通过静态 `import` 在组件中使用。这可以避免不必要的网络请求，并确保资源的可靠性。
-    - **虚拟列表**: 对于长列表，考虑使用虚拟列表技术。
-    - **包体积分析**: 使用 `webpack-bundle-analyzer` 定期分析项目打包后的体积，识别并优化过大的模块。
-    - **移除console**: 在生产环境中，配置 `babel-plugin-transform-remove-console` 自动移除代码中的 `console` 调用。
-    - **lodash 按需加载**: 若项目中使用 `lodash`，配合 `babel-plugin-lodash` 和 `lodash-webpack-plugin` 实现按需加载，减小打包体积。
-- **自定义导航栏适配**: 在实现自定义顶部导航栏时，必须通过 `Taro.getWindowInfo()` 和 `Taro.getMenuButtonBoundingClientRect()` API 精确计算导航栏尺寸，并封装为统一的 `<CustomHeader>` 组件。所有使用该组件的页面，必须在 `index.config.ts` 中设置 `navigationStyle: 'custom'`。
-- **⚠️ 页面布局核心规范 (强制性)**
- 所有页面**必须**遵循以下“防内容遮挡”的顶级布局结构，这是一个从实践中总结的、不可违反的硬性规定。
-  ```tsx
-  <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
-    {/* 1. 顶部必须是统一的自定义导航栏 */}
-    <CustomHeader />
-    {/* 2. 页面主体内容必须包裹在这个 View 和 ScrollView 中 */}
-    <View style={{ flex: 1, overflow: 'hidden' }}>
-      <ScrollView scrollY style={{ height: '100%' }}>
-        {/* 页面所有可滚动内容都放在这里 */}
-      </ScrollView>
-    </View>
-  </View>
-  ```
- 在 `index.config.ts` 中，也**必须**设置 `navigationStyle: 'custom'`。
- 
-- **⚠️ 右上角安全区域规范 (强制性)**
- **禁止**在自定义导航栏 (`<CustomHeader>`) 的右上角区域放置任何可交互的控件（如“发布”、“保存”、“菜单”等按钮）。该区域在刘海屏、水滴屏、挖孔屏等异形屏手机上，极易与前置摄像头或系统状态栏（时间、电量）重叠，导致用户无法点击。所有页面级别的主操作按钮，**必须**统一放置在页面底部的操作栏中（参考“编辑资料”和“发布”页面的实现）。此规范旨在保证应用在所有设备上的可用性和交互一致性。
-
-- **全局盒模型**: 为从根源上解决布局偏移问题（如内容偏右），建议在全局样式文件 `src/app.scss` 中为通用容器或页面根元素设置 `box-sizing: border-box;`。
-- **代码检查**: 集成 ESLint, Prettier 和 Stylelint，并配置 `husky` 和 `lint-staged` 在 `pre-commit` 钩子中自动检查和格式化暂存区代码，保证代码质量。
-- **移动端调试**: 在开发阶段，可以集成 `vconsole-webpack-plugin`，它会在开发包中注入一个轻量级的移动端调试面板，方便在真机上查看日志、网络请求等信息。
-- **图标资源工作流**:
-    - **来源**: 为保证设计风格统一，项目优先选用 [Iconify](https://iconify.design/) 提供的 **Solar** 图标库。
-    - **规范**: 所有图标**必须**下载到本地 `src/assets/` 目录后，再通过静态 `import` 在组件中使用。**严禁**直接通过 URL 引用，**严禁**使用任何第三方 React 图标库 (如 `lucide-react`)。
-    - **下载命令**: 可以使用以下 `curl` 命令模板从 Iconify 下载图标：
-      ```bash
-      curl -o src/assets/icon-name.svg "https://api.iconify.design/solar/icon-name-in-solar-set.svg"
-      ```
-    - **示例**: 下载一个名为 `gallery-bold` 的图标并保存为 `gallery.svg`:
-      ```bash
-      curl -o src/assets/gallery.svg "https://api.iconify.design/solar/gallery-bold.svg"
-      ```
-
-## UI/UX 规范
-
-- **设计风格**: 简洁、卡片式布局，多采用圆角、留白和阴影。
-- **色彩规范**:
-    - 主色调: 蓝色 (#4A90E2)
-    - 辅助色: 灰色 (#9B9B9B), 红色 (#D0021B)
-    - 背景色: 浅灰 (#F5F5F5), 白色 (#FFFFFF)
-- **字体规范**:
-    - 标题: 18px, Bold
-    - 正文: 16px, Regular
-    - 辅助文字/标签: 14px, Regular
-- **组件设计**:
-    - **按钮**: 主要按钮使用主色调填充，次要按钮使用描边或灰色样式。所有按钮均带有圆角。
-    - **列表**: 列表项之间保持足够间距，增加分割线以区分。
-    - **图标**: 采用线性图标 (Line Icon)，风格统一。
-
-## 核心功能模块
-
-- **首页 (Home)**: 采用信息流展示推荐内容、热点和校园热榜。
-- **发现 (Explore)**: 集合校园热点、AI 助手、校园活动和学习资源等卡片式入口。
-- **发布 (Publish)**: 提供富文本编辑器，支持标题、正文、图片、话题标签，并集成 AI 润色建议。
-- **消息 (Notifications)**: 分类展示点赞、收藏和评论。
-- **我的 (Profile)**: 展示用户基本信息、动态、社交数据，并提供收藏、评论、点赞、草稿箱等入口。
-
-## 数据管理 (State Management)
-
-- **状态管理库**: 项目选用 `Redux` 作为全局状态管理方案。强烈推荐使用 `Redux Toolkit (RTK)` 来简化 Redux 开发，它集成了 `Immer`、`Reselect` 和 `Redux Thunk`，能够有效减少模板代码。
-- **开发中间件**: 在开发环境下，推荐引入 `redux-logger` 中间件，它可以清晰地在控制台打印出每一次 `action` 的派发、`action` 内容、变更前后的 `state` 以及 `state` 的变更内容，极大地提升了开发调试效率。
-- **数据流**: 遵循 Redux 单向数据流原则。
-- **目录结构**: 使用 RTK 时，推荐将 `actions`, `reducers`, `constants` 合并到 `slice` 文件中，并按业务模块进行组织。
-  - `src/store/modules`: 存放各业务模块的 `slice.ts` 文件。
-  - `src/store/index.ts`: 组合 `slice` 并创建 Store。
-- **数据持久化**: 对于需要持久化的数据（如用户 Token），考虑使用 `redux-persist` 配合 `Taro.setStorage` 进行处理。
-- **接口请求**: 在 `src/services` 目录中统一管理 API 请求，返回的数据通过 `createAsyncThunk` (RTK 提供) 的流程更新到 `store`。
-- **开发阶段数据模拟**: 在联调前，所有页面和组件所需的数据结构和模拟内容应在 `src/types` 和 `src/services/mock.ts` 中统一定义。这有助于前后端并行开发，并确保了组件间数据消费的一致性。
-
-## 组件化开发
-
-- **UI组件库优先**: 项目选用 `Taro UI` 作为基础组件库，开发时应优先使用其提供的组件，以保证UI风格的统一性并提升开发效率。
-- **按需引入**: 在 `config/index.ts` 中配置 `taro-ui` 的按需引入，或在 `app.scss` 中全局引入样式。推荐按需引入以减小包体积。
-  ```typescript
-  // app.scss
-  @import "~taro-ui/dist/style/index.scss";
-  ```
-  同时，为确保 `Taro UI` 能够被正确编译，需在 `config/index.ts` 中进行如下配置：
-  ```typescript
-  // config/index.ts
-  const config = {
-    // ...
-    weapp: {
-      esnextModules: ['taro-ui']
-    },
-    h5: {
-      esnextModules: ['taro-ui']
-    }
-  }
-  ```
-- **自定义组件**: 对于 `Taro UI` 未提供的组件，或无法满足业务需求的场景，可在 `src/components` 目录下创建自定义组件。
-- **原子组件**: 在 `src/components` 目录下，创建可复用的原子组件，如 `Button`, `Tag`, `Avatar`, `Card` 等。
-- **业务组件**: 针对特定业务场景，封装业务组件，如 `PostItem` (帖子列表项), `CommentList` (评论列表) 等。
-- **组件文档**: 建议为核心组件编写简单的使用文档或注释，说明其 `props` 和用法。
-- **样式**: 组件样式优先使用 CSS Modules (`.module.scss`)，避免全局污染。
-
-## Git 规范
-
-- **分支模型**: 采用 `Git Flow`。
-    - `main`: 主分支，用于发布。
-    - `develop`: 开发主分支。
-    - `feature/xxx`: 功能分支，开发新功能。
-    - `fix/xxx`: Bug 修复分支。
-- **Commit Message**: 遵循 `Angular` 提交规范，格式为 `<type>(<scope>): <subject>`。
-    - `type`: feat, fix, docs, style, refactor, test, chore
-    - `scope`: 可选，表示影响范围 (如: `home`, `profile`)
-    - `subject`: 简短描述。
-- **自动化规范**:
-    - **Commitizen**: 推荐团队成员使用 `commitizen` 工具（通过 `npm run commit`）来规范化提交信息的格式。
-    - **Husky + commitlint**: 配置 `husky` 的 `commit-msg` 钩子，结合 `commitlint` 自动校验提交信息是否符合规范。
-    - **Husky + lint-staged**: 配置 `husky` 的 `pre-commit` 钩子，结合 `lint-staged` 对暂存区的代码文件自动执行 `ESLint` 校验和 `Prettier` 格式化，确保入库代码的质量。
-
-## 代码测试
-
-- **测试框架**: 项目采用 `Jest`作为单元测试和集成测试的框架。
-- **测试工具**: 配合 `@tarojs/test-utils-react` 来辅助测试 Taro 组件。
-- **测试文件**: 测试文件应与被测试文件放在同一目录下，并以 `.spec.ts` 或 `.test.ts` 结尾（例如 `button.test.ts`）。
-- **测试覆盖率**: 鼓励编写测试用例，并关注核心业务逻辑的测试覆盖率。
-
-## 持续集成 (CI/CD)
-
-- **自动化部署**: 推荐使用 Taro 官方提供的 `@tarojs/plugin-mini-ci` 插件，实现小程序的自动化上传、预览等功能。
-- **配置**: 在项目根目录的 `config` 文件夹下创建 `ci.config.js` 用于存放小程序密钥及机器人等配置信息。
-- **脚本**: 在 `package.json` 的 `scripts` 中添加相应的 `upload` 和 `preview` 命令，即可通过命令行一键完成部署操作。
-- **钩子**: CI 插件支持钩子函数，可以在部署的不同阶段执行自定义脚本，例如将预览二维码发送到飞书或钉钉群。
-
-## 参考项目
-
-本项目在开发过程中，积极参考了以下优秀的开源项目作为最佳实践范例：
-
-1.  **[lsqy/taro-music](https://github.com/lsqy/taro-music)**
-    - **学习重点**:
-        - **Redux 状态管理**: 深入学习其在复杂应用中（如音乐播放器）的 Redux `store` 设计、`actions` 和 `reducers` 的组织方式。
-        - **组件封装**: 参考其对 `Taro UI` 的深度使用和自定义业务组件（如歌词、播放器）的封装思路。
-        - **项目结构**: 借鉴其清晰的目录划分，如 `services`、`utils`、`constants` 等。
-
-2.  **[kala888/tixwork](https://github.com/kala888/tixwork)**
-    - **学习重点**:
-        - **业务逻辑与数据流**: 分析其在协作工具场景下，如何处理复杂的业务逻辑和多模块间的数据流转。
-        - **DVA 状态管理**: 了解 DVA（基于 Redux 和 a-router）在项目中的应用模式，作为 Redux 实践的补充和对比。
-        - **工程化实践**: 参考其在大型项目中可能包含的更全面的工程化配置和代码规范。
-
-通过对这些项目的研究，我们可以更好地遵循社区的最佳实践，编写出高质量、可维护的代码。
-
-## AI 功能集成
-
-- **服务封装**: AI 相关的功能（如内容润色、AI 助手）应封装在独立的 `services` 或 `hooks` 中。
-- **按需加载**: AI 功能组件或逻辑应尽可能按需加载，避免影响应用启动性能。
-- **用户反馈**: 为 AI 生成的内容提供明确的标识，并设置用户反馈机制（如"生成得不错"、"重新生成"）。
-
-
-## 任务
-
-参考用原型图在v0.dev生成的项目 `nkuwiki-app/`，它对原型图的还原保真度非常高。在重构页面时，需要将 `nkuwiki-app` 的实现**翻译**为 Taro 项目的规范，核心要点如下：
-
-1.  **组件翻译**:
-    *   HTML 标签 (如 `div`, `p`, `header`) 对应翻译为 Taro 组件 (如 `<View>`, `<Text>`)。
-    *   Next.js 的 `<Link>` 组件，其导航功能用 `Taro.navigateTo` API 实现。
-    *   Next.js 的 `<Image>` 组件，用 Taro 的 `<Image>` 组件替代。
-2.  **样式翻译**:
-    *   `nkuwiki-app` 使用的 Tailwind CSS 原子类，需要手动在 `.module.scss` 文件中编写对应的 SCSS 样式规则。
-3.  **图标翻译**:
-    *   `nkuwiki-app` 使用的 `lucide-react` 图标库，必须替换为遵循本项目“图标资源工作流”的本地 SVG 文件。
-
-**请注意**：此任务**不包括**顶部导航栏和底部 `tabBar` 的重构，它们由项目自身的 `<CustomHeader>` 和 `app.config.ts` 全局管理。
+### 项目工作流 (workflow.mdc)
+- **Git**: 采用 `Git Flow` 模型，Commit Message 遵循 `Angular` 规范。
+- **自动化**: 使用 `Husky`, `lint-staged`, `commitlint` 在 `pre-commit` 和 `commit-msg` 钩子中进行代码检查和格式化。
+- **测试**: 使用 `Jest` 和 `@tarojs/test-utils-react` 进行单元测试。
+- **CI/CD**: 使用 `@tarojs/plugin-mini-ci` 实现小程序自动化部署。
+- **重构任务**: 参考 `nkuwiki-app/` 项目，将 Next.js 实现（HTML 标签, Tailwind, `lucide-react`）翻译为 Taro 规范（Taro 组件, SCSS, 本地 SVG）。

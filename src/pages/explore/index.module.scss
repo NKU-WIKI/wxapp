@@ -1,8 +1,10 @@
+@import "../../styles/variables.scss";
+
 .explorePage {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f9fafb; // bg-gray-50
+  background-color: $bg-page-cool;
 }
 
 .pageContent {
@@ -14,22 +16,22 @@
 
 .searchBarWrapper {
   padding: 16px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: $bg-card;
+  border-bottom: 1px solid $border-gray;
 }
 
 .searchContainer {
   display: flex;
   align-items: center;
-  background-color: #f3f4f6; // bg-gray-100
-  border-radius: 9999px; // rounded-full
+  background-color: $bg-input-focus;
+  border-radius: 9999px;
   padding: 8px 12px;
 }
 
 .searchIcon {
   width: 20px;
   height: 20px;
-  color: #6b7280; // text-gray-500
+  color: $text-helper-light;
 }
 
 .searchInput {
@@ -47,8 +49,8 @@
 .searchSkillsContainer {
   flex: 1;
   padding: 16px;
-  background-color: #ffffff;
-  height: 100%; /* Ensure it takes full height of its container */
+  background-color: $bg-card;
+  height: 100%;
 }
 
 .skillsHeader {
@@ -60,7 +62,7 @@
 .skillsTitleDecorator {
   width: 4px;
   height: 20px;
-  background-color: #8b5cf6; // bg-purple-600
+  background-color: $theme-primary-light;
   border-radius: 9999px;
   margin-right: 8px;
 }
@@ -68,7 +70,7 @@
 .skillsTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #111827; // text-gray-900
+  color: $text-primary-dark;
 }
 
 .skillsGrid {
@@ -78,9 +80,9 @@
 }
 
 .skillCard {
-  background-color: #ffffff;
+  background-color: $bg-card;
   border-radius: 8px;
-  border: 1px solid #f3f4f6;
+  border: 1px solid $border-cool;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -96,36 +98,36 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #eff6ff; // bg-blue-50
+  background-color: $alpha-primary-10;
 }
 
 .skillIcon {
   width: 24px;
   height: 24px;
-  color: #3b82f6; // text-blue-600
+  color: $status-info;
 }
 
 /* Specific colors for skill icons */
-.skillCard:nth-child(2) .skillIconContainer { background-color: #f0fdf4; } // bg-green-50
-.skillCard:nth-child(2) .skillIcon { color: #22c55e; } // text-green-600
-.skillCard:nth-child(3) .skillIconContainer { background-color: #fff7ed; } // bg-orange-50
-.skillCard:nth-child(3) .skillIcon { color: #f97316; } // text-orange-600
-.skillCard:nth-child(4) .skillIconContainer { background-color: #fef2f2; } // bg-red-50
-.skillCard:nth-child(4) .skillIcon { color: #ef4444; } // text-red-600
+.skillCard:nth-child(2) .skillIconContainer { background-color: $alpha-success-10; }
+.skillCard:nth-child(2) .skillIcon { color: $status-success; }
+.skillCard:nth-child(3) .skillIconContainer { background-color: $alpha-warning-10; }
+.skillCard:nth-child(3) .skillIcon { color: $status-warning; }
+.skillCard:nth-child(4) .skillIconContainer { background-color: $alpha-error-10; }
+.skillCard:nth-child(4) .skillIcon { color: $status-error; }
 
 .skillTitle {
   font-weight: 600;
-  color: #111827;
+  color: $text-primary-dark;
 }
 
 .skillDesc {
   font-size: 14px;
-  color: #4b5563;
+  color: $text-secondary;
 }
 
 .skillExample {
   font-size: 12px;
-  color: #6b7280;
+  color: $text-helper-light;
 }
 
 /* Default Explore View */
@@ -135,8 +137,8 @@
 
 .sourceNav {
   padding: 12px 16px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: $bg-card;
+  border-bottom: 1px solid $border-gray;
 }
 
 .sourceScrollView {
@@ -150,7 +152,7 @@
   align-items: center;
   gap: 4px;
   padding: 0 12px;
-  color: #374151;
+  color: $text-secondary;
   &:first-child {
     padding-left: 0;
   }
@@ -167,8 +169,8 @@
 
 .contributionSection {
   padding: 12px 16px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: $bg-card;
+  border-bottom: 1px solid $border-gray;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -181,7 +183,7 @@
 
 .contributionText {
   font-size: 14px;
-  color: #374151;
+  color: $text-secondary;
 }
 
 .mainContent {
@@ -194,7 +196,7 @@
 .sectionTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: $text-primary-dark;
   margin-bottom: 12px;
 }
 
@@ -209,7 +211,7 @@
 }
 
 .recCard {
-  background-color: #f3e8ff; // bg-purple-50
+  background-color: $alpha-primary-10;
   border-radius: 8px;
   padding: 12px;
   display: flex;
@@ -228,19 +230,19 @@
 .recText {
   font-size: 14px;
   font-weight: 500;
-  color: #1f2937;
+  color: $text-primary-medium;
 }
 
 .recCount {
   font-size: 12px;
-  color: #6b7280;
+  color: $text-helper-light;
 }
 
 .wikiCard, .hotListCard {
-  background-color: #ffffff;
+  background-color: $bg-card;
   border-radius: 8px;
   padding: 16px;
-  border: 1px solid #f3f4f6;
+  border: 1px solid $border-cool;
 }
 
 .cardHeader {
@@ -257,12 +259,12 @@
 .refreshIcon {
   width: 20px;
   height: 20px;
-  color: #6b7280;
+  color: $text-helper-light;
 }
 
 .wikiContent {
   font-size: 14px;
-  color: #374151;
+  color: $text-secondary;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -272,12 +274,12 @@
   line-height: 1.5;
 }
 .wikiSource {
-  color: #6b7280;
+  color: $text-helper-light;
 }
 
 .seeMore {
   font-size: 14px;
-  color: #9333ea; // text-purple-600
+  color: $theme-primary-light;
 }
 
 .hotList {
@@ -295,7 +297,7 @@
 .hotListRank {
   font-size: 18px;
   font-weight: bold;
-  color: #374151;
+  color: $text-secondary;
   width: 20px;
   text-align: center;
 }
@@ -305,7 +307,7 @@
 }
 
 .hotListTitle {
-  color: #1f2937;
+  color: $text-primary-medium;
   font-size: 14px;
 }
 
@@ -314,11 +316,24 @@
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #6b7280;
+  color: $text-helper-light;
   margin-top: 4px;
 }
 
 .hotTag {
-  color: #ef4444; // text-red-500
+  color: $status-error;
   font-weight: 500;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 500;
+}
+.cardIcon {
+  width: 24px;
+  height: 24px;
+  background-color: $theme-primary;
+}
+.cardDescription {
+  font-size: 12px;
 }

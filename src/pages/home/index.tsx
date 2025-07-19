@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PostItem from "@/components/post-item";
 import PostItemSkeleton from "@/components/post-item-skeleton";
 import EmptyState from "@/components/empty-state";
+import Categories from "@/components/categories"; // 引入新组件
 import emptyIcon from "@/assets/empty.svg";
 import styles from "./index.module.scss";
 import CustomHeader from "@/components/custom-header";
@@ -42,7 +43,7 @@ const mockCategories = [
 ];
 
 export default function Home() {
-  console.log('--- HOME COMPONENT RENDER CHECK (PRODUCTION) ---');
+  console.log("--- HOME COMPONENT RENDER CHECK (PRODUCTION) ---");
   const dispatch = useDispatch<AppDispatch>();
   const { list: posts, loading } = useSelector(
     (state: RootState) => state.post
@@ -54,30 +55,23 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(fetchPosts({ page: 1, pageSize: 10 }));
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (isLoggedIn) {
       dispatch(fetchUserProfile());
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, dispatch]);
 
-  const handleFabClick = () => {
-    if (isLoggedIn) {
-      Taro.navigateTo({
-        url: "/pages/publish/index",
-      });
-    } else {
-      Taro.showModal({
-        title: "登录提示",
-        content: "发布帖子需要先登录，是否前往登录？",
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: "/pages/login/index" });
-          }
-        },
-      });
+  const handleCategorySelect = (categoryId: number | null) => {
+    const params: { page: number; pageSize: number; category_id?: number } = {
+      page: 1,
+      pageSize: 10,
+    };
+    if (categoryId) {
+      params.category_id = categoryId;
     }
+    dispatch(fetchPosts(params));
   };
 
   const handleCategoryClick = (categoryName: string) => {
@@ -90,9 +84,13 @@ export default function Home() {
         <PostItemSkeleton key={index} className={styles.postListItem} />
       ));
     }
-    if (posts.length === 0) {
+    // 增加对 posts 的健壮性检查
+    if (!posts || posts.length === 0) {
       return (
-        <EmptyState icon={emptyIcon} text="暂时没有帖子，快来发布第一条吧！" />
+        <EmptyState
+          icon={emptyIcon}
+          text="暂时没有帖子，快来发布第一条吧！"
+        />
       );
     }
     return posts.map((post) => (
@@ -102,7 +100,7 @@ export default function Home() {
 
   return (
     <View className={styles.homeContainer}>
-      <CustomHeader showNotificationIcon />
+      <CustomHeader title="首页" showNotificationIcon />
       <View style={{ flex: 1, overflow: "hidden" }}>
         <ScrollView scrollY className={styles.scrollView}>
           {/* Search Bar */}
@@ -146,11 +144,10 @@ export default function Home() {
           </View>
 
           {/* Post List */}
-          <View className={styles.postList}>{renderContent()}</View>
+          <View className={styles.postListContainer}>
+            <View className={styles.postList}>{renderContent()}</View>
+          </View>
         </ScrollView>
-      </View>
-      <View className={styles.fab} onClick={handleFabClick}>
-        <Text className={styles.fabIcon}>+</Text>
       </View>
     </View>
   );

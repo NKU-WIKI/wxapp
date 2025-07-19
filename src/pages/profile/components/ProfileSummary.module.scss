@@ -1,8 +1,10 @@
+@import "../../../styles/variables.scss";
+
 .profileSummary {
-  background-color: #ffffff;
+  background-color: $bg-card;
   padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid $border-gray;
+  box-shadow: 0 1px 2px 0 $shadow-light;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -18,7 +20,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 2px solid #8b5cf6;
+  border: 2px solid $theme-primary;
 }
 
 .userDetails {
@@ -37,12 +39,12 @@
 .nickname {
   font-size: 20px;
   font-weight: bold;
-  color: #111827;
+  color: $text-primary-dark;
 }
 
 .levelBadge {
-  background-color: #8b5cf6;
-  color: white;
+  background-color: $theme-primary;
+  color: $text-white;
   font-size: 14px;
   padding: 2px 8px;
   border-radius: 9999px;
@@ -52,7 +54,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #8b5cf6;
+  color: $theme-primary;
   font-size: 14px;
 }
 
@@ -63,21 +65,21 @@
 
 .signature {
   font-size: 14px;
-  color: #4b5563;
+  color: $text-secondary;
 }
 
 .school {
   font-size: 14px;
-  color: #6b7280;
+  color: $text-helper-light;
 }
 
 .editButton {
-  font-size: 14px;
-  padding: 6px 16px;
+  margin-left: 8px;
+  padding: 8px 16px;
   border-radius: 9999px;
-  color: #8b5cf6;
-  border: 1px solid #8b5cf6;
-  background-color: transparent;
+  color: $theme-primary;
+  border: 1px solid $theme-primary;
+  font-size: 14px;
 }
 
 .statsGrid {
@@ -95,11 +97,11 @@
 
 .statValue {
   font-size: 18px;
-  font-weight: bold;
-  color: #111827;
+  font-weight: 600;
+  color: $theme-primary;
 }
 
 .statLabel {
   font-size: 14px;
-  color: #6b7280;
+  color: $text-helper-light;
 } 

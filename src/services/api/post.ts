@@ -1,12 +1,18 @@
 import http from '../request';
-import { BaseResponse } from '@/types/api/common';
-import { Post, GetPostsParams, CreatePostParams, CreatePostResponse } from '@/types/api/post';
+import { Post, GetPostsParams, CreatePostParams, CreatePostResponse } from '@/types/api/post.d';
+import { BaseResponse, BackendPaginatedResponse } from '@/types/api/common.d';
 
-export const postApi = {
+const postApi = {
   getPosts: (params: GetPostsParams) => {
-    return http.get<Post[]>('/wxapp/post/list', params);
+    // 由于后端返回的是扁平分页结构，我们需要特殊处理
+    return http.get('/wxapp/post/list', { params }) as Promise<BackendPaginatedResponse<Post>>;
   },
-  createPost: (params: CreatePostParams) => {
-    return http.post<CreatePostResponse>('/wxapp/post/create', params);
-  }
-}; 
+  createPost: (data: CreatePostParams) => {
+    return http.post<CreatePostResponse>('/wxapp/post/create', data);
+  },
+  deletePost: (postId: number) => {
+    return http.post<null>('/wxapp/post/delete', { post_id: postId });
+  },
+};
+
+export default postApi; 

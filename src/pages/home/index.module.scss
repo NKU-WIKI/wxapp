@@ -21,9 +21,10 @@
 }
 
 .searchIcon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   margin-right: 8px;
+  opacity: 0.6;
 }
 
 .searchInput {
@@ -96,7 +97,7 @@
 
 .postListItem {
   & + & {
-    margin-top: 16px;
+    margin-top: 4px;
   }
 }
 

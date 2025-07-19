@@ -1,3 +1,5 @@
+@import "../../styles/variables.scss";
+
 // Base button styles
 .button {
   display: inline-flex;
@@ -18,48 +20,48 @@
 
 // Variants
 .variant-default {
-  background-color: #8b5cf6; // primary (purple-600)
-  color: #ffffff; // primary-foreground
+  background-color: $theme-primary; // primary (purple-600)
+  color: $text-white; // primary-foreground
   &:hover {
-    background-color: #7c3aed; // primary/90 (purple-700)
+    background-color: $theme-primary-dark; // primary/90 (purple-700)
   }
 }
 
 .variant-destructive {
-  background-color: #ef4444; // destructive (red-500)
-  color: #ffffff;
+  background-color: $status-error; // destructive (red-500)
+  color: $text-white;
   &:hover {
-    background-color: #dc2626; // destructive/90 (red-600)
+    background-color: $status-error-dark; // destructive/90 (red-600)
   }
 }
 
 .variant-outline {
-  border-color: #d1d5db; // border-input (gray-300)
+  border-color: $border-input; // border-input (gray-300)
   background-color: transparent;
   &:hover {
-    background-color: #f3f4f6; // bg-accent (gray-100)
-    color: #1f2937; // text-accent-foreground (gray-800)
+    background-color: $bg-input-focus; // bg-accent (gray-100)
+    color: $text-primary-dark; // text-accent-foreground (gray-800)
   }
 }
 
 .variant-secondary {
-  background-color: #f3f4f6; // secondary (gray-100)
-  color: #1f2937;
+  background-color: $bg-input-focus; // secondary (gray-100)
+  color: $text-primary-medium;
   &:hover {
-    background-color: #e5e7eb; // secondary/80 (gray-200)
+    background-color: $border-gray; // secondary/80 (gray-200)
   }
 }
 
 .variant-ghost {
   background-color: transparent;
   &:hover {
-    background-color: #f3f4f6;
-    color: #1f2937;
+    background-color: $bg-input-focus;
+    color: $text-primary-medium;
   }
 }
 
 .variant-link {
-  color: #8b5cf6;
+  color: $theme-primary;
   text-decoration: underline;
   text-underline-offset: 4px;
   background-color: transparent;

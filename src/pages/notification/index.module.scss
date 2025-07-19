@@ -1,8 +1,10 @@
+@import "../../styles/variables.scss";
+
 .pageContainer {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f8f8f8;
+  background-color: $bg-page;
 }
 
 .tabsContainer {
@@ -15,28 +17,25 @@
 
 /* Customizing taro-ui AtTabs */
 .tabs {
-  :global(.at-tabs__header) {
-    background-color: #f3f4f6;
-    border-radius: 9999px;
-    padding: 4px;
-    height: auto;
-  }
+  display: flex;
+  background-color: $bg-input-focus;
+  border-radius: 8px;
+  padding: 4px;
 
-  :global(.at-tabs__item) {
-    color: #374151;
-    border-radius: 9999px;
+  .tab {
+    flex: 1;
+    text-align: center;
     padding: 8px 0;
     font-size: 14px;
-    transition: all 0.3s ease;
-  }
+    color: $text-secondary;
+    border-radius: 6px;
+    transition: all 0.2s;
 
-  :global(.at-tabs__item--active) {
-    background-color: #8b5cf6;
-    color: white !important;
-  }
-
-  :global(.at-tabs__underline) {
-    display: none; // Hide the default underline
+    &.active {
+      background-color: $theme-primary;
+      color: $text-white;
+      font-weight: 500;
+    }
   }
 }
 
@@ -49,7 +48,7 @@
 
 .emptyText {
   text-align: center;
-  color: #6b7280;
+  color: $text-helper-light;
   padding: 40px 0;
 }
 
@@ -59,9 +58,9 @@
 }
 
 .footer {
-  background-color: #ffffff;
+  background-color: $bg-card;
   padding: 12px 16px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid $border-gray;
   padding-bottom: calc(12px + constant(safe-area-inset-bottom));
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
 }
@@ -69,8 +68,8 @@
 .markAllReadButton {
   width: 100%;
   padding: 12px;
-  background-color: #8b5cf6;
-  color: white;
+  background-color: $theme-primary;
+  color: $text-white;
   border-radius: 9999px;
   display: flex;
   align-items: center;

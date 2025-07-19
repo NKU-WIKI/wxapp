@@ -1,0 +1,40 @@
+## 🏷️ 命名规范
+
+- **目录和非组件文件**: 使用 `kebab-case` (小写短横线连接)。例如: `user-list`, `request.ts`。
+- **页面/组件**:
+    - 文件夹: `kebab-case`。例如: `src/pages/user-list`。
+    - React 组件文件: `PascalCase`。例如: `UserList.tsx`。如果目录内只有一个组件，可命名为 `index.tsx`。
+- **变量**: `camelCase` (小驼峰)。例如: `const userName = 'Taro';`。
+- **常量**: `UPPER_SNAKE_CASE` (大写下划线连接)。例如: `const MAX_COUNT = 10;`。
+- **函数/方法**: `camelCase`。例如: `function getUserInfo() {}`。
+- **CSS 类名**: `kebab-case` 或 BEM 规范。推荐使用 CSS Modules，在 `*.module.scss` 文件中编写。
+- **推荐库**:
+    - `classnames`: 便捷地、有条件地组合 CSS 类名。
+    - `lodash`: 提供大量实用的工具函数，按需引入。
+
+## ✍️ 代码风格与规范
+
+### TypeScript
+
+- 始终开启 `strict` 模式。
+- 明确定义函数参数和返回值的类型。
+- 优先使用 `interface` 定义对象类型，使用 `type` 定义联合类型、交叉类型等。
+
+### React
+
+- **函数式组件优先**: 全面使用函数式组件和 Hooks (`useState`, `useEffect`, `useContext` 等)。
+- **Hooks**:
+    - 使用 `useMemo` 和 `useCallback` 进行性能优化，避免不必要的重渲染。
+    - 自定义 Hooks 应用于封装可复用的逻辑，应以 `use` 开头。推荐将项目通用的 Hooks 抽离至 `src/core/hooks` 中，例如封装一个 `useList` 来处理通用列表加载逻辑。
+- **组件封装**:
+    - 组件应保持功能单一。
+    - 超过 100 行的组件建议拆分。
+    - 避免使用匿名函数作为组件属性，如 `<View onClick={() => {}} />`。
+
+### 样式 (SCSS)
+
+- **主题色**: #8B5CF6
+- **CSS Modules**: 强制使用 `*.module.scss` 避免全局样式污染。
+- **全局样式**: 全局变量、主题等写入 `src/app.scss`。
+- **单位**: 推荐使用 `px`，Taro 会自动转换为 `rpx`。
+- **新兴方案**: 可关注 `UnoCSS` 或 `TailwindCSS` 等原子化 CSS 方案，它们通过提供大量原子类来快速构建界面，可能会在特定场景下提升开发效率。
