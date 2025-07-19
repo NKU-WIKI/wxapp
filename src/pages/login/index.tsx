@@ -7,6 +7,7 @@ import { login } from '@/store/slices/userSlice';
 import { fetchAboutInfo } from '@/store/slices/aboutSlice';
 import styles from './index.module.scss';
 import logo from '@/assets/logo.png';
+import CustomHeader from '@/components/custom-header';
 
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -29,6 +30,7 @@ export default function LoginPage() {
 
   return (
     <View className={styles.loginPage}>
+      <CustomHeader title="登录" />
       <View className={styles.mainContent}>
         <Image src={logo} className={styles.logo} mode="aspectFit" />
         {aboutInfo?.version && (

@@ -3,7 +3,7 @@ $page-bg-color: #f8f8f8;
 $card-bg-color: #ffffff;
 $primary-text-color: #333333;
 $secondary-text-color: #9B9B9B;
-$accent-color: #4a90e2;
+$accent-color: #4F46E5;
 $border-color: #f0f0f0;
 $page-padding-lr: 16px;
 
@@ -254,10 +254,9 @@ $page-padding-lr: 16px;
 }
 
 .actions {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
   gap: 16px;
-  margin-bottom: 24px;
+  background-color: #4F46E5;
 }
 
 .actionItem {

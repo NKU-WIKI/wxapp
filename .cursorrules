@@ -114,6 +114,7 @@ npx @tarojs/cli init project_name
 
 ### 样式 (SCSS)
 
+- **主题色**: #8B5CF6
 - **CSS Modules**: 强制使用 `*.module.scss` 避免全局样式污染。
 - **全局样式**: 全局变量、主题等写入 `src/app.scss`。
 - **单位**: 推荐使用 `px`，Taro 会自动转换为 `rpx`。
@@ -233,6 +234,49 @@ npx @tarojs/cli init project_name
       ```bash
       curl -o src/assets/gallery.svg "https://api.iconify.design/solar/gallery-bold.svg"
       ```
+
+## 🎨 SVG 图标颜色动态修改最佳实践 (强制)
+
+在 Taro 项目中，当需要用 CSS 动态改变 SVG 图标的颜色时（例如，根据是否选中来切换颜色），**必须**遵循以下**最佳实践**，以避免渲染失败或兼容性问题：
+
+1.  **禁止使用 `filter`**: **严禁**使用 CSS 的 `filter` 属性来改变图标颜色。此方法在小程序环境下的兼容性不佳，可能导致渲染性能问题甚至组件不显示。
+
+2.  **推荐使用 `mask-image` + CSS 变量**: 这是最可靠、最高效的方案。
+    *   **TSX/JSX 结构**: 使用一个普通的 `<View>` 标签作为图标容器。将图标的 `url` 通过 CSS 自定义属性 (CSS Variable) 传递。
+        ```tsx
+        import myIcon from '@/assets/my-icon.svg';
+
+        // ...
+        <View
+          className={styles.icon}
+          style={{ '--icon-url': `url(${myIcon})` } as React.CSSProperties}
+        />
+        ```
+    *   **SCSS 样式**: 在样式文件中，使用 `var()` 函数消费这个变量，并通过 `background-color` 来控制图标的颜色。
+        ```scss
+        .icon {
+          width: 24px;
+          height: 24px;
+          background-color: #333; // 默认颜色
+
+          mask-image: var(--icon-url);
+          mask-size: contain;
+          mask-position: center;
+          mask-repeat: no-repeat;
+          
+          /* 别忘了加-webkit-前缀以增强兼容性 */
+          -webkit-mask-image: var(--icon-url);
+          -webkit-mask-size: contain;
+          -webkit-mask-position: center;
+          -webkit-mask-repeat: no-repeat;
+
+          &.active {
+            background-color: #4F46E5; // 激活时的颜色
+          }
+        }
+        ```
+
+3.  **备用方案：多图标文件切换**: 如果 `mask-image` 方案在极端情况下仍有问题，或者图标本身包含多种颜色不适合单色遮罩，可以退回到最原始但绝对可靠的方案：为不同的颜色状态准备不同的 SVG 文件（如 `icon-normal.svg`, `icon-active.svg`），并在代码中根据状态条件渲染不同的 `<Image>` 组件。
 
 ## UI/UX 规范
 

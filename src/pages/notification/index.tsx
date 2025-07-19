@@ -30,7 +30,7 @@ export default function NotificationPage() {
 
   return (
     <View className={styles.pageContainer}>
-      <CustomHeader title="消息通知" renderRight={renderHeaderRight()} />
+      <CustomHeader title="消息" />
       
       <View className={styles.tabsContainer}>
         <AtTabs

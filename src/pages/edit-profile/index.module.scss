@@ -6,23 +6,14 @@
 }
 
 .saveButton {
-  width: 100%;
-  background-color: #4A90E2;
-  color: #fff;
+  margin-top: 24px;
+  padding: 12px;
   border-radius: 8px;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 48px;
+  background-color: #4F46E5; // bg-purple-600
+  color: white;
   text-align: center;
-
-  &::after {
-    border: none;
-  }
-
-  &[disabled] {
-    background-color: #a0c7ff;
-    color: #e0e0e0;
-  }
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .content {

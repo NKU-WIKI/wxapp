@@ -20,7 +20,7 @@ export default defineAppConfig({
   tabBar: {
     custom: true,
     color: "#9B9B9B",
-    selectedColor: "#4F46E5",
+    selectedColor: "#4A90E2",
     backgroundColor: "#FFFFFF",
     borderStyle: "white",
     list: [
@@ -33,8 +33,8 @@ export default defineAppConfig({
         text: "探索",
       },
       {
-        pagePath: "pages/discover/index",
-        text: "发现",
+        pagePath: "pages/notification/index",
+        text: "消息",
       },
       {
         pagePath: "pages/profile/index",

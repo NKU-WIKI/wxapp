@@ -15,28 +15,25 @@
 
 /* Customizing taro-ui AtTabs */
 .tabs {
-  :global(.at-tabs__header) {
-    background-color: #f3f4f6;
-    border-radius: 9999px;
-    padding: 4px;
-    height: auto;
-  }
+  display: flex;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  padding: 4px;
 
-  :global(.at-tabs__item) {
-    color: #374151;
-    border-radius: 9999px;
+  .tab {
+    flex: 1;
+    text-align: center;
     padding: 8px 0;
     font-size: 14px;
-    transition: all 0.3s ease;
-  }
+    color: #374151;
+    border-radius: 6px;
+    transition: all 0.2s;
 
-  :global(.at-tabs__item--active) {
-    background-color: #8b5cf6;
-    color: white !important;
-  }
-
-  :global(.at-tabs__underline) {
-    display: none; // Hide the default underline
+    &.active {
+      background-color: #4F46E5;
+      color: white;
+      font-weight: 500;
+    }
   }
 }
 
@@ -69,7 +66,7 @@
 .markAllReadButton {
   width: 100%;
   padding: 12px;
-  background-color: #8b5cf6;
+  background-color: #4F46E5;
   color: white;
   border-radius: 9999px;
   display: flex;

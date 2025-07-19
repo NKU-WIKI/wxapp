@@ -173,7 +173,7 @@ export default function ExplorePage() {
 
   return (
     <View className={styles.explorePage}>
-      <CustomHeader showNotificationIcon />
+      <CustomHeader title="探索" />
       <View className={styles.pageContent}>
         <View className={styles.searchBarWrapper}>
           <View className={styles.searchContainer}>

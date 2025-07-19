@@ -8,12 +8,14 @@ import BottomInput from './components/BottomInput';
 
 const PostDetailPage = () => {
   return (
-    <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <View className={styles.postDetailPage}>
       <CustomHeader title="帖子详情" />
       <View style={{ flex: 1, overflow: 'hidden' }}>
-        <ScrollView scrollY style={{ height: '100%' }} className={styles.page}>
-          <PostDetailContent />
-          <CommentSection />
+        <ScrollView scrollY className={styles.scrollView}>
+          <View className={styles.mainContent}>
+            <PostDetailContent />
+            <CommentSection />
+          </View>
         </ScrollView>
       </View>
       <BottomInput />

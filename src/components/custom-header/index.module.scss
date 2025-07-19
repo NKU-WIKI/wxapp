@@ -8,24 +8,23 @@
   left: 0;
   width: 100%;
   z-index: 1000;
-  box-sizing: border-box;
+  background-color: #4F46E5; /* 新主题色背景 */
+  transition: background-color 0.2s;
 }
 
 .navBarContent {
   position: relative;
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
 }
 
-.left, .right {
+.left,
+.right {
   display: flex;
   align-items: center;
-}
-
-.left {
-  justify-content: flex-start;
+  flex: 1;
 }
 
 .right {
@@ -34,11 +33,20 @@
 
 .center {
   position: absolute;
-  top: 50%;
   left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
-  width: 60%; // 限制标题宽度，防止过长
   text-align: center;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #4F46E5; /* 主题色标题 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
 }
 
 .iconWrapper {
@@ -46,23 +54,20 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+  padding: 0 10px;
 }
 
-.backIcon {
+.backIcon,
+.notificationIcon {
   width: 20px;
   height: 20px;
-}
-
-.notificationIcon {
-  width: 24px;
-  height: 24px;
-}
-
-.title {
-  font-size: 17px; // 根据微信设计规范调整
-  font-weight: 600; // bold
-  color: #000;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* 暂时不修改颜色，让它保持黑色 */
+  mask-image: var(--icon-url);
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: var(--icon-url);
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
 } 

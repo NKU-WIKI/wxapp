@@ -1,0 +1,59 @@
+.categoriesContainer {
+  display: flex;
+  justify-content: space-between; // 改为 space-between 以拉开间距
+  align-items: flex-start;
+  padding: 16px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  margin: 0 16px 16px;
+}
+
+.categoryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  gap: 8px; // 统一设置 gap
+  flex: 1; // 让每个 item 平分空间
+  min-width: 0; // 配合 flex: 1 防止内容溢出
+
+  .categoryIconContainer {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0; // 默认灰色背景
+    transition: background-color 0.2s;
+
+    .categoryIcon {
+      width: 28px;
+      height: 28px;
+      background-color: #4F46E5; // 未选中时，图标为主题紫色
+      mask-image: var(--icon-url);
+      mask-size: contain;
+      mask-position: center;
+      mask-repeat: no-repeat;
+      -webkit-mask-image: var(--icon-url);
+      -webkit-mask-size: contain;
+      -webkit-mask-position: center;
+      -webkit-mask-repeat: no-repeat;
+    }
+  }
+
+  &.selected .categoryIconContainer {
+    background-color: #4F46E5; // 选中时为主题色
+
+    .categoryIcon {
+      background-color: #ffffff; // 选中时图标为白色
+    }
+  }
+
+  .categoryName {
+    font-size: 13px; // 稍微缩小字体
+    color: #333;
+    text-align: center;
+    white-space: nowrap; // 防止换行
+  }
+} 

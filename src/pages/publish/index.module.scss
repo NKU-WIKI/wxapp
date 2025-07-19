@@ -125,7 +125,7 @@
   align-items: center;
   gap: 4px;
   background-color: #f5f3ff; // bg-purple-100
-  color: #8b5cf6;
+  color: #4F46E5;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 14px;
@@ -170,7 +170,7 @@
 .suggestionIcon {
   width: 20px;
   height: 20px;
-  color: #8b5cf6;
+  color: #4F46E5;
   margin-top: 4px;
 }
 
@@ -186,7 +186,7 @@
 }
 
 .applyBtn {
-  color: #8b5cf6;
+  color: #4F46E5;
   font-size: 14px;
 }
 
@@ -209,8 +209,55 @@
   color: #374151;
 
   &.selected {
-    background-color: #8b5cf6;
+    background-color: #4F46E5;
     color: white;
-    border-color: #8b5cf6;
+    border-color: #4F46E5;
   }
-} 
+}
+
+.aiSuggestionButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #4F46E5;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.actionIcon {
+  width: 20px;
+  height: 20px;
+  color: #4F46E5;
+}
+
+.publishSettings {
+  .settingLabel {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #4F46E5;
+  }
+
+  .settingValue {
+    color: #4b5563;
+  }
+}
+
+.publishButton {
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid #4F46E5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &.primary {
+    background-color: #4F46E5;
+    border-color: #4F46E5;
+
+    .buttonText {
+      color: white;
+    }
+  }
+}

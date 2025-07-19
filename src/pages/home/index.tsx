@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PostItem from "@/components/post-item";
 import PostItemSkeleton from "@/components/post-item-skeleton";
 import EmptyState from "@/components/empty-state";
+import Categories from "@/components/categories"; // 引入新组件
 import emptyIcon from "@/assets/empty.svg";
 import styles from "./index.module.scss";
 import CustomHeader from "@/components/custom-header";
@@ -12,37 +13,9 @@ import { AppDispatch, RootState } from "@/store";
 import { fetchPosts } from "@/store/slices/postSlice";
 import { fetchUserProfile } from "@/store/slices/userSlice";
 import searchIcon from "@/assets/search.svg";
-import bookIcon from "@/assets/book-bold-duotone.svg";
-import buildingsIcon from "@/assets/buildings-2-bold-duotone.svg";
-import rocketIcon from "@/assets/rocket-bold-duotone.svg";
-import usersGroupIcon from "@/assets/users-group-rounded-bold-duotone.svg";
-import magniferIcon from "@/assets/magnifer-bold-duotone.svg";
-
-const mockCategories = [
-  {
-    name: "学习交流",
-    icon: bookIcon,
-  },
-  {
-    name: "校园生活",
-    icon: buildingsIcon,
-  },
-  {
-    name: "就业创业",
-    icon: rocketIcon,
-  },
-  {
-    name: "社团活动",
-    icon: usersGroupIcon,
-  },
-  {
-    name: "失物招领",
-    icon: magniferIcon,
-  },
-];
 
 export default function Home() {
-  console.log('--- HOME COMPONENT RENDER CHECK (PRODUCTION) ---');
+  console.log("--- HOME COMPONENT RENDER CHECK (PRODUCTION) ---");
   const dispatch = useDispatch<AppDispatch>();
   const { list: posts, loading } = useSelector(
     (state: RootState) => state.post
@@ -52,30 +25,23 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(fetchPosts({ page: 1, pageSize: 10 }));
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (isLoggedIn) {
       dispatch(fetchUserProfile());
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, dispatch]);
 
-  const handleFabClick = () => {
-    if (isLoggedIn) {
-      Taro.navigateTo({
-        url: "/pages/publish/index",
-      });
-    } else {
-      Taro.showModal({
-        title: "登录提示",
-        content: "发布帖子需要先登录，是否前往登录？",
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: "/pages/login/index" });
-          }
-        },
-      });
+  const handleCategorySelect = (categoryId: number | null) => {
+    const params: { page: number; pageSize: number; category_id?: number } = {
+      page: 1,
+      pageSize: 10,
+    };
+    if (categoryId) {
+      params.category_id = categoryId;
     }
+    dispatch(fetchPosts(params));
   };
 
   const renderContent = () => {
@@ -86,7 +52,10 @@ export default function Home() {
     }
     if (posts.length === 0) {
       return (
-        <EmptyState icon={emptyIcon} text="暂时没有帖子，快来发布第一条吧！" />
+        <EmptyState
+          icon={emptyIcon}
+          text="暂时没有帖子，快来发布第一条吧！"
+        />
       );
     }
     return posts.map((post) => (
@@ -96,7 +65,7 @@ export default function Home() {
 
   return (
     <View className={styles.homeContainer}>
-      <CustomHeader showNotificationIcon />
+      <CustomHeader title="首页" showNotificationIcon />
       <View style={{ flex: 1, overflow: "hidden" }}>
         <ScrollView scrollY className={styles.scrollView}>
           {/* Search Bar */}
@@ -106,33 +75,11 @@ export default function Home() {
           </View>
 
           {/* Categories Navigation */}
-          <View className={styles.categoriesContainer}>
-            <ScrollView
-              scrollX
-              className={styles.categoriesScrollView}
-              showScrollbar={false}
-            >
-              {mockCategories.map((category) => (
-                <View key={category.name} className={styles.categoryItem}>
-                  <View className={styles.categoryIconContainer}>
-                    <Image
-                      src={category.icon}
-                      className={styles.categoryIcon}
-                      mode="aspectFit"
-                    />
-                  </View>
-                  <Text className={styles.categoryName}>{category.name}</Text>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
+          <Categories onCategorySelect={handleCategorySelect} />
 
           {/* Post List */}
           <View className={styles.postList}>{renderContent()}</View>
         </ScrollView>
-      </View>
-      <View className={styles.fab} onClick={handleFabClick}>
-        <Text className={styles.fabIcon}>+</Text>
       </View>
     </View>
   );

@@ -101,21 +101,56 @@ $tag-bg-color: #f0f0f0;
   font-size: 13px;
 }
 
-.actions {
+.footer {
   display: flex;
-  gap: 24px;
+  justify-content: space-between;
   align-items: center;
-  color: $secondary-text-color;
-  font-size: 15px;
+  margin-top: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #f0f0f0;
 }
 
-.actionItem {
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.actionButton {
   display: flex;
   align-items: center;
   gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background-color: #f5f5f5;
+  transition: all 0.2s;
+
+  .actionIcon {
+    width: 16px;
+    height: 16px;
+    background-color: #666; // 未激活时图标颜色
+  }
+
+  .actionCount {
+    font-size: 13px;
+    color: #666; // 未激活时文字颜色
+  }
+
+  // 激活状态
+  &.active {
+    background-color: #4F46E5;
+
+    .actionIcon {
+      background-color: #ffffff; // 激活时图标变白
+    }
+    .actionCount {
+      color: #ffffff; // 激活时文字变白
+    }
+  }
 }
 
-.actionIcon {
+.shareIcon {
   width: 20px;
   height: 20px;
+  background-color: #4F46E5; // 分享按钮始终为主题色
 } 

@@ -79,7 +79,7 @@ const Profile = () => {
   // Logged-in user view
   return (
     <View className={styles.pageContainer}>
-      <CustomHeader title="个人中心" />
+      <CustomHeader title="我的" />
       <View style={{ flex: 1, overflow: "hidden" }}>
         <ScrollView scrollY className={styles.scrollView}>
           <ProfileSummary userInfo={userInfo} />
