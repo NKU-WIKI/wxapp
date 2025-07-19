@@ -12,7 +12,7 @@ import discoverIcon from "../assets/discover.png";
 import discoverActiveIcon from "../assets/discover-active.png";
 import profileIcon from "../assets/profile.png";
 import profileActiveIcon from "../assets/profile-active.png";
-import plusIcon from "../assets/plus.svg";
+import plusIcon from "../assets/plus.png";
 
 const CustomTabBar: FC = () => {
   const [selected, setSelected] = useState(0);
@@ -103,4 +103,4 @@ const CustomTabBar: FC = () => {
   );
 };
 
-export default CustomTabBar; 
+export default CustomTabBar;

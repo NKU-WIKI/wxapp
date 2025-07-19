@@ -5,7 +5,7 @@ import styles from './index.module.scss';
 import CustomHeader from '@/components/custom-header';
 
 // 导入新下载的图标
-import plusIcon from '@/assets/plus.svg';
+import plusIcon from '@/assets/plus.png';
 import micIcon from '@/assets/mic.svg';
 import xIcon from '@/assets/x.svg';
 import bellIcon from '@/assets/bell.svg';
@@ -184,9 +184,9 @@ export default function ExplorePage() {
               onFocus={() => setIsSearchActive(true)}
             />
             {isSearchActive ? (
-              <Image 
-                src={xIcon} 
-                className={styles.searchIcon} 
+              <Image
+                src={xIcon}
+                className={styles.searchIcon}
                 onClick={() => setIsSearchActive(false)}
               />
             ) : (
@@ -194,7 +194,7 @@ export default function ExplorePage() {
             )}
           </View>
         </View>
-        
+
         <View style={{ flex: 1, overflow: 'hidden' }}>
           {isSearchActive ? renderSearchSkills() : renderDefaultView()}
         </View>
