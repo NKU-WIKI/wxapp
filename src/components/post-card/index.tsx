@@ -10,6 +10,7 @@ import commentIcon from "@/assets/message-circle.svg";
 import starIcon from "@/assets/star-outline.svg"; // 空心
 import starActiveIcon from "@/assets/star.svg"; // 实心
 import sendIcon from "@/assets/send.svg";
+import moreIcon from "@/assets/more-horizontal.svg";
 
 interface PostCardProps {
   post: Post;
@@ -27,6 +28,40 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
     e.stopPropagation(); // 阻止事件冒泡到父元素
     console.log(`Action: ${action}, Post ID: ${post.id}`);
     // TODO: 调用API处理点赞、收藏等
+  };
+
+  const handleMoreAction = (e) => {
+    e.stopPropagation(); // 阻止事件冒泡到父元素
+    Taro.showActionSheet({
+      itemList: ['删除', '编辑', '举报'],
+      success: function (res) {
+        console.log(`选择了第${res.tapIndex}个按钮`);
+        const actions = ['delete', 'edit', 'report'];
+        const selectedAction = actions[res.tapIndex];
+        
+        if (selectedAction === 'delete') {
+          Taro.showModal({
+            title: '确认删除',
+            content: '确定要删除这条帖子吗？',
+            success: function (res) {
+              if (res.confirm) {
+                console.log('确认删除帖子', post.id);
+                // TODO: 调用删除API
+              }
+            }
+          });
+        } else if (selectedAction === 'edit') {
+          console.log('编辑帖子', post.id);
+          // TODO: 跳转到编辑页面
+        } else if (selectedAction === 'report') {
+          console.log('举报帖子', post.id);
+          // TODO: 调用举报API
+        }
+      },
+      fail: function (res) {
+        console.log(res.errMsg);
+      }
+    });
   };
 
   const ActionButton = ({ icon, activeIcon, count, isActive, action }) => (
@@ -53,6 +88,13 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
           <Text className={styles.authorName}>{post.author_info.nickname}</Text>
           <Text className={styles.postTime}>{post.create_time}</Text>
         </View>
+        <View 
+          className={styles.moreButton}
+          style={
+            { "--icon-url": `url(${moreIcon})` } as React.CSSProperties
+          }
+          onClick={handleMoreAction}
+        />
         {/*
           这里可以根据 is_following_author 状态来显示关注按钮
           <Button className={styles.followButton}>关注</Button>

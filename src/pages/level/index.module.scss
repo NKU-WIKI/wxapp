@@ -1,8 +1,10 @@
+@import "../../styles/variables.scss";
+
 .levelPage {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f9fafb; // bg-gray-50
+  background-color: $bg-page-cool;
 }
 
 .content {
@@ -17,10 +19,10 @@
 .currentLevelCard,
 .levelDescriptionCard,
 .tasksCard {
-  background-color: #ffffff;
+  background-color: $bg-card;
   border-radius: 8px;
   padding: 16px;
-  border: 1px solid #f3f4f6;
+  border: 1px solid $border-cool;
 }
 
 /* Current Level Info Card */
@@ -46,12 +48,12 @@
 .levelName {
   font-size: 20px;
   font-weight: bold;
-  color: #111827; // text-gray-900
+  color: $text-primary-dark;
 }
 
 .levelDetail {
   font-size: 14px;
-  color: #4b5563; // text-gray-600
+  color: $text-secondary;
 }
 
 .expRow {
@@ -59,28 +61,28 @@
   justify-content: space-between;
   width: 100%;
   font-size: 14px;
-  color: #374151; // text-gray-700
+  color: $text-secondary;
 }
 
 .progressContainer {
   width: 100%;
   height: 8px;
   border-radius: 4px;
-  border: 2px solid #4F46E5; // border-purple-600
+  border: 2px solid $theme-primary;
   padding: 2px;
-  background-color: white;
+  background-color: $bg-card;
   overflow: hidden;
 }
 
 .progressBar {
   height: 100%;
-  background-color: #8b5cf6; // bg-purple-600
+  background-color: $theme-primary-light;
   border-radius: 9999px;
 }
 
 .expRatio {
   font-size: 12px;
-  color: #6b7280; // text-gray-500
+  color: $text-helper-light;
 }
 
 /* Level Descriptions Grid */
@@ -98,17 +100,17 @@
   padding: 16px;
 
   &.activeLevel {
-    background-color: #f5f3ff; // bg-purple-50
-    border: 2px solid #8b5cf6; // border-purple-600
+    background-color: $alpha-primary-10;
+    border: 2px solid $theme-primary-light;
     .levelDescriptionTitle {
-      color: #8b5cf6; // text-purple-600
+      color: $theme-primary-light;
     }
   }
 }
 
 .levelDescriptionTitle {
   font-weight: 600;
-  color: #111827;
+  color: $text-primary-dark;
 }
 
 .levelDescriptionExp {

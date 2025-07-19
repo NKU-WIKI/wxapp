@@ -1,11 +1,13 @@
+@import "../../styles/variables.scss";
+
 .categoriesContainer {
   display: flex;
   justify-content: space-between; // 改为 space-between 以拉开间距
   align-items: flex-start;
-  padding: 16px;
-  background-color: #ffffff;
+  padding: 12px 16px; // 减少上下内边距
+  background-color: $bg-card;
   border-radius: 12px;
-  margin: 0 16px 16px;
+  margin: 0 16px 12px; // 减少下边距
 }
 
 .categoryItem {
@@ -13,24 +15,24 @@
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  gap: 8px; // 统一设置 gap
+  gap: 6px; // 从8px减少到6px
   flex: 1; // 让每个 item 平分空间
   min-width: 0; // 配合 flex: 1 防止内容溢出
 
   .categoryIconContainer {
-    width: 48px;
-    height: 48px;
+    width: 44px; // 从48px减少到44px
+    height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f0f0f0; // 默认灰色背景
+    background-color: $border-light; // 默认灰色背景
     transition: background-color 0.2s;
 
     .categoryIcon {
-      width: 28px;
-      height: 28px;
-      background-color: #4F46E5; // 未选中时，图标为主题紫色
+      width: 26px; // 从28px减少到26px
+      height: 26px;
+      background-color: $theme-primary; // 未选中时，图标为主题紫色
       mask-image: var(--icon-url);
       mask-size: contain;
       mask-position: center;
@@ -43,16 +45,16 @@
   }
 
   &.selected .categoryIconContainer {
-    background-color: #4F46E5; // 选中时为主题色
+    background-color: $theme-primary; // 选中时为主题色
 
     .categoryIcon {
-      background-color: #ffffff; // 选中时图标为白色
+      background-color: $text-white; // 选中时图标为白色
     }
   }
 
   .categoryName {
-    font-size: 13px; // 稍微缩小字体
-    color: #333;
+    font-size: 12px; // 从13px减少到12px，让布局更紧凑
+    color: $text-primary;
     text-align: center;
     white-space: nowrap; // 防止换行
   }

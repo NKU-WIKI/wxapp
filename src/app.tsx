@@ -1,4 +1,4 @@
-import "abort-controller/polyfill";
+import 'abort-controller/polyfill';
 import { PropsWithChildren } from 'react'
 import { useLaunch } from '@tarojs/taro'
 import { Provider } from 'react-redux'

@@ -1,0 +1,79 @@
+## ✅ 最佳实践
+
+- **跨端兼容**:
+    - 优先使用 Taro 提供的跨端组件和 API。
+    - 需要条件编译时，使用 `process.env.TARO_ENV` 变量。
+- **性能优化**:
+    - **分包加载**: 对非核心页面和资源使用 `subPackages` 配置。
+    - **图片资源**: 统一存放于 `src/assets` 并压缩。对于小于 10KB 的图片，可配置 `url-loader` 将其转换为 Base64 编码，以减少网络请求。
+    - **图标资源 (强制)**: **禁止**使用外部 CDN 或 URL 动态加载图标（如 Iconify）。所有图标必须存放于 `src/assets` 目录中，并通过静态 `import` 在组件中使用。这可以避免不必要的网络请求，并确保资源的可靠性。
+    - **虚拟列表**: 对于长列表，考虑使用虚拟列表技术。
+    - **包体积分析**: 使用 `webpack-bundle-analyzer` 定期分析项目打包后的体积，识别并优化过大的模块。
+    - **移除console**: 在生产环境中，配置 `babel-plugin-transform-remove-console` 自动移除代码中的 `console` 调用。
+    - **lodash 按需加载**: 若项目中使用 `lodash`，配合 `babel-plugin-lodash` 和 `lodash-webpack-plugin` 实现按需加载，减小打包体积。
+- **自定义导航栏适配**: 在实现自定义顶部导航栏时，必须通过 `Taro.getWindowInfo()` 和 `Taro.getMenuButtonBoundingClientRect()` API 精确计算导航栏尺寸，并封装为统一的 `<CustomHeader>` 组件。所有使用该组件的页面，必须在 `index.config.ts` 中设置 `navigationStyle: 'custom'`。
+- **⚠️ 页面布局核心规范 (强制性)**
+ 所有页面**必须**遵循以下“防内容遮挡”的顶级布局结构，这是一个从实践中总结的、不可违反的硬性规定。
+  ```tsx
+  <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
+    {/* 1. 顶部必须是统一的自定义导航栏 */}
+    <CustomHeader />
+    {/* 2. 页面主体内容必须包裹在这个 View 和 ScrollView 中 */}
+    <View style={{ flex: 1, overflow: 'hidden' }}>
+      <ScrollView scrollY style={{ height: '100%' }}>
+        {/* 页面所有可滚动内容都放在这里 */}
+      </ScrollView>
+    </View>
+  </View>
+  ```
+ 在 `index.config.ts` 中，也**必须**设置 `navigationStyle: 'custom'`。
+ 
+- **⚠️ 右上角安全区域规范 (强制性)**
+ **禁止**在自定义导航栏 (`<CustomHeader>`) 的右上角区域放置任何可交互的控件（如“发布”、“保存”、“菜单”等按钮）。该区域在刘海屏、水滴屏、挖孔屏等异形屏手机上，极易与前置摄像头或系统状态栏（时间、电量）重叠，导致用户无法点击。所有页面级别的主操作按钮，**必须**统一放置在页面底部的操作栏中（参考“编辑资料”和“发布”页面的实现）。此规范旨在保证应用在所有设备上的可用性和交互一致性。
+
+- **全局盒模型**: 为从根源上解决布局偏移问题（如内容偏右），建议在全局样式文件 `src/app.scss` 中为通用容器或页面根元素设置 `box-sizing: border-box;`。
+- **代码检查**: 集成 ESLint, Prettier 和 Stylelint，并配置 `husky` 和 `lint-staged` 在 `pre-commit` 钩子中自动检查和格式化暂存区代码，保证代码质量。
+- **移动端调试**: 在开发阶段，可以集成 `vconsole-webpack-plugin`，它会在开发包中注入一个轻量级的移动端调试面板，方便在真机上查看日志、网络请求等信息。
+
+## 🎨 SVG 图标颜色动态修改最佳实践 (强制)
+
+在 Taro 项目中，当需要用 CSS 动态改变 SVG 图标的颜色时（例如，根据是否选中来切换颜色），**必须**遵循以下**最佳实践**，以避免渲染失败或兼容性问题：
+
+1.  **禁止使用 `filter`**: **严禁**使用 CSS 的 `filter` 属性来改变图标颜色。此方法在小程序环境下的兼容性不佳，可能导致渲染性能问题甚至组件不显示。
+
+2.  **推荐使用 `mask-image` + CSS 变量**: 这是最可靠、最高效的方案。
+    *   **TSX/JSX 结构**: 使用一个普通的 `<View>` 标签作为图标容器。将图标的 `url` 通过 CSS 自定义属性 (CSS Variable) 传递。
+        ```tsx
+        import myIcon from '@/assets/my-icon.svg';
+
+        // ...
+        <View
+          className={styles.icon}
+          style={{ '--icon-url': `url(${myIcon})` } as React.CSSProperties}
+        />
+        ```
+    *   **SCSS 样式**: 在样式文件中，使用 `var()` 函数消费这个变量，并通过 `background-color` 来控制图标的颜色。
+        ```scss
+        .icon {
+          width: 24px;
+          height: 24px;
+          background-color: #333; // 默认颜色
+
+          mask-image: var(--icon-url);
+          mask-size: contain;
+          mask-position: center;
+          mask-repeat: no-repeat;
+          
+          /* 别忘了加-webkit-前缀以增强兼容性 */
+          -webkit-mask-image: var(--icon-url);
+          -webkit-mask-size: contain;
+          -webkit-mask-position: center;
+          -webkit-mask-repeat: no-repeat;
+
+          &.active {
+            background-color: #4F46E5; // 激活时的颜色
+          }
+        }
+        ```
+
+3.  **备用方案：多图标文件切换**: 如果 `mask-image` 方案在极端情况下仍有问题，或者图标本身包含多种颜色不适合单色遮罩，可以退回到最原始但绝对可靠的方案：为不同的颜色状态准备不同的 SVG 文件（如 `icon-normal.svg`, `icon-active.svg`），并在代码中根据状态条件渲染不同的 `<Image>` 组件。

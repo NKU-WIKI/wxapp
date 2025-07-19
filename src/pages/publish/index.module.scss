@@ -1,8 +1,10 @@
+@import "../../styles/variables.scss";
+
 .pageContainer {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f5f5f5;
+  background-color: $bg-page-gray;
 }
 
 .contentWrapper {
@@ -13,7 +15,7 @@
 .scrollView {
   height: 100%;
   box-sizing: border-box;
-  padding-bottom: 80px; // 为底部按钮留出空间
+  padding-bottom: 80px;
 }
 
 .footer {
@@ -22,11 +24,11 @@
   left: 0;
   right: 0;
   display: flex;
-  justify-content: center; /* 水平居中 */
+  justify-content: center;
   padding: 16px;
-  background-color: #ffffff;
-  border-top: 1px solid #e5e5e5;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  background-color: $bg-card;
+  border-top: 1px solid $border-base;
+  box-shadow: 0 -2px 10px $alpha-black-5;
 }
 
 .publishButtonWrapper {
@@ -36,8 +38,7 @@
 .publishButton {
   width: 90%;
   max-width: 400px;
-  background-color: #4A90E2;
-  color: #fff;
+  @include button-primary;
   border-radius: 24px;
   padding: 12px 0;
   font-size: 16px;
@@ -47,10 +48,8 @@
 
 // Common card style
 .card {
-  background-color: #fff;
-  border-radius: 8px;
+  @include card-style;
   padding: 16px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .titleInput,
@@ -58,7 +57,7 @@
   border: none;
   width: 100%;
   font-size: 16px;
-  box-sizing: border-box; // Ensure padding is included in width
+  box-sizing: border-box;
   &:focus {
     outline: none;
   }
@@ -100,11 +99,10 @@
   right: -5px;
   width: 20px;
   height: 20px;
-  background-color: #ffffff;
+  background-color: $bg-card;
   border-radius: 50%;
-  color: #ef4444; // text-red-500
+  color: $status-error;
 }
-
 
 /* Toolbar */
 .toolbar {
@@ -116,16 +114,16 @@
 .toolbarIcon {
   width: 20px;
   height: 20px;
-  color: #374151;
-  margin-right: 16px; // Adjust as needed
+  color: $text-secondary;
+  margin-right: 16px;
 }
 
 .wikiBtn {
   display: flex;
   align-items: center;
   gap: 4px;
-  background-color: #f5f3ff; // bg-purple-100
-  color: #4F46E5;
+  background-color: $alpha-primary-10;
+  color: $theme-primary;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 14px;
@@ -149,14 +147,14 @@
 }
 
 .tagItem {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: $bg-input-focus;
+  color: $text-secondary;
   padding: 6px 12px;
   border-radius: 9999px;
   font-size: 14px;
 
   &.addTag {
-    border: 1px dashed #d1d5db;
+    border: 1px dashed $border-input;
     background-color: transparent;
   }
 }
@@ -170,7 +168,7 @@
 .suggestionIcon {
   width: 20px;
   height: 20px;
-  color: #4F46E5;
+  color: $theme-primary;
   margin-top: 4px;
 }
 
@@ -186,13 +184,13 @@
 }
 
 .applyBtn {
-  color: #4F46E5;
+  color: $theme-primary;
   font-size: 14px;
 }
 
 .suggestionText {
   font-size: 14px;
-  color: #4b5563;
+  color: $text-secondary;
   line-height: 1.5;
 }
 
@@ -204,14 +202,14 @@
 .styleItem {
   padding: 8px 16px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid $border-input;
   background-color: transparent;
-  color: #374151;
+  color: $text-secondary;
 
   &.selected {
-    background-color: #4F46E5;
-    color: white;
-    border-color: #4F46E5;
+    background-color: $theme-primary;
+    color: $text-white;
+    border-color: $theme-primary;
   }
 }
 
@@ -219,7 +217,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #4F46E5;
+  color: $theme-primary;
   font-size: 14px;
   font-weight: 500;
 }
@@ -227,7 +225,7 @@
 .actionIcon {
   width: 20px;
   height: 20px;
-  color: #4F46E5;
+  color: $theme-primary;
 }
 
 .publishSettings {
@@ -235,29 +233,29 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    color: #4F46E5;
+    color: $theme-primary;
   }
 
   .settingValue {
-    color: #4b5563;
+    color: $text-secondary;
   }
 }
 
 .publishButton {
   height: 44px;
   border-radius: 8px;
-  border: 1px solid #4F46E5;
+  border: 1px solid $theme-primary;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 
   &.primary {
-    background-color: #4F46E5;
-    border-color: #4F46E5;
+    background-color: $theme-primary;
+    border-color: $theme-primary;
 
     .buttonText {
-      color: white;
+      color: $text-white;
     }
   }
 }

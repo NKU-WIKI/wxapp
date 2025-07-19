@@ -1,0 +1,101 @@
+## 🎯 项目目标
+
+本项目的目标是使用 Taro 框架构建一个高质量、可维护、性能优良的微信小程序。
+
+本规范应该不断根据最新信息和最佳实践进行迭代。
+
+## 🛠️ 技术栈与核心依赖
+
+- **核心框架**: Taro 4.x (插件化架构)
+- **UI 语言**: React (Hooks-first)
+- **UI 组件库**: 优先使用微信小程序原生组件库比如weui，其次使用Taro UI
+- **状态管理**: Redux (配合 React Hooks)
+- **开发语言**: TypeScript
+- **CSS 预处理器**: SCSS (`.scss`)
+- **主要目标平台**: 微信小程序 (`weapp`)
+
+为了保证项目正常运行，除了 `package.json` 中的业务依赖外，请确保以下核心插件已安装在 `devDependencies` 中：
+
+- **框架插件**: `@tarojs/plugin-framework-react`
+- **平台插件**: `@tarojs/plugin-platform-weapp`
+- **CLI 工具**: `@tarojs/cli`
+- **Babel 预设**: `babel-preset-taro` (处理 TSX/JSX 语法)
+- **代码检查与格式化**: `ESLint`, `Prettier`, `stylelint`
+- **Git工作流**: `Husky`, `lint-staged`, `commitizen`
+
+## 📁 项目结构
+
+遵循 Taro 官方推荐的目录结构，并建议对 `src` 目录进行更精细的划分，以提高代码的可维护性：
+
+```
+.
+├── config                   # Taro 编译配置目录
+│   ├── dev.ts
+│   ├── index.ts             # 默认配置文件 (推荐使用 .ts)
+│   └── prod.ts
+├── src                      # 源码目录
+│   ├── app.config.ts        # 全局配置文件
+│   ├── app.scss             # 全局样式文件
+│   ├── app.tsx              # 入口组件
+│   ├── assets               # 静态资源 (图片、字体等)
+│   ├── components           # 全局可复用组件
+│   ├── constants            # 全局常量
+│   ├── pages                # 页面
+│   │   └── page-name        # 以页面为单位创建文件夹
+│   │       ├── components   # 页面级私有组件
+│   │       ├── index.config.ts
+│   │       ├── index.module.scss
+│   │       └── index.tsx
+│   ├── services             # API 请求服务
+│   │   ├── api              # 按模块划分的 API
+│   │   ├── mock.ts
+│   │   └── request.ts
+│   ├── store                # Redux store
+│   │   ├── slices           # Redux Toolkit Slices
+│   │   ├── rootReducer.ts   # Root Reducer
+│   │   └── index.ts         # Store 配置
+│   └── types                # TypeScript 类型定义 (业务)
+│       └── api              # API 相关类型
+├── types                    # TypeScript 类型定义 (全局)
+│   └── global.d.ts
+├── backend-api              # 后端接口文档
+├── .cursorrules             # Cursor AI 配置文件
+├── .editorconfig            # 编辑器配置文件
+├── .eslintrc                # ESLint 配置文件
+├── .gitignore               # Git 忽略文件配置
+├── .npmrc                   # NPM 配置文件
+├── babel.config.js          # Babel 配置文件
+├── commitlint.config.mjs    # Commitlint 配置文件
+├── package.json             # 项目依赖与脚本
+├── project.config.json      # 小程序项目配置文件
+├── stylelint.config.mjs     # Stylelint 配置文件
+└── tsconfig.json            # TypeScript 配置文件
+```
+
+> **注意**: 推荐使用 `config/index.ts` 并配合 `defineConfig` 工具函数来获得类型提示与校验，提升配置代码的健壮性。
+
+## 核心功能模块
+
+- **首页 (Home)**: 采用信息流展示推荐内容、热点和校园热榜。
+- **发现 (Explore)**: 集合校园热点、AI 助手、校园活动和学习资源等卡片式入口。
+- **发布 (Publish)**: 提供富文本编辑器，支持标题、正文、图片、话题标签，并集成 AI 润色建议。
+- **消息 (Notifications)**: 分类展示点赞、收藏和评论。
+- **我的 (Profile)**: 展示用户基本信息、动态、社交数据，并提供收藏、评论、点赞、草稿箱等入口。
+
+## 参考项目
+
+本项目在开发过程中，积极参考了以下优秀的开源项目作为最佳实践范例：
+
+1.  **[lsqy/taro-music](https://github.com/lsqy/taro-music)**
+    - **学习重点**:
+        - **Redux 状态管理**: 深入学习其在复杂应用中（如音乐播放器）的 Redux `store` 设计、`actions` 和 `reducers` 的组织方式。
+        - **组件封装**: 参考其对 `Taro UI` 的深度使用和自定义业务组件（如歌词、播放器）的封装思路。
+        - **项目结构**: 借鉴其清晰的目录划分，如 `services`、`utils`、`constants` 等。
+
+2.  **[kala888/tixwork](https://github.com/kala888/tixwork)**
+    - **学习重点**:
+        - **业务逻辑与数据流**: 分析其在协作工具场景下，如何处理复杂的业务逻辑和多模块间的数据流转。
+        - **DVA 状态管理**: 了解 DVA（基于 Redux 和 a-router）在项目中的应用模式，作为 Redux 实践的补充和对比。
+        - **工程化实践**: 参考其在大型项目中可能包含的更全面的工程化配置和代码规范。
+
+通过对这些项目的研究，我们可以更好地遵循社区的最佳实践，编写出高质量、可维护的代码。

@@ -1,3 +1,5 @@
+@import "../../styles/variables.scss";
+
 .navBarPlaceholder {
   width: 100%;
 }
@@ -8,7 +10,7 @@
   left: 0;
   width: 100%;
   z-index: 1000;
-  background-color: #4F46E5; /* 新主题色背景 */
+  background-color: $theme-primary;
   transition: background-color 0.2s;
 }
 
@@ -42,7 +44,7 @@
 .title {
   font-size: 17px;
   font-weight: 600;
-  color: #4F46E5; /* 主题色标题 */
+  color: $theme-primary;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -61,7 +63,6 @@
 .notificationIcon {
   width: 20px;
   height: 20px;
-  /* 暂时不修改颜色，让它保持黑色 */
   mask-image: var(--icon-url);
   mask-size: contain;
   mask-position: center;

@@ -1,41 +1,22 @@
-/**
- * 分页信息
- */
+export interface BaseResponse<T> {
+  code: number;
+  msg: string;
+  data: T;
+}
+
 export interface Pagination {
-  total: number;
   page: number;
   page_size: number;
-  total_pages: number;
+  total: number;
   has_more: boolean;
 }
 
-/**
- * 标准 API 响应结构
- */
-export interface BaseResponse<T = any> {
-  code: number;
-  message: string;
-  data: T;
-  details?: any;
-  timestamp?: string;
-  pagination?: Pagination;
-}
-
-/**
- * 分页数据通用结构 (扁平化)
- */
 export interface PaginatedData<T> {
   items: T[];
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPages: number;
+  pagination: Pagination;
 }
 
-/**
- * 分页请求参数
- */
-export interface PaginationParams {
-  page?: number;
-  pageSize?: number;
+// 新增：描述后端实际返回的分页响应结构
+export interface BackendPaginatedResponse<T> extends BaseResponse<T[]> {
+  pagination: Pagination;
 } 

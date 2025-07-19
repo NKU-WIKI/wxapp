@@ -50,7 +50,8 @@ export default function Home() {
         <PostItemSkeleton key={index} className={styles.postListItem} />
       ));
     }
-    if (posts.length === 0) {
+    // 增加对 posts 的健壮性检查
+    if (!posts || posts.length === 0) {
       return (
         <EmptyState
           icon={emptyIcon}
@@ -78,7 +79,9 @@ export default function Home() {
           <Categories onCategorySelect={handleCategorySelect} />
 
           {/* Post List */}
-          <View className={styles.postList}>{renderContent()}</View>
+          <View className={styles.postListContainer}>
+            <View className={styles.postList}>{renderContent()}</View>
+          </View>
         </ScrollView>
       </View>
     </View>

@@ -1,11 +1,13 @@
+@import "../../../styles/variables.scss";
+
 .notificationItem {
-  background-color: #ffffff;
+  background-color: $bg-card;
   border-radius: 8px;
   padding: 16px;
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px 0 $shadow-light;
 }
 
 .avatarContainer {
@@ -26,8 +28,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #ef4444; // red-500
-  border: 2px solid white;
+  background-color: $status-error;
+  border: 2px solid $text-white;
 }
 
 .content {
@@ -39,15 +41,15 @@
 
 .text {
   font-size: 14px;
-  color: #374151;
+  color: $text-secondary;
 }
 
 .username {
   font-weight: 600;
-  color: #111827;
+  color: $text-primary-dark;
 }
 
 .postInfo, .time {
   font-size: 12px;
-  color: #6b7280;
+  color: $text-helper-light;
 } 

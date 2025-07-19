@@ -1,3 +1,5 @@
+@import "../../../styles/variables.scss";
+
 .settingsSection {
   display: flex;
   flex-direction: column;
@@ -7,14 +9,14 @@
 .sectionTitle {
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
-  padding: 0 16px; // Match overall page padding
+  color: $text-primary-dark;
+  padding: 0 16px;
 }
 
 .settingsList {
-  background-color: #ffffff;
+  background-color: $bg-card;
   border-radius: 8px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px 0 $shadow-light;
   overflow: hidden;
 }
 
@@ -26,11 +28,11 @@
 
   // Use adjacent sibling selector to add a border to all but the first item
   & + & {
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid $border-cool;
   }
 
   &:hover {
-    background-color: #f9fafb;
+    background-color: $bg-page-cool;
   }
 }
 
@@ -43,21 +45,21 @@
 .itemIcon {
   width: 20px;
   height: 20px;
-  color: #374151;
+  color: $text-secondary;
 }
 
 .itemText {
   font-size: 16px;
-  color: #1f2937;
+  color: $text-primary-medium;
 }
 
 .itemExtra {
   font-size: 14px;
-  color: #6b7280;
+  color: $text-helper-light;
 }
 
 .arrowIcon {
   width: 20px;
   height: 20px;
-  color: #9ca3af;
+  color: $text-helper-gray;
 } 

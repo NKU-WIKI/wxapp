@@ -1,32 +1,25 @@
-@use "sass:color";
-
-/* 变量定义 */
-$page-bg-color: #f8f8f8;
-$card-bg-color: #ffffff;
-$primary-text-color: #333333;
-$secondary-text-color: #888888;
-$accent-color: #4F46E5;
+@import "../../styles/variables.scss";
 
 /* 页面整体布局 */
 .page {
-  background-color: #f8f8f8;
-  padding-bottom: 80px; /* Space for fixed bottom input */
+  background-color: $bg-page;
+  padding-bottom: 80px;
 }
 
 .content {
   height: 100%;
-  padding-bottom: 60px; /* 为底部输入框留出空间 */
+  padding-bottom: 60px;
   box-sizing: border-box;
 }
 
 .loading {
   padding: 20px;
   text-align: center;
-  color: $secondary-text-color;
+  color: $text-secondary-light;
 }
 
 .postWrapper {
-  background-color: #ffffff;
+  background-color: $bg-card;
   padding: 16px;
   margin-bottom: 8px;
 }
@@ -50,12 +43,12 @@ $accent-color: #4F46E5;
   .authorName {
     font-weight: 600;
     font-size: 15px;
-    color: #333;
+    color: $text-primary;
     margin-right: 4px;
   }
   .meta {
     font-size: 12px;
-    color: #999;
+    color: $text-helper;
   }
   .followButton {
     // We will use the Button component, but can add overrides here if needed
@@ -68,13 +61,13 @@ $accent-color: #4F46E5;
   .title {
     font-size: 20px;
     font-weight: bold;
-    color: #222;
+    color: $text-primary-dark;
     margin-bottom: 8px;
   }
   .text {
     font-size: 16px;
     line-height: 1.6;
-    color: #444;
+    color: $text-primary-medium;
   }
 }
 
@@ -106,8 +99,8 @@ $accent-color: #4F46E5;
     display: flex;
     align-items: center;
     font-size: 12px;
-    color: #666;
-    background-color: #f0f0f0;
+    color: $text-secondary;
+    background-color: $border-light;
     padding: 6px 10px;
     border-radius: 9999px;
     .icon {
@@ -278,12 +271,12 @@ $accent-color: #4F46E5;
 
 .commentAuthor {
   font-size: 15px;
-  color: $secondary-text-color;
+  color: $text-secondary;
 }
 
 .aiTag {
-  background-color: color.adjust($accent-color, $lightness: 30%);
-  color: $accent-color;
+  background-color: $alpha-primary-20;
+  color: $theme-primary;
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 4px;
@@ -299,7 +292,7 @@ $accent-color: #4F46E5;
 .commentText {
   font-size: 15px;
   line-height: 1.5;
-  color: $primary-text-color;
+  color: $text-primary;
   margin-bottom: 8px;
 }
 
@@ -315,7 +308,7 @@ $accent-color: #4F46E5;
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: $secondary-text-color;
+  color: $text-secondary;
 }
 
 .commentLikeIcon {
@@ -325,7 +318,7 @@ $accent-color: #4F46E5;
 
 .replyButton {
   font-size: 13px;
-  color: $secondary-text-color;
+  color: $text-secondary;
 }
 
 /* --- 底部输入框 --- */

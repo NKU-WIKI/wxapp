@@ -1,5 +1,4 @@
 import { User } from "./user";
-import { PaginationParams } from "./common";
 
 // Author 接口不再需要，用户信息直接使用 User 类型
 // export interface Author {
@@ -41,9 +40,15 @@ export interface Post {
 export interface CreatePostParams {
   title: string;
   content: string;
-  image_urls?: string[];
-  is_public?: boolean;
+  category_id?: number;
+  image?: string[];
+  tag?: string[];
+  location?: object;
   allow_comment?: boolean;
+  is_public?: boolean;
+  phone?: string;
+  wechatId?: string;
+  qqId?: string;
 }
 
 export interface CreatePostResponse {
@@ -53,6 +58,8 @@ export interface CreatePostResponse {
 /**
  * 获取帖子列表的请求参数
  */
-export interface GetPostsParams extends PaginationParams {
+export interface GetPostsParams {
+  page?: number;
+  page_size?: number;
   tab?: 'recommend' | 'hot' | 'new';
 }

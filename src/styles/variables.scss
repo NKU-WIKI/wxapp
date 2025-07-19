@@ -1,0 +1,203 @@
+/**
+ * SCSS 颜色变量定义
+ * 基于 src/constants/colors.ts 的颜色常量
+ */
+
+// ==================== 主题色 ====================
+$theme-primary: #4F46E5;
+$theme-primary-light: #8B5CF6;
+$theme-primary-dark: #7C3AED;
+
+$theme-accent: #8B5CF6;
+$theme-accent-light: #A78BFA;
+
+// ==================== 状态色 ====================
+$status-success: #22C55E;
+$status-success-light: #4ADE80;
+$status-success-dark: #16A34A;
+
+$status-warning: #F59E0B;
+$status-warning-light: #FCD34D;
+$status-warning-dark: #D97706;
+
+$status-error: #EF4444;
+$status-error-light: #F87171;
+$status-error-dark: #DC2626;
+
+$status-info: #3B82F6;
+$status-info-light: #60A5FA;
+$status-info-dark: #2563EB;
+
+// ==================== 背景色 ====================
+$bg-page: #F8F8F8;
+$bg-page-light: #FAFAFA;
+$bg-page-gray: #F5F5F5;
+$bg-page-cool: #F9FAFB;
+
+$bg-card: #FFFFFF;
+$bg-card-hover: #F9FAFB;
+
+$bg-input: #F5F5F5;
+$bg-input-focus: #F3F4F6;
+
+$bg-overlay: rgba(0, 0, 0, 0.5);
+$bg-modal: #FFFFFF;
+
+// ==================== 文字颜色 ====================
+$text-primary: #333333;
+$text-primary-dark: #111827;
+$text-primary-medium: #1F2937;
+
+$text-secondary: #666666;
+$text-secondary-light: #888888;
+$text-secondary-gray: #9B9B9B;
+
+$text-helper: #999999;
+$text-helper-light: #6B7280;
+$text-helper-gray: #9CA3AF;
+
+$text-placeholder: #C7C7C7;
+$text-disabled: #D1D5DB;
+
+$text-white: #FFFFFF;
+$text-inverse: #FFFFFF;
+
+// ==================== 边框颜色 ====================
+$border-base: #E5E5E5;
+$border-light: #F0F0F0;
+$border-gray: #E5E7EB;
+$border-cool: #F3F4F6;
+
+$border-divider: #F0F0F0;
+$border-separator: #E5E7EB;
+
+$border-input: #D1D5DB;
+$border-input-focus: $theme-primary;
+
+$border-error: $status-error;
+$border-success: $status-success;
+$border-warning: $status-warning;
+
+// ==================== 阴影颜色 ====================
+$shadow-base: rgba(0, 0, 0, 0.1);
+$shadow-light: rgba(0, 0, 0, 0.05);
+$shadow-medium: rgba(0, 0, 0, 0.15);
+$shadow-dark: rgba(0, 0, 0, 0.25);
+
+$shadow-card: rgba(0, 0, 0, 0.08);
+$shadow-modal: rgba(0, 0, 0, 0.3);
+$shadow-header: rgba(0, 0, 0, 0.05);
+
+// ==================== 透明度变体 ====================
+$alpha-primary-10: #{$theme-primary}1A;
+$alpha-primary-20: #{$theme-primary}33;
+$alpha-primary-50: #{$theme-primary}80;
+
+$alpha-error-10: #{$status-error}1A;
+$alpha-success-10: #{$status-success}1A;
+$alpha-warning-10: #{$status-warning}1A;
+
+$alpha-black-5: rgba(0, 0, 0, 0.05);
+$alpha-black-10: rgba(0, 0, 0, 0.1);
+$alpha-black-20: rgba(0, 0, 0, 0.2);
+$alpha-black-50: rgba(0, 0, 0, 0.5);
+
+$alpha-white-10: rgba(255, 255, 255, 0.1);
+$alpha-white-20: rgba(255, 255, 255, 0.2);
+$alpha-white-50: rgba(255, 255, 255, 0.5);
+$alpha-white-90: rgba(255, 255, 255, 0.9);
+
+// ==================== 常用组合 ====================
+// 卡片样式组合
+$card-background: $bg-card;
+$card-text: $text-primary;
+$card-border: $border-light;
+$card-shadow: $shadow-card;
+
+// 按钮样式组合 - 主要按钮
+$btn-primary-bg: $theme-primary;
+$btn-primary-text: $text-white;
+$btn-primary-border: $theme-primary;
+$btn-primary-hover: $theme-primary-dark;
+
+// 按钮样式组合 - 次要按钮
+$btn-secondary-bg: $bg-card;
+$btn-secondary-text: $theme-primary;
+$btn-secondary-border: $border-input;
+$btn-secondary-hover: $bg-card-hover;
+
+// 输入框样式组合
+$input-bg: $bg-input;
+$input-text: $text-primary;
+$input-border: $border-base;
+$input-placeholder: $text-placeholder;
+$input-focus-border: $border-input-focus;
+
+// ==================== Mixin 定义 ====================
+// 卡片样式 mixin
+@mixin card-style {
+  background-color: $card-background;
+  color: $card-text;
+  border: 1px solid $card-border;
+  box-shadow: 0 1px 3px 0 $card-shadow;
+  border-radius: 8px;
+}
+
+// 按钮样式 mixin
+@mixin button-primary {
+  background-color: $btn-primary-bg;
+  color: $btn-primary-text;
+  border: 1px solid $btn-primary-border;
+  
+  &:hover {
+    background-color: $btn-primary-hover;
+  }
+}
+
+@mixin button-secondary {
+  background-color: $btn-secondary-bg;
+  color: $btn-secondary-text;
+  border: 1px solid $btn-secondary-border;
+  
+  &:hover {
+    background-color: $btn-secondary-hover;
+  }
+}
+
+// 输入框样式 mixin
+@mixin input-style {
+  background-color: $input-bg;
+  color: $input-text;
+  border: 1px solid $input-border;
+  
+  &::placeholder {
+    color: $input-placeholder;
+  }
+  
+  &:focus {
+    border-color: $input-focus-border;
+    outline: none;
+  }
+}
+
+// 文字样式 mixin
+@mixin text-primary {
+  color: $text-primary;
+}
+
+@mixin text-secondary {
+  color: $text-secondary;
+}
+
+@mixin text-helper {
+  color: $text-helper;
+}
+
+// 阴影样式 mixin
+@mixin shadow-card {
+  box-shadow: 0 1px 3px 0 $shadow-card;
+}
+
+@mixin shadow-modal {
+  box-shadow: 0 4px 12px $shadow-modal;
+} 

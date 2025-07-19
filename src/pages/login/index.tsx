@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View, Image, Text, Button } from '@tarojs/components';
+import { View, Image, Text, Button, ScrollView } from '@tarojs/components';
 import { useDispatch, useSelector } from 'react-redux';
 import Taro from '@tarojs/taro';
 import { AppDispatch, RootState } from '@/store';
@@ -29,21 +29,30 @@ export default function LoginPage() {
   };
 
   return (
-    <View className={styles.loginPage}>
-      <CustomHeader title="登录" />
-      <View className={styles.mainContent}>
-        <Image src={logo} className={styles.logo} mode="aspectFit" />
-        {aboutInfo?.version && (
-          <Text className={styles.version}>Version {aboutInfo.version}</Text>
-        )}
-        <Button className={styles.loginButton} onClick={handleLogin}>
-          微信一键登录
-        </Button>
-      </View>
-      <View className={styles.footer}>
-        {aboutInfo?.copyright && (
-          <Text className={styles.copyright}>{aboutInfo.copyright}</Text>
-        )}
+    <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
+      {/* 1. 顶部必须是统一的自定义导航栏 */}
+      <CustomHeader title="登录" hideBack={false} />
+      
+      {/* 2. 页面主体内容必须包裹在这个 View 和 ScrollView 中 */}
+      <View style={{ flex: 1, overflow: 'hidden' }}>
+        <ScrollView scrollY style={{ height: '100%' }}>
+          <View className={styles.loginContainer}>
+            <View className={styles.mainContent}>
+              <Image src={logo} className={styles.logo} mode="aspectFit" />
+              {aboutInfo?.version && (
+                <Text className={styles.version}>Version {aboutInfo.version}</Text>
+              )}
+              <Button className={styles.loginButton} onClick={handleLogin}>
+                微信一键登录
+              </Button>
+            </View>
+            <View className={styles.footer}>
+              {aboutInfo?.copyright && (
+                <Text className={styles.copyright}>{aboutInfo.copyright}</Text>
+              )}
+            </View>
+          </View>
+        </ScrollView>
       </View>
     </View>
   );

@@ -1,10 +1,12 @@
-.loginPage {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #fff;
+@import "../../styles/variables.scss";
+
+.loginContainer {
+  min-height: 100vh;
+  background-color: $bg-card;
   padding: 32px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .mainContent {
@@ -13,6 +15,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  min-height: 60vh;
 }
 
 .logo {
@@ -23,7 +26,7 @@
 
 .version {
   font-size: 14px;
-  color: #9b9b9b; // 辅助灰色
+  color: $text-secondary-gray;
   margin-bottom: 48px;
 }
 
@@ -32,8 +35,7 @@
   max-width: 300px;
   height: 48px;
   line-height: 48px;
-  background-color: #4A90E2; // 主色调
-  color: #fff;
+  @include button-primary;
   border-radius: 24px;
   font-size: 16px;
   font-weight: 500;
@@ -46,10 +48,10 @@
 .footer {
   width: 100%;
   text-align: center;
-  padding-bottom: 24px; // 适配底部安全区域
+  padding-bottom: 24px;
 }
 
 .copyright {
   font-size: 12px;
-  color: #c7c7c7;
+  color: $text-secondary-gray;
 } 

@@ -1,9 +1,12 @@
 @use "taro-ui/dist/style/index.scss";
+@import "./styles/variables.scss";
 
 page {
-  background-color: #f5f5f5;
-  color: #333;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  background-color: $bg-page;
+  color: $text-primary;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* 全局设置盒模型，防止 padding 和 border 影响元素最终尺寸 */
@@ -39,4 +42,166 @@ image {
 
 .container {
   padding: 20px;
+}
+
+/* 通用样式 */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content {
+  flex: 1;
+  overflow: auto;
+}
+
+/* 按钮样式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.15s ease-in-out;
+  border: none;
+  outline: none;
+  
+  &::after {
+    border: none;
+  }
+}
+
+.btn-primary {
+  @include button-primary;
+}
+
+.btn-secondary {
+  @include button-secondary;
+}
+
+/* 输入框样式 */
+.input {
+  @include input-style;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* 卡片样式 */
+.card {
+  @include card-style;
+}
+
+/* 文字样式 */
+.text-primary {
+  @include text-primary;
+}
+
+.text-secondary {
+  @include text-secondary;
+}
+
+.text-helper {
+  @include text-helper;
+}
+
+/* 阴影样式 */
+.shadow-card {
+  @include shadow-card;
+}
+
+/* 工具类 */
+.text-center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.gap-4 {
+  gap: 16px;
+}
+
+.p-2 {
+  padding: 8px;
+}
+
+.p-4 {
+  padding: 16px;
+}
+
+.m-2 {
+  margin: 8px;
+}
+
+.m-4 {
+  margin: 16px;
+}
+
+.rounded {
+  border-radius: 6px;
+}
+
+.rounded-lg {
+  border-radius: 12px;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  page {
+    font-size: 14px;
+  }
+}
+
+/* Taro组件样式重置 */
+.taro-text {
+  color: inherit;
+}
+
+.taro-view {
+  box-sizing: border-box;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: $bg-page;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $border-gray;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: $border-base;
 }

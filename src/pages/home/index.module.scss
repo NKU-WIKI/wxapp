@@ -1,8 +1,10 @@
+@import "../../styles/variables.scss";
+
 .homeContainer {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f8f8f8;
+  background-color: $bg-page;
 }
 
 .scrollView {
@@ -13,17 +15,18 @@
 .searchContainer {
   display: flex;
   align-items: center;
-  background-color: #ffffff;
-  border-radius: 9999px;
-  padding: 8px 12px;
-  margin: 16px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  background-color: $bg-input;
+  border-radius: 20px;
+  padding: 10px 16px;
+  margin: 12px 16px;
+  border: 1px solid $border-base;
 }
 
 .searchIcon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   margin-right: 8px;
+  opacity: 0.6;
 }
 
 .searchInput {
@@ -32,16 +35,20 @@
   background-color: transparent;
   font-size: 14px;
   padding: 0;
+  color: $text-secondary;
+}
+
+.postListContainer {
+  padding: 0 16px 80px 16px;
 }
 
 .postList {
-  padding: 16px;
   display: flex;
   flex-direction: column;
 }
 
 .postListItem {
   & + & {
-    margin-top: 16px;
+    margin-top: 4px;
   }
 }

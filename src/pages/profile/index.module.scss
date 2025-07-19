@@ -1,27 +1,20 @@
-/* 变量定义 */
-$page-bg-color: #f8f8f8;
-$card-bg-color: #ffffff;
-$primary-text-color: #333333;
-$secondary-text-color: #9B9B9B;
-$accent-color: #4F46E5;
-$border-color: #f0f0f0;
-$page-padding-lr: 16px;
+@import "../../styles/variables.scss";
 
 /* 页面整体布局 */
 .profilePage {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: $page-bg-color;
+  background-color: $bg-page;
 }
 
 .pageHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px $page-padding-lr;
-  padding-top: calc(env(safe-area-inset-top) + 12px); /* 适配状态栏 */
-  background-color: $card-bg-color;
+  padding: 12px 16px;
+  padding-top: calc(env(safe-area-inset-top) + 12px);
+  background-color: $bg-card;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -39,14 +32,13 @@ $page-padding-lr: 16px;
 
 .content {
   height: 100%;
-  padding: 12px $page-padding-lr;
-  box-sizing: border-box; /* 关键修复：确保 padding 不会撑大容器 */
+  padding: 12px 16px;
+  box-sizing: border-box;
 }
 
 /* 通用卡片样式 */
 %card {
-  background-color: $card-bg-color;
-  border-radius: 12px;
+  @include card-style;
   margin-bottom: 12px;
   padding: 16px;
 }
@@ -68,25 +60,25 @@ $page-padding-lr: 16px;
 
 .userInfo {
   flex: 1;
-  min-width: 0; /* 允许 flex item 收缩 */
+  min-width: 0;
 }
 
 .nickname {
   font-size: 20px;
   font-weight: bold;
-  color: $primary-text-color;
+  color: $text-primary;
   margin-bottom: 6px;
 }
 
 .university,
 .bio {
   font-size: 14px;
-  color: $secondary-text-color;
+  color: $text-secondary-gray;
   line-height: 1.5;
 }
 
 .editButton {
-  border: 1px solid $accent-color;
+  border: 1px solid $theme-primary;
   border-radius: 20px;
   padding: 6px 14px;
   flex-shrink: 0;
@@ -94,7 +86,7 @@ $page-padding-lr: 16px;
 }
 
 .editButtonText {
-  color: $accent-color;
+  color: $theme-primary;
   font-size: 14px;
 }
 
@@ -113,13 +105,13 @@ $page-padding-lr: 16px;
 .statValue {
   font-size: 18px;
   font-weight: bold;
-  color: $primary-text-color;
+  color: $text-primary;
   margin-bottom: 4px;
 }
 
 .statLabel {
   font-size: 13px;
-  color: $secondary-text-color;
+  color: $text-secondary-gray;
 }
 
 /* 操作入口卡片 */
@@ -155,7 +147,7 @@ $page-padding-lr: 16px;
 
 .actionName {
   font-size: 13px;
-  color: $primary-text-color;
+  color: $text-primary;
 }
 
 /* 设置列表卡片 */
@@ -168,7 +160,7 @@ $page-padding-lr: 16px;
   display: flex;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid $border-base;
   &:last-child {
     border-bottom: none;
   }
@@ -183,7 +175,7 @@ $page-padding-lr: 16px;
 .settingName {
   flex: 1;
   font-size: 16px;
-  color: $primary-text-color;
+  color: $text-primary;
 }
 
 .arrowIcon {

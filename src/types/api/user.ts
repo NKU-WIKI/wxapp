@@ -3,6 +3,7 @@ export interface LoginParams {
 }
 
 export interface User {
+  level: string;
   id: number;
   nickname: string;
   avatar: string;
