@@ -191,40 +191,41 @@ export default function Home() {
 
   return (
     <View className={styles.homeContainer}>
-              <CustomHeader title="首页" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
+      <CustomHeader title="首页" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
 
-      {/* 搜索区域 - 固定 */}
-      <View className={styles.searchContainer}>
-        <Image src={searchIcon} className={styles.searchIcon} />
-        <Input placeholder="搜索校园知识" className={styles.searchInput} />
-      </View>
-
-      {/* 分类区域 - 固定 */}
-      <View className={styles.categoriesContainer}>
-        {mockCategories.map((category) => (
-          <View
-            key={category.name}
-            className={styles.categoryItem}
-            onClick={() => handleCategoryClick(category.name)}
-          >
-            <View className={styles.categoryIconContainer}>
-              <Image
-                src={category.icon}
-                className={styles.categoryIcon}
-                mode="aspectFit"
-              />
-            </View>
-            <Text
-              className={`${styles.categoryName} ${
-                selectedCategory === category.name
-                  ? styles.categoryNameSelected
-                  : styles.categoryNameDefault
-              }`}
+      <View className={styles.fixedContainer}>
+        {/* 搜索区域 - 固定 */}
+        <View className={styles.searchContainer}>
+          <Image src={searchIcon} className={styles.searchIcon} />
+          <Input placeholder="搜索校园知识" className={styles.searchInput} />
+        </View>
+        {/* 分类区域 - 固定 */}
+        <View className={styles.categoriesContainer}>
+          {mockCategories.map((category) => (
+            <View
+              key={category.name}
+              className={styles.categoryItem}
+              onClick={() => handleCategoryClick(category.name)}
             >
-              {category.name}
-            </Text>
-          </View>
-        ))}
+              <View className={styles.categoryIconContainer}>
+                <Image
+                  src={category.icon}
+                  className={styles.categoryIcon}
+                  mode="aspectFit"
+                />
+              </View>
+              <Text
+                className={`${styles.categoryName} ${
+                  selectedCategory === category.name
+                    ? styles.categoryNameSelected
+                    : styles.categoryNameDefault
+                }`}
+              >
+                {category.name}
+              </Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       {/* 帖子列表滚动区域 */}

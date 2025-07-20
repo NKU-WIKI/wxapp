@@ -5,14 +5,17 @@
   background-color: #f9fafb;
 }
 
+.fixedContainer {
+  background-color: #ffffff;
+}
+
 .searchContainer {
   display: flex;
   align-items: center;
   background-color: #f3f4f6;
   border-radius: 9999px;
   padding: 8px 12px;
-  margin: 16px 16px 16px 16px; // 统一使用16px边距
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  margin: 16px 16px 0 16px; // 减少底部margin，从4px改为8px
 }
 
 .searchIcon {
@@ -33,9 +36,7 @@
 .categoriesContainer {
   background-color: #ffffff;
   padding: 12px 0; // 移除左右padding，保持与原来一致
-  margin: 0 16px 6px 16px; // 确保与搜索容器和帖子列表相同的边距
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  margin: 0 16px 6px 16px; // 保持现有margin
   display: flex;
 }
 
@@ -85,7 +86,7 @@
 
 .postScrollView {
   height: 100%;
-  margin: 0 0px 16px;
+  margin: 0 4px 16px;
 
   // 下拉刷新样式优化
   .wx-scroll-view-refresher {
@@ -94,7 +95,7 @@
 }
 
 .postList {
-  padding: 0 13px 32px 17px; // 增加底部padding，确保触底检测准确
+  padding: 0 18px 32px 14px; // 增加底部padding，确保触底检测准确
   display: flex;
   flex-direction: column;
 }
