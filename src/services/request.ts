@@ -6,22 +6,26 @@ import {
 } from '@/constants';
 import { BaseResponse } from '@/types/api/common';
 
+const BASE_URL = process.env.BASE_URL;
+
 const getToken = () => {
-  // 实际项目中，token 通常从 Redux store 或 Taro.storage 中获取
   return Taro.getStorageSync('token');
 };
 
-const interceptor = (chain: any) => {
+const interceptor = (chain) => {
   const requestParams = chain.requestParams;
+  const customHeader = requestParams.header || {};
 
-  Taro.showLoading({ title: '加载中...' });
+  // 只在 header 中明确要求时才显示 loading
+  if (customHeader['X-Show-Loading'] === true) {
+    Taro.showLoading({ title: '加载中...' });
+  }
 
   const token = getToken();
-  // 根据环境设置请求分支
   const branch = process.env.NODE_ENV === 'development' ? 'dev' : 'main';
 
   requestParams.header = {
-    ...requestParams.header,
+    ...customHeader,
     'Content-Type': 'application/json',
     [HEADER_BRANCH_KEY]: branch,
   };
@@ -30,19 +34,28 @@ const interceptor = (chain: any) => {
     requestParams.header.Authorization = `Bearer ${token}`;
   }
 
+  // 移除自定义头，避免发送到服务器
+  const originalShowLoading = customHeader['X-Show-Loading'];
+  if (requestParams.header['X-Show-Loading']) {
+    delete requestParams.header['X-Show-Loading'];
+  }
+
   return chain.proceed(requestParams).then(res => {
-    Taro.hideLoading();
-
-    // HTTP 状态码为 2xx
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      const responseData = res.data as BaseResponse;
-      // 业务码成功
-      if (responseData.code === RESPONSE_SUCCESS_CODE) {
-        // 返回完整的业务数据包
-        return responseData;
-      }
-
-      // 业务码失败，且不在忽略列表
+    if (originalShowLoading === true) {
+      Taro.hideLoading();
+    }
+    
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      Taro.showToast({
+        title: `服务器错误: ${res.statusCode}`,
+        icon: 'none',
+        duration: 2000,
+      });
+      return Promise.reject(res);
+    }
+    
+    const responseData = res.data;
+    if (responseData.code !== RESPONSE_SUCCESS_CODE) {
       if (!NO_ERROR_TOAST_CODES.includes(responseData.code)) {
         Taro.showToast({
           title: responseData.message || '请求失败',
@@ -50,48 +63,38 @@ const interceptor = (chain: any) => {
           duration: 2000,
         });
       }
-      // 对于业务失败，直接 reject 整个响应体，方便上层捕获 details
       return Promise.reject(responseData);
     }
 
-    // HTTP 状态码非 2xx
-    Taro.showToast({
-      title: `服务器错误: ${res.statusCode}`,
-      icon: 'none',
-      duration: 2000,
-    });
-    return Promise.reject(res);
+    return res;
   });
 };
 
 Taro.addInterceptor(interceptor);
-// Taro 内置的 log interceptor
-// Taro.addInterceptor(Taro.interceptors.logInterceptor);
-// Taro 内置的 timeout interceptor
 Taro.addInterceptor(Taro.interceptors.timeoutInterceptor);
 
 type HttpMethod = 'GET' | 'POST';
 
-const request = <T = any>(
+const request = (
   method: HttpMethod,
   url: string,
   data?: object,
   options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>
-): Promise<BaseResponse<T>> => {
+): Promise<Taro.request.SuccessCallbackResult<BaseResponse<any>>> => {
   const finalUrl = `${BASE_URL}/api${url}`;
   return Taro.request({
     url: finalUrl,
     data,
     method,
     ...options,
-  }) as unknown as Promise<BaseResponse<T>>;
+  });
 };
 
 const http = {
-  get: <T = any>(url: string, data?: object, options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>) =>
-    request<T>('GET', url, data, options),
-  post: <T = any>(url: string, data?: object, options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>) =>
-    request<T>('POST', url, data, options),
+  get: <T>(url: string, data?: object, options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>) =>
+    request('GET', url, data, options).then(res => res.data as BaseResponse<T>),
+  post: <T>(url: string, data?: object, options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>) =>
+    request('POST', url, data, options).then(res => res.data as BaseResponse<T>),
 };
 
 export default http;

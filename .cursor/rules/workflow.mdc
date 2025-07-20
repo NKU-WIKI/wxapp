@@ -1,3 +1,59 @@
+---
+alwaysApply: true
+---
+
+## Git 规范
+
+- **分支模型**: 采用 `Git Flow`。
+    - `main`: 主分支，用于发布。
+    - `dev`: 开发主分支。
+    - `feat-xxx`: 功能分支，开发新功能。
+    - `fix-xxx`: Bug 修复分支。
+    - `realease/0.0.9`: 发布版本归档。
+- **Commit Message**: 遵循 `Angular` 提交规范，格式为 `<type>(<scope>): <subject>`。
+    - `type`: feat, fix, docs, style, refactor, test, chore
+    - `scope`: 可选，表示影响范围 (如: `home`, `profile`)
+    - `subject`: 简短描述。
+- **自动化规范**:
+    - **Commitizen**: 推荐团队成员使用 `commitizen` 工具（通过 `npm run commit`）来规范化提交信息的格式。
+    - **Husky + commitlint**: 配置 `husky` 的 `commit-msg` 钩子，结合 `commitlint` 自动校验提交信息是否符合规范。
+    - **Husky + lint-staged**: 配置 `husky` 的 `pre-commit` 钩子，结合 `lint-staged` 对暂存区的代码文件自动执行 `ESLint` 校验和 `Prettier` 格式化，确保入库代码的质量。
+
+## 代码测试
+
+- **测试框架**: 项目采用 `Jest`作为单元测试和集成测试的框架。
+- **测试工具**: 配合 `@tarojs/test-utils-react` 来辅助测试 Taro 组件。
+- **测试文件**: 测试文件应与被测试文件放在同一目录下，并以 `.spec.ts` 或 `.test.ts` 结尾（例如 `button.test.ts`）。
+- **测试覆盖率**: 鼓励编写测试用例，并关注核心业务逻辑的测试覆盖率。
+
+## 持续集成 (CI/CD)
+
+- **自动化部署**: 推荐使用 Taro 官方提供的 `@tarojs/plugin-mini-ci` 插件，实现小程序的自动化上传、预览等功能。
+- **配置**: 在项目根目录的 `config` 文件夹下创建 `ci.config.js` 用于存放小程序密钥及机器人等配置信息。
+- **脚本**: 在 `package.json` 的 `scripts` 中添加相应的 `upload` 和 `preview` 命令，即可通过命令行一键完成部署操作。
+- **钩子**: CI 插件支持钩子函数，可以在部署的不同阶段执行自定义脚本，例如将预览二维码发送到飞书或钉钉群。
+
+## AI 功能集成
+
+- **服务封装**: AI 相关的功能（如内容润色、AI 助手）应封装在独立的 `services` 或 `hooks` 中。
+- **按需加载**: AI 功能组件或逻辑应尽可能按需加载，避免影响应用启动性能。
+- **用户反馈**: 为 AI 生成的内容提供明确的标识，并设置用户反馈机制（如"生成得不错"、"重新生成"）。
+
+
+## 任务
+
+参考用原型图在v0.dev生成的项目 `nkuwiki-app/`，它对原型图的还原保真度非常高。在重构页面时，需要将 `nkuwiki-app` 的实现**翻译**为 Taro 项目的规范，核心要点如下：
+
+1.  **组件翻译**:
+    *   HTML 标签 (如 `div`, `p`, `header`) 对应翻译为 Taro 组件 (如 `<View>`, `<Text>`)。
+    *   Next.js 的 `<Link>` 组件，其导航功能用 `Taro.navigateTo` API 实现。
+    *   Next.js 的 `<Image>` 组件，用 Taro 的 `<Image>` 组件替代。
+2.  **样式翻译**:
+    *   `nkuwiki-app` 使用的 Tailwind CSS 原子类，需要手动在 `.module.scss` 文件中编写对应的 SCSS 样式规则。
+3.  **图标翻译**:
+    *   `nkuwiki-app` 使用的 `lucide-react` 图标库，必须替换为遵循本项目“图标资源工作流”的本地 SVG 文件。
+
+**请注意**：此任务**不包括**顶部导航栏和底部 `tabBar` 的重构，它们由项目自身的 `<CustomHeader>` 和 `app.config.ts` 全局管理。
 ## Git 规范
 
 - **分支模型**: 采用 `Git Flow`。

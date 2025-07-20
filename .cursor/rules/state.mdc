@@ -1,3 +1,18 @@
+---
+alwaysApply: true
+---
+
+## 数据管理 (State Management)
+
+- **状态管理库**: 项目选用 `Redux` 作为全局状态管理方案。强烈推荐使用 `Redux Toolkit (RTK)` 来简化 Redux 开发，它集成了 `Immer`、`Reselect` 和 `Redux Thunk`，能够有效减少模板代码。
+- **开发中间件**: 在开发环境下，推荐引入 `redux-logger` 中间件，它可以清晰地在控制台打印出每一次 `action` 的派发、`action` 内容、变更前后的 `state` 以及 `state` 的变更内容，极大地提升了开发调试效率。
+- **数据流**: 遵循 Redux 单向数据流原则。
+- **目录结构**: 使用 RTK 时，推荐将 `actions`, `reducers`, `constants` 合b并到 `slice` 文件中，并按业务模块进行组织。
+  - `src/store/modules`: 存放各业务模块的 `slice.ts` 文件。
+  - `src/store/index.ts`: 组合 `slice` 并创建 Store。
+- **数据持久化**: 对于需要持久化的数据（如用户 Token），考虑使用 `redux-persist` 配合 `Taro.setStorage` 进行处理。
+- **接口请求**: 在 `src/services` 目录中统一管理 API 请求，返回的数据通过 `createAsyncThunk` (RTK 提供) 的流程更新到 `store`。
+- **开发阶段数据模拟**: 在联调前，所有页面和组件所需的数据结构和模拟内容应在 `src/types` 和 `src/services/mock.ts` 中统一定义。这有助于前后端并行开发，并确保了组件间数据消费的一致性。
 ## 数据管理 (State Management)
 
 - **状态管理库**: 项目选用 `Redux` 作为全局状态管理方案。强烈推荐使用 `Redux Toolkit (RTK)` 来简化 Redux 开发，它集成了 `Immer`、`Reselect` 和 `Redux Thunk`，能够有效减少模板代码。

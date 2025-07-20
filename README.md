@@ -37,10 +37,10 @@
     # ...根据你的操作系统，参考 nvm 官方文档进行安装...
 
     # 安装项目推荐的 Node.js 版本
-    nvm install 22.17.0
+    nvm install 20
 
     # 切换到指定版本
-    nvm use 22.17.0
+    nvm use 20
     ```
     *Windows 用户可以考虑使用 [nvm-windows](https://github.com/coreybutler/nvm-windows)。*
 

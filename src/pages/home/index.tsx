@@ -101,52 +101,45 @@ export default function Home() {
   return (
     <View className={styles.homeContainer}>
       <CustomHeader title="首页" showNotificationIcon />
-      <View style={{ flex: 1, overflow: "hidden" }}>
-        <ScrollView scrollY className={styles.scrollView}>
-          {/* Search Bar */}
-          <View className={styles.searchContainer}>
-            <Image src={searchIcon} className={styles.searchIcon} />
-            <Input placeholder="搜索校园知识" className={styles.searchInput} />
-          </View>
 
-          {/* Categories Navigation */}
-          <View className={styles.categoriesContainer}>
-            <ScrollView
-              scrollX
-              className={styles.categoriesScrollView}
-              showScrollbar={false}
+      {/* 搜索区域 - 固定 */}
+      <View className={styles.searchContainer}>
+        <Image src={searchIcon} className={styles.searchIcon} />
+        <Input placeholder="搜索校园知识" className={styles.searchInput} />
+      </View>
+
+      {/* 分类区域 - 固定 */}
+      <View className={styles.categoriesContainer}>
+          {mockCategories.map((category) => (
+            <View
+              key={category.name}
+              className={styles.categoryItem}
+              onClick={() => handleCategoryClick(category.name)}
             >
-              {mockCategories.map((category) => (
-                <View
-                  key={category.name}
-                  className={styles.categoryItem}
-                  onClick={() => handleCategoryClick(category.name)}
-                >
-                  <View className={styles.categoryIconContainer}>
-                    <Image
-                      src={category.icon}
-                      className={styles.categoryIcon}
-                      mode="aspectFit"
-                    />
-                  </View>
-                  <Text
-                    className={`${styles.categoryName} ${
-                      selectedCategory === category.name
-                        ? styles.categoryNameSelected
-                        : styles.categoryNameDefault
-                    }`}
-                  >
-                    {category.name}
-                  </Text>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
+              <View className={styles.categoryIconContainer}>
+                <Image
+                  src={category.icon}
+                  className={styles.categoryIcon}
+                  mode="aspectFit"
+                />
+              </View>
+              <Text
+                className={`${styles.categoryName} ${
+                  selectedCategory === category.name
+                    ? styles.categoryNameSelected
+                    : styles.categoryNameDefault
+                }`}
+              >
+                {category.name}
+              </Text>
+            </View>
+          ))}
+      </View>
 
-          {/* Post List */}
-          <View className={styles.postListContainer}>
-            <View className={styles.postList}>{renderContent()}</View>
-          </View>
+      {/* 帖子列表滚动区域 */}
+      <View className={styles.postScrollContainer}>
+        <ScrollView scrollY className={styles.postScrollView}>
+          <View className={styles.postList}>{renderContent()}</View>
         </ScrollView>
       </View>
     </View>
