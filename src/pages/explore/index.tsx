@@ -9,17 +9,10 @@ import { tabBarSyncManager } from '@/utils/tabBarSync';
 import plusIcon from '@/assets/plus.png';
 import micIcon from '@/assets/mic.svg';
 import xIcon from '@/assets/x.svg';
-import bellIcon from '@/assets/bell.svg';
-import messageSquareIcon from '@/assets/message-square.svg';
 import messageCircleIcon from '@/assets/message-circle.svg';
 import userIcon from '@/assets/user.svg';
 import fileTextIcon from '@/assets/file-text.svg';
 import bookOpenIcon from '@/assets/book-open.svg';
-import globeIcon from '@/assets/globe-icon.svg';
-import shoppingBagIcon from '@/assets/shopping-bag.svg';
-import musicIcon from '@/assets/music.svg';
-import refreshIcon from '@/assets/refresh-ccw.svg';
-import coinIcon from '@/assets/coin.svg'; // 替换 token.png
 import placeholderIcon from '@/assets/placeholder.jpg';
 import douyinIcon from '@/assets/douyin.png';
 import wechatIcon from '@/assets/wechat.png';
@@ -41,31 +34,52 @@ const contentSources = [
   { icon: douyinIcon, name: '抖音' }
 ];
 
-const recommendations = [
-  { icon: placeholderIcon, text: '校园跑步打卡活动规则?', count: 756 },
-  { icon: placeholderIcon, text: '如何加入校园社团?', count: 543 }
+// 瀑布流卡片宽高比常量
+const CARD_ASPECT_RATIO = 9 / 16;
+
+// 瀑布流内容数据
+const masonryContent = [
+  {
+    id: 1,
+    image: 'https://ai-public.mastergo.com/ai/img_res/d0cbe5bd6d77c83d610705d1f432556b.jpg',
+    title: '二次选拔流程须知：从报名到录取全攻略'
+  },
+  {
+    id: 2,
+    image: 'https://ai-public.mastergo.com/ai/img_res/6f8df3467172225dc952ba2620a2a330.jpg',
+    title: '元和西饼新品测评：超人气日式甜点大盘点，这些必须尝一尝'
+  },
+  {
+    id: 3,
+    image: 'https://ai-public.mastergo.com/ai/img_res/e3daf5d4e2232f27b4f3f1960f3cf239.jpg',
+    title: '校园报修指南：快速解决设施问题'
+  },
+  {
+    id: 4,
+    image: 'https://ai-public.mastergo.com/ai/img_res/3acb848f06b240728ef706f18be35343.jpg',
+    title: '入团入党全程指导：如何规划你的政治生涯'
+  },
+  {
+    id: 5,
+    image: 'https://ai-public.mastergo.com/ai/img_res/495754bdf61726322bde0d1e1447e6e2.jpg',
+    title: '学分绩计算方法：你的 GPA 这样算'
+  },
+  {
+    id: 6,
+    image: 'https://ai-public.mastergo.com/ai/img_res/85b2f2f9252f9cb2a82544152bda5e16.jpg',
+    title: '选修课程推荐：最受欢迎的通识课'
+  },
+  {
+    id: 7,
+    image: 'https://p3-flow-imagex-sign.byteimg.com/ocean-cloud-tos/image_skill/d86da060-6c52-476c-a3e8-65042a386baf_1753005104585346708~tplv-a9rns2rl98-web-preview-watermark.png?rk3s=b14c611d&x-expires=1784541104&x-signature=WuwEmccC5psFNDKRIBSkyZd6KYE%3D',
+    title: '校园生活指南：新生必看攻略'
+  },
+  {
+    id: 8,
+    image: 'https://p9-flow-imagex-sign.byteimg.com/ocean-cloud-tos/image_skill/5ec81d7d-e915-43b9-867e-5257bd24d52d_1753005185674606106~tplv-a9rns2rl98-web-preview-watermark.png?rk3s=b14c611d&x-expires=1784541185&x-signature=CrjXK8zog2M2Ht9Pj8q4MDEdeL4%3D',
+    title: '图书馆使用技巧：高效学习方法'
+  }
 ];
-
-const wikiSummary = {
-  title: 'wiki 今日南开热点总结',
-  items: [
-    '科研突破：化学学院在《自然》发表新型纳米材料研究，相关成果获央视报道[1]。',
-    '招生争议：知乎热帖讨论“强基计划面试公平性”，校方官微两小时内回应称“全程录像可复核”，舆情迅速降温[2]。',
-  ],
-  sources: [
-    '[1]微博话题 #南开纳米新材料',
-    '[2]知乎问题 “强基计划面试公平性”',
-  ]
-};
-
-const campusHotList = {
-  title: '校园热榜',
-  items: [
-    { rank: 1, title: '期末考试时间调整通知：12 月 20 日起', discussions: '2.8 万讨论', hot: true },
-    { rank: 2, title: '新图书馆开放时间延长至晚上 11 点', discussions: '1.5 万讨论', hot: true },
-    { rank: 3, title: '校园跑步打卡活动启动', discussions: '9,826 讨论', hot: true }
-  ]
-};
 
 
 export default function ExplorePage() {
@@ -96,78 +110,68 @@ export default function ExplorePage() {
     </View>
   );
 
+  const renderMasonryLayout = () => {
+    // 将内容分为两列
+    const leftColumn = masonryContent.filter((_, index) => index % 2 === 0);
+    const rightColumn = masonryContent.filter((_, index) => index % 2 === 1);
+
+    return (
+      <View className={styles.masonryContainer}>
+        <View className={styles.masonryColumn}>
+          {leftColumn.map((item, index) => (
+            <View key={item.id} className={`${styles.masonryItem} ${index > 0 ? styles.masonryItemOffset : ''}`}>
+              <View className={styles.contentCard}>
+                <Image 
+                  src={item.image} 
+                  className={styles.contentImage} 
+                  mode="aspectFill"
+                  style={{ aspectRatio: CARD_ASPECT_RATIO }}
+                />
+                <View className={styles.contentInfo}>
+                  <Text className={styles.contentTitle}>{item.title}</Text>
+                </View>
+              </View>
+            </View>
+          ))}
+        </View>
+        <View className={styles.masonryColumn}>
+          {rightColumn.map((item, index) => (
+            <View key={item.id} className={`${styles.masonryItem} ${index === 0 ? styles.masonryItemOffsetFirst : ''}`}>
+              <View className={styles.contentCard}>
+                <Image 
+                  src={item.image} 
+                  className={styles.contentImage} 
+                  mode="aspectFill"
+                  style={{ aspectRatio: CARD_ASPECT_RATIO }}
+                />
+                <View className={styles.contentInfo}>
+                  <Text className={styles.contentTitle}>{item.title}</Text>
+                </View>
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  };
+
   const renderDefaultView = () => (
     <ScrollView scrollY className={styles.scrollView}>
       {/* Content Source Navigation */}
       <View className={styles.sourceNav}>
-        <ScrollView scrollX showScrollbar={false} className={styles.sourceScrollView}>
+        <View className={styles.sourceGrid}>
           {contentSources.map((source, index) => (
             <View key={index} className={styles.sourceItem}>
               <Image src={source.icon} className={styles.sourceIcon} />
               <Text className={styles.sourceName}>{source.name}</Text>
             </View>
           ))}
-        </ScrollView>
+        </View>
       </View>
 
-      {/* Contribution Section */}
-      <View className={styles.contributionSection}>
-        <Image src={coinIcon} className={styles.contributionIcon} />
-        <Text className={styles.contributionText}>今日你已贡献3条知识，获得1000 token!</Text>
-      </View>
-
-      <View className={styles.mainContent}>
-        {/* Recommended for You */}
-        <View className={styles.recommendations}>
-          <Text className={styles.sectionTitle}>为您推荐</Text>
-          <View className={styles.recGrid}>
-            {recommendations.map((rec, index) => (
-              <View key={index} className={styles.recCard}>
-                <Image src={rec.icon} className={styles.recIcon} />
-                <Text className={styles.recText}>{rec.text}</Text>
-                <Text className={styles.recCount}>{rec.count} 人提问</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Wiki Summary */}
-        <View className={styles.wikiCard}>
-          <View className={styles.cardHeader}>
-            <Text className={styles.sectionTitle}>{wikiSummary.title}</Text>
-            <Image src={refreshIcon} className={styles.refreshIcon} />
-          </View>
-          <View className={styles.wikiContent}>
-            {wikiSummary.items.map((item, index) => (
-              <Text key={index} className={styles.wikiItem}>{index + 1}. {item}</Text>
-            ))}
-            {wikiSummary.sources.map((source, index) => (
-              <Text key={index} className={styles.wikiSource}>{source}</Text>
-            ))}
-          </View>
-        </View>
-
-        {/* Campus Hot List */}
-        <View className={styles.hotListCard}>
-          <View className={styles.cardHeader}>
-            <Text className={styles.sectionTitle}>{campusHotList.title}</Text>
-            <Text className={styles.seeMore} onClick={() => console.log('See more')}>查看更多</Text>
-          </View>
-          <View className={styles.hotList}>
-            {campusHotList.items.map((item) => (
-              <View key={item.rank} className={styles.hotListItem}>
-                <Text className={styles.hotListRank}>{item.rank}</Text>
-                <View className={styles.hotListItemInfo}>
-                  <Text className={styles.hotListTitle}>{item.title}</Text>
-                  <View className={styles.hotListMeta}>
-                    <Text className={styles.hotListDiscussions}>{item.discussions}</Text>
-                    {item.hot && <Text className={styles.hotTag}>热</Text>}
-                  </View>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
+      {/* Masonry Layout */}
+      <View className={styles.masonryWrapper}>
+        {renderMasonryLayout()}
       </View>
     </ScrollView>
   );
