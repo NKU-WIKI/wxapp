@@ -37,19 +37,27 @@ const convertCloudUrl = (cloudUrl: string): string => {
 };
 
 // 获取帖子列表的 Thunk
-export const fetchPosts = createAsyncThunk<PaginatedData<Post>, GetPostsParams>(
+export const fetchPosts = createAsyncThunk<
+  PaginatedData<Post> & { isAppend?: boolean },
+  GetPostsParams & { isAppend?: boolean }
+>(
   'posts/fetchPosts',
   async (params, { rejectWithValue }) => {
     try {
-      // response的类型是BackendPaginatedResponse<Post>
-      // 结构：{code, msg, data: Post[], pagination: Pagination}
-      const response = await postApi.getPosts(params);
-      
+      const { isAppend, ...apiParams } = params;
+      console.log(apiParams);
+      const response = await postApi.getPosts(apiParams);
+
+      console.log('Fetched posts:', response);
+
       // 将后端的扁平结构转换为前端Redux store需要的嵌套结构
-      const paginatedData: PaginatedData<Post> = {
-        items: response.data, // 后端的data字段是Post[]
-        pagination: response.pagination, // 后端的pagination字段
+      const paginatedData: PaginatedData<Post> & { isAppend?: boolean } = {
+        items: response.data,
+        pagination: response.pagination,
+        isAppend,
       };
+
+      console.log(paginatedData)
 
       return paginatedData;
     } catch (error: any) {
@@ -71,6 +79,7 @@ export const toggleAction = createAsyncThunk<
       target_id: postId,
       action_type: actionType,
     });
+    console.log('Fetched posts:', response);
     // response的类型是BaseResponse<ToggleActionResponse>，需要提取data字段
     return { postId, actionType, response: response.data };
   } catch (error: any) {
@@ -158,9 +167,17 @@ const postsSlice = createSlice({
       })
       .addCase(
         fetchPosts.fulfilled,
-        (state, action: PayloadAction<PaginatedData<Post>>) => {
+        (state, action: PayloadAction<PaginatedData<Post> & { isAppend?: boolean }>) => {
           state.loading = 'succeeded';
-          state.list = action.payload.items;
+
+          if (action.payload.isAppend) {
+            // 追加模式（加载更多）
+            state.list = [...state.list, ...action.payload.items];
+          } else {
+            // 替换模式（刷新）
+            state.list = action.payload.items;
+          }
+
           state.pagination = action.payload.pagination;
         }
       )

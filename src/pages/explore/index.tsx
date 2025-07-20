@@ -3,6 +3,7 @@ import { View, ScrollView, Text, Input, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import CustomHeader from '@/components/custom-header';
+import { tabBarSyncManager } from '@/utils/tabBarSync';
 
 // 导入新下载的图标
 import plusIcon from '@/assets/plus.png';
@@ -62,7 +63,7 @@ const campusHotList = {
   items: [
     { rank: 1, title: '期末考试时间调整通知：12 月 20 日起', discussions: '2.8 万讨论', hot: true },
     { rank: 2, title: '新图书馆开放时间延长至晚上 11 点', discussions: '1.5 万讨论', hot: true },
-    { rank: 3, title: '校园跑步打卡活动正式启动', discussions: '9,826 讨论', hot: true }
+    { rank: 3, title: '校园跑步打卡活动启动', discussions: '9,826 讨论', hot: true }
   ]
 };
 
@@ -71,7 +72,7 @@ export default function ExplorePage() {
   const [isSearchActive, setIsSearchActive] = useState(false);
 
   const handleNavigate = (url: string) => {
-    Taro.navigateTo({ url });
+    tabBarSyncManager.navigateToPage(url);
   };
 
   const renderSearchSkills = () => (

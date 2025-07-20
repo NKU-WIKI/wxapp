@@ -86,10 +86,15 @@
 .postScrollView {
   height: 100%;
   margin: 0 0px 16px;
+
+  // 下拉刷新样式优化
+  .wx-scroll-view-refresher {
+    background-color: #f9fafb;
+  }
 }
 
 .postList {
-  padding: 0 13px 16px 17px; // 从 16px 改为 18px，向右移动2px
+  padding: 0 13px 32px 17px; // 增加底部padding，确保触底检测准确
   display: flex;
   flex-direction: column;
 }
@@ -100,6 +105,20 @@
   }
 }
 
+.noMoreTip {
+  text-align: center;
+  padding: 16px 0; // 减少padding
+  color: #999;
+  font-size: 14px;
+  margin: 8px 0 48px 0; // 增加底部margin
+  background-color: #f9f9f9;
+  border-radius: 8px;
+
+  // 在刷新时隐藏
+  &.refreshing {
+    display: none;
+  }
+}
 .fab {
   position: fixed;
   right: 16px;

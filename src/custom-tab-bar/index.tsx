@@ -1,7 +1,8 @@
 import { View, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./index.module.scss";
+import { useTabBarSync, tabBarSyncManager, TAB_BAR_PAGES } from "../utils/tabBarSync";
 
 // 引入本地图标
 import homeIcon from "../assets/home.png";
@@ -17,58 +18,45 @@ import plusIcon from "../assets/plus.png";
 const CustomTabBar: FC = () => {
   const [selected, setSelected] = useState(0);
 
-  const list = [
-    {
-      pagePath: "/pages/home/index",
-      text: "首页",
-      iconPath: homeIcon,
-      selectedIconPath: homeActiveIcon,
-    },
-    {
-      pagePath: "/pages/explore/index",
-      text: "探索",
-      iconPath: exploreIcon,
-      selectedIconPath: exploreActiveIcon,
-    },
-    {
-      pagePath: "/pages/publish/index",
-      text: "发布",
-      iconPath: plusIcon,
-      selectedIconPath: plusIcon,
-      isPublish: true,
-    },
-    {
-      pagePath: "/pages/discover/index",
-      text: "发现",
-      iconPath: discoverIcon,
-      selectedIconPath: discoverActiveIcon,
-    },
-    {
-      pagePath: "/pages/profile/index",
-      text: "我的",
-      iconPath: profileIcon,
-      selectedIconPath: profileActiveIcon,
-    },
-  ];
+  const list = useMemo(() => [
+    { pagePath: "/pages/home/index", text: "首页", iconPath: homeIcon, selectedIconPath: homeActiveIcon },
+    { pagePath: "/pages/explore/index", text: "探索", iconPath: exploreIcon, selectedIconPath: exploreActiveIcon },
+    { pagePath: "/pages/publish/index", text: "发布", iconPath: plusIcon, selectedIconPath: plusIcon, isPublish: true },
+    { pagePath: "/pages/discover/index", text: "发现", iconPath: discoverIcon, selectedIconPath: discoverActiveIcon },
+    { pagePath: "/pages/profile/index", text: "我的", iconPath: profileIcon, selectedIconPath: profileActiveIcon },
+  ], []);
 
-  const switchTab = (index, url) => {
-    if (list[index].isPublish) {
+  const handleSync = useCallback((syncIndex: number) => {
+    const pagePath = TAB_BAR_PAGES[syncIndex];
+    if (pagePath) {
+      const uiIndex = list.findIndex(item => item.pagePath === pagePath);
+      if (uiIndex > -1) {
+        setSelected(uiIndex);
+      }
+    }
+  }, [list]);
+
+  const tabBarSync = useMemo(() => useTabBarSync(handleSync), [handleSync]);
+
+  const switchTab = (uiIndex: number, url: string) => {
+    const item = list[uiIndex];
+    if (item.isPublish) {
       Taro.navigateTo({ url });
     } else {
-      setSelected(index);
+      const syncIndex = TAB_BAR_PAGES.indexOf(item.pagePath);
+      if (syncIndex > -1) {
+        tabBarSyncManager.setSelectedIndex(syncIndex);
+      }
       Taro.switchTab({ url });
     }
   };
 
   useEffect(() => {
-    const pages = Taro.getCurrentPages();
-    const currentPage = pages[pages.length - 1];
-    const currentPath = `/${currentPage.route}`;
-    const selectedIndex = list.findIndex(item => item.pagePath === currentPath);
-    if (selectedIndex > -1) {
-      setSelected(selectedIndex);
-    }
-  }, []);
+    tabBarSync.subscribe();
+    return () => {
+      tabBarSync.unsubscribe();
+    };
+  }, [tabBarSync]);
 
   return (
     <View className={styles.tabBar}>

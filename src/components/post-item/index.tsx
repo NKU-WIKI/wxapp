@@ -10,7 +10,7 @@ import { showToast } from '@/utils/ui';
 
 // 引入所有需要的图标
 import heartIcon from "@/assets/heart-outline.svg"; // 空心
-import heartActiveIcon from "@/assets/heart.svg"; // 实心
+import heartActiveIcon from "@/assets/heart-bold.svg"; // 实心
 import commentIcon from "@/assets/message-circle.svg";
 import starIcon from "@/assets/star-outline.svg"; // 空心
 import starActiveIcon from "@/assets/star.svg"; // 实心
@@ -58,9 +58,11 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     }
 
     if (!checkLogin()) return;
-    
+
     switch (actionType) {
       case 'like':
+        dispatch(toggleAction({ postId: post.id, actionType }));
+        break;
       case 'favorite':
         dispatch(toggleAction({ postId: post.id, actionType }));
         break;
@@ -88,8 +90,8 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   };
 
   const ActionButton = ({ icon, count, isActive, action }) => (
-    <View 
-      className={styles.actionButton} 
+    <View
+      className={styles.actionButton}
       onClick={() => handleActionClick(action)}
     >
       <View
@@ -120,8 +122,8 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         <View className={styles.headerActions}>
           <Text className={styles.postTime}>{formatRelativeTime(post.create_time)}</Text>
           {canDelete && (
-            <View 
-              className={styles.moreButton} 
+            <View
+              className={styles.moreButton}
               onClick={() => handleActionClick('delete')}
             >
               <View
@@ -132,7 +134,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           )}
         </View>
       </View>
-      
+
       <View onClick={navigateToDetail} className={styles.contentWrapper}>
         {/* Post Content */}
         <View className={styles.content}>
