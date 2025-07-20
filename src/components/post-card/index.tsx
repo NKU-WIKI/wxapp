@@ -38,7 +38,7 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
         console.log(`选择了第${res.tapIndex}个按钮`);
         const actions = ['delete', 'edit', 'report'];
         const selectedAction = actions[res.tapIndex];
-        
+
         if (selectedAction === 'delete') {
           Taro.showModal({
             title: '确认删除',
@@ -88,7 +88,7 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
           <Text className={styles.authorName}>{post.author_info.nickname}</Text>
           <Text className={styles.postTime}>{post.create_time}</Text>
         </View>
-        <View 
+        <View
           className={styles.moreButton}
           style={
             { "--icon-url": `url(${moreIcon})` } as React.CSSProperties

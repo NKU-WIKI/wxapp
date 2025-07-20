@@ -52,9 +52,13 @@ export default function Home() {
   const isLoading = loading === "pending";
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchPosts({ page: 1, pageSize: 10 }));
+    dispatch(fetchPosts({ page: 1, pageSize: 5}));
+    setPage(1);
   }, [dispatch]);
 
   useEffect(() => {
@@ -63,28 +67,97 @@ export default function Home() {
     }
   }, [isLoggedIn, dispatch]);
 
+  // 下拉刷新处理函数
+  const handlePullRefresh = async () => {
+    if (isRefreshing) return;
+
+    setIsRefreshing(true);
+    try {
+      const params: { page: number; pageSize: number; category_id?: number } = {
+        page: 1,
+        pageSize: 5,
+      };
+
+      // 如果有选中的分类，保持分类筛选
+      if (selectedCategory) {
+        // 这里可以根据分类名称映射到分类ID
+        // params.category_id = getCategoryId(selectedCategory);
+      }
+
+      await dispatch(fetchPosts(params)).unwrap();
+      setPage(1);
+    } catch (error) {
+      console.error('刷新失败:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // 滚动到底部加载更多
+  const handleScrollToLower = async () => {
+    if (isLoadingMore || isLoading || isRefreshing) return;
+
+    setIsLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const params: { page: number; pageSize: number; category_id?: number } = {
+        page: nextPage,
+        pageSize: 5,
+      };
+
+      if (selectedCategory) {
+        // params.category_id = getCategoryId(selectedCategory);
+      }
+
+      const result = await dispatch(fetchPosts(params)).unwrap();
+
+      if (result.items.length > 0) {
+        setPage(nextPage);
+      }
+    } catch (error) {
+      console.error('加载更多失败:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
   const handleCategorySelect = (categoryId: number | null) => {
     const params: { page: number; pageSize: number; category_id?: number } = {
       page: 1,
-      pageSize: 10,
+      pageSize: 5,
     };
     if (categoryId) {
       params.category_id = categoryId;
     }
     dispatch(fetchPosts(params));
+    setPage(1);
+    setSelectedCategory(null); // 重置分类选择状态
   };
 
   const handleCategoryClick = (categoryName: string) => {
-    setSelectedCategory(selectedCategory === categoryName ? null : categoryName);
+    const newSelectedCategory = selectedCategory === categoryName ? null : categoryName;
+    setSelectedCategory(newSelectedCategory);
+
+    // 重新加载数据
+    const params: { page: number; pageSize: number; category_id?: number } = {
+      page: 1,
+      pageSize: 5,
+    };
+    // 这里可以根据分类名称映射到分类ID
+    // if (newSelectedCategory) {
+    //   params.category_id = getCategoryId(newSelectedCategory);
+    // }
+    dispatch(fetchPosts(params));
+    setPage(1);
   };
 
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading && posts.length === 0) {
       return Array.from({ length: 3 }).map((_, index) => (
         <PostItemSkeleton key={index} className={styles.postListItem} />
       ));
     }
-    // 增加对 posts 的健壮性检查
+
     if (!posts || posts.length === 0) {
       return (
         <EmptyState
@@ -93,9 +166,30 @@ export default function Home() {
         />
       );
     }
-    return posts.map((post) => (
+
+    const content = posts.map((post) => (
       <PostItem key={post.id} post={post} className={styles.postListItem} />
     ));
+
+    // 添加加载更多的骨架屏
+    if (isLoadingMore) {
+      content.push(
+        ...Array.from({ length: 2 }).map((_, index) => (
+          <PostItemSkeleton key={`loading-${index}`} className={styles.postListItem} />
+        ))
+      );
+    }
+
+    // 添加没有更多数据的提示
+    if (posts.length > 0 && !isLoadingMore) {
+      content.push(
+        <View key="no-more" className={styles.noMoreTip}>
+          <Text>没有更多内容了</Text>
+        </View>
+      );
+    }
+
+    return content;
   };
 
   return (
@@ -110,35 +204,44 @@ export default function Home() {
 
       {/* 分类区域 - 固定 */}
       <View className={styles.categoriesContainer}>
-          {mockCategories.map((category) => (
-            <View
-              key={category.name}
-              className={styles.categoryItem}
-              onClick={() => handleCategoryClick(category.name)}
-            >
-              <View className={styles.categoryIconContainer}>
-                <Image
-                  src={category.icon}
-                  className={styles.categoryIcon}
-                  mode="aspectFit"
-                />
-              </View>
-              <Text
-                className={`${styles.categoryName} ${
-                  selectedCategory === category.name
-                    ? styles.categoryNameSelected
-                    : styles.categoryNameDefault
-                }`}
-              >
-                {category.name}
-              </Text>
+        {mockCategories.map((category) => (
+          <View
+            key={category.name}
+            className={styles.categoryItem}
+            onClick={() => handleCategoryClick(category.name)}
+          >
+            <View className={styles.categoryIconContainer}>
+              <Image
+                src={category.icon}
+                className={styles.categoryIcon}
+                mode="aspectFit"
+              />
             </View>
-          ))}
+            <Text
+              className={`${styles.categoryName} ${
+                selectedCategory === category.name
+                  ? styles.categoryNameSelected
+                  : styles.categoryNameDefault
+              }`}
+            >
+              {category.name}
+            </Text>
+          </View>
+        ))}
       </View>
 
       {/* 帖子列表滚动区域 */}
       <View className={styles.postScrollContainer}>
-        <ScrollView scrollY className={styles.postScrollView}>
+        <ScrollView
+          scrollY
+          className={styles.postScrollView}
+          onScrollToLower={handleScrollToLower}
+          lowerThreshold={100}
+          enableBackToTop
+          refresherEnabled
+          refresherTriggered={isRefreshing}
+          onRefresherRefresh={handlePullRefresh}
+        >
           <View className={styles.postList}>{renderContent()}</View>
         </ScrollView>
       </View>

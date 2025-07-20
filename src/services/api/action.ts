@@ -4,8 +4,11 @@ import { ToggleActionParams, ToggleActionResponse } from '@/types/api/action.d';
 
 const actionApi = {
   toggleAction: (params: ToggleActionParams) => {
-    return http.post<ToggleActionResponse>('/wxapp/action/toggle', params);
-  },
+    console.log(params);
+    const res = http.post<ToggleActionResponse>('/wxapp/action/toggle', params);
+    console.log(res);
+    return res
+    },
 };
 
-export default actionApi; 
+export default actionApi;

@@ -10,7 +10,7 @@ import { showToast } from '@/utils/ui';
 
 // 引入所有需要的图标
 import heartIcon from "@/assets/heart-outline.svg"; // 空心
-import heartActiveIcon from "@/assets/heart.svg"; // 实心
+import heartActiveIcon from "@/assets/heart-bold.svg"; // 实心
 import commentIcon from "@/assets/message-circle.svg";
 import starIcon from "@/assets/star-outline.svg"; // 空心
 import starActiveIcon from "@/assets/star.svg"; // 实心
@@ -56,6 +56,8 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   const handleActionClick = (e, actionType: 'like' | 'favorite' | 'follow' | 'share' | 'delete') => {
     e.stopPropagation(); // 阻止事件冒泡到父容器的 navigateToDetail
 
+    console.log(actionType, post.id);
+
     if (actionType === 'share') {
       // 微信分享逻辑，Taro 目前不支持在组件中直接调用 onShareAppMessage
       // 需要在页面级别处理，或者通过事件通知页面
@@ -64,9 +66,11 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     }
 
     if (!checkLogin()) return;
-    
+
     switch (actionType) {
       case 'like':
+        dispatch(toggleAction({ postId: post.id, actionType }));
+        break;
       case 'favorite':
         dispatch(toggleAction({ postId: post.id, actionType }));
         break;
@@ -132,7 +136,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           )}
         </View>
       </View>
-      
+
       {/* Post Content */}
       <View className={styles.content}>
         <Text className={styles.title}>{post.title}</Text>
