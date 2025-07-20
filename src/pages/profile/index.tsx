@@ -81,7 +81,7 @@ const Profile = () => {
       history: '/pages/history/index',
       feedback: '/pages/feedback/index',
       about: '/pages/subpackage-profile/about/index',
-      settings: '/pages/settings/index',
+      settings: '/pages/subpackage-profile/settings/index',
     };
 
     if (routes[type]) {

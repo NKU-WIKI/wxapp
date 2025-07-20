@@ -13,6 +13,7 @@ export default defineAppConfig({
         "level/index",
         "about/index",
         "login/index",
+        "settings/index",
       ]
     },
     {

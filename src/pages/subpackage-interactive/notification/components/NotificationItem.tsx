@@ -20,18 +20,18 @@ const NotificationItem = ({ item }: NotificationItemProps) => {
   return (
     <View className={styles.notificationItem}>
       <View className={styles.avatarContainer}>
-        <Image src={item.avatar} className={styles.avatar} />
-        {item.unread && <View className={styles.unreadDot} />}
+        <Image src={item?.avatar || ''} className={styles.avatar} />
+        {item?.unread && <View className={styles.unreadDot} />}
       </View>
       <View className={styles.content}>
         <Text className={styles.text}>
-          <Text className={styles.username}>{item.user}</Text> {item.action}
+          <Text className={styles.username}>{item?.user || '未知用户'}</Text> {item?.action}
         </Text>
-        <Text className={styles.postInfo}>在「{item.post}」这条帖子</Text>
-        <Text className={styles.time}>{item.time}</Text>
+        <Text className={styles.postInfo}>在「{item?.post}」这条帖子</Text>
+        <Text className={styles.time}>{item?.time}</Text>
       </View>
     </View>
   );
 };
 
-export default NotificationItem; 
+export default NotificationItem;

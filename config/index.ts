@@ -83,7 +83,7 @@ export default defineConfig<"webpack5">(async (merge) => {
                   encodeOptions: {
                     jpeg: { quality: 80 },
                     png: {
-                      quality: [0.6, 0.8],
+                      quality: 80,
                     },
                   },
                 },
