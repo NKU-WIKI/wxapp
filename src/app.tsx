@@ -2,6 +2,7 @@ import { PropsWithChildren } from 'react'
 import { Provider } from 'react-redux'
 import 'taro-ui/dist/style/index.scss'
 import { store } from './store'
+import { initTabBarSync } from './utils/tabBarSync'
 import './app.scss'
 
 // AbortController polyfill for WeChat miniprogram
@@ -21,6 +22,9 @@ if (typeof globalThis.AbortController === 'undefined') {
     }
   };
 }
+
+// 初始化导航栏状态同步
+initTabBarSync();
 
 function App({ children }: PropsWithChildren) {
   // The auth check is handled by the initial state in userSlice,
