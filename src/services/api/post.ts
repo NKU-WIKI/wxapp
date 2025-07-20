@@ -10,8 +10,11 @@ const postApi = {
   createPost: (data: CreatePostParams) => {
     return http.post<CreatePostResponse>('/wxapp/post/create', data);
   },
+  getPostById: (postId: number) => {
+    return http.get<Post>('/wxapp/post/detail', { post_id: postId });
+  },
   deletePost: (postId: number) => {
-    return http.post<null>('/wxapp/post/delete', { post_id: postId });
+    return http.post<null>('/wxapp/post/delete', { id: postId });
   },
 };
 

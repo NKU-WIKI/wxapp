@@ -44,18 +44,12 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   };
 
   // 跳转到详情页
-  const navigateToDetail = (e) => {
-    // 防止点击按钮时触发
-    if (e.target.className.includes('action') || e.target.className.includes('Icon')) {
-      return;
-    }
+  const navigateToDetail = () => {
     Taro.navigateTo({ url: `/pages/post-detail/index?id=${post.id}` });
   };
 
   // 处理点赞、收藏、关注等动作
-  const handleActionClick = (e, actionType: 'like' | 'favorite' | 'follow' | 'share' | 'delete') => {
-    e.stopPropagation(); // 阻止事件冒泡到父容器的 navigateToDetail
-
+  const handleActionClick = (actionType: 'like' | 'favorite' | 'follow' | 'share' | 'delete') => {
     if (actionType === 'share') {
       // 微信分享逻辑，Taro 目前不支持在组件中直接调用 onShareAppMessage
       // 需要在页面级别处理，或者通过事件通知页面
@@ -93,11 +87,14 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     });
   };
 
-  const ActionButton = ({ icon, activeIcon, count, isActive, action }) => (
-    <View className={styles.actionButton} onClick={(e) => handleActionClick(e, action)}>
+  const ActionButton = ({ icon, count, isActive, action }) => (
+    <View 
+      className={styles.actionButton} 
+      onClick={() => handleActionClick(action)}
+    >
       <View
         className={`${styles.actionIcon} ${isActive ? styles.active : ''}`}
-        style={{ "--icon-url": `url(${isActive ? activeIcon : icon})` } as any}
+        style={{ "--icon-url": `url(${icon})` } as any}
       />
       <Text className={styles.actionCount}>{count}</Text>
     </View>
@@ -107,7 +104,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   const canDelete = userInfo?.id === post.author_info.id || userInfo?.role === 'admin';
 
   return (
-    <View className={`${styles.postCard} ${className}`} onClick={navigateToDetail}>
+    <View className={`${styles.postCard} ${className}`}>
       <View className={styles.cardHeader}>
         <View className={styles.authorInfo}>
           <Image src={post.author_info.avatar || ''} className={styles.avatar} />
@@ -123,7 +120,10 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         <View className={styles.headerActions}>
           <Text className={styles.postTime}>{formatRelativeTime(post.create_time)}</Text>
           {canDelete && (
-            <View className={styles.moreButton} onClick={(e) => handleActionClick(e, 'delete')}>
+            <View 
+              className={styles.moreButton} 
+              onClick={() => handleActionClick('delete')}
+            >
               <View
                 className={styles.moreIcon}
                 style={{ "--icon-url": `url(${require('@/assets/more-horizontal.svg')})` } as any}
@@ -133,41 +133,40 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         </View>
       </View>
       
-      {/* Post Content */}
-      <View className={styles.content}>
-        <Text className={styles.title}>{post.title}</Text>
-        <Text className={styles.text} numberOfLines={3}>
-          {post.content}
-        </Text>
-      </View>
-
-      {post.image_urls && post.image_urls.length > 0 && (
-        <View className={styles.images}>
-          {post.image_urls.slice(0, 3).map((url, index) => (
-            <Image key={index} src={url} className={styles.postImage} />
-          ))}
+      <View onClick={navigateToDetail} className={styles.contentWrapper}>
+        {/* Post Content */}
+        <View className={styles.content}>
+          <Text className={styles.title}>{post.title}</Text>
+          <Text className={styles.text} numberOfLines={3}>
+            {post.content}
+          </Text>
         </View>
-      )}
+
+        {post.image_urls && post.image_urls.length > 0 && (
+          <View className={styles.images}>
+            {post.image_urls.slice(0, 3).map((url, index) => (
+              <Image key={index} src={url} className={styles.postImage} />
+            ))}
+          </View>
+        )}
+      </View>
 
       <View className={styles.footer}>
         <View className={styles.actions}>
           <ActionButton
             icon={heartIcon}
-            activeIcon={heartActiveIcon}
             count={post.like_count}
             isActive={post.is_liked}
             action="like"
           />
           <ActionButton
             icon={commentIcon}
-            activeIcon={commentIcon}
             count={post.comment_count}
             isActive={false}
             action="comment" // 点击评论也是跳转详情页
           />
           <ActionButton
             icon={starIcon}
-            activeIcon={starActiveIcon}
             count={post.favorite_count}
             isActive={post.is_favorited}
             action="favorite"
@@ -176,7 +175,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         <View
           className={styles.shareIcon}
           style={{ "--icon-url": `url(${sendIcon})` } as any}
-          onClick={(e) => handleActionClick(e, "share")}
+          onClick={() => handleActionClick("share")}
         />
       </View>
     </View>

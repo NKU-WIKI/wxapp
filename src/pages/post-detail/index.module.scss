@@ -347,4 +347,12 @@
 .sendIcon {
   width: 28px;
   height: 28px;
+}
+
+.detailPostItem {
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  padding: 16px; // 可以根据详情页的设计调整内边距
+  margin-bottom: 0;
 } 
