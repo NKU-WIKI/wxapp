@@ -94,7 +94,7 @@
 }
 
 .postList {
-  padding: 0 13px 16px 17px;
+  padding: 0 13px 32px 17px; // 增加底部padding，确保触底检测准确
   display: flex;
   flex-direction: column;
 }
@@ -107,10 +107,10 @@
 
 .noMoreTip {
   text-align: center;
-  padding: 24px 0;
+  padding: 16px 0; // 减少padding
   color: #999;
   font-size: 14px;
-  margin: 8px 0;
+  margin: 8px 0 48px 0; // 增加底部margin
   background-color: #f9f9f9;
   border-radius: 8px;
 

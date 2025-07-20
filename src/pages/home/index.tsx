@@ -57,7 +57,7 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchPosts({ page: 1, pageSize: 5}));
+    dispatch(fetchPosts({ page: 1, pageSize: 5, isAppend: false }));
     setPage(1);
   }, [dispatch]);
 
@@ -73,14 +73,13 @@ export default function Home() {
 
     setIsRefreshing(true);
     try {
-      const params: { page: number; pageSize: number; category_id?: number } = {
+      const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
         page: 1,
         pageSize: 5,
+        isAppend: false, // 刷新时不追加，替换所有内容
       };
 
-      // 如果有选中的分类，保持分类筛选
       if (selectedCategory) {
-        // 这里可以根据分类名称映射到分类ID
         // params.category_id = getCategoryId(selectedCategory);
       }
 
@@ -100,9 +99,10 @@ export default function Home() {
     setIsLoadingMore(true);
     try {
       const nextPage = page + 1;
-      const params: { page: number; pageSize: number; category_id?: number } = {
+      const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
         page: nextPage,
         pageSize: 5,
+        isAppend: true, // 加载更多时追加到现有帖子后面
       };
 
       if (selectedCategory) {
@@ -122,31 +122,28 @@ export default function Home() {
   };
 
   const handleCategorySelect = (categoryId: number | null) => {
-    const params: { page: number; pageSize: number; category_id?: number } = {
+    const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
       page: 1,
       pageSize: 5,
+      isAppend: false, // 分类筛选时不追加，替换内容
     };
     if (categoryId) {
       params.category_id = categoryId;
     }
     dispatch(fetchPosts(params));
     setPage(1);
-    setSelectedCategory(null); // 重置分类选择状态
+    setSelectedCategory(null);
   };
 
   const handleCategoryClick = (categoryName: string) => {
     const newSelectedCategory = selectedCategory === categoryName ? null : categoryName;
     setSelectedCategory(newSelectedCategory);
 
-    // 重新加载数据
-    const params: { page: number; pageSize: number; category_id?: number } = {
+    const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
       page: 1,
       pageSize: 5,
+      isAppend: false, // 分类筛选时不追加，替换内容
     };
-    // 这里可以根据分类名称映射到分类ID
-    // if (newSelectedCategory) {
-    //   params.category_id = getCategoryId(newSelectedCategory);
-    // }
     dispatch(fetchPosts(params));
     setPage(1);
   };
@@ -236,7 +233,7 @@ export default function Home() {
           scrollY
           className={styles.postScrollView}
           onScrollToLower={handleScrollToLower}
-          lowerThreshold={100}
+          lowerThreshold={50} // 降低触发阈值，更敏感
           enableBackToTop
           refresherEnabled
           refresherTriggered={isRefreshing}
