@@ -1,22 +1,21 @@
-import React from "react";
 import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "@/store";
-import { toggleAction, deletePost } from "@/store/slices/postSlice";
-import { Post } from "@/types/api/post";
-import { formatRelativeTime } from "@/utils/time";
+import { Post } from "@/types/api/post.d";
 import styles from "./index.module.scss";
+import { formatRelativeTime } from "@/utils/time";
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
+import { toggleAction, deletePost } from '@/store/slices/postSlice';
+import { showToast } from '@/utils/ui';
 
-// 引入所有需要的图标 - 使用字符串路径
-const heartIcon = "/assets/heart-outline.svg";
-const heartActiveIcon = "/assets/heart-bold.svg";
-const commentIcon = "/assets/message-circle.svg";
-const starIcon = "/assets/star-outline.svg";
-const starActiveIcon = "/assets/star.svg";
-const sendIcon = "/assets/send.svg";
-const moreIcon = "/assets/more-horizontal.svg";
-
+// 引入所有需要的图标
+import heartIcon from "@/assets/heart-outline.svg"; // 空心
+import heartActiveIcon from "@/assets/heart.svg"; // 实心
+import commentIcon from "@/assets/message-circle.svg";
+import starIcon from "@/assets/star-outline.svg"; // 空心
+import starActiveIcon from "@/assets/star.svg"; // 实心
+import sendIcon from "@/assets/send.svg"; // 修正为 send.svg
+import moreIcon from "@/assets/more-horizontal.svg";
 import Button from "../button";
 
 interface PostItemProps {
@@ -36,7 +35,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         content: '您尚未登录，是否前往登录？',
         success: (res) => {
           if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/login/index' });
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
           }
         }
       });
@@ -46,35 +45,37 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   };
 
   // 跳转到详情页
-  const navigateToDetail = () => {
+  const navigateToDetail = (e) => {
+    // 防止点击按钮时触发
+    if (e && e.target && e.target.className && 
+        (typeof e.target.className === 'string') && 
+        (e.target.className.includes('action') || e.target.className.includes('Icon'))) {
+      return;
+    }
     Taro.navigateTo({ url: `/pages/subpackage-interactive/post-detail/index?id=${post.id}` });
   };
 
   // 处理点赞、收藏、关注等动作
-  const handleActionClick = (actionType: 'like' | 'favorite' | 'follow' | 'share' | 'delete') => {
+  const handleActionClick = (e, actionType: 'like' | 'favorite' | 'follow' | 'share' | 'delete') => {
+    e.stopPropagation(); // 阻止事件冒泡到父容器的 navigateToDetail
+
     if (actionType === 'share') {
       // 微信分享逻辑，Taro 目前不支持在组件中直接调用 onShareAppMessage
       // 需要在页面级别处理，或者通过事件通知页面
-      Taro.showToast({
-        title: '分享功能需要在页面中实现',
-        icon: 'none',
-        duration: 2000,
-      });
+      showToast('分享功能需要在页面中实现', { type: 'info' });
       return;
     }
 
     if (!checkLogin()) return;
-
+    
     switch (actionType) {
       case 'like':
-        dispatch(toggleAction({ postId: post.id, actionType }));
-        break;
       case 'favorite':
         dispatch(toggleAction({ postId: post.id, actionType }));
         break;
       case 'follow':
         // 关注用户
-        dispatch(toggleAction({ postId: post.author_info?.id, actionType: 'follow' }));
+        dispatch(toggleAction({ postId: post.author_info.id, actionType: 'follow' }));
         break;
       case 'delete':
         handleDeletePost();
@@ -95,24 +96,22 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     });
   };
 
-  const ActionButton = ({ icon, count, isActive, action }) => (
-    <View
-      className={styles.actionButton}
-      onClick={() => handleActionClick(action)}
-    >
-      <View
+  // 使用与 post_detail 相同的处理方式
+  const ActionButton = ({ icon, activeIcon, count, isActive, action }) => (
+    <View className={styles.actionButton} onClick={(e) => handleActionClick(e, action)}>
+      <View 
         className={`${styles.actionIcon} ${isActive ? styles.active : ''}`}
-        style={{ "--icon-url": `url(${icon})` } as any}
+        style={{ "--icon-url": `url(${action === 'like' ? heartIcon : (action === 'favorite' ? starIcon : commentIcon)})` } as any}
       />
-      <Text className={styles.actionCount}>{count}</Text>
+      <Text className={`${styles.actionCount} ${isActive ? styles.active : ''}`}>{count}</Text>
     </View>
   );
 
   // 判断是否可以删除
-  const canDelete = userInfo?.id === post.author_info?.id || userInfo?.role === 'admin';
+  const canDelete = userInfo?.id === post.author_info.id || userInfo?.role === 'admin';
 
   return (
-    <View className={`${styles.postCard} ${className}`}>
+    <View className={`${styles.postCard} ${className}`} onClick={navigateToDetail}>
       <View className={styles.cardHeader}>
         <View className={styles.authorInfo}>
           <Image src={post.author_info.avatar || ''} className={styles.avatar} />
@@ -128,10 +127,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         <View className={styles.headerActions}>
           <Text className={styles.postTime}>{formatRelativeTime(post.create_time)}</Text>
           {canDelete && (
-            <View
-              className={styles.moreButton}
-              onClick={() => handleActionClick('delete')}
-            >
+            <View className={styles.moreButton} onClick={(e) => handleActionClick(e, 'delete')}>
               <View
                 className={styles.moreIcon}
                 style={{ "--icon-url": `url(${moreIcon})` } as any}
@@ -140,41 +136,42 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           )}
         </View>
       </View>
-
-      <View onClick={navigateToDetail} className={styles.contentWrapper}>
-        {/* Post Content */}
-        <View className={styles.content}>
-          <Text className={styles.title}>{post.title}</Text>
-          <Text className={styles.text} numberOfLines={3}>
-            {post.content}
-          </Text>
-        </View>
-
-        {post.image_urls && post.image_urls.length > 0 && (
-          <View className={styles.images}>
-            {post.image_urls.slice(0, 3).map((url, index) => (
-              <Image key={index} src={url} className={styles.postImage} />
-            ))}
-          </View>
-        )}
+      
+      {/* Post Content */}
+      <View className={styles.content}>
+        <Text className={styles.title}>{post.title}</Text>
+        <Text className={styles.text} numberOfLines={3}>
+          {post.content}
+        </Text>
       </View>
+
+      {post.image_urls && post.image_urls.length > 0 && (
+        <View className={styles.images}>
+          {post.image_urls.slice(0, 3).map((url, index) => (
+            <Image key={index} src={url} className={styles.postImage} />
+          ))}
+        </View>
+      )}
 
       <View className={styles.footer}>
         <View className={styles.actions}>
           <ActionButton
             icon={heartIcon}
+            activeIcon={heartActiveIcon}
             count={post.like_count}
             isActive={post.is_liked}
             action="like"
           />
           <ActionButton
             icon={commentIcon}
+            activeIcon={commentIcon}
             count={post.comment_count}
             isActive={false}
             action="comment" // 点击评论也是跳转详情页
           />
           <ActionButton
             icon={starIcon}
+            activeIcon={starActiveIcon}
             count={post.favorite_count}
             isActive={post.is_favorited}
             action="favorite"
@@ -183,7 +180,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         <View
           className={styles.shareIcon}
           style={{ "--icon-url": `url(${sendIcon})` } as any}
-          onClick={() => handleActionClick("share")}
+          onClick={(e) => handleActionClick(e, "share")}
         />
       </View>
     </View>

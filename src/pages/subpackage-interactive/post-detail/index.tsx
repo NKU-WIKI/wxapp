@@ -1,41 +1,48 @@
 import React, { useEffect } from 'react';
-import { View, ScrollView, Text } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import { View, ScrollView } from '@tarojs/components';
+import { useRouter } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { fetchPostById } from '@/store/slices/postSlice';
 import CustomHeader from '@/components/custom-header';
 import styles from './index.module.scss';
-import PostItem from '@/components/post-item'; // 替换为 PostItem
+import PostDetailContent from './components/PostDetailContent';
 import CommentSection from './components/CommentSection';
 import BottomInput from './components/BottomInput';
+import { fetchPostDetail } from '@/store/slices/postSlice';
+import { AppDispatch, RootState } from '@/store';
 import EmptyState from '@/components/empty-state';
-import EmptyIcon from '@/assets/empty.svg'; // 引入一个图标
+import emptyIcon from '@/assets/empty.svg';
 
 const PostDetailPage = () => {
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const router = Taro.useRouter();
-  const { currentPost, detailLoading, detailError } = useSelector((state: RootState) => state.post);
-
+  const { currentPost, detailLoading, error } = useSelector((state: RootState) => state.post);
+  
+  // 从路由参数中获取帖子ID
+  const postId = Number(router.params.id);
+  
   useEffect(() => {
-    if (router.params.id) {
-      const postId = Number(router.params.id);
-      dispatch(fetchPostById(postId));
+    if (postId) {
+      dispatch(fetchPostDetail(postId));
     }
-  }, [router.params.id, dispatch]);
-
+  }, [dispatch, postId]);
+  
   const renderContent = () => {
     if (detailLoading === 'pending') {
-      return <Text>加载中...</Text>;
+      return <View className={styles.loading}>加载中...</View>;
     }
-
-    if (detailError || !currentPost) {
-      return <EmptyState icon={EmptyIcon} text="帖子加载失败，请稍后重试" />;
+    
+    if (detailLoading === 'failed' || !currentPost) {
+      return (
+        <EmptyState
+          icon={emptyIcon}
+          text={error || '加载失败，请稍后再试'}
+        />
+      );
     }
-
+    
     return (
       <>
-        <PostItem post={currentPost} className={styles.detailPostItem} />
+        <PostDetailContent post={currentPost} />
         <CommentSection comments={currentPost.comments || []} />
       </>
     );
@@ -43,15 +50,13 @@ const PostDetailPage = () => {
 
   return (
     <View className={styles.postDetailPage}>
-      <CustomHeader title="帖子详情" />
-      <View style={{ flex: 1, overflow: 'hidden' }}>
-        <ScrollView scrollY className={styles.scrollView}>
-          <View className={styles.mainContent}>
-            {renderContent()}
-          </View>
-        </ScrollView>
-      </View>
-      <BottomInput />
+      <CustomHeader title="帖子详情" hideBack={false} background="#FFFFFF" />
+      <ScrollView scrollY className={styles.scrollView}>
+        <View className={styles.mainContent}>
+          {renderContent()}
+        </View>
+      </ScrollView>
+      <BottomInput postId={postId} />
     </View>
   );
 };

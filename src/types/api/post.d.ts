@@ -23,6 +23,7 @@ export interface Post {
   title: string;
   content: string;
   image_urls: string[] | null; // API 返回的是 image_urls
+  image?: string | null; // 添加 image 字段，某些API可能返回这个字段
   tag: string | null;
   location: string | null;
   view_count: number;
@@ -62,4 +63,11 @@ export interface GetPostsParams {
   page?: number;
   page_size?: number;
   tab?: 'recommend' | 'hot' | 'new';
+}
+
+/**
+ * 获取帖子详情的请求参数
+ */
+export interface GetPostDetailParams {
+  post_id: number;
 }

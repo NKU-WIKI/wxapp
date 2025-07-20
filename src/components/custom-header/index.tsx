@@ -88,7 +88,7 @@ const CustomHeader = ({
   };
 
   const handleNotificationClick = () => {
-    Taro.navigateTo({ url: "/pages/notification/index" });
+    Taro.navigateTo({ url: "/pages/subpackage-interactive/notification/index" });
   };
 
   // 整体容器，负责占位

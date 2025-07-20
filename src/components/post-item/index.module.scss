@@ -1,7 +1,6 @@
 @use "../../styles/variables.scss" as *;
 
 .postCard {
-  background-color: $bg-card;
   @include card-style;
   padding: 12px;
   margin-bottom: 4px;
@@ -150,12 +149,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: $text-secondary;
-
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background-color: transparent; // 无背景
+  transition: all 0.2s;
+  
   .actionIcon {
-    width: 20px;
-    height: 20px;
-    background-color: $text-secondary; // 默认图标颜色
+    width: 18px;
+    height: 18px;
+    background-color: #666; // 未激活时图标颜色
     mask-image: var(--icon-url);
     mask-size: contain;
     mask-position: center;
@@ -164,17 +166,32 @@
     -webkit-mask-size: contain;
     -webkit-mask-position: center;
     -webkit-mask-repeat: no-repeat;
-    transition: background-color 0.2s;
-
+    
     &.active {
-      background-color: $theme-primary; // 激活状态的颜色 (主题色)
+      background-color: #4F46E5; // 激活时图标为主题色
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+      mask-size: contain;
+      -webkit-mask-size: contain;
+      mask-repeat: no-repeat;
+      -webkit-mask-repeat: no-repeat;
     }
   }
-
+  
   .actionCount {
-    font-size: 14px;
-    line-height: 1;
+    font-size: 13px;
+    color: #666; // 未激活时文字颜色
+    
+    &.active {
+      color: #4F46E5; // 激活时文字为主题色
+    }
   }
+}
+
+.shareButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .shareIcon {
@@ -239,12 +256,21 @@
   -webkit-box-orient: vertical;
 }
 
-.contentWrapper {
-  cursor: pointer;
-}
-
 .images {
   display: flex;
   gap: 8px;
   margin: 8px 0;
+}
+
+.input {
+  position: absolute;
+  left: 15px;
+  top: 13px;
+  width: 301px;
+  height: 36px;
+  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 12px;
+  z-index: 1;
 }
