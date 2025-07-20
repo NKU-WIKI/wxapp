@@ -5,18 +5,13 @@
   background-color: #f9fafb;
 }
 
-.scrollView {
-  height: 100%;
-  box-sizing: border-box;
-}
-
 .searchContainer {
   display: flex;
   align-items: center;
   background-color: #f3f4f6;
   border-radius: 9999px;
   padding: 8px 12px;
-  margin: 16px;
+  margin: 16px 16px 16px 16px; // 统一使用16px边距
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
@@ -37,17 +32,11 @@
 
 .categoriesContainer {
   background-color: #ffffff;
-  padding: 12px 0;
-  margin: 0 16px;
+  padding: 12px 0; // 移除左右padding，保持与原来一致
+  margin: 0 16px 6px 16px; // 确保与搜索容器和帖子列表相同的边距
   border-radius: 12px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-}
-
-.categoriesScrollView {
   display: flex;
-  white-space: nowrap;
-  padding: 0 16px;
-  justify-content: space-between;
 }
 
 .categoryItem {
@@ -89,8 +78,18 @@
   color: #4f46e5;
 }
 
+.postScrollContainer {
+  flex: 1;
+  overflow: hidden;
+}
+
+.postScrollView {
+  height: 100%;
+  margin: 0 0px 16px;
+}
+
 .postList {
-  padding: 16px;
+  padding: 0 13px 16px 17px; // 从 16px 改为 18px，向右移动2px
   display: flex;
   flex-direction: column;
 }
