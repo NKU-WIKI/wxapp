@@ -87,6 +87,19 @@ export const toggleAction = createAsyncThunk<
   }
 });
 
+export const fetchPostById = createAsyncThunk<Post, number>(
+  'posts/fetchPostById',
+  async (postId, { rejectWithValue }) => {
+    try {
+      const response = await postApi.getPostById(postId);
+      // 后端返回的是 BaseResponse<Post>，数据在 data 字段
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to fetch post');
+    }
+  }
+);
+
 // 创建帖子 Thunk
 export const createPost = createAsyncThunk<
   { id: number },
@@ -120,6 +133,9 @@ interface PostsState {
   pagination: Pagination | null;
   loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   error: any;
+  currentPost: Post | null;
+  detailLoading: 'idle' | 'pending' | 'succeeded' | 'failed';
+  detailError: any;
 }
 
 const initialState: PostsState = {
@@ -127,6 +143,9 @@ const initialState: PostsState = {
   pagination: null,
   loading: 'idle',
   error: null,
+  currentPost: null,
+  detailLoading: 'idle',
+  detailError: null,
 };
 
 const postsSlice = createSlice({
@@ -136,6 +155,9 @@ const postsSlice = createSlice({
     pagination: null as Pagination | null,
     loading: 'idle' as 'idle' | 'pending' | 'succeeded' | 'failed',
     error: null as any,
+    currentPost: null as Post | null,
+    detailLoading: 'idle' as 'idle' | 'pending' | 'succeeded' | 'failed',
+    detailError: null as any,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -163,31 +185,41 @@ const postsSlice = createSlice({
         state.loading = 'failed';
         state.error = action.payload as string;
       })
+      .addCase(fetchPostById.pending, (state) => {
+        state.detailLoading = 'pending';
+        state.currentPost = null;
+      })
+      .addCase(fetchPostById.fulfilled, (state, action: PayloadAction<Post>) => {
+        state.detailLoading = 'succeeded';
+        state.currentPost = action.payload;
+      })
+      .addCase(fetchPostById.rejected, (state, action) => {
+        state.detailLoading = 'failed';
+        state.detailError = action.payload as string;
+      })
       .addCase(toggleAction.fulfilled, (state, action) => {
         const { postId, actionType, response } = action.payload;
-        if (actionType === 'follow') {
-          // 在 post slice 中不直接处理关注状态的 UI 更新，
-          // 因为一个用户的关注状态可能影响多个帖子。
-          // 这种状态应该由 user slice 或其他地方管理。
-          // 这里可以只记录一个日志或者什么都不做。
-          console.log(`Follow action for user ${postId} completed.`);
-          return;
-        }
 
-        const postIndex = state.list.findIndex((p) => p.id === postId);
-        if (postIndex !== -1) {
-          const post = state.list[postIndex];
-          switch (actionType) {
-            case 'like':
-              post.is_liked = response.is_active;
-              post.like_count = response.count;
-              break;
-            case 'favorite':
-              post.is_favorited = response.is_active;
-              post.favorite_count = response.count;
-              break;
-            default:
-              break;
+        // 更新列表中的帖子状态
+        const postInList = state.list.find((p) => p.id === postId);
+        if (postInList) {
+          if (actionType === 'like') {
+            postInList.is_liked = response.is_active;
+            postInList.like_count = response.count;
+          } else if (actionType === 'favorite') {
+            postInList.is_favorited = response.is_active;
+            postInList.favorite_count = response.count;
+          }
+        }
+        
+        // 如果当前详情页的帖子是同一个，也更新它
+        if (state.currentPost && state.currentPost.id === postId) {
+          if (actionType === 'like') {
+            state.currentPost.is_liked = response.is_active;
+            state.currentPost.like_count = response.count;
+          } else if (actionType === 'favorite') {
+            state.currentPost.is_favorited = response.is_active;
+            state.currentPost.favorite_count = response.count;
           }
         }
       })

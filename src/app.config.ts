@@ -9,7 +9,8 @@ export default defineAppConfig({
     "pages/publish/index",
     "pages/edit-profile/index",
     "pages/login/index",
-    "pages/level/index"
+    "pages/level/index",
+    "pages/about/index"
   ],
   window: {
     backgroundTextStyle: "light",

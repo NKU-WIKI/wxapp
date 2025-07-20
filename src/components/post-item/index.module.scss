@@ -149,15 +149,12 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  border-radius: 9999px;
-  background-color: transparent; // 无背景
-  transition: all 0.2s;
+  color: $text-secondary;
 
   .actionIcon {
-    width: 18px;
-    height: 18px;
-    background-color: #666; // 未激活时图标颜色
+    width: 20px;
+    height: 20px;
+    background-color: $text-secondary; // 默认图标颜色
     mask-image: var(--icon-url);
     mask-size: contain;
     mask-position: center;
@@ -166,23 +163,16 @@
     -webkit-mask-size: contain;
     -webkit-mask-position: center;
     -webkit-mask-repeat: no-repeat;
+    transition: background-color 0.2s;
+
+    &.active {
+      background-color: $theme-primary; // 激活状态的颜色 (主题色)
+    }
   }
 
   .actionCount {
-    font-size: 13px;
-    color: #666; // 未激活时文字颜色
-  }
-
-  // 激活状态
-  &.active {
-    background-color: #4F46E5;
-
-    .actionIcon {
-      background-color: #ffffff; // 激活时图标变白
-    }
-    .actionCount {
-      color: #ffffff; // 激活时文字变白
-    }
+    font-size: 14px;
+    line-height: 1;
   }
 }
 
@@ -246,6 +236,10 @@
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-box-orient: vertical;
+}
+
+.contentWrapper {
+  cursor: pointer;
 }
 
 .images {

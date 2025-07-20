@@ -39,7 +39,7 @@
 ### 组件开发 (development.mdc)
 - **组件库**: 优先使用 `Taro UI`，并按需引入。
 - **自定义组件**: 在 `src/components` 下创建原子组件和业务组件。
-- **UI/UX**: 简洁、卡片式布局，主色调为蓝色 (#4A90E2)，标题 18px Bold，正文 16px Regular。
+- **UI/UX**: 简洁、卡片式布局，主色调见 `src/constants/colors.ts`
 
 ### 最佳实践 (practices.mdc)
 - **性能**: 使用分包加载、图片压缩、虚拟列表、`webpack-bundle-analyzer` 进行包体积分析。
