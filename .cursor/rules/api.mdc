@@ -1,3 +1,4 @@
+
 ### 📡 API 对接工作流
 
 为了保证与后端接口的高效、规范对接，所有涉及网络请求的代码都必须遵循以下工作流。这是一个**强制性规范**，旨在从根源上杜绝路径错误、参数不匹配和数据解析失败等问题。
@@ -29,7 +30,21 @@
 
 ### 🔗 网络请求规范
 
-- **统一封装**: 在 `src/services/request.ts` 中封装 `Taro.request`，统一处理请求头、错误、Loading 状态等。
+- **统一封装**: 在 `src/services/request.ts` 中封装 `Taro.request`，统一处理请求头、错误等。
+- **加载提示 (Loading)**:
+    - **完全静默 (默认)**：为了提供极致的流畅感，所有API请求，**包括页面跳转，默认都不显示**全局的“加载中”提示。应用的UI层应自行处理加载状态（如显示骨架屏）。
+    - **按需开启 (特殊情况)**：如果遇到极特殊的、需要强制用户等待的长时间操作，可以通过以下方式手动开启加载提示。
+      ```typescript
+      // 示例：在 API service 中为某个请求开启加载提示
+      http.post('/some/long/task', data, {
+        header: {
+          'X-Show-Loading': true,
+        },
+      });
+      ```
 - **API 管理**: 在 `src/services/api/` 目录下按模块统一管理所有接口。
+- **环境配置**: 在 `config/dev.js` 和 `config/prod.js` 中管理项目的基础配置，如 `baseUrl` 等。
+- **路径别名**: 在 `config/index.ts` 中配置 `@` 作为 `src` 目录的别名，简化模块导入路径。
+
 - **环境配置**: 在 `config/dev.js` 和 `config/prod.js` 中管理项目的基础配置，如 `baseUrl` 等。
 - **路径别名**: 在 `config/index.ts` 中配置 `@` 作为 `src` 目录的别名，简化模块导入路径。

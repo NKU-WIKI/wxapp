@@ -1,6 +1,10 @@
 import type { UserConfigExport } from "@tarojs/cli"
 
 export default {
+  env: {
+    NODE_ENV: '"production"',
+    BASE_URL: '"https://nkuwiki.com"'
+  },
   mini: {},
   h5: {
     compile: {
@@ -38,6 +42,6 @@ export default {
     // }
   },
   defineConstants: {
-    BASE_URL: JSON.stringify('https://nkuwiki.com'),
+    'process.env.BASE_URL': JSON.stringify('https://nkuwiki.com'),
   },
 } satisfies UserConfigExport<'webpack5'>
