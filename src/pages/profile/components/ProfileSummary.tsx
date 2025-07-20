@@ -2,6 +2,7 @@ import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import styles from './ProfileSummary.module.scss'
 import { UserInfo } from '@/types/api/user' // Assuming UserInfo is defined in user types
+import { tabBarSyncManager } from '@/utils/tabBarSync'
 import awardIcon from '@/assets/award.svg'
 
 interface ProfileSummaryProps {
@@ -11,11 +12,13 @@ interface ProfileSummaryProps {
 const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
 
   const handleEditProfile = () => {
-    Taro.navigateTo({ url: '/pages/edit-profile/index' });
+    // 使用全局导航管理器，自动判断是否为tabBar页面
+    tabBarSyncManager.navigateToPage('/pages/edit-profile/index');
   };
 
   const handleNavigateToLevel = () => {
-    Taro.navigateTo({ url: '/pages/level/index' });
+    // 使用全局导航管理器，自动判断是否为tabBar页面
+    tabBarSyncManager.navigateToPage('/pages/level/index');
   }
 
   const statistics = [
@@ -64,4 +67,4 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
   )
 }
 
-export default ProfileSummary 
+export default ProfileSummary
