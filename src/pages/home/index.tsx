@@ -45,7 +45,7 @@ const mockCategories = [
 export default function Home() {
   console.log("--- HOME COMPONENT RENDER CHECK (PRODUCTION) ---");
   const dispatch = useDispatch<AppDispatch>();
-  const { list: posts, loading } = useSelector(
+  const { list: posts, loading, pagination } = useSelector(
     (state: RootState) => state.post
   );
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
@@ -54,7 +54,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    dispatch(fetchPosts({ page: 1, pageSize: 10 }));
+    dispatch(fetchPosts({ page: 1, page_size: 10, tab: "recommend" }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export default function Home() {
 
   return (
     <View className={styles.homeContainer}>
-      <CustomHeader title="首页" showNotificationIcon />
+              <CustomHeader title="首页" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
 
       {/* 搜索区域 - 固定 */}
       <View className={styles.searchContainer}>

@@ -172,8 +172,10 @@ export default function ExplorePage() {
   );
 
   return (
-    <View className={styles.explorePage}>
-      <CustomHeader title="探索" />
+    <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+              <CustomHeader title="发现" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
+      <View style={{ flex: 1, overflow: 'hidden' }}>
+        <ScrollView scrollY style={{ height: '100%' }}>
       <View className={styles.pageContent}>
         <View className={styles.searchBarWrapper}>
           <View className={styles.searchContainer}>
@@ -194,10 +196,9 @@ export default function ExplorePage() {
             )}
           </View>
         </View>
-
-        <View style={{ flex: 1, overflow: 'hidden' }}>
           {isSearchActive ? renderSearchSkills() : renderDefaultView()}
         </View>
+        </ScrollView>
       </View>
     </View>
   );

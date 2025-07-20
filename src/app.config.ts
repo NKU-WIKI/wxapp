@@ -10,8 +10,10 @@ export default defineAppConfig({
     "pages/edit-profile/index",
     "pages/login/index",
     "pages/level/index",
-    "pages/about/index"
+    "pages/about/index",
+    "pages/chat/index"
   ],
+  subPackages: [],
   window: {
     backgroundTextStyle: "light",
     navigationBarBackgroundColor: "#fff",

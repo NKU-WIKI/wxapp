@@ -6,18 +6,10 @@
 
 - **[项目总览](./.cursor/rules/overview.mdc)**
   - 了解项目目标、技术栈、目录结构和核心功能模块。
-- **[编码规范](./.cursor/rules/style-guide.mdc)**
-  - 遵循统一的命名规范和代码风格（TypeScript, React, SCSS）。
-- **[组件开发](./.cursor/rules/development.mdc)**
-  - 学习如何进行组件化开发，以及 UI/UX 规范。
-- **[最佳实践](./.cursor/rules/practices.mdc)**
-  - 查看性能优化、跨端兼容、布局、颜色和图标处理等通用最佳实践。
-- **[API 对接](./.cursor/rules/api.mdc)**
-  - 掌握与后端对接的强制工作流和网络请求规范。
-- **[状态管理](./.cursor/rules/state.mdc)**
-  - 深入理解项目中 Redux (RTK) 的使用方式。
-- **[项目工作流](./.cursor/rules/workflow.mdc)**
-  - 包含 Git 分支规范、自动化流程、测试、CI/CD 以及核心重构任务。
+- **[编码与UI规范](./.cursor/rules/style-guide.mdc)**
+  - 遵循统一的命名、代码风格、颜色管理及组件开发规范。
+- **[开发实践与工作流](./.cursor/rules/practices.mdc)**
+  - 查看性能优化、布局规范、API 对接、状态管理、Git 工作流等核心实践。
 
 **请在开始开发前，务必熟悉与您工作内容相关的规范文档。**
 
@@ -27,40 +19,26 @@
 ### 项目总览 (overview.mdc)
 - **目标**: 使用 Taro 框架构建高质量的微信小程序。
 - **技术栈**: Taro 4.x, React, Redux, TypeScript, SCSS。
+- **核心依赖**: 项目依赖 `@tarojs/plugin-framework-react`, `@tarojs/plugin-platform-weapp`, `babel-preset-taro` 等核心插件。
 - **目录结构**: 遵循官方推荐，对 `src` 目录进行精细化划分 (`assets`, `components`, `constants`, `pages`, `services`, `store`, `types`)。
 - **核心模块**: 首页、发现、发布、消息、我的。
 
 ### 编码规范 (style-guide.mdc)
 - **命名**: 目录和非组件文件用 `kebab-case`，React 组件用 `PascalCase`，变量和函数用 `camelCase`，常量用 `UPPER_SNAKE_CASE`。
 - **TypeScript**: 开启 `strict` 模式，明确类型定义，优先使用 `interface`。
-- **React**: 全面使用函数式组件和 Hooks，自定义 Hooks 以 `use` 开头，组件保持功能单一。
-- **SCSS**: 强制使用 `*.module.scss`，全局样式写入 `src/app.scss`，使用 `px` 单位。
-
-### 组件开发 (development.mdc)
-- **组件库**: 优先使用 `Taro UI`，并按需引入。
-- **自定义组件**: 在 `src/components` 下创建原子组件和业务组件。
-- **UI/UX**: 简洁、卡片式布局，主色调见 `src/constants/colors.ts`
+- **React**: 全面使用函数式组件和 Hooks，使用 `useMemo`/`useCallback` 优化性能，自定义 Hooks 以 `use` 开头。
+- **SCSS (强制)**: 必须使用 `*.module.scss`，全局样式写入 `src/app.scss`，使用 `px` 单位（Taro会自动转换为rpx）。
+- **颜色管理 (强制)**: 严禁硬编码颜色。SCSS 中使用 `src/styles/variables.scss` 的变量，TS 中使用 `src/constants/colors.ts` 的常量。
+- **组件开发**: 优先使用微信原生组件库，其次才是Taro UI，自定义组件放在 `src/components`，样式使用 `.module.scss`。
+- **UI/UX**: 设计风格追求简洁、卡片式布局，多采用圆角、留白和阴影。
 
 ### 最佳实践 (practices.mdc)
-- **性能**: 使用分包加载、图片压缩、虚拟列表、`webpack-bundle-analyzer` 进行包体积分析。
+- **性能优化**: 积极采用分包加载、图片压缩、虚拟列表等技术，并使用 `webpack-bundle-analyzer` 分析包体积。
 - **布局 (强制)**: 所有页面必须使用 `<CustomHeader>` + `<ScrollView>` 的“防内容遮挡”顶级布局结构。
 - **安全区域 (强制)**: 禁止在自定义导航栏右上角区域放置任何可交互控件。
-- **图标 (强制)**: 所有图标必须是本地资源，存放于 `src/assets`，禁止使用外部 CDN 或第三方库。推荐使用 `mask-image` + CSS 变量动态修改颜色。
-
-### API 对接 (api.mdc)
-- **工作流 (强制)**: 严格遵循“读文档 -> 定义类型 -> 创建 Service -> 创建 Thunk -> 组件使用”的五步流程。
-- **请求封装**: 在 `src/services/request.ts` 中统一封装请求，`src/services/api/` 按模块管理接口。
-- **数据转换**: 在 Redux Thunk 中将后端返回的数据结构 (`snake_case`, 扁平分页) 转换为前端需要的结构 (`camelCase`, 嵌套分页)。
-
-### 状态管理 (state.mdc)
-- **库**: 选用 Redux Toolkit (RTK) 进行全局状态管理。
-- **目录**: 使用 `slice` 文件组织 `actions`, `reducers`，存放于 `src/store/slices`。
-- **数据流**: 遵循单向数据流，接口请求通过 `createAsyncThunk` 更新 store。
-- **持久化**: 对用户 Token 等数据使用 `redux-persist`。
-
-### 项目工作流 (workflow.mdc)
-- **Git**: 采用 `Git Flow` 模型，Commit Message 遵循 `Angular` 规范。
-- **自动化**: 使用 `Husky`, `lint-staged`, `commitlint` 在 `pre-commit` 和 `commit-msg` 钩子中进行代码检查和格式化。
-- **测试**: 使用 `Jest` 和 `@tarojs/test-utils-react` 进行单元测试。
-- **CI/CD**: 使用 `@tarojs/plugin-mini-ci` 实现小程序自动化部署。
-- **重构任务**: 参考 `nkuwiki-app/` 项目，将 Next.js 实现（HTML 标签, Tailwind, `lucide-react`）翻译为 Taro 规范（Taro 组件, SCSS, 本地 SVG）。
+- **图标 (强制)**: 所有图标必须是本地资源，存放于 `src/assets`。
+- **API 对接工作流 (强制)**: 严格遵循“读文档 -> 定义类型 -> 创建 Service -> 创建 Thunk -> 组件使用”的五步流程。
+- **状态管理**: 选用 Redux Toolkit (RTK)，在 `src/store/slices` 中组织 `slice` 文件。接口请求通过 `createAsyncThunk` 更新 store，使用 `redux-persist` 持久化关键数据。
+- **Git 工作流**: 采用 `Git Flow` 模型，Commit Message 遵循 `Angular` 规范（推荐使用 `commitizen`），并使用 `Husky` + `lint-staged` 保证代码质量。
+- **代码测试**: 使用 `Jest` 和 `@tarojs/test-utils-react` 进行单元测试，测试文件以 `.spec.ts` 结尾。
+- **核心重构任务**: 参考 `nkuwiki-app/` 项目，将 Next.js 实现（HTML 标签, Tailwind, `lucide-react`）翻译为 Taro 规范（Taro 组件, SCSS, 本地 SVG）。

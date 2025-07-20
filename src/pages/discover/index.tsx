@@ -6,11 +6,10 @@ import { hotspots, aiAssistants, activity } from "./mock";
 
 export default function Discover() {
   return (
-    <View className={styles.discoverPage}>
-      <CustomHeader title="发现" />
-
+    <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <CustomHeader title="探索" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
       <View style={{ flex: 1, overflow: 'hidden' }}>
-        <ScrollView scrollY className={styles.scrollView}>
+        <ScrollView scrollY style={{ height: '100%' }}>
           {/* Campus Hotspots */}
           <Section title="校园热点" extraText="实时更新">
             <View className={styles.hotspotsContainer}>

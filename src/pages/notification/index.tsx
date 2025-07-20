@@ -20,7 +20,7 @@ const mockNotifications = {
   comments: []
 };
 
-export default function NotificationPage() {
+const NotificationPage = () => {
   const [currentTab, setCurrentTab] = useState(0)
   const tabList = [{ title: '点赞' }, { title: '收藏' }, { title: '评论' }]
 
@@ -29,7 +29,7 @@ export default function NotificationPage() {
   );
 
   return (
-    <View className={styles.pageContainer}>
+    <View className={styles.notificationPage}>
       <CustomHeader title="消息" />
       
       <View className={styles.tabsContainer}>
@@ -68,5 +68,7 @@ export default function NotificationPage() {
         </View>
       </View>
     </View>
-  )
-} 
+  );
+};
+
+export default NotificationPage; 

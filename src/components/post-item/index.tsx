@@ -66,7 +66,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         break;
       case 'follow':
         // 关注用户
-        dispatch(toggleAction({ postId: post.author_info.id, actionType: 'follow' }));
+        dispatch(toggleAction({ postId: post.author_info?.id, actionType: 'follow' }));
         break;
       case 'delete':
         handleDeletePost();
@@ -101,7 +101,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   );
 
   // 判断是否可以删除
-  const canDelete = userInfo?.id === post.author_info.id || userInfo?.role === 'admin';
+  const canDelete = userInfo?.id === post.author_info?.id || userInfo?.role === 'admin';
 
   return (
     <View className={`${styles.postCard} ${className}`}>
