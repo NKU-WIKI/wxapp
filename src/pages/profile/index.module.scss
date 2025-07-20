@@ -1,7 +1,7 @@
-@import "../../styles/variables.scss";
+@use "../../styles/variables.scss" as *;
 
 /* 页面整体布局 */
-.pageContainer {
+.profile-page {
   min-height: 100vh;
   background-color: #f5f5f5;
   display: flex;

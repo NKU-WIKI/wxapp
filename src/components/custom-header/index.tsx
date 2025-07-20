@@ -1,11 +1,12 @@
+import React from "react";
 import { View, Text, Image } from "@tarojs/components";
-import { useState, useEffect } from "react";
 import Taro from "@tarojs/taro";
 import styles from "./index.module.scss";
-import React from "react";
-import backIcon from "../../assets/arrow-left.svg";
-import logo from "../../assets/logo.png";
-import notificationIcon from "../../assets/bell.svg";
+
+// 图标路径常量
+const backIcon = "/assets/arrow-left.svg";
+const logo = "/assets/logo.png";
+const notificationIcon = "/assets/bell.svg";
 
 interface NavStyle {
   navBarHeight: number;
@@ -32,7 +33,7 @@ const CustomHeader = ({
   renderRight, // Destructure rightContent
   background = "#FFFFFF",
 }: CustomHeaderProps) => {
-  const [navStyle, setNavStyle] = useState<NavStyle>({
+  const [navStyle, setNavStyle] = React.useState<NavStyle>({
     navBarHeight: 88, // 默认总高度
     navBarPaddingTop: 44, // 默认状态栏高度
     navBarContentHeight: 32, // 默认内容区高度
@@ -40,7 +41,7 @@ const CustomHeader = ({
     menuButtonRightGap: 10, // 默认右侧间距
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     try {
       const windowInfo = Taro.getWindowInfo();
       const menuButtonInfo = Taro.getMenuButtonBoundingClientRect();

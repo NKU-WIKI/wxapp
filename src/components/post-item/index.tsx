@@ -1,20 +1,22 @@
+import React from "react";
 import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { Post } from "@/types/api/post.d";
-import styles from "./index.module.scss";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "@/store";
+import { toggleAction, deletePost } from "@/store/slices/postSlice";
+import { Post } from "@/types/api/post";
 import { formatRelativeTime } from "@/utils/time";
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { toggleAction, deletePost } from '@/store/slices/postSlice';
-import { showToast } from '@/utils/ui';
+import styles from "./index.module.scss";
 
-// 引入所有需要的图标
-import heartIcon from "@/assets/heart-outline.svg"; // 空心
-import heartActiveIcon from "@/assets/heart-bold.svg"; // 实心
-import commentIcon from "@/assets/message-circle.svg";
-import starIcon from "@/assets/star-outline.svg"; // 空心
-import starActiveIcon from "@/assets/star.svg"; // 实心
-import sendIcon from "@/assets/send.svg";
+// 引入所有需要的图标 - 使用字符串路径
+const heartIcon = "/assets/heart-outline.svg";
+const heartActiveIcon = "/assets/heart-bold.svg";
+const commentIcon = "/assets/message-circle.svg";
+const starIcon = "/assets/star-outline.svg";
+const starActiveIcon = "/assets/star.svg";
+const sendIcon = "/assets/send.svg";
+const moreIcon = "/assets/more-horizontal.svg";
+
 import Button from "../button";
 
 interface PostItemProps {
@@ -45,7 +47,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
 
   // 跳转到详情页
   const navigateToDetail = () => {
-    Taro.navigateTo({ url: `/pages/post-detail/index?id=${post.id}` });
+    Taro.navigateTo({ url: `/pages/subpackage-interactive/post-detail/index?id=${post.id}` });
   };
 
   // 处理点赞、收藏、关注等动作
@@ -53,7 +55,11 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     if (actionType === 'share') {
       // 微信分享逻辑，Taro 目前不支持在组件中直接调用 onShareAppMessage
       // 需要在页面级别处理，或者通过事件通知页面
-      showToast('分享功能需要在页面中实现', { type: 'info' });
+      Taro.showToast({
+        title: '分享功能需要在页面中实现',
+        icon: 'none',
+        duration: 2000,
+      });
       return;
     }
 
@@ -128,7 +134,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
             >
               <View
                 className={styles.moreIcon}
-                style={{ "--icon-url": `url(${require('@/assets/more-horizontal.svg')})` } as any}
+                style={{ "--icon-url": `url(${moreIcon})` } as any}
               />
             </View>
           )}

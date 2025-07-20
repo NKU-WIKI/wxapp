@@ -1,4 +1,4 @@
-@import "../../styles/variables.scss";
+@use "../../../styles/variables.scss" as *;
 
 /* 页面整体布局 */
 .page {

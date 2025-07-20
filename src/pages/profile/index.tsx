@@ -12,7 +12,7 @@ import CustomHeader from "@/components/custom-header";
 // 未登录提示组件
 const LoginPrompt = () => {
   const handleLogin = () => {
-    Taro.navigateTo({ url: "/pages/login/index" });
+    Taro.navigateTo({ url: "/pages/subpackage-profile/login/index" });
   };
 
   return (
@@ -58,7 +58,7 @@ const Profile = () => {
   );
 
   const handleEditProfile = () => {
-    Taro.navigateTo({ url: "/pages/edit-profile/index" });
+    Taro.navigateTo({ url: "/pages/subpackage-profile/edit-profile/index" });
   };
 
   const handleLogout = () => {
@@ -80,7 +80,7 @@ const Profile = () => {
       drafts: '/pages/drafts/index',
       history: '/pages/history/index',
       feedback: '/pages/feedback/index',
-      about: '/pages/about/index',
+      about: '/pages/subpackage-profile/about/index',
       settings: '/pages/settings/index',
     };
 

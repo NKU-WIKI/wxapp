@@ -1,12 +1,13 @@
 @use "taro-ui/dist/style/index.scss";
-@import "./styles/variables.scss";
+@use "./styles/variables.scss" as *;
 
+/* 根节点样式 */
 page {
   background-color: $bg-page;
-  color: $text-primary;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB',
+    'Microsoft Yahei', sans-serif;
+  box-sizing: border-box;
 }
 
 /* 全局设置盒模型，防止 padding 和 border 影响元素最终尺寸 */

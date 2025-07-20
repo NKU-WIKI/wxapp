@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect } from 'react';
 import { View, Image, Text, Button, ScrollView } from '@tarojs/components';
 import { useDispatch, useSelector } from 'react-redux';
@@ -5,9 +6,11 @@ import Taro from '@tarojs/taro';
 import { AppDispatch, RootState } from '@/store';
 import { login } from '@/store/slices/userSlice';
 import { fetchAboutInfo } from '@/store/slices/aboutSlice';
-import styles from './index.module.scss';
-import logo from '@/assets/logo.png';
 import CustomHeader from '@/components/custom-header';
+import styles from './index.module.scss';
+
+// 图标路径常量
+const logo = "/assets/logo.png";
 
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();

@@ -1,6 +1,8 @@
 import { defineConfig, type UserConfigExport } from "@tarojs/cli";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import path from "path";
+import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
+import ImageMinimizerPlugin from "image-minimizer-webpack-plugin";
 import devConfig from "./dev";
 import prodConfig from "./prod";
 
@@ -20,7 +22,7 @@ export default defineConfig<"webpack5">(async (merge) => {
     },
     sourceRoot: "src",
     outputRoot: "dist",
-    plugins: ["@tarojs/plugin-generator"],
+    plugins: ["@tarojs/plugin-generator", "@tarojs/plugin-html"],
     defineConstants: {
       APP_NAME: JSON.stringify(packageJson.name),
     },
@@ -28,7 +30,9 @@ export default defineConfig<"webpack5">(async (merge) => {
       '@': path.resolve(__dirname, '..', 'src'),
     },
     copy: {
-      patterns: [{ from: "src/assets", to: "dist/assets" }],
+      patterns: [
+        { from: "src/assets", to: "dist/assets" }
+      ],
       options: {},
     },
     framework: "react",
@@ -38,9 +42,6 @@ export default defineConfig<"webpack5">(async (merge) => {
       enable: false, // Webpack 持久化缓存配置，建议开启。默认配置请参考：https://docs.taro.zone/docs/config-detail#cache
     },
     mini: {
-      prebundle: {
-        enable: false,
-      },
       miniCssExtractPluginOption: {
         ignoreOrder: true,
       },
@@ -61,31 +62,47 @@ export default defineConfig<"webpack5">(async (merge) => {
       },
       webpackChain(chain) {
         chain.resolve.plugin("tsconfig-paths").use(TsconfigPathsPlugin);
+        
+        // 处理普通图片文件（排除SVG）
         chain.module
           .rule('images')
-          .include
-          .add(path.resolve(__dirname, '..', 'src'))
+          .test(/\.(png|jpe?g|gif)(\?.*)?$/)
+          .use('url-loader')
+          .loader('url-loader')
+          .options({
+            limit: 4096, // 4k - 降低阈值以避免性能警告
+            name: 'static/images/[name].[hash:8].[ext]'
+          });
+
+        if (process.env.NODE_ENV === 'production') {
+          chain.optimization.minimizer('image-minimizer').use(
+            new ImageMinimizerPlugin({
+              minimizer: {
+                implementation: ImageMinimizerPlugin.sharpMinify,
+                options: {
+                  encodeOptions: {
+                    jpeg: { quality: 80 },
+                    png: {
+                      quality: [0.6, 0.8],
+                    },
+                  },
+                },
+              },
+            })
+          );
+        }
+
+        if (process.env.ANALYZE === 'true') {
+          chain
+            .plugin('bundle-analyzer')
+            .use(BundleAnalyzerPlugin)
+        }
       },
-      // compile: {
-      //   include: [
-      //     (filename: string) =>
-      //       /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
-      //         filename
-      //       ),
-      //     (filename: string) =>
-      //       /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
-      //         filename
-      //       ),
-      //     (filename: string) =>
-      //       /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
-      //         filename
-      //       ),
-      //     (filename: string) =>
-      //       /node_modules\/(?!(.pnpm|@babel|core-js|style-loader|css-loader|react|react-dom))(@?[^/]+)/.test(
-      //         filename
-      //       ),
-      //   ],
-      // },
+      compile: {
+        include: [
+          (filename: string) => /taro-ui/.test(filename)
+        ],
+      },
     },
     h5: {
       publicPath: "/",

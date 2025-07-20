@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import AboutIcon from '../../components/about-icons';
-import { CompanyInfo, LinkType } from '../../types/about';
+import AboutIcon from '@/components/about-icons';
+import { CompanyInfo, LinkType } from '@/types/about';
 import styles from './index.module.scss';
 
 const AboutPage: React.FC = () => {
@@ -67,7 +67,7 @@ const AboutPage: React.FC = () => {
           <View className={styles.appInfo}>
             <View className={styles.logo}>
               <Image 
-                src={require('../../assets/logo.png')} 
+                src="/assets/logo.png" 
                 className={styles.logoImage}
                 mode="aspectFit"
               />

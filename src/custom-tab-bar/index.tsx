@@ -4,16 +4,16 @@ import { FC, useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./index.module.scss";
 import { useTabBarSync, tabBarSyncManager, TAB_BAR_PAGES } from "../utils/tabBarSync";
 
-// 引入本地图标
-import homeIcon from "../assets/home.png";
-import homeActiveIcon from "../assets/home-active.png";
-import exploreIcon from "../assets/explore.png";
-import exploreActiveIcon from "../assets/explore-active.png";
-import discoverIcon from "../assets/discover.png";
-import discoverActiveIcon from "../assets/discover-active.png";
-import profileIcon from "../assets/profile.png";
-import profileActiveIcon from "../assets/profile-active.png";
-import plusIcon from "../assets/plus.png";
+// 引入本地图标 - 使用字符串路径
+const homeIcon = "/assets/home.png";
+const homeActiveIcon = "/assets/home-active.png";
+const exploreIcon = "/assets/explore.png";
+const exploreActiveIcon = "/assets/explore-active.png";
+const discoverIcon = "/assets/discover.png";
+const discoverActiveIcon = "/assets/discover-active.png";
+const profileIcon = "/assets/profile.png";
+const profileActiveIcon = "/assets/profile-active.png";
+const plusIcon = "/assets/plus.png";
 
 const CustomTabBar: FC = () => {
   const [selected, setSelected] = useState(0);
@@ -21,7 +21,7 @@ const CustomTabBar: FC = () => {
   const list = useMemo(() => [
     { pagePath: "/pages/home/index", text: "首页", iconPath: homeIcon, selectedIconPath: homeActiveIcon },
     { pagePath: "/pages/explore/index", text: "探索", iconPath: exploreIcon, selectedIconPath: exploreActiveIcon },
-    { pagePath: "/pages/publish/index", text: "发布", iconPath: plusIcon, selectedIconPath: plusIcon, isPublish: true },
+    { pagePath: "/pages/subpackage-interactive/publish/index", text: "发布", iconPath: plusIcon, selectedIconPath: plusIcon, isPublish: true },
     { pagePath: "/pages/discover/index", text: "发现", iconPath: discoverIcon, selectedIconPath: discoverActiveIcon },
     { pagePath: "/pages/profile/index", text: "我的", iconPath: profileIcon, selectedIconPath: profileActiveIcon },
   ], []);

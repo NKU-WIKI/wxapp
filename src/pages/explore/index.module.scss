@@ -1,10 +1,10 @@
-@import "../../styles/variables.scss";
+@use "../../styles/variables.scss" as *;
 
 .explorePage {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: $bg-page-cool;
+  background-color: $bg-page;
 }
 
 .pageContent {
