@@ -33,6 +33,18 @@ export default function EditProfilePage() {
     }
   }, [userInfo]);
 
+  // 如果 userInfo 为 null，显示加载状态或返回上一页
+  if (!userInfo) {
+    return (
+      <View className={styles.editProfilePage}>
+        <CustomHeader title="编辑资料" />
+        <View className={styles.content}>
+          <Text>加载中...</Text>
+        </View>
+      </View>
+    );
+  }
+
   const handleChooseAvatar = () => {
     Taro.chooseImage({
       count: 1,
@@ -88,7 +100,7 @@ export default function EditProfilePage() {
         {/* Avatar Section */}
         <View className={styles.avatarSection} onClick={handleChooseAvatar}>
           <View className={styles.avatarWrapper}>
-            <Image src={avatar} className={styles.avatar} />
+            <Image src={avatar || '/assets/profile.png'} className={styles.avatar} />
             <View className={styles.cameraIconWrapper}>
               <Image src={cameraIcon} className={styles.cameraIcon} />
             </View>

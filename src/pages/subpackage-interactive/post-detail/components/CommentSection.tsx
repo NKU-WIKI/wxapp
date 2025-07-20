@@ -1,4 +1,3 @@
-import React from "react";
 import { View, Text, Image } from "@tarojs/components";
 import Button from "@/components/button";
 import Badge from "@/components/badge";
@@ -9,18 +8,18 @@ import HeartIcon from "@/assets/heart.svg";
 
 const CommentItem = ({ comment }: { comment: Comment }) => (
   <View className={styles.commentItem}>
-    <Image src={comment.author.avatar} className={styles.avatar} />
+    <Image src={comment?.author?.avatar || ''} className={styles.avatar} />
     <View className={styles.content}>
       <View className={styles.header}>
-        <Text className={styles.name}>{comment.author.nickname}</Text>
-        {comment.author.level && <Badge>Lv{comment.author.level}</Badge>}
-        <Text className={styles.time}>{comment.time}</Text>
+        <Text className={styles.name}>{comment?.author?.nickname || '匿名用户'}</Text>
+        {comment?.author?.level && <Badge>Lv{comment.author.level}</Badge>}
+        <Text className={styles.time}>{comment?.time}</Text>
       </View>
-      <Text className={styles.text}>{comment.content}</Text>
+      <Text className={styles.text}>{comment?.content}</Text>
       <View className={styles.actions}>
         <Button variant="ghost" size="sm" className={styles.likeButton}>
           <Image src={HeartIcon} className={styles.icon} />
-          <Text>{comment.likes}</Text>
+          <Text>{comment?.likes || 0}</Text>
         </Button>
         <Button variant="ghost" size="sm">
           回复
