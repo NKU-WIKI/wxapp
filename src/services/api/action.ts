@@ -11,4 +11,4 @@ const actionApi = {
   },
 };
 
-export default actionApi; 
+export default actionApi;

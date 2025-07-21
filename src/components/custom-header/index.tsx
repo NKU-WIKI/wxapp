@@ -1,10 +1,12 @@
+import React from "react";
 import { View, Text, Image } from "@tarojs/components";
-import { useState, useEffect } from "react";
 import Taro from "@tarojs/taro";
 import styles from "./index.module.scss";
-import React from "react";
-import backIcon from "../../assets/arrow-left.svg";
-import notificationIcon from "../../assets/bell.svg";
+
+// 图标路径常量
+const backIcon = "/assets/arrow-left.svg";
+const logo = "/assets/logo.png";
+const notificationIcon = "/assets/bell.svg";
 
 interface NavStyle {
   navBarHeight: number;
@@ -18,6 +20,7 @@ interface CustomHeaderProps {
   title?: string;
   hideBack?: boolean;
   showNotificationIcon?: boolean;
+  showWikiButton?: boolean;
   renderRight?: React.ReactNode; // Add rightContent prop
   background?: string;
 }
@@ -26,10 +29,11 @@ const CustomHeader = ({
   title,
   hideBack = false,
   showNotificationIcon = false,
+  showWikiButton = false,
   renderRight, // Destructure rightContent
   background = "#FFFFFF",
 }: CustomHeaderProps) => {
-  const [navStyle, setNavStyle] = useState<NavStyle>({
+  const [navStyle, setNavStyle] = React.useState<NavStyle>({
     navBarHeight: 88, // 默认总高度
     navBarPaddingTop: 44, // 默认状态栏高度
     navBarContentHeight: 32, // 默认内容区高度
@@ -37,7 +41,7 @@ const CustomHeader = ({
     menuButtonRightGap: 10, // 默认右侧间距
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     try {
       const windowInfo = Taro.getWindowInfo();
       const menuButtonInfo = Taro.getMenuButtonBoundingClientRect();
@@ -79,8 +83,12 @@ const CustomHeader = ({
     }
   };
 
+  const handleWikiClick = () => {
+    //
+  };
+
   const handleNotificationClick = () => {
-    Taro.navigateTo({ url: "/pages/notification/index" });
+    Taro.navigateTo({ url: "/pages/subpackage-interactive/notification/index" });
   };
 
   // 整体容器，负责占位
@@ -110,26 +118,23 @@ const CustomHeader = ({
       <View className={styles.navBar} style={navBarStyle}>
         <View className={styles.navBarContent} style={contentStyle}>
           {/* 左侧区域 */}
-          <View className={styles.left}>
-            {/* 当显示通知图标时，强制隐藏返回按钮 */}
-            {!hideBack && !showNotificationIcon && (
-              <View
-                onClick={handleBack}
-                style={leftIconStyle}
-                className={styles.iconWrapper}
-              >
+          <View className={styles.left} style={leftIconStyle}>
+            {!hideBack && (
+              <View onClick={handleBack} className={styles.iconWrapper}>
                 <Image src={backIcon} className={styles.backIcon} />
               </View>
             )}
+            {showWikiButton && (
+              <View onClick={handleWikiClick} className={styles.wikiButton}>
+                <Image src={logo} className={styles.wikiIcon} />
+                <Text className={styles.wikiText}>Wiki</Text>
+              </View>
+            )}
             {showNotificationIcon && (
+              <View onClick={handleNotificationClick} className={styles.iconWrapper}>
               <View
-                onClick={handleNotificationClick}
-                style={leftIconStyle}
-                className={styles.iconWrapper}
-              >
-                <Image
-                  src={notificationIcon}
                   className={styles.notificationIcon}
+                  style={{ '--icon-url': `url(${notificationIcon})` } as React.CSSProperties}
                 />
               </View>
             )}
@@ -137,10 +142,10 @@ const CustomHeader = ({
 
           {/* 中间标题 */}
           <View className={styles.center}>
-            {title && <Text className={styles.title}>{title}</Text>}
+            <Text className={styles.title}>{title || ''}</Text>
           </View>
 
-          {/* Right section now renders custom content */}
+          {/* 右侧区域 */}
           <View
             className={styles.right}
             style={{ marginRight: `${navStyle.menuButtonRightGap}px` }}

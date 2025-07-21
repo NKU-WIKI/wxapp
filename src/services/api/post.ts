@@ -18,4 +18,4 @@ const postApi = {
   },
 };
 
-export default postApi; 
+export default postApi;

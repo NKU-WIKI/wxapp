@@ -45,16 +45,20 @@ const mockCategories = [
 export default function Home() {
   console.log("--- HOME COMPONENT RENDER CHECK (PRODUCTION) ---");
   const dispatch = useDispatch<AppDispatch>();
-  const { list: posts, loading } = useSelector(
+  const { list: posts, loading, pagination } = useSelector(
     (state: RootState) => state.post
   );
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
   const isLoading = loading === "pending";
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchPosts({ page: 1, pageSize: 10 }));
+    dispatch(fetchPosts({ page: 1, pageSize: 5, isAppend: false }));
+    setPage(1);
   }, [dispatch]);
 
   useEffect(() => {
@@ -63,28 +67,94 @@ export default function Home() {
     }
   }, [isLoggedIn, dispatch]);
 
+  // 下拉刷新处理函数
+  const handlePullRefresh = async () => {
+    if (isRefreshing) return;
+
+    setIsRefreshing(true);
+    try {
+      const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
+        page: 1,
+        pageSize: 5,
+        isAppend: false, // 刷新时不追加，替换所有内容
+      };
+
+      if (selectedCategory) {
+        // params.category_id = getCategoryId(selectedCategory);
+      }
+
+      await dispatch(fetchPosts(params)).unwrap();
+      setPage(1);
+    } catch (error) {
+      console.error('刷新失败:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // 滚动到底部加载更多
+  const handleScrollToLower = async () => {
+    if (isLoadingMore || isLoading || isRefreshing) return;
+
+    setIsLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
+        page: nextPage,
+        pageSize: 5,
+        isAppend: true, // 加载更多时追加到现有帖子后面
+      };
+
+      if (selectedCategory) {
+        // params.category_id = getCategoryId(selectedCategory);
+      }
+
+      const result = await dispatch(fetchPosts(params)).unwrap();
+
+      if (result.items.length > 0) {
+        setPage(nextPage);
+      }
+    } catch (error) {
+      console.error('加载更多失败:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
   const handleCategorySelect = (categoryId: number | null) => {
-    const params: { page: number; pageSize: number; category_id?: number } = {
+    const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
       page: 1,
-      pageSize: 10,
+      pageSize: 5,
+      isAppend: false, // 分类筛选时不追加，替换内容
     };
     if (categoryId) {
       params.category_id = categoryId;
     }
     dispatch(fetchPosts(params));
+    setPage(1);
+    setSelectedCategory(null);
   };
 
   const handleCategoryClick = (categoryName: string) => {
-    setSelectedCategory(selectedCategory === categoryName ? null : categoryName);
+    const newSelectedCategory = selectedCategory === categoryName ? null : categoryName;
+    setSelectedCategory(newSelectedCategory);
+
+    const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
+      page: 1,
+      pageSize: 5,
+      isAppend: false, // 分类筛选时不追加，替换内容
+    };
+    dispatch(fetchPosts(params));
+    setPage(1);
   };
 
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading && posts.length === 0) {
       return Array.from({ length: 3 }).map((_, index) => (
         <PostItemSkeleton key={index} className={styles.postListItem} />
       ));
     }
-    // 增加对 posts 的健壮性检查
+
     if (!posts || posts.length === 0) {
       return (
         <EmptyState
@@ -93,23 +163,44 @@ export default function Home() {
         />
       );
     }
-    return posts.map((post) => (
+
+    const content = posts.map((post) => (
       <PostItem key={post.id} post={post} className={styles.postListItem} />
     ));
+
+    // 添加加载更多的骨架屏
+    if (isLoadingMore) {
+      content.push(
+        ...Array.from({ length: 2 }).map((_, index) => (
+          <PostItemSkeleton key={`loading-${index}`} className={styles.postListItem} />
+        ))
+      );
+    }
+
+    // 添加没有更多数据的提示
+    if (posts.length > 0 && !isLoadingMore) {
+      content.push(
+        <View key="no-more" className={styles.noMoreTip}>
+          <Text>没有更多内容了</Text>
+        </View>
+      );
+    }
+
+    return content;
   };
 
   return (
     <View className={styles.homeContainer}>
-      <CustomHeader title="首页" showNotificationIcon />
+      <CustomHeader title="首页" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
 
-      {/* 搜索区域 - 固定 */}
-      <View className={styles.searchContainer}>
-        <Image src={searchIcon} className={styles.searchIcon} />
-        <Input placeholder="搜索校园知识" className={styles.searchInput} />
-      </View>
-
-      {/* 分类区域 - 固定 */}
-      <View className={styles.categoriesContainer}>
+      <View className={styles.fixedContainer}>
+        {/* 搜索区域 - 固定 */}
+        <View className={styles.searchContainer}>
+          <Image src={searchIcon} className={styles.searchIcon} />
+          <Input placeholder="搜索校园知识" className={styles.searchInput} />
+        </View>
+        {/* 分类区域 - 固定 */}
+        <View className={styles.categoriesContainer}>
           {mockCategories.map((category) => (
             <View
               key={category.name}
@@ -134,11 +225,21 @@ export default function Home() {
               </Text>
             </View>
           ))}
+        </View>
       </View>
 
       {/* 帖子列表滚动区域 */}
       <View className={styles.postScrollContainer}>
-        <ScrollView scrollY className={styles.postScrollView}>
+        <ScrollView
+          scrollY
+          className={styles.postScrollView}
+          onScrollToLower={handleScrollToLower}
+          lowerThreshold={50} // 降低触发阈值，更敏感
+          enableBackToTop
+          refresherEnabled
+          refresherTriggered={isRefreshing}
+          onRefresherRefresh={handlePullRefresh}
+        >
           <View className={styles.postList}>{renderContent()}</View>
         </ScrollView>
       </View>

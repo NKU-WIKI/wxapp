@@ -4,13 +4,27 @@ export default defineAppConfig({
     "pages/explore/index",
     "pages/discover/index",
     "pages/profile/index",
-    "pages/notification/index",
-    "pages/post-detail/index",
-    "pages/publish/index",
-    "pages/edit-profile/index",
-    "pages/login/index",
-    "pages/level/index",
-    "pages/about/index"
+  ],
+  subPackages: [
+    {
+      root: 'pages/subpackage-profile',
+      pages: [
+        "edit-profile/index",
+        "level/index",
+        "about/index",
+        "login/index",
+        "settings/index",
+      ]
+    },
+    {
+      root: 'pages/subpackage-interactive',
+      pages: [
+        "notification/index",
+        "post-detail/index",
+        "publish/index",
+        "chat/index"
+      ]
+    }
   ],
   window: {
     backgroundTextStyle: "light",

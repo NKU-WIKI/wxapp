@@ -13,3 +13,5 @@ node_modules/
 *.local
 .idea/*
 temp/
+
+.trae/

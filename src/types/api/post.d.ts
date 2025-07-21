@@ -14,6 +14,7 @@ export interface Comment {
   content: string;
   time: string;
   likes: number;
+  is_liked?: boolean; // 添加是否点赞属性
   isAIAssistant?: boolean;
 }
 
@@ -23,7 +24,8 @@ export interface Post {
   title: string;
   content: string;
   image_urls: string[] | null; // API 返回的是 image_urls
-  tag: string | null;
+  image?: string | null; // 添加 image 字段，某些API可能返回这个字段
+  tag: string[] | null; // 修改为字符串数组，与API文档一致
   location: string | null;
   view_count: number;
   like_count: number;
@@ -41,8 +43,8 @@ export interface CreatePostParams {
   title: string;
   content: string;
   category_id?: number;
-  image?: string[];
-  tag?: string[];
+  image?: string[]; // 图片URL列表
+  tag?: string[]; // 标签列表，与API文档一致
   location?: object;
   allow_comment?: boolean;
   is_public?: boolean;
@@ -62,4 +64,13 @@ export interface GetPostsParams {
   page?: number;
   page_size?: number;
   tab?: 'recommend' | 'hot' | 'new';
+  category_id?: number;
+  isAppend?: boolean; // 是否追加到现有列表
+}
+
+/**
+ * 获取帖子详情的请求参数
+ */
+export interface GetPostDetailParams {
+  post_id: number;
 }

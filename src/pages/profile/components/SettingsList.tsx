@@ -3,9 +3,9 @@ import Taro from '@tarojs/taro'
 import styles from './SettingsList.module.scss'
 
 // Import icons
-import heartIcon from '@/assets/heart.svg';
+import heartIcon from '@/assets/heart-outline.svg';
 import messageSquareIcon from '@/assets/message-square.svg';
-import starIcon from '@/assets/star.svg';
+import starIcon from '@/assets/star-filled.svg';
 import userIcon from '@/assets/user.svg';
 import settingsIcon from '@/assets/settings.svg';
 import historyIcon from '@/assets/history.svg';
@@ -20,7 +20,7 @@ const SettingsList = () => {
     { icon: messageSquareIcon, text: '我的评论', link: '/pages/comments/index' },
     { icon: starIcon, text: '草稿箱', link: '/pages/drafts/index' },
     { icon: userIcon, text: '关于我们', link: '/pages/about/index' },
-    { icon: settingsIcon, text: '设置', link: '/pages/settings/index' },
+    { icon: settingsIcon, text: '设置', link: '/pages/subpackage-profile/settings/index' },
     { icon: historyIcon, text: '浏览历史', link: '/pages/history/index' },
     { icon: feedbackIcon, text: '意见反馈', link: '/pages/feedback/index' },
     { icon: aboutIcon, text: '关于我们', link: '/pages/about/index', extra: '版本 0.1.0' },

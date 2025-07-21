@@ -35,13 +35,150 @@ alwaysApply: true
     - 超过 100 行的组件建议拆分。
     - 避免使用匿名函数作为组件属性，如 `<View onClick={() => {}} />`。
 
-### 样式 (SCSS)
+### 样式 (SCSS) 与颜色管理
 
-- **主题色**: #8B5CF6
 - **CSS Modules**: 强制使用 `*.module.scss` 避免全局样式污染。
 - **全局样式**: 全局变量、主题等写入 `src/app.scss`。
 - **单位**: 推荐使用 `px`，Taro 会自动转换为 `rpx`。
-- **新兴方案**: 可关注 `UnoCSS` 或 `TailwindCSS` 等原子化 CSS 方案，它们通过提供大量原子类来快速构建界面，可能会在特定场景下提升开发效率。
+
+#### 🎨 颜色管理规范 (强制)
+
+**严禁使用硬编码颜色值**，必须使用项目统一的颜色常量系统：
+
+##### SCSS 中使用颜色变量
+
+```scss
+// ✅ 正确写法：使用预定义变量
+@import "../../styles/variables.scss";
+
+.container {
+  background-color: $bg-card;           // 卡片背景
+  color: $text-primary;                 // 主要文字
+  border: 1px solid $border-base;       // 基础边框
+}
+
+// ❌ 错误写法：硬编码颜色
+.container {
+  background-color: #FFFFFF;
+  color: #333333;
+  border: 1px solid #E5E5E5;
+}
+```
+
+##### TypeScript 中使用颜色常量
+
+```typescript
+// ✅ 正确写法：导入颜色常量
+import { THEME_COLORS, TEXT_COLORS, BACKGROUND_COLORS } from '@/constants/colors';
+
+const buttonStyle = {
+  backgroundColor: THEME_COLORS.PRIMARY,
+  color: TEXT_COLORS.WHITE
+};
+
+// ❌ 错误写法：硬编码颜色
+const buttonStyle = {
+  backgroundColor: '#4F46E5',
+  color: '#FFFFFF'
+};
+```
+
+##### 核心颜色变量对照表
+
+| 用途类别 | SCSS 变量 | TypeScript 常量 | 颜色值 | 使用场景 |
+|---------|-----------|----------------|--------|----------|
+| **主题色** | `$theme-primary` | `THEME_COLORS.PRIMARY` | #4F46E5 | 主要按钮、链接、选中状态 |
+| **文字色** | `$text-primary` | `TEXT_COLORS.PRIMARY` | #333333 | 主要文字内容 |
+| | `$text-secondary` | `TEXT_COLORS.SECONDARY` | #666666 | 次要文字内容 |
+| | `$text-helper-gray` | `TEXT_COLORS.HELPER_GRAY` | #9CA3AF | 辅助文字、图标 |
+| **背景色** | `$bg-card` | `BACKGROUND_COLORS.CARD` | #FFFFFF | 卡片、模态框背景 |
+| | `$bg-page` | `BACKGROUND_COLORS.PAGE` | #F8F8F8 | 页面主背景 |
+| | `$bg-input` | `BACKGROUND_COLORS.INPUT` | #F5F5F5 | 输入框背景 |
+| **边框色** | `$border-base` | `BORDER_COLORS.BASE` | #E5E5E5 | 基础边框 |
+| | `$border-light` | `BORDER_COLORS.LIGHT` | #F0F0F0 | 分割线 |
+| **状态色** | `$status-success` | `STATUS_COLORS.SUCCESS` | #22C55E | 成功状态 |
+| | `$status-error` | `STATUS_COLORS.ERROR` | #EF4444 | 错误状态 |
+| | `$status-warning` | `STATUS_COLORS.WARNING` | #F59E0B | 警告状态 |
+
+##### 颜色常量文件结构
+
+- **定义文件**: `src/constants/colors.ts` - TypeScript 颜色常量
+- **SCSS 变量**: `src/styles/variables.scss` - SCSS 颜色变量
+- **迁移指南**: `src/constants/colorMigrationGuide.md` - 硬编码颜色替换指南
+
+##### 迁移检查清单
+
+在每个 SCSS 文件中：
+- [ ] 已添加 `@import "../../styles/variables.scss"`
+- [ ] 已替换所有硬编码的十六进制颜色值 (#XXXXXX)
+- [ ] 已替换所有硬编码的 rgba/rgb 值
+- [ ] 使用了语义化的颜色变量名称
+- [ ] 在浏览器中验证视觉效果无差异
+
+##### 批量迁移工具
+
+使用 VS Code 正则表达式批量替换：
+```regex
+查找: #4F46E5  替换: $theme-primary
+查找: #FFFFFF  替换: $bg-card  
+查找: #333333  替换: $text-primary
+查找: #F8F8F8  替换: $bg-page
+```
+
+验证是否还有遗漏：
+```bash
+# 搜索十六进制颜色值
+grep -r "#[0-9A-Fa-f]{6}" src/ --include="*.scss"
+# 搜索 rgba 值
+grep -r "rgba\?\(" src/ --include="*.scss"
+```
+
+#### 新兴方案
+
+- 可关注 `UnoCSS` 或 `TailwindCSS` 等原子化 CSS 方案，它们通过提供大量原子类来快速构建界面，可能会在特定场景下提升开发效率。
+
+## 组件化开发
+
+- **UI组件库**: 优先使用微信小程序原生组件库（如 WeUI），其次是 `Taro UI`。
+- **按需引入**: 在 `config/index.ts` 中配置 `taro-ui` 的按需引入，或在 `app.scss` 中全局引入样式。推荐按需引入以减小包体积。
+  ```typescript
+  // app.scss
+  @import "~taro-ui/dist/style/index.scss";
+  ```
+  同时，为确保 `Taro UI` 能够被正确编译，需在 `config/index.ts` 中进行如下配置：
+  ```typescript
+  // config/index.ts
+  const config = {
+    // ...
+    weapp: {
+      esnextModules: ['taro-ui']
+    },
+    h5: {
+      esnextModules: ['taro-ui']
+    }
+  }
+  ```
+- **自定义组件**: 对于 `Taro UI` 未提供的组件，或无法满足业务需求的场景，可在 `src/components` 目录下创建自定义组件。
+- **原子组件**: 在 `src/components` 目录下，创建可复用的原子组件，如 `Button`, `Tag`, `Avatar`, `Card` 等。
+- **业务组件**: 针对特定业务场景，封装业务组件，如 `PostItem` (帖子列表项), `CommentList` (评论列表) 等。
+- **组件文档**: 建议为核心组件编写简单的使用文档或注释，说明其 `props` 和用法。
+- **样式**: 组件样式优先使用 CSS Modules (`.module.scss`)，避免全局污染。
+
+## UI/UX 规范
+
+- **设计风格**: 简洁、卡片式布局，多采用圆角、留白和阴影。
+- **色彩规范**:
+    - 主色调: 蓝色 (#4A90E2)
+    - 辅助色: 灰色 (#9B9B9B), 红色 (#D0021B)
+    - 背景色: 浅灰 (#F5F5F5), 白色 (#FFFFFF)
+- **字体规范**:
+    - 标题: 18px, Bold
+    - 正文: 16px, Regular
+    - 辅助文字/标签: 14px, Regular
+- **组件设计**:
+    - **按钮**: 主要按钮使用主色调填充，次要按钮使用描边或灰色样式。所有按钮均带有圆角。
+    - **列表**: 列表项之间保持足够间距，增加分割线以区分。
+    - **图标**: 采用线性图标 (Line Icon)，风格统一。
 ## 🏷️ 命名规范
 
 - **目录和非组件文件**: 使用 `kebab-case` (小写短横线连接)。例如: `user-list`, `request.ts`。
@@ -75,10 +212,147 @@ alwaysApply: true
     - 超过 100 行的组件建议拆分。
     - 避免使用匿名函数作为组件属性，如 `<View onClick={() => {}} />`。
 
-### 样式 (SCSS)
+### 样式 (SCSS) 与颜色管理
 
-- **主题色**: #8B5CF6
 - **CSS Modules**: 强制使用 `*.module.scss` 避免全局样式污染。
 - **全局样式**: 全局变量、主题等写入 `src/app.scss`。
 - **单位**: 推荐使用 `px`，Taro 会自动转换为 `rpx`。
-- **新兴方案**: 可关注 `UnoCSS` 或 `TailwindCSS` 等原子化 CSS 方案，它们通过提供大量原子类来快速构建界面，可能会在特定场景下提升开发效率。
+
+#### 🎨 颜色管理规范 (强制)
+
+**严禁使用硬编码颜色值**，必须使用项目统一的颜色常量系统：
+
+##### SCSS 中使用颜色变量
+
+```scss
+// ✅ 正确写法：使用预定义变量
+@import "../../styles/variables.scss";
+
+.container {
+  background-color: $bg-card;           // 卡片背景
+  color: $text-primary;                 // 主要文字
+  border: 1px solid $border-base;       // 基础边框
+}
+
+// ❌ 错误写法：硬编码颜色
+.container {
+  background-color: #FFFFFF;
+  color: #333333;
+  border: 1px solid #E5E5E5;
+}
+```
+
+##### TypeScript 中使用颜色常量
+
+```typescript
+// ✅ 正确写法：导入颜色常量
+import { THEME_COLORS, TEXT_COLORS, BACKGROUND_COLORS } from '@/constants/colors';
+
+const buttonStyle = {
+  backgroundColor: THEME_COLORS.PRIMARY,
+  color: TEXT_COLORS.WHITE
+};
+
+// ❌ 错误写法：硬编码颜色
+const buttonStyle = {
+  backgroundColor: '#4F46E5',
+  color: '#FFFFFF'
+};
+```
+
+##### 核心颜色变量对照表
+
+| 用途类别 | SCSS 变量 | TypeScript 常量 | 颜色值 | 使用场景 |
+|---------|-----------|----------------|--------|----------|
+| **主题色** | `$theme-primary` | `THEME_COLORS.PRIMARY` | #4F46E5 | 主要按钮、链接、选中状态 |
+| **文字色** | `$text-primary` | `TEXT_COLORS.PRIMARY` | #333333 | 主要文字内容 |
+| | `$text-secondary` | `TEXT_COLORS.SECONDARY` | #666666 | 次要文字内容 |
+| | `$text-helper-gray` | `TEXT_COLORS.HELPER_GRAY` | #9CA3AF | 辅助文字、图标 |
+| **背景色** | `$bg-card` | `BACKGROUND_COLORS.CARD` | #FFFFFF | 卡片、模态框背景 |
+| | `$bg-page` | `BACKGROUND_COLORS.PAGE` | #F8F8F8 | 页面主背景 |
+| | `$bg-input` | `BACKGROUND_COLORS.INPUT` | #F5F5F5 | 输入框背景 |
+| **边框色** | `$border-base` | `BORDER_COLORS.BASE` | #E5E5E5 | 基础边框 |
+| | `$border-light` | `BORDER_COLORS.LIGHT` | #F0F0F0 | 分割线 |
+| **状态色** | `$status-success` | `STATUS_COLORS.SUCCESS` | #22C55E | 成功状态 |
+| | `$status-error` | `STATUS_COLORS.ERROR` | #EF4444 | 错误状态 |
+| | `$status-warning` | `STATUS_COLORS.WARNING` | #F59E0B | 警告状态 |
+
+##### 颜色常量文件结构
+
+- **定义文件**: `src/constants/colors.ts` - TypeScript 颜色常量
+- **SCSS 变量**: `src/styles/variables.scss` - SCSS 颜色变量
+- **迁移指南**: `src/constants/colorMigrationGuide.md` - 硬编码颜色替换指南
+
+##### 迁移检查清单
+
+在每个 SCSS 文件中：
+- [ ] 已添加 `@import "../../styles/variables.scss"`
+- [ ] 已替换所有硬编码的十六进制颜色值 (#XXXXXX)
+- [ ] 已替换所有硬编码的 rgba/rgb 值
+- [ ] 使用了语义化的颜色变量名称
+- [ ] 在浏览器中验证视觉效果无差异
+
+##### 批量迁移工具
+
+使用 VS Code 正则表达式批量替换：
+```regex
+查找: #4F46E5  替换: $theme-primary
+查找: #FFFFFF  替换: $bg-card  
+查找: #333333  替换: $text-primary
+查找: #F8F8F8  替换: $bg-page
+```
+
+验证是否还有遗漏：
+```bash
+# 搜索十六进制颜色值
+grep -r "#[0-9A-Fa-f]{6}" src/ --include="*.scss"
+# 搜索 rgba 值
+grep -r "rgba\?\(" src/ --include="*.scss"
+```
+
+#### 新兴方案
+
+- 可关注 `UnoCSS` 或 `TailwindCSS` 等原子化 CSS 方案，它们通过提供大量原子类来快速构建界面，可能会在特定场景下提升开发效率。
+
+## 组件化开发
+
+- **UI组件库**: 优先使用微信小程序原生组件库（如 WeUI），其次是 `Taro UI`。
+- **按需引入**: 在 `config/index.ts` 中配置 `taro-ui` 的按需引入，或在 `app.scss` 中全局引入样式。推荐按需引入以减小包体积。
+  ```typescript
+  // app.scss
+  @import "~taro-ui/dist/style/index.scss";
+  ```
+  同时，为确保 `Taro UI` 能够被正确编译，需在 `config/index.ts` 中进行如下配置：
+  ```typescript
+  // config/index.ts
+  const config = {
+    // ...
+    weapp: {
+      esnextModules: ['taro-ui']
+    },
+    h5: {
+      esnextModules: ['taro-ui']
+    }
+  }
+  ```
+- **自定义组件**: 对于 `Taro UI` 未提供的组件，或无法满足业务需求的场景，可在 `src/components` 目录下创建自定义组件。
+- **原子组件**: 在 `src/components` 目录下，创建可复用的原子组件，如 `Button`, `Tag`, `Avatar`, `Card` 等。
+- **业务组件**: 针对特定业务场景，封装业务组件，如 `PostItem` (帖子列表项), `CommentList` (评论列表) 等。
+- **组件文档**: 建议为核心组件编写简单的使用文档或注释，说明其 `props` 和用法。
+- **样式**: 组件样式优先使用 CSS Modules (`.module.scss`)，避免全局污染。
+
+## UI/UX 规范
+
+- **设计风格**: 简洁、卡片式布局，多采用圆角、留白和阴影。
+- **色彩规范**:
+    - 主色调: 蓝色 (#4A90E2)
+    - 辅助色: 灰色 (#9B9B9B), 红色 (#D0021B)
+    - 背景色: 浅灰 (#F5F5F5), 白色 (#FFFFFF)
+- **字体规范**:
+    - 标题: 18px, Bold
+    - 正文: 16px, Regular
+    - 辅助文字/标签: 14px, Regular
+- **组件设计**:
+    - **按钮**: 主要按钮使用主色调填充，次要按钮使用描边或灰色样式。所有按钮均带有圆角。
+    - **列表**: 列表项之间保持足够间距，增加分割线以区分。
+    - **图标**: 采用线性图标 (Line Icon)，风格统一。

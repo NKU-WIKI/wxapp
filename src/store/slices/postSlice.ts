@@ -1,10 +1,33 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import Taro from '@tarojs/taro';
 import { PaginatedData, Pagination } from '@/types/api/common';
 import { GetPostsParams, Post } from '@/types/api/post';
 import postApi from '@/services/api/post';
 import actionApi from '@/services/api/action';
 import { ToggleActionParams, ToggleActionResponse } from '@/types/api/action.d';
 import { RootState } from '..';
+
+// 本地存储用户点赞状态的工具函数
+const getUserLikeState = (postId: number): { isLiked: boolean; likeCount: number } | null => {
+  try {
+    const likeStates = Taro.getStorageSync('user_like_states') || {};
+    const result = likeStates[postId] || null;
+    return result;
+  } catch (error) {
+    console.error('获取用户点赞状态失败:', error);
+    return null;
+  }
+};
+
+const saveUserLikeState = (postId: number, isLiked: boolean, likeCount: number) => {
+  try {
+    const likeStates = Taro.getStorageSync('user_like_states') || {};
+    likeStates[postId] = { isLiked, likeCount };
+    Taro.setStorageSync('user_like_states', likeStates);
+  } catch (error) {
+    console.error('保存用户点赞状态失败:', error);
+  }
+};
 
 // 云存储链接转换函数
 const convertCloudUrl = (cloudUrl: string): string => {
@@ -37,23 +60,38 @@ const convertCloudUrl = (cloudUrl: string): string => {
 };
 
 // 获取帖子列表的 Thunk
-export const fetchPosts = createAsyncThunk<PaginatedData<Post>, GetPostsParams>(
+export const fetchPosts = createAsyncThunk<
+  { items: Post[]; pagination: Pagination; isAppend: boolean },
+  GetPostsParams
+>(
   'posts/fetchPosts',
   async (params, { rejectWithValue }) => {
     try {
       // response的类型是BackendPaginatedResponse<Post>
       // 结构：{code, msg, data: Post[], pagination: Pagination}
       const response = await postApi.getPosts(params);
-      
+
       // 将后端的扁平结构转换为前端Redux store需要的嵌套结构
-      const paginatedData: PaginatedData<Post> = {
+      return {
         items: response.data, // 后端的data字段是Post[]
         pagination: response.pagination, // 后端的pagination字段
+        isAppend: params.isAppend || false, // 传递isAppend参数
       };
-
-      return paginatedData;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch posts');
+    }
+  }
+);
+
+// 获取帖子详情的 Thunk
+export const fetchPostDetail = createAsyncThunk<Post, number>(
+  'posts/fetchPostDetail',
+  async (postId, { rejectWithValue }) => {
+    try {
+      const response = await postApi.getPostById(postId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.msg || 'Failed to fetch post detail');
     }
   }
 );
@@ -78,27 +116,21 @@ export const toggleAction = createAsyncThunk<
   }
 });
 
-export const fetchPostById = createAsyncThunk<Post, number>(
-  'posts/fetchPostById',
-  async (postId, { rejectWithValue }) => {
-    try {
-      const response = await postApi.getPostById(postId);
-      // 后端返回的是 BaseResponse<Post>，数据在 data 字段
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch post');
-    }
-  }
-);
-
 // 创建帖子 Thunk
 export const createPost = createAsyncThunk<
   { id: number },
-  { title: string; content: string; category_id?: number; tag?: string[]; image?: string[]; allow_comment?: boolean; is_public?: boolean },
+  { title: string; content: string; category_id?: number; tag?: string[]; image_urls?: string[]; allow_comment?: boolean; is_public?: boolean },
   { rejectValue: string }
 >('posts/createPost', async (postData, { rejectWithValue }) => {
   try {
-    const response = await postApi.createPost(postData);
+    // 确保参数名称与API一致
+    const apiData = {
+      ...postData,
+      image: postData.image_urls // 将 image_urls 转换为 image 以匹配 API 接口
+    };
+    delete apiData.image_urls; // 删除多余的字段
+
+    const response = await postApi.createPost(apiData);
     return response.data;
   } catch (error: any) {
     return rejectWithValue(error.message || 'Failed to create post');
@@ -122,34 +154,24 @@ export const deletePost = createAsyncThunk<
 interface PostsState {
   list: Post[];
   pagination: Pagination | null;
-  loading: 'idle' | 'pending' | 'succeeded' | 'failed';
-  error: any;
   currentPost: Post | null;
+  loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   detailLoading: 'idle' | 'pending' | 'succeeded' | 'failed';
-  detailError: any;
+  error: any;
 }
 
 const initialState: PostsState = {
   list: [],
   pagination: null,
-  loading: 'idle',
-  error: null,
   currentPost: null,
+  loading: 'idle',
   detailLoading: 'idle',
-  detailError: null,
+  error: null,
 };
 
 const postsSlice = createSlice({
   name: 'posts',
-  initialState: {
-    list: [] as Post[],
-    pagination: null as Pagination | null,
-    loading: 'idle' as 'idle' | 'pending' | 'succeeded' | 'failed',
-    error: null as any,
-    currentPost: null as Post | null,
-    detailLoading: 'idle' as 'idle' | 'pending' | 'succeeded' | 'failed',
-    detailError: null as any,
-  },
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -158,9 +180,31 @@ const postsSlice = createSlice({
       })
       .addCase(
         fetchPosts.fulfilled,
-        (state, action: PayloadAction<PaginatedData<Post>>) => {
+        (state, action: PayloadAction<{ items: Post[]; pagination: Pagination; isAppend: boolean }>) => {
           state.loading = 'succeeded';
-          state.list = action.payload.items;
+          
+          // 处理返回的帖子列表，应用本地存储的点赞状态
+          const processedItems = action.payload.items.map(post => {
+            let updatedPost = { ...post };
+            
+            // 检查本地存储的点赞状态
+            const localLikeState = getUserLikeState(post.id);
+            if (localLikeState) {
+              // 如果有本地存储的点赞状态，覆盖后端返回的状态
+              updatedPost.is_liked = localLikeState.isLiked;
+              updatedPost.like_count = localLikeState.likeCount;
+            }
+            
+            return updatedPost;
+          });
+          
+          if (action.payload.isAppend) {
+            // 追加新帖子到现有列表后面
+            state.list = [...state.list, ...processedItems];
+          } else {
+            // 替换整个列表（刷新或首次加载）
+            state.list = processedItems;
+          }
           state.pagination = action.payload.pagination;
         }
       )
@@ -168,41 +212,74 @@ const postsSlice = createSlice({
         state.loading = 'failed';
         state.error = action.payload as string;
       })
-      .addCase(fetchPostById.pending, (state) => {
+      // 处理获取帖子详情的状态
+      .addCase(fetchPostDetail.pending, (state) => {
         state.detailLoading = 'pending';
-        state.currentPost = null;
       })
-      .addCase(fetchPostById.fulfilled, (state, action: PayloadAction<Post>) => {
+      .addCase(fetchPostDetail.fulfilled, (state, action: PayloadAction<Post>) => {
         state.detailLoading = 'succeeded';
+
+        // 检查本地存储的用户点赞状态
+        const localLikeState = getUserLikeState(action.payload.id);
+
+        // 如果有本地存储的状态，使用本地状态覆盖后端状态
+        if (localLikeState) {
+          action.payload.is_liked = localLikeState.isLiked;
+          action.payload.like_count = localLikeState.likeCount;
+        }
+
         state.currentPost = action.payload;
       })
-      .addCase(fetchPostById.rejected, (state, action) => {
+      .addCase(fetchPostDetail.rejected, (state, action) => {
         state.detailLoading = 'failed';
-        state.detailError = action.payload as string;
+        state.error = action.payload as string;
       })
       .addCase(toggleAction.fulfilled, (state, action) => {
         const { postId, actionType, response } = action.payload;
 
-        // 更新列表中的帖子状态
-        const postInList = state.list.find((p) => p.id === postId);
-        if (postInList) {
-          if (actionType === 'like') {
-            postInList.is_liked = response.is_active;
-            postInList.like_count = response.count;
-          } else if (actionType === 'favorite') {
-            postInList.is_favorited = response.is_active;
-            postInList.favorite_count = response.count;
+        if (actionType === 'follow') {
+          // 在 post slice 中不直接处理关注状态的 UI 更新，
+          // 因为一个用户的关注状态可能影响多个帖子。
+          // 这种状态应该由 user slice 或其他地方管理。
+          // 这里可以只记录一个日志或者什么都不做。
+          return;
+        }
+
+        // 更新列表中的帖子
+        const postIndex = state.list.findIndex((p) => p.id === postId);
+        if (postIndex !== -1) {
+          const post = state.list[postIndex];
+          switch (actionType) {
+            case 'like':
+              post.is_liked = response.is_active;
+              post.like_count = response.count;
+              // 保存到本地存储
+              saveUserLikeState(postId, response.is_active, response.count);
+              break;
+            case 'favorite':
+              post.is_favorited = response.is_active;
+              post.favorite_count = response.count;
+              break;
+            default:
+              break;
           }
         }
-        
-        // 如果当前详情页的帖子是同一个，也更新它
+
+        // 更新当前查看的帖子详情
         if (state.currentPost && state.currentPost.id === postId) {
-          if (actionType === 'like') {
-            state.currentPost.is_liked = response.is_active;
-            state.currentPost.like_count = response.count;
-          } else if (actionType === 'favorite') {
-            state.currentPost.is_favorited = response.is_active;
-            state.currentPost.favorite_count = response.count;
+          switch (actionType) {
+            case 'like':
+              state.currentPost.is_liked = response.is_active;
+              state.currentPost.like_count = response.count;
+              // 保存到本地存储
+              saveUserLikeState(postId, response.is_active, response.count);
+              break;
+            case 'favorite':
+              state.currentPost.is_favorited = response.is_active;
+              state.currentPost.favorite_count = response.count;
+              break;
+            default:
+              break;
           }
         }
       })
@@ -222,6 +299,10 @@ const postsSlice = createSlice({
       .addCase(deletePost.fulfilled, (state, action) => {
         const { postId } = action.payload;
         state.list = state.list.filter((p) => p.id !== postId);
+        // 如果当前查看的帖子被删除，清空当前帖子
+        if (state.currentPost && state.currentPost.id === postId) {
+          state.currentPost = null;
+        }
       });
   },
 });

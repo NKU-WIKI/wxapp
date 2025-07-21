@@ -7,11 +7,12 @@ import styles from "./index.module.scss";
 
 // 图标导入
 import defaultAvatar from "@/assets/profile.png";
+import CustomHeader from "@/components/custom-header";
 
 // 未登录提示组件
 const LoginPrompt = () => {
   const handleLogin = () => {
-    Taro.navigateTo({ url: "/pages/login/index" });
+    Taro.navigateTo({ url: "/pages/subpackage-profile/login/index" });
   };
 
   return (
@@ -57,7 +58,7 @@ const Profile = () => {
   );
 
   const handleEditProfile = () => {
-    Taro.navigateTo({ url: "/pages/edit-profile/index" });
+    Taro.navigateTo({ url: "/pages/subpackage-profile/edit-profile/index" });
   };
 
   const handleLogout = () => {
@@ -79,8 +80,8 @@ const Profile = () => {
       drafts: '/pages/drafts/index',
       history: '/pages/history/index',
       feedback: '/pages/feedback/index',
-      about: '/pages/about/index',
-      settings: '/pages/settings/index',
+      about: '/pages/subpackage-profile/about/index',
+      settings: '/pages/subpackage-profile/settings/index',
     };
 
     if (routes[type]) {
@@ -91,9 +92,7 @@ const Profile = () => {
   if (!isLoggedIn || !userInfo) {
     return (
       <View className={styles.pageContainer}>
-        <View className={styles.header}>
-          <Text className={styles.headerTitle}>个人中心</Text>
-        </View>
+        <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
         <LoginPrompt />
       </View>
     );
@@ -102,28 +101,25 @@ const Profile = () => {
   // 已登录用户视图
   return (
     <View className={styles.pageContainer}>
-      {/* 头部 */}
-      <View className={styles.header}>
-        <Text className={styles.headerTitle}>个人中心</Text>
-      </View>
-
+      <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
+      
       {/* 用户信息卡片 */}
       <View className={styles.userCard}>
         <View className={styles.userInfoRow}>
           <View className={styles.avatarContainer}>
             <View className={styles.avatarWrapper}>
-              <Image src={userInfo.avatar || defaultAvatar} className={styles.avatar} />
+              <Image src={userInfo?.avatar || defaultAvatar} className={styles.avatar} />
             </View>
           </View>
           
           <View className={styles.userDetails}>
-            <Text className={styles.nickname}>{userInfo.nickname || '未设置昵称'}</Text>
-            <Text className={styles.userId}>ID: {userInfo.wechatId || `nku${userInfo.id}`}</Text>
+            <Text className={styles.nickname}>{userInfo?.nickname || '未设置昵称'}</Text>
+            <Text className={styles.userId}>ID: {userInfo?.wechatId || `nku${userInfo?.id || 'loading'}`}</Text>
           </View>
 
           <View className={styles.levelBadge}>
             <Text className={styles.starIcon}>★</Text>
-            <Text className={styles.levelText}>LV.{userInfo.level || '1'}</Text>
+            <Text className={styles.levelText}>LV.{userInfo?.level || '1'}</Text>
           </View>
 
           <Button className={styles.editButton} onClick={handleEditProfile}>
@@ -136,7 +132,7 @@ const Profile = () => {
         <View className={styles.statsContainer}>
           <View className={styles.statsRow}>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>{userInfo.post_count || 0}</Text>
+              <Text className={styles.statValue}>{userInfo?.post_count || 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>📝</Text>
                 <Text className={styles.statLabel}>帖子</Text>
@@ -150,7 +146,7 @@ const Profile = () => {
               </View>
             </View>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>{userInfo.following_count || 0}</Text>
+              <Text className={styles.statValue}>{userInfo?.following_count || 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>👥</Text>
                 <Text className={styles.statLabel}>关注</Text>
@@ -160,7 +156,7 @@ const Profile = () => {
           
           <View className={styles.statsRow}>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>{userInfo.follower_count || 0}</Text>
+              <Text className={styles.statValue}>{userInfo?.follower_count || 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>👥</Text>
                 <Text className={styles.statLabel}>粉丝</Text>

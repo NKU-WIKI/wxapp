@@ -1,0 +1,85 @@
+@use "../../../styles/variables.scss" as *;
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-page;
+}
+
+.tabsContainer {
+  padding: 16px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Customizing taro-ui AtTabs */
+.tabs {
+  display: flex;
+  background-color: $bg-input-focus;
+  border-radius: 8px;
+  padding: 4px;
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 14px;
+    color: $text-secondary;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    &.active {
+      background-color: $theme-primary;
+      color: $text-white;
+      font-weight: 500;
+    }
+  }
+}
+
+.tabContent {
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emptyText {
+  text-align: center;
+  color: $text-helper-light;
+  padding: 40px 0;
+}
+
+.moreIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.footer {
+  background-color: $bg-card;
+  padding: 12px 16px;
+  border-top: 1px solid $border-gray;
+  padding-bottom: calc(12px + constant(safe-area-inset-bottom));
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.markAllReadButton {
+  width: 100%;
+  padding: 12px;
+  background-color: $theme-primary;
+  color: $text-white;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.footerIcon {
+  width: 20px;
+  height: 20px;
+} 

@@ -1,10 +1,10 @@
-@import "../../styles/variables.scss";
+@use "../../styles/variables.scss" as *;
 
 .explorePage {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: $bg-page-cool;
+  background-color: $bg-page;
 }
 
 .pageContent {
@@ -141,30 +141,89 @@
   border-bottom: 1px solid $border-gray;
 }
 
-.sourceScrollView {
+.sourceGrid {
   display: flex;
-  white-space: nowrap;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .sourceItem {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 0 12px;
-  color: $text-secondary;
-  &:first-child {
-    padding-left: 0;
-  }
+  flex: 1;
+  background-color: $bg-input-focus;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 0 2px;
+  color: $theme-primary-light;
 }
 
 .sourceIcon {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
 }
 
 .sourceName {
   font-size: 12px;
+}
+
+/* Masonry Layout */
+.masonryWrapper {
+  padding: 12px;
+  padding-bottom: 80px; /* 为底部导航留出空间 */
+}
+
+.masonryContainer {
+  display: flex;
+  gap: 4px;
+}
+
+.masonryColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.masonryItem {
+  margin-bottom: 4px;
+  break-inside: avoid;
+}
+
+.masonryItemOffset {
+  // 左列第二个及以后的项目不需要额外偏移
+}
+
+.masonryItemOffsetFirst {
+  margin-top: 8px; // 右列第一个项目向下偏移
+}
+
+.contentCard {
+  background-color: $bg-card;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.contentImage {
+  width: 100%;
+  display: block;
+}
+
+.contentInfo {
+  padding: 12px;
+}
+
+.contentTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary-dark;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .contributionSection {
