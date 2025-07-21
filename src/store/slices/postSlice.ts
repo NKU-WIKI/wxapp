@@ -182,12 +182,28 @@ const postsSlice = createSlice({
         fetchPosts.fulfilled,
         (state, action: PayloadAction<{ items: Post[]; pagination: Pagination; isAppend: boolean }>) => {
           state.loading = 'succeeded';
+          
+          // 处理返回的帖子列表，应用本地存储的点赞状态
+          const processedItems = action.payload.items.map(post => {
+            let updatedPost = { ...post };
+            
+            // 检查本地存储的点赞状态
+            const localLikeState = getUserLikeState(post.id);
+            if (localLikeState) {
+              // 如果有本地存储的点赞状态，覆盖后端返回的状态
+              updatedPost.is_liked = localLikeState.isLiked;
+              updatedPost.like_count = localLikeState.likeCount;
+            }
+            
+            return updatedPost;
+          });
+          
           if (action.payload.isAppend) {
             // 追加新帖子到现有列表后面
-            state.list = [...state.list, ...action.payload.items];
+            state.list = [...state.list, ...processedItems];
           } else {
             // 替换整个列表（刷新或首次加载）
-            state.list = action.payload.items;
+            state.list = processedItems;
           }
           state.pagination = action.payload.pagination;
         }

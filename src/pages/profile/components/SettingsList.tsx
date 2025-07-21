@@ -3,9 +3,9 @@ import Taro from '@tarojs/taro'
 import styles from './SettingsList.module.scss'
 
 // Import icons
-import heartIcon from '@/assets/heart.svg';
+import heartIcon from '@/assets/heart-outline.svg';
 import messageSquareIcon from '@/assets/message-square.svg';
-import starIcon from '@/assets/star.svg';
+import starIcon from '@/assets/star-filled.svg';
 import userIcon from '@/assets/user.svg';
 import settingsIcon from '@/assets/settings.svg';
 import historyIcon from '@/assets/history.svg';

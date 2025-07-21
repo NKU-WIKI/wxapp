@@ -152,10 +152,108 @@
   padding: 6px 12px;
   border-radius: 9999px;
   font-size: 14px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+
+  &.selected {
+    background-color: $theme-primary;
+    color: $text-white;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
+      pointer-events: none;
+    }
+  }
 
   &.addTag {
     border: 1px dashed $border-input;
     background-color: transparent;
+    
+    &:active {
+      background-color: $bg-input-focus;
+    }
+  }
+}
+
+// 新增标签输入相关样式
+.tagInputContainer {
+  display: flex;
+  align-items: center;
+  background-color: $bg-input-focus;
+  border-radius: 9999px;
+  padding: 4px 8px;
+  gap: 8px;
+  border: 1px solid $border-input-focus;
+}
+
+.tagInput {
+  flex: 1;
+  font-size: 14px;
+  height: 28px;
+  min-width: 100px;
+  border: none;
+  background: transparent;
+}
+
+.addTagBtn {
+  color: $theme-primary;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.selectedTagsContainer {
+  margin-top: 16px;
+}
+
+.selectedTagsTitle {
+  font-size: 14px;
+  color: $text-secondary;
+  margin-bottom: 8px;
+}
+
+.selectedTagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selectedTag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: $theme-primary;
+  color: $text-white;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3);
+}
+
+.removeTag {
+  font-size: 16px;
+  margin-left: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  
+  &:active {
+    opacity: 0.7;
   }
 }
 
@@ -248,14 +346,4 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-
-  &.primary {
-    background-color: $theme-primary;
-    border-color: $theme-primary;
-
-    .buttonText {
-      color: $text-white;
-    }
-  }
 }

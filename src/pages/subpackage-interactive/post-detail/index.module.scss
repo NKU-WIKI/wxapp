@@ -216,6 +216,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 8px;
   margin-bottom: 16px;
   padding-left: 12px;
   padding-right: 16px;
@@ -225,13 +226,18 @@
   min-height: 24px;
   
   .tag {
-    background-color: #F3F4F6;
-    padding: 0 12px;
-    border-radius: 12px;
+    position: relative;
+    left: 0px;
+    top: 0px;
     height: 24px;
+    border-radius: 12px;
+    opacity: 1;
+    background: #F3F4F6;
+    padding: 0 12px;
     display: flex;
-    align-items: center;
+    flex-direction: row;
     justify-content: center;
+    align-items: center;
     
     .tagText {
       font-size: 12px;
@@ -249,15 +255,14 @@
     height: 24px;
     
     .locationIcon {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       margin-right: 4px;
     }
     
-    .locationText {
+    .tagText {
       font-size: 12px;
       color: #666;
-      white-space: nowrap;
     }
   }
 }
@@ -287,25 +292,6 @@
     .actionIcon {
       width: 20px;
       height: 20px;
-      background-color: #666;
-      mask-image: var(--icon-url);
-      mask-size: contain;
-      mask-position: center;
-      mask-repeat: no-repeat;
-      -webkit-mask-image: var(--icon-url);
-      -webkit-mask-size: contain;
-      -webkit-mask-position: center;
-      -webkit-mask-repeat: no-repeat;
-      
-      &.active {
-        background-color: #4F46E5 !important;
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
-        mask-size: contain;
-        -webkit-mask-size: contain;
-        mask-repeat: no-repeat;
-        -webkit-mask-repeat: no-repeat;
-      }
     }
     
     .actionCount {
@@ -357,6 +343,28 @@
     text-align: center;
     padding: 20px 0;
     color: #999;
+    font-size: 14px;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px 0;
+    color: #999;
+    font-size: 14px;
+  }
+}
+
+/* 错误容器样式 */
+.errorContainer {
+  background-color: #FFFFFF;
+  padding: 16px;
+  margin: 0 12px 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  
+  .errorText {
+    color: #EF4444;
     font-size: 14px;
   }
 }
@@ -521,6 +529,11 @@
   align-items: center;
   justify-content: center;
   z-index: 30;
+  
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }
 
 .sendIcon {

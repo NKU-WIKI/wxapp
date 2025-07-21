@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, ScrollView } from '@tarojs/components';
+import { View, ScrollView, Text } from '@tarojs/components';
 import { useRouter } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomHeader from '@/components/custom-header';
@@ -8,6 +8,7 @@ import PostDetailContent from './components/PostDetailContent';
 import CommentSection from './components/CommentSection';
 import BottomInput from './components/BottomInput';
 import { fetchPostDetail } from '@/store/slices/postSlice';
+import { fetchComments } from '@/store/slices/commentSlice';
 import { AppDispatch, RootState } from '@/store';
 import EmptyState from '@/components/empty-state';
 import emptyIcon from '@/assets/empty.svg';
@@ -16,13 +17,21 @@ const PostDetailPage = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { currentPost, detailLoading, error } = useSelector((state: RootState) => state.post);
+  const { comments, loading: commentsLoading, error: commentsError } = useSelector((state: RootState) => state.comment);
   
   // 从路由参数中获取帖子ID
   const postId = Number(router.params.id);
   
   useEffect(() => {
     if (postId) {
+      // 获取帖子详情
       dispatch(fetchPostDetail(postId));
+      
+      // 获取帖子评论
+      dispatch(fetchComments({
+        resource_id: postId,
+        resource_type: 'post'
+      }));
     }
   }, [dispatch, postId]);
   
@@ -43,7 +52,18 @@ const PostDetailPage = () => {
     return (
       <>
         <PostDetailContent post={currentPost} />
-        <CommentSection comments={currentPost.comments || []} />
+        
+        {commentsError ? (
+          <View className={styles.errorContainer}>
+            <Text className={styles.errorText}>评论加载失败: {commentsError}</Text>
+          </View>
+        ) : (
+          <CommentSection 
+            comments={comments || []} 
+            postId={currentPost.id} 
+            loading={commentsLoading === 'pending'}
+          />
+        )}
       </>
     );
   };

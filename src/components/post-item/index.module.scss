@@ -157,25 +157,6 @@
   .actionIcon {
     width: 18px;
     height: 18px;
-    background-color: #666; // 未激活时图标颜色
-    mask-image: var(--icon-url);
-    mask-size: contain;
-    mask-position: center;
-    mask-repeat: no-repeat;
-    -webkit-mask-image: var(--icon-url);
-    -webkit-mask-size: contain;
-    -webkit-mask-position: center;
-    -webkit-mask-repeat: no-repeat;
-    
-    &.active {
-      background-color: #4F46E5; // 激活时图标为主题色
-      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
-      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
-      mask-size: contain;
-      -webkit-mask-size: contain;
-      mask-repeat: no-repeat;
-      -webkit-mask-repeat: no-repeat;
-    }
   }
   
   .actionCount {
@@ -197,15 +178,6 @@
 .shareIcon {
   width: 20px;
   height: 20px;
-  background-color: #4F46E5; // 分享按钮始终为主题色
-  mask-image: var(--icon-url);
-  mask-size: contain;
-  mask-position: center;
-  mask-repeat: no-repeat;
-  -webkit-mask-image: var(--icon-url);
-  -webkit-mask-size: contain;
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
 }
 
 .moreButton {
@@ -220,15 +192,6 @@
 .moreIcon {
   width: 16px;
   height: 16px;
-  background-color: #999;
-  mask-image: var(--icon-url);
-  mask-size: contain;
-  mask-position: center;
-  mask-repeat: no-repeat;
-  -webkit-mask-image: var(--icon-url);
-  -webkit-mask-size: contain;
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
 }
 
 // 帖子内容区域样式

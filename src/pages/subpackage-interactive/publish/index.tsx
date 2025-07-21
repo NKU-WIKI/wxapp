@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Taro from "@tarojs/taro";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
@@ -27,7 +27,7 @@ import lightbulbIcon from "@/assets/lightbulb.svg";
 import xCircleIcon from "@/assets/x-circle.svg"; // for deleting images
 
 const mockData = {
-  tags: ["#校园生活", "#学习交流", "#求助"],
+  tags: ["#校园生活", "#学习交流", "#求助", "#资源分享", "#活动通知"],
   styles: ["正式", "轻松", "幽默", "专业"],
 };
 
@@ -39,8 +39,17 @@ export default function PublishPost() {
   const [selectedStyle, setSelectedStyle] = useState("正式");
   const [isPublic, setIsPublic] = useState(true);
   const [allowComments, setAllowComments] = useState(true);
-  const [useWikiAssistant, setUseWikiAssistant] = useState(false); // Changed from enableWikiAssist
+  const [useWikiAssistant, setUseWikiAssistant] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [customTag, setCustomTag] = useState("");
+  const [isAddingTag, setIsAddingTag] = useState(false);
+  
   const dispatch = useDispatch<AppDispatch>();
+
+  // 添加调试日志，查看当前选中的标签
+  useEffect(() => {
+    console.log('当前选中的标签:', selectedTags);
+  }, [selectedTags]);
 
   const handleChooseImage = () => {
     if (isUploading) return;
@@ -77,6 +86,56 @@ export default function PublishPost() {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleTagToggle = (tag: string) => {
+    console.log('点击标签:', tag, '当前选中状态:', selectedTags.includes(tag));
+    
+    // 如果标签已经被选中，则取消选中
+    if (selectedTags.includes(tag)) {
+      const newTags = selectedTags.filter(t => t !== tag);
+      console.log('取消选中后的标签:', newTags);
+      setSelectedTags(newTags);
+    } else {
+      // 如果标签未被选中，且选中数量小于3，则选中
+      if (selectedTags.length < 3) {
+        const newTags = [...selectedTags, tag];
+        console.log('选中后的标签:', newTags);
+        setSelectedTags(newTags);
+      } else {
+        Taro.showToast({ title: "最多选择3个话题", icon: "none" });
+      }
+    }
+  };
+
+  const handleAddCustomTag = () => {
+    if (!customTag.trim()) {
+      Taro.showToast({ title: "请输入话题", icon: "none" });
+      return;
+    }
+
+    // 格式化自定义标签，确保以#开头
+    let formattedTag = customTag.trim();
+    if (!formattedTag.startsWith('#')) {
+      formattedTag = `#${formattedTag}`;
+    }
+
+    // 检查是否已存在该标签
+    if (selectedTags.includes(formattedTag)) {
+      Taro.showToast({ title: "该话题已添加", icon: "none" });
+      return;
+    }
+
+    // 检查是否超过最大数量
+    if (selectedTags.length >= 3) {
+      Taro.showToast({ title: "最多选择3个话题", icon: "none" });
+      return;
+    }
+
+    console.log('添加自定义标签:', formattedTag);
+    setSelectedTags([...selectedTags, formattedTag]);
+    setCustomTag("");
+    setIsAddingTag(false);
+  };
+
   const handlePublish = async () => {
     if (!title.trim()) {
       Taro.showToast({
@@ -96,11 +155,16 @@ export default function PublishPost() {
     }
 
     try {
+      // 处理标签，去掉#前缀
+      const processedTags = selectedTags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
+      console.log('发布帖子，处理后的标签:', processedTags);
+      
       await dispatch(
         createPost({
           title,
           content,
-          image_urls: images, // Add images to the payload
+          image_urls: images,
+          tag: processedTags, // 添加标签数据
           is_public: isPublic,
           allow_comment: allowComments,
         })
@@ -123,6 +187,11 @@ export default function PublishPost() {
         duration: 2000,
       });
     }
+  };
+
+  // 检查标签是否被选中的辅助函数
+  const isTagSelected = (tag: string): boolean => {
+    return selectedTags.includes(tag);
   };
 
   return (
@@ -181,17 +250,63 @@ export default function PublishPost() {
 
           {/* Select Topic */}
           <View className={styles.card}>
-            <Text className={styles.sectionTitle}>选择话题</Text>
+            <Text className={styles.sectionTitle}>选择话题 ({selectedTags.length}/3)</Text>
             <View className={styles.tagsContainer}>
-              {mockData.tags.map((tag) => (
-                <View key={tag} className={styles.tagItem}>
+              {mockData.tags.map((tag) => {
+                const selected = isTagSelected(tag);
+                return (
+                  <View 
+                    key={tag} 
+                    className={`${styles.tagItem} ${selected ? styles.selected : ''}`}
+                    onClick={() => handleTagToggle(tag)}
+                    style={{ backgroundColor: selected ? '#4F46E5' : undefined, color: selected ? '#FFFFFF' : undefined }}
+                  >
                   <Text>{tag}</Text>
+                  </View>
+                );
+              })}
+              
+              {isAddingTag ? (
+                <View className={`${styles.tagInputContainer}`}>
+                  <Input
+                    className={styles.tagInput}
+                    value={customTag}
+                    onInput={(e) => setCustomTag(e.detail.value)}
+                    placeholder="输入话题"
+                    focus
+                    onBlur={handleAddCustomTag}
+                    onConfirm={handleAddCustomTag}
+                  />
+                  <Text className={styles.addTagBtn} onClick={handleAddCustomTag}>确定</Text>
                 </View>
-              ))}
-              <View className={`${styles.tagItem} ${styles.addTag}`}>
+              ) : (
+                <View 
+                  className={`${styles.tagItem} ${styles.addTag}`}
+                  onClick={() => setIsAddingTag(true)}
+                >
                 <Text>#添加话题</Text>
               </View>
+              )}
             </View>
+            
+            {selectedTags.length > 0 && (
+              <View className={styles.selectedTagsContainer}>
+                <Text className={styles.selectedTagsTitle}>已选话题：</Text>
+                <View className={styles.selectedTagsList}>
+                  {selectedTags.map((tag) => (
+                    <View key={tag} className={styles.selectedTag}>
+                      <Text>{tag}</Text>
+                      <Text 
+                        className={styles.removeTag}
+                        onClick={() => handleTagToggle(tag)}
+                      >
+                        ×
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
           </View>
 
           {/* Wiki Polish Suggestion */}

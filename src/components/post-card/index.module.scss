@@ -149,7 +149,6 @@
   .actionIcon {
     width: 16px;
     height: 16px;
-    background-color: #666; // 未激活时图标颜色
   }
 
   .actionCount {
@@ -161,9 +160,6 @@
   &.active {
     background-color: #4F46E5;
 
-    .actionIcon {
-      background-color: #ffffff; // 激活时图标变白
-    }
     .actionCount {
       color: #ffffff; // 激活时文字变白
     }
@@ -173,5 +169,4 @@
 .shareIcon {
   width: 20px;
   height: 20px;
-  background-color: #4F46E5; // 分享按钮始终为主题色
 } 

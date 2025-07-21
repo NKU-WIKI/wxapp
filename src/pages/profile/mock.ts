@@ -1,4 +1,4 @@
-import starIcon from "../../assets/star.svg";
+import starIcon from "../../assets/star-filled.svg";
 import historyIcon from "../../assets/history.svg";
 import commentIcon from "../../assets/comment.png";
 import likeIcon from "../../assets/like.png";

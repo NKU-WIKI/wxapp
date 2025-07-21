@@ -5,8 +5,9 @@ import styles from '../index.module.scss';
 import { Post } from '@/types/api/post';
 import { formatRelativeTime } from '@/utils/time';
 import HeartIcon from '@/assets/heart-outline.svg';
-import HeartActiveIcon from '@/assets/heart.svg';
-import StarIcon from '@/assets/star.svg';
+import HeartActiveIcon from '@/assets/heart-bold.svg';
+import StarOutlineIcon from '@/assets/star-outline.svg';
+import StarFilledIcon from '@/assets/star-filled.svg';
 import ShareIcon from '@/assets/share.svg';
 import LocationIcon from '@/assets/map-pin.svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -56,7 +57,7 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
     // 调用API进行点赞/取消点赞
     dispatch(toggleAction({ 
       postId: post.id, 
-      actionType: 'like' 
+      actionType: 'like'
     })).then((result: any) => {
       if (result.payload && result.payload.response) {
         const { is_active } = result.payload.response;
@@ -98,7 +99,7 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
     // 调用API进行收藏/取消收藏
     dispatch(toggleAction({ 
       postId: post.id, 
-      actionType: 'favorite' 
+      actionType: 'favorite'
     })).then((result: any) => {
       if (result.payload && result.payload.response) {
         const { is_active } = result.payload.response;
@@ -183,16 +184,28 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
     });
   };
   
-  // 解析标签
-  let tags = [];
-  try {
-    if (post.tag && typeof post.tag === 'string') {
-      tags = JSON.parse(post.tag);
+  // 处理标签数据
+  const getTags = () => {
+    // 如果标签是数组，直接使用
+    if (post.tag && Array.isArray(post.tag)) {
+      return post.tag;
     }
-  } catch (error) {
-    console.error('解析标签失败:', error);
-    tags = [];
-  }
+    
+    // 如果标签是字符串，尝试解析
+    if (post.tag && typeof post.tag === 'string') {
+      try {
+        return JSON.parse(post.tag);
+      } catch (error) {
+        console.error('解析标签失败:', error);
+        return [];
+      }
+    }
+    
+    return [];
+  };
+  
+  // 获取标签列表
+  const tags = getTags();
   
   // 获取图片 - 优先使用 image_urls 字段，因为后端返回的是这个字段
   let images: string[] = [];
@@ -249,21 +262,36 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
         <Text className={styles.text}>{post.content}</Text>
       </View>
       
-      {/* 帖子图片 */}
+      {/* 图片展示 */}
       {images && images.length > 0 && (
-        <View className={`${styles.imagesGrid} ${
-          images.length === 1 ? styles.singleImage : 
-          images.length === 2 ? styles.doubleImage : 
-          styles.gridImage
-        }`}>
-          {images.map((url, index) => (
-            <Image key={index} src={url} className={styles.postImage} mode="aspectFill" />
+        <View 
+          className={`${styles.imagesGrid} ${
+            images.length === 1 
+              ? styles.singleImage 
+              : images.length === 2 
+                ? styles.doubleImage 
+                : styles.gridImage
+          }`}
+        >
+          {images.map((img, index) => (
+            <Image
+              key={index}
+              src={img}
+              className={styles.postImage}
+              mode="aspectFill"
+              onClick={() => {
+                Taro.previewImage({
+                  current: img,
+                  urls: images
+                });
+              }}
+            />
           ))}
         </View>
       )}
       
-      {/* 标签和位置 */}
-      {(tags.length > 0 || location) && (
+      {/* 标签展示 */}
+      {(tags && tags.length > 0) && (
         <View className={styles.tagsSection}>
           {tags.map((tag, index) => (
             <View key={index} className={styles.tag}>
@@ -273,32 +301,32 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
           {location && (
             <View className={styles.locationTag}>
               <Image src={LocationIcon} className={styles.locationIcon} />
-              <Text className={styles.locationText}>{location}</Text>
+              <Text className={styles.tagText}>{location}</Text>
             </View>
           )}
         </View>
       )}
       
-      {/* 操作栏 */}
+      {/* 底部操作栏 */}
       <View className={styles.actionBar}>
         <View className={styles.actionButton} onClick={handleLike}>
-          <View 
-            className={`${styles.actionIcon} ${isLiked ? styles.active : ''}`}
-            style={{ "--icon-url": `url(${HeartIcon})` } as any}
+          <Image 
+            src={isLiked ? HeartActiveIcon : HeartIcon} 
+            className={styles.actionIcon}
           />
           <Text className={`${styles.actionCount} ${isLiked ? styles.active : ''}`}>{likeCount}</Text>
         </View>
         <View className={styles.actionButton} onClick={handleFavorite}>
-          <View 
+          <Image 
+            src={displayPost.is_favorited ? StarFilledIcon : StarOutlineIcon} 
             className={styles.actionIcon}
-            style={{ "--icon-url": `url(${StarIcon})` } as any}
           />
-          <Text className={styles.actionCount}>{post.favorite_count || 0}</Text>
+          <Text className={`${styles.actionCount} ${displayPost.is_favorited ? styles.active : ''}`}>{post.favorite_count || 0}</Text>
         </View>
         <View className={styles.actionButton} onClick={handleShare}>
-          <View 
+          <Image 
+            src={ShareIcon} 
             className={styles.actionIcon}
-            style={{ "--icon-url": `url(${ShareIcon})` } as any}
           />
           <Text className={styles.actionCount}>分享</Text>
         </View>

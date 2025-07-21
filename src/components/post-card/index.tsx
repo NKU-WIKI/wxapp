@@ -2,13 +2,16 @@ import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { Post } from "@/types/api/post.d";
 import styles from "./index.module.scss";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { toggleAction } from "@/store/slices/postSlice";
 
 // 引入所有需要的图标
-import heartIcon from "@/assets/heart.svg"; // 空心
+import heartIcon from "@/assets/heart-outline.svg"; // 空心
 import heartActiveIcon from "@/assets/heart-bold.svg"; // 实心
 import commentIcon from "@/assets/message-circle.svg";
 import starIcon from "@/assets/star-outline.svg"; // 空心
-import starActiveIcon from "@/assets/star.svg"; // 实心
+import starActiveIcon from "@/assets/star-filled.svg"; // 实心
 import sendIcon from "@/assets/send.svg";
 import moreIcon from "@/assets/more-horizontal.svg";
 
@@ -18,6 +21,9 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post, className = "" }: PostCardProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoggedIn, token } = useSelector((state: RootState) => state.user);
+  
   const navigateToDetail = () => {
     Taro.navigateTo({
       url: `/pages/subpackage-interactive/post-detail/index?id=${post.id}`,
@@ -26,8 +32,46 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
 
   const handleActionClick = (e, action) => {
     e.stopPropagation(); // 阻止事件冒泡到父元素
-    console.log(`Action: ${action}, Post ID: ${post.id}`);
-    // TODO: 调用API处理点赞、收藏等
+    
+    // 检查用户是否登录
+    if (!isLoggedIn || !token) {
+      Taro.showModal({
+        title: '提示',
+        content: '您尚未登录，是否前往登录？',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+          }
+        }
+      });
+      return;
+    }
+    
+    // 处理不同的操作
+    if (action === 'like' || action === 'favorite') {
+      // 直接派发 action 到 Redux，让 Redux 处理状态更新
+      dispatch(toggleAction({ 
+        postId: post.id, 
+        actionType: action
+      }))
+      .then(response => {
+        console.log(`${action}操作成功:`, response);
+      })
+      .catch(error => {
+        console.error(`${action}操作失败:`, error);
+        Taro.showToast({
+          title: '操作失败，请重试',
+          icon: 'none'
+        });
+      });
+    } else if (action === 'comment') {
+      // 跳转到详情页并聚焦评论区
+      navigateToDetail();
+    } else if (action === 'share') {
+      Taro.showShareMenu({
+        withShareTicket: true
+      });
+    }
   };
 
   const handleMoreAction = (e) => {
@@ -69,11 +113,9 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
       className={`${styles.actionButton} ${isActive ? styles.active : ""}`}
       onClick={(e) => handleActionClick(e, action)}
     >
-      <View
+      <Image
+        src={isActive ? activeIcon : icon}
         className={styles.actionIcon}
-        style={{
-          "--icon-url": `url(${isActive ? activeIcon : icon})`,
-        } as React.CSSProperties}
       />
       <Text className={styles.actionCount}>{count}</Text>
     </View>
@@ -121,9 +163,38 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
       {/* 标签 */}
       {post.tag && (
         <View className={styles.tags}>
-          {post.tag.split(',').map(tag => (
-            <Text key={tag} className={styles.tag}>#{tag.trim()}</Text>
-          ))}
+          {(() => {
+            // 安全处理不同格式的tag数据
+            if (Array.isArray(post.tag)) {
+              return post.tag.map(tag => (
+                <Text key={tag} className={styles.tag}>#{tag.trim()}</Text>
+              ));
+            }
+            
+            if (typeof post.tag === 'string') {
+              // 尝试解析JSON字符串
+              try {
+                const parsedTags = JSON.parse(post.tag as string);
+                if (Array.isArray(parsedTags)) {
+                  return parsedTags.map(tag => (
+                    <Text key={tag} className={styles.tag}>#{tag.trim()}</Text>
+                  ));
+                }
+              } catch (e) {
+                // 不是JSON，检查是否是逗号分隔的字符串
+                const tagStr = post.tag as string;
+                if (tagStr.includes(',')) {
+                  return tagStr.split(',').map(tag => (
+                    <Text key={tag} className={styles.tag}>#{tag.trim()}</Text>
+                  ));
+                }
+                // 单个标签
+                return <Text className={styles.tag}>#{tagStr.trim()}</Text>;
+              }
+            }
+            
+            return null;
+          })()}
         </View>
       )}
 
@@ -153,11 +224,10 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
         </View>
         <View
           className={styles.shareIcon}
-          style={
-            { "--icon-url": `url(${sendIcon})` } as React.CSSProperties
-          }
           onClick={(e) => handleActionClick(e, "share")}
-        />
+        >
+          <Image src={sendIcon} style={{ width: '100%', height: '100%' }} />
+        </View>
       </View>
     </View>
   );

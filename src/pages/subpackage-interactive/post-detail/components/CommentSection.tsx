@@ -1,45 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image } from "@tarojs/components";
 import styles from "../index.module.scss";
 import ChevronDownIcon from "@/assets/chevron-down.svg";
 import HeartIcon from "@/assets/heart-outline.svg";
-import HeartActiveIcon from "@/assets/heart.svg";
-import { Comment } from "@/types/api/post";
+import HeartActiveIcon from "@/assets/heart-bold.svg";
+import { CommentDetail } from "@/types/api/comment";
 import { formatRelativeTime } from "@/utils/time";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { toggleAction } from "@/store/slices/postSlice";
+import Taro from "@tarojs/taro";
 
 interface CommentItemProps {
-  comment: Comment;
+  comment: CommentDetail;
+  postId: number;
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
-  const [isLiked, setIsLiked] = useState(false);
+const CommentItem: React.FC<CommentItemProps> = ({ comment, postId }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoggedIn, token } = useSelector((state: RootState) => state.user);
   
   const handleLike = () => {
-    setIsLiked(!isLiked);
+    // 检查用户是否登录
+    if (!isLoggedIn || !token) {
+      Taro.showModal({
+        title: '提示',
+        content: '您尚未登录，是否前往登录？',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+          }
+        }
+      });
+      return;
+    }
+    
+    // 派发点赞操作
+    dispatch(toggleAction({
+      postId,
+      actionType: 'like',
+      targetType: 'comment',
+      commentId: comment.id
+    }));
   };
   
   return (
   <View className={styles.commentItem}>
-      <Image src={comment.author.avatar || ''} className={styles.avatar} />
+      <Image src={comment.avatar || ''} className={styles.avatar} />
     <View className={styles.content}>
       <View className={styles.header}>
-        <Text className={styles.name}>{comment?.author?.nickname || '匿名用户'}</Text>
-        {comment?.author?.level && <Badge>Lv{comment.author.level}</Badge>}
-        <Text className={styles.time}>{comment?.time}</Text>
-          <Text className={styles.name}>{comment.author.nickname}</Text>
-          {comment.isAIAssistant && (
-            <View className={styles.aiTag}>AI助手</View>
-        )}
-          <Text className={styles.time}>{formatRelativeTime(comment.time)}</Text>
+        <Text className={styles.name}>{comment?.nickname || '匿名用户'}</Text>
+        <Text className={styles.time}>{formatRelativeTime(comment.create_time)}</Text>
       </View>
         <Text className={styles.text}>{comment?.content}</Text>
       <View className={styles.actions}>
           <View className={styles.likeButton} onClick={handleLike}>
             <Image 
-              src={isLiked ? HeartActiveIcon : HeartIcon} 
+              src={comment.is_liked ? HeartActiveIcon : HeartIcon} 
               className={styles.icon} 
             />
-          <Text>{comment?.likes || 0}</Text>
+          <Text>{comment?.like_count || 0}</Text>
           </View>
           <View className={styles.replyButton}>
             <Text>回复</Text>
@@ -51,18 +71,25 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
 };
 
 interface CommentSectionProps {
-  comments: Comment[];
+  comments: CommentDetail[];
+  postId: number;
+  loading?: boolean;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ comments }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ comments, postId, loading = false }) => {
   const [sortBy, setSortBy] = useState<'time' | 'likes'>('time');
+  
+  // 添加调试日志
+  useEffect(() => {
+    console.log('评论数据:', comments);
+  }, [comments]);
   
   // 根据排序方式对评论进行排序
   const sortedComments = [...comments].sort((a, b) => {
     if (sortBy === 'time') {
-      return new Date(b.time).getTime() - new Date(a.time).getTime();
+      return new Date(b.create_time).getTime() - new Date(a.create_time).getTime();
     } else {
-      return b.likes - a.likes;
+      return b.like_count - a.like_count;
     }
   });
   
@@ -80,9 +107,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments }) => {
           <Image src={ChevronDownIcon} className={styles.icon} />
         </View>
       </View>
-      {sortedComments.length > 0 ? (
+      
+      {loading ? (
+        <View className={styles.loading}>加载评论中...</View>
+      ) : sortedComments.length > 0 ? (
         sortedComments.map((comment) => (
-        <CommentItem key={comment.id} comment={comment} />
+        <CommentItem key={comment.id} comment={comment} postId={postId} />
         ))
       ) : (
         <View className={styles.emptyComments}>
