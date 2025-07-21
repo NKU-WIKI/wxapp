@@ -1,0 +1,47 @@
+@import "@/styles/variables.scss";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: $bg-page-cool;
+}
+
+.scroll {
+  flex: 1;
+  overflow: hidden;
+  padding: 0 0 16px 0;
+}
+
+.empty {
+  text-align: center;
+  color: $text-secondary-gray;
+  font-size: 16px;
+  margin-top: 48px;
+}
+
+.bottomBar {
+  padding: 12px 16px 20px 16px;
+  background: $bg-card;
+  box-shadow: 0 -2px 8px $shadow-light;
+}
+
+.clearBtn {
+  width: 100%;
+  height: 44px;
+  background: $theme-primary !important;
+  color: $text-white !important;
+  font-size: 16px;
+  border-radius: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+
+  &:active {
+    background: $theme-primary-dark !important;
+  }
+} 
