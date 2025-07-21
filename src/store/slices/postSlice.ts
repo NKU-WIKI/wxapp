@@ -60,21 +60,23 @@ const convertCloudUrl = (cloudUrl: string): string => {
 };
 
 // 获取帖子列表的 Thunk
-export const fetchPosts = createAsyncThunk<PaginatedData<Post>, GetPostsParams>(
+export const fetchPosts = createAsyncThunk<
+  { items: Post[]; pagination: Pagination; isAppend: boolean },
+  GetPostsParams
+>(
   'posts/fetchPosts',
   async (params, { rejectWithValue }) => {
     try {
       // response的类型是BackendPaginatedResponse<Post>
       // 结构：{code, msg, data: Post[], pagination: Pagination}
       const response = await postApi.getPosts(params);
-      
+
       // 将后端的扁平结构转换为前端Redux store需要的嵌套结构
-      const paginatedData: PaginatedData<Post> = {
+      return {
         items: response.data, // 后端的data字段是Post[]
         pagination: response.pagination, // 后端的pagination字段
+        isAppend: params.isAppend || false, // 传递isAppend参数
       };
-
-      return paginatedData;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch posts');
     }
@@ -127,7 +129,7 @@ export const createPost = createAsyncThunk<
       image: postData.image_urls // 将 image_urls 转换为 image 以匹配 API 接口
     };
     delete apiData.image_urls; // 删除多余的字段
-    
+
     const response = await postApi.createPost(apiData);
     return response.data;
   } catch (error: any) {
@@ -178,9 +180,15 @@ const postsSlice = createSlice({
       })
       .addCase(
         fetchPosts.fulfilled,
-        (state, action: PayloadAction<PaginatedData<Post>>) => {
+        (state, action: PayloadAction<{ items: Post[]; pagination: Pagination; isAppend: boolean }>) => {
           state.loading = 'succeeded';
-          state.list = action.payload.items;
+          if (action.payload.isAppend) {
+            // 追加新帖子到现有列表后面
+            state.list = [...state.list, ...action.payload.items];
+          } else {
+            // 替换整个列表（刷新或首次加载）
+            state.list = action.payload.items;
+          }
           state.pagination = action.payload.pagination;
         }
       )
@@ -194,16 +202,16 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPostDetail.fulfilled, (state, action: PayloadAction<Post>) => {
         state.detailLoading = 'succeeded';
-        
+
         // 检查本地存储的用户点赞状态
         const localLikeState = getUserLikeState(action.payload.id);
-        
+
         // 如果有本地存储的状态，使用本地状态覆盖后端状态
         if (localLikeState) {
           action.payload.is_liked = localLikeState.isLiked;
           action.payload.like_count = localLikeState.likeCount;
         }
-        
+
         state.currentPost = action.payload;
       })
       .addCase(fetchPostDetail.rejected, (state, action) => {
@@ -212,7 +220,7 @@ const postsSlice = createSlice({
       })
       .addCase(toggleAction.fulfilled, (state, action) => {
         const { postId, actionType, response } = action.payload;
-        
+
         if (actionType === 'follow') {
           // 在 post slice 中不直接处理关注状态的 UI 更新，
           // 因为一个用户的关注状态可能影响多个帖子。

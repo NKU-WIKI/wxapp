@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f9fafb;
+  background-color: #ffffff; // 改为白色背景，与标题保持一致
 }
 
 .fixedContainer {
@@ -15,7 +15,7 @@
   background-color: #f3f4f6;
   border-radius: 9999px;
   padding: 8px 12px;
-  margin: 16px 16px 0 16px; // 减少底部margin，从4px改为8px
+  margin: 16px 16px 8px 16px; // 减少底部margin，让categories更靠近search
 }
 
 .searchIcon {
@@ -35,8 +35,8 @@
 
 .categoriesContainer {
   background-color: #ffffff;
-  padding: 12px 0; // 移除左右padding，保持与原来一致
-  margin: 0 16px 6px 16px; // 保持现有margin
+  padding: 12px 0;
+  margin: 0 16px 8px 16px; // 减少顶部margin，让categories更靠近search
   display: flex;
 }
 

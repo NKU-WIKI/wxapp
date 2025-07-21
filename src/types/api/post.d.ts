@@ -63,6 +63,8 @@ export interface GetPostsParams {
   page?: number;
   page_size?: number;
   tab?: 'recommend' | 'hot' | 'new';
+  category_id?: number;
+  isAppend?: boolean; // 是否追加到现有列表
 }
 
 /**
