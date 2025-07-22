@@ -178,8 +178,10 @@ ${currentUserMessage.content}`;
     };
 
     try {
+      const Decoder = typeof TextDecoder !== 'undefined' ? TextDecoder : require('text-encoding').TextDecoder;
+      const decoder = new Decoder("utf-8");
       let fullContent = "";
-      const decoder = new TextDecoder("utf-8");
+
       const requestTask = wx.request({
         url: `${process.env.OPENAI_BASE_URL}/chat/completions`,
         method: "POST",
@@ -190,23 +192,18 @@ ${currentUserMessage.content}`;
         data: requestBody,
         responseType: "arraybuffer",
         enableChunked: true, // 关键：开启流式接收
-        success: (res) => {
-          if (res.statusCode !== 200) {
-            dispatch(setError(`请求失败: ${res.statusCode}`));
-            const errorContent = res.data
-              ? decoder.decode(res.data as ArrayBuffer)
-              : `Status Code: ${res.statusCode}`;
-            dispatch(
-              updateStreamingMessage({
-                messageId,
-                content: `Error: ${errorContent}`,
-                isComplete: true,
-              })
-            );
-          }
+        success: () => {
+          // 流式接收完成
+          dispatch(
+            updateStreamingMessage({
+              messageId,
+              content: fullContent,
+              isComplete: true,
+            })
+          );
         },
         fail: (err) => {
-          dispatch(setError(err.errMsg));
+          dispatch(setError(`请求错误: ${err.errMsg}`));
           dispatch(
             updateStreamingMessage({
               messageId,
@@ -217,14 +214,20 @@ ${currentUserMessage.content}`;
         },
       });
 
-      requestTask.onChunkReceived((res) => {
-        const chunk = decoder.decode(res.data as ArrayBuffer, { stream: true });
-        const lines = chunk.split("\n").filter((line) => line.trim() !== "");
+      let buffer = "";
+      requestTask.onChunkReceived((res: any) => {
+        const chunk = decoder.decode(res.data as ArrayBuffer);
+        buffer += chunk;
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // 保留不完整的行
 
         for (const line of lines) {
           if (line.startsWith("data: ")) {
-            const dataStr = line.substring(6);
-            if (dataStr === "[DONE]") {
+            const jsonStr = line.substring(6);
+            if (jsonStr.trim() === "[DONE]") {
+              // 服务端发送[DONE]表示结束，此时可以关闭请求
+              requestTask.abort(); // 主动断开连接
               dispatch(
                 updateStreamingMessage({
                   messageId,
@@ -232,14 +235,12 @@ ${currentUserMessage.content}`;
                   isComplete: true,
                 })
               );
-              requestTask.abort(); // 完成后中断请求
               return;
             }
             try {
-              const jsonData = JSON.parse(dataStr);
-              const deltaContent = jsonData.choices[0]?.delta?.content;
-              if (deltaContent) {
-                fullContent += deltaContent;
+              const parsed = JSON.parse(jsonStr);
+              if (parsed.choices && parsed.choices[0].delta.content) {
+                fullContent += parsed.choices[0].delta.content;
                 dispatch(
                   updateStreamingMessage({
                     messageId,
@@ -249,7 +250,7 @@ ${currentUserMessage.content}`;
                 );
               }
             } catch (e) {
-              console.error("Error parsing stream data:", e);
+              console.error("JSON parsing error:", line, e);
             }
           }
         }
@@ -257,12 +258,14 @@ ${currentUserMessage.content}`;
 
       return messageId;
     } catch (error) {
+      console.error("Streaming failed", error);
       const errorMessage =
         error instanceof Error ? error.message : "An unknown error occurred";
+      dispatch(setError(errorMessage));
       dispatch(
         updateStreamingMessage({
           messageId,
-          content: `Error: ${errorMessage}`,
+          content: `抱歉，出错了: ${errorMessage}`,
           isComplete: true,
         })
       );
