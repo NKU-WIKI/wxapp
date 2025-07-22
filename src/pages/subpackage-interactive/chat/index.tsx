@@ -1,4 +1,4 @@
-import { View, ScrollView, Text, Input, Button } from '@tarojs/components'
+import { View, ScrollView, Text, Textarea, Image } from '@tarojs/components'
 import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Taro from '@tarojs/taro'
@@ -6,41 +6,50 @@ import CustomHeader from '@/components/custom-header'
 import { ChatMessage } from '@/types/chat'
 import { 
   addMessage, 
-  streamMessageFromAI
+  streamMessageFromAI,
+  createSession
 } from '@/store/slices/chatSlice'
 import { RootState, AppDispatch } from '@/store'
 import styles from './index.module.scss'
+
+// 导入本地资源
+import RobotAvatar from '@/assets/robot.svg';
+import UserAvatar from '@/assets/profile.svg'; // 假设有一个用户头像
+import SendIcon from '@/assets/send.svg';
+import MenuIcon from '@/assets/more-horizontal.svg'; // 假设有一个菜单图标
+import ChatSidebar from './components/chat-sidebar';
 
 const Chat = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { 
     currentSession, 
     isTyping, 
-    error 
+    isLoading,
+    error,
+    sessions
   } = useSelector((state: RootState) => state.chat)
   
   const [inputText, setInputText] = useState('')
-  const [scrollTop, setScrollTop] = useState(0)
-
-  // 滚动到底部
-  const scrollToBottom = () => {
-    const query = Taro.createSelectorQuery()
-    query.select('.chat-content').scrollOffset()
-    query.exec((res) => {
-      if (res && res[0]) {
-        setScrollTop(res[0].scrollHeight)
-      }
-    })
-  }
+  const [scrollTop, setScrollTop] = useState(9999) // 初始化一个较大的值以滚动到底部
+  const scrollViewRef = useRef(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  
+  // 确保有一个当前会话
+  useEffect(() => {
+    // 如果没有会话，创建一个新会话
+    if (sessions.length === 0 || !currentSession) {
+      dispatch(createSession({ title: '新对话' }))
+    }
+  }, [dispatch, sessions.length, currentSession])
 
   // 当消息更新时自动滚动到底部
   useEffect(() => {
     if (currentSession?.messages && currentSession.messages.length > 0) {
-      setTimeout(() => {
-        scrollToBottom()
-      }, 100)
+      Taro.nextTick(() => {
+        setScrollTop(prev => prev + 10000) // 增加 scrollTop 以确保滚动到底部
+      })
     }
-  }, [currentSession?.messages?.length])
+  }, [currentSession?.messages?.length, isTyping])
 
   const handleSend = async () => {
     if (inputText.trim() && currentSession?.id) {
@@ -51,23 +60,16 @@ const Chat = () => {
         timestamp: Date.now()
       }
       
-      // 添加用户消息到 Redux store
       dispatch(addMessage(userMessage))
       
       const messageContent = inputText.trim()
       setInputText('')
       
-      // 发送消息到 AI (使用流式响应)
       dispatch(streamMessageFromAI({
         message: messageContent,
         sessionId: currentSession.id
       }))
     }
-  }
-
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp)
-    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
   }
 
   const renderMessage = (message: ChatMessage) => {
@@ -79,125 +81,91 @@ const Chat = () => {
     
     return (
       <View key={message.id} className={`${styles.messageItem} ${isUser ? styles.userMessage : styles.assistantMessage}`}>
-        {!isUser && (
-          <View className={styles.avatarWrapper}>
-            <View className={styles.avatar}>🤖</View>
-          </View>
-        )}
-        
+        <Image src={isUser ? UserAvatar : RobotAvatar} className={styles.avatar} />
         <View className={styles.messageContent}>
           <View className={`${styles.messageBubble} ${isUser ? styles.userBubble : styles.assistantBubble}`}>
-            <Text className={styles.messageText}>
-              {message.content}
-              {message.isStreaming && (
-                <Text className={styles.streamingCursor}>|</Text>
-              )}
-            </Text>
-          </View>
-          <View className={`${styles.messageTime} ${isUser ? styles.userTime : styles.assistantTime}`}>
-            {formatTime(message.timestamp)}
+            <Text selectable>{message.content}</Text>
+            {message.isStreaming && <View className={styles.streamingCursor} />}
           </View>
         </View>
-
-        {isUser && (
-          <View className={styles.avatarWrapper}>
-            <View className={styles.avatar}>👤</View>
-          </View>
-        )}
       </View>
     )
   }
 
   const renderWelcome = () => (
-    <View className={styles.welcomeArea}>
-      <View className={styles.welcomeIcon}>🤖</View>
-      <View className={styles.welcomeTitle}>你好！我是 AI 助手</View>
-      <View className={styles.welcomeDescription}>
-        我可以帮你回答问题、解决问题，或者只是聊聊天。请告诉我你需要什么帮助？
-      </View>
-      <View className={styles.welcomeFeatures}>
-        <View className={styles.featureItem}>💬 智能对话</View>
-        <View className={styles.featureItem}>🔄 流式响应</View>
-        <View className={styles.featureItem}>📝 代码生成</View>
-        <View className={styles.featureItem}>🎯 问题解答</View>
-      </View>
+    <View className={styles.welcomeContainer}>
+      <Image src={RobotAvatar} className={styles.welcomeLogo} />
+      <Text className={styles.welcomeTitle}>NKU-AI 助手</Text>
+      <Text className={styles.welcomeTip}>今天有什么可以帮到你？</Text>
     </View>
   )
 
   const renderTypingIndicator = () => (
-    <View className={styles.typingIndicator}>
-      <View className={styles.avatarWrapper}>
-        <View className={styles.avatar}>🤖</View>
-      </View>
-      <View className={styles.typingContent}>
-        <Text>AI 正在思考</Text>
-        <View className={styles.typingDots}>
-          <View className={styles.dot}></View>
-          <View className={styles.dot}></View>
-          <View className={styles.dot}></View>
+    <View className={`${styles.messageItem} ${styles.assistantMessage}`}>
+      <Image src={RobotAvatar} className={styles.avatar} />
+      <View className={styles.messageContent}>
+        <View className={`${styles.messageBubble} ${styles.assistantBubble}`}>
+          <View className={styles.typingIndicator}>
+            <View className={`${styles.dot} ${styles.dot1}`}></View>
+            <View className={`${styles.dot} ${styles.dot2}`}></View>
+            <View className={`${styles.dot} ${styles.dot3}`}></View>
+          </View>
         </View>
       </View>
     </View>
   )
 
-  const renderError = () => (
-    error && (
-      <View className={styles.errorMessage}>
-        <Text>{error}</Text>
-      </View>
-    )
-  )
-
   return (
-    <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
-      {/* 1. 顶部必须是统一的自定义导航栏 */}
-      <CustomHeader title="AI 助手" />
+    <View className={styles.chatPage}>
+      <CustomHeader 
+        title="AI 助手" 
+        leftIcon={MenuIcon}
+        onLeftClick={() => setIsSidebarOpen(true)}
+      />
       
-      {/* 2. 页面主体内容必须包裹在这个 View 和 ScrollView 中 */}
-      <View style={{ flex: 1, overflow: 'hidden' }}>
+      {isLoading ? (
+        <View className={styles.loadingContainer}>
+          <View className={styles.loadingSpinner}></View>
+          <Text className={styles.loadingText}>加载会话中...</Text>
+        </View>
+      ) : (
         <ScrollView 
+          ref={scrollViewRef}
           scrollY 
-          style={{ height: '100%' }} 
-          className={`${styles.chatContent} chat-content`}
+          className={styles.chatContainer}
           scrollTop={scrollTop}
           scrollWithAnimation
         >
-          {!currentSession?.messages?.length ? renderWelcome() : (
-            <View className={styles.messageList}>
-              {currentSession.messages?.filter(msg => msg && msg.id).map(renderMessage)}
-              {isTyping && renderTypingIndicator()}
-              {renderError()}
-            </View>
-          )}
+          {(!currentSession?.messages || currentSession.messages.length === 0) 
+            ? renderWelcome() 
+            : currentSession.messages.map(renderMessage)}
+          {isTyping && renderTypingIndicator()}
+          {error && <View className={styles.errorText}>{error}</View>}
         </ScrollView>
-      </View>
+      )}
 
-      {/* 3. 底部输入区域 */}
-      <View className={styles.inputContainer}>
-        <View className={styles.inputWrapper}>
-          <Input
-            type="text"
-            placeholder="输入你的问题..."
-            value={inputText}
-            onInput={(e) => setInputText(e.detail.value)}
-            confirmType="send"
-            onConfirm={handleSend}
-            className={styles.messageInput}
-            disabled={isTyping}
-          />
-          <Button 
-            type="primary"
-            size="mini"
-            onClick={handleSend}
-            disabled={!inputText.trim() || isTyping}
-            className={styles.sendButton}
-          >
-            {isTyping ? '发送中' : '发送'}
-          </Button>
+      {/* 侧边栏不需要额外的容器，直接渲染组件 */}
+      {isSidebarOpen && <ChatSidebar onClose={() => setIsSidebarOpen(false)} />}
+
+      <View className={styles.inputArea}>
+        <Textarea
+          className={styles.inputField}
+          placeholder='问我任何问题...'
+          value={inputText}
+          onInput={(e) => setInputText(e.detail.value)}
+          autoHeight
+          maxlength={-1}
+          showConfirmBar={false}
+          confirmType="send"
+          disabled={isTyping}
+          onConfirm={handleSend}
+        />
+        <View className={`${styles.sendButton} ${(!inputText.trim() || isTyping) ? styles.sendButtonDisabled : ''}`} onClick={handleSend}>
+          <Image src={SendIcon} className={styles.sendIcon} />
         </View>
       </View>
     </View>
   )
 }
 
-export default Chat 
+export default Chat

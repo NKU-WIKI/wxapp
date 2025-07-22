@@ -1,262 +1,228 @@
-// 聊天内容区域
-.chatContent {
-  padding: 16px;
-  background-color: #f5f5f5;
+/* 主容器 */
+.chatPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f0f2f5; // 柔和的背景色
 }
 
-// 欢迎区域
-.welcomeArea {
+/* 聊天内容区域 */
+.chatContainer {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* 欢迎界面 */
+.welcomeContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
+  height: 100%;
   text-align: center;
-  padding: 32px 24px;
+  color: #5f6368;
+
+  .welcomeLogo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 20px;
+  }
+
+  .welcomeTitle {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f1f1f;
+    margin-bottom: 8px;
+  }
+
+  .welcomeTip {
+    font-size: 16px;
+    color: #5f6368;
+  }
 }
 
-.welcomeIcon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.welcomeTitle {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 12px;
-}
-
-.welcomeDescription {
-  font-size: 16px;
-  color: #666;
-  line-height: 1.5;
-  max-width: 300px;
-  margin-bottom: 24px;
-}
-
-.welcomeFeatures {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  max-width: 320px;
-}
-
-.featureItem {
-  background-color: rgba(74, 144, 226, 0.1);
-  border: 1px solid rgba(74, 144, 226, 0.2);
-  border-radius: 16px;
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #4a90e2;
-  white-space: nowrap;
-}
-
-// 消息列表
-.messageList {
-  padding: 16px 0;
-}
-
+/* 消息项 */
 .messageItem {
   display: flex;
-  margin-bottom: 16px;
-  align-items: flex-start;
-  
-  &.userMessage {
-    flex-direction: row-reverse;
-  }
-  
-  &.assistantMessage {
-    flex-direction: row;
-  }
-}
+  margin-bottom: 20px;
+  max-width: 85%;
 
-.avatarWrapper {
-  flex-shrink: 0;
-  margin: 0 8px;
-}
-
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  border: 1px solid #e0e0e0;
-}
-
-.messageContent {
-  flex: 1;
-  max-width: calc(100% - 60px);
-}
-
-.messageBubble {
-  padding: 12px 16px;
-  border-radius: 18px;
-  font-size: 16px;
-  line-height: 1.4;
-  word-wrap: break-word;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  position: relative;
-  
-  &.userBubble {
-    background-color: #4a90e2;
-    color: #fff;
-    border-radius: 18px 18px 4px 18px;
-  }
-  
-  &.assistantBubble {
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #e0e0e0;
-    border-radius: 18px 18px 18px 4px;
-  }
-}
-
-.messageText {
-  white-space: pre-wrap;
-}
-
-.messageTime {
-  font-size: 12px;
-  color: #999;
-  margin-top: 4px;
-  padding: 0 4px;
-  
-  &.userTime {
-    text-align: right;
-  }
-  
-  &.assistantTime {
-    text-align: left;
-  }
-}
-
-// 输入区域
-.inputContainer {
-  background-color: #fff;
-  border-top: 1px solid #e0e0e0;
-  padding: 12px 16px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.inputWrapper {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.messageInput {
-  flex: 1;
-  background-color: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 24px;
-  padding: 12px 16px;
-  font-size: 16px;
-  min-height: 20px;
-}
-
-.sendButton {
-  background-color: #4a90e2;
-  color: #fff;
-  border-radius: 24px;
-  padding: 12px 20px;
-  font-size: 16px;
-  font-weight: 500;
-  min-width: 64px;
-  border: none;
-  
-  &::after {
-    border: none;
-  }
-}
-
-// 加载指示器
-.loadingIndicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  color: #999;
-  font-size: 14px;
-}
-
-.typingIndicator {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 16px;
-  gap: 8px;
-}
-
-.typingContent {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.typingDots {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  
-  .dot {
-    width: 6px;
-    height: 6px;
+  .avatar {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background-color: #999;
-    animation: typing 1.4s infinite ease-in-out;
-    
-    &:nth-child(1) {
-      animation-delay: 0s;
-    }
-    
-    &:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    
-    &:nth-child(3) {
-      animation-delay: 0.4s;
-    }
+    flex-shrink: 0;
+  }
+
+  .messageContent {
+    display: flex;
+    flex-direction: column;
+    margin: 0 12px;
+  }
+
+  .messageBubble {
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 16px;
+    line-height: 1.5;
+    word-break: break-word;
+    position: relative;
   }
 }
 
-@keyframes typing {
-  0%, 60%, 100% {
-    transform: scale(0.8);
-    opacity: 0.5;
-  }
-  30% {
-    transform: scale(1.2);
-    opacity: 1;
+/* 用户消息 */
+.userMessage {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+
+  .userBubble {
+    background-color: #d6e4ff; // 柔和的蓝色
+    color: #1f1f1f;
+    border-top-right-radius: 4px;
   }
 }
 
+/* AI 助手消息 */
+.assistantMessage {
+  align-self: flex-start;
+
+  .assistantBubble {
+    background-color: #ffffff;
+    color: #1f1f1f;
+    border-top-left-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* 流式光标 */
 .streamingCursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background-color: #000;
   animation: blink 1s infinite;
-  color: #4a90e2;
-  font-weight: bold;
+  vertical-align: text-bottom;
+  margin-left: 4px;
 }
 
 @keyframes blink {
-  0%, 50% {
-    opacity: 1;
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 输入区域 */
+.inputArea {
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 20px;
+  background-color: #ffffff;
+  border-top: 1px solid #e0e0e0;
+
+  .inputField {
+    flex: 1;
+    min-height: 24px;
+    max-height: 120px; // 限制最大高度
+    padding: 10px 16px;
+    border-radius: 22px;
+    background-color: #f0f2f5;
+    border: none;
+    font-size: 16px;
+    line-height: 1.5;
+    outline: none;
+    resize: none; // 禁止用户调整大小
   }
-  51%, 100% {
-    opacity: 0;
+
+  .sendButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-left: 12px;
+    border-radius: 50%;
+    background-color: #1a73e8; // Google 蓝色
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    .sendIcon {
+      width: 24px;
+      height: 24px;
+    }
+
+    &:hover {
+      background-color: #185abc;
+    }
+  }
+
+  .sendButtonDisabled {
+    background-color: #a0c3ff;
+    cursor: not-allowed;
   }
 }
 
-.errorMessage {
-  background-color: #ffebee;
-  border: 1px solid #ffcdd2;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin: 8px 0;
-  color: #c62828;
-  font-size: 14px;
+/* 打字指示器 */
+.typingIndicator {
+  display: flex;
+  align-items: center;
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #909090;
+    margin: 0 2px;
+    animation: typing 1.4s infinite both;
+  }
+
+  .dot1 { animation-delay: 0s; }
+  .dot2 { animation-delay: 0.2s; }
+  .dot3 { animation-delay: 0.4s; }
+}
+
+@keyframes typing {
+  0% { transform: scale(0); }
+  40% { transform: scale(1); }
+  80%, 100% { transform: scale(0); }
+}
+
+/* 错误提示 */
+.errorText {
+  color: red;
   text-align: center;
-} 
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* 加载状态容器 */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 120px); // 减去头部和输入区域的高度
+}
+
+/* 加载动画 */
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #1890ff;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 加载文本 */
+.loadingText {
+  font-size: 16px;
+  color: #666;
+}
+
+/* 侧边栏样式已移至组件内部，此处不再需要 */

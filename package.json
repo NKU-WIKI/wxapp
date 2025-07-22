@@ -39,6 +39,7 @@
     "react": "^18.0.0",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",
+    "redux-persist": "^6.0.0",
     "taro-skeleton": "^2.0.4",
     "taro-ui": "^3.3.0"
   },

@@ -1,5 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { ChatMessage, ChatSession, OpenAIRequestParams } from '@/types/chat'
+import Taro from '@tarojs/taro'
+
+declare const wx: any;
 
 // 聊天状态接口
 interface ChatState {
@@ -26,17 +29,19 @@ const createDefaultSession = (): ChatSession => ({
 })
 
 // 初始状态
-const defaultSession = createDefaultSession()
+const initialSessions = [createDefaultSession()]
+const initialCurrentSession = initialSessions[0]
+
 const initialState: ChatState = {
-  currentSession: defaultSession,
-  sessions: [defaultSession],
+  currentSession: initialCurrentSession,
+  sessions: initialSessions,
   isTyping: false,
   isLoading: false,
   error: null,
   config: {
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4o',
     temperature: 0.7,
-    maxTokens: 1000,
+    maxTokens: 4096, // gpt-4o 支持更大的上下文
     enableStreaming: true
   }
 }
@@ -45,9 +50,9 @@ const initialState: ChatState = {
 export const sendMessageToAI = createAsyncThunk(
   'chat/sendMessageToAI',
   async (params: {
-    message: string
+    message: string,
     sessionId: string
-  }, { getState, rejectWithValue }) => {
+  }, { rejectWithValue }) => {
     try {
       // 这里是 mock 实现，实际应用中会调用 OpenAI API
       await new Promise(resolve => setTimeout(resolve, 1500))
@@ -69,44 +74,94 @@ export const sendMessageToAI = createAsyncThunk(
 // 异步 thunk：流式接收 AI 消息
 export const streamMessageFromAI = createAsyncThunk(
   'chat/streamMessageFromAI',
-  async (params: {
-    message: string
-    sessionId: string
-  }, { dispatch, rejectWithValue }) => {
+  async (_: { message: string, sessionId: string }, { dispatch, getState, rejectWithValue }) => {
+    const state = getState() as { chat: ChatState };
+    const { config, currentSession } = state.chat;
+
+    if (!currentSession) {
+      return rejectWithValue('No active session');
+    }
+
+    const messageId = `ai_stream_${Date.now()}`;
+    const initialMessage: ChatMessage = {
+      id: messageId,
+      content: '',
+      role: 'assistant',
+      timestamp: Date.now(),
+      isStreaming: true
+    };
+    dispatch(addMessage(initialMessage));
+
+    const requestBody: OpenAIRequestParams = {
+      model: config.model,
+      messages: currentSession.messages.map(m => ({ role: m.role, content: m.content })),
+      temperature: config.temperature,
+      max_tokens: config.maxTokens,
+      stream: true
+    };
+
     try {
-      // 模拟流式响应
-      const messageId = `ai_stream_${Date.now()}`
-      const fullResponse = `这是一个模拟的流式 AI 回复，针对你的问题："${params.message}"。我会逐字显示这个回复内容，就像真实的 AI 助手一样。`
-      
-      // 创建初始消息
-      const initialMessage: ChatMessage = {
-        id: messageId,
-        content: '',
-        role: 'assistant',
-        timestamp: Date.now(),
-        isStreaming: true
-      }
-      
-      dispatch(addMessage(initialMessage))
-      
-      // 模拟逐字显示
-      for (let i = 0; i <= fullResponse.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, 50))
-        const partialContent = fullResponse.slice(0, i)
-        
-        dispatch(updateStreamingMessage({
-          messageId,
-          content: partialContent,
-          isComplete: i === fullResponse.length
-        }))
-      }
-      
-      return messageId
+      let fullContent = '';
+      const decoder = new TextDecoder('utf-8');
+      const requestTask = wx.request({
+        url: `${process.env.OPENAI_BASE_URL}/chat/completions`,
+        method: 'POST',
+        header: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        },
+        data: requestBody,
+        responseType: 'arraybuffer',
+        enableChunked: true, // 关键：开启流式接收
+        success: (res) => {
+          if (res.statusCode !== 200) {
+            dispatch(setError(`请求失败: ${res.statusCode}`));
+            const errorContent = res.data ? decoder.decode(res.data as ArrayBuffer) : `Status Code: ${res.statusCode}`;
+            dispatch(updateStreamingMessage({ messageId, content: `Error: ${errorContent}`, isComplete: true }));
+          }
+        },
+        fail: (err) => {
+          dispatch(setError(err.errMsg));
+          dispatch(updateStreamingMessage({ messageId, content: `Error: ${err.errMsg}`, isComplete: true }));
+        }
+      });
+
+      requestTask.onChunkReceived((res) => {
+        const chunk = decoder.decode(res.data as ArrayBuffer, { stream: true });
+        const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.substring(6);
+            if (dataStr === '[DONE]') {
+              dispatch(updateStreamingMessage({ messageId, content: fullContent, isComplete: true }));
+              requestTask.abort(); // 完成后中断请求
+              return;
+            }
+            try {
+              const jsonData = JSON.parse(dataStr);
+              const deltaContent = jsonData.choices[0]?.delta?.content;
+              if (deltaContent) {
+                fullContent += deltaContent;
+                dispatch(updateStreamingMessage({ messageId, content: fullContent, isComplete: false }));
+              }
+            } catch (e) {
+              console.error('Error parsing stream data:', e);
+            }
+          }
+        }
+      });
+
+
+      return messageId;
+
     } catch (error) {
-      return rejectWithValue('流式接收失败，请重试')
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      dispatch(updateStreamingMessage({ messageId, content: `Error: ${errorMessage}`, isComplete: true }));
+      return rejectWithValue(errorMessage);
     }
   }
-)
+);
 
 const chatSlice = createSlice({
   name: 'chat',
@@ -133,6 +188,44 @@ const chatSlice = createSlice({
       if (session) {
         state.currentSession = session
         state.error = null
+      }
+    },
+
+    // 删除会话
+    deleteSession: (state, action: PayloadAction<string>) => {
+      const sessionIdToDelete = action.payload;
+      const sessionIndex = state.sessions.findIndex(s => s.id === sessionIdToDelete);
+
+      if (sessionIndex === -1) return;
+
+      state.sessions.splice(sessionIndex, 1);
+
+      // 如果删除的是当前会话，则切换到另一个会话
+      if (state.currentSession?.id === sessionIdToDelete) {
+        if (state.sessions.length > 0) {
+          // 优先切换到前一个会话，否则切换到后一个，或第一个
+          const newCurrentIndex = Math.max(0, sessionIndex - 1);
+          state.currentSession = state.sessions[newCurrentIndex];
+        } else {
+          // 如果没有会话了，创建一个新的
+          const newSession = createDefaultSession();
+          state.sessions.push(newSession);
+          state.currentSession = newSession;
+        }
+      }
+    },
+
+    // 重命名会话
+    renameSession: (state, action: PayloadAction<{ id: string; title: string }>) => {
+      const { id, title } = action.payload
+      const session = state.sessions.find(s => s.id === id)
+      if (session) {
+        session.title = title
+        session.updatedAt = Date.now()
+        if (state.currentSession?.id === id) {
+          state.currentSession.title = title
+          state.currentSession.updatedAt = Date.now()
+        }
       }
     },
     
@@ -187,16 +280,6 @@ const chatSlice = createSlice({
         state.currentSession.updatedAt = Date.now()
       }
       state.error = null
-    },
-    
-    // 删除会话
-    deleteSession: (state, action: PayloadAction<string>) => {
-      state.sessions = state.sessions.filter(s => s.id !== action.payload)
-      
-      // 如果删除的是当前会话，切换到第一个会话或创建新会话
-      if (state.currentSession?.id === action.payload) {
-        state.currentSession = state.sessions.length > 0 ? state.sessions[0] : null
-      }
     },
     
     // 设置打字状态
@@ -261,6 +344,7 @@ const chatSlice = createSlice({
 export const {
   createSession,
   switchSession,
+  renameSession,
   addMessage,
   updateStreamingMessage,
   deleteMessage,
@@ -273,4 +357,4 @@ export const {
   resetChatState
 } = chatSlice.actions
 
-export default chatSlice.reducer 
+export default chatSlice.reducer

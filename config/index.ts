@@ -1,4 +1,7 @@
 import { defineConfig, type UserConfigExport } from "@tarojs/cli";
+import dotenv from 'dotenv';
+
+dotenv.config();
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import path from "path";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";

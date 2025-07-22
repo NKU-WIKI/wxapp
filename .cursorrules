@@ -13,6 +13,8 @@
 
 **请在开始开发前，务必熟悉与您工作内容相关的规范文档。**
 
+**禁止自己运行npm run dev编译，你只需要改代码**
+
 ---
 ## 核心规范摘要
 
@@ -21,7 +23,7 @@
 - **技术栈**: Taro 4.x, React, Redux, TypeScript, SCSS。
 - **核心依赖**: 项目依赖 `@tarojs/plugin-framework-react`, `@tarojs/plugin-platform-weapp`, `babel-preset-taro` 等核心插件。
 - **目录结构**: 遵循官方推荐，对 `src` 目录进行精细化划分 (`assets`, `components`, `constants`, `pages`, `services`, `store`, `types`)。
-- **核心模块**: 首页、发现、发布、消息、我的。
+- **核心模块**: 首页、探索、发现、我的。
 
 ### 编码规范 (style-guide.mdc)
 - **命名**: 目录和非组件文件用 `kebab-case`，React 组件用 `PascalCase`，变量和函数用 `camelCase`，常量用 `UPPER_SNAKE_CASE`。

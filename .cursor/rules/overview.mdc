@@ -44,12 +44,18 @@ alwaysApply: true
 │   ├── assets               # 静态资源 (图片、字体等)
 │   ├── components           # 全局可复用组件
 │   ├── constants            # 全局常量
-│   ├── pages                # 页面
-│   │   └── page-name        # 以页面为单位创建文件夹
-│   │       ├── components   # 页面级私有组件
-│   │       ├── index.config.ts
-│   │       ├── index.module.scss
-│   │       └── index.tsx
+│   ├── pages                # 页面目录
+│   │   ├── home             # 主包页面
+│   │   ├── explore          # ...
+│   │   ├── discover
+│   │   ├── profile
+│   │   ├── subpackage-interactive # 分包-互动
+│   │   │   └── chat         # 聊天页面
+│   │   │       ├── index.config.ts
+│   │   │       ├── index.module.scss
+│   │   │       └── index.tsx
+│   │   └── subpackage-profile   # 分包-个人中心
+│   │       └── ...
 │   ├── services             # API 请求服务
 │   │   ├── api              # 按模块划分的 API
 │   │   ├── mock.ts

@@ -1,7 +1,8 @@
 import { PropsWithChildren } from 'react'
 import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
 import 'taro-ui/dist/style/index.scss'
-import { store } from './store'
+import { store, persistor } from './store'
 import { initTabBarSync } from './utils/tabBarSync'
 import './app.scss'
 
@@ -29,7 +30,13 @@ initTabBarSync();
 function App({ children }: PropsWithChildren) {
   // The auth check is handled by the initial state in userSlice,
   // so the useEffect hook for checkAuth is not needed here.
-  return <Provider store={store}>{children}</Provider>
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        {children}
+      </PersistGate>
+    </Provider>
+  )
 }
 
 export default App

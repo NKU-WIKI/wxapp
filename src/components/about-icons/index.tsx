@@ -3,12 +3,14 @@ import { View, Image } from '@tarojs/components';
 import styles from './index.module.scss';
 
 interface IconProps {
-  type: 'globe' | 'email' | 'github' | 'arrow-right';
+  type: 'globe' | 'email' | 'github' | 'arrow-right' | 'pen-tool' | 'x';
   size?: number;
   color?: string;
+  onClick?: (e: any) => void;
+  className?: string;
 }
 
-const AboutIcon: React.FC<IconProps> = ({ type, size = 20, color = '#000000' }) => {
+const AboutIcon: React.FC<IconProps> = ({ type, size = 20, color = '#000000', onClick, className }) => {
   const getIconSrc = () => {
     switch (type) {
       case 'globe':
@@ -19,6 +21,10 @@ const AboutIcon: React.FC<IconProps> = ({ type, size = 20, color = '#000000' }) 
         return require('../../assets/github.svg');
       case 'arrow-right':
         return require('../../assets/arrow-right.svg');
+      case 'pen-tool':
+        return require('../../assets/pen-tool.svg');
+      case 'x':
+        return require('../../assets/x.png');
       default:
         return '';
     }
@@ -26,11 +32,12 @@ const AboutIcon: React.FC<IconProps> = ({ type, size = 20, color = '#000000' }) 
 
   return (
     <View 
-      className={styles.icon}
+      className={`${styles.icon} ${className || ''}`}
       style={{
         width: `${size}px`,
         height: `${size}px`
       }}
+      onClick={onClick}
     >
       <Image
         src={getIconSrc()}
@@ -45,4 +52,4 @@ const AboutIcon: React.FC<IconProps> = ({ type, size = 20, color = '#000000' }) 
   );
 };
 
-export default AboutIcon; 
+export default AboutIcon;

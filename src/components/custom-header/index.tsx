@@ -23,6 +23,8 @@ interface CustomHeaderProps {
   showWikiButton?: boolean;
   renderRight?: React.ReactNode; // Add rightContent prop
   background?: string;
+  leftIcon?: string;
+  onLeftClick?: () => void;
 }
 
 const CustomHeader = ({
@@ -32,6 +34,8 @@ const CustomHeader = ({
   showWikiButton = false,
   renderRight, // Destructure rightContent
   background = "#FFFFFF",
+  leftIcon,
+  onLeftClick,
 }: CustomHeaderProps) => {
   const [navStyle, setNavStyle] = React.useState<NavStyle>({
     navBarHeight: 88, // 默认总高度
@@ -84,7 +88,7 @@ const CustomHeader = ({
   };
 
   const handleWikiClick = () => {
-    //
+    Taro.navigateTo({ url: '/pages/subpackage-interactive/chat/index' });
   };
 
   const handleNotificationClick = () => {
@@ -119,6 +123,11 @@ const CustomHeader = ({
         <View className={styles.navBarContent} style={contentStyle}>
           {/* 左侧区域 */}
           <View className={styles.left} style={leftIconStyle}>
+            {leftIcon && (
+              <View onClick={onLeftClick} className={styles.iconWrapper}>
+                <Image src={leftIcon} className={styles.backIcon} />
+              </View>
+            )}
             {!hideBack && (
               <View onClick={handleBack} className={styles.iconWrapper}>
                 <Image src={backIcon} className={styles.backIcon} />
