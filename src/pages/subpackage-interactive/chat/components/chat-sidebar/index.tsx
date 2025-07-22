@@ -42,7 +42,7 @@ const ChatSidebar = ({ onClose }: ChatSidebarProps) => {
   }, [])
 
   const handleCreateSession = () => {
-    dispatch(createSession({ title: '新对话' }))
+    dispatch(createSession())
     onClose()
   }
 

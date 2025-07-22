@@ -24,8 +24,12 @@ interface PostItemProps {
 }
 
 const PostItem = ({ post, className = "" }: PostItemProps) => {
+  if (!post || !post.author_info) {
+    // 如果 post 或 post.author_info 数据不存在，可以渲染一个骨架屏或直接返回 null
+    return null; // 或者返回一个加载状态的组件
+  }
   const dispatch = useDispatch<AppDispatch>();
-  const { userInfo, token } = useSelector((state: RootState) => state.user);
+  const { userInfo, token } = useSelector((state: RootState) => state.user || { userInfo: null, token: null });
 
   // 检查是否登录
   const checkLogin = () => {

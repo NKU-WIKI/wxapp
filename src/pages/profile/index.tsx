@@ -77,7 +77,7 @@ const Profile = () => {
     const routes: { [key: string]: string } = {
       likes: '/pages/likes/index',
       comments: '/pages/comments/index',
-      drafts: '/pages/drafts/index',
+      drafts: '/pages/subpackage-profile/draft-box/index',
       history: '/pages/history/index',
       feedback: '/pages/feedback/index',
       about: '/pages/subpackage-profile/about/index',

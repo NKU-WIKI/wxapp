@@ -10,6 +10,7 @@ import emptyIcon from "@/assets/empty.svg";
 import styles from "./index.module.scss";
 import CustomHeader from "@/components/custom-header";
 import { AppDispatch, RootState } from "@/store";
+import { Post } from "@/types/api/post.d";
 import { fetchPosts } from "@/store/slices/postSlice";
 import { fetchUserProfile } from "@/store/slices/userSlice";
 import searchIcon from "@/assets/search.svg";
@@ -46,9 +47,9 @@ export default function Home() {
   console.log("--- HOME COMPONENT RENDER CHECK (PRODUCTION) ---");
   const dispatch = useDispatch<AppDispatch>();
   const { list: posts, loading, pagination } = useSelector(
-    (state: RootState) => state.post
+    (state: RootState) => state.post || { list: [] as Post[], loading: 'idle', pagination: null }
   );
-  const { isLoggedIn } = useSelector((state: RootState) => state.user);
+  const { isLoggedIn } = useSelector((state: RootState) => state.user || { isLoggedIn: false });
   const isLoading = loading === "pending";
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -57,7 +58,7 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchPosts({ page: 1, pageSize: 5, isAppend: false }));
+    dispatch(fetchPosts({ page: 1, page_size: 5, isAppend: false }));
     setPage(1);
   }, [dispatch]);
 
@@ -73,9 +74,9 @@ export default function Home() {
 
     setIsRefreshing(true);
     try {
-      const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
+      const params: { page: number; page_size: number; category_id?: number; isAppend: boolean } = {
         page: 1,
-        pageSize: 5,
+        page_size: 5,
         isAppend: false, // 刷新时不追加，替换所有内容
       };
 
@@ -99,9 +100,9 @@ export default function Home() {
     setIsLoadingMore(true);
     try {
       const nextPage = page + 1;
-      const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
+      const params: { page: number; page_size: number; category_id?: number; isAppend: boolean } = {
         page: nextPage,
-        pageSize: 5,
+        page_size: 5,
         isAppend: true, // 加载更多时追加到现有帖子后面
       };
 
@@ -122,9 +123,9 @@ export default function Home() {
   };
 
   const handleCategorySelect = (categoryId: number | null) => {
-    const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
+    const params: { page: number; page_size: number; category_id?: number; isAppend: boolean } = {
       page: 1,
-      pageSize: 5,
+      page_size: 5,
       isAppend: false, // 分类筛选时不追加，替换内容
     };
     if (categoryId) {
@@ -139,9 +140,9 @@ export default function Home() {
     const newSelectedCategory = selectedCategory === categoryName ? null : categoryName;
     setSelectedCategory(newSelectedCategory);
 
-    const params: { page: number; pageSize: number; category_id?: number; isAppend: boolean } = {
+    const params: { page: number; page_size: number; category_id?: number; isAppend: boolean } = {
       page: 1,
-      pageSize: 5,
+      page_size: 5,
       isAppend: false, // 分类筛选时不追加，替换内容
     };
     dispatch(fetchPosts(params));
@@ -164,15 +165,17 @@ export default function Home() {
       );
     }
 
-    const content = posts.map((post) => (
-      <PostItem key={post.id} post={post} className={styles.postListItem} />
-    ));
+    const content = posts
+      .filter((post) => post && post.id && post.author_info)
+      .map((post) => (
+        <PostItem key={post.id} post={post} className={styles.postListItem} />
+      ));
 
     // 添加加载更多的骨架屏
     if (isLoadingMore) {
       content.push(
         ...Array.from({ length: 2 }).map((_, index) => (
-          <PostItemSkeleton key={`loading-${index}`} className={styles.postListItem} />
+          <PostItemSkeleton key={`loading-skeleton-${index}`} className={styles.postListItem} />
         ))
       );
     }

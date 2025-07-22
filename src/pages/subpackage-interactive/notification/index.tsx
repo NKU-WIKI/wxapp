@@ -22,7 +22,7 @@ const mockNotifications = {
 
 const NotificationPage = () => {
   const [currentTab, setCurrentTab] = useState(0)
-  const tabList = [{ title: '点赞' }, { title: '收藏' }, { title: '评论' }]
+  const tabList = [{ title: '点赞' }, { title: '收藏' }, { title: '评论' }].map((item, index) => ({ ...item, id: index }));
 
   const renderHeaderRight = () => (
     <Image src={moreIcon} className={styles.moreIcon} />
@@ -71,4 +71,4 @@ const NotificationPage = () => {
   );
 };
 
-export default NotificationPage; 
+export default NotificationPage;

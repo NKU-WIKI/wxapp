@@ -26,7 +26,7 @@ const DraftBox = () => {
 
   const handleEdit = (draft: DraftPost) => {
     Taro.navigateTo({
-      url: `/pages/publish/index?draftId=${draft.id}`
+      url: `/pages/subpackage-interactive/publish/index?draftId=${draft.id}`
     });
   };
 
@@ -87,4 +87,4 @@ const DraftBox = () => {
   );
 };
 
-export default DraftBox; 
+export default DraftBox;

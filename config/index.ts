@@ -28,6 +28,7 @@ export default defineConfig<"webpack5">(async (merge) => {
     plugins: ["@tarojs/plugin-generator", "@tarojs/plugin-html"],
     defineConstants: {
       APP_NAME: JSON.stringify(packageJson.name),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     },
     alias: {
       '@': path.resolve(__dirname, '..', 'src'),
@@ -167,7 +168,6 @@ export default defineConfig<"webpack5">(async (merge) => {
       },
     },
   };
-  process.env.BROWSERSLIST_ENV = process.env.NODE_ENV;
   if (process.env.NODE_ENV === "development") {
     // 本地开发构建配置（不混淆压缩）
     return merge({}, baseConfig, devConfig);

@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import Taro from '@tarojs/taro';
 import { PaginatedData, Pagination } from '@/types/api/common';
 import { GetPostsParams, Post } from '@/types/api/post';
+import { User } from '@/types/api/user';
 import postApi from '@/services/api/post';
 import actionApi from '@/services/api/action';
 import { ToggleActionParams, ToggleActionResponse } from '@/types/api/action.d';
@@ -183,10 +184,25 @@ const postsSlice = createSlice({
         (state, action: PayloadAction<{ items: Post[]; pagination: Pagination; isAppend: boolean }>) => {
           state.loading = 'succeeded';
           
-          // 处理返回的帖子列表，应用本地存储的点赞状态
+          // 定义一个默认的作者信息，以防API返回的数据不完整
+          const defaultAuthor: User = {
+            id: -1,
+            nickname: '未知用户',
+            avatar: 'https://via.placeholder.com/150', // 一个默认头像
+            gender: 0,
+            level: '0',
+            bio: '该用户很神秘，什么也没留下',
+          };
+
+          // 处理返回的帖子列表，应用本地存储的点赞状态和默认作者信息
           const processedItems = action.payload.items.map(post => {
             let updatedPost = { ...post };
-            
+
+            // 如果 author_info 不存在或不完整，则使用默认值
+            if (!updatedPost.author_info) {
+              updatedPost.author_info = defaultAuthor;
+            }
+
             // 检查本地存储的点赞状态
             const localLikeState = getUserLikeState(post.id);
             if (localLikeState) {
