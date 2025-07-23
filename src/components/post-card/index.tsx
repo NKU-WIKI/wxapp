@@ -22,7 +22,26 @@ interface PostCardProps {
 
 const PostCard = ({ post, className = "" }: PostCardProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoggedIn, token } = useSelector((state: RootState) => state.user);
+  const userState = useSelector((state: RootState) => state.user);
+  const isLoggedIn = userState?.isLoggedIn || false;
+  const token = userState?.token || null;
+  
+  // 从 Redux 中获取最新的帖子状态
+  const postState = useSelector((state: RootState) => state.post);
+  const posts = postState?.list || [];
+  const currentPostFromRedux = posts.find(p => p.id === post.id);
+  
+  // 使用 Redux 中的状态，如果 Redux 中没有则使用 props 中的
+  const displayPost = currentPostFromRedux || post;
+  
+  // 确保布尔值转换正确
+  const isLiked = displayPost.is_liked === true;
+  const isFavorited = displayPost.is_favorited === true;
+  
+  // 使用帖子的 like_count 和 favorite_count 属性，如果为 undefined 则显示 0
+  // 如果用户已点赞/收藏但数量为0，则显示1
+  const likeCount = isLiked && displayPost.like_count === 0 ? 1 : (displayPost.like_count || 0);
+  const favoriteCount = isFavorited && displayPost.favorite_count === 0 ? 1 : (displayPost.favorite_count || 0);
   
   const navigateToDetail = () => {
     Taro.navigateTo({
@@ -54,15 +73,40 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
         postId: post.id, 
         actionType: action
       }))
-      .then(response => {
-        console.log(`${action}操作成功:`, response);
+      .then((result: any) => {
+        if (result.payload && result.payload.response) {
+          const { is_active } = result.payload.response;
+          
+          // 显示提示
+          Taro.showToast({
+            title: action === 'like' 
+              ? (is_active ? '点赞成功' : '已取消点赞') 
+              : (is_active ? '收藏成功' : '已取消收藏'),
+            icon: 'none',
+            duration: 1500
+          });
+        }
       })
       .catch(error => {
         console.error(`${action}操作失败:`, error);
-        Taro.showToast({
-          title: '操作失败，请重试',
-          icon: 'none'
-        });
+        
+        // 如果是401错误，提示用户重新登录
+        if (error.statusCode === 401) {
+          Taro.showModal({
+            title: '登录已过期',
+            content: '请重新登录后重试',
+            success: (res) => {
+              if (res.confirm) {
+                Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+              }
+            }
+          });
+        } else {
+          Taro.showToast({
+            title: '操作失败，请重试',
+            icon: 'none'
+          });
+        }
       });
     } else if (action === 'comment') {
       // 跳转到详情页并聚焦评论区
@@ -203,8 +247,8 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
           <ActionButton
             icon={heartIcon}
             activeIcon={heartActiveIcon}
-            count={post.like_count}
-            isActive={post.is_liked}
+            count={likeCount}
+            isActive={isLiked}
             action="like"
           />
           <ActionButton
@@ -217,8 +261,8 @@ const PostCard = ({ post, className = "" }: PostCardProps) => {
           <ActionButton
             icon={starIcon}
             activeIcon={starActiveIcon}
-            count={post.favorite_count}
-            isActive={post.is_favorited}
+            count={favoriteCount}
+            isActive={isFavorited}
             action="favorite"
           />
         </View>

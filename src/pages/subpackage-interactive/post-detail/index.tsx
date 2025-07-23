@@ -12,12 +12,14 @@ import { fetchComments } from '@/store/slices/commentSlice';
 import { AppDispatch, RootState } from '@/store';
 import EmptyState from '@/components/empty-state';
 import emptyIcon from '@/assets/empty.svg';
+import { PostsState } from '@/store/slices/postSlice';
+import { CommentState } from '@/store/slices/commentSlice';
 
 const PostDetailPage = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { currentPost, detailLoading, error } = useSelector((state: RootState) => state.post);
-  const { comments, loading: commentsLoading, error: commentsError } = useSelector((state: RootState) => state.comment);
+  const { currentPost, detailLoading, error } = useSelector((state: RootState) => state.post as PostsState);
+  const { comments, loading: commentsLoading, error: commentsError } = useSelector((state: RootState) => state.comment as CommentState);
   
   // 从路由参数中获取帖子ID
   const postId = Number(router.params.id);
@@ -72,6 +74,7 @@ const PostDetailPage = () => {
     <View className={styles.postDetailPage}>
       <CustomHeader title="帖子详情" hideBack={false} background="#FFFFFF" />
       <ScrollView scrollY className={styles.scrollView}>
+        <View style={{ height: 81 }} />
         <View className={styles.mainContent}>
           {renderContent()}
         </View>

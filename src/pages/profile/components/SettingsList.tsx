@@ -6,6 +6,7 @@ import styles from './SettingsList.module.scss'
 import heartIcon from '@/assets/heart-outline.svg';
 import messageSquareIcon from '@/assets/message-square.svg';
 import starIcon from '@/assets/star-filled.svg';
+import draftIcon from '@/assets/draft.png';
 import userIcon from '@/assets/user.svg';
 import settingsIcon from '@/assets/settings.svg';
 import historyIcon from '@/assets/history.svg';
@@ -17,8 +18,9 @@ import arrowRightIcon from '@/assets/arrow-right.svg';
 const SettingsList = () => {
   const menuItems = [
     { icon: heartIcon, text: '我的点赞', link: '/pages/likes/index' },
+    { icon: starIcon, text: '我的收藏', link: '/pages/subpackage-profile/favorites/index' },
     { icon: messageSquareIcon, text: '我的评论', link: '/pages/comments/index' },
-    { icon: starIcon, text: '草稿箱', link: '/pages/drafts/index' },
+    { icon: draftIcon, text: '草稿箱', link: '/pages/drafts/index' },
     { icon: userIcon, text: '关于我们', link: '/pages/about/index' },
     { icon: settingsIcon, text: '设置', link: '/pages/subpackage-profile/settings/index' },
     { icon: historyIcon, text: '浏览历史', link: '/pages/history/index' },

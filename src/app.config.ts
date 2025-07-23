@@ -15,6 +15,9 @@ export default defineAppConfig({
         "login/index",
         "settings/index",
         "draft-box/index",
+        "favorites/index",
+        "likes/index",
+        "comments/index",
       ]
     },
     {

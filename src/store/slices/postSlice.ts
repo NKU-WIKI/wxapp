@@ -8,28 +8,6 @@ import actionApi from '@/services/api/action';
 import { ToggleActionParams, ToggleActionResponse } from '@/types/api/action.d';
 import { RootState } from '..';
 
-// 本地存储用户点赞状态的工具函数
-const getUserLikeState = (postId: number): { isLiked: boolean; likeCount: number } | null => {
-  try {
-    const likeStates = Taro.getStorageSync('user_like_states') || {};
-    const result = likeStates[postId] || null;
-    return result;
-  } catch (error) {
-    console.error('获取用户点赞状态失败:', error);
-    return null;
-  }
-};
-
-const saveUserLikeState = (postId: number, isLiked: boolean, likeCount: number) => {
-  try {
-    const likeStates = Taro.getStorageSync('user_like_states') || {};
-    likeStates[postId] = { isLiked, likeCount };
-    Taro.setStorageSync('user_like_states', likeStates);
-  } catch (error) {
-    console.error('保存用户点赞状态失败:', error);
-  }
-};
-
 // 云存储链接转换函数
 const convertCloudUrl = (cloudUrl: string): string => {
   if (!cloudUrl || !cloudUrl.startsWith('cloud://')) {
@@ -38,7 +16,7 @@ const convertCloudUrl = (cloudUrl: string): string => {
 
   // 将 cloud:// 链接转换为 HTTP 链接
   // cloud://cloud1-7gu881ir0a233c29.636c-cloud1-7gu881ir0a233c29-1352978573/avatars/xxx.jpg
-  // 转换为: https://636c-cloud1-7gu881ir0a233c29-1352978573.tcb.qcloud.la/avatars/xxx.jpg
+  // 转换为: https://636c-cloud1-7gu8881ir0a233c29-1352978573.tcb.qcloud.la/avatars/xxx.jpg
 
   try {
     const cloudPath = cloudUrl.replace('cloud://', '');
@@ -66,11 +44,23 @@ export const fetchPosts = createAsyncThunk<
   GetPostsParams
 >(
   'posts/fetchPosts',
-  async (params, { rejectWithValue }) => {
+  async (params, { rejectWithValue, dispatch }) => {
     try {
       // response的类型是BackendPaginatedResponse<Post>
       // 结构：{code, msg, data: Post[], pagination: Pagination}
       const response = await postApi.getPosts(params);
+
+      // 获取帖子列表后，为每个帖子获取详细信息以获取正确的点赞/收藏状态
+      // 但这里不等待这些请求完成，让它们在后台异步进行
+      if (response.data && response.data.length > 0 && !params.isAppend) {
+        // 只对第一页的前几条帖子获取详情，避免过多请求
+        const postsToFetch = response.data.slice(0, 3);
+        
+        // 异步获取帖子详情，不等待完成
+        postsToFetch.forEach(post => {
+          dispatch(fetchPostDetail(post.id));
+        });
+      }
 
       // 将后端的扁平结构转换为前端Redux store需要的嵌套结构
       return {
@@ -110,6 +100,7 @@ export const toggleAction = createAsyncThunk<
       target_id: postId,
       action_type: actionType,
     });
+    
     // response的类型是BaseResponse<ToggleActionResponse>，需要提取data字段
     return { postId, actionType, response: response.data };
   } catch (error: any) {
@@ -152,7 +143,7 @@ export const deletePost = createAsyncThunk<
   }
 });
 
-interface PostsState {
+export interface PostsState {
   list: Post[];
   pagination: Pagination | null;
   currentPost: Post | null;
@@ -194,7 +185,13 @@ const postsSlice = createSlice({
             bio: '该用户很神秘，什么也没留下',
           };
 
-          // 处理返回的帖子列表，应用本地存储的点赞状态和默认作者信息
+          // 创建一个映射，保存现有帖子的状态
+          const existingPostsMap = new Map<number, Post>();
+          state.list.forEach(post => {
+            existingPostsMap.set(post.id, post);
+          });
+
+          // 处理返回的帖子列表，应用默认作者信息和保留已有的状态
           const processedItems = action.payload.items.map(post => {
             let updatedPost = { ...post };
 
@@ -202,13 +199,17 @@ const postsSlice = createSlice({
             if (!updatedPost.author_info) {
               updatedPost.author_info = defaultAuthor;
             }
-
-            // 检查本地存储的点赞状态
-            const localLikeState = getUserLikeState(post.id);
-            if (localLikeState) {
-              // 如果有本地存储的点赞状态，覆盖后端返回的状态
-              updatedPost.is_liked = localLikeState.isLiked;
-              updatedPost.like_count = localLikeState.likeCount;
+            
+            // 如果这个帖子在现有列表中已经存在，保留其状态信息
+            const existingPost = existingPostsMap.get(post.id);
+            if (existingPost) {
+              // 合并状态：如果后端返回 true，使用后端状态；否则检查本地状态
+              updatedPost = {
+                ...updatedPost,
+                is_liked: post.is_liked === true ? true : (existingPost.is_liked === true),
+                is_favorited: post.is_favorited === true ? true : (existingPost.is_favorited === true),
+                is_following_author: post.is_following_author === true ? true : (existingPost.is_following_author === true),
+              };
             }
             
             return updatedPost;
@@ -234,17 +235,23 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPostDetail.fulfilled, (state, action: PayloadAction<Post>) => {
         state.detailLoading = 'succeeded';
-
-        // 检查本地存储的用户点赞状态
-        const localLikeState = getUserLikeState(action.payload.id);
-
-        // 如果有本地存储的状态，使用本地状态覆盖后端状态
-        if (localLikeState) {
-          action.payload.is_liked = localLikeState.isLiked;
-          action.payload.like_count = localLikeState.likeCount;
-        }
-
+        
+        // 更新当前查看的帖子详情
         state.currentPost = action.payload;
+        
+        // 同时更新列表中的对应帖子
+        const postIndex = state.list.findIndex(p => p.id === action.payload.id);
+        if (postIndex !== -1) {
+          const existingPost = state.list[postIndex];
+          
+          // 更新列表中的帖子状态
+          state.list[postIndex] = {
+            ...state.list[postIndex],
+            is_liked: action.payload.is_liked === true ? true : (existingPost.is_liked === true),
+            is_favorited: action.payload.is_favorited === true ? true : (existingPost.is_favorited === true),
+            is_following_author: action.payload.is_following_author === true ? true : (existingPost.is_following_author === true),
+          };
+        }
       })
       .addCase(fetchPostDetail.rejected, (state, action) => {
         state.detailLoading = 'failed';
@@ -269,8 +276,6 @@ const postsSlice = createSlice({
             case 'like':
               post.is_liked = response.is_active;
               post.like_count = response.count;
-              // 保存到本地存储
-              saveUserLikeState(postId, response.is_active, response.count);
               break;
             case 'favorite':
               post.is_favorited = response.is_active;
@@ -287,8 +292,6 @@ const postsSlice = createSlice({
             case 'like':
               state.currentPost.is_liked = response.is_active;
               state.currentPost.like_count = response.count;
-              // 保存到本地存储
-              saveUserLikeState(postId, response.is_active, response.count);
               break;
             case 'favorite':
               state.currentPost.is_favorited = response.is_active;

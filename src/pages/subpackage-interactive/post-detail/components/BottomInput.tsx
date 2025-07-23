@@ -54,10 +54,10 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId }) => {
         icon: 'success'
       });
     } catch (error) {
-      Taro.showToast({
+    Taro.showToast({
         title: '评论发布失败，请重试',
         icon: 'error'
-      });
+    });
       console.error('发布评论失败:', error);
     } finally {
       setIsSubmitting(false);

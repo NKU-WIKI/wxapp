@@ -13,6 +13,7 @@ import LocationIcon from '@/assets/map-pin.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { toggleAction } from '@/store/slices/postSlice';
+import { PostsState } from '@/store/slices/postSlice';
 
 interface PostDetailContentProps {
   post: Post;
@@ -20,13 +21,24 @@ interface PostDetailContentProps {
 
 const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { token, isLoggedIn } = useSelector((state: RootState) => state.user);
-  const currentPost = useSelector((state: RootState) => state.post.currentPost);
+  const userState = useSelector((state: RootState) => state.user);
+  const token = userState?.token || null;
+  const isLoggedIn = userState?.isLoggedIn || false;
+  
+  const postState = useSelector((state: RootState) => state.post) as PostsState;
+  const currentPost = postState?.currentPost || null;
   
   // 直接使用 Redux 中的状态，如果 Redux 中没有则使用 props 中的
   const displayPost = currentPost && currentPost.id === post.id ? currentPost : post;
-  const isLiked = displayPost.is_liked || false;
-  const likeCount = displayPost.like_count || 0;
+  
+  // 确保布尔值转换正确
+  const isLiked = displayPost.is_liked === true;
+  const isFavorited = displayPost.is_favorited === true;
+  
+  // 使用帖子的 like_count 和 favorite_count 属性，如果为 undefined 则显示 0
+  // 如果用户已点赞/收藏但数量为0，则显示1
+  const likeCount = isLiked && displayPost.like_count === 0 ? 1 : (displayPost.like_count || 0);
+  const favoriteCount = isFavorited && displayPost.favorite_count === 0 ? 1 : (displayPost.favorite_count || 0);
   
   // 调试：显示当前状态
   useEffect(() => {
@@ -318,10 +330,10 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
         </View>
         <View className={styles.actionButton} onClick={handleFavorite}>
           <Image 
-            src={displayPost.is_favorited ? StarFilledIcon : StarOutlineIcon} 
+            src={isFavorited ? StarFilledIcon : StarOutlineIcon} 
             className={styles.actionIcon}
           />
-          <Text className={`${styles.actionCount} ${displayPost.is_favorited ? styles.active : ''}`}>{post.favorite_count || 0}</Text>
+          <Text className={`${styles.actionCount} ${isFavorited ? styles.active : ''}`}>{favoriteCount}</Text>
         </View>
         <View className={styles.actionButton} onClick={handleShare}>
           <Image 

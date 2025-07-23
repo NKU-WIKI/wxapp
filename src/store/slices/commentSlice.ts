@@ -75,7 +75,7 @@ export const deleteComment = createAsyncThunk(
   }
 );
 
-interface CommentState {
+export interface CommentState {
   comments: any[]; // 使用 any 类型简化
   pagination: any | null; // 使用 any 类型简化
   loading: 'idle' | 'pending' | 'succeeded' | 'failed';
@@ -155,8 +155,8 @@ const commentSlice = createSlice({
 
 export const { resetComments } = commentSlice.actions;
 
-export const selectComments = (state: RootState) => state.comment.comments;
-export const selectCommentsPagination = (state: RootState) => state.comment.pagination;
-export const selectCommentsLoading = (state: RootState) => state.comment.loading;
+export const selectComments = (state: RootState) => state.comment?.comments || [];
+export const selectCommentsPagination = (state: RootState) => state.comment?.pagination || null;
+export const selectCommentsLoading = (state: RootState) => state.comment?.loading || 'idle';
 
 export default commentSlice.reducer; 

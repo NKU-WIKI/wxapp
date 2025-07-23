@@ -1,0 +1,129 @@
+.commentsPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #ffffff;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.scrollView {
+  height: 100%;
+  margin: 0 4px 16px;
+}
+
+.commentsList {
+  padding: 0 18px 32px 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.commentItem {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.commentContent {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.commentMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #999;
+}
+
+.commentTime {
+  color: #999;
+}
+
+.postInfo {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.postTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.postContent {
+  font-size: 12px;
+  color: #666;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  color: #666;
+  font-size: 14px;
+}
+
+.noMore {
+  text-align: center;
+  padding: 16px 0;
+  color: #999;
+  font-size: 14px;
+  margin: 8px 0 48px 0;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  padding: 20px;
+}
+
+.errorText {
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.retryButton {
+  background-color: #4F46E5;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+} 

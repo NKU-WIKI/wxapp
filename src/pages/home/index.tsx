@@ -12,7 +12,6 @@ import CustomHeader from "@/components/custom-header";
 import { AppDispatch, RootState } from "@/store";
 import { Post } from "@/types/api/post.d";
 import { fetchPosts } from "@/store/slices/postSlice";
-import { fetchUserProfile } from "@/store/slices/userSlice";
 import searchIcon from "@/assets/search.svg";
 import studyIcon from "@/assets/school.svg";
 import hatIcon from "@/assets/hat.svg";
@@ -61,12 +60,6 @@ export default function Home() {
     dispatch(fetchPosts({ page: 1, page_size: 5, isAppend: false }));
     setPage(1);
   }, [dispatch]);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      dispatch(fetchUserProfile());
-    }
-  }, [isLoggedIn, dispatch]);
 
   // 下拉刷新处理函数
   const handlePullRefresh = async () => {

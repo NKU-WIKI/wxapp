@@ -1,0 +1,80 @@
+.likesPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #ffffff;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.scrollView {
+  height: 100%;
+  margin: 0 4px 16px;
+}
+
+.postList {
+  padding: 0 18px 32px 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.postItem {
+  & + & {
+    margin-top: 4px;
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  color: #666;
+  font-size: 14px;
+}
+
+.noMore {
+  text-align: center;
+  padding: 16px 0;
+  color: #999;
+  font-size: 14px;
+  margin: 8px 0 48px 0;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  padding: 20px;
+}
+
+.errorText {
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.retryButton {
+  background-color: #4F46E5;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+} 

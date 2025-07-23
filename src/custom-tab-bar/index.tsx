@@ -13,7 +13,7 @@ const discoverIcon = "/assets/discover.png";
 const discoverActiveIcon = "/assets/discover-active.png";
 const profileIcon = "/assets/profile.png";
 const profileActiveIcon = "/assets/profile-active.png";
-const plusIcon = "/assets/x.png"; // 发布图标，使用同一图标作为选中和未选中状态
+const plusIcon = require("@/assets/plus.svg"); // 使用新的白色+号SVG图标
 
 const CustomTabBar: FC = () => {
   const [selected, setSelected] = useState(0);

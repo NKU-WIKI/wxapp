@@ -29,11 +29,31 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     return null; // 或者返回一个加载状态的组件
   }
   const dispatch = useDispatch<AppDispatch>();
-  const { userInfo, token } = useSelector((state: RootState) => state.user || { userInfo: null, token: null });
+  const userState = useSelector((state: RootState) => state.user);
+  const userInfo = userState?.userInfo || null;
+  const token = userState?.token || null;
+  const isLoggedIn = userState?.isLoggedIn || false;
+  
+  // 从 Redux 中获取最新的帖子状态
+  const postState = useSelector((state: RootState) => state.post);
+  const posts = postState?.list || [];
+  const currentPostFromRedux = posts.find(p => p.id === post.id);
+  
+  // 使用 Redux 中的状态，如果 Redux 中没有则使用 props 中的
+  const displayPost = currentPostFromRedux || post;
+  
+  // 使用后端返回的状态，确保布尔值转换正确
+  const isLiked = displayPost.is_liked === true;
+  const isFavorited = displayPost.is_favorited === true;
+  
+  // 使用帖子的 like_count 和 favorite_count 属性，如果为 undefined 则显示 0
+  // 如果用户已点赞/收藏但数量为0，则显示1
+  const likeCount = isLiked && displayPost.like_count === 0 ? 1 : (displayPost.like_count || 0);
+  const favoriteCount = isFavorited && displayPost.favorite_count === 0 ? 1 : (displayPost.favorite_count || 0);
 
   // 检查是否登录
   const checkLogin = () => {
-    if (!token) {
+    if (!isLoggedIn || !token) {
       Taro.showModal({
         title: '提示',
         content: '您尚未登录，是否前往登录？',
@@ -60,7 +80,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   };
 
   // 处理点赞、收藏、关注等动作
-  const handleActionClick = (e, actionType: 'like' | 'favorite' | 'follow' | 'share' | 'delete') => {
+  const handleActionClick = (e, actionType: 'like' | 'favorite' | 'follow' | 'share' | 'delete' | 'comment') => {
     e.stopPropagation(); // 阻止事件冒泡到父容器的 navigateToDetail
 
     if (actionType === 'share') {
@@ -69,40 +89,56 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
       showToast('分享功能需要在页面中实现', { type: 'info' });
       return;
     }
+    
+    if (actionType === 'comment') {
+      // 跳转到详情页并聚焦评论区
+      navigateToDetail(e);
+      return;
+    }
 
     if (!checkLogin()) return;
     
     switch (actionType) {
       case 'like':
       case 'favorite':
-        // 创建一个本地副本，用于乐观更新UI
-        const updatedPost = { ...post };
-        
-        if (actionType === 'like') {
-          // 立即在UI上反转点赞状态
-          updatedPost.is_liked = !updatedPost.is_liked;
-          // 更新点赞数
-          updatedPost.like_count += updatedPost.is_liked ? 1 : -1;
-          // 确保点赞数不小于0
-          updatedPost.like_count = Math.max(0, updatedPost.like_count);
-        } else if (actionType === 'favorite') {
-          // 立即在UI上反转收藏状态
-          updatedPost.is_favorited = !updatedPost.is_favorited;
-          // 更新收藏数
-          updatedPost.favorite_count += updatedPost.is_favorited ? 1 : -1;
-          // 确保收藏数不小于0
-          updatedPost.favorite_count = Math.max(0, updatedPost.favorite_count);
-        }
-        
-        // 派发action到Redux，后端会返回真实状态
-        dispatch(toggleAction({ postId: post.id, actionType }))
-          .catch(error => {
-            console.error(`${actionType}操作失败`, error);
+        // 直接派发 action 到 Redux，让 Redux 处理状态更新
+        dispatch(toggleAction({ 
+          postId: post.id, 
+          actionType 
+        })).then((result: any) => {
+          if (result.payload && result.payload.response) {
+            const { is_active } = result.payload.response;
+            
+            // 显示提示
+            Taro.showToast({
+              title: actionType === 'like' 
+                ? (is_active ? '点赞成功' : '已取消点赞') 
+                : (is_active ? '收藏成功' : '已取消收藏'),
+              icon: 'none',
+              duration: 1500
+            });
+          }
+        }).catch(error => {
+          console.error(`${actionType}操作失败`, error);
+          
+          // 如果是401错误，提示用户重新登录
+          if (error.statusCode === 401) {
+            Taro.showModal({
+              title: '登录已过期',
+              content: '请重新登录后重试',
+              success: (res) => {
+                if (res.confirm) {
+                  Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+                }
+              }
+            });
+          } else {
             Taro.showToast({
               title: '操作失败，请重试',
               icon: 'none'
             });
-          });
+          }
+        });
         break;
       case 'follow':
         // 关注用户
@@ -134,7 +170,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     if (isActive && activeIcon) {
       iconSrc = activeIcon;
     } else if (action === 'like') {
-      iconSrc = heartIcon;
+      iconSrc = isActive ? heartActiveIcon : heartIcon;
     } else if (action === 'favorite') {
       iconSrc = isActive ? starActiveIcon : starIcon;
     } else if (action === 'comment') {
@@ -200,8 +236,8 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           <ActionButton
             icon={heartIcon}
             activeIcon={heartActiveIcon}
-            count={post.like_count}
-            isActive={post.is_liked}
+            count={likeCount}
+            isActive={isLiked}
             action="like"
           />
           <ActionButton
@@ -209,13 +245,13 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
             activeIcon={commentIcon}
             count={post.comment_count}
             isActive={false}
-            action="comment" // 点击评论也是跳转详情页
+            action="comment"
           />
           <ActionButton
             icon={starIcon}
             activeIcon={starActiveIcon}
-            count={post.favorite_count}
-            isActive={post.is_favorited}
+            count={favoriteCount}
+            isActive={isFavorited}
             action="favorite"
           />
         </View>

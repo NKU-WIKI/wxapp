@@ -53,9 +53,9 @@ const LoginPrompt = () => {
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoggedIn, userInfo } = useSelector(
-    (state: RootState) => state.user
-  );
+  const user = useSelector((state: RootState) => state.user);
+  const isLoggedIn = user?.isLoggedIn || false;
+  const userInfo = user?.userInfo || null;
 
   const handleEditProfile = () => {
     Taro.navigateTo({ url: "/pages/subpackage-profile/edit-profile/index" });
@@ -75,8 +75,9 @@ const Profile = () => {
 
   const handleMenuClick = (type: string) => {
     const routes: { [key: string]: string } = {
-      likes: '/pages/likes/index',
-      comments: '/pages/comments/index',
+      likes: '/pages/subpackage-profile/likes/index',
+      favorites: '/pages/subpackage-profile/favorites/index',
+      comments: '/pages/subpackage-profile/comments/index',
       drafts: '/pages/subpackage-profile/draft-box/index',
       history: '/pages/history/index',
       feedback: '/pages/feedback/index',
@@ -187,6 +188,14 @@ const Profile = () => {
             <View className={styles.menuLeft}>
               <Text className={styles.menuIcon}>❤️</Text>
               <Text className={styles.menuText}>我的点赞</Text>
+            </View>
+            <Text className={styles.chevron}>›</Text>
+          </View>
+          
+          <View className={styles.menuItem} onClick={() => handleMenuClick('favorites')}>
+            <View className={styles.menuLeft}>
+              <Text className={styles.menuIcon}>⭐</Text>
+              <Text className={styles.menuText}>我的收藏</Text>
             </View>
             <Text className={styles.chevron}>›</Text>
           </View>

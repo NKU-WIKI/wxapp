@@ -48,10 +48,13 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+      z-index: 10;
 
       .publishIcon {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
+        z-index: 11;
+        /* 若图片为黑色可加滤镜变白色: filter: brightness(0) invert(1); */
       }
     }
   }
