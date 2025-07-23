@@ -1,81 +1,27 @@
-@import '@/styles/variables.scss';
-
-// 全屏背景容器, 使用flex布局将内容居中
-.container {
-  min-height: 100vh;
-  width: 100%;
-  background-color: $bg-page; // 整个屏幕的背景色
-  display: flex;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
-// 页面内容包裹器，用于实现居中和固定宽度
-.pageWrapper {
-  margin: 0;
-  width: 100%;
-  max-width: 375px;
-  min-height: 100vh;
-  background-color: $bg-page-light; // 页面内容区域的背景色
-  position: relative;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-  box-sizing: border-box;
-}
-
-// 自定义头部
-.customHeader {
-  position: absolute; // 相对于 pageWrapper 定位
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 44px;
-  background-color: $bg-card;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  z-index: 10;
-}
-
-.backButton {
-  position: absolute;
-  left: 16px;
-  color: $text-primary;
-  font-size: 20px;
-  background: none;
-  border: none;
-  padding: 0 10px;
-  line-height: 44px;
-  
-  &::after {
-    border: none;
-  }
-}
-
-.headerTitle {
-  font-size: 17px;
-  color: $text-primary;
-  font-weight: 500;
-}
+@import "@/styles/variables.scss";
 
 // 主要内容区域
 .content {
-  padding: 60px 24px 100px 24px;
-  width: 100%;
+  padding: 16px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
   box-sizing: border-box;
 }
 
 // 头像部分
 .avatarSection {
-  text-align: center;
-  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  margin-bottom: 16px;
 }
 
 .avatarUpload {
   position: relative;
   width: 96px;
   height: 96px;
-  margin: 0 auto 8px auto;
+  margin-bottom: 8px;
   cursor: pointer;
 }
 
@@ -84,7 +30,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  border: 2px solid $theme-primary;
+  border: 2px solid #e5e5e5;
 }
 
 .uploadingOverlay {
@@ -101,151 +47,160 @@
 }
 
 .uploadingText {
-  color: $text-white;
+  color: white;
   font-size: 12px;
 }
 
 .avatarTip {
-  margin-top: 8px;
   font-size: 14px;
-  color: $text-helper;
+  color: #999;
 }
 
-// 表单卡片
-.formCard {
-  padding: 24px;
-  border: 1px solid $border-light;
-  border-radius: 12px;
-  background-color: $bg-card;
+// 卡片样式
+.card {
+  background-color: white;
+  border-radius: 8px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-// 表单节
-.formSection {
-  &:not(:last-child) {
-    margin-bottom: 32px;
-  }
-}
-
-.sectionTitle {
-  color: $theme-primary;
+.cardTitle {
   font-size: 16px;
   font-weight: 600;
+  color: #6366f1;
+  padding: 16px 16px 0 16px;
   margin-bottom: 16px;
 }
 
-// 输入组
-.inputGroup {
-  position: relative;
-  margin-bottom: 20px;
+// 字段行样式
+.fieldRow {
   display: flex;
   align-items: center;
-  
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+
   &:last-child {
-    margin-bottom: 0;
+    border-bottom: none;
   }
 }
 
-.inputIcon {
-  width: 24px;
-  height: 24px;
+.fieldLabel {
+  font-size: 16px;
+  color: #333;
+  flex-shrink: 0;
+}
+
+.fieldInput {
+  flex: 1;
+  text-align: right;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+.fieldValue {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  flex-shrink: 0;
+  color: #666;
 }
 
-// 图标颜色
-.iconUser { color: $status-info; font-size: 16px; }
-.iconComment { color: $theme-accent; font-size: 16px; }
-.iconWechat { color: $status-success; font-size: 16px; }
-.iconQQ { color: $status-info; font-size: 16px; }
-.iconPhone { color: $status-warning; font-size: 16px; }
-.iconGlobe { color: $status-success; font-size: 16px; }
-
-.inputLabel {
-  width: 80px;
-  flex-shrink: 0;
-  margin-right: 12px;
-  color: $text-primary;
-  font-size: 14px;
-}
-
-.input {
-  flex: 1;
-  border: none;
-  border-bottom: 1px solid $border-gray;
-  background: transparent;
-  padding: 8px 0;
-  font-size: 14px;
-  color: $text-primary;
-  outline: none;
-  
-  &:focus {
-    border-bottom-color: $theme-primary;
-  }
-  
-  &::placeholder {
-    color: $text-placeholder;
-  }
-}
-
-// 位置选择特殊样式
-.locationInput {
-  flex: 1;
-  color: $text-primary;
-  font-size: 14px;
-  padding: 8px 0;
-  border-bottom: 1px solid $border-gray;
-  background: transparent;
-  cursor: pointer;
+.fieldText {
+  font-size: 16px;
+  color: #666;
+  margin-right: 8px;
 }
 
 .chevronRight {
-  margin-left: 8px;
-  color: $text-helper;
-  font-size: 14px;
-  flex-shrink: 0;
+  font-size: 16px;
+  color: #ccc;
 }
 
-// 底部保存按钮
-.footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
+// 个人简介输入框
+.bioInput {
   width: 100%;
-  padding: 24px;
-  background-color: $bg-card;
-  z-index: 10;
-  box-sizing: border-box;
+  min-height: 60px;
+  padding: 8px 0;
+  border: none;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #333;
+  background: transparent;
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+// 兴趣标签样式
+.interestGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 0 16px 16px 16px;
+}
+
+.interestTag {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.interestTagActive {
+  background-color: #6366f1;
+  border-color: #6366f1;
+}
+
+.interestText {
+  font-size: 14px;
+  color: #666;
+}
+
+.interestTextActive {
+  color: white;
+}
+
+// 保存按钮容器
+.saveButtonContainer {
+  padding: 24px 16px;
+  margin-bottom: 32px;
 }
 
 .saveButton {
   width: 100%;
-  height: 44px;
-  background-color: $theme-primary;
-  color: $text-white;
+  height: 48px;
+  background-color: #6366f1;
+  color: white;
   font-size: 16px;
   font-weight: 600;
-  border-radius: 22px;
+  border-radius: 24px;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  
+
   &::after {
     border: none;
   }
-  
+
   &:hover {
-    background-color: $theme-primary-dark;
+    background-color: #5856eb;
     opacity: 0.9;
   }
-  
+
   &:disabled {
-    background-color: $text-helper-light;
-    color: $text-disabled;
+    background-color: #ccc;
+    color: #999;
   }
 }

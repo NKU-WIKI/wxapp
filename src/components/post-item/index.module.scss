@@ -19,6 +19,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  
+  &:active {
+    opacity: 0.7;
+  }
 }
 
 .avatar {
@@ -79,6 +85,13 @@
   border-radius: 6px;
   font-size: 12px;
   border: 1px solid #4F46E5;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:active {
+    background-color: #4F46E5;
+    color: white;
+  }
 }
 
 // Badge examples - can be added conditionally
@@ -200,6 +213,12 @@
   flex-direction: column;
   gap: 6px; // 从8px减少到6px
   margin: 6px 0; // 从8px减少到6px
+  cursor: pointer;
+  transition: opacity 0.2s;
+  
+  &:active {
+    opacity: 0.7;
+  }
 }
 
 .title {
@@ -223,6 +242,12 @@
   display: flex;
   gap: 8px;
   margin: 8px 0;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  
+  &:active {
+    opacity: 0.7;
+  }
 }
 
 .input {
