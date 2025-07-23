@@ -115,7 +115,7 @@ const Profile = () => {
           
           <View className={styles.userDetails}>
             <Text className={styles.nickname}>{userInfo?.nickname || '未设置昵称'}</Text>
-            <Text className={styles.userId}>ID: {userInfo?.wechatId || `nku${userInfo?.id || 'loading'}`}</Text>
+            <Text className={styles.userBio}>{userInfo?.bio || '这个人很懒，还没有设置个性签名~'}</Text>
           </View>
 
           <View className={styles.levelBadge}>
