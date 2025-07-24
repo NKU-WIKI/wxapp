@@ -79,7 +79,7 @@ const Profile = () => {
       favorites: '/pages/subpackage-profile/favorites/index',
       comments: '/pages/subpackage-profile/comments/index',
       drafts: '/pages/subpackage-profile/draft-box/index',
-      history: '/pages/history/index',
+      history: '/pages/subpackage-profile/history/index',
       feedback: '/pages/feedback/index',
       about: '/pages/subpackage-profile/about/index',
       settings: '/pages/subpackage-profile/settings/index',

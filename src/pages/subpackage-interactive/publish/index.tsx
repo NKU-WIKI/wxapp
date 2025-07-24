@@ -59,7 +59,7 @@ export default function PublishPost() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const draftId = router?.params?.draftId;
-  const userInfo = useSelector((state: RootState) => state.user.userInfo);
+  const userInfo = useSelector((state: RootState) => state.user?.userInfo);
 
   // 添加调试日志，查看当前选中的标签
   useEffect(() => {

@@ -19,6 +19,7 @@ export default defineAppConfig({
         "likes/index",
         "comments/index",
         "user-detail/index",
+        "history/index",
       ]
     },
     {

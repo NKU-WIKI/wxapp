@@ -14,6 +14,7 @@ import EmptyState from '@/components/empty-state';
 import emptyIcon from '@/assets/empty.svg';
 import { PostsState } from '@/store/slices/postSlice';
 import { CommentState } from '@/store/slices/commentSlice';
+import { addHistory } from '@/utils/history';
 
 const PostDetailPage = () => {
   const router = useRouter();
@@ -36,6 +37,21 @@ const PostDetailPage = () => {
       }));
     }
   }, [dispatch, postId]);
+  
+  // 自动存储浏览历史（currentPost 加载后执行）
+  useEffect(() => {
+    if (currentPost && currentPost.id === postId) {
+      addHistory({
+        id: String(currentPost.id),
+        title: currentPost.title,
+        cover: currentPost.image_urls && currentPost.image_urls.length > 0 ? currentPost.image_urls[0] : '',
+        avatar: currentPost.author_info?.avatar || '',
+        createdAt: currentPost.create_time,
+        viewedAt: new Date().toISOString(),
+        link: `/pages/subpackage-interactive/post-detail/index?id=${currentPost.id}`
+      });
+    }
+  }, [currentPost, postId]);
   
   const renderContent = () => {
     if (detailLoading === 'pending') {
