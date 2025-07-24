@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Taro from "@tarojs/taro";
+import Taro, { useRouter, useUnload } from "@tarojs/taro";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { createPost } from "@/store/slices/postSlice";
@@ -25,11 +25,20 @@ import atSignIcon from "@/assets/at-sign.svg";
 import penToolIcon from "@/assets/pen-tool.svg";
 import lightbulbIcon from "@/assets/lightbulb.svg";
 import xCircleIcon from "@/assets/x-circle.svg"; // for deleting images
+import { saveDraft, getDrafts } from '@/utils/draft';
 
 const mockData = {
   tags: ["#校园生活", "#学习交流", "#求助", "#资源分享", "#活动通知"],
   styles: ["正式", "轻松", "幽默", "专业"],
 };
+
+// 简单 uuid 生成
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export default function PublishPost() {
   const [title, setTitle] = useState("");
@@ -45,11 +54,73 @@ export default function PublishPost() {
   const [isAddingTag, setIsAddingTag] = useState(false);
   
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const draftId = router?.params?.draftId;
 
   // 添加调试日志，查看当前选中的标签
   useEffect(() => {
     console.log('当前选中的标签:', selectedTags);
   }, [selectedTags]);
+
+  // 编辑草稿时初始化内容
+  useEffect(() => {
+    if (draftId) {
+      const drafts = getDrafts();
+      const draft = drafts.find(d => d.id === draftId);
+      if (draft) {
+        setTitle(draft.title || '');
+        setContent(draft.content || '');
+        // setImages(draft.images || []); // 如有图片字段可补充
+      }
+    }
+  }, [draftId]);
+
+  // 回退时弹窗询问是否保存草稿
+  const handleBack = () => {
+    if (title.trim() || content.trim()) {
+      Taro.showModal({
+        title: '是否保存为草稿？',
+        content: '你有未发布的内容，是否保存为草稿？',
+        confirmText: '保存',
+        cancelText: '不保存',
+        success: (res) => {
+          if (res.confirm) {
+            // 保存草稿
+            const id = draftId || uuid();
+            saveDraft({
+              id,
+              title,
+              content,
+              avatar: '', // 可补充用户头像
+              updatedAt: Date.now(),
+            });
+            Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
+            setTimeout(() => {
+              Taro.navigateBack();
+            }, 500);
+          } else {
+            Taro.navigateBack();
+          }
+        }
+      });
+    } else {
+      Taro.navigateBack();
+    }
+  };
+
+  // 页面卸载时自动保存草稿（可选，防止误关页面丢失）
+  useUnload(() => {
+    if ((title.trim() || content.trim()) && !draftId) {
+      const id = uuid();
+      saveDraft({
+        id,
+        title,
+        content,
+        avatar: '',
+        updatedAt: Date.now(),
+      });
+    }
+  });
 
   const handleChooseImage = () => {
     if (isUploading) return;
@@ -196,7 +267,7 @@ export default function PublishPost() {
 
   return (
     <View className={styles.pageContainer}>
-      <CustomHeader title="发布帖子" />
+      <CustomHeader title="发布帖子" onLeftClick={handleBack} />
 
       <View className={styles.contentWrapper}>
         <ScrollView scrollY className={styles.scrollView}>
