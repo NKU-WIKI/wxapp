@@ -5,4 +5,5 @@ export interface HistoryItem {
   avatar: string; // 发帖人头像
   createdAt: string; // 帖子发布时间（ISO字符串）
   viewedAt: string; // 浏览时间（ISO字符串）
+  link?: string; // 帖子跳转链接
 } 

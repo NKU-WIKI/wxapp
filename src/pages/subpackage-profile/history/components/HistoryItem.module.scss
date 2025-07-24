@@ -3,24 +3,24 @@
 .item {
   display: flex;
   align-items: center;
-  padding: 20px 0 20px 16px;
+  padding: 16px 0 16px 16px;
   border-bottom: 1px solid $border-light;
   background: $bg-card;
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  margin-right: 16px;
+  margin-right: 12px;
   flex-shrink: 0;
 }
 
 .cover {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
-  margin-right: 16px;
+  margin-right: 12px;
   flex-shrink: 0;
   object-fit: cover;
 }
@@ -30,31 +30,36 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: flex-start;
+  min-width: 0;
 }
 
 .title {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 600;
   color: $text-primary;
   margin-bottom: 4px;
+  text-align: left;
+  word-break: break-all;
 }
 
 .publishTime {
-  font-size: 14px;
+  font-size: 13px;
   color: $text-secondary-gray;
+  text-align: left;
 }
 
 .right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  margin-left: 12px;
-  margin-right: 16px;
+  margin-left: 8px;
+  margin-right: 12px;
   gap: 8px;
 }
 
 .viewTime {
-  font-size: 14px;
+  font-size: 13px;
   color: $text-helper-gray;
 }
 
