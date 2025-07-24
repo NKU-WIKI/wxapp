@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Taro, { useRouter, useUnload } from "@tarojs/taro";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 import { createPost } from "@/store/slices/postSlice";
 import {
   View,
@@ -26,6 +26,7 @@ import penToolIcon from "@/assets/pen-tool.svg";
 import lightbulbIcon from "@/assets/lightbulb.svg";
 import xCircleIcon from "@/assets/x-circle.svg"; // for deleting images
 import { saveDraft, getDrafts } from '@/utils/draft';
+import defaultAvatar from '@/assets/profile.png';
 
 const mockData = {
   tags: ["#校园生活", "#学习交流", "#求助", "#资源分享", "#活动通知"],
@@ -52,10 +53,13 @@ export default function PublishPost() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
   const [isAddingTag, setIsAddingTag] = useState(false);
+  // 标记是否已通过弹窗保存过草稿，避免 useUnload 再次保存
+  const [hasSavedDraft, setHasSavedDraft] = useState(false);
   
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const draftId = router?.params?.draftId;
+  const userInfo = useSelector((state: RootState) => state.user.userInfo);
 
   // 添加调试日志，查看当前选中的标签
   useEffect(() => {
@@ -85,38 +89,40 @@ export default function PublishPost() {
         cancelText: '不保存',
         success: (res) => {
           if (res.confirm) {
-            // 保存草稿
             const id = draftId || uuid();
             saveDraft({
               id,
               title,
               content,
-              avatar: '', // 可补充用户头像
+              avatar: userInfo?.avatar || defaultAvatar,
               updatedAt: Date.now(),
             });
+            setHasSavedDraft(true);
             Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
             setTimeout(() => {
               Taro.navigateBack();
             }, 500);
           } else {
+            setHasSavedDraft(true);
             Taro.navigateBack();
           }
         }
       });
     } else {
+      setHasSavedDraft(true);
       Taro.navigateBack();
     }
   };
 
-  // 页面卸载时自动保存草稿（可选，防止误关页面丢失）
+  // 页面卸载时自动保存草稿（仅在未弹窗保存时自动保存一次）
   useUnload(() => {
-    if ((title.trim() || content.trim()) && !draftId) {
+    if (!hasSavedDraft && (title.trim() || content.trim()) && !draftId) {
       const id = uuid();
       saveDraft({
         id,
         title,
         content,
-        avatar: '',
+        avatar: userInfo?.avatar || defaultAvatar,
         updatedAt: Date.now(),
       });
     }
@@ -267,6 +273,10 @@ export default function PublishPost() {
 
   return (
     <View className={styles.pageContainer}>
+      {/* 顶部提示 */}
+      <View style={{ background: '#FFFBEA', color: '#B7791F', padding: '8px 16px', fontSize: 13, textAlign: 'center' }}>
+        返回请用左上角按钮，否则自动保存草稿
+      </View>
       <CustomHeader title="发布帖子" onLeftClick={handleBack} />
 
       <View className={styles.contentWrapper}>
