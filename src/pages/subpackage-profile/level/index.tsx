@@ -1,84 +1,114 @@
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import CustomHeader from '@/components/custom-header';
+import { useSelector } from 'react-redux';
 import styles from './index.module.scss';
+import settingsIcon from '@/assets/settings.svg';
+import backIcon from '@/assets/arrow-left.svg';
+import checkinIcon from '@/assets/clock.svg';
+import likeIcon from '@/assets/thumbs-up.svg';
+import commentIcon from '@/assets/message-circle.svg';
+import defaultAvatar from '@/assets/profile.png';
 
-import levelIcon from '@/assets/placeholder.jpg'; // Placeholder for level icon
-import checkIcon from '@/assets/check-square.svg';
-import thumbsUpIcon from '@/assets/thumbs-up.svg';
-import messageCircleIcon from '@/assets/message-circle.svg';
-
-const levelData = [
-  { level: 'Lv0', exp: '0 经验值', active: false },
-  { level: 'Lv1', exp: '1-50 经验值', active: true },
-  { level: 'Lv2', exp: '51-200 经验值', active: false },
-  { level: 'Lv3', exp: '201-450 经验值', active: false },
-  { level: 'Lv4', exp: '451-900 经验值', active: false },
-  { level: 'Lv5', exp: '901-1500 经验值', active: false },
-  { level: 'Lv6', exp: '1501-3000 经验值', active: false },
-  { level: 'Lv7', exp: '大于3000 经验值', active: false },
+const LEVELS = [
+  { lv: 0, label: 'Lv0', range: '0经验值' },
+  { lv: 1, label: 'Lv1', range: '1-50经验值' },
+  { lv: 2, label: 'Lv2', range: '51-200经验值' },
+  { lv: 3, label: 'Lv3', range: '201-450经验值' },
+  { lv: 4, label: 'Lv4', range: '451-900经验值' },
+  { lv: 5, label: 'Lv5', range: '901-1500经验值' },
+  { lv: 6, label: 'Lv6', range: '1501-3000经验值' },
+  { lv: 7, label: 'Lv7', range: '大于3000经验值' },
 ];
 
-const experienceTasks = [
-  { icon: checkIcon, name: '每日登录', status: '未完成', statusClass: 'incomplete' },
-  { icon: thumbsUpIcon, name: '帖子被点赞', status: '今日已获得 +2', statusClass: 'complete' },
-  { icon: messageCircleIcon, name: '评论他人帖子', status: '已完成', statusClass: 'incomplete' },
+const EXP_RULES = [
+  { icon: checkinIcon, text: '每日登录', status: '未完成', value: '+2', statusColor: styles.statusBlue },
+  { icon: likeIcon, text: '帖子被点赞', status: '今日已获得 +2', value: '+1', statusColor: styles.statusBlue },
+  { icon: commentIcon, text: '评论他人帖子', status: '已完成', value: '+3', statusColor: styles.statusGray },
 ];
 
-export default function MyLevelPage() {
-  const currentExp = 2;
-  const maxExp = 50;
-  const progress = (currentExp / maxExp) * 100;
+export default function LevelPage() {
+  // 获取当前用户信息
+  const userInfo = useSelector((state: any) => state.user?.userInfo) || {};
+  const userLevel = userInfo.level || 1;
+  const userExp = userInfo.exp || 2;
+  const nickname = userInfo.nickname || '未设置昵称';
+  const avatar = userInfo.avatar || defaultAvatar;
+
+  const nextLevelExp = userLevel < LEVELS.length - 1 ? LEVELS[userLevel + 1].range.match(/\d+/g)?.[0] : '3000';
+  const maxExp = userLevel === 0 ? 50 : userLevel === 7 ? 3000 : parseInt(nextLevelExp || '50', 10);
+  const minExp = userLevel === 0 ? 0 : parseInt(LEVELS[userLevel].range.match(/\d+/g)?.[0] || '0', 10);
+  const progress = Math.min(1, (userExp - minExp) / (maxExp - minExp));
 
   return (
-    <View className={styles.levelPage}>
-      <CustomHeader title="我的等级" />
-      
-      <View className={styles.content}>
-        {/* Current Level Info */}
-        <View className={styles.currentLevelCard}>
-          <View className={styles.levelInfo}>
-            <Image src={levelIcon} className={styles.levelIcon} />
-            <Text className={styles.levelName}>小黄鱼</Text>
+    <View className={styles.page}>
+      {/* 用户信息卡片 */}
+      <View className={styles.card} style={{ marginTop: 16 }}>
+        <View className={styles.userInfoRow}>
+          <Image src={avatar} className={styles.avatar} />
+          <View className={styles.userMeta}>
+            <Text className={styles.nickname}>{nickname}</Text>
+            <Text className={styles.levelBlue}>Lv{userLevel}: {userExp}</Text>
           </View>
-          <Text className={styles.levelDetail}>Lv1 : {currentExp}</Text>
-          <View className={styles.expRow}>
-            <Text>当前经验值</Text>
-            <Text>{currentExp}</Text>
-          </View>
-          <View className={styles.expRow}>
-            <Text>当前等级</Text>
-            <Text>Lv1</Text>
-          </View>
-          <View className={styles.progressContainer}>
-            <View className={styles.progressBar} style={{ width: `${progress}%` }} />
-          </View>
-          <Text className={styles.expRatio}>{currentExp}/{maxExp}</Text>
         </View>
-
-        {/* Level Descriptions */}
-        <View className={styles.levelsGrid}>
-          {levelData.map((item, index) => (
-            <View key={index} className={`${styles.levelDescriptionCard} ${item.active ? styles.activeLevel : ''}`}>
-              <Text className={styles.levelDescriptionTitle}>{item.level}</Text>
-              <Text className={styles.levelDescriptionExp}>{item.exp}</Text>
-            </View>
-          ))}
+      </View>
+      {/* 经验值信息 */}
+      <View className={styles.card}>
+        <View className={styles.infoRow}>
+          <Text className={styles.infoLabel}>当前经验值</Text>
+          <Text className={styles.infoValue}>{userExp}</Text>
         </View>
-
-        {/* Gain Experience Section */}
-        <View className={styles.tasksCard}>
-          <Text className={styles.tasksTitle}>获取经验值</Text>
-          {experienceTasks.map((task, index) => (
-            <View key={index} className={styles.taskItem}>
-              <View className={styles.taskInfo}>
-                <Image src={task.icon} className={styles.taskIcon} />
-                <Text className={styles.taskName}>{task.name}</Text>
+        <View className={styles.infoRow}>
+          <Text className={styles.infoLabel}>当前等级</Text>
+          <Text className={styles.infoValue}>Lv{userLevel}</Text>
+        </View>
+        {/* 等级进度条 */}
+        <View className={styles.progressBarWrap}>
+          <View className={styles.progressBarBg}>
+            <View className={styles.progressBar} style={{ width: `${progress * 100}%` }} />
+          </View>
+          <Text className={styles.progressText}>{userExp}/{maxExp}</Text>
+        </View>
+      </View>
+      {/* 等级说明列表 */}
+      <View className={styles.card}>
+        <View className={styles.levelGrid}>
+          <View className={styles.levelCol}>
+            {LEVELS.filter((_, i) => i % 2 === 0).map(lv => (
+              <View key={lv.lv} className={styles.levelItem}>
+                <View style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                  <Text className={styles.levelTitle}>{lv.label}</Text>
+                  <Text style={{ margin: '0 4px', color: '#9CA3AF', fontSize: 15 }}>:</Text>
+                </View>
+                <Text className={styles.levelRange}>{lv.range}</Text>
               </View>
-              <Text className={`${styles.taskStatus} ${styles[task.statusClass]}`}>{task.status}</Text>
-            </View>
-          ))}
+            ))}
+          </View>
+          <View className={styles.levelCol}>
+            {LEVELS.filter((_, i) => i % 2 === 1).map(lv => (
+              <View key={lv.lv} className={styles.levelItem + ' ' + (lv.lv === userLevel ? styles.levelActive : '')}>
+                <View style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                  <Text className={styles.levelTitle}>{lv.label}</Text>
+                  <Text style={{ margin: '0 4px', color: '#9CA3AF', fontSize: 15 }}>:</Text>
+                </View>
+                <Text className={styles.levelRange}>{lv.range}</Text>
+              </View>
+            ))}
+          </View>
         </View>
+      </View>
+      {/* 获取经验值说明 */}
+      <View className={styles.card}>
+        <Text className={styles.expTitle}>获取经验值</Text>
+        {EXP_RULES.map((item, idx) => (
+          <View key={item.text} className={styles.expRow}>
+            <View className={styles.expIconWrap}>
+              <Image src={item.icon} className={styles.expIcon} />
+            </View>
+            <Text className={styles.expText}>{item.text}</Text>
+            <Text className={styles.expStatus + ' ' + item.statusColor}>{item.status}</Text>
+            {idx < EXP_RULES.length - 1 && <View className={styles.expDivider} />}
+          </View>
+        ))}
       </View>
     </View>
   );
