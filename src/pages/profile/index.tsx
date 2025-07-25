@@ -80,7 +80,7 @@ const Profile = () => {
       comments: '/pages/subpackage-profile/comments/index',
       drafts: '/pages/subpackage-profile/draft-box/index',
       history: '/pages/subpackage-profile/history/index',
-      feedback: '/pages/feedback/index',
+      feedback: '/pages/subpackage-profile/feedback/index',
       about: '/pages/subpackage-profile/about/index',
       settings: '/pages/subpackage-profile/settings/index',
     };

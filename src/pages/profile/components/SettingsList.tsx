@@ -24,7 +24,7 @@ const SettingsList = () => {
     { icon: userIcon, text: '关于我们', link: '/pages/about/index' },
     { icon: settingsIcon, text: '设置', link: '/pages/subpackage-profile/settings/index' },
     { icon: historyIcon, text: '浏览历史', link: '/pages/subpackage-profile/history/index' },
-    { icon: feedbackIcon, text: '意见反馈', link: '/pages/feedback/index' },
+    { icon: feedbackIcon, text: '意见反馈', link: '/pages/subpackage-profile/feedback/index' },
     { icon: aboutIcon, text: '关于我们', link: '/pages/about/index', extra: '版本 0.1.0' },
     { icon: logoutIcon, text: '退出登录', action: 'logout' },
   ];
