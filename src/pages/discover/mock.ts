@@ -11,7 +11,7 @@ export const hotspots = [
     title: "期末复习攻略分享",
     discussions: "2.3K 讨论",
     image:
-      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80",
+      "https://i0.hdslb.com/bfs/new_dyn/d5492210f29a518b407b9bae4b07bda536081646.png@1052w_!web-dynamic.avif",
   },
   {
     id: 2,

@@ -1,11 +1,18 @@
 import http from '../request';
 
-export interface HotPage {
-  page_size: number;
+export interface HotSearchItem {
+  query: string;
+  search_count: number;
+}
+
+export interface HotAndNewSearchResponse {
+  code: number;
+  message: string;
+  data: HotSearchItem[];
 }
 
 export const hotApi = {
   getHotPage: () => {
-    return http.get<HotPage>('/knowledge/hot/page')
+    return http.get<HotAndNewSearchResponse>('/knowledge/hot_and_new');
   }
 }
