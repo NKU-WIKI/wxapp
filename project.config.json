@@ -8,7 +8,7 @@
     "enhance": true,
     "compileHotReLoad": false,
     "postcss": false,
-    "minified": false,
+    "minified": true,
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
@@ -17,7 +17,8 @@
     "ignoreUploadUnusedFiles": true,
     "coverView": false,
     "showShadowRootInWxmlPanel": false,
-    "packNpmRelationList": []
+    "packNpmRelationList": [],
+    "condition": false
   },
   "compileType": "miniprogram",
   "srcMiniprogramRoot": "dist/",

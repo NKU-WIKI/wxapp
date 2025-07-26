@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f8fafc;
+  background-color: #f9fafc;
 }
 
 .scrollView {
@@ -275,6 +275,90 @@
   min-width: 80px;
 }
 
+/* 热门帖子列表样式 */
+.hotPostsList {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.05);
+  margin-top: -8px; /* 向上移动 */
+  margin-bottom: 16px; /* 增加与下方内容的距离 */
+}
+
+.hotPostItem {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+  cursor: pointer; /* 添加手势指示 */
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background-color: #f8fafc;
+  }
+
+  &:hover {
+    background-color: #f8fafc;
+  }
+}
+
+.hotPostContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hotPostTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.hotPostMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hotPostComments {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.hotPostDot {
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.hotPostTime {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.hotPostArrow {
+  margin-left: 12px;
+}
+
+.arrowIcon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.6;
+}
+
+.emptyState {
+  padding: 40px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
 /* 底部间距 */
 .bottomSpacing {
   height: 16px;
@@ -287,4 +371,10 @@
   color: #9ca3af;
   font-size: 14px;
   background-color: transparent;
+}
+
+.hotPostSource {
+  font-size: 12px;
+  color: #3b82f6;
+  font-weight: 500;
 }
