@@ -1,0 +1,83 @@
+@import "@/styles/variables.scss";
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 16px 0 16px 16px;
+  border-bottom: 1px solid $border-light;
+  background: $bg-card;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.cover {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 4px;
+  text-align: left;
+  word-break: break-all;
+}
+
+.publishTime {
+  font-size: 13px;
+  color: $text-secondary-gray;
+  text-align: left;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: 8px;
+  margin-right: 12px;
+  gap: 8px;
+}
+
+.viewTime {
+  font-size: 13px;
+  color: $text-helper-gray;
+}
+
+.deleteIcon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: $status-error-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  mask-image: var(--icon-url);
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: var(--icon-url);
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  background-color: $status-error;
+} 

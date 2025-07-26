@@ -71,12 +71,16 @@
   width: 100%;
 }
 
-.userId {
+.userBio {
   color: #6B7280;
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 0;
   display: block;
   width: 100%;
+  line-height: 1.4;
+  max-width: 160px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .levelBadge {

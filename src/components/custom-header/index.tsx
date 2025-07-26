@@ -124,12 +124,12 @@ const CustomHeader = ({
           {/* 左侧区域 */}
           <View className={styles.left} style={leftIconStyle}>
             {leftIcon && (
-              <View onClick={onLeftClick} className={styles.iconWrapper}>
+              <View onClick={onLeftClick ? onLeftClick : handleBack} className={styles.iconWrapper}>
                 <Image src={leftIcon} className={styles.backIcon} />
               </View>
             )}
             {!hideBack && (
-              <View onClick={handleBack} className={styles.iconWrapper}>
+              <View onClick={onLeftClick ? onLeftClick : handleBack} className={styles.iconWrapper}>
                 <Image src={backIcon} className={styles.backIcon} />
               </View>
             )}

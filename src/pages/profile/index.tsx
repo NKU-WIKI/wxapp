@@ -79,8 +79,8 @@ const Profile = () => {
       favorites: '/pages/subpackage-profile/favorites/index',
       comments: '/pages/subpackage-profile/comments/index',
       drafts: '/pages/subpackage-profile/draft-box/index',
-      history: '/pages/history/index',
-      feedback: '/pages/feedback/index',
+      history: '/pages/subpackage-profile/history/index',
+      feedback: '/pages/subpackage-profile/feedback/index',
       about: '/pages/subpackage-profile/about/index',
       settings: '/pages/subpackage-profile/settings/index',
     };
@@ -115,10 +115,10 @@ const Profile = () => {
           
           <View className={styles.userDetails}>
             <Text className={styles.nickname}>{userInfo?.nickname || '未设置昵称'}</Text>
-            <Text className={styles.userId}>ID: {userInfo?.wechatId || `nku${userInfo?.id || 'loading'}`}</Text>
+            <Text className={styles.userBio}>{userInfo?.bio || '这个人很懒，还没有设置个性签名~'}</Text>
           </View>
 
-          <View className={styles.levelBadge}>
+          <View className={styles.levelBadge} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-profile/level/index' })} style={{ cursor: 'pointer' }}>
             <Text className={styles.starIcon}>★</Text>
             <Text className={styles.levelText}>LV.{userInfo?.level || '1'}</Text>
           </View>

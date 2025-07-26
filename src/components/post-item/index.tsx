@@ -70,13 +70,59 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
 
   // 跳转到详情页
   const navigateToDetail = (e) => {
-    // 防止点击按钮时触发
-    if (e && e.target && e.target.className && 
-        (typeof e.target.className === 'string') && 
-        (e.target.className.includes('action') || e.target.className.includes('Icon'))) {
-      return;
-    }
+    e.stopPropagation();
     Taro.navigateTo({ url: `/pages/subpackage-interactive/post-detail/index?id=${post.id}` });
+  };
+
+  // 跳转到用户资料页
+  const navigateToProfile = (e) => {
+    e.stopPropagation();
+    // 如果是当前用户，直接跳转到 profile tabbar 页面
+    if (post.author_info.id === userInfo?.id) {
+      Taro.switchTab({ url: '/pages/profile/index' });
+    } else {
+      // 如果是其他用户，跳转到用户详情页（需要创建新页面）
+      Taro.navigateTo({ url: `/pages/subpackage-profile/user-detail/index?userId=${post.author_info.id}` });
+    }
+  };
+
+  // 处理关注按钮点击
+  const handleFollowClick = (e) => {
+    e.stopPropagation();
+    if (!checkLogin()) return;
+    
+    // 调用关注API
+    dispatch(toggleAction({ 
+      postId: post.author_info.id, 
+      actionType: 'follow' 
+    })).then((result: any) => {
+      if (result.payload && result.payload.response) {
+        const { is_active } = result.payload.response;
+        Taro.showToast({
+          title: is_active ? '关注成功' : '已取消关注',
+          icon: 'none',
+          duration: 1500
+        });
+      }
+    }).catch(error => {
+      console.error('关注操作失败', error);
+      if (error.statusCode === 401) {
+        Taro.showModal({
+          title: '登录已过期',
+          content: '请重新登录后重试',
+          success: (res) => {
+            if (res.confirm) {
+              Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+            }
+          }
+        });
+      } else {
+        Taro.showToast({
+          title: '操作失败，请重试',
+          icon: 'none'
+        });
+      }
+    });
   };
 
   // 处理点赞、收藏、关注等动作
@@ -192,15 +238,15 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   const canDelete = userInfo?.id === post.author_info.id || userInfo?.role === 'admin';
 
   return (
-    <View className={`${styles.postCard} ${className}`} onClick={navigateToDetail}>
+    <View className={`${styles.postCard} ${className}`}>
       <View className={styles.cardHeader}>
-        <View className={styles.authorInfo}>
+        <View className={styles.authorInfo} onClick={navigateToProfile}>
           <Image src={post.author_info.avatar || ''} className={styles.avatar} />
           <View className={styles.authorDetails}>
             <View className={styles.authorMainRow}>
               <Text className={styles.authorName}>{post.author_info.nickname || '匿名'}</Text>
               <View className={styles.levelBadge}><Text>Lv.{post.author_info.level || 0}</Text></View>
-              <View className={styles.followButton}><Text>关注</Text></View>
+              <View className={styles.followButton} onClick={handleFollowClick}><Text>关注</Text></View>
             </View>
             <Text className={styles.authorBio}>{post.author_info.bio || ''}</Text>
           </View>
@@ -216,7 +262,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
       </View>
       
       {/* Post Content */}
-      <View className={styles.content}>
+      <View className={styles.content} onClick={navigateToDetail}>
         <Text className={styles.title}>{post.title}</Text>
         <Text className={styles.text} numberOfLines={3}>
           {post.content}
@@ -224,7 +270,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
       </View>
 
       {post.image_urls && post.image_urls.length > 0 && (
-        <View className={styles.images}>
+        <View className={styles.images} onClick={navigateToDetail}>
           {post.image_urls.slice(0, 3).map((url, index) => (
             <Image key={index} src={url} className={styles.postImage} />
           ))}

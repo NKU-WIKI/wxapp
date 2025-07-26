@@ -29,7 +29,6 @@ const PostDetailPage = () => {
     if (postId) {
       // 获取帖子详情
       dispatch(fetchPostDetail(postId));
-      
       // 获取帖子评论
       dispatch(fetchComments({
         resource_id: postId,
@@ -37,22 +36,21 @@ const PostDetailPage = () => {
       }));
     }
   }, [dispatch, postId]);
-  
-  // 自动存储浏览历史（currentPost 加载后执行）
+
+  // 新增：监听 currentPost 变化，写入历史（含 avatar 字段）
   useEffect(() => {
-    if (currentPost && currentPost.id === postId) {
+    if (currentPost) {
       addHistory({
         id: String(currentPost.id),
         title: currentPost.title,
-        cover: currentPost.image_urls && currentPost.image_urls.length > 0 ? currentPost.image_urls[0] : '',
+        cover: currentPost.image_urls?.[0] || '',
         avatar: currentPost.author_info?.avatar || '',
         createdAt: currentPost.create_time,
-        viewedAt: new Date().toISOString(),
-        link: `/pages/subpackage-interactive/post-detail/index?id=${currentPost.id}`
+        viewedAt: new Date().toISOString()
       });
     }
-  }, [currentPost, postId]);
-  
+  }, [currentPost]);
+
   const renderContent = () => {
     if (detailLoading === 'pending') {
       return <View className={styles.loading}>加载中...</View>;

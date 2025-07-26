@@ -1,4 +1,4 @@
 export default definePageConfig({
-  navigationBarTitleText: '我的等级',
+  navigationBarTitleText: '意见反馈',
   navigationStyle: 'default',
-});
+}); 

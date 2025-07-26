@@ -1,170 +1,206 @@
-@use "../../../styles/variables.scss" as *;
+@import "@/styles/variables.scss";
 
-.editProfilePage {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: $bg-page-gray;
-}
-
-.saveButton {
-  margin-top: 24px;
-  padding: 12px;
-  border-radius: 8px;
-  background-color: $theme-primary;
-  color: $text-white;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 500;
-}
-
+// 主要内容区域
 .content {
-  flex: 1;
-  overflow-y: auto;
   padding: 16px;
-  padding-bottom: 80px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-.footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 16px;
-  background-color: $bg-card;
-  border-top: 1px solid $border-base;
-  box-shadow: 0 -2px 10px $alpha-black-5;
-}
-
-/* Avatar Section */
+// 头像部分
 .avatarSection {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 0;
+  padding: 24px 0;
+  margin-bottom: 16px;
 }
 
-.avatarWrapper {
+.avatarUpload {
   position: relative;
   width: 96px;
   height: 96px;
+  margin-bottom: 8px;
+  cursor: pointer;
 }
 
 .avatar {
   width: 100%;
   height: 100%;
+  object-fit: cover;
   border-radius: 50%;
-  border: 2px solid $border-gray;
+  border: 2px solid #e5e5e5;
 }
 
-.cameraIconWrapper {
+.uploadingOverlay {
   position: absolute;
-  bottom: 0;
+  top: 0;
+  left: 0;
   right: 0;
-  background-color: $theme-primary-light;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   border-radius: 50%;
-  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.cameraIcon {
-  width: 20px;
-  height: 20px;
-  color: $text-white;
+.uploadingText {
+  color: white;
+  font-size: 12px;
 }
 
-.avatarText {
+.avatarTip {
   font-size: 14px;
-  color: $text-secondary;
+  color: #999;
 }
 
-/* Info Cards */
-.infoCard,
-.bioCard {
-  background-color: $bg-card;
+// 卡片样式
+.card {
+  background-color: white;
   border-radius: 8px;
-  border: 1px solid $border-cool;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .cardTitle {
   font-size: 16px;
   font-weight: 600;
-  color: $text-primary-dark;
-  padding: 16px;
-  border-bottom: 1px solid $border-cool;
+  color: #6366f1;
+  padding: 16px 16px 0 16px;
+  margin-bottom: 16px;
 }
 
-.infoRow {
+// 字段行样式
+.fieldRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border-bottom: 1px solid $border-cool;
+  border-bottom: 1px solid #f0f0f0;
+
   &:last-child {
     border-bottom: none;
   }
 }
 
-.infoLabel {
+.fieldLabel {
   font-size: 16px;
-  color: $text-primary-medium;
+  color: #333;
+  flex-shrink: 0;
 }
 
-.infoInput {
+.fieldInput {
+  flex: 1;
   text-align: right;
   border: none;
-  background-color: transparent;
-  padding: 0;
+  background: transparent;
   font-size: 16px;
-  color: #4b5563;
-  width: auto;
-  max-width: 180px;
-  &:focus {
-    outline: none;
+  color: #333;
+  outline: none;
+
+  &::placeholder {
+    color: #999;
   }
 }
 
-.infoValueContainer {
+.fieldValue {
   display: flex;
   align-items: center;
-  gap: 8px;
+  color: #666;
 }
 
-.infoValue {
+.fieldText {
   font-size: 16px;
-  color: #4b5563;
+  color: #666;
+  margin-right: 8px;
 }
 
-.arrowIcon {
-  width: 20px;
-  height: 20px;
-  color: #9ca3af;
+.chevronRight {
+  font-size: 16px;
+  color: #ccc;
 }
 
-/* Bio Card */
-.bioCard {
-  padding: 16px;
+// 个人简介输入框
+.bioInput {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 0;
+  border: none;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #333;
+  background: transparent;
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+// 兴趣标签样式
+.interestGrid {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 12px;
-  .cardTitle {
-    padding: 0;
+  padding: 0 16px 16px 16px;
+}
+
+.interestTag {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.interestTagActive {
+  background-color: #6366f1;
+  border-color: #6366f1;
+}
+
+.interestText {
+  font-size: 14px;
+  color: #666;
+}
+
+.interestTextActive {
+  color: white;
+}
+
+// 保存按钮容器
+.saveButtonContainer {
+  padding: 24px 16px;
+  margin-bottom: 32px;
+}
+
+.saveButton {
+  width: 100%;
+  height: 48px;
+  background-color: #6366f1;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 24px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &::after {
     border: none;
   }
-}
 
-.bioTextarea {
-  width: 100%;
-  min-height: 120px;
-  border: none;
-  background-color: transparent;
-  font-size: 16px;
-  color: #4b5563;
-  padding: 0;
-  &:focus {
-    outline: none;
+  &:hover {
+    background-color: #5856eb;
+    opacity: 0.9;
   }
-} 
+
+  &:disabled {
+    background-color: #ccc;
+    color: #999;
+  }
+}
