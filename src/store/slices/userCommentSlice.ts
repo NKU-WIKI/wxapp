@@ -3,6 +3,27 @@ import Taro from '@tarojs/taro';
 import { userApi } from '@/services/api/user';
 import postApi from '@/services/api/post';
 
+// 定义API返回的评论项结构
+interface ApiCommentItem {
+  id: number;
+  resource_id: number;
+  resource_type: string;
+  parent_id: number | null;
+  user_id: number;
+  openid: string | null;
+  nickname: string | null;
+  avatar: string | null;
+  content: string;
+  image: string | null;
+  like_count: number;
+  reply_count: number;
+  status: number;
+  is_deleted: number;
+  create_time: string;
+  update_time: string;
+  post_title: string;
+}
+
 // 定义包含帖子信息的评论项
 interface CommentWithPostInfo {
   id: number;
@@ -10,6 +31,7 @@ interface CommentWithPostInfo {
   content: string;
   create_time: string;
   like_count: number;
+  reply_count: number;
   is_liked?: boolean;
   post_title: string;
   post_content: string;
@@ -60,13 +82,17 @@ export const fetchUserComments = createAsyncThunk(
       
       // 提取响应数据
       const responseData = response as any;
-      const comments = Array.isArray(responseData.data) ? responseData.data : [];
+      const comments: ApiCommentItem[] = Array.isArray(responseData.data) ? responseData.data : [];
       const pagination = responseData.pagination || {
         page: params.page || 1,
         page_size: params.page_size || 10,
         total: 0,
         has_more: false
       };
+
+      // 🔥 后端联调 - 打印用户评论列表原始数据
+      console.log('🔥 用户评论列表 - 原始API响应:', responseData);
+      console.log('🔥 用户评论列表 - 评论数量:', comments.length);
 
       // 如果没有评论数据，直接返回空数组
       if (!comments.length) {
@@ -77,52 +103,31 @@ export const fetchUserComments = createAsyncThunk(
         };
       }
 
-      // 获取每个评论对应帖子的详细信息
-      const commentsWithPostInfo = await Promise.all(
-        comments.map(async (comment) => {
-          try {
-            if (!comment.post_id) {
-              throw new Error('Missing post_id');
-            }
-            
-            // 使用帖子详情接口获取完整信息
-            const postResponse = await postApi.getPostById(comment.post_id);
-            const postData = postResponse.data;
-            
-            // 合并评论和帖子信息
-            return {
-              id: comment.id,
-              post_id: comment.post_id,
-              content: comment.content || '',
-              create_time: comment.create_time || '',
-              like_count: comment.like_count || 0,
-              is_liked: comment.is_liked || false,
-              post_title: postData.title || '未知标题',
-              post_content: postData.content || '',
-              post_image: postData.image_urls || postData.image || undefined,
-              author_info: postData.author_info
-            } as CommentWithPostInfo;
-          } catch (error) {
-            // 如果获取详情失败，使用评论中的简略信息
-            return {
-              id: comment.id,
-              post_id: comment.post_id,
-              content: comment.content || '',
-              create_time: comment.create_time || '',
-              like_count: comment.like_count || 0,
-              is_liked: false,
-              post_title: '未知标题',
-              post_content: '内容不可用',
-              author_info: {
-                id: 0,
-                nickname: '未知用户',
-                avatar: ''
-              }
-            } as CommentWithPostInfo;
+      // 将API数据转换为前端需要的格式，不需要请求帖子详情
+      const commentsWithPostInfo: CommentWithPostInfo[] = comments.map((comment) => {
+        return {
+          id: comment.id,
+          post_id: comment.resource_id, // API中是resource_id
+          content: comment.content || '',
+          create_time: comment.create_time || '',
+          like_count: comment.like_count || 0,
+          reply_count: comment.reply_count || 0,
+          is_liked: false, // API没有返回，默认为false
+          post_title: comment.post_title || '未知标题',
+          post_content: '内容不可用', // API没有返回帖子内容
+          post_image: undefined,
+          author_info: {
+            id: comment.user_id || 0,
+            nickname: comment.nickname || '未知用户',
+            avatar: comment.avatar || ''
           }
-        })
-      );
-      
+        };
+             });
+
+      // 🔥 后端联调 - 打印转换后的数据
+      console.log('🔥 用户评论列表 - 转换后的评论数据:', commentsWithPostInfo);
+      console.log('🔥 用户评论列表 - 分页信息:', pagination);
+       
       return {
         items: commentsWithPostInfo,
         pagination,

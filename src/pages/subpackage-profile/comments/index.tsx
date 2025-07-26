@@ -23,10 +23,15 @@ const CommentItem = ({ comment }) => {
       <View className={styles.commentMeta}>
         <Text className={styles.commentTime}>{formatRelativeTime(comment.create_time)}</Text>
         <Text>{comment.like_count || 0} 赞</Text>
+        {comment.reply_count > 0 && (
+          <Text>{comment.reply_count} 回复</Text>
+        )}
       </View>
       <View className={styles.postInfo}>
         <Text className={styles.postTitle}>{comment.post_title}</Text>
-        <Text className={styles.postContent}>{comment.post_content}</Text>
+        {comment.post_content && comment.post_content !== '内容不可用' && (
+          <Text className={styles.postContent}>{comment.post_content}</Text>
+        )}
       </View>
     </View>
   );

@@ -5,21 +5,16 @@ import { Post } from '@/types/api/post';
 import postApi from '@/services/api/post';
 import { BackendPaginatedResponse } from '@/types/api/common';
 
-// 定义点赞项的类型
+// 定义点赞项的类型 - 根据实际API返回结构
 interface LikeItem {
   type: string;
-  post_info?: {
-    id: number;
-    title: string;
-    content: string;
-    image?: string | string[];
-    create_time: string;
-    author_info: {
-      nickname: string;
-      avatar: string;
-    };
-  };
-  comment_info?: any; // 评论的点赞信息，暂时不处理
+  id: number;
+  title: string;
+  content: string;
+  image: string | null;
+  create_time: string;
+  author_nickname: string;
+  author_avatar: string;
 }
 
 // 定义状态类型
@@ -69,38 +64,64 @@ export const fetchLikes = createAsyncThunk(
         has_more: false
       };
 
-      // 过滤出帖子类型的点赞
-      const postLikes = likes.filter(item => item.type === 'post' && item.post_info);
+      // 🔥 后端联调 - 打印点赞列表原始数据
+      console.log('🔥 点赞列表 - 原始API响应:', responseData);
+      console.log('🔥 点赞列表 - 数据项数量:', likes.length);
 
-      // 获取每个点赞帖子的详细信息
-      const postDetails = await Promise.all(
+      // 过滤出帖子类型的点赞
+      const postLikes = likes.filter(item => item.type === 'post');
+      console.log('🔥 点赞列表 - 帖子类型点赞数量:', postLikes.length);
+
+      // 用ID请求完整帖子详情，失败时兜底用原始数据
+      const postDetails: Post[] = await Promise.all(
         postLikes.map(async (item) => {
-          try {
-            if (!item.post_info) {
-              throw new Error('Missing post_info');
+          // 处理图片字段 - 如果是字符串"[]"或null，转换为空数组
+          let imageUrls: string[] = [];
+          if (item.image && item.image !== '[]' && item.image !== 'null') {
+            try {
+              imageUrls = JSON.parse(item.image);
+            } catch {
+              imageUrls = [item.image];
             }
-            
-            // 使用帖子详情接口获取完整信息
-            const postResponse = await postApi.getPostById(item.post_info.id);
+          }
+          try {
+            const postResponse = await postApi.getPostById(item.id);
             return postResponse.data;
           } catch (error) {
-            console.error(`获取帖子详情失败，ID: ${item.post_info?.id}`, error);
-            // 如果获取详情失败，使用列表中的简略信息
+            console.error(`获取帖子详情失败，ID: ${item.id}`, error);
+            // 兜底用API原始数据
             return {
-              id: item.post_info?.id,
-              title: item.post_info?.title,
-              content: item.post_info?.content,
-              image: item.post_info?.image,
-              create_time: item.post_info?.create_time,
+              id: item.id,
+              user_id: 0,
+              title: item.title,
+              content: item.content,
+              image_urls: imageUrls,
+              tag: null,
+              location: null,
+              create_time: item.create_time,
               author_info: {
-                nickname: item.post_info?.author_info.nickname,
-                avatar: item.post_info?.author_info.avatar
+                id: 0,
+                nickname: item.author_nickname,
+                avatar: item.author_avatar,
+                level: '1',
+                bio: '',
+                gender: 1,
               },
-              is_liked: true // 这是点赞列表，所以一定是已点赞的
+              is_liked: true,
+              is_favorited: false,
+              is_following_author: false,
+              like_count: 0,
+              favorite_count: 0,
+              comment_count: 0,
+              view_count: 0,
             } as Post;
           }
         })
       );
+
+      // 🔥 后端联调 - 打印转换后的数据
+      console.log('🔥 点赞列表 - 转换后的帖子数据:', postDetails);
+      console.log('🔥 点赞列表 - 分页信息:', pagination);
 
       return {
         items: postDetails,

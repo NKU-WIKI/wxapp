@@ -89,12 +89,16 @@ const PostDetailPage = () => {
   return (
     <View className={styles.postDetailPage}>
       <CustomHeader title="帖子详情" hideBack={false} background="#FFFFFF" />
-      <ScrollView scrollY className={styles.scrollView}>
-        <View style={{ height: 81 }} />
-        <View className={styles.mainContent}>
-          {renderContent()}
-        </View>
-      </ScrollView>
+      <View className={styles.contentWrapper}>
+        <ScrollView 
+          scrollY 
+          className={styles.scrollView}
+        >
+          <View className={styles.mainContent}>
+            {renderContent()}
+          </View>
+        </ScrollView>
+      </View>
       <BottomInput postId={postId} />
     </View>
   );

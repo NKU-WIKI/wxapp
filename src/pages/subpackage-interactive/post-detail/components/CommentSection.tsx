@@ -18,7 +18,9 @@ interface CommentItemProps {
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment, postId }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoggedIn, token } = useSelector((state: RootState) => state.user);
+  const userState = useSelector((state: RootState) => state.user);
+  const isLoggedIn = userState?.isLoggedIn || false;
+  const token = userState?.token || null;
   
   const handleLike = () => {
     // 检查用户是否登录
@@ -38,9 +40,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, postId }) => {
     // 派发点赞操作
     dispatch(toggleAction({
       postId,
-      actionType: 'like',
-      targetType: 'comment',
-      commentId: comment.id
+      actionType: 'like'
     }));
   };
   
