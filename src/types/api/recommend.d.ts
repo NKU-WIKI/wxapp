@@ -1,4 +1,4 @@
-export interface HotSearchItem {
+export interface recommendItem {
   hot_posts: [],
   "new_posts": [],
   "recommended_posts": [],
@@ -13,13 +13,15 @@ export interface HotSearchItem {
   }
 }
 
-export interface HotAndNewSearchResponse {
+export interface recommendResponse {
   code: number;
   message: string;
-  data: HotSearchItem;
+  data: recommendItem;
 }
 
-export interface GetHotAndNewParams {
+export interface recommendParams {
+  enable_ai_recommendation?: boolean;
+  user_id?: string | null;
   limit?: number;
   hot_weight?: number;
   new_weight?: number;
