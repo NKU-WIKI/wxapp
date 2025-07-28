@@ -272,11 +272,11 @@ export default function PublishPost() {
   };
 
   return (
-    <View className={styles.pageContainer}>
+    <View className={styles.pageContainer} >
       {/* 顶部提示 */}
-      <View style={{ background: '#FFFBEA', color: '#B7791F', padding: '8px 16px', fontSize: 13, textAlign: 'center' }}>
+       {/*<View style={{ background: '#FFFBEA', color: '#B7791F', padding: '8px 16px', fontSize: 13, textAlign: 'center' }}>
         返回请用左上角按钮，否则自动保存草稿
-      </View>
+      </View> 顶部存在的空白，注释后更美观     */}
       <CustomHeader title="发布帖子" onLeftClick={handleBack} />
 
       <View className={styles.contentWrapper}>
