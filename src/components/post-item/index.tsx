@@ -1,5 +1,6 @@
 import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
+import { useState, useRef } from 'react';
 import { Post } from "@/types/api/post.d";
 import styles from "./index.module.scss";
 import { formatRelativeTime } from "@/utils/time";
@@ -29,6 +30,9 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     return null; // 或者返回一个加载状态的组件
   }
   const dispatch = useDispatch<AppDispatch>();
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const lastActionTimeRef = useRef<number>(0);
+  const DEBOUNCE_DELAY = 500; // 500ms 防抖间隔
   const userState = useSelector((state: RootState) => state.user);
   const userInfo = userState?.userInfo || null;
   const token = userState?.token || null;
@@ -129,6 +133,24 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   const handleActionClick = (e, actionType: 'like' | 'favorite' | 'follow' | 'share' | 'delete' | 'comment') => {
     e.stopPropagation(); // 阻止事件冒泡到父容器的 navigateToDetail
 
+    // 增强的防抖动机制：检查时间间隔和加载状态
+    const currentTime = Date.now();
+    if (actionType === 'like' || actionType === 'favorite') {
+      if (isActionLoading) {
+        Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
+        return;
+      }
+      
+      // 检查时间间隔
+      if (currentTime - lastActionTimeRef.current < DEBOUNCE_DELAY) {
+        Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
+        return;
+      }
+      
+      // 更新最后操作时间
+      lastActionTimeRef.current = currentTime;
+    }
+
     if (actionType === 'share') {
       // 微信分享逻辑，Taro 目前不支持在组件中直接调用 onShareAppMessage
       // 需要在页面级别处理，或者通过事件通知页面
@@ -147,6 +169,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     switch (actionType) {
       case 'like':
       case 'favorite':
+        setIsActionLoading(true);
         // 直接派发 action 到 Redux，让 Redux 处理状态更新
         dispatch(toggleAction({ 
           postId: post.id, 
@@ -184,6 +207,8 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
               icon: 'none'
             });
           }
+        }).finally(() => {
+          setIsActionLoading(false);
         });
         break;
       case 'follow':

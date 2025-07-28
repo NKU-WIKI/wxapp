@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Image } from '@tarojs/components';
+import { useState, useRef } from 'react';
 import Taro from '@tarojs/taro';
 import styles from '../index.module.scss';
 import { Post } from '@/types/api/post';
@@ -21,6 +22,9 @@ interface PostDetailContentProps {
 
 const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const lastActionTimeRef = useRef<number>(0);
+  const DEBOUNCE_DELAY = 500; // 500ms 防抖间隔
   const userState = useSelector((state: RootState) => state.user);
   const token = userState?.token || null;
   const isLoggedIn = userState?.isLoggedIn || false;
@@ -65,6 +69,24 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
   // 处理点赞
   const handleLike = () => {
     if (!checkLogin()) return;
+
+    // 增强的防抖动机制：检查时间间隔和加载状态
+    const currentTime = Date.now();
+    if (isActionLoading) {
+      Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
+      return;
+    }
+    
+    // 检查时间间隔
+    if (currentTime - lastActionTimeRef.current < DEBOUNCE_DELAY) {
+      Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
+      return;
+    }
+    
+    // 更新最后操作时间
+    lastActionTimeRef.current = currentTime;
+
+    setIsActionLoading(true);
     
     // 调用API进行点赞/取消点赞
     dispatch(toggleAction({ 
@@ -101,12 +123,32 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
           icon: 'none'
         });
       }
+    }).finally(() => {
+      setIsActionLoading(false);
     });
   };
   
   // 处理收藏
   const handleFavorite = () => {
     if (!checkLogin()) return;
+
+    // 增强的防抖动机制：检查时间间隔和加载状态
+    const currentTime = Date.now();
+    if (isActionLoading) {
+      Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
+      return;
+    }
+    
+    // 检查时间间隔
+    if (currentTime - lastActionTimeRef.current < DEBOUNCE_DELAY) {
+      Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
+      return;
+    }
+    
+    // 更新最后操作时间
+    lastActionTimeRef.current = currentTime;
+
+    setIsActionLoading(true);
     
     // 调用API进行收藏/取消收藏
     dispatch(toggleAction({ 
@@ -143,6 +185,8 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
           icon: 'none'
         });
       }
+    }).finally(() => {
+      setIsActionLoading(false);
     });
   };
   
