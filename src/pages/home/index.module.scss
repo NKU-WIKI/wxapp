@@ -38,6 +38,7 @@
   padding: 12px 0;
   margin: 0 16px 8px 16px; // 减少顶部margin，让categories更靠近search
   display: flex;
+  justify-content: center; // 添加居中对齐
 }
 
 .categoryItem {
@@ -45,7 +46,29 @@
   flex-direction: column;
   align-items: center;
   flex: 1;
-  margin-right: 16rpx;
+  margin-right: 8px; // 减少右边距，从16rpx改为8px
+  cursor: pointer;
+  user-select: none;
+  padding: 8px 4px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  // 移除最后一个item的右边距
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+
+  // 选中状态的方框效果
+  &.selected {
+    background-color: rgba(79, 70, 229, 0.1);
+    border: 2px solid #4f46e5;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+  }
 }
 
 .categoryIconContainer {
@@ -56,14 +79,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 18rpx;
-  margin-left: 18rpx;
-  margin-bottom: 4px;
+  margin-bottom: 4px; // 移除左右margin，只保留底部margin
 }
 
 .categoryIcon {
   width: 24px;
   height: 24px;
+
+  // 选中时图标颜色变化
+  .categoryItem.selected & {
+    color: #4f46e5;
+  }
 }
 
 .categoryName {
@@ -77,6 +103,7 @@
 
 .categoryNameSelected {
   color: #4f46e5;
+  font-weight: 600;
 }
 
 .postScrollContainer {

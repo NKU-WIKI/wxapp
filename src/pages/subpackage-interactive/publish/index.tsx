@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import Taro, { useRouter, useUnload } from "@tarojs/taro";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
-import { createPost } from "@/store/slices/postSlice";
 import {
   View,
   Text,
@@ -10,13 +8,14 @@ import {
   Textarea,
   Image,
   ScrollView,
-  Switch, // Keep Switch for PublishSettings if it's not passed down
 } from "@tarojs/components";
-import styles from "./index.module.scss";
+import { AppDispatch, RootState } from "@/store";
+import { createPost } from "@/store/slices/postSlice";
+import { uploadApi } from "@/services/api/upload";
+import { saveDraft, getDrafts } from '@/utils/draft';
 import CustomHeader from "@/components/custom-header";
 import PublishSettings from "./components/PublishSettings";
-import { uploadApi } from "@/services/api/upload";
-
+import styles from "./index.module.scss";
 // Import new SVG icons
 import imageIcon from "@/assets/image.svg"; // Assuming this remains, or replace with SVG
 import boldIcon from "@/assets/bold.svg";
@@ -25,13 +24,27 @@ import atSignIcon from "@/assets/at-sign.svg";
 import penToolIcon from "@/assets/pen-tool.svg";
 import lightbulbIcon from "@/assets/lightbulb.svg";
 import xCircleIcon from "@/assets/x-circle.svg"; // for deleting images
-import { saveDraft, getDrafts } from '@/utils/draft';
 import defaultAvatar from '@/assets/profile.png';
+// 导入分类图标
+import studyIcon from "@/assets/school.svg";
+import hatIcon from "@/assets/hat.svg";
+import starIcon from "@/assets/star2.svg";
+import usersGroupIcon from "@/assets/p2p-fill.svg";
+import bagIcon from "@/assets/bag.svg";
 
 const mockData = {
   tags: ["#校园生活", "#学习交流", "#求助", "#资源分享", "#活动通知"],
   styles: ["正式", "轻松", "幽默", "专业"],
 };
+
+// 分类数据，与首页保持一致
+const categories = [
+  { id: 1, name: "学习交流", icon: studyIcon },
+  { id: 2, name: "校园生活", icon: hatIcon },
+  { id: 3, name: "就业创业", icon: starIcon },
+  { id: 4, name: "社团活动", icon: usersGroupIcon },
+  { id: 5, name: "失物招领", icon: bagIcon },
+];
 
 // 简单 uuid 生成
 function uuid() {
@@ -53,9 +66,10 @@ export default function PublishPost() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
   const [isAddingTag, setIsAddingTag] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<number>(1); // 默认选择第一个分类
   // 标记是否已通过弹窗保存过草稿，避免 useUnload 再次保存
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
-  
+
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const draftId = router?.params?.draftId;
@@ -165,7 +179,7 @@ export default function PublishPost() {
 
   const handleTagToggle = (tag: string) => {
     console.log('点击标签:', tag, '当前选中状态:', selectedTags.includes(tag));
-    
+
     // 如果标签已经被选中，则取消选中
     if (selectedTags.includes(tag)) {
       const newTags = selectedTags.filter(t => t !== tag);
@@ -235,7 +249,7 @@ export default function PublishPost() {
       // 处理标签，去掉#前缀
       const processedTags = selectedTags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
       console.log('发布帖子，处理后的标签:', processedTags);
-      
+
       await dispatch(
         createPost({
           title,
@@ -244,6 +258,7 @@ export default function PublishPost() {
           tag: processedTags, // 添加标签数据
           is_public: isPublic,
           allow_comment: allowComments,
+          category_id: selectedCategory, // 添加分类ID
         })
       ).unwrap();
 
@@ -277,18 +292,18 @@ export default function PublishPost() {
        {/*<View style={{ background: '#FFFBEA', color: '#B7791F', padding: '8px 16px', fontSize: 13, textAlign: 'center' }}>
         返回请用左上角按钮，否则自动保存草稿
       </View> 顶部存在的空白，注释后更美观     */}
-      <CustomHeader title="发布帖子" onLeftClick={handleBack} />
+      <CustomHeader title='发布帖子' onLeftClick={handleBack} />
 
       <View className={styles.contentWrapper}>
         <ScrollView scrollY className={styles.scrollView}>
           <Input
-            placeholder="请输入标题"
+            placeholder='请输入标题'
             className={`${styles.titleInput} ${styles.card}`}
             value={title}
             onInput={(e) => setTitle(e.detail.value)}
           />
           <Textarea
-            placeholder="分享你的想法..."
+            placeholder='分享你的想法...'
             className={`${styles.contentInput} ${styles.card}`}
             value={content}
             onInput={(e) => setContent(e.detail.value)}
@@ -302,7 +317,7 @@ export default function PublishPost() {
                 <Image
                   src={url}
                   className={styles.previewImage}
-                  mode="aspectFill"
+                  mode='aspectFill'
                 />
                 <Image
                   src={xCircleIcon}
@@ -336,8 +351,8 @@ export default function PublishPost() {
               {mockData.tags.map((tag) => {
                 const selected = isTagSelected(tag);
                 return (
-                  <View 
-                    key={tag} 
+                  <View
+                    key={tag}
                     className={`${styles.tagItem} ${selected ? styles.selected : ''}`}
                     onClick={() => handleTagToggle(tag)}
                     style={{ backgroundColor: selected ? '#4F46E5' : undefined, color: selected ? '#FFFFFF' : undefined }}
@@ -346,14 +361,14 @@ export default function PublishPost() {
                   </View>
                 );
               })}
-              
+
               {isAddingTag ? (
                 <View className={`${styles.tagInputContainer}`}>
                   <Input
                     className={styles.tagInput}
                     value={customTag}
                     onInput={(e) => setCustomTag(e.detail.value)}
-                    placeholder="输入话题"
+                    placeholder='输入话题'
                     focus
                     onBlur={handleAddCustomTag}
                     onConfirm={handleAddCustomTag}
@@ -361,7 +376,7 @@ export default function PublishPost() {
                   <Text className={styles.addTagBtn} onClick={handleAddCustomTag}>确定</Text>
                 </View>
               ) : (
-                <View 
+                <View
                   className={`${styles.tagItem} ${styles.addTag}`}
                   onClick={() => setIsAddingTag(true)}
                 >
@@ -369,7 +384,7 @@ export default function PublishPost() {
               </View>
               )}
             </View>
-            
+
             {selectedTags.length > 0 && (
               <View className={styles.selectedTagsContainer}>
                 <Text className={styles.selectedTagsTitle}>已选话题：</Text>
@@ -377,7 +392,7 @@ export default function PublishPost() {
                   {selectedTags.map((tag) => (
                     <View key={tag} className={styles.selectedTag}>
                       <Text>{tag}</Text>
-                      <Text 
+                      <Text
                         className={styles.removeTag}
                         onClick={() => handleTagToggle(tag)}
                       >
@@ -388,6 +403,25 @@ export default function PublishPost() {
                 </View>
               </View>
             )}
+          </View>
+
+          {/* Category Selection */}
+          <View className={styles.card}>
+            <Text className={styles.sectionTitle}>选择分类</Text>
+            <View className={styles.categoriesContainer}>
+              {categories.map((category) => (
+                <View
+                  key={category.id}
+                  className={`${styles.categoryItem} ${
+                    selectedCategory === category.id ? styles.selected : ""
+                  }`}
+                  onClick={() => setSelectedCategory(category.id)}
+                >
+                  <Image src={category.icon} className={styles.categoryIcon} />
+                  <Text className={styles.categoryName}>{category.name}</Text>
+                </View>
+              ))}
+            </View>
           </View>
 
           {/* Wiki Polish Suggestion */}

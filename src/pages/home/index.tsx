@@ -1,17 +1,15 @@
 import { View, ScrollView, Text, Input, Image } from "@tarojs/components";
 import { useEffect, useState } from "react";
-import Taro from "@tarojs/taro";
 import { useDispatch, useSelector } from "react-redux";
-import PostItem from "@/components/post-item";
-import PostItemSkeleton from "@/components/post-item-skeleton";
-import EmptyState from "@/components/empty-state";
-import Categories from "@/components/categories"; // 引入新组件
-import emptyIcon from "@/assets/empty.svg";
-import styles from "./index.module.scss";
-import CustomHeader from "@/components/custom-header";
 import { AppDispatch, RootState } from "@/store";
 import { Post } from "@/types/api/post.d";
 import { fetchPosts } from "@/store/slices/postSlice";
+import CustomHeader from "@/components/custom-header";
+import PostItem from "@/components/post-item";
+import PostItemSkeleton from "@/components/post-item-skeleton";
+import EmptyState from "@/components/empty-state";
+import styles from "./index.module.scss";
+import emptyIcon from "@/assets/empty.svg";
 import searchIcon from "@/assets/search.svg";
 import studyIcon from "@/assets/school.svg";
 import hatIcon from "@/assets/hat.svg";
@@ -21,22 +19,27 @@ import bagIcon from "@/assets/bag.svg";
 
 const mockCategories = [
   {
+    id: 1,
     name: "学习交流",
     icon: studyIcon,
   },
   {
+    id: 2,
     name: "校园生活",
     icon: hatIcon,
   },
   {
+    id: 3,
     name: "就业创业",
     icon: starIcon,
   },
   {
+    id: 4,
     name: "社团活动",
     icon: usersGroupIcon,
   },
   {
+    id: 5,
     name: "失物招领",
     icon: bagIcon,
   },
@@ -51,7 +54,7 @@ export default function Home() {
   const { isLoggedIn } = useSelector((state: RootState) => state.user || { isLoggedIn: false });
   const isLoading = loading === "pending";
 
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -60,6 +63,12 @@ export default function Home() {
     dispatch(fetchPosts({ page: 1, page_size: 5, isAppend: false }));
     setPage(1);
   }, [dispatch]);
+
+  // 根据分类名称获取分类ID
+  const getCategoryId = (categoryName: string): number | undefined => {
+    const category = mockCategories.find(cat => cat.name === categoryName);
+    return category?.id;
+  };
 
   // 下拉刷新处理函数
   const handlePullRefresh = async () => {
@@ -74,7 +83,7 @@ export default function Home() {
       };
 
       if (selectedCategory) {
-        // params.category_id = getCategoryId(selectedCategory);
+        params.category_id = selectedCategory;
       }
 
       await dispatch(fetchPosts(params)).unwrap();
@@ -100,7 +109,7 @@ export default function Home() {
       };
 
       if (selectedCategory) {
-        // params.category_id = getCategoryId(selectedCategory);
+        params.category_id = selectedCategory;
       }
 
       const result = await dispatch(fetchPosts(params)).unwrap();
@@ -115,22 +124,8 @@ export default function Home() {
     }
   };
 
-  const handleCategorySelect = (categoryId: number | null) => {
-    const params: { page: number; page_size: number; category_id?: number; isAppend: boolean } = {
-      page: 1,
-      page_size: 5,
-      isAppend: false, // 分类筛选时不追加，替换内容
-    };
-    if (categoryId) {
-      params.category_id = categoryId;
-    }
-    dispatch(fetchPosts(params));
-    setPage(1);
-    setSelectedCategory(null);
-  };
-
-  const handleCategoryClick = (categoryName: string) => {
-    const newSelectedCategory = selectedCategory === categoryName ? null : categoryName;
+  const handleCategoryClick = (categoryId: number) => {
+    const newSelectedCategory = selectedCategory === categoryId ? null : categoryId;
     setSelectedCategory(newSelectedCategory);
 
     const params: { page: number; page_size: number; category_id?: number; isAppend: boolean } = {
@@ -138,6 +133,11 @@ export default function Home() {
       page_size: 5,
       isAppend: false, // 分类筛选时不追加，替换内容
     };
+
+    if (newSelectedCategory) {
+      params.category_id = newSelectedCategory;
+    }
+
     dispatch(fetchPosts(params));
     setPage(1);
   };
@@ -199,20 +199,22 @@ export default function Home() {
         <View className={styles.categoriesContainer}>
           {mockCategories.map((category) => (
             <View
-              key={category.name}
-              className={styles.categoryItem}
-              onClick={() => handleCategoryClick(category.name)}
+              key={category.id}
+              className={`${styles.categoryItem} ${
+                selectedCategory === category.id ? styles.selected : ""
+              }`}
+              onClick={() => handleCategoryClick(category.id)}
             >
               <View className={styles.categoryIconContainer}>
                 <Image
                   src={category.icon}
                   className={styles.categoryIcon}
-                  mode="aspectFit"
+                  mode='aspectFit'
                 />
               </View>
               <Text
                 className={`${styles.categoryName} ${
-                  selectedCategory === category.name
+                  selectedCategory === category.id
                     ? styles.categoryNameSelected
                     : styles.categoryNameDefault
                 }`}
