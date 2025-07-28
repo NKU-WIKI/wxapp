@@ -66,11 +66,16 @@
 .titleInput {
   font-size: 18px;
   font-weight: 600;
+  line-height: 1.4; // 添加行高，确保字体完整显示
+  min-height: 28px; // 设置最小高度，确保有足够空间显示字体
+  padding: 4px 0 4px 15px; // 添加上下内边距，左侧内边距15px让文字向右偏移
 }
 
 .contentInput {
   min-height: 200px;
   resize: none;
+  line-height: 1.5; // 添加行高，提升可读性
+  // padding: 4px 0; // 添加上下内边距，与标题输入框保持一致
 }
 
 .imagePreviewContainer {
