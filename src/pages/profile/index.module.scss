@@ -1,9 +1,16 @@
 @use "../../styles/variables.scss" as *;
 
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh + 108px);
+  background-color: $bg-page-gray;
+}
+
 /* 页面整体布局 */
 .profile-page {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: $bg-page-gray;
   display: flex;
   flex-direction: column;
 }
