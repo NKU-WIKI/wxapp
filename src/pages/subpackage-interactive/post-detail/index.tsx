@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Text } from '@tarojs/components';
 import { useRouter } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,6 +21,12 @@ const PostDetailPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentPost, detailLoading, error } = useSelector((state: RootState) => state.post as PostsState);
   const { comments, loading: commentsLoading, error: commentsError } = useSelector((state: RootState) => state.comment as CommentState);
+  
+  // 回复状态管理
+  const [replyTo, setReplyTo] = useState<{
+    commentId: number;
+    nickname: string;
+  } | null>(null);
   
   // 从路由参数中获取帖子ID
   const postId = Number(router.params.id);
@@ -53,6 +59,19 @@ const PostDetailPage = () => {
     }
   }, [currentPost, postId]);
   
+  // 处理回复操作
+  const handleReply = (commentId: number, nickname: string) => {
+    setReplyTo({
+      commentId,
+      nickname
+    });
+  };
+  
+  // 取消回复
+  const handleCancelReply = () => {
+    setReplyTo(null);
+  };
+  
   const renderContent = () => {
     if (detailLoading === 'pending') {
       return <View className={styles.loading}>加载中...</View>;
@@ -80,6 +99,7 @@ const PostDetailPage = () => {
             comments={comments || []} 
             postId={currentPost.id} 
             loading={commentsLoading === 'pending'}
+            onReply={handleReply}
           />
         )}
       </>
@@ -99,7 +119,11 @@ const PostDetailPage = () => {
           </View>
         </ScrollView>
       </View>
-      <BottomInput postId={postId} />
+      <BottomInput 
+        postId={postId} 
+        replyTo={replyTo}
+        onCancelReply={handleCancelReply}
+      />
     </View>
   );
 };

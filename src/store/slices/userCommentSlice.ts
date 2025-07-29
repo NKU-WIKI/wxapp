@@ -22,6 +22,14 @@ interface ApiCommentItem {
   create_time: string;
   update_time: string;
   post_title: string;
+  post_author_nickname?: string; // 新增帖子作者昵称字段
+  // 新增parent_comment字段
+  parent_comment?: {
+    id: number;
+    content: string;
+    author_nickname: string;
+    create_time: string;
+  } | null;
 }
 
 // 定义包含帖子信息的评论项
@@ -35,12 +43,18 @@ interface CommentWithPostInfo {
   is_liked?: boolean;
   post_title: string;
   post_content: string;
+  post_author_nickname?: string; // 新增帖子作者昵称字段
   post_image?: string | string[] | undefined;
   author_info?: {
     id: number;
     nickname: string;
     avatar: string;
   };
+  // 新增字段用于区分评论类型
+  parent_id: number | null;
+  parent_comment_content?: string | null;
+  parent_comment_author?: string | null;
+  is_reply: boolean; // 是否为回复评论
 }
 
 // 定义状态类型
@@ -103,8 +117,22 @@ export const fetchUserComments = createAsyncThunk(
         };
       }
 
-      // 将API数据转换为前端需要的格式，不需要请求帖子详情
+      // 将API数据转换为前端需要的格式
       const commentsWithPostInfo: CommentWithPostInfo[] = comments.map((comment) => {
+        // 从后端返回的parent_comment字段中提取父评论信息
+        const parentCommentContent = comment.parent_comment?.content || null;
+        const parentCommentAuthor = comment.parent_comment?.author_nickname || null;
+        
+        // 🔥 如果是回复评论，打印父评论信息
+        if (comment.parent_id && comment.parent_comment) {
+          console.log(`✅ 回复评论信息:`, {
+            commentId: comment.id,
+            parentId: comment.parent_id,
+            parentAuthor: parentCommentAuthor,
+            parentContent: parentCommentContent?.substring(0, 50) + '...'
+          });
+        }
+        
         return {
           id: comment.id,
           post_id: comment.resource_id, // API中是resource_id
@@ -115,14 +143,20 @@ export const fetchUserComments = createAsyncThunk(
           is_liked: false, // API没有返回，默认为false
           post_title: comment.post_title || '未知标题',
           post_content: '内容不可用', // API没有返回帖子内容
+          post_author_nickname: comment.post_author_nickname || '', // 新增帖子作者昵称
           post_image: undefined,
           author_info: {
             id: comment.user_id || 0,
             nickname: comment.nickname || '未知用户',
             avatar: comment.avatar || ''
-          }
+          },
+          // 新增字段用于区分评论类型
+          parent_id: comment.parent_id || null,
+          parent_comment_content: parentCommentContent,
+          parent_comment_author: parentCommentAuthor,
+          is_reply: !!comment.parent_id // 如果parent_id存在，则为回复评论
         };
-             });
+      });
 
       // 🔥 后端联调 - 打印转换后的数据
       console.log('🔥 用户评论列表 - 转换后的评论数据:', commentsWithPostInfo);

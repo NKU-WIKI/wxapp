@@ -30,6 +30,7 @@ export interface CommentDetail {
   like_count: number;
   reply_count: number;
   create_time: string;
+  parent_author_nickname?: string;
   is_liked: boolean;
   children?: CommentDetail[];
 }

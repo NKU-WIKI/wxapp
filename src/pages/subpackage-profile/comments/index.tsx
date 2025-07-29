@@ -17,8 +17,11 @@ const CommentItem = ({ comment }) => {
     });
   };
 
+  const isReply = comment.is_reply || comment.parent_id;
+
   return (
     <View className={styles.commentItem} onClick={handleNavigateToPost}>
+      {/* 直接展示内容，不再显示类型标签 */}
       <Text className={styles.commentContent}>{comment.content}</Text>
       <View className={styles.commentMeta}>
         <Text className={styles.commentTime}>{formatRelativeTime(comment.create_time)}</Text>
@@ -27,10 +30,41 @@ const CommentItem = ({ comment }) => {
           <Text>{comment.reply_count} 回复</Text>
         )}
       </View>
-      <View className={styles.postInfo}>
-        <Text className={styles.postTitle}>{comment.post_title}</Text>
-        {comment.post_content && comment.post_content !== '内容不可用' && (
-          <Text className={styles.postContent}>{comment.post_content}</Text>
+      <View className={styles.originalInfo}>
+        {isReply ? (
+          <View className={styles.parentCommentInfo}>
+            {comment.parent_comment_author && comment.parent_comment_content ? (
+              <>
+                <Text className={styles.parentAuthor}>
+                  @{comment.parent_comment_author}
+                </Text>
+                <Text className={styles.parentContent}>
+                  {comment.parent_comment_content}
+                </Text>
+              </>
+            ) : (
+              <View className={styles.parentPlaceholder}>
+                <Text className={styles.parentHint}>
+                  原评论信息不可用
+                </Text>
+                {comment.parent_id && (
+                  <Text className={styles.parentId}>
+                    评论ID: #{comment.parent_id}
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+        ) : (
+          <View className={styles.postInfoCard}>
+            <Text className={styles.postTitle}>
+              {comment.post_title}
+              {comment.post_author_nickname ? ` - ${comment.post_author_nickname}` : ''}
+            </Text>
+            {comment.post_content && comment.post_content !== '内容不可用' && (
+              <Text className={styles.postContent}>{comment.post_content}</Text>
+            )}
+          </View>
         )}
       </View>
     </View>
