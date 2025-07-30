@@ -1,107 +1,98 @@
-import React, { useEffect, useState } from 'react';
-import { View, ScrollView, Text } from '@tarojs/components';
-import { useRouter } from '@tarojs/taro';
+import { useEffect, useState } from 'react';
+import { View, ScrollView } from '@tarojs/components';
 import { useDispatch, useSelector } from 'react-redux';
-import CustomHeader from '@/components/custom-header';
-import styles from './index.module.scss';
-import PostDetailContent from './components/PostDetailContent';
-import CommentSection from './components/CommentSection';
-import BottomInput from './components/BottomInput';
-import { fetchPostDetail } from '@/store/slices/postSlice';
-import { fetchComments } from '@/store/slices/commentSlice';
 import { AppDispatch, RootState } from '@/store';
-import EmptyState from '@/components/empty-state';
-import emptyIcon from '@/assets/empty.svg';
-import { PostsState } from '@/store/slices/postSlice';
-import { CommentState } from '@/store/slices/commentSlice';
-import { addHistory } from '@/utils/history';
+import { fetchComments } from '@/store/slices/commentSlice';
+import { fetchPostDetail } from '@/store/slices/postSlice';
+import { useRouter } from '@tarojs/taro';
+import CustomHeader from '@/components/custom-header';
+import CommentSection from './components/CommentSection';
+import PostDetailContent from './components/PostDetailContent';
+import BottomInput from './components/BottomInput';
+import styles from './index.module.scss';
+import { CommentDetail } from '@/types/api/comment';
 
 const PostDetailPage = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { currentPost, detailLoading, error } = useSelector((state: RootState) => state.post as PostsState);
-  const { comments, loading: commentsLoading, error: commentsError } = useSelector((state: RootState) => state.comment as CommentState);
-  
+  const postState = useSelector((state: RootState) => state.post);
+  const commentState = useSelector((state: RootState) => state.comment);
+
+  // 从路由参数中获取帖子ID
+  const postId = Number(router.params.id);
+
   // 回复状态管理
   const [replyTo, setReplyTo] = useState<{
     commentId: number;
     nickname: string;
   } | null>(null);
-  
-  // 从路由参数中获取帖子ID
-  const postId = Number(router.params.id);
-  
+
+  // 获取帖子详情
   useEffect(() => {
     if (postId) {
-      // 获取帖子详情
       dispatch(fetchPostDetail(postId));
-      
-      // 获取帖子评论
-      dispatch(fetchComments({
-        resource_id: postId,
-        resource_type: 'post'
-      }));
     }
-  }, [dispatch, postId]);
-  
-  // 自动存储浏览历史（currentPost 加载后执行）
+  }, [postId, dispatch]);
+
+  // 获取评论列表
   useEffect(() => {
-    if (currentPost && currentPost.id === postId) {
-      addHistory({
-        id: String(currentPost.id),
-        title: currentPost.title,
-        cover: currentPost.image_urls && currentPost.image_urls.length > 0 ? currentPost.image_urls[0] : '',
-        avatar: currentPost.author_info?.avatar || '',
-        createdAt: currentPost.create_time,
-        viewedAt: new Date().toISOString(),
-        link: `/pages/subpackage-interactive/post-detail/index?id=${currentPost.id}`
-      });
+    if (postId) {
+      dispatch(fetchComments({ resource_id: postId, resource_type: 'post' }));
     }
-  }, [currentPost, postId]);
-  
-  // 处理回复操作
-  const handleReply = (commentId: number, nickname: string) => {
+  }, [postId, dispatch]);
+
+  // 处理回复评论
+  const handleReply = (comment: CommentDetail) => {
+    console.log('💬 回复评论:', comment);
     setReplyTo({
-      commentId,
-      nickname
+      commentId: comment.id,
+      nickname: comment.nickname
     });
   };
-  
-  // 取消回复
-  const handleCancelReply = () => {
-    setReplyTo(null);
+
+  // 处理点赞状态更新
+  const handleLikeUpdate = (commentId: number, isLiked: boolean, likeCount: number) => {
+    console.log('🔥 处理点赞状态更新:', { commentId, isLiked, likeCount });
+    
+    // 重新获取评论列表以同步状态
+    if (postId) {
+      console.log('🔄 重新获取评论列表以同步点赞状态');
+      dispatch(fetchComments({ resource_id: postId, resource_type: 'post' }));
+    }
   };
-  
+
+  // 渲染内容
   const renderContent = () => {
-    if (detailLoading === 'pending') {
+    console.log('🔍 渲染内容状态:', {
+      postState,
+      commentState,
+      postId,
+      detailLoading: postState?.detailLoading,
+      currentPost: postState?.currentPost,
+      comments: commentState?.comments
+    });
+
+    if (postState?.detailLoading === 'pending') {
       return <View className={styles.loading}>加载中...</View>;
     }
-    
-    if (detailLoading === 'failed' || !currentPost) {
-      return (
-        <EmptyState
-          icon={emptyIcon}
-          text={error || '加载失败，请稍后再试'}
-        />
-      );
+
+    if (postState?.detailLoading === 'failed' || postState?.error) {
+      return <View className={styles.error}>加载失败: {postState.error}</View>;
     }
-    
+
+    if (!postState?.currentPost) {
+      return <View className={styles.error}>帖子不存在</View>;
+    }
+
     return (
       <>
-        <PostDetailContent post={currentPost} />
+        <PostDetailContent post={postState.currentPost} />
         
-        {commentsError ? (
-          <View className={styles.errorContainer}>
-            <Text className={styles.errorText}>评论加载失败: {commentsError}</Text>
-          </View>
-        ) : (
-          <CommentSection 
-            comments={comments || []} 
-            postId={currentPost.id} 
-            loading={commentsLoading === 'pending'}
-            onReply={handleReply}
-          />
-        )}
+        <CommentSection 
+          comments={commentState?.comments || []} 
+          onReply={handleReply}
+          onLikeUpdate={handleLikeUpdate}
+        />
       </>
     );
   };
@@ -119,11 +110,15 @@ const PostDetailPage = () => {
           </View>
         </ScrollView>
       </View>
-      <BottomInput 
-        postId={postId} 
-        replyTo={replyTo}
-        onCancelReply={handleCancelReply}
-      />
+      
+      {/* 固定在底部的输入框 */}
+      <View className={styles.fixedBottomInput}>
+        <BottomInput 
+          postId={postId}
+          replyTo={replyTo}
+          onCancelReply={() => setReplyTo(null)}
+        />
+      </View>
     </View>
   );
 };

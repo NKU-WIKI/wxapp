@@ -22,7 +22,7 @@
 }
 
 .mainContent {
-  padding-bottom: 70px; /* 为底部输入框留出更多空间 */
+  padding-bottom: 90px; /* 为固定底部输入框留出空间 (62px输入框 + 边距) */
   background: #F8FAFC;
 }
 
@@ -30,6 +30,18 @@
   padding: 20px;
   text-align: center;
   color: #999;
+}
+
+// 固定底部输入框
+.fixedBottomInput {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #FFFFFF;
+  border-top: 1px solid #E5E5E5;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
 }
 
 // 帖子详情样式
@@ -553,6 +565,11 @@
       color: #374151;
       margin-bottom: 6px;
       word-wrap: break-word;
+      
+      .replyPrefix {
+        color: #4F46E5;
+        font-weight: 500;
+      }
     }
     
     .subActions {
@@ -602,6 +619,28 @@
   }
 }
 
+.subViewRepliesButton {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  margin-left: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  text {
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+  }
+}
+
 .topBar {
   position: absolute;
   left: 0px;
@@ -643,12 +682,8 @@
 }
 
 .bottomInputWrapper {
-  position: absolute;
-  left: 0px;
-  bottom: 0px;
-  width: 375px;
+  width: 100%;
   background: $bg-card;
-  z-index: 20;
 }
 
 .replyIndicator {
@@ -674,9 +709,9 @@
 
 .bottomInput {
   position: relative;
-  width: 375px;
+  width: 100%;
   height: 62px;
-  border-radius: 10px 10px 0px 0px;
+  border-radius: 0;
   opacity: 1;
   display: flex;
   flex-direction: row;
@@ -686,9 +721,6 @@
   align-content: flex-start;
   background: $bg-card;
   box-sizing: border-box;
-  border-width: 1px 0px 0px 0px;
-  border-style: solid;
-  border-color: #C3C3C3;
 }
 
 .input {
@@ -734,4 +766,145 @@
   width: 14px;
   height: 14px;
   display: block;
+} 
+
+// 子评论回复模态框样式
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #E5E7EB;
+  background: #F9FAFB;
+}
+
+.modalTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.modalClose {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #F3F4F6;
+  cursor: pointer;
+  
+  text {
+    font-size: 20px;
+    color: #6B7280;
+    font-weight: 300;
+  }
+  
+  &:hover {
+    background: #E5E7EB;
+  }
+}
+
+.modalBody {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.originalComment {
+  background: #F3F4F6;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border-left: 3px solid #3B82F6;
+}
+
+.originalAuthor {
+  font-weight: 600;
+  color: #374151;
+  margin-right: 8px;
+}
+
+.originalContent {
+  color: #6B7280;
+  font-size: 14px;
+}
+
+.repliesSection {
+  .repliesTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 12px;
+    display: block;
+  }
+}
+
+.subRepliesLoading,
+.subRepliesEmpty {
+  text-align: center;
+  padding: 40px 20px;
+  
+  text {
+    color: #9CA3AF;
+    font-size: 14px;
+  }
+}
+
+.subRepliesList {
+  .subReplyItem {
+    padding: 12px 0;
+    border-bottom: 1px solid #F3F4F6;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+  
+  .subReplyHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  
+  .subReplyAuthor {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .subReplyTime {
+    font-size: 12px;
+    color: #9CA3AF;
+  }
+  
+  .subReplyContent {
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.5;
+  }
 } 
