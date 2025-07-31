@@ -7,6 +7,7 @@ import commentReducer from './slices/commentSlice';
 import favoriteReducer from './slices/favoriteSlice';
 import likeReducer from './slices/likeSlice';
 import userCommentReducer from './slices/userCommentSlice';
+import feedbackReducer from './slices/feedbackSlice';
 
 const rootReducer = combineReducers({
   user: userReducer,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   favorite: favoriteReducer,
   like: likeReducer,
   userComment: userCommentReducer,
+  feedback: feedbackReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

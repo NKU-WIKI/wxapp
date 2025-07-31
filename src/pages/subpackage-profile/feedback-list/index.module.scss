@@ -1,0 +1,121 @@
+@import "../../../styles/variables.scss";
+
+.page {
+  min-height: 100vh;
+  background-color: $bg-page;
+  padding: 16px;
+}
+
+.scrollView {
+  height: calc(100vh - 32px);
+}
+
+.loading, .empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: $text-secondary;
+  font-size: 14px;
+}
+
+.feedbackList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feedbackItem {
+  background-color: $bg-card;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.feedbackHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.feedbackInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feedbackType {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.feedbackTime {
+  font-size: 12px;
+  color: $text-helper-gray;
+}
+
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.statusText {
+  font-size: 12px;
+  color: white;
+  font-weight: 500;
+}
+
+.feedbackContent {
+  margin-bottom: 12px;
+}
+
+.contentText {
+  font-size: 14px;
+  color: $text-primary;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.imageList {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.imageItem {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.feedbackImage {
+  width: 100%;
+  height: 100%;
+}
+
+.replySection {
+  background-color: #F8F9FA;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+  border-left: 3px solid $theme-primary;
+}
+
+.replyLabel {
+  font-size: 12px;
+  color: $text-helper-gray;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.replyContent {
+  font-size: 14px;
+  color: $text-primary;
+  line-height: 1.5;
+} 

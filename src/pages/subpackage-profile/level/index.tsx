@@ -56,11 +56,11 @@ export default function LevelPage() {
         <View className={styles.infoRow}>
           <Text className={styles.infoLabel}>当前经验值</Text>
           <Text className={styles.infoValue}>{userExp}</Text>
-        </View>
+          </View>
         <View className={styles.infoRow}>
           <Text className={styles.infoLabel}>当前等级</Text>
           <Text className={styles.infoValue}>Lv{userLevel}</Text>
-        </View>
+          </View>
         {/* 等级进度条 */}
         <View className={styles.progressBarWrap}>
           <View className={styles.progressBarBg}>
@@ -80,9 +80,9 @@ export default function LevelPage() {
                   <Text style={{ margin: '0 4px', color: '#9CA3AF', fontSize: 15 }}>:</Text>
                 </View>
                 <Text className={styles.levelRange}>{lv.range}</Text>
-              </View>
-            ))}
-          </View>
+            </View>
+          ))}
+        </View>
           <View className={styles.levelCol}>
             {LEVELS.filter((_, i) => i % 2 === 1).map(lv => (
               <View key={lv.lv} className={styles.levelItem + ' ' + (lv.lv === userLevel ? styles.levelActive : '')}>
@@ -93,7 +93,7 @@ export default function LevelPage() {
                 <Text className={styles.levelRange}>{lv.range}</Text>
               </View>
             ))}
-          </View>
+            </View>
         </View>
       </View>
       {/* 获取经验值说明 */}
