@@ -250,6 +250,47 @@
   }
 }
 
+// 标签部分样式
+.tagsSection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 0 16px;
+  
+  .tag {
+    height: 20px;
+    border-radius: 10px;
+    background: #F3F4F6;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .tagText {
+      font-size: 11px;
+      color: #6B7280;
+      line-height: 1;
+    }
+  }
+  
+  .moreTagsIndicator {
+    height: 20px;
+    border-radius: 10px;
+    background: #E5E7EB;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .moreTagsText {
+      font-size: 11px;
+      color: #9CA3AF;
+      line-height: 1;
+    }
+  }
+}
+
 .input {
   position: absolute;
   left: 15px;

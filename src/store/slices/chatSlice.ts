@@ -178,8 +178,7 @@ ${currentUserMessage.content}`;
     };
 
     try {
-      const Decoder = typeof TextDecoder !== 'undefined' ? TextDecoder : require('text-encoding').TextDecoder;
-      const decoder = new Decoder("utf-8");
+      const decoder = new TextDecoder("utf-8");
       let fullContent = "";
 
       const requestTask = wx.request({

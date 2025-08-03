@@ -43,8 +43,7 @@
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
     "taro-skeleton": "^2.0.4",
-    "taro-ui": "^3.3.0",
-    "text-encoding": "^0.7.0"
+    "taro-ui": "^3.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",

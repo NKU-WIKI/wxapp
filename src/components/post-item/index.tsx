@@ -259,6 +259,29 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     );
   };
 
+  // 处理标签数据
+  const getTags = () => {
+    // 如果标签是数组，直接使用
+    if (post.tag && Array.isArray(post.tag)) {
+      return post.tag;
+    }
+    
+    // 如果标签是字符串，尝试解析
+    if (post.tag && typeof post.tag === 'string') {
+      try {
+        return JSON.parse(post.tag);
+      } catch (error) {
+        console.error('解析标签失败:', error);
+        return [];
+      }
+    }
+    
+    return [];
+  };
+  
+  // 获取标签列表
+  const tags = getTags();
+
   // 判断是否可以删除
   const canDelete = userInfo?.id === post.author_info.id || userInfo?.role === 'admin';
 
@@ -299,6 +322,22 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           {post.image_urls.slice(0, 3).map((url, index) => (
             <Image key={index} src={url} className={styles.postImage} />
           ))}
+        </View>
+      )}
+
+      {/* 标签展示 */}
+      {(tags && tags.length > 0) && (
+        <View className={styles.tagsSection}>
+          {tags.slice(0, 3).map((tag, index) => (
+            <View key={index} className={styles.tag}>
+              <Text className={styles.tagText}>#{tag}</Text>
+            </View>
+          ))}
+          {tags.length > 3 && (
+            <View className={styles.moreTagsIndicator}>
+              <Text className={styles.moreTagsText}>+{tags.length - 3}</Text>
+            </View>
+          )}
         </View>
       )}
 

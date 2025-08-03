@@ -25,7 +25,7 @@ export interface Post {
   content: string;
   image_urls: string[] | null; // API 返回的是 image_urls
   image?: string | null; // 添加 image 字段，某些API可能返回这个字段
-  tag: string[] | null; // 修改为字符串数组，与API文档一致
+  tag: string | string[] | null; // 后端可能返回JSON字符串或字符串数组
   location: string | null;
   view_count: number;
   like_count: number;
