@@ -178,4 +178,37 @@ grep -r "rgba\?\(" src/ --include="*.scss"
 - **组件设计**:
     - **按钮**: 主要按钮使用主色调填充，次要按钮使用描边或灰色样式。所有按钮均带有圆角。
     - **列表**: 列表项之间保持足够间距，增加分割线以区分。
-    - **图标**: 采用线性图标 (Line Icon)，风格统一。
+    - **图标**: 采用线性图标 (Line Icon)，风格统一。推荐从 [Iconify Solar](https://api.iconify.design/solar/) 下载 `SVG` 格式图标，并存储在 `src/assets/icons` 目录下。
+
+### 🚨 SVG 图标尺寸问题排查指南
+
+在开发中，可能会遇到 SVG 图标的尺寸无法通过 SCSS 的 `width` 和 `height` 属性进行有效控制的问题。当图标显示过大时，请遵循以下步骤进行排查：
+
+1.  **第一步：检查 SVG 文件源码**
+    -   打开表现异常的 `.svg` 文件。
+    -   检查其根 `<svg>` 标签是否包含 `width="..."` 和 `height="..."` 属性。
+    -   **解决方案**：如果存在这些属性，请**务必将其移除**。这些内联属性的优先级高于外部样式表，是导致问题的主要原因。
+    
+    ```diff
+    - <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+    + <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    ```
+
+2.  **第二步：使用内联样式强制覆盖**
+    -   如果移除 SVG 内部属性后问题依旧存在，这可能意味着有其他更复杂的样式冲突。
+    -   **最终解决方案**：为了确保样式被强制应用，可以直接在 Taro 的 `<Image>` 组件上使用**内联样式（inline style）**。这是优先级最高的样式定义方式。
+    
+    ```tsx
+    import myIcon from '@/assets/my-icon.svg';
+
+    // ...
+
+    <Image 
+      src={myIcon} 
+      className={styles.iconClass} // 外部样式类可能失效
+      style={{ width: '18px', height: '18px' }} // 使用内联样式强制定义尺寸
+    />
+    ```
+
+遵循以上两步，通常可以解决绝大部分的 SVG 图标尺寸问题，确保 UI 的一致性和可控性。
+

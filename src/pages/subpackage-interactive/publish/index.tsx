@@ -268,9 +268,11 @@ export default function PublishPost() {
         duration: 1500,
       });
 
-      // 1.5秒后返回上一页
+      // 1.5秒后跳转到首页并强制刷新
       setTimeout(() => {
-        Taro.navigateBack();
+        Taro.reLaunch({
+          url: '/pages/home/index?refresh=true',
+        });
       }, 1500);
     } catch (error: any) {
       Taro.showToast({
@@ -296,56 +298,59 @@ export default function PublishPost() {
 
       <View className={styles.contentWrapper}>
         <ScrollView scrollY className={styles.scrollView}>
-          <Input
-            placeholder='请输入标题'
-            className={`${styles.titleInput} ${styles.card}`}
-            value={title}
-            onInput={(e) => setTitle(e.detail.value)}
-          />
-          <Textarea
-            placeholder='分享你的想法...'
-            className={`${styles.contentInput} ${styles.card}`}
-            value={content}
-            onInput={(e) => setContent(e.detail.value)}
-            maxlength={2000}
-            autoHeight
-          />
-
-          <View className={styles.imagePreviewContainer}>
-            {images.map((url, index) => (
-              <View key={index} className={styles.imageWrapper}>
-                <Image
-                  src={url}
-                  className={styles.previewImage}
-                  mode='aspectFill'
-                />
-                <Image
-                  src={xCircleIcon}
-                  className={styles.deleteIcon}
-                  onClick={() => handleRemoveImage(index)}
-                />
-              </View>
-            ))}
-          </View>
-
-          {/* Toolbar */}
-          <View className={`${styles.toolbar} ${styles.card}`}>
-            <Image src={boldIcon} className={styles.toolbarIcon} />
-            <Image src={italicIcon} className={styles.toolbarIcon} />
-            <Image
-              src={imageIcon}
-              className={styles.toolbarIcon}
-              onClick={handleChooseImage}
+          <View className={styles.publishCard}>
+            <Input
+              placeholder='请输入标题'
+              className={styles.titleInput}
+              value={title}
+              onInput={(e) => setTitle(e.detail.value)}
             />
-            <Image src={atSignIcon} className={styles.toolbarIcon} />
-            <View className={styles.wikiBtn}>
-              <Image src={penToolIcon} className={styles.wikiIcon} />
-              <Text>Wiki 润色</Text>
+            <View className={styles.separator} />
+            <Textarea
+              placeholder='分享你的想法...'
+              className={styles.contentInput}
+              value={content}
+              onInput={(e) => setContent(e.detail.value)}
+              maxlength={2000}
+              autoHeight
+            />
+
+            <View className={styles.imagePreviewContainer}>
+              {images.map((url, index) => (
+                <View key={index} className={styles.imageWrapper}>
+                  <Image
+                    src={url}
+                    className={styles.previewImage}
+                    mode='aspectFill'
+                  />
+                  <Image
+                    src={xCircleIcon}
+                    className={styles.deleteIcon}
+                    onClick={() => handleRemoveImage(index)}
+                  />
+                </View>
+              ))}
+            </View>
+
+            {/* Toolbar */}
+            <View className={styles.toolbar}>
+              <Image src={boldIcon} className={styles.toolbarIcon} />
+              <Image src={italicIcon} className={styles.toolbarIcon} />
+              <Image
+                src={imageIcon}
+                className={styles.toolbarIcon}
+                onClick={handleChooseImage}
+              />
+              <Image src={atSignIcon} className={styles.toolbarIcon} />
+              <View className={styles.wikiBtn}>
+                <Image src={penToolIcon} className={styles.wikiIcon} />
+                <Text>Wiki 润色</Text>
+              </View>
             </View>
           </View>
 
           {/* Select Topic */}
-          <View className={styles.card}>
+          <View className={styles.publishCard}>
             <Text className={styles.sectionTitle}>选择话题 ({selectedTags.length}/3)</Text>
             <View className={styles.tagsContainer}>
               {mockData.tags.map((tag) => {
@@ -406,7 +411,7 @@ export default function PublishPost() {
           </View>
 
           {/* Category Selection */}
-          <View className={styles.card}>
+          <View className={styles.publishCard}>
             <Text className={styles.sectionTitle}>选择分类</Text>
             <View className={styles.categoriesContainer}>
               {categories.map((category) => (
@@ -425,7 +430,7 @@ export default function PublishPost() {
           </View>
 
           {/* Wiki Polish Suggestion */}
-          <View className={`${styles.suggestionCard} ${styles.card}`}>
+          <View className={`${styles.suggestionCard} ${styles.publishCard}`}>
             <Image src={lightbulbIcon} className={styles.suggestionIcon} />
             <View className={styles.suggestionContent}>
               <View className={styles.suggestionHeader}>
@@ -439,7 +444,7 @@ export default function PublishPost() {
           </View>
 
           {/* Writing Style Selection */}
-          <View className={styles.card}>
+          <View className={styles.publishCard}>
             <Text className={styles.sectionTitle}>文风选择</Text>
             <View className={styles.stylesContainer}>
               {mockData.styles.map((style) => (

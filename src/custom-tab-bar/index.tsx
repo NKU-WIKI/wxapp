@@ -1,6 +1,7 @@
 import { View, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { FC, useEffect, useState, useCallback, useMemo } from "react";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import styles from "./index.module.scss";
 import { useTabBarSync, tabBarSyncManager, TAB_BAR_PAGES } from "../utils/tabBarSync";
 
@@ -17,6 +18,7 @@ const plusIcon = require("@/assets/plus.svg"); // 使用新的白色+号SVG图�
 
 const CustomTabBar: FC = () => {
   const [selected, setSelected] = useState(0);
+  const { checkAuth } = useAuthGuard();
 
   const list = useMemo(() => [
     { pagePath: "/pages/home/index", text: "首页", iconPath: homeIcon, selectedIconPath: homeActiveIcon },
@@ -41,7 +43,9 @@ const CustomTabBar: FC = () => {
   const switchTab = (uiIndex: number, url: string) => {
     const item = list[uiIndex];
     if (item.isPublish) {
-      Taro.navigateTo({ url });
+      if (checkAuth()) {
+        Taro.navigateTo({ url });
+      }
     } else {
       const syncIndex = TAB_BAR_PAGES.indexOf(item.pagePath);
       if (syncIndex > -1) {

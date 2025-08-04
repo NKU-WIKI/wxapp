@@ -1,4 +1,8 @@
-# NKU-Wiki 项目规范
+## 环境
+
+win11 powershell
+
+## NKU-Wiki 项目规范
 
 欢迎来到 NKU-Wiki 项目！为了保证代码质量和开发效率，我们将所有的开发规范、最佳实践和工作流都进行了文档化。
 
@@ -38,9 +42,58 @@
 - **性能优化**: 积极采用分包加载、图片压缩、虚拟列表等技术，并使用 `webpack-bundle-analyzer` 分析包体积。
 - **布局 (强制)**: 所有页面必须使用 `<CustomHeader>` + `<ScrollView>` 的“防内容遮挡”顶级布局结构。
 - **安全区域 (强制)**: 禁止在自定义导航栏右上角区域放置任何可交互控件。
-- **图标 (强制)**: 所有图标必须是本地资源，存放于 `src/assets`。
+- **图标 (强制)**: 所有图标必须是本地资源，存放于 `src/assets`。推荐从 [Iconify Solar](https://api.iconify.design/solar/) 下载 `SVG` 格式图标
+- **图片资源引用 (强制)**: 为规避 Webpack `url-loader` 可能导致的图片资源损坏（渲染为色块）问题，所有静态图片资源（如 `.png`, `.jpg`）**严禁使用 `import` 方式引入**。所有图片必须通过**字符串路径**的方式在组件中引用。
+    - **✅ 正确做法 (字符串路径)**:
+      ```tsx
+      // 直接定义字符串路径
+      const myLogo = '/assets/logo.png';
+
+      // 在组件中使用
+      <Image src={myLogo} />
+      ```
+    - **❌ 错误做法 (模块导入)**:
+      ```tsx
+      // 严禁使用 import 引入图片
+      import myLogo from '@/assets/logo.png';
+
+      <Image src={myLogo} />
+      ```
+    此规则旨在确保图片被 `Taro` 的 `copy` 机制正确处理，并由小程序本身在运行时进行加载，从而绕开编译阶段潜在的 `loader` 问题。
 - **API 对接工作流 (强制)**: 严格遵循“读文档 -> 定义类型 -> 创建 Service -> 创建 Thunk -> 组件使用”的五步流程。
 - **状态管理**: 选用 Redux Toolkit (RTK)，在 `src/store/slices` 中组织 `slice` 文件。接口请求通过 `createAsyncThunk` 更新 store，使用 `redux-persist` 持久化关键数据。
 - **Git 工作流**: 采用 `Git Flow` 模型，Commit Message 遵循 `Angular` 规范（推荐使用 `commitizen`），并使用 `Husky` + `lint-staged` 保证代码质量。
 - **代码测试**: 使用 `Jest` 和 `@tarojs/test-utils-react` 进行单元测试，测试文件以 `.spec.ts` 结尾。
 - **核心重构任务**: 参考 `nkuwiki-app/` 项目，将 Next.js 实现（HTML 标签, Tailwind, `lucide-react`）翻译为 Taro 规范（Taro 组件, SCSS, 本地 SVG）。
+
+### 🚨 SVG 图标尺寸问题排查指南
+
+在开发中，可能会遇到 SVG 图标的尺寸无法通过 SCSS 的 `width` 和 `height` 属性进行有效控制的问题。当图标显示过大时，请遵循以下步骤进行排查：
+
+1.  **第一步：检查 SVG 文件源码**
+    -   打开表现异常的 `.svg` 文件。
+    -   检查其根 `<svg>` 标签是否包含 `width="..."` 和 `height="..."` 属性。
+    -   **解决方案**：如果存在这些属性，请**务必将其移除**。这些内联属性的优先级高于外部样式表，是导致问题的主要原因。
+    
+    ```diff
+    - <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+    + <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    ```
+
+2.  **第二步：使用内联样式强制覆盖**
+    -   如果移除 SVG 内部属性后问题依旧存在，这可能意味着有其他更复杂的样式冲突。
+    -   **最终解决方案**：为了确保样式被强制应用，可以直接在 Taro 的 `<Image>` 组件上使用**内联样式（inline style）**。这是优先级最高的样式定义方式。
+    
+    ```tsx
+    import myIcon from '@/assets/my-icon.svg';
+
+    // ...
+
+    <Image 
+      src={myIcon} 
+      className={styles.iconClass} // 外部样式类可能失效
+      style={{ width: '18px', height: '18px' }} // 使用内联样式强制定义尺寸
+    />
+    ```
+
+遵循以上两步，通常可以解决绝大部分的 SVG 图标尺寸问题，确保 UI 的一致性和可控性。

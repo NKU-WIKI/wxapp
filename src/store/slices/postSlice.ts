@@ -8,29 +8,26 @@ import actionApi from '@/services/api/action';
 import { ToggleActionParams, ToggleActionResponse } from '@/types/api/action.d';
 import { RootState } from '..';
 
+// 延迟函数
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 // 云存储链接转换函数
 const convertCloudUrl = (cloudUrl: string): string => {
   if (!cloudUrl || !cloudUrl.startsWith('cloud://')) {
     return cloudUrl;
   }
 
-  // 将 cloud:// 链接转换为 HTTP 链接
-  // cloud://cloud1-7gu881ir0a233c29.636c-cloud1-7gu881ir0a233c29-1352978573/avatars/xxx.jpg
-  // 转换为: https://636c-cloud1-7gu8881ir0a233c29-1352978573.tcb.qcloud.la/avatars/xxx.jpg
-
   try {
     const cloudPath = cloudUrl.replace('cloud://', '');
     const parts = cloudPath.split('/');
-    const envId = parts[0]; // cloud1-7gu881ir0a233c29.636c-cloud1-7gu881ir0a233c29-1352978573
-    const filePath = parts.slice(1).join('/'); // avatars/xxx.jpg
+    const envId = parts[0]; 
+    const filePath = parts.slice(1).join('/');
 
-    // 提取环境ID中的关键部分
     const envMatch = envId.match(/636c-cloud1-7gu881ir0a233c29-1352978573/);
     if (envMatch) {
       return `https://${envMatch[0]}.tcb.qcloud.la/${filePath}`;
     }
 
-    // 如果匹配失败，返回原链接
     return cloudUrl;
   } catch (error) {
     console.warn('转换云存储链接失败:', cloudUrl, error);
@@ -46,27 +43,20 @@ export const fetchPosts = createAsyncThunk<
   'posts/fetchPosts',
   async (params, { rejectWithValue, dispatch }) => {
     try {
-      // response的类型是BackendPaginatedResponse<Post>
-      // 结构：{code, msg, data: Post[], pagination: Pagination}
       const response = await postApi.getPosts(params);
 
-      // 获取帖子列表后，为每个帖子获取详细信息以获取正确的点赞/收藏状态
-      // 但这里不等待这些请求完成，让它们在后台异步进行
       if (response.data && response.data.length > 0 && !params.isAppend) {
-        // 只对第一页的前几条帖子获取详情，避免过多请求
         const postsToFetch = response.data.slice(0, 3);
         
-        // 异步获取帖子详情，不等待完成
         postsToFetch.forEach(post => {
           dispatch(fetchPostDetail(post.id));
         });
       }
 
-      // 将后端的扁平结构转换为前端Redux store需要的嵌套结构
       return {
-        items: response.data, // 后端的data字段是Post[]
-        pagination: response.pagination, // 后端的pagination字段
-        isAppend: params.isAppend || false, // 传递isAppend参数
+        items: response.data,
+        pagination: response.pagination,
+        isAppend: params.isAppend || false,
       };
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch posts');
@@ -74,16 +64,30 @@ export const fetchPosts = createAsyncThunk<
   }
 );
 
-// 获取帖子详情的 Thunk
+// 获取帖子详情的 Thunk（带重试机制）
 export const fetchPostDetail = createAsyncThunk<Post, number>(
   'posts/fetchPostDetail',
   async (postId, { rejectWithValue }) => {
-    try {
-      const response = await postApi.getPostById(postId);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.msg || 'Failed to fetch post detail');
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 500; // ms
+
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const response = await postApi.getPostById(postId);
+        return response.data;
+      } catch (error: any) {
+        // 只对404错误进行重试
+        if (error.statusCode === 404 && attempt < MAX_RETRIES) {
+          console.log(`获取帖子 ${postId} 失败 (尝试 ${attempt}/${MAX_RETRIES})，${RETRY_DELAY}ms后重试...`);
+          await delay(RETRY_DELAY);
+        } else {
+          // 如果不是404或已达到最大重试次数，则直接失败
+          return rejectWithValue(error.msg || `获取帖子详情失败 (尝试 ${attempt})`);
+        }
+      }
     }
+    // 循环结束后如果还未成功，则最终失败
+    return rejectWithValue(`获取帖子 ${postId} 失败，已达最大重试次数`);
   }
 );
 
@@ -101,7 +105,6 @@ export const toggleAction = createAsyncThunk<
       action_type: actionType,
     });
     
-    // response的类型是BaseResponse<ToggleActionResponse>，需要提取data字段
     return { postId, actionType, response: response.data };
   } catch (error: any) {
     return rejectWithValue(error.message || `Failed to toggle ${actionType}`);
@@ -115,12 +118,11 @@ export const createPost = createAsyncThunk<
   { rejectValue: string }
 >('posts/createPost', async (postData, { rejectWithValue }) => {
   try {
-    // 确保参数名称与API一致
     const apiData = {
       ...postData,
-      image: postData.image_urls // 将 image_urls 转换为 image 以匹配 API 接口
+      image: postData.image_urls
     };
-    delete apiData.image_urls; // 删除多余的字段
+    delete apiData.image_urls;
 
     const response = await postApi.createPost(apiData);
     return response.data;
@@ -175,35 +177,29 @@ const postsSlice = createSlice({
         (state, action: PayloadAction<{ items: Post[]; pagination: Pagination; isAppend: boolean }>) => {
           state.loading = 'succeeded';
           
-          // 定义一个默认的作者信息，以防API返回的数据不完整
           const defaultAuthor: User = {
             id: -1,
             nickname: '未知用户',
-            avatar: 'https://via.placeholder.com/150', // 一个默认头像
+            avatar: 'https://via.placeholder.com/150',
             gender: 0,
             level: '0',
             bio: '该用户很神秘，什么也没留下',
           };
 
-          // 创建一个映射，保存现有帖子的状态
           const existingPostsMap = new Map<number, Post>();
           state.list.forEach(post => {
             existingPostsMap.set(post.id, post);
           });
 
-          // 处理返回的帖子列表，应用默认作者信息和保留已有的状态
           const processedItems = action.payload.items.map(post => {
             let updatedPost = { ...post };
 
-            // 如果 author_info 不存在或不完整，则使用默认值
             if (!updatedPost.author_info) {
               updatedPost.author_info = defaultAuthor;
             }
             
-            // 如果这个帖子在现有列表中已经存在，保留其状态信息
             const existingPost = existingPostsMap.get(post.id);
             if (existingPost) {
-              // 合并状态：如果后端返回 true，使用后端状态；否则检查本地状态
               updatedPost = {
                 ...updatedPost,
                 is_liked: post.is_liked === true ? true : (existingPost.is_liked === true),
@@ -216,10 +212,8 @@ const postsSlice = createSlice({
           });
           
           if (action.payload.isAppend) {
-            // 追加新帖子到现有列表后面
             state.list = [...state.list, ...processedItems];
           } else {
-            // 替换整个列表（刷新或首次加载）
             state.list = processedItems;
           }
           state.pagination = action.payload.pagination;
@@ -229,22 +223,18 @@ const postsSlice = createSlice({
         state.loading = 'failed';
         state.error = action.payload as string;
       })
-      // 处理获取帖子详情的状态
       .addCase(fetchPostDetail.pending, (state) => {
         state.detailLoading = 'pending';
       })
       .addCase(fetchPostDetail.fulfilled, (state, action: PayloadAction<Post>) => {
         state.detailLoading = 'succeeded';
         
-        // 更新当前查看的帖子详情
         state.currentPost = action.payload;
         
-        // 同时更新列表中的对应帖子
         const postIndex = state.list.findIndex(p => p.id === action.payload.id);
         if (postIndex !== -1) {
           const existingPost = state.list[postIndex];
           
-          // 更新列表中的帖子状态
           state.list[postIndex] = {
             ...state.list[postIndex],
             is_liked: action.payload.is_liked === true ? true : (existingPost.is_liked === true),
@@ -261,14 +251,9 @@ const postsSlice = createSlice({
         const { postId, actionType, response } = action.payload;
 
         if (actionType === 'follow') {
-          // 在 post slice 中不直接处理关注状态的 UI 更新，
-          // 因为一个用户的关注状态可能影响多个帖子。
-          // 这种状态应该由 user slice 或其他地方管理。
-          // 这里可以只记录一个日志或者什么都不做。
           return;
         }
 
-        // 更新列表中的帖子
         const postIndex = state.list.findIndex((p) => p.id === postId);
         if (postIndex !== -1) {
           const post = state.list[postIndex];
@@ -286,7 +271,6 @@ const postsSlice = createSlice({
           }
         }
 
-        // 更新当前查看的帖子详情
         if (state.currentPost && state.currentPost.id === postId) {
           switch (actionType) {
             case 'like':
@@ -303,8 +287,6 @@ const postsSlice = createSlice({
         }
       })
       .addCase(createPost.fulfilled, (state, action) => {
-        // 创建成功后，可以重置loading状态
-        // 注意：创建成功后通常会导航到新帖子页面，所以这里不需要更新列表
         state.loading = 'succeeded';
       })
       .addCase(createPost.pending, (state) => {
@@ -318,7 +300,6 @@ const postsSlice = createSlice({
       .addCase(deletePost.fulfilled, (state, action) => {
         const { postId } = action.payload;
         state.list = state.list.filter((p) => p.id !== postId);
-        // 如果当前查看的帖子被删除，清空当前帖子
         if (state.currentPost && state.currentPost.id === postId) {
           state.currentPost = null;
         }

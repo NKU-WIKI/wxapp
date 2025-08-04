@@ -259,46 +259,53 @@
 .loginPromptContainer {
   flex: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  padding: 16px;
+  align-items: center;
+  padding: 24px;
+  box-sizing: border-box;
 }
 
 .promptCard {
   width: 100%;
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 24px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.userInfo {
+  max-width: 380px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+  background-color: $bg-card;
+  border-radius: 16px;
+  padding: 32px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  text-align: center;
 }
 
-.infoText {
-  text-align: left;
+.logo {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 24px;
 }
 
 .mainText {
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 500;
+  color: $text-primary;
+  margin-bottom: 12px;
+  line-height: 1.5;
 }
 
 .subText {
   font-size: 14px;
-  color: #6b7280;
+  color: $text-secondary;
+  margin-bottom: 24px;
+  line-height: 1.6;
 }
 
 .actions {
   display: flex;
-  gap: 16px;
   justify-content: space-around;
-  margin-bottom: 24px;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 32px;
 }
 
 .actionItem {
@@ -306,24 +313,33 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
-  color: #374151;
+  font-size: 13px;
+  color: $text-secondary;
 }
 
 .actionIcon {
-  font-size: 24px;
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
 }
 
 .loginButton {
   width: 100%;
-  padding: 12px;
+  max-width: 300px;
+  padding: 12px 0;
   border-radius: 9999px;
-  background-color: #4F46E5;
+  background-color: $theme-primary;
   color: white;
   font-size: 16px;
+  font-weight: 500;
   border: none;
-  
+  transition: background-color 0.2s;
+
   &::after {
     border: none;
+  }
+
+  &:hover {
+    background-color: darken($theme-primary, 5%);
   }
 }

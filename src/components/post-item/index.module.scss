@@ -94,15 +94,6 @@
   }
 }
 
-// Badge examples - can be added conditionally
-.badgeNew {
-  background-color: #d1fae5;
-  color: #065f46;
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 9999px;
-}
-
 .postContent {
   display: flex;
   flex-direction: column;
@@ -119,20 +110,11 @@
   font-size: 14px;
   color: #374151;
   line-height: 1.5;
-  // For line clamp
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-}
-
-.postImage {
-  width: 100%;
-  height: 192px; // h-48
-  border-radius: 8px;
-  margin-top: 12px;
-  object-fit: cover;
 }
 
 .cardFooter {
@@ -164,7 +146,7 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: 9999px;
-  background-color: transparent; // 无背景
+  background-color: transparent;
   transition: all 0.2s;
   
   .actionIcon {
@@ -174,18 +156,12 @@
   
   .actionCount {
     font-size: 13px;
-    color: #666; // 未激活时文字颜色
+    color: #666;
     
     &.active {
-      color: #4F46E5; // 激活时文字为主题色
+      color: #4F46E5;
     }
   }
-}
-
-.shareButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .shareIcon {
@@ -207,12 +183,11 @@
   height: 16px;
 }
 
-// 帖子内容区域样式
 .content {
   display: flex;
   flex-direction: column;
-  gap: 6px; // 从8px减少到6px
-  margin: 6px 0; // 从8px减少到6px
+  gap: 6px;
+  margin: 6px 0;
   cursor: pointer;
   transition: opacity 0.2s;
   
@@ -225,21 +200,44 @@
   font-size: 16px;
   font-weight: 600;
   color: #1f2937;
-  line-height: 1.3; // 从1.4减少到1.3
+  line-height: 1.3;
 }
 
 .text {
   font-size: 14px;
   color: #4b5563;
-  line-height: 1.4; // 从1.5减少到1.4
+  line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-box-orient: vertical;
 }
 
-.images {
+.tagsSection {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.tagText {
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.2;
+}
+
+// Grid styles from post-detail
+.images {
+  display: grid;
   gap: 8px;
   margin: 8px 0;
   cursor: pointer;
@@ -248,58 +246,26 @@
   &:active {
     opacity: 0.7;
   }
-}
 
-// 标签部分样式
-.tagsSection {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 8px 0;
-  padding: 0 16px;
-  
-  .tag {
-    height: 20px;
-    border-radius: 10px;
-    background: #F3F4F6;
-    padding: 0 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    .tagText {
-      font-size: 11px;
-      color: #6B7280;
-      line-height: 1;
-    }
-  }
-  
-  .moreTagsIndicator {
-    height: 20px;
-    border-radius: 10px;
-    background: #E5E7EB;
-    padding: 0 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    .moreTagsText {
-      font-size: 11px;
-      color: #9CA3AF;
-      line-height: 1;
-    }
+  .postImage {
+    width: 100%;
+    height: 100%; // Let the grid container control the height
+    border-radius: 8px;
+    object-fit: cover;
   }
 }
 
-.input {
-  position: absolute;
-  left: 15px;
-  top: 13px;
-  width: 301px;
-  height: 36px;
-  opacity: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0px 12px;
-  z-index: 1;
+.singleImage {
+  grid-template-columns: 1fr;
+  height: 200px;
+}
+
+.doubleImage {
+  grid-template-columns: repeat(2, 1fr);
+  height: 160px;
+}
+
+.gridImage {
+  grid-template-columns: repeat(3, 1fr);
+  height: 110px;
 }

@@ -5,9 +5,15 @@ import { RootState, AppDispatch } from "@/store";
 import { logout } from "@/store/slices/userSlice";
 import styles from "./index.module.scss";
 
-// 图标导入
-import defaultAvatar from "@/assets/profile.png";
+// 导入图标
+const defaultAvatar = "/assets/profile.png";
+import heartIcon from "@/assets/heart-outline.svg";
+import messageIcon from "@/assets/message-square.svg";
+const draftIcon = "/assets/draft.png";
+import shareIcon from "@/assets/share.svg";
 import CustomHeader from "@/components/custom-header";
+// 图标路径常量
+const loginPromptIllustration = "/assets/logo.png";
 
 // 未登录提示组件
 const LoginPrompt = () => {
@@ -18,33 +24,37 @@ const LoginPrompt = () => {
   return (
     <View className={styles.loginPromptContainer}>
       <View className={styles.promptCard}>
-        <View className={styles.userInfo}>
-          <Image src={defaultAvatar} className={styles.avatar} />
-          <View className={styles.infoText}>
-            <Text className={styles.mainText}>登录后体验更多功能</Text>
-            <Text className={styles.subText}>登录后可以发帖、评论、收藏等</Text>
-          </View>
-        </View>
+        <Image
+          src={loginPromptIllustration}
+          className={styles.logo}
+          mode="aspectFit"
+        />
+        <Text className={styles.mainText}>登录 nkuwiki，开启全新校园交流体验</Text>
+        <Text className={styles.subText}>
+          发帖、评论、点赞、收藏，与数万校友分享你的见解
+        </Text>
+
         <View className={styles.actions}>
           <View className={styles.actionItem}>
-            <Text className={styles.actionIcon}>❤️</Text>
+            <Image src={heartIcon} className={styles.actionIcon} style={{ width: '18px', height: '18px' }} />
             <Text>获赞</Text>
           </View>
           <View className={styles.actionItem}>
-            <Text className={styles.actionIcon}>💬</Text>
+            <Image src={messageIcon} className={styles.actionIcon} style={{ width: '18px', height: '18px' }} />
             <Text>评论</Text>
           </View>
           <View className={styles.actionItem}>
-            <Text className={styles.actionIcon}>📝</Text>
+            <Image src={draftIcon} className={styles.actionIcon} style={{ width: '18px', height: '18px' }} />
             <Text>发帖</Text>
           </View>
           <View className={styles.actionItem}>
-            <Text className={styles.actionIcon}>📤</Text>
+            <Image src={shareIcon} className={styles.actionIcon} style={{ width: '18px', height: '18px' }} />
             <Text>分享</Text>
           </View>
         </View>
+
         <Button className={styles.loginButton} onClick={handleLogin}>
-          去登陆
+          立即登录/注册
         </Button>
       </View>
     </View>

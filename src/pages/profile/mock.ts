@@ -1,14 +1,14 @@
 import starIcon from "../../assets/star-filled.svg";
 import historyIcon from "../../assets/history.svg";
-import commentIcon from "../../assets/comment.png";
-import likeIcon from "../../assets/like.png";
-import favoriteIcon from "../../assets/favorite.png";
-import feedbackIcon from "../../assets/feedback.png";
-import notificationIcon from "../../assets/notification.png";
-import clearIcon from "../../assets/clear.png";
-import aboutIcon from "../../assets/about.png";
-import logoutIcon from "../../assets/logout.png";
-import settingsIcon from '../../assets/settings.png';
+const commentIcon = "/assets/comment.png";
+const likeIcon = "/assets/like.png";
+const favoriteIcon = "/assets/favorite.png";
+const feedbackIcon = "/assets/feedback.png";
+const notificationIcon = "/assets/notification.png";
+const clearIcon = "/assets/clear.png";
+const aboutIcon = "/assets/about.png";
+const logoutIcon = "/assets/logout.png";
+const settingsIcon = '/assets/settings.png';
 
 export const mockUser = {
   avatar: "https://picsum.photos/id/1025/80/80",

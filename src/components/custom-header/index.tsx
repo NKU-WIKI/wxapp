@@ -6,7 +6,7 @@ import styles from "./index.module.scss";
 
 // 图标路径常量
 const backIcon = "/assets/arrow-left.svg";
-const logo = "/assets/logo.png";
+const logo = "/assets/wiki-lc-green.svg";
 const notificationIcon = "/assets/bell.svg";
 
 interface NavStyle {

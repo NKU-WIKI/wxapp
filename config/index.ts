@@ -68,33 +68,33 @@ export default defineConfig<"webpack5">(async (merge) => {
         chain.resolve.plugin("tsconfig-paths").use(TsconfigPathsPlugin);
         
         // 处理普通图片文件（排除SVG）
-        chain.module
-          .rule('images')
-          .test(/\.(png|jpe?g|gif)(\?.*)?$/)
-          .use('url-loader')
-          .loader('url-loader')
-          .options({
-            limit: 4096, // 4k - 降低阈值以避免性能警告
-            name: 'static/images/[name].[hash:8].[ext]'
-          });
+        // chain.module
+        //   .rule('images')
+        //   .test(/\.(png|jpe?g|gif)(\?.*)?$/)
+        //   .use('url-loader')
+        //   .loader('url-loader')
+        //   .options({
+        //     limit: 1, // 1 byte - 几乎禁用 url-loader 的 base64 功能
+        //     name: 'static/images/[name].[hash:8].[ext]'
+        //   });
 
-        if (process.env.NODE_ENV === 'production') {
-          chain.optimization.minimizer('image-minimizer').use(
-            new ImageMinimizerPlugin({
-              minimizer: {
-                implementation: ImageMinimizerPlugin.sharpMinify,
-                options: {
-                  encodeOptions: {
-                    jpeg: { quality: 80 },
-                    png: {
-                      quality: 80,
-                    },
-                  },
-                },
-              },
-            })
-          );
-        }
+        // if (process.env.NODE_ENV === 'production') {
+        //   chain.optimization.minimizer('image-minimizer').use(
+        //     new ImageMinimizerPlugin({
+        //       minimizer: {
+        //         implementation: ImageMinimizerPlugin.sharpMinify,
+        //         options: {
+        //           encodeOptions: {
+        //             jpeg: { quality: 80 },
+        //             png: {
+        //               quality: 80,
+        //             },
+        //           },
+        //         },
+        //       },
+        //     })
+        //   );
+        // }
 
         if (process.env.ANALYZE === 'true') {
           chain

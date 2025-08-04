@@ -1,9 +1,6 @@
 import Taro from '@tarojs/taro';
 import { HEADER_BRANCH_KEY, REQUEST_BRANCH } from '@/constants';
 
-// 在 Webpack 构建时，BASE_URL 会被替换为实际的字符串
-// declare const BASE_URL: string;
-
 export const uploadApi = {
   uploadImage: (filePath: string): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -13,7 +10,7 @@ export const uploadApi = {
       }
 
       Taro.uploadFile({
-        url: `${BASE_URL}/api/wxapp/upload/image`,
+        url: `${process.env.BASE_URL}/api/wxapp/upload/image`,
         filePath: filePath,
         name: 'file',
         header: {

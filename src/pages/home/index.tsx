@@ -1,4 +1,5 @@
 import { View, ScrollView, Text, Input, Image } from "@tarojs/components";
+import Taro, { useDidShow } from "@tarojs/taro";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -63,6 +64,13 @@ export default function Home() {
     dispatch(fetchPosts({ page: 1, page_size: 5, isAppend: false }));
     setPage(1);
   }, [dispatch]);
+
+  useDidShow(() => {
+    const { refresh } = Taro.getCurrentInstance().router.params;
+    if (refresh === 'true') {
+      handlePullRefresh();
+    }
+  });
 
   // 根据分类名称获取分类ID
   const getCategoryId = (categoryName: string): number | undefined => {

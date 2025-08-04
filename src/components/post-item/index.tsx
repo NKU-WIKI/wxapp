@@ -4,8 +4,9 @@ import { useState, useRef } from 'react';
 import { Post } from "@/types/api/post.d";
 import styles from "./index.module.scss";
 import { formatRelativeTime } from "@/utils/time";
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 import { toggleAction, deletePost } from '@/store/slices/postSlice';
 import { showToast } from '@/utils/ui';
 
@@ -15,14 +16,14 @@ import heartActiveIcon from "@/assets/heart-bold.svg"; // 实心
 import commentIcon from "@/assets/message-circle.svg";
 import starIcon from "@/assets/star-outline.svg"; // 空心
 import starActiveIcon from "@/assets/star-filled.svg"; // 实心
-import sendIcon from "@/assets/send.svg"; 
+import sendIcon from "@/assets/send.svg";
 import moreIcon from "@/assets/more-horizontal.svg";
-import Button from "../button";
 
 interface PostItemProps {
   post: Post;
   className?: string;
 }
+
 
 const PostItem = ({ post, className = "" }: PostItemProps) => {
   if (!post || !post.author_info) {
@@ -30,47 +31,46 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     return null; // 或者返回一个加载状态的组件
   }
   const dispatch = useDispatch<AppDispatch>();
+  const { checkAuth } = useAuthGuard();
   const [isActionLoading, setIsActionLoading] = useState(false);
   const lastActionTimeRef = useRef<number>(0);
   const DEBOUNCE_DELAY = 500; // 500ms 防抖间隔
   const userState = useSelector((state: RootState) => state.user);
   const userInfo = userState?.userInfo || null;
-  const token = userState?.token || null;
-  const isLoggedIn = userState?.isLoggedIn || false;
-  
+
   // 从 Redux 中获取最新的帖子状态
   const postState = useSelector((state: RootState) => state.post);
   const posts = postState?.list || [];
   const currentPostFromRedux = posts.find(p => p.id === post.id);
-  
+
   // 使用 Redux 中的状态，如果 Redux 中没有则使用 props 中的
   const displayPost = currentPostFromRedux || post;
-  
+
   // 使用后端返回的状态，确保布尔值转换正确
   const isLiked = displayPost.is_liked === true;
   const isFavorited = displayPost.is_favorited === true;
-  
+
   // 使用帖子的 like_count 和 favorite_count 属性，如果为 undefined 则显示 0
   // 如果用户已点赞/收藏但数量为0，则显示1
   const likeCount = isLiked && displayPost.like_count === 0 ? 1 : (displayPost.like_count || 0);
   const favoriteCount = isFavorited && displayPost.favorite_count === 0 ? 1 : (displayPost.favorite_count || 0);
 
-  // 检查是否登录
-  const checkLogin = () => {
-    if (!isLoggedIn || !token) {
-      Taro.showModal({
-        title: '提示',
-        content: '您尚未登录，是否前往登录？',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-          }
-        }
-      });
-      return false;
+  // 解析图片
+  const getImages = () => {
+    if (post.image && typeof post.image === 'string') {
+      try {
+        const parsed = JSON.parse(post.image);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.error('解析图片失败:', error);
+        return [];
+      }
     }
-    return true;
+    return [];
   };
+
+  const image_urls = getImages();
+
 
   // 跳转到详情页
   const navigateToDetail = (e) => {
@@ -91,14 +91,14 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   };
 
   // 处理关注按钮点击
-  const handleFollowClick = (e) => {
+  const handleFollowClick = (e: any) => {
     e.stopPropagation();
-    if (!checkLogin()) return;
-    
+    if (!checkAuth()) return;
+
     // 调用关注API
-    dispatch(toggleAction({ 
-      postId: post.author_info.id, 
-      actionType: 'follow' 
+    dispatch(toggleAction({
+      postId: post.author_info.id,
+      actionType: 'follow'
     })).then((result: any) => {
       if (result.payload && result.payload.response) {
         const { is_active } = result.payload.response;
@@ -140,13 +140,13 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
         return;
       }
-      
+
       // 检查时间间隔
       if (currentTime - lastActionTimeRef.current < DEBOUNCE_DELAY) {
         Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
         return;
       }
-      
+
       // 更新最后操作时间
       lastActionTimeRef.current = currentTime;
     }
@@ -157,31 +157,31 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
       showToast('分享功能需要在页面中实现', { type: 'info' });
       return;
     }
-    
+
     if (actionType === 'comment') {
       // 跳转到详情页并聚焦评论区
       navigateToDetail(e);
       return;
     }
 
-    if (!checkLogin()) return;
-    
+    if (!checkAuth()) return;
+
     switch (actionType) {
       case 'like':
       case 'favorite':
         setIsActionLoading(true);
         // 直接派发 action 到 Redux，让 Redux 处理状态更新
-        dispatch(toggleAction({ 
-          postId: post.id, 
-          actionType 
+        dispatch(toggleAction({
+          postId: post.id,
+          actionType
         })).then((result: any) => {
           if (result.payload && result.payload.response) {
             const { is_active } = result.payload.response;
-            
+
             // 显示提示
             Taro.showToast({
-              title: actionType === 'like' 
-                ? (is_active ? '点赞成功' : '已取消点赞') 
+              title: actionType === 'like'
+                ? (is_active ? '点赞成功' : '已取消点赞')
                 : (is_active ? '收藏成功' : '已取消收藏'),
               icon: 'none',
               duration: 1500
@@ -189,7 +189,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           }
         }).catch(error => {
           console.error(`${actionType}操作失败`, error);
-          
+
           // 如果是401错误，提示用户重新登录
           if (error.statusCode === 401) {
             Taro.showModal({
@@ -247,10 +247,10 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     } else if (action === 'comment') {
       iconSrc = commentIcon;
     }
-    
+
     return (
       <View className={styles.actionButton} onClick={(e) => handleActionClick(e, action)}>
-        <Image 
+        <Image
           src={iconSrc}
           className={styles.actionIcon}
         />
@@ -265,7 +265,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     if (post.tag && Array.isArray(post.tag)) {
       return post.tag;
     }
-    
+
     // 如果标签是字符串，尝试解析
     if (post.tag && typeof post.tag === 'string') {
       try {
@@ -275,10 +275,10 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         return [];
       }
     }
-    
+
     return [];
   };
-  
+
   // 获取标签列表
   const tags = getTags();
 
@@ -308,7 +308,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           )}
         </View>
       </View>
-      
+
       {/* Post Content */}
       <View className={styles.content} onClick={navigateToDetail}>
         <Text className={styles.title}>{post.title}</Text>
@@ -317,10 +317,18 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         </Text>
       </View>
 
-      {post.image_urls && post.image_urls.length > 0 && (
-        <View className={styles.images} onClick={navigateToDetail}>
-          {post.image_urls.slice(0, 3).map((url, index) => (
-            <Image key={index} src={url} className={styles.postImage} />
+      {image_urls && image_urls.length > 0 && (
+        <View
+          className={`${styles.images} ${image_urls.length === 1
+              ? styles.singleImage
+              : image_urls.length === 2
+                ? styles.doubleImage
+                : styles.gridImage
+            }`}
+          onClick={navigateToDetail}
+        >
+          {image_urls.slice(0, 3).map((url, index) => (
+            <Image key={index} src={url} className={styles.postImage} mode="aspectFill" />
           ))}
         </View>
       )}
@@ -333,11 +341,6 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
               <Text className={styles.tagText}>#{tag}</Text>
             </View>
           ))}
-          {tags.length > 3 && (
-            <View className={styles.moreTagsIndicator}>
-              <Text className={styles.moreTagsText}>+{tags.length - 3}</Text>
-            </View>
-          )}
         </View>
       )}
 

@@ -1,26 +1,36 @@
-import React from 'react';
-import { useEffect } from 'react';
-import { View, Image, Text, Button, ScrollView } from '@tarojs/components';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { View, Image, Text, Input } from '@tarojs/components';
+import { useDispatch } from 'react-redux';
 import Taro from '@tarojs/taro';
-import { AppDispatch, RootState } from '@/store';
+import { AppDispatch } from '@/store';
 import { login } from '@/store/slices/userSlice';
-import { fetchAboutInfo } from '@/store/slices/aboutSlice';
-import CustomHeader from '@/components/custom-header';
 import styles from './index.module.scss';
 
-// 图标路径常量
-const logo = "/assets/logo.png";
+// 假设这些是新图标的路径
+const logo = '/assets/wiki-lc-green.png';
+const phoneIcon = '/assets/phone-login.svg';
+const shieldIcon = '/assets/shield-login.svg';
+const wechatIcon = '/assets/wechat.svg';
+const qqIcon = '/assets/qq.svg';
 
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { info: aboutInfo } = useSelector((state: RootState) => state.about);
+  const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
 
-  useEffect(() => {
-    dispatch(fetchAboutInfo());
-  }, [dispatch]);
+  // 手机号/验证码登录逻辑 (保留，但目前未实现)
+  const handlePhoneLogin = () => {
+    console.log('Phone:', phone);
+    console.log('Code:', code);
+    Taro.showToast({ title: '手机登录功能暂未开放', icon: 'none' });
+  };
+  
+  const handleGetCode = () => {
+    console.log('Getting verification code for:', phone);
+    Taro.showToast({ title: '暂不支持获取验证码', icon: 'none' });
+  };
 
-  const handleLogin = async () => {
+  const handleWechatLogin = async () => {
     try {
       const res = await Taro.login();
       await dispatch(login(res.code)).unwrap();
@@ -32,31 +42,57 @@ export default function LoginPage() {
   };
 
   return (
-    <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
-      {/* 1. 顶部必须是统一的自定义导航栏 */}
-      <CustomHeader title="登录" hideBack={false} />
-      
-      {/* 2. 页面主体内容必须包裹在这个 View 和 ScrollView 中 */}
-      <View style={{ flex: 1, overflow: 'hidden' }}>
-        <ScrollView scrollY style={{ height: '100%' }}>
-          <View className={styles.loginContainer}>
-            <View className={styles.mainContent}>
-              <Image src={logo} className={styles.logo} mode="aspectFit" />
-              {aboutInfo?.version && (
-                <Text className={styles.version}>Version {aboutInfo.version}</Text>
-              )}
-              <Button className={styles.loginButton} onClick={handleLogin}>
-                微信一键登录
-              </Button>
-            </View>
-            <View className={styles.footer}>
-              {aboutInfo?.copyright && (
-                <Text className={styles.copyright}>{aboutInfo.copyright}</Text>
-              )}
-            </View>
-          </View>
-        </ScrollView>
+    <View className={styles.loginContainer}>
+      <View className={styles.header}>
+        <Image src={logo} className={styles.logo} mode="aspectFit" />
+        <Text className={styles.title}>开源·共治·普惠</Text>
+        <Text className={styles.subtitle}>加入我们, 探索无限可能</Text>
+      </View>
+
+      <View className={styles.form}>
+        <View className={styles.inputWrapper}>
+          <Image src={phoneIcon} className={styles.inputIcon} />
+          <Input
+            type="number"
+            placeholder="请输入手机号码"
+            className={styles.input}
+            onInput={(e) => setPhone(e.detail.value)}
+          />
+        </View>
+        <View className={styles.inputWrapper}>
+          <Image src={shieldIcon} className={styles.inputIcon} />
+          <Input
+            type="number"
+            placeholder="请输入验证码"
+            className={styles.input}
+            onInput={(e) => setCode(e.detail.value)}
+          />
+          <Text className={styles.getCodeBtn} onClick={handleGetCode}>
+            获取验证码
+          </Text>
+        </View>
+        <View className={styles.loginButton} onClick={handlePhoneLogin}>
+          <Text>登录/注册</Text>
+        </View>
+      </View>
+
+      <View className={styles.quickLogin}>
+        <View className={styles.divider}>
+          <Text className={styles.dividerText}>快速登录</Text>
+        </View>
+        <View className={styles.socialIcons}>
+          <Image src={wechatIcon} className={styles.socialIcon} onClick={handleWechatLogin} />
+          <Image src={qqIcon} className={styles.socialIcon} />
+        </View>
+      </View>
+
+      <View className={styles.footer}>
+        <Text className={styles.agreement}>
+          登录即表示同意{' '}
+          <Text className={styles.link}>用户协议</Text> 和{' '}
+          <Text className={styles.link}>隐私政策</Text>
+        </Text>
       </View>
     </View>
   );
-} 
+}
