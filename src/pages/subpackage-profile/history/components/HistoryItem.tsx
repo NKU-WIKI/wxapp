@@ -12,10 +12,17 @@ interface Props {
 
 const HistoryItem = ({ item, onDelete }: Props) => {
   const handleClick = () => {
-    if (item.link) {
-      Taro.navigateTo({ url: item.link });
-    }
+    // 跳转到帖子详情页面
+    Taro.navigateTo({ 
+      url: `/pages/subpackage-interactive/post-detail/index?id=${item.id}` 
+    }).catch(() => {
+      Taro.showToast({
+        title: '帖子不存在',
+        icon: 'none'
+      });
+    });
   };
+  
   return (
     <View className={styles.item} onClick={handleClick}>
       <Image src={item.avatar} className={styles.avatar} />

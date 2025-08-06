@@ -11,6 +11,7 @@ import PostDetailContent from './components/PostDetailContent';
 import BottomInput from './components/BottomInput';
 import styles from './index.module.scss';
 import { CommentDetail } from '@/types/api/comment';
+import { addHistory } from '@/utils/history';
 
 const PostDetailPage = () => {
   const router = useRouter();
@@ -40,6 +41,21 @@ const PostDetailPage = () => {
       dispatch(fetchComments({ resource_id: postId, resource_type: 'post' }));
     }
   }, [postId, dispatch]);
+
+  // 监听帖子详情变化，添加到浏览历史
+  useEffect(() => {
+    if (postState?.currentPost) {
+      const post = postState.currentPost;
+      addHistory({
+        id: String(post.id),
+        title: post.title,
+        cover: post.image_urls?.[0] || '',
+        avatar: post.author_info?.avatar || '',
+        createdAt: post.create_time,
+        viewedAt: new Date().toISOString()
+      });
+    }
+  }, [postState?.currentPost]);
 
   // 处理回复评论
   const handleReply = (comment: CommentDetail) => {
