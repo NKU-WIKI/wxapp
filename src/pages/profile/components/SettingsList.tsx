@@ -18,7 +18,7 @@ import arrowRightIcon from '@/assets/arrow-right.svg';
 const SettingsList = () => {
   const menuItems = [
     { icon: heartIcon, text: '我的点赞', link: '/pages/likes/index' },
-    { icon: starIcon, text: '我的收藏', link: '/pages/subpackage-profile/favorites/index' },
+    { icon: starIcon, text: '我的收藏', link: '/pages/subpackage-profile/collection/index' },
     { icon: messageSquareIcon, text: '我的评论', link: '/pages/comments/index' },
     { icon: draftIcon, text: '草稿箱', link: '/pages/drafts/index' },
     { icon: userIcon, text: '关于我们', link: '/pages/about/index' },

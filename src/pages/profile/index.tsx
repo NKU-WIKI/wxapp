@@ -86,7 +86,7 @@ const Profile = () => {
   const handleMenuClick = (type: string) => {
     const routes: { [key: string]: string } = {
       likes: '/pages/subpackage-profile/likes/index',
-      favorites: '/pages/subpackage-profile/favorites/index',
+      favorites: '/pages/subpackage-profile/collection/index',
       comments: '/pages/subpackage-profile/comments/index',
       drafts: '/pages/subpackage-profile/draft-box/index',
       history: '/pages/subpackage-profile/history/index',
