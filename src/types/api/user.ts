@@ -1,38 +1,50 @@
+// src/types/api/user.ts
+
+/**
+ * @description API 返回的原始用户信息结构
+ */
+export interface User {
+  id: number;
+  nickname: string;
+  avatar: string;
+  bio?: string;
+  
+  // 社交账号信息
+  wechatId?: string;
+  qqId?: string;
+  phone?: string;
+  
+  // 统计数据
+  post_count?: number;
+  follower_count?: number;
+  following_count?: number;
+  total_likes?: number;
+  total_favorites?: number;
+  
+  // 角色和等级
+  role?: 'user' | 'admin' | 'super_admin';
+  level?: number;
+  points?: number;
+  
+  // 其他信息
+  gender?: number; // 0: 未知, 1: 男, 2: 女
+  create_time?: string;
+
+  // 关系状态 (仅在特定接口中出现)
+  is_following?: boolean;
+}
+
+/**
+ * @description 登录接口的请求体
+ */
 export interface LoginParams {
   code: string;
 }
 
-export interface User {
-  level: string;
-  id: number;
-  nickname: string;
-  avatar: string;
-  gender: number;
-  bio?: string;
-  wechatId?: string;
-  qqId?: string;
-  phone?: string;
-  post_count?: number;
-  follower_count?: number;
-  following_count?: number;
-  create_time?: string;
-  role?: string;
-}
-
-// 扩展的用户信息接口，包含额外的统计数据
-export interface UserInfo extends User {
-  postsCount?: number;
-  likesCount?: number;
-  followingCount?: number;
-  followersCount?: number;
-  favoritesCount?: number;
-  points?: number;
-  signature?: string;
-  school?: string;
-}
-
+/**
+ * @description 登录接口的成功响应体
+ */
 export interface LoginResponse {
   token: string;
-  token_type: string;
   user_info: User;
-} 
+}

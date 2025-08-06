@@ -25,7 +25,6 @@
     "message": "success",
     "data": {
         "id": 1,
-        "openid": "oLx8G7ADjzh23EzAJavndryh76rE",
         "nickname": "南开小透明",
         "avatar": "...",
         "bio": "你好，nkuwiki！",
@@ -33,6 +32,7 @@
         "follower_count": 1,
         "following_count": 0,
         "create_time": "2025-06-09T13:24:10",
+        "level": 0,
         "is_following": false 
     }
 }
@@ -68,7 +68,8 @@
         "follower_count": 1,
         "following_count": 0,
         "create_time": "2025-06-09T13:24:10",
-        "role": "user"
+        "role": "user",
+        "level": 0
     }
 }
 ```
@@ -118,7 +119,7 @@
 
 **接口**：`GET /wxapp/user/followers`
 
-**功能描述**：获取指定用户的粉丝列表。
+**功能描述**：获取指定用户的粉丝列表，已优化为数据库分页查询。
 
 **请求参数 (Query)**:
 
@@ -129,7 +130,7 @@
 | `page_size` | `integer`| 否 | 每页数量, 默认为10。 |
 
 **成功响应示例**:
-`data` 字段是一个包含用户对象的数组。
+`data` 字段是一个包含用户基本信息的数组。
 
 ```json
 {
@@ -138,7 +139,6 @@
     "data": [
         {
             "id": 2,
-            "openid": "test_user_005",
             "nickname": "我是粉丝",
             "avatar": "...",
             "bio": "..."
@@ -153,7 +153,7 @@
 
 **接口**：`GET /wxapp/user/following`
 
-**功能描述**：获取指定用户关注的用户列表。
+**功能描述**：获取指定用户关注的用户列表，已优化为数据库分页查询。
 
 **请求参数 (Query)**:
 
@@ -164,7 +164,7 @@
 | `page_size` | `integer`| 否 | 每页数量, 默认为10。 |
 
 **成功响应示例**:
-`data` 字段是一个包含用户对象的数组。
+`data` 字段是一个包含用户基本信息的数组。
 ```json
 {
     "code": 200,
@@ -172,7 +172,6 @@
     "data": [
         {
             "id": 3,
-            "openid": "test_user_006",
             "nickname": "我关注的人",
             "avatar": "...",
             "bio": "..."
@@ -227,7 +226,7 @@
 
 **接口**：`GET /wxapp/user/favorite`
 
-**功能描述**：获取当前登录用户收藏的所有内容（目前支持帖子）。
+**功能描述**：获取当前登录用户收藏的所有内容（目前支持帖子），列表严格按收藏时间倒序排列。
 
 **认证**: 必需。
 
@@ -253,6 +252,7 @@
             "content": "帖子内容预览...",
             "image": "...",
             "create_time": "...",
+            "author_id": 4,
             "author_nickname": "帖子作者",
             "author_avatar": "..."
         }
@@ -267,7 +267,7 @@
 
 **接口**: `GET /wxapp/user/like`
 
-**功能描述**: 获取当前登录用户点赞过的所有内容（目前支持帖子和评论）。
+**功能描述**: 获取当前登录用户点赞过的所有内容，包括帖子和评论，列表严格按点赞时间倒序排列。
 
 **认证**: 必需。
 
@@ -279,8 +279,7 @@
 | `page_size` | `integer`| 否 | 每页数量, 默认为10。 |
 
 **成功响应示例**:
-
-`data` 字段是一个包含点赞对象的数组，每个对象都有 `type` 字段以区分类型。
+`data` 字段是一个包含点赞对象的数组，每个对象都有 `type` 字段 (`post` 或 `comment`)。
 
 ```json
 {
@@ -289,11 +288,25 @@
     "data": [
         {
             "type": "post",
-            "post_info": { ... }
+            "id": 15,
+            "title": "我点赞的帖子",
+            "content": "...",
+            "image": "...",
+            "like_time": "2024-07-01T10:00:00",
+            "author_id": 5,
+            "author_nickname": "帖子作者",
+            "author_avatar": "..."
         },
         {
             "type": "comment",
-            "comment_info": { ... }
+            "id": 23,
+            "title": "我点赞的评论内容...",
+            "content": null,
+            "image": "...",
+            "like_time": "2024-07-01T09:00:00",
+            "author_id": 6,
+            "author_nickname": "评论作者",
+            "author_avatar": "..."
         }
     ],
     "pagination": { "total": 2, "page": 1, ... }
@@ -305,7 +318,7 @@
 
 **接口**: `GET /wxapp/user/comment`
 
-**功能描述**: 获取当前登录用户发表过的所有评论。
+**功能描述**: 获取当前登录用户发表过的所有评论，列表严格按发布时间倒序排列。
 
 **认证**: 必需。
 
@@ -317,7 +330,6 @@
 | `page_size` | `integer`| 否 | 每页数量, 默认为10。 |
 
 **成功响应示例**:
-
 `data` 字段是一个包含评论对象的数组。
 
 ```json
@@ -329,8 +341,10 @@
             "id": 101,
             "post_id": 1,
             "content": "这是一个测试评论",
+            "image": null,
+            "like_count": 5,
             "create_time": "2024-06-21T18:00:00",
-            "like_count": 5
+            "post_title": "关联的帖子标题"
         }
     ],
     "pagination": { "total": 1, "page": 1, ... }
@@ -420,4 +434,4 @@
         "message": "请使用POST /api/wxapp/auth/login接口进行登录和同步"
     }
 }
-``` 
+```

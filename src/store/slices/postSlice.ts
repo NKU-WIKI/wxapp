@@ -251,6 +251,22 @@ const postsSlice = createSlice({
         const { postId, actionType, response } = action.payload;
 
         if (actionType === 'follow') {
+          const authorId = postId; 
+          const isNowFollowing = response.is_active;
+
+          // 更新帖子列表，使用 map 返回一个新数组以确保状态更新
+          state.list = state.list.map((p) => {
+            if (p.author_info.id === authorId) {
+              // 创建一个新的帖子对象，而不是直接修改
+              return { ...p, is_following_author: isNowFollowing };
+            }
+            return p;
+          });
+
+          // 如果当前详情页的帖子作者是同一个人，也更新
+          if (state.currentPost && state.currentPost.author_info.id === authorId) {
+            state.currentPost.is_following_author = isNowFollowing;
+          }
           return;
         }
 

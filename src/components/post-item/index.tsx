@@ -49,6 +49,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   // 使用后端返回的状态，确保布尔值转换正确
   const isLiked = displayPost.is_liked === true;
   const isFavorited = displayPost.is_favorited === true;
+  const isFollowing = displayPost.is_following_author === true;
 
   // 使用帖子的 like_count 和 favorite_count 属性，如果为 undefined 则显示 0
   // 如果用户已点赞/收藏但数量为0，则显示1
@@ -294,7 +295,14 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
             <View className={styles.authorMainRow}>
               <Text className={styles.authorName}>{post.author_info.nickname || '匿名'}</Text>
               <View className={styles.levelBadge}><Text>Lv.{post.author_info.level || 0}</Text></View>
-              <View className={styles.followButton} onClick={handleFollowClick}><Text>关注</Text></View>
+              {userInfo?.id !== post.author_info.id && (
+                <View
+                  className={`${styles.followButton} ${isFollowing ? styles.followed : ''}`}
+                  onClick={handleFollowClick}
+                >
+                  <Text>{isFollowing ? '已关注' : '关注'}</Text>
+                </View>
+              )}
             </View>
             <Text className={styles.authorBio}>{post.author_info.bio || ''}</Text>
           </View>

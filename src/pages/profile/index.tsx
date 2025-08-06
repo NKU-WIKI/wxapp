@@ -1,8 +1,9 @@
+import { useEffect } from "react";
 import Taro from "@tarojs/taro";
 import { View, Text, Image, Button } from "@tarojs/components";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/store";
-import { logout } from "@/store/slices/userSlice";
+import { logout, fetchUserProfile } from "@/store/slices/userSlice";
 import styles from "./index.module.scss";
 
 // 导入图标
@@ -12,10 +13,10 @@ import messageIcon from "@/assets/message-square.svg";
 const draftIcon = "/assets/draft.png";
 import shareIcon from "@/assets/share.svg";
 import CustomHeader from "@/components/custom-header";
-// 图标路径常量
+import PostItemSkeleton from "@/components/post-item-skeleton";
+
 const loginPromptIllustration = "/assets/logo.png";
 
-// 未登录提示组件
 const LoginPrompt = () => {
   const handleLogin = () => {
     Taro.navigateTo({ url: "/pages/subpackage-profile/login/index" });
@@ -63,9 +64,15 @@ const LoginPrompt = () => {
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.user);
-  const isLoggedIn = user?.isLoggedIn || false;
-  const userInfo = user?.userInfo || null;
+  const { userInfo, isLoggedIn, status } = useSelector((state: RootState) => state.user);
+
+  useEffect(() => {
+    // 如果已登录，则在页面加载时获取最新的用户信息
+    // 这能确保数据是最新的，即使用户在其他设备上修改了信息
+    if (isLoggedIn) {
+      dispatch(fetchUserProfile());
+    }
+  }, [isLoggedIn, dispatch]);
 
   const handleEditProfile = () => {
     Taro.navigateTo({ url: "/pages/subpackage-profile/edit-profile/index" });
@@ -100,7 +107,17 @@ const Profile = () => {
     }
   };
 
-  if (!isLoggedIn || !userInfo) {
+  // 渲染骨架屏
+  const renderSkeleton = () => (
+    <View className={styles.pageContainer}>
+      <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
+      <View style={{ padding: '20px' }}>
+        <PostItemSkeleton />
+      </View>
+    </View>
+  );
+
+  if (!isLoggedIn) {
     return (
       <View className={styles.pageContainer}>
         <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
@@ -109,12 +126,16 @@ const Profile = () => {
     );
   }
 
+  // 如果正在加载，或者已经登录但还没有用户信息，则显示骨架屏
+  if (status === 'loading' || (isLoggedIn && !userInfo)) {
+    return renderSkeleton();
+  }
+
   // 已登录用户视图
   return (
     <View className={styles.pageContainer}>
       <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
       
-      {/* 用户信息卡片 */}
       <View className={styles.userCard}>
         <View className={styles.userInfoRow}>
           <View className={styles.avatarContainer}>
@@ -139,25 +160,24 @@ const Profile = () => {
           </Button>
         </View>
 
-        {/* 统计数据 */}
         <View className={styles.statsContainer}>
           <View className={styles.statsRow}>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>{userInfo?.post_count || 0}</Text>
+              <Text className={styles.statValue}>{userInfo?.post_count ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>📝</Text>
                 <Text className={styles.statLabel}>帖子</Text>
               </View>
             </View>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>1,286</Text>
+              <Text className={styles.statValue}>{userInfo?.total_likes ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>❤️</Text>
                 <Text className={styles.statLabel}>获赞</Text>
               </View>
             </View>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>{userInfo?.following_count || 0}</Text>
+              <Text className={styles.statValue}>{userInfo?.following_count ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>👥</Text>
                 <Text className={styles.statLabel}>关注</Text>
@@ -167,21 +187,21 @@ const Profile = () => {
           
           <View className={styles.statsRow}>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>{userInfo?.follower_count || 0}</Text>
+              <Text className={styles.statValue}>{userInfo?.follower_count ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>👥</Text>
                 <Text className={styles.statLabel}>粉丝</Text>
               </View>
             </View>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>89</Text>
+              <Text className={styles.statValue}>{userInfo?.total_favorites ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>🔖</Text>
                 <Text className={styles.statLabel}>收藏</Text>
               </View>
             </View>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>3,562</Text>
+              <Text className={styles.statValue}>{userInfo?.points ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>🏆</Text>
                 <Text className={styles.statLabel}>积分</Text>
@@ -191,7 +211,6 @@ const Profile = () => {
         </View>
       </View>
 
-      {/* 菜单列表 */}
       <View className={styles.menuCard}>
         <View className={styles.menuList}>
           <View className={styles.menuItem} onClick={() => handleMenuClick('likes')}>
@@ -259,7 +278,6 @@ const Profile = () => {
           </View>
         </View>
 
-        {/* 退出登录按钮 */}
         <View className={styles.logoutSection}>
           <Button className={styles.logoutButton} onClick={handleLogout}>
             <Text className={styles.logoutIcon}>⚡</Text>

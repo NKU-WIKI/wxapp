@@ -7,84 +7,59 @@ interface UserState {
   userInfo: User | null;
   token: string | null;
   isLoggedIn: boolean;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
 }
 
 const initialState: UserState = {
   userInfo: null,
   token: Taro.getStorageSync('token') || null,
   isLoggedIn: !!Taro.getStorageSync('token'),
+  status: 'idle',
+  error: null,
 };
 
 export const login = createAsyncThunk(
   'user/login',
-  async (code: string) => {
+  async (code: string, { rejectWithValue }) => {
     try {
       const response = await userApi.login({ code });
       Taro.setStorageSync('token', response.data.token);
       return response.data;
-    } catch (error) {
-      console.log('Login API failed, using mock data');
-      // 提供模拟数据作为后备方案
-      const mockData = {
-        token: 'mock-token-123',
-        user_info: {
-          id: 1,
-          nickname: '测试用户',
-          avatar: 'https://picsum.photos/80/80?random=1',
-          gender: 1,
-          level: '1',
-          bio: '这是一个测试用户',
-          wechatId: 'test_wx_001',
-          qqId: '123456789',
-          post_count: 5,
-          follower_count: 12,
-          following_count: 8
-        }
-      };
-      Taro.setStorageSync('token', mockData.token);
-      return mockData;
+    } catch (error: any) {
+      console.error('Login API failed:', error);
+      return rejectWithValue(error.response?.data?.message || '登录失败');
     }
   }
 );
 
 export const fetchUserProfile = createAsyncThunk(
   'user/fetchProfile',
-  async () => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await userApi.getMyProfile();
       return response.data;
-    } catch (error) {
-      console.log('Fetch profile API failed, using mock data');
-      // 提供模拟数据作为后备方案
-      return {
-        id: 1,
-        nickname: '测试用户',
-        avatar: 'https://picsum.photos/80/80?random=1',
-        gender: 1,
-        level: '1',
-        bio: '这是一个测试用户',
-        wechatId: 'test_wx_001',
-        qqId: '123456789',
-        post_count: 5,
-        follower_count: 12,
-        following_count: 8
-      };
+    } catch (error: any) {
+      console.error('Fetch profile API failed:', error);
+      // 当 token 失效或后端验证失败时，API 可能会返回 401 Unauthorized
+      // 在这种情况下，我们应该登出用户
+      if (error.response?.status === 401) {
+        Taro.removeStorageSync('token');
+      }
+      return rejectWithValue(error.response?.data?.message || '获取用户信息失败');
     }
   }
 );
 
 export const updateUserProfile = createAsyncThunk(
   'user/updateProfile',
-  async (data: Partial<User>) => {
+  async (data: Partial<User>, { rejectWithValue }) => {
     try {
-      // 这里的 response 已经是经过拦截器处理后的业务数据包 { code, data, ... }
       const response = await userApi.updateUserProfile(data);
-      // 我们需要的是 data 字段里的具体用户信息
       return response.data;
-    } catch (error) {
-      console.log('Update profile API failed, returning input data');
-      // API 失败时，直接返回输入的数据作为更新结果
-      return data;
+    } catch (error: any) {
+      console.error('Update profile API failed:', error);
+      return rejectWithValue(error.response?.data?.message || '更新失败');
     }
   }
 );
@@ -97,38 +72,63 @@ const userSlice = createSlice({
       state.isLoggedIn = false;
       state.userInfo = null;
       state.token = null;
+      state.status = 'idle';
+      state.error = null;
       Taro.removeStorageSync('token');
     },
   },
   extraReducers: (builder) => {
     builder
+      // Login
+      .addCase(login.pending, (state) => {
+        state.status = 'loading';
+      })
       .addCase(login.fulfilled, (state, action) => {
+        state.status = 'succeeded';
         state.token = action.payload.token;
         state.userInfo = action.payload.user_info;
         state.isLoggedIn = true;
+        state.error = null;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      // Fetch User Profile
+      .addCase(fetchUserProfile.pending, (state) => {
+        state.status = 'loading';
       })
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
+        state.status = 'succeeded';
         state.userInfo = action.payload;
+        state.isLoggedIn = true; // 如果能获取到用户信息，说明是登录状态
+        state.error = null;
+      })
+      .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+        // 如果获取用户信息失败（比如token失效），则登出
+        state.isLoggedIn = false;
+        state.userInfo = null;
+        state.token = null;
+      })
+      // Update User Profile
+      .addCase(updateUserProfile.pending, (state) => {
+        state.status = 'loading';
       })
       .addCase(updateUserProfile.fulfilled, (state, action) => {
-        // 此时 action.payload 就是最新的用户信息对象
+        state.status = 'succeeded';
         if (state.userInfo && action.payload) {
-          // 合并更新，而不是完全替换，过滤掉 undefined 值
           const filteredPayload = Object.fromEntries(
             Object.entries(action.payload).filter(([_, value]) => value !== undefined)
           );
           state.userInfo = { ...state.userInfo, ...filteredPayload } as User;
-        } else if (action.payload) {
-          // 确保 action.payload 包含所有必需的字段
-          state.userInfo = {
-            id: 0,
-            nickname: '',
-            avatar: '',
-            gender: 1,
-            level: '1',
-            ...action.payload
-          } as User;
         }
+        state.error = null;
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
       });
   },
 });
