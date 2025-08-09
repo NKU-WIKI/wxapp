@@ -5,6 +5,7 @@
  */
 export interface User {
   id: number;
+  openid?: string; // 用户的微信openid，在某些接口中会返回
   nickname: string;
   avatar: string;
   bio?: string;

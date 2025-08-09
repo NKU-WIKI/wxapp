@@ -16,6 +16,7 @@ export default defineAppConfig({
         "settings/index",
         "draft-box/index",
         "collection/index",
+        "followers/index",
         "likes/index",
         "comments/index",
         "user-detail/index",
