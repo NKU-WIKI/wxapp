@@ -477,6 +477,28 @@ export default function PublishPost() {
           <Text>发布</Text>
         </View>
       </View>
+
+      {showDraftPicker && (
+        <View className={styles.draftOverlay}>
+          <View className={styles.draftModal}>
+            <Text className={styles.draftTitle}>从草稿继续编辑</Text>
+            <ScrollView scrollY className={styles.draftList}>
+              {draftList.map((d) => (
+                <View key={d.id} className={styles.draftItem} onClick={() => {
+                  setShowDraftPicker(false);
+                  console.log('[publish] 选择草稿并跳转:', d.id);
+                  Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?draftId=${d.id}` });
+                }}>
+                  <Text className={styles.draftItemTitle}>{d.title?.trim() || '无标题草稿'}</Text>
+                </View>
+              ))}
+            </ScrollView>
+            <View className={styles.newPostButton} onClick={() => setShowDraftPicker(false)}>
+              <Text>不使用草稿，新建帖子</Text>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
