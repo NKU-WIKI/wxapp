@@ -21,7 +21,7 @@
   gap: 12px;
   cursor: pointer;
   transition: opacity 0.2s;
-  
+
   &:active {
     opacity: 0.7;
   }
@@ -87,7 +87,7 @@
   border: 1px solid #4F46E5;
   cursor: pointer;
   transition: all 0.2s;
-  
+
   &:active {
     background-color: #4F46E5;
     color: white;
@@ -154,16 +154,16 @@
   border-radius: 9999px;
   background-color: transparent;
   transition: all 0.2s;
-  
+
   .actionIcon {
     width: 18px;
     height: 18px;
   }
-  
+
   .actionCount {
     font-size: 13px;
     color: #666;
-    
+
     &.active {
       color: #4F46E5;
     }
@@ -196,7 +196,7 @@
   margin: 6px 0;
   cursor: pointer;
   transition: opacity 0.2s;
-  
+
   &:active {
     opacity: 0.7;
   }
@@ -248,7 +248,7 @@
   margin: 8px 0;
   cursor: pointer;
   transition: opacity 0.2s;
-  
+
   &:active {
     opacity: 0.7;
   }

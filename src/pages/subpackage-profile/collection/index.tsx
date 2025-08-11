@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, Input, Button } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import { userApi } from '@/services/api/user';
 import actionApi from '@/services/api/action';
 import postApi from '@/services/api/post';
@@ -142,6 +142,12 @@ export default function CollectionPage() {
     fetchCollections({ page: 1 }, true);
   }, [fetchCollections]);
 
+  // 页面显示时刷新数据 - 确保从其他页面返回时获取最新的收藏列表
+  useDidShow(() => {
+    console.log('[Collection] 页面显示，刷新收藏列表');
+    fetchCollections({ page: 1 }, true);
+  });
+
   // 处理搜索
   const handleSearch = useCallback((value: string) => {
     setSearchKeyword(value);
@@ -166,35 +172,61 @@ export default function CollectionPage() {
 
   // 处理移除收藏
   const handleRemoveFromCollection = useCallback(async (postId: number) => {
-    try {
-      Taro.showModal({
-        title: '确认取消收藏',
-        content: '确定要取消收藏这个内容吗？',
-        success: async (res) => {
-          if (res.confirm) {
-            await actionApi.toggleAction({ 
+    Taro.showModal({
+      title: '确认取消收藏',
+      content: '确定要取消收藏这个内容吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            console.log('[Collection] 开始取消收藏，postId:', postId);
+            
+            const response = await actionApi.toggleAction({ 
               target_type: 'post', 
               target_id: postId, 
               action_type: 'favorite' 
             });
             
-            // 从列表中移除
-            setCollections(prev => prev.filter(item => item.post.id !== postId));
+            console.log('[Collection] 取消收藏API响应:', response);
             
+            // 检查API响应是否成功
+            if (response && response.code === 200) {
+              const responseData = response.data;
+              
+              // 根据is_active判断操作结果
+              // is_active为false表示已取消收藏
+              if (responseData && responseData.is_active === false) {
+                // 从列表中移除
+                setCollections(prev => prev.filter(item => item.post.id !== postId));
+                
+                Taro.showToast({
+                  title: '已取消收藏',
+                  icon: 'success'
+                });
+                
+                console.log('[Collection] 成功取消收藏，已从列表中移除');
+              } else {
+                // 如果is_active为true，说明是重新收藏了，这种情况不应该发生
+                console.warn('[Collection] 意外的响应：is_active为true，应该是false');
+                Taro.showToast({
+                  title: '操作异常，请重试',
+                  icon: 'none'
+                });
+              }
+            } else {
+              // API响应失败
+              console.error('[Collection] API响应失败:', response);
+              throw new Error((response as any)?.message || '取消收藏失败');
+            }
+          } catch (err) {
+            console.error('[Collection] 取消收藏失败:', err);
             Taro.showToast({
-              title: '已取消收藏',
-              icon: 'success'
+              title: err instanceof Error ? err.message : '取消收藏失败',
+              icon: 'none'
             });
           }
         }
-      });
-    } catch (err) {
-      console.error('取消收藏失败:', err);
-      Taro.showToast({
-        title: '取消收藏失败',
-        icon: 'none'
-      });
-    }
+      }
+    });
   }, []);
 
   // 处理帖子点击

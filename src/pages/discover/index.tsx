@@ -174,37 +174,55 @@ export default function Discover() {
                   onClick={() => handlePostClick(post)}
                 >
                   <View className={styles.hotPostContent}>
-                    <Text className={styles.hotPostTitle} numberOfLines={1}>
-                      {post.title}
-                    </Text>
-                    <View className={styles.hotPostMeta}>
-                      <Text className={styles.hotPostComments}>
-                        {post.comment_count + post.view_count + post.like_count || 0} 讨论
+                    <View className={styles.rankWrapper}>
+                      <Text className={`${styles.rankNumber} ${styles[`rank${index + 1 <= 3 ? index + 1 : 'Other'}`]}`}>
+                        {index + 1}
                       </Text>
-                      <Text className={styles.hotPostDot}>•</Text>
-                      <Text className={styles.hotPostTime}>
-                        {post.create_time ? new Date(post.create_time).toLocaleDateString() : '今天'}
+                      <Text className={styles.hotPostTitle} numberOfLines={1}>
+                        {post.title}
                       </Text>
-                      {post.platform !== 'wxapp' && (
-                        <>
-                          <Text className={styles.hotPostDot}>• </Text>
-                          <Text className={styles.hotPostSource}>外部链接</Text>
-                        </>
-                      )}
                     </View>
-                  </View>
-                  <View className={styles.hotPostArrow}>
-                    <Image
-                      src={require("../../assets/chevron-right.svg")}
-                      className={styles.arrowIcon}
-                    />
+                    <Text className={styles.hotPostReadCount}>
+                      {((post.comment_count || 0) + (post.view_count || 0) + (post.like_count || 0)) > 1000
+                        ? `${(((post.comment_count || 0) + (post.view_count || 0) + (post.like_count || 0)) / 1000).toFixed(1)}K`
+                        : (post.comment_count || 0) + (post.view_count || 0) + (post.like_count || 0)
+                      }
+                    </Text>
                   </View>
                 </View>
               ))
             ) : (
-              <View className={styles.emptyState}>
-                <Text>{isRefreshing ? '正在刷新...' : '暂无热门帖子'}</Text>
-              </View>
+              // 如果没有数据，显示默认的热点内容
+              [
+                { id: '1', title: '实习工资怎么理财', readCount: '5.9K', rank: 1 },
+                { id: '2', title: '心事和谁说比较好', readCount: '4.6K', rank: 2 },
+                { id: '3', title: '求男女对唱歌曲推荐', readCount: '1.3K', rank: 3 },
+                { id: '4', title: '帮忙看鞋', readCount: '4.6K', rank: 4 },
+                { id: '5', title: '准备考选调需要做什么', readCount: '2.7K', rank: 5 },
+              ].map((item) => (
+                <View
+                  key={item.id}
+                  className={styles.hotPostItem}
+                  onClick={() => {
+                    Taro.showToast({
+                      title: `点击了: ${item.title}`,
+                      icon: 'none'
+                    });
+                  }}
+                >
+                  <View className={styles.hotPostContent}>
+                    <View className={styles.rankWrapper}>
+                      <Text className={`${styles.rankNumber} ${styles[`rank${item.rank <= 3 ? item.rank : 'Other'}`]}`}>
+                        {item.rank}
+                      </Text>
+                      <Text className={styles.hotPostTitle} numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                    </View>
+                    <Text className={styles.hotPostReadCount}>{item.readCount}</Text>
+                  </View>
+                </View>
+              ))
             )}
           </ScrollView>
         </Section>

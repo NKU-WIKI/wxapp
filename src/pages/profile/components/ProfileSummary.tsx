@@ -25,13 +25,50 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
     tabBarSyncManager.navigateToPage('/pages/level/index');
   }
 
+  const handleNavigateToFollowers = () => {
+    console.log('Navigate to followers triggered'); // 调试日志
+    // 导航到关注/粉丝页面
+    Taro.navigateTo({
+      url: '/pages/subpackage-profile/followers/index'
+    }).then(() => {
+      console.log('Navigation success');
+    }).catch((err) => {
+      console.error('Navigation failed:', err);
+      Taro.showToast({
+        title: '页面跳转失败',
+        icon: 'error'
+      });
+    });
+  };
+
+  const handleNavigateToCollection = () => {
+    // 导航到收藏页面
+    Taro.navigateTo({
+      url: '/pages/subpackage-profile/collection/index'
+    });
+  };
+
+  const handleNavigateToPosts = () => {
+    Taro.showToast({
+      title: '帖子页面还未开发',
+      icon: 'none'
+    });
+  };
+
+  const handleNavigateToLikes = () => {
+    Taro.showToast({
+      title: '获赞页面还未开发',
+      icon: 'none'
+    });
+  };
+
   const statistics = [
-    { label: '帖子', value: userInfo?.postsCount || 0 },
-    { label: '获赞', value: userInfo?.likesCount || 0 },
-    { label: '关注', value: userInfo?.followingCount || 0 },
-    { label: '粉丝', value: userInfo?.followersCount || 0 },
-    { label: '收藏', value: userInfo?.favoritesCount || 0 },
-    { label: '积分', value: userInfo?.points || 0 },
+    { label: '帖子', value: userInfo?.postsCount || 0, clickable: true, onClick: handleNavigateToPosts },
+    { label: '获赞', value: userInfo?.likesCount || 0, clickable: true, onClick: handleNavigateToLikes },
+    { label: '关注', value: userInfo?.followingCount || 0, clickable: true, onClick: handleNavigateToFollowers },
+    { label: '粉丝', value: userInfo?.followersCount || 0, clickable: true, onClick: handleNavigateToFollowers },
+    { label: '收藏', value: userInfo?.favoritesCount || 0, clickable: true, onClick: handleNavigateToCollection },
+    { label: '积分', value: userInfo?.points || 0, clickable: false, onClick: undefined },
   ];
 
   return (
@@ -60,12 +97,25 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
       </View>
 
       <View className={styles.statsGrid}>
-        {statistics.map(stat => (
-          <View key={stat.label} className={styles.statItem}>
-            <Text className={styles.statValue}>{stat.value}</Text>
-            <Text className={styles.statLabel}>{stat.label}</Text>
-          </View>
-        ))}
+        {statistics.map((stat) => {
+          const handleClick = () => {
+            console.log(`Stat item clicked: ${stat.label}, clickable: ${stat.clickable}`);
+            if (stat.clickable && stat.onClick) {
+              stat.onClick();
+            }
+          };
+
+          return (
+            <View 
+              key={stat.label} 
+              className={`${styles.statItem} ${stat.clickable ? styles.clickable : ''}`} 
+              onClick={handleClick}
+            >
+              <Text className={styles.statValue}>{stat.value}</Text>
+              <Text className={styles.statLabel}>{stat.label}</Text>
+            </View>
+          );
+        })}
       </View>
     </View>
   )

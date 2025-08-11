@@ -90,6 +90,45 @@ const Profile = () => {
     });
   };
 
+  const handleNavigateToFollowers = () => {
+    console.log('Navigate to followers triggered'); // 调试日志
+    // 导航到关注/粉丝页面
+    Taro.navigateTo({
+      url: '/pages/subpackage-profile/followers/index'
+    }).then(() => {
+      console.log('Navigation success');
+    }).catch((err) => {
+      console.error('Navigation failed:', err);
+      Taro.showToast({
+        title: '页面跳转失败',
+        icon: 'error'
+      });
+    });
+  };
+
+  const handleNavigateToCollection = () => {
+    // 导航到收藏页面
+    Taro.navigateTo({
+      url: '/pages/subpackage-profile/collection/index'
+    }).catch((err) => {
+      console.error('Navigation to collection failed:', err);
+    });
+  };
+
+  const handleNavigateToPosts = () => {
+    Taro.showToast({
+      title: '帖子页面还未开发',
+      icon: 'none'
+    });
+  };
+
+  const handleNavigateToLikes = () => {
+    Taro.showToast({
+      title: '获赞页面还未开发',
+      icon: 'none'
+    });
+  };
+
   const handleMenuClick = (type: string) => {
     const routes: { [key: string]: string } = {
       likes: '/pages/subpackage-profile/likes/index',
@@ -162,21 +201,21 @@ const Profile = () => {
 
         <View className={styles.statsContainer}>
           <View className={styles.statsRow}>
-            <View className={styles.statItem}>
+            <View className={styles.statItem} onClick={handleNavigateToPosts}>
               <Text className={styles.statValue}>{userInfo?.post_count ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>📝</Text>
                 <Text className={styles.statLabel}>帖子</Text>
               </View>
             </View>
-            <View className={styles.statItem}>
+            <View className={styles.statItem} onClick={handleNavigateToLikes}>
               <Text className={styles.statValue}>{userInfo?.total_likes ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>❤️</Text>
                 <Text className={styles.statLabel}>获赞</Text>
               </View>
             </View>
-            <View className={styles.statItem}>
+            <View className={styles.statItem} onClick={handleNavigateToFollowers}>
               <Text className={styles.statValue}>{userInfo?.following_count ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>👥</Text>
@@ -186,14 +225,14 @@ const Profile = () => {
           </View>
           
           <View className={styles.statsRow}>
-            <View className={styles.statItem}>
+            <View className={styles.statItem} onClick={handleNavigateToFollowers}>
               <Text className={styles.statValue}>{userInfo?.follower_count ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>👥</Text>
                 <Text className={styles.statLabel}>粉丝</Text>
               </View>
             </View>
-            <View className={styles.statItem}>
+            <View className={styles.statItem} onClick={handleNavigateToCollection}>
               <Text className={styles.statValue}>{userInfo?.total_favorites ?? 0}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>🔖</Text>

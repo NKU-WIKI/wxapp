@@ -12,7 +12,7 @@ export function saveDraft(draft: DraftPost): void {
   const drafts = getDrafts();
   const idx = drafts.findIndex(d => d.id === draft.id);
   const now = Date.now();
-  const draftToSave = { ...draft, updatedAt: now };
+  const draftToSave: DraftPost = { ...draft, updatedAt: now };
   if (idx > -1) {
     drafts[idx] = draftToSave;
   } else {
