@@ -3,7 +3,7 @@
 .explorePage {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   background-color: $bg-page;
 }
 
@@ -18,6 +18,8 @@
   padding: 16px;
   background-color: $bg-card;
   border-bottom: 1px solid $border-gray;
+  position: relative;
+  z-index: 10;
 }
 
 .searchContainer {
@@ -28,24 +30,153 @@
   padding: 8px 12px;
 }
 
-.searchIcon {
+.searchIcon, .clearIcon {
   width: 20px;
   height: 20px;
   color: $text-helper-light;
+  flex-shrink: 0;
+}
+
+.inputWrapper {
+  flex: 1;
+  margin: 0 8px;
+  position: relative;
+  min-width: 0;
+  height: 20px;
 }
 
 .searchInput {
-  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   border: none;
   background-color: transparent;
-  margin: 0 8px;
   font-size: 14px;
-  &:focus {
-    outline: none;
+  color: transparent; // Hide original text
+  z-index: 1;
+  caret-color: $text-primary-dark; // Show cursor
+}
+
+.highlightedText {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 2;
+  font-size: 14px;
+  white-space: pre; // Preserve spaces
+}
+
+.inputPrefix {
+  color: $theme-primary;
+  font-weight: 500;
+}
+
+.inputText {
+  color: $text-primary-dark;
+}
+
+
+.suggestionsContainer {
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  right: 16px;
+  background-color: $bg-card;
+  border: 1px solid $border-cool;
+  border-radius: 8px;
+  margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  gap: 12px;
+  &:not(:last-child) {
+    border-bottom: 1px solid $border-light;
+  }
+  &:active {
+    background-color: $bg-input-focus;
   }
 }
 
-/* Search Skills View */
+.suggestionIcon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.suggestionText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.suggestionTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary-dark;
+}
+
+.suggestionDesc {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.resultsContainer {
+  padding: 16px;
+}
+
+.resultItem {
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.resultIcon {
+  width: 24px;
+  height: 24px;
+  margin-top: 4px;
+}
+
+.resultTextContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.resultTitle {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.resultContent {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+
+
+.loadingState, .errorState {
+  padding: 40px 16px;
+  text-align: center;
+  color: $text-helper-light;
+}
+
+
+/* Fallback views */
 .searchSkillsContainer {
   flex: 1;
   padding: 16px;
@@ -104,16 +235,7 @@
 .skillIcon {
   width: 24px;
   height: 24px;
-  color: $status-info;
 }
-
-/* Specific colors for skill icons */
-.skillCard:nth-child(2) .skillIconContainer { background-color: $alpha-success-10; }
-.skillCard:nth-child(2) .skillIcon { color: $status-success; }
-.skillCard:nth-child(3) .skillIconContainer { background-color: $alpha-warning-10; }
-.skillCard:nth-child(3) .skillIcon { color: $status-warning; }
-.skillCard:nth-child(4) .skillIconContainer { background-color: $alpha-error-10; }
-.skillCard:nth-child(4) .skillIcon { color: $status-error; }
 
 .skillTitle {
   font-weight: 600;
@@ -125,12 +247,6 @@
   color: $text-secondary;
 }
 
-.skillExample {
-  font-size: 12px;
-  color: $text-helper-light;
-}
-
-/* Default Explore View */
 .scrollView {
   height: 100%;
 }
@@ -153,11 +269,6 @@
   align-items: center;
   gap: 4px;
   flex: 1;
-  background-color: $bg-input-focus;
-  border-radius: 8px;
-  padding: 8px;
-  margin: 0 2px;
-  color: $theme-primary-light;
 }
 
 .sourceIcon {
@@ -169,41 +280,23 @@
   font-size: 12px;
 }
 
-/* Masonry Layout */
 .masonryWrapper {
   padding: 12px;
-  padding-bottom: 80px; /* 为底部导航留出空间 */
 }
 
 .masonryContainer {
   display: flex;
-  gap: 4px;
-}
-
-.masonryColumn {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  gap: 8px;
 }
 
 .masonryItem {
-  margin-bottom: 4px;
-  break-inside: avoid;
-}
-
-.masonryItemOffset {
-  // 左列第二个及以后的项目不需要额外偏移
-}
-
-.masonryItemOffsetFirst {
-  margin-top: 8px; // 右列第一个项目向下偏移
+  flex: 1;
 }
 
 .contentCard {
   background-color: $bg-card;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .contentImage {
@@ -211,188 +304,7 @@
   display: block;
 }
 
-.contentInfo {
-  padding: 12px;
-}
-
 .contentTitle {
+  padding: 8px;
   font-size: 14px;
-  font-weight: 500;
-  color: $text-primary-dark;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.contributionSection {
-  padding: 12px 16px;
-  background-color: $bg-card;
-  border-bottom: 1px solid $border-gray;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.contributionIcon {
-  width: 24px;
-  height: 24px;
-}
-
-.contributionText {
-  font-size: 14px;
-  color: $text-secondary;
-}
-
-.mainContent {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.sectionTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: $text-primary-dark;
-  margin-bottom: 12px;
-}
-
-.recommendations {
-  // container for title + grid
-}
-
-.recGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.recCard {
-  background-color: $alpha-primary-10;
-  border-radius: 8px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 4px;
-}
-
-.recIcon {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 8px;
-}
-
-.recText {
-  font-size: 14px;
-  font-weight: 500;
-  color: $text-primary-medium;
-}
-
-.recCount {
-  font-size: 12px;
-  color: $text-helper-light;
-}
-
-.wikiCard, .hotListCard {
-  background-color: $bg-card;
-  border-radius: 8px;
-  padding: 16px;
-  border: 1px solid $border-cool;
-}
-
-.cardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-
-  .sectionTitle {
-    margin-bottom: 0;
-  }
-}
-
-.refreshIcon {
-  width: 20px;
-  height: 20px;
-  color: $text-helper-light;
-}
-
-.wikiContent {
-  font-size: 14px;
-  color: $text-secondary;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.wikiItem {
-  line-height: 1.5;
-}
-.wikiSource {
-  color: $text-helper-light;
-}
-
-.seeMore {
-  font-size: 14px;
-  color: $theme-primary-light;
-}
-
-.hotList {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.hotListItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.hotListRank {
-  font-size: 18px;
-  font-weight: bold;
-  color: $text-secondary;
-  width: 20px;
-  text-align: center;
-}
-
-.hotListItemInfo {
-  flex: 1;
-}
-
-.hotListTitle {
-  color: $text-primary-medium;
-  font-size: 14px;
-}
-
-.hotListMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: $text-helper-light;
-  margin-top: 4px;
-}
-
-.hotTag {
-  color: $status-error;
-  font-weight: 500;
-}
-
-.cardTitle {
-  font-size: 16px;
-  font-weight: 500;
-}
-.cardIcon {
-  width: 24px;
-  height: 24px;
-  background-color: $theme-primary;
-}
-.cardDescription {
-  font-size: 12px;
 }

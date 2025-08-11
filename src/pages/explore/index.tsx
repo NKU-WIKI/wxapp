@@ -1,30 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, ScrollView, Text, Input, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './index.module.scss';
 import CustomHeader from '@/components/custom-header';
+import { AppDispatch, RootState } from '@/store';
+import { searchByRag, clearSearchResults } from '@/store/slices/chatSlice';
 import { tabBarSyncManager } from '@/utils/tabBarSync';
 
-// 导入新下载的图标
+// Icon imports
 import plusIcon from '@/assets/plus.png';
-import micIcon from '@/assets/mic.svg';
 import xIcon from '@/assets/x.svg';
 import messageCircleIcon from '@/assets/message-circle.svg';
 import userIcon from '@/assets/user.svg';
 import fileTextIcon from '@/assets/file-text.svg';
 import bookOpenIcon from '@/assets/book-open.svg';
-import placeholderIcon from '@/assets/placeholder.jpg';
-import douyinIcon from '@/assets/douyin.png';
-import wechatIcon from '@/assets/wechat.png';
 import websiteIcon from '@/assets/website.png';
+import wechatIcon from '@/assets/wechat.png';
 import marketIcon from '@/assets/market.png';
+import douyinIcon from '@/assets/douyin.png';
+import robotIcon from '@/assets/robot.svg';
 
+type SearchMode = 'wiki' | 'user' | 'post' | 'knowledge' | null;
 
 const searchSkills = [
-  { icon: messageCircleIcon, title: '@wiki', desc: '提问任何南开相关问题', example: '例：@wiki 推荐今晚吃什么' },
-  { icon: userIcon, title: '@user', desc: '查看和关注感兴趣的人', example: '例：@user 王老师' },
-  { icon: fileTextIcon, title: '@post', desc: '查找帖子，发现校园热点内容', example: '例：@post 校园活动' },
-  { icon: bookOpenIcon, title: '@knowledge', desc: '搜索知识库，获取校园资讯', example: '例：@knowledge 选课指南' }
+  { icon: messageCircleIcon, title: '@wiki', desc: '提问任何南开相关问题' },
+  { icon: userIcon, title: '@user', desc: '查看和关注感兴趣的人' },
+  { icon: fileTextIcon, title: '@post', desc: '查找帖子，发现校园热点内容' },
+  { icon: bookOpenIcon, title: '@knowledge', desc: '搜索知识库，获取校园资讯' }
 ];
 
 const contentSources = [
@@ -34,62 +37,138 @@ const contentSources = [
   { icon: douyinIcon, name: '抖音' }
 ];
 
-// 瀑布流卡片宽高比常量
-const CARD_ASPECT_RATIO = 9 / 16;
-
-// 瀑布流内容数据
 const masonryContent = [
-  {
-    id: 1,
-    image: 'https://ai-public.mastergo.com/ai/img_res/d0cbe5bd6d77c83d610705d1f432556b.jpg',
-    title: '二次选拔流程须知：从报名到录取全攻略'
-  },
-  {
-    id: 2,
-    image: 'https://ai-public.mastergo.com/ai/img_res/6f8df3467172225dc952ba2620a2a330.jpg',
-    title: '元和西饼新品测评：超人气日式甜点大盘点，这些必须尝一尝'
-  },
-  {
-    id: 3,
-    image: 'https://ai-public.mastergo.com/ai/img_res/e3daf5d4e2232f27b4f3f1960f3cf239.jpg',
-    title: '校园报修指南：快速解决设施问题'
-  },
-  {
-    id: 4,
-    image: 'https://ai-public.mastergo.com/ai/img_res/3acb848f06b240728ef706f18be35343.jpg',
-    title: '入团入党全程指导：如何规划你的政治生涯'
-  },
-  {
-    id: 5,
-    image: 'https://ai-public.mastergo.com/ai/img_res/495754bdf61726322bde0d1e1447e6e2.jpg',
-    title: '学分绩计算方法：你的 GPA 这样算'
-  },
-  {
-    id: 6,
-    image: 'https://ai-public.mastergo.com/ai/img_res/85b2f2f9252f9cb2a82544152bda5e16.jpg',
-    title: '选修课程推荐：最受欢迎的通识课'
-  },
-  {
-    id: 7,
-    image: 'https://p3-flow-imagex-sign.byteimg.com/ocean-cloud-tos/image_skill/d86da060-6c52-476c-a3e8-65042a386baf_1753005104585346708~tplv-a9rns2rl98-web-preview-watermark.png?rk3s=b14c611d&x-expires=1784541104&x-signature=WuwEmccC5psFNDKRIBSkyZd6KYE%3D',
-    title: '校园生活指南：新生必看攻略'
-  },
-  {
-    id: 8,
-    image: 'https://p9-flow-imagex-sign.byteimg.com/ocean-cloud-tos/image_skill/5ec81d7d-e915-43b9-867e-5257bd24d52d_1753005185674606106~tplv-a9rns2rl98-web-preview-watermark.png?rk3s=b14c611d&x-expires=1784541185&x-signature=CrjXK8zog2M2Ht9Pj8q4MDEdeL4%3D',
-    title: '图书馆使用技巧：高效学习方法'
-  }
+  { id: 1, image: 'https://ai-public.mastergo.com/ai/img_res/d0cbe5bd6d77c83d610705d1f432556b.jpg', title: '二次选拔流程须知' },
+  { id: 2, image: 'https://ai-public.mastergo.com/ai/img_res/6f8df3467172225dc952ba2620a2a330.jpg', title: '元和西饼新品测评' },
 ];
 
-
 export default function ExplorePage() {
-  const [isSearchActive, setIsSearchActive] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const { searchResults, searchLoading, searchError } = useSelector((state: RootState) => state.chat);
 
-  const handleNavigate = (url: string) => {
-    tabBarSyncManager.navigateToPage(url);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [searchMode, setSearchMode] = useState<SearchMode>(null);
+  const [suggestions, setSuggestions] = useState<typeof searchSkills>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearSearchResults());
+    };
+  }, [dispatch]);
+
+  const handleInputChange = (e) => {
+    const value = e.detail.value;
+    setSearchValue(value);
+
+    // 1. Determine Search Mode for highlighting
+    let newMode: SearchMode = null;
+    for (const skill of searchSkills) {
+      // Check if the input starts with a known skill command
+      if (value.startsWith(skill.title)) {
+        newMode = skill.title.substring(1) as SearchMode;
+        break; // A mode is detected
+      }
+    }
+    setSearchMode(newMode);
+
+    // 2. Determine whether to show suggestions
+    const suggestionMatch = value.match(/^@\w*$/);
+    if (suggestionMatch) {
+      const keyword = suggestionMatch[0];
+      const filtered = searchSkills.filter(skill => skill.title.startsWith(keyword));
+      if (filtered.length > 0) {
+        setSuggestions(filtered);
+        setShowSuggestions(true);
+      } else {
+        setShowSuggestions(false);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+  
+  const handleSuggestionClick = (suggestion: typeof searchSkills[0]) => {
+    setSearchValue(`${suggestion.title} `);
+    setSearchMode(suggestion.title.substring(1) as SearchMode);
+    setShowSuggestions(false);
   };
 
-  const renderSearchSkills = () => (
+  const handleSearch = () => {
+    if (searchLoading) return;
+    setShowSuggestions(false);
+    const query = searchValue.replace(/^@\w+\s*/, '').trim();
+    if (!query) return;
+
+    if (searchMode === 'wiki') {
+      dispatch(searchByRag({ query, openid: 'user_openid_string' }));
+    } else {
+      Taro.showToast({ title: '该搜索模式暂未实现', icon: 'none' });
+    }
+  };
+
+  const handleClearInput = () => {
+    setSearchValue('');
+    setSearchMode(null);
+    setShowSuggestions(false);
+    dispatch(clearSearchResults());
+    setIsSearchActive(false);
+  };
+  
+  const handleFocus = () => {
+    setIsSearchActive(true);
+    if (searchValue.startsWith('@')) {
+      setShowSuggestions(true);
+    }
+  };
+  
+  const renderHighlightedInput = () => {
+    if (!searchMode) {
+      return <Text className={styles.inputText}>{searchValue}</Text>;
+    }
+    const prefix = `@${searchMode}`;
+    const query = searchValue.substring(prefix.length);
+    return (
+      <View className={styles.highlightedText}>
+        <Text className={styles.inputPrefix}>{prefix}</Text>
+        <Text className={styles.inputText}>{query}</Text>
+      </View>
+    );
+  };
+  
+  const renderSuggestions = () => {
+    if (!showSuggestions || suggestions.length === 0) return null;
+    return (
+      <View className={styles.suggestionsContainer}>
+        {suggestions.map(skill => (
+          <View key={skill.title} className={styles.suggestionItem} onClick={() => handleSuggestionClick(skill)}>
+            <Image src={skill.icon} className={styles.suggestionIcon} />
+            <View className={styles.suggestionText}>
+              <Text className={styles.suggestionTitle}>{skill.title}</Text>
+              <Text className={styles.suggestionDesc}>{skill.desc}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+    )
+  }
+
+  const renderSearchResults = () => (
+    <View className={styles.resultsContainer}>
+       {(searchResults || []).map((result) => (
+         <View key={result.id} className={styles.resultItem}>
+           <Image src={robotIcon} className={styles.resultIcon} />
+           <View className={styles.resultTextContainer}>
+             <Text className={styles.resultTitle}>{result.metadata.title}</Text>
+             <Text className={styles.resultContent}>{result.text}</Text>
+           </View>
+         </View>
+       ))}
+    </View>
+  );
+
+  const renderInitialSearch = () => (
     <View className={styles.searchSkillsContainer}>
       <View className={styles.skillsHeader}>
         <View className={styles.skillsTitleDecorator} />
@@ -103,107 +182,80 @@ export default function ExplorePage() {
             </View>
             <Text className={styles.skillTitle}>{skill.title}</Text>
             <Text className={styles.skillDesc}>{skill.desc}</Text>
-            <Text className={styles.skillExample}>{skill.example}</Text>
           </View>
         ))}
       </View>
     </View>
   );
 
-  const renderMasonryLayout = () => {
-    // 将内容分为两列
-    const leftColumn = masonryContent.filter((_, index) => index % 2 === 0);
-    const rightColumn = masonryContent.filter((_, index) => index % 2 === 1);
-
-    return (
-      <View className={styles.masonryContainer}>
-        <View className={styles.masonryColumn}>
-          {leftColumn.map((item, index) => (
-            <View key={item.id} className={`${styles.masonryItem} ${index > 0 ? styles.masonryItemOffset : ''}`}>
-              <View className={styles.contentCard}>
-                <Image 
-                  src={item.image} 
-                  className={styles.contentImage} 
-                  mode="aspectFill"
-                  style={{ aspectRatio: CARD_ASPECT_RATIO }}
-                />
-                <View className={styles.contentInfo}>
-                  <Text className={styles.contentTitle}>{item.title}</Text>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
-        <View className={styles.masonryColumn}>
-          {rightColumn.map((item, index) => (
-            <View key={item.id} className={`${styles.masonryItem} ${index === 0 ? styles.masonryItemOffsetFirst : ''}`}>
-              <View className={styles.contentCard}>
-                <Image 
-                  src={item.image} 
-                  className={styles.contentImage} 
-                  mode="aspectFill"
-                  style={{ aspectRatio: CARD_ASPECT_RATIO }}
-                />
-                <View className={styles.contentInfo}>
-                  <Text className={styles.contentTitle}>{item.title}</Text>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
-      </View>
-    );
-  };
-
   const renderDefaultView = () => (
     <ScrollView scrollY className={styles.scrollView}>
-      {/* Content Source Navigation */}
       <View className={styles.sourceNav}>
         <View className={styles.sourceGrid}>
-          {contentSources.map((source, index) => (
-            <View key={index} className={styles.sourceItem}>
+          {contentSources.map((source) => (
+            <View key={source.name} className={styles.sourceItem}>
               <Image src={source.icon} className={styles.sourceIcon} />
               <Text className={styles.sourceName}>{source.name}</Text>
             </View>
           ))}
         </View>
       </View>
-
-      {/* Masonry Layout */}
       <View className={styles.masonryWrapper}>
-        {renderMasonryLayout()}
+         <View className={styles.masonryContainer}>
+           {masonryContent.map(item => (
+             <View key={item.id} className={styles.masonryItem}>
+                <View className={styles.contentCard}>
+                  <Image src={item.image} className={styles.contentImage} mode="aspectFill" />
+                  <Text className={styles.contentTitle}>{item.title}</Text>
+                </View>
+             </View>
+           ))}
+         </View>
       </View>
     </ScrollView>
   );
 
+  const renderBody = () => {
+    if (!isSearchActive) return renderDefaultView();
+    if (searchLoading) return <View className={styles.loadingState}>正在思考中...</View>;
+    if (searchError) return <View className={styles.errorState}>{searchError}</View>;
+    if (searchResults && searchResults.length > 0) return renderSearchResults();
+    return renderInitialSearch();
+  }
+
   return (
-    <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-              <CustomHeader title="发现" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
+    <View className={styles.explorePage} onClick={() => setShowSuggestions(false)}>
+      <CustomHeader title="发现" hideBack={true} />
       <View style={{ flex: 1, overflow: 'hidden' }}>
-        <ScrollView scrollY style={{ height: '100%' }}>
       <View className={styles.pageContent}>
         <View className={styles.searchBarWrapper}>
           <View className={styles.searchContainer}>
             <Image src={plusIcon} className={styles.searchIcon} />
+              <View className={styles.inputWrapper}>
+                {renderHighlightedInput()}
             <Input
               className={styles.searchInput}
-              placeholder="搜索南开的一切"
-              onFocus={() => setIsSearchActive(true)}
-            />
-            {isSearchActive ? (
+                  placeholder="输入 @wiki 体验RAG搜索"
+                  value={searchValue}
+                  onInput={handleInputChange}
+                  onConfirm={handleSearch}
+                  onFocus={handleFocus}
+                />
+              </View>
+              {searchValue && (
               <Image
                 src={xIcon}
-                className={styles.searchIcon}
-                onClick={() => setIsSearchActive(false)}
+                  className={styles.clearIcon}
+                  onClick={handleClearInput}
               />
-            ) : (
-              <Image src={micIcon} className={styles.searchIcon} />
             )}
           </View>
+            {renderSuggestions()}
         </View>
-          {isSearchActive ? renderSearchSkills() : renderDefaultView()}
-        </View>
+          <ScrollView scrollY style={{ height: '100%' }}>
+            {renderBody()}
         </ScrollView>
+        </View>
       </View>
     </View>
   );

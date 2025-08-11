@@ -263,14 +263,19 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   // 处理标签数据
   const getTags = () => {
     // 如果标签是数组，直接使用
-    if (post.tag && Array.isArray(post.tag)) {
+    if (Array.isArray(post.tag)) {
       return post.tag;
     }
 
     // 如果标签是字符串，尝试解析
     if (post.tag && typeof post.tag === 'string') {
       try {
-        return JSON.parse(post.tag);
+        const parsed = JSON.parse(post.tag);
+        // 确保解析结果是数组
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+        return [];
       } catch (error) {
         console.error('解析标签失败:', error);
         return [];

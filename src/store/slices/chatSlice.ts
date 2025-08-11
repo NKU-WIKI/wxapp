@@ -5,7 +5,8 @@ import {
   OpenAIRequestParams,
   OpenAIMessage,
 } from "@/types/chat";
-import { KnowledgeSearchItem } from "@/types/api/knowledge"; // 导入类型
+import { KnowledgeSearchItem, RagSearchRequest } from "@/types/api/knowledge"; // 导入类型
+import knowledgeApi from '@/services/api/knowledge'; // 导入API服务
 import Taro from "@tarojs/taro";
 
 declare const wx: any;
@@ -23,6 +24,10 @@ interface ChatState {
     maxTokens: number;
     enableStreaming: boolean;
   };
+  // 新增 RAG 搜索相关状态
+  searchResults: KnowledgeSearchItem[];
+  searchLoading: boolean;
+  searchError: string | null;
 }
 
 // 创建默认会话
@@ -34,7 +39,7 @@ const createDefaultSession = (): ChatSession => ({
   updatedAt: Date.now(),
 });
 
-// 初始状态 - 不预创建会话，让持久化或页面逻辑来处理
+// 初始状态
 const initialState: ChatState = {
   currentSession: null,
   sessions: [],
@@ -44,38 +49,32 @@ const initialState: ChatState = {
   config: {
     model: "gpt-4o",
     temperature: 0.7,
-    maxTokens: 4096, // gpt-4o 支持更大的上下文
+    maxTokens: 4096,
     enableStreaming: true,
   },
+  // 初始化搜索状态
+  searchResults: [],
+  searchLoading: false,
+  searchError: null,
 };
 
-// 异步 thunk：发送消息到 AI
-export const sendMessageToAI = createAsyncThunk(
-  "chat/sendMessageToAI",
-  async (
-    params: {
-      message: string;
-      sessionId: string;
-    },
-    { rejectWithValue }
-  ) => {
+// 异步 thunk: RAG 搜索
+export const searchByRag = createAsyncThunk(
+  "chat/searchByRag",
+  async (params: RagSearchRequest, { rejectWithValue }) => {
     try {
-      // 这里是 mock 实现，实际应用中会调用 OpenAI API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const aiResponse = `这是一个模拟的 AI 回复，回复你的消息："${params.message}"。在实际应用中，这里会调用 OpenAI API 来获取真实的智能回复。`;
-
-      return {
-        id: `ai_${Date.now()}`,
-        content: aiResponse,
-        role: "assistant" as const,
-        timestamp: Date.now(),
-      };
-    } catch (error) {
-      return rejectWithValue("发送消息失败，请重试");
+      const response = await knowledgeApi.searchByRag(params);
+      if (response.code === 200) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.message || '搜索失败');
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.message || "RAG 搜索请求失败");
     }
   }
 );
+
 
 // 异步 thunk：流式接收 AI 消息
 export const streamMessageFromAI = createAsyncThunk(
@@ -97,10 +96,6 @@ export const streamMessageFromAI = createAsyncThunk(
     let contextInfo = "";
     let references = undefined;
     try {
-      // 导入知识库API
-      const knowledgeApi = require("@/services/api/knowledge").default;
-
-      // 调用ES搜索接口
       const searchResult = await knowledgeApi.search({
         query: params.message,
         page: 1,
@@ -108,62 +103,45 @@ export const streamMessageFromAI = createAsyncThunk(
         max_content_length: 500, // 限制内容长度
       });
 
-      // 如果有搜索结果，将其作为上下文信息
       if (searchResult && searchResult.data && searchResult.data.length > 0) {
-        // 在 contextInfo 中包含完整的参考资料内容，同时前端也可以手动注入到消息气泡后面
         contextInfo = searchResult.data
           .map((item, index) => `[${index + 1}] ${item.title}\n${item.content}`)
           .join("\n\n");
-
-        // 将知识库搜索结果存储在 references 变量中
         references = searchResult.data;
       }
     } catch (error) {
       console.error("获取知识库信息失败:", error);
-      // 获取失败不影响主流程，继续执行
     }
 
-    // 创建初始消息对象，包含 references 字段（如果有）
     const initialMessage: ChatMessage = {
       id: messageId,
       content: "",
       role: "assistant",
       timestamp: Date.now(),
       isStreaming: true,
-      references: references, // 在创建对象时就包含 references 字段
+      references: references,
     };
     dispatch(addMessage(initialMessage));
 
-    // 准备发送到 API 的消息列表
     const messagesForAPI: OpenAIMessage[] = [];
-
-    // 1. 系统提示词 (人设)
-    const systemPrompt = `你是南开小知，南开知识社区的智能助理，致力于践行开源、共治、普惠的价值观。为南开学子提供全面的知识检索、精准的课程查询、及时的活动提醒等服务。`;
+    const systemPrompt = `你是南开小知，南开知识社区的智能助理...`;
     messagesForAPI.push({ role: "system" as const, content: systemPrompt });
 
-    // 2. 对话历史 (除最新一条)
     const history = currentSession.messages
       .slice(0, -1)
-      .filter((m) => m.role === "user" || m.role === "assistant") // 过滤掉 system 和 tool 角色
+      .filter((m) => m.role === "user" || m.role === "assistant")
       .map((m) => ({
-        role: m.role as "user" | "assistant", // 使用类型断言确保类型兼容
+        role: m.role as "user" | "assistant",
         content: m.content,
       }));
     messagesForAPI.push(...history);
 
-    // 3. 当前用户问题 (结合上下文和指令)
     const currentUserMessage =
       currentSession.messages[currentSession.messages.length - 1];
     let userPrompt = currentUserMessage.content;
 
     if (contextInfo) {
-      const instruction = `请根据以下参考资料回答我的问题。回答时需要像学术论文一样，在引用信息的位置加上脚注，例如 [1]。输出markdown格式。
-
-### 参考资料
-${contextInfo}
-
-### 我的问题
-${currentUserMessage.content}`;
+      const instruction = `请根据以下参考资料回答我的问题...`;
       userPrompt = instruction;
     }
 
@@ -190,9 +168,8 @@ ${currentUserMessage.content}`;
         },
         data: requestBody,
         responseType: "arraybuffer",
-        enableChunked: true, // 关键：开启流式接收
+        enableChunked: true,
         success: () => {
-          // 流式接收完成
           dispatch(
             updateStreamingMessage({
               messageId,
@@ -217,16 +194,13 @@ ${currentUserMessage.content}`;
       requestTask.onChunkReceived((res: any) => {
         const chunk = decoder.decode(res.data as ArrayBuffer);
         buffer += chunk;
-
         const lines = buffer.split("\n");
-        buffer = lines.pop() || ""; // 保留不完整的行
-
+        buffer = lines.pop() || "";
         for (const line of lines) {
           if (line.startsWith("data: ")) {
             const jsonStr = line.substring(6);
             if (jsonStr.trim() === "[DONE]") {
-              // 服务端发送[DONE]表示结束，此时可以关闭请求
-              requestTask.abort(); // 主动断开连接
+              requestTask.abort();
               dispatch(
                 updateStreamingMessage({
                   messageId,
@@ -257,7 +231,6 @@ ${currentUserMessage.content}`;
 
       return messageId;
     } catch (error) {
-      console.error("Streaming failed", error);
       const errorMessage =
         error instanceof Error ? error.message : "An unknown error occurred";
       dispatch(setError(errorMessage));
@@ -277,19 +250,15 @@ const chatSlice = createSlice({
   name: "chat",
   initialState,
   reducers: {
-    // 初始化聊天状态 - 如果没有会话则创建默认会话
     initializeChat: (state) => {
       if (state.sessions.length === 0) {
         const defaultSession = createDefaultSession();
         state.sessions.push(defaultSession);
         state.currentSession = defaultSession;
       } else if (!state.currentSession && state.sessions.length > 0) {
-        // 如果有会话但没有当前会话，设置第一个为当前会话
         state.currentSession = state.sessions[0];
       }
     },
-
-    // 创建新会话
     createSession: (state, action: PayloadAction<{ title?: string }> = { payload: {} }) => {
       const newSession: ChatSession = {
         id: `session_${Date.now()}`,
@@ -298,13 +267,10 @@ const chatSlice = createSlice({
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
-
       state.sessions.unshift(newSession);
       state.currentSession = newSession;
       state.error = null;
     },
-
-    // 切换当前会话
     switchSession: (state, action: PayloadAction<string>) => {
       const session = state.sessions.find((s) => s.id === action.payload);
       if (session) {
@@ -312,34 +278,22 @@ const chatSlice = createSlice({
         state.error = null;
       }
     },
-
-    // 删除会话
     deleteSession: (state, action: PayloadAction<string>) => {
       const sessionIdToDelete = action.payload;
-      const sessionIndex = state.sessions.findIndex(
-        (s) => s.id === sessionIdToDelete
-      );
-
+      const sessionIndex = state.sessions.findIndex(s => s.id === sessionIdToDelete);
       if (sessionIndex === -1) return;
-
       state.sessions.splice(sessionIndex, 1);
-
-      // 如果删除的是当前会话，则切换到另一个会话
       if (state.currentSession?.id === sessionIdToDelete) {
         if (state.sessions.length > 0) {
-          // 优先切换到前一个会话，否则切换到后一个，或第一个
           const newCurrentIndex = Math.max(0, sessionIndex - 1);
           state.currentSession = state.sessions[newCurrentIndex];
         } else {
-          // 如果没有会话了，创建一个新的
           const newSession = createDefaultSession();
           state.sessions.push(newSession);
           state.currentSession = newSession;
         }
       }
     },
-
-    // 重命名会话
     renameSession: (
       state,
       action: PayloadAction<{ id: string; title: string }>
@@ -355,30 +309,21 @@ const chatSlice = createSlice({
         }
       }
     },
-
-    // 添加消息
     addMessage: (state, action: PayloadAction<ChatMessage>) => {
-      if (state.currentSession && state.currentSession.id) {
+      if (state.currentSession) {
         state.currentSession.messages.push(action.payload);
         state.currentSession.updatedAt = Date.now();
-
-        // 如果是用户消息且是第一条消息，自动生成标题（取前10个字符）
         if (
           action.payload.role === "user" &&
           state.currentSession.messages.length === 1 &&
-          (state.currentSession.title === "" || state.currentSession.title === "新对话")
+          (!state.currentSession.title || state.currentSession.title === "新对话")
         ) {
-          // 取用户消息的前10个字符作为会话标题，去掉换行符和多余空格
           const cleanContent = action.payload.content.replace(/\s+/g, ' ').trim();
-          state.currentSession.title = cleanContent.length > 10 
-            ? cleanContent.slice(0, 10) 
-            : cleanContent;
+          state.currentSession.title = cleanContent.slice(0, 10);
         }
       }
       state.error = null;
     },
-
-    // 更新流式消息
     updateStreamingMessage: (
       state,
       action: PayloadAction<{
@@ -387,7 +332,7 @@ const chatSlice = createSlice({
         isComplete: boolean;
       }>
     ) => {
-      if (state.currentSession && state.currentSession.id) {
+      if (state.currentSession) {
         const message = state.currentSession.messages.find(
           (m) => m.id === action.payload.messageId
         );
@@ -400,73 +345,52 @@ const chatSlice = createSlice({
         }
       }
     },
-
-    // 删除消息
     deleteMessage: (state, action: PayloadAction<string>) => {
-      if (state.currentSession && state.currentSession.id) {
+      if (state.currentSession) {
         state.currentSession.messages = state.currentSession.messages.filter(
           (m) => m.id !== action.payload
         );
         state.currentSession.updatedAt = Date.now();
       }
     },
-
-    // 清空当前会话
     clearCurrentSession: (state) => {
-      if (state.currentSession && state.currentSession.id) {
+      if (state.currentSession) {
         state.currentSession.messages = [];
         state.currentSession.updatedAt = Date.now();
       }
       state.error = null;
     },
-
-    // 设置打字状态
-    setTyping: (state, action: PayloadAction<boolean>) => {
-      state.isTyping = action.payload;
-    },
-
-    // 设置加载状态
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
-
-    // 设置错误信息
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
-
-    // 更新配置
     updateConfig: (
       state,
-      action: PayloadAction<Partial<ChatState["config"]>>
+      action: PayloadAction<Partial<ChatState['config']>>
     ) => {
       state.config = { ...state.config, ...action.payload };
     },
-
-    // 重置状态
-    resetChatState: (state) => {
-      return initialState;
+    clearSearchResults: (state) => {
+      state.searchResults = [];
+      state.searchError = null;
+      state.searchLoading = false;
     },
   },
   extraReducers: (builder) => {
     builder
-      // sendMessageToAI
-      .addCase(sendMessageToAI.pending, (state) => {
-        state.isTyping = true;
-        state.error = null;
+      // RAG Search
+      .addCase(searchByRag.pending, (state) => {
+        state.searchLoading = true;
+        state.searchError = null;
+        state.searchResults = [];
       })
-      .addCase(sendMessageToAI.fulfilled, (state, action) => {
-        state.isTyping = false;
-        if (state.currentSession && state.currentSession.id) {
-          state.currentSession.messages.push(action.payload);
-          state.currentSession.updatedAt = Date.now();
-        }
+      .addCase(searchByRag.fulfilled, (state, action) => {
+        state.searchLoading = false;
+        state.searchResults = action.payload;
       })
-      .addCase(sendMessageToAI.rejected, (state, action) => {
-        state.isTyping = false;
-        state.error = action.payload as string;
+      .addCase(searchByRag.rejected, (state, action) => {
+        state.searchLoading = false;
+        state.searchError = action.payload as string;
       })
-
       // streamMessageFromAI
       .addCase(streamMessageFromAI.pending, (state) => {
         state.isTyping = true;
@@ -496,7 +420,7 @@ export const {
   setLoading,
   setError,
   updateConfig,
-  resetChatState,
+  clearSearchResults, // 导出新 action
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

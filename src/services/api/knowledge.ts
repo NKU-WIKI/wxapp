@@ -1,6 +1,6 @@
 import http from "../request";
-import { KnowledgeSearchResponse } from "@/types/api/knowledge";
-import { BaseResponse } from "@/types/api/common";
+import { KnowledgeSearchResponse, RagSearchRequest } from "@/types/api/knowledge";
+import { BaseResponse, PaginatedData } from "@/types/api/common";
 
 export interface KnowledgeSearchParams {
   query: string;
@@ -20,6 +20,15 @@ const knowledgeApi = {
   search: (params: KnowledgeSearchParams): Promise<BaseResponse<KnowledgeSearchResponse>> => {
     return http.get<KnowledgeSearchResponse>("/knowledge/es-search", params);
   },
+
+  /**
+   * 使用RAG管道进行高级搜索
+   * @param params RAG搜索参数
+   * @returns 搜索结果
+   */
+  searchByRag: (params: RagSearchRequest): Promise<BaseResponse<KnowledgeSearchItem[]>> => {
+    return http.get<KnowledgeSearchItem[]>('/knowledge/advanced-search', params);
+  }
 };
 
 export default knowledgeApi;
