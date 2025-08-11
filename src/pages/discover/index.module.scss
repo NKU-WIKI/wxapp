@@ -278,80 +278,112 @@
 /* 热门帖子列表样式 */
 .hotPostsList {
   background-color: #ffffff;
-  border-radius: 12px;
-  padding: 0;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.05);
-  margin-top: -8px; /* 向上移动 */
-  margin-bottom: 16px; /* 增加与下方内容的距离 */
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  margin-top: -8px;
+  margin-bottom: 16px;
 }
 
 .hotPostItem {
   display: flex;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #f1f5f9;
-  transition: background-color 0.2s ease;
-  cursor: pointer; /* 添加手势指示 */
+  justify-content: space-between;
+  padding: 12px 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 12px;
+  margin: 0 -8px;
+  padding-left: 8px;
+  padding-right: 8px;
 
-  &:last-child {
-    border-bottom: none;
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
   }
 
   &:active {
-    background-color: #f8fafc;
+    background-color: rgba(0, 0, 0, 0.02);
+    transform: scale(0.995);
   }
 
   &:hover {
-    background-color: #f8fafc;
+    background-color: rgba(0, 0, 0, 0.01);
   }
 }
 
 .hotPostContent {
-  flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.rankWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rankNumber {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: transparent;
+
+  &.rank1 {
+    color: #ff4757;
+  }
+
+  &.rank2 {
+    color: #ff7675;
+  }
+
+  &.rank3 {
+    color: #fdcb6e;
+  }
+
+  &.rankOther {
+    color: #6c757d;
+  }
 }
 
 .hotPostTitle {
   font-size: 16px;
-  font-weight: 500;
-  color: #1e293b;
+  color: #2d3436;
   line-height: 1.4;
-  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  font-weight: 500;
+  letter-spacing: 0.2px;
 }
 
-.hotPostMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.hotPostComments {
+/* 阅读量样式 - 优化右对齐 */
+.hotPostReadCount {
   font-size: 14px;
-  color: #64748b;
+  color: #74b9ff;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-left: 16px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(116, 185, 255, 0.2);
+  min-width: 50px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(116, 185, 255, 0.1);
 }
 
-.hotPostDot {
-  font-size: 12px;
-  color: #cbd5e1;
-}
-
-.hotPostTime {
-  font-size: 14px;
-  color: #64748b;
-}
-
-.hotPostArrow {
-  margin-left: 12px;
-}
-
-.arrowIcon {
-  width: 16px;
-  height: 16px;
-  opacity: 0.6;
-}
-
+/* 空状态 */
 .emptyState {
   padding: 40px 16px;
   text-align: center;
