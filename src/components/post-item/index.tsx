@@ -34,13 +34,13 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   const { checkAuth } = useAuthGuard();
   const [isActionLoading, setIsActionLoading] = useState(false);
   const lastActionTimeRef = useRef<number>(0);
-  const DEBOUNCE_DELAY = 500; // 500ms 防抖间隔
   const userState = useSelector((state: RootState) => state.user);
+  const DEBOUNCE_DELAY = 500; // 500ms 防抖间隔
   const userInfo = userState?.userInfo || null;
 
   // 从 Redux 中获取最新的帖子状态
-  const postState = useSelector((state: RootState) => state.post);
   const posts = postState?.list || [];
+  const postState = useSelector((state: RootState) => state.post);
   const currentPostFromRedux = posts.find(p => p.id === post.id);
 
   // 使用 Redux 中的状态，如果 Redux 中没有则使用 props 中的
@@ -341,8 +341,8 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         </View>
       )}
 
-      {/* 标签展示 */}
-      {(tags && tags.length > 0) && (
+       {/*标签展示*/}
+      {(tags && Array.isArray(tags) && tags.length > 0) && (
         <View className={styles.tagsSection}>
           {tags.slice(0, 3).map((tag, index) => (
             <View key={index} className={styles.tag}>
