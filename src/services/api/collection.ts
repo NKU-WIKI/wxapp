@@ -25,7 +25,7 @@ const collectionApi = {
     console.log('[API] 移除收藏请求:', data);
     return http.post('/wxapp/action/toggle', {
       target_type: 'post',
-      target_id: data.post_id,
+      target_id: String(data.post_id),
       action_type: 'favorite'
     })
       .then(response => {

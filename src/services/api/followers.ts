@@ -35,7 +35,7 @@ export const followAction = (data: FollowActionParams) => {
   console.log('[API] 关注/取关请求:', data);
   return http.post('/wxapp/action/toggle', {
     target_type: 'user',
-    target_id: data.target_user_id, // 根据API文档，应该是openid，但从关注列表获取的是数字ID，先尝试数字ID
+    target_id: String(data.target_user_id),
     action_type: 'follow'
   })
     .then(response => {

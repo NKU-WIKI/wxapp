@@ -2,6 +2,9 @@
 
 win11 powershell
 
+后端api文档参考kjxwr6px14.apifox.cn，或者cursor解析的docs @nkuwiki-openapi
+或者请求http://123.56.196.155:8001/api/openapi.json
+
 ## NKU-Wiki 项目规范
 
 欢迎来到 NKU-Wiki 项目！为了保证代码质量和开发效率，我们将所有的开发规范、最佳实践和工作流都进行了文档化。
@@ -16,7 +19,6 @@ win11 powershell
   - 查看性能优化、布局规范、API 对接、状态管理、Git 工作流等核心实践。
 
 **请在开始开发前，务必熟悉与您工作内容相关的规范文档。**
-
 **禁止自己运行npm run dev编译，你只需要改代码**
 
 ---

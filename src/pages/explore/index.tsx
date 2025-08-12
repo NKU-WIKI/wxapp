@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { View, ScrollView, Text, Input, Image } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import { useDispatch, useSelector } from 'react-redux';
-import styles from './index.module.scss';
+import Taro, { useDidShow } from '@tarojs/taro';
+import { useDispatch } from 'react-redux';
 import CustomHeader from '@/components/custom-header';
-import { AppDispatch, RootState } from '@/store';
-import { searchByRag, clearSearchResults } from '@/store/slices/chatSlice';
-import { tabBarSyncManager } from '@/utils/tabBarSync';
+import { AppDispatch } from '@/store';
+import { clearSearchResults } from '@/store/slices/chatSlice';
+// import { tabBarSyncManager } from '@/utils/tabBarSync';
+import knowledgeApi from '@/services/api/knowledge';
+import agentApi from '@/services/api/agent';
+import { RagRequest } from '@/types/api/agent.d';
 
 // Icon imports
-import plusIcon from '@/assets/plus.png';
 import xIcon from '@/assets/x.svg';
 import messageCircleIcon from '@/assets/message-circle.svg';
 import userIcon from '@/assets/user.svg';
@@ -20,6 +21,8 @@ import wechatIcon from '@/assets/wechat.png';
 import marketIcon from '@/assets/market.png';
 import douyinIcon from '@/assets/douyin.png';
 import robotIcon from '@/assets/robot.svg';
+import RagResult from './components/RagResult';
+import styles from './index.module.scss';
 
 type SearchMode = 'wiki' | 'user' | 'post' | 'knowledge' | null;
 
@@ -44,19 +47,58 @@ const masonryContent = [
 
 export default function ExplorePage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { searchResults, searchLoading, searchError } = useSelector((state: RootState) => state.chat);
 
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>(null);
   const [suggestions, setSuggestions] = useState<typeof searchSkills>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
+  const [showDynamicSuggestions, setShowDynamicSuggestions] = useState(false);
+  const [hotSearches, setHotSearches] = useState<string[]>([]);
+  const [wxappResults, setWxappResults] = useState<any | null>(null);
+  const [ragData, setRagData] = useState<any | null>(null);
+  const [thinking, setThinking] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [generalResults, setGeneralResults] = useState<any[]>([]);
+  const [autoFocus, setAutoFocus] = useState(false);
+
+  // Use string path for icons to align with asset loading rules
+  const searchIcon = '/assets/search.svg';
 
   useEffect(() => {
+    // 进入页面时清空上次持久化的搜索错误/结果，避免误显示错误态
+    dispatch(clearSearchResults());
     return () => {
       dispatch(clearSearchResults());
     };
   }, [dispatch]);
+
+  // 初始化热门搜索
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await knowledgeApi.getHotSearches(10, 7);
+        if (res.code === 200 && Array.isArray(res.data)) {
+          setHotSearches(res.data.map((item: any) => item.search_query));
+        }
+      } catch (e) {}
+    })();
+  }, []);
+
+  // If navigated with focus=true, auto focus and open search mode
+  useDidShow(() => {
+    try {
+      const focusFlag = Taro.getStorageSync('explore_focus');
+      if (focusFlag === 'true') {
+        setIsSearchActive(true);
+        setAutoFocus(true);
+        Taro.removeStorageSync('explore_focus');
+      } else {
+        setAutoFocus(false);
+      }
+    } catch {}
+  });
 
   const handleInputChange = (e) => {
     const value = e.detail.value;
@@ -87,6 +129,32 @@ export default function ExplorePage() {
     } else {
       setShowSuggestions(false);
     }
+
+    // 动态搜索建议（仅在 @knowledge 模式下）
+    const knowledgePrefix = '@knowledge';
+    const isKnowledgeMode = value.startsWith(knowledgePrefix);
+    const knowledgeQuery = isKnowledgeMode ? value.slice(knowledgePrefix.length).trim() : '';
+    if (isKnowledgeMode && knowledgeQuery.length > 0) {
+      knowledgeApi.getSuggestions(knowledgeQuery, 5).then(res => {
+        if (res.code === 200 && Array.isArray(res.data)) {
+          setDynamicSuggestions(res.data);
+          setShowDynamicSuggestions(true);
+        } else {
+          setShowDynamicSuggestions(false);
+        }
+      }).catch(() => setShowDynamicSuggestions(false));
+    } else {
+      setShowDynamicSuggestions(false);
+    }
+  };
+
+  // 兜底处理：回车时若未识别模式但以 @user/@post 开头，强制设置 searchMode
+  const ensureModeBeforeSearch = () => {
+    const trimmed = searchValue.trim();
+    if (trimmed.startsWith('@user')) setSearchMode('user');
+    else if (trimmed.startsWith('@post')) setSearchMode('post');
+    else if (trimmed.startsWith('@wiki')) setSearchMode('wiki');
+    else if (trimmed.startsWith('@knowledge')) setSearchMode('knowledge');
   };
   
   const handleSuggestionClick = (suggestion: typeof searchSkills[0]) => {
@@ -95,16 +163,93 @@ export default function ExplorePage() {
     setShowSuggestions(false);
   };
 
-  const handleSearch = () => {
-    if (searchLoading) return;
+  const handleDynamicSuggestionClick = (s: string) => {
+    // 用 @knowledge 直接填充具体查询
+    setSearchValue(`@knowledge ${s}`);
+    setSearchMode('knowledge');
+    setShowDynamicSuggestions(false);
+  };
+
+  const handleSearch = async () => {
+    if (thinking) return;
+    ensureModeBeforeSearch();
     setShowSuggestions(false);
     const query = searchValue.replace(/^@\w+\s*/, '').trim();
-    if (!query) return;
+    if (!query && searchMode !== null) return;
+
+    // 映射关系（按你的要求）：
+    // @wiki -> /agent/rag
+    // @user / @post -> /knowledge/search-wxapp
+    // @knowledge -> /knowledge/search-general
+    // 默认(无@前缀) -> /knowledge/search-general
 
     if (searchMode === 'wiki') {
-      dispatch(searchByRag({ query, openid: 'user_openid_string' }));
+      setRagData(null);
+      setWxappResults(null);
+      setErrorMsg(null);
+      setThinking(true);
+      setGeneralResults([]);
+      try {
+        const body: RagRequest = { query, format: 'markdown', stream: false };
+        const res = await agentApi.rag(body);
+        if (res.code === 200) {
+          setRagData(res.data);
+          setWxappResults(null);
+          setGeneralResults([]);
+        } else {
+          Taro.showToast({ title: res.msg || res.message || 'RAG 搜索失败', icon: 'none' });
+          setErrorMsg(res.msg || res.message || 'RAG 搜索失败');
+        }
+      } catch (e: any) {
+        Taro.showToast({ title: e?.message || 'RAG 搜索失败', icon: 'none' });
+        setErrorMsg(e?.message || 'RAG 搜索失败');
+      } finally {
+        setThinking(false);
+      }
+    } else if (searchMode === 'post' || searchMode === 'user') {
+      setErrorMsg(null);
+      setThinking(true);
+      try {
+        const res = await knowledgeApi.searchWxapp({ query, search_type: searchMode, page: 1, page_size: 20, sort_by: 'time' });
+        if (res.code === 200) {
+          setWxappResults(res.data);
+          setRagData(null);
+          setGeneralResults([]);
+        } else {
+          setWxappResults(null);
+          Taro.showToast({ title: '搜索失败', icon: 'none' });
+          setErrorMsg('搜索失败');
+        }
+      } catch (e) {
+        setWxappResults(null);
+        Taro.showToast({ title: '搜索失败', icon: 'none' });
+        setErrorMsg('搜索失败');
+      } finally {
+        setThinking(false);
+      }
     } else {
-      Taro.showToast({ title: '该搜索模式暂未实现', icon: 'none' });
+      // @knowledge 或者无前缀默认分支：使用通用 ES 搜索
+      setErrorMsg(null);
+      setThinking(true);
+      try {
+        const q = searchMode === null ? searchValue.trim() : query;
+        if (!q) { setThinking(false); return; }
+        const res = await knowledgeApi.search({ query: q, page: 1, page_size: 20, max_content_length: 500 });
+        if (res.code !== 200) {
+          const m = res.msg || res.message || '搜索失败';
+          Taro.showToast({ title: m, icon: 'none' });
+          setErrorMsg(m);
+        }
+        setWxappResults(null);
+        setRagData(null);
+        setGeneralResults(Array.isArray(res.data) ? res.data : []);
+      } catch (e: any) {
+        const m = e?.message || '搜索失败';
+        Taro.showToast({ title: m, icon: 'none' });
+        setErrorMsg(m);
+      } finally {
+        setThinking(false);
+      }
     }
   };
 
@@ -117,6 +262,8 @@ export default function ExplorePage() {
   };
   
   const handleFocus = () => {
+    // 清理持久化的上次错误，避免误显示错误页
+    dispatch(clearSearchResults());
     setIsSearchActive(true);
     if (searchValue.startsWith('@')) {
       setShowSuggestions(true);
@@ -150,21 +297,30 @@ export default function ExplorePage() {
             </View>
           </View>
         ))}
+        {showDynamicSuggestions && dynamicSuggestions.length > 0 && (
+          <View className={styles.dynamicSuggestions}>
+            {dynamicSuggestions.map((s, i) => (
+              <View key={`${s}-${i}`} className={styles.dynamicSuggestionItem} onClick={() => handleDynamicSuggestionClick(s)}>
+                <Text className={styles.dynamicSuggestionText}>{s}</Text>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
     )
   }
 
-  const renderSearchResults = () => (
+  const renderGeneralResults = () => (
     <View className={styles.resultsContainer}>
-       {(searchResults || []).map((result) => (
-         <View key={result.id} className={styles.resultItem}>
-           <Image src={robotIcon} className={styles.resultIcon} />
-           <View className={styles.resultTextContainer}>
-             <Text className={styles.resultTitle}>{result.metadata.title}</Text>
-             <Text className={styles.resultContent}>{result.text}</Text>
-           </View>
-         </View>
-       ))}
+      {generalResults.map((result: any, idx: number) => (
+        <View key={result?.id || idx} className={styles.resultItem}>
+          <Image src={robotIcon} className={styles.resultIcon} />
+          <View className={styles.resultTextContainer}>
+            <Text className={styles.resultTitle}>{result?.title || ''}</Text>
+            <Text className={styles.resultContent}>{result?.content || ''}</Text>
+          </View>
+        </View>
+      ))}
     </View>
   );
 
@@ -185,11 +341,23 @@ export default function ExplorePage() {
           </View>
         ))}
       </View>
+      {hotSearches.length > 0 && (
+        <View className={styles.hotSearchSection}>
+          <Text className={styles.hotTitle}>热门搜索</Text>
+          <View className={styles.hotTags}>
+            {hotSearches.map((q) => (
+              <View key={q} className={styles.hotTag} onClick={() => handleDynamicSuggestionClick(q)}>
+                <Text className={styles.hotTagText}>{q}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
     </View>
   );
 
   const renderDefaultView = () => (
-    <ScrollView scrollY className={styles.scrollView}>
+    <View>
       <View className={styles.sourceNav}>
         <View className={styles.sourceGrid}>
           {contentSources.map((source) => (
@@ -205,56 +373,83 @@ export default function ExplorePage() {
            {masonryContent.map(item => (
              <View key={item.id} className={styles.masonryItem}>
                 <View className={styles.contentCard}>
-                  <Image src={item.image} className={styles.contentImage} mode="aspectFill" />
+                  <Image src={item.image} className={styles.contentImage} mode='aspectFill' />
                   <Text className={styles.contentTitle}>{item.title}</Text>
                 </View>
              </View>
            ))}
          </View>
       </View>
-    </ScrollView>
+    </View>
   );
 
   const renderBody = () => {
+    // 搜索框应保持固定，Body 仅渲染内容区域
     if (!isSearchActive) return renderDefaultView();
-    if (searchLoading) return <View className={styles.loadingState}>正在思考中...</View>;
-    if (searchError) return <View className={styles.errorState}>{searchError}</View>;
-    if (searchResults && searchResults.length > 0) return renderSearchResults();
+    if (thinking) {
+      return (
+        <View className={`${styles.loadingState} ${styles.ragLoading}`}>
+          <View className={styles.spinner} />
+          <Text>正在检索与思考中…</Text>
+        </View>
+      );
+    }
+    if (errorMsg) return <View className={styles.errorState}>{errorMsg}</View>;
+    if (ragData) {
+      return <RagResult data={ragData} />
+    }
+    if (wxappResults) {
+      return (
+        <View className={styles.resultsContainer}>
+          {searchMode === 'post' && (wxappResults.posts?.data || []).map((p, idx) => (
+            <View key={p.id || idx} className={styles.resultItem}>
+              <Text className={styles.resultTitle}>{p.title || '帖子'}</Text>
+              <Text className={styles.resultContent}>{p.content || ''}</Text>
+            </View>
+          ))}
+          {searchMode === 'user' && (wxappResults.users?.data || []).map((u, idx) => (
+            <View key={u.id || idx} className={styles.resultItem}>
+              <Text className={styles.resultTitle}>{u.nickname || '用户'}</Text>
+              <Text className={styles.resultContent}>{u.bio || ''}</Text>
+            </View>
+          ))}
+        </View>
+      )
+    }
+    if (generalResults.length > 0) return renderGeneralResults();
     return renderInitialSearch();
   }
 
   return (
     <View className={styles.explorePage} onClick={() => setShowSuggestions(false)}>
-      <CustomHeader title="发现" hideBack={true} />
-      <View style={{ flex: 1, overflow: 'hidden' }}>
-      <View className={styles.pageContent}>
-        <View className={styles.searchBarWrapper}>
-          <View className={styles.searchContainer}>
-            <Image src={plusIcon} className={styles.searchIcon} />
+      <CustomHeader title='探索' hideBack />
+      <View style={{ flex: 1 }}>
+        <View className={styles.pageContent}>
+          <View className={styles.searchBarWrapper}>
+            <View className={styles.searchContainer}>
+              <Image src={searchIcon} className={styles.searchIcon} />
               <View className={styles.inputWrapper}>
                 {renderHighlightedInput()}
-            <Input
-              className={styles.searchInput}
-                  placeholder="输入 @wiki 体验RAG搜索"
+                <Input
+                  className={styles.searchInput}
+                  placeholder='搜索校园知识'
                   value={searchValue}
                   onInput={handleInputChange}
+                  confirmType='search'
                   onConfirm={handleSearch}
                   onFocus={handleFocus}
+                  focus={autoFocus}
                 />
               </View>
               {searchValue && (
-              <Image
-                src={xIcon}
-                  className={styles.clearIcon}
-                  onClick={handleClearInput}
-              />
-            )}
-          </View>
+                <Image src={xIcon} className={styles.clearIcon} onClick={handleClearInput} />
+              )}
+            </View>
             {renderSuggestions()}
-        </View>
-          <ScrollView scrollY style={{ height: '100%' }}>
+          </View>
+          <ScrollView scrollY className={styles.bodyScroll} enableFlex>
             {renderBody()}
-        </ScrollView>
+          </ScrollView>
         </View>
       </View>
     </View>

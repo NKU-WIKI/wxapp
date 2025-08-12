@@ -1,6 +1,6 @@
 import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Post } from "@/types/api/post.d";
 import styles from "./index.module.scss";
 import { formatRelativeTime } from "@/utils/time";
@@ -291,11 +291,37 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   // 判断是否可以删除
   const canDelete = userInfo?.id === post.author_info.id || userInfo?.role === 'admin';
 
+  const DEFAULT_AVATAR = '/assets/avatar1.png';
+
+  const normalizeAvatar = (url?: string): string => {
+    if (!url || typeof url !== 'string') return DEFAULT_AVATAR;
+    const trimmed = url.trim();
+    // 无效或不可直接访问的协议/路径统一回退
+    const invalidPrefixes = ['cloud://', 'file://', 'blob:', 'data:image/', '/pages/'];
+    const isHttp = /^https?:\/\//i.test(trimmed);
+    const isWxFile = trimmed.startsWith('wxfile://');
+    if (invalidPrefixes.some(p => trimmed.startsWith(p))) return DEFAULT_AVATAR;
+    if (isHttp || isWxFile || trimmed.startsWith('/assets/')) return trimmed;
+    // 其它相对路径也回退到默认头像，避免被拼接为页面本地路径
+    return DEFAULT_AVATAR;
+  };
+
+  const [avatarSrc, setAvatarSrc] = useState<string>(normalizeAvatar(post.author_info.avatar));
+
+  useEffect(() => {
+    setAvatarSrc(normalizeAvatar(post.author_info.avatar));
+  }, [post.author_info.avatar]);
+
   return (
     <View className={`${styles.postCard} ${className}`}>
       <View className={styles.cardHeader}>
         <View className={styles.authorInfo} onClick={navigateToProfile}>
-          <Image src={post.author_info.avatar || ''} className={styles.avatar} />
+          <Image
+            src={avatarSrc}
+            className={styles.avatar}
+            mode='aspectFill'
+            onError={() => setAvatarSrc(DEFAULT_AVATAR)}
+          />
           <View className={styles.authorDetails}>
             <View className={styles.authorMainRow}>
               <Text className={styles.authorName}>{post.author_info.nickname || '匿名'}</Text>

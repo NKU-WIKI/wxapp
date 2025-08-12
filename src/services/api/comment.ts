@@ -32,8 +32,8 @@ const commentApi = {
 
   // 获取评论详情
   getCommentDetail: (commentId: number) => {
-    // 直接将参数作为 data 传递给 GET 请求
-    return http.get<CommentDetail>('/wxapp/comment/detail', { comment_id: commentId });
+    // OpenAPI: comment_id 为字符串（逗号分隔支持），单个也可
+    return http.get<CommentDetail>('/wxapp/comment/detail', { comment_id: String(commentId) });
   },
 
   // 获取评论回复
@@ -61,9 +61,8 @@ const commentApi = {
 
   // 获取评论点赞状态
   getCommentStatus: (commentIds: number[]) => {
-    // 直接将参数作为 data 传递给 GET 请求
     return http.get<CommentStatusResponse>('/wxapp/comment/status', { 
-      comment_id: commentIds.join(',') 
+      comment_id: commentIds.join(',')
     });
   },
 };

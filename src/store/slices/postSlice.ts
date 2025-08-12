@@ -101,7 +101,7 @@ export const toggleAction = createAsyncThunk<
     const targetType = actionType === 'follow' ? 'user' : 'post';
     const response = await actionApi.toggleAction({
       target_type: targetType,
-      target_id: postId,
+      target_id: String(postId),
       action_type: actionType,
     });
     

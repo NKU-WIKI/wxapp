@@ -1,6 +1,10 @@
 export interface BaseResponse<T> {
   code: number;
-  msg: string;
+  /**
+   * 后端有的返回 msg，有的返回 message，这里做兼容
+   */
+  msg?: string;
+  message?: string;
   data: T;
 }
 
@@ -20,7 +24,8 @@ export interface PaginatedData<T> {
 // 后端返回的结构是 { code, msg, data: T[], pagination }
 export interface BackendPaginatedResponse<T> {
   code: number;
-  msg: string;
+  msg?: string;
+  message?: string;
   data: T[];
   pagination: Pagination;
-} 
+}

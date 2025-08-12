@@ -3,6 +3,7 @@ import {
   NO_ERROR_TOAST_CODES,
   RESPONSE_SUCCESS_CODE,
   HEADER_BRANCH_KEY,
+  REQUEST_BRANCH,
 } from "@/constants";
 import { BaseResponse } from "@/types/api/common";
 
@@ -22,7 +23,7 @@ const interceptor = (chain) => {
   }
 
   const token = getToken();
-  const branch = process.env.NODE_ENV === "development" ? "dev" : "dev";
+  const branch = REQUEST_BRANCH;
 
   requestParams.header = {
     ...customHeader,
@@ -58,7 +59,7 @@ const interceptor = (chain) => {
     if (responseData.code !== RESPONSE_SUCCESS_CODE) {
       if (!NO_ERROR_TOAST_CODES.includes(responseData.code)) {
         Taro.showToast({
-          title: responseData.message || "请求失败",
+          title: responseData.msg || responseData.message || "请求失败",
           icon: "none",
           duration: 2000,
         });

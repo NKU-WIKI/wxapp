@@ -6,7 +6,7 @@ interface Notification {
     id: number;
     user: string;
     action: string;
-    post: string;
+    post?: string;
     time: string;
     avatar: string;
     unread: boolean;
@@ -27,7 +27,9 @@ const NotificationItem = ({ item }: NotificationItemProps) => {
         <Text className={styles.text}>
           <Text className={styles.username}>{item?.user || '未知用户'}</Text> {item?.action}
         </Text>
-        <Text className={styles.postInfo}>在「{item?.post}」这条帖子</Text>
+        {item?.post ? (
+          <Text className={styles.postInfo}>在「{item.post}」这条帖子</Text>
+        ) : null}
         <Text className={styles.time}>{item?.time}</Text>
       </View>
     </View>

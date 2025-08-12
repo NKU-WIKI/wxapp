@@ -1,0 +1,83 @@
+@use "../../../styles/variables.scss" as *;
+
+.ragContainer {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.title {
+  font-weight: 600;
+  color: $text-primary-dark;
+}
+
+.responseText {
+  color: #333;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.sourcesSection {
+  margin-top: 12px;
+}
+
+.sourcesHeader {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.sourceItem {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-top: 1px solid $border-light;
+}
+
+.platformIcon {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.sourceContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sourceTitle {
+  font-size: 14px;
+  color: $text-primary-dark;
+}
+
+.sourceMeta {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+

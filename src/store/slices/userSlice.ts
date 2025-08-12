@@ -28,7 +28,7 @@ export const login = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       console.error('Login API failed:', error);
-      return rejectWithValue(error.response?.data?.message || '登录失败');
+      return rejectWithValue(error?.msg || error?.message || '登录失败');
     }
   }
 );
@@ -41,12 +41,11 @@ export const fetchUserProfile = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       console.error('Fetch profile API failed:', error);
-      // 当 token 失效或后端验证失败时，API 可能会返回 401 Unauthorized
-      // 在这种情况下，我们应该登出用户
-      if (error.response?.status === 401) {
+      // HTTP 未授权
+      if (error?.statusCode === 401) {
         Taro.removeStorageSync('token');
       }
-      return rejectWithValue(error.response?.data?.message || '获取用户信息失败');
+      return rejectWithValue(error?.msg || error?.message || '获取用户信息失败');
     }
   }
 );
@@ -59,7 +58,7 @@ export const updateUserProfile = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       console.error('Update profile API failed:', error);
-      return rejectWithValue(error.response?.data?.message || '更新失败');
+      return rejectWithValue(error?.msg || error?.message || '更新失败');
     }
   }
 );

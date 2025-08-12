@@ -8,6 +8,7 @@ export interface AboutInfo {
 
 export const aboutApi = {
   getAboutInfo: () => {
+    // 路径前缀由 request 统一加 /api，这里保持业务段
     return http.get<AboutInfo>('/wxapp/about');
   },
 }; 

@@ -93,7 +93,7 @@ alwaysApply: true
 为了保证与后端接口的高效、规范对接，所有涉及网络请求的代码都必须遵循以下工作流。这是一个**强制性规范**，旨在从根源上杜绝路径错误、参数不匹配和数据解析失败等问题。
 
 1.  **第一步：阅读 API 文档 (强制)**
-    -   在编写任何代码之前，**必须**首先在 `backend-api/` 目录下找到并仔细阅读对应的接口文档（例如 `backend-api/wxapp/post.md`）。
+    -   在编写任何代码之前，**必须**首先在openapi.json找到并仔细阅读对应的接口文档（例如 `backend-api/wxapp/post.md`）。
     -   重点关注：
         -   **Endpoint 路径**: 确认是 `GET` 还是 `POST`，以及完整的路径（例如 `/wxapp/post/list`）。
         -   **请求参数**: 确认参数是在 Query 中还是 Body 中，以及参数的命名规范（`snake_case` 还是 `camelCase`）。

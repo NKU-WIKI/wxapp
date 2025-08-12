@@ -21,7 +21,7 @@ export const userApi = {
   },
   
   updateUserProfile: (data: Partial<User>) => {
-    return http.post('/wxapp/user/update', data);
+    return http.post<User>('/wxapp/user/update', data);
   },
   
   getUserFavorites: (params: { page?: number; page_size?: number }) => {

@@ -199,9 +199,26 @@ export default function Home() {
 
       <View className={styles.fixedContainer}>
         {/* 搜索区域 - 固定 */}
-        <View className={styles.searchContainer}>
+        <View
+          className={styles.searchContainer}
+          onClick={() => {
+            try {
+              Taro.setStorageSync('explore_focus', 'true');
+              Taro.switchTab({ url: '/pages/explore/index' });
+            } catch {}
+          }}
+        >
           <Image src={searchIcon} className={styles.searchIcon} />
-          <Input placeholder="搜索校园知识" className={styles.searchInput} />
+          <Input
+            placeholder="搜索校园知识"
+            className={styles.searchInput}
+            onFocus={() => {
+              try {
+                Taro.setStorageSync('explore_focus', 'true');
+                Taro.switchTab({ url: '/pages/explore/index' });
+              } catch {}
+            }}
+          />
         </View>
         {/* 分类区域 - 固定 */}
         <View className={styles.categoriesContainer}>
