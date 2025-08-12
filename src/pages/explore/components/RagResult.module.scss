@@ -80,4 +80,15 @@
   color: $text-secondary;
 }
 
+.thumbRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.thumbUp, .thumbDown {
+  font-size: 13px;
+  color: $text-secondary;
+}
+
 

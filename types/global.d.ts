@@ -32,10 +32,6 @@ declare namespace NodeJS {
      * @see https://taro-docs.jd.com/docs/next/env-mode-config#特殊环境变量-taro_app_id
      */
     TARO_APP_ID: string
-    /** OpenAI API Key */
-    OPENAI_API_KEY: string
-    /** OpenAI API 基础URL */
-    OPENAI_BASE_URL: string
     /** 应用基础URL */
     BASE_URL: string
   }

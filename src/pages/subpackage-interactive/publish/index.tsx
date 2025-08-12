@@ -12,6 +12,8 @@ import {
 import { AppDispatch, RootState } from "@/store";
 import { createPost } from "@/store/slices/postSlice";
 import { uploadApi } from "@/services/api/upload";
+import commentApi from "@/services/api/comment";
+import knowledgeApi from "@/services/api/knowledge";
 import { saveDraft, getDrafts } from '@/utils/draft';
 import CustomHeader from "@/components/custom-header";
 import PublishSettings from "./components/PublishSettings";
@@ -23,6 +25,7 @@ import italicIcon from "@/assets/italic.svg";
 import atSignIcon from "@/assets/at-sign.svg";
 import penToolIcon from "@/assets/pen-tool.svg";
 import lightbulbIcon from "@/assets/lightbulb.svg";
+import agentApi from '@/services/api/agent';
 import xCircleIcon from "@/assets/x-circle.svg"; // for deleting images
 import defaultAvatar from '@/assets/profile.png';
 // 导入分类图标
@@ -69,6 +72,11 @@ export default function PublishPost() {
   const [selectedCategory, setSelectedCategory] = useState<number>(1); // 默认选择第一个分类
   // 标记是否已通过弹窗保存过草稿，避免 useUnload 再次保存
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
+  const [polishLoading, setPolishLoading] = useState(false);
+  const [polishSuggestion, setPolishSuggestion] = useState<string>('建议调整：1. 增加段落间的过渡...');
+  const [showRefPanel, setShowRefPanel] = useState(false);
+  const [refSuggestions, setRefSuggestions] = useState<Array<{ type: 'history' | 'knowledge'; id?: string; title: string }>>([]);
+  const [refQuery, setRefQuery] = useState('');
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -250,7 +258,7 @@ export default function PublishPost() {
       const processedTags = selectedTags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
       console.log('发布帖子，处理后的标签:', processedTags);
 
-      await dispatch(
+      const result = await dispatch(
         createPost({
           title,
           content,
@@ -268,6 +276,19 @@ export default function PublishPost() {
         duration: 1500,
       });
 
+      // 智能体自动评论（静默）
+      try {
+        const newId = (result as any)?.id;
+        if (newId) {
+          const prompt = `请以友好、中立的语气对以下帖子给出1条简短评论（不超过40字）：\n标题：${title}\n内容：${content.slice(0, 300)}`;
+          const resp = await agentApi.chatCompletions({ query: prompt, stream: false });
+          const aiComment = (resp.data as any)?.content || '';
+          if (aiComment) {
+            await commentApi.createComment({ resource_id: newId, resource_type: 'post', content: aiComment });
+          }
+        }
+      } catch {}
+
       // 1.5秒后跳转到首页并强制刷新
       setTimeout(() => {
         Taro.reLaunch({
@@ -281,6 +302,33 @@ export default function PublishPost() {
         duration: 2000,
       });
     }
+  };
+
+  const handlePolish = async () => {
+    if (!content.trim()) {
+      Taro.showToast({ title: '请先输入内容', icon: 'none' });
+      return;
+    }
+    setPolishLoading(true);
+    try {
+      const res = await agentApi.textPolish({ text: content, mode: 'professional', stream: false });
+      if (res.code === 200) {
+        setPolishSuggestion((res.data as any)?.content || '');
+      } else {
+        const m = res.msg || res.message || '润色失败';
+        Taro.showToast({ title: m, icon: 'none' });
+      }
+    } catch (e: any) {
+      Taro.showToast({ title: e?.message || '润色失败', icon: 'none' });
+    } finally {
+      setPolishLoading(false);
+    }
+  };
+
+  const applyPolish = () => {
+    if (!polishSuggestion) return;
+    setContent(polishSuggestion);
+    Taro.showToast({ title: '已应用润色', icon: 'success' });
   };
 
   // 检查标签是否被选中的辅助函数
@@ -310,10 +358,63 @@ export default function PublishPost() {
               placeholder='分享你的想法...'
               className={styles.contentInput}
               value={content}
-              onInput={(e) => setContent(e.detail.value)}
+              onInput={async (e) => {
+                const v = e.detail.value;
+                setContent(v);
+                const match = v.match(/(^|\s)@([^\s@]{0,30})$/);
+                if (match) {
+                  const query = match[2] || '';
+                  setRefQuery(query);
+                  const isKnowledge = /^k:|^knowledge:/i.test(query);
+                  const pure = query.replace(/^k:|^knowledge:/i, '').trim();
+                  if (isKnowledge) {
+                    try {
+                      const res = await knowledgeApi.getSuggestions(pure || '', 6);
+                      const items = Array.isArray(res.data) ? res.data.slice(0, 6) : [];
+                      setRefSuggestions(items.map((t: string) => ({ type: 'knowledge', title: t })));
+                      setShowRefPanel(true);
+                    } catch {
+                      setShowRefPanel(false);
+                    }
+                  } else {
+                    try {
+                      const { getHistory } = await import('@/utils/history');
+                      const list = getHistory(1, 50) || [];
+                      const filtered = list.filter((h) => h.title.toLowerCase().includes((query || '').toLowerCase()));
+                      setRefSuggestions(filtered.slice(0, 6).map((h) => ({ type: 'history', id: h.id, title: h.title })));
+                      setShowRefPanel(true);
+                    } catch {
+                      setShowRefPanel(false);
+                    }
+                  }
+                } else {
+                  setShowRefPanel(false);
+                }
+              }}
               maxlength={2000}
               autoHeight
             />
+            {showRefPanel && refSuggestions.length > 0 && (
+              <View className={styles.refPanel}>
+                {refSuggestions.map((s, i) => (
+                  <View
+                    key={`${s.type}-${s.id || s.title}-${i}`}
+                    className={styles.refItem}
+                    onClick={() => {
+                      const replaced = content.replace(/(^|\s)@([^\s@]{0,30})$/, (m) => {
+                        if (s.type === 'history') return `${m.startsWith(' ') ? ' ' : ''}[ref:post:${s.id}|${s.title}] `;
+                        return `${m.startsWith(' ') ? ' ' : ''}[ref:knowledge:${s.title}] `;
+                      });
+                      setContent(replaced);
+                      setShowRefPanel(false);
+                    }}
+                  >
+                    <Text className={styles.refType}>{s.type === 'history' ? '历史' : '知识'}</Text>
+                    <Text className={styles.refTitle}>{s.title}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
 
             <View className={styles.imagePreviewContainer}>
               {images.map((url, index) => (
@@ -342,9 +443,9 @@ export default function PublishPost() {
                 onClick={handleChooseImage}
               />
               <Image src={atSignIcon} className={styles.toolbarIcon} />
-              <View className={styles.wikiBtn}>
+              <View className={styles.wikiBtn} onClick={handlePolish}>
                 <Image src={penToolIcon} className={styles.wikiIcon} />
-                <Text>Wiki 润色</Text>
+                <Text>{polishLoading ? '润色中…' : 'Wiki 润色'}</Text>
               </View>
             </View>
           </View>
@@ -435,10 +536,10 @@ export default function PublishPost() {
             <View className={styles.suggestionContent}>
               <View className={styles.suggestionHeader}>
                 <Text className={styles.sectionTitle}>Wiki 润色建议</Text>
-                <Text className={styles.applyBtn}>应用</Text>
+                <Text className={styles.applyBtn} onClick={applyPolish}>应用</Text>
               </View>
               <Text className={styles.suggestionText}>
-                建议调整：1. 增加段落间的过渡...
+                {polishSuggestion}
               </Text>
             </View>
           </View>

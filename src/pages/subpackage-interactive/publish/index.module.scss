@@ -82,6 +82,23 @@
   // padding: 4px 0; // 添加上下内边距，与标题输入框保持一致
 }
 
+.refPanel {
+  margin-top: 8px;
+  border: 1px solid $border-light;
+  border-radius: 8px;
+  background: $bg-card;
+  overflow: hidden;
+}
+.refItem {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  align-items: center;
+  &:not(:last-child) { border-bottom: 1px solid $border-light; }
+}
+.refType { font-size: 12px; color: $theme-primary; }
+.refTitle { font-size: 14px; color: $text-primary; }
+
 .imagePreviewContainer {
   display: flex;
   flex-wrap: wrap;

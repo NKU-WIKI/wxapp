@@ -24,6 +24,28 @@ const feedbackApi = {
   },
 
   // 后端已不再提供 /feedback/detail 端点，如需详情请在列表中选取或后续补充
+
+  /**
+   * 搜索/引用反馈快捷上报（赞/踩）
+   * 为了避免后端改动，这里复用 /wxapp/feedback/create，将语义化元数据序列化进 content
+   */
+  sendThumbFeedback: (payload: {
+    scope: 'search_result' | 'rag_source' | 'rag_answer';
+    action: 'up' | 'down';
+    query?: string;
+    title?: string;
+    extra?: Record<string, any>;
+  }) => {
+    const content = `[search_feedback] ${JSON.stringify(payload)}`;
+    const data: CreateFeedbackParams = {
+      content,
+      type: 'suggest',
+      device_info: {
+        platform: 'weapp',
+      },
+    } as any;
+    return http.post<CreateFeedbackResponse>('/wxapp/feedback/create', data);
+  }
 };
 
 export default feedbackApi; 

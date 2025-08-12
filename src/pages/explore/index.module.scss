@@ -41,45 +41,35 @@
 .inputWrapper {
   flex: 1;
   margin: 0 8px;
-  position: relative;
+  display: flex;
+  align-items: center;
   min-width: 0;
-  height: 24px;
+  height: 28px;
 }
 
 .searchInput {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   height: 100%;
   border: none;
   background-color: transparent;
   font-size: 14px;
-  color: transparent; // Hide original text
-  z-index: 10; // ensure input stays above overlay to receive input events reliably
-  caret-color: $text-primary-dark; // Show cursor
+  line-height: 28px;
+  color: $text-primary-dark;
+  caret-color: $text-primary-dark;
 }
 
-.highlightedText {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  pointer-events: none;
-  z-index: 0; // render below the input so touches always go to Input
-  font-size: 14px;
-  white-space: pre; // Preserve spaces
-}
+.highlightedText { display: none; }
 
-.inputPrefix {
+.inputPrefix { display: none; }
+
+.inputText { display: none; }
+
+.prefixLabel {
   color: $theme-primary;
   font-weight: 500;
-}
-
-.inputText {
-  color: $text-primary-dark;
+  line-height: 28px;
+  margin-right: 6px;
 }
 
 
@@ -169,6 +159,9 @@
   line-height: 1.5;
 }
 
+.thumbRow { display: flex; gap: 12px; margin-top: 8px; }
+.thumbUp, .thumbDown { font-size: 13px; color: $text-secondary; }
+
 
 .loadingState, .errorState {
   padding: 40px 16px;
@@ -183,6 +176,43 @@
   gap: 8px;
   height: 100%;
 }
+
+.fab {
+  position: fixed;
+  right: 16px;
+  bottom: 80px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: $theme-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(79,70,229,0.25);
+  z-index: 50;
+}
+.fabPlus { color: #fff; font-size: 24px; line-height: 1; }
+
+.uploadOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+}
+.uploadModal {
+  width: 88vw;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+}
+.uploadTitle { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.uploadTextarea { min-height: 120px; border: 1px solid $border-gray; border-radius: 8px; padding: 8px; }
+.uploadActions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px; }
+.cancelBtn { color: $text-secondary; }
+.submitBtn { color: $theme-primary; font-weight: 600; }
 
 .spinner {
   width: 16px;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, ScrollView, Text, Input, Image } from '@tarojs/components';
+import { View, ScrollView, Text, Input, Image, Textarea } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import { useDispatch } from 'react-redux';
 import CustomHeader from '@/components/custom-header';
@@ -9,6 +9,7 @@ import { clearSearchResults } from '@/store/slices/chatSlice';
 import knowledgeApi from '@/services/api/knowledge';
 import agentApi from '@/services/api/agent';
 import { RagRequest } from '@/types/api/agent.d';
+import feedbackApi from '@/services/api/feedback';
 
 // Icon imports
 import xIcon from '@/assets/x.svg';
@@ -27,7 +28,8 @@ import styles from './index.module.scss';
 type SearchMode = 'wiki' | 'user' | 'post' | 'knowledge' | null;
 
 const searchSkills = [
-  { icon: messageCircleIcon, title: '@wiki', desc: '提问任何南开相关问题' },
+  { icon: messageCircleIcon, title: '@wiki', desc: 'RAG 智能问答' },
+  { icon: messageCircleIcon, title: '@wiki-chat', desc: '通用对话' },
   { icon: userIcon, title: '@user', desc: '查看和关注感兴趣的人' },
   { icon: fileTextIcon, title: '@post', desc: '查找帖子，发现校园热点内容' },
   { icon: bookOpenIcon, title: '@knowledge', desc: '搜索知识库，获取校园资讯' }
@@ -56,12 +58,15 @@ export default function ExplorePage() {
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const [showDynamicSuggestions, setShowDynamicSuggestions] = useState(false);
   const [hotSearches, setHotSearches] = useState<string[]>([]);
+  const [inputQuery, setInputQuery] = useState('');
   const [wxappResults, setWxappResults] = useState<any | null>(null);
   const [ragData, setRagData] = useState<any | null>(null);
   const [thinking, setThinking] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [generalResults, setGeneralResults] = useState<any[]>([]);
   const [autoFocus, setAutoFocus] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadText, setUploadText] = useState('');
 
   // Use string path for icons to align with asset loading rules
   const searchIcon = '/assets/search.svg';
@@ -101,48 +106,56 @@ export default function ExplorePage() {
   });
 
   const handleInputChange = (e) => {
-    const value = e.detail.value;
-    setSearchValue(value);
-
-    // 1. Determine Search Mode for highlighting
-    let newMode: SearchMode = null;
-    for (const skill of searchSkills) {
-      // Check if the input starts with a known skill command
-      if (value.startsWith(skill.title)) {
-        newMode = skill.title.substring(1) as SearchMode;
-        break; // A mode is detected
+    const raw = (e.detail.value || '') as string;
+    // 未锁定模式：使用 raw 进行模式识别，同时作为 inputQuery
+    if (!searchMode) {
+      setInputQuery(raw);
+      let newMode: SearchMode = null;
+      for (const skill of searchSkills) {
+        if (raw.startsWith(skill.title)) {
+          newMode = skill.title.substring(1) as SearchMode;
+          break;
+        }
       }
-    }
-    setSearchMode(newMode);
-
-    // 2. Determine whether to show suggestions
-    const suggestionMatch = value.match(/^@\w*$/);
-    if (suggestionMatch) {
-      const keyword = suggestionMatch[0];
-      const filtered = searchSkills.filter(skill => skill.title.startsWith(keyword));
-      if (filtered.length > 0) {
+      if (newMode) {
+        setSearchMode(newMode);
+        // 去掉前缀后的内容作为查询部分
+        const rest = raw.slice((`@${newMode}`).length).replace(/^\s*/, '');
+        setInputQuery(rest);
+      }
+      // 建议（仅未锁定模式）
+      const suggestionMatch = raw.match(/^@\w*$/);
+      if (suggestionMatch) {
+        const keyword = suggestionMatch[0];
+        const filtered = searchSkills.filter(skill => skill.title.startsWith(keyword));
         setSuggestions(filtered);
-        setShowSuggestions(true);
+        setShowSuggestions(filtered.length > 0);
       } else {
         setShowSuggestions(false);
       }
     } else {
+      // 已锁定模式：仅更新查询部分
+      setInputQuery(raw);
       setShowSuggestions(false);
     }
 
-    // 动态搜索建议（仅在 @knowledge 模式下）
-    const knowledgePrefix = '@knowledge';
-    const isKnowledgeMode = value.startsWith(knowledgePrefix);
-    const knowledgeQuery = isKnowledgeMode ? value.slice(knowledgePrefix.length).trim() : '';
-    if (isKnowledgeMode && knowledgeQuery.length > 0) {
-      knowledgeApi.getSuggestions(knowledgeQuery, 5).then(res => {
-        if (res.code === 200 && Array.isArray(res.data)) {
-          setDynamicSuggestions(res.data);
-          setShowDynamicSuggestions(true);
-        } else {
-          setShowDynamicSuggestions(false);
-        }
-      }).catch(() => setShowDynamicSuggestions(false));
+    // 动态建议（仅 knowledge，基于当前模式 + 查询部分）
+    if ((searchMode === 'knowledge' || raw.startsWith('@knowledge')) && (searchMode ? raw : raw.slice('@knowledge'.length).trim()).length >= 0) {
+      const query = searchMode === 'knowledge' ? raw : raw.slice('@knowledge'.length).trim();
+      if (query.length > 0) {
+        knowledgeApi.getSuggestions(query, 5)
+          .then(res => {
+            if (res.code === 200 && Array.isArray(res.data)) {
+              setDynamicSuggestions(res.data);
+              setShowDynamicSuggestions(true);
+            } else {
+              setShowDynamicSuggestions(false);
+            }
+          })
+          .catch(() => setShowDynamicSuggestions(false));
+      } else {
+        setShowDynamicSuggestions(false);
+      }
     } else {
       setShowDynamicSuggestions(false);
     }
@@ -150,23 +163,27 @@ export default function ExplorePage() {
 
   // 兜底处理：回车时若未识别模式但以 @user/@post 开头，强制设置 searchMode
   const ensureModeBeforeSearch = () => {
-    const trimmed = searchValue.trim();
+    const trimmed = (`@${searchMode || ''} ${inputQuery}`).trim();
     if (trimmed.startsWith('@user')) setSearchMode('user');
     else if (trimmed.startsWith('@post')) setSearchMode('post');
+    else if (trimmed.startsWith('@wiki-chat')) setSearchMode('wiki');
     else if (trimmed.startsWith('@wiki')) setSearchMode('wiki');
     else if (trimmed.startsWith('@knowledge')) setSearchMode('knowledge');
   };
   
   const handleSuggestionClick = (suggestion: typeof searchSkills[0]) => {
+    const mode = suggestion.title.substring(1) as SearchMode;
+    setSearchMode(mode);
     setSearchValue(`${suggestion.title} `);
-    setSearchMode(suggestion.title.substring(1) as SearchMode);
+    setInputQuery('');
     setShowSuggestions(false);
   };
 
   const handleDynamicSuggestionClick = (s: string) => {
     // 用 @knowledge 直接填充具体查询
-    setSearchValue(`@knowledge ${s}`);
     setSearchMode('knowledge');
+    setSearchValue(`@knowledge ${s}`);
+    setInputQuery(s);
     setShowDynamicSuggestions(false);
   };
 
@@ -174,7 +191,7 @@ export default function ExplorePage() {
     if (thinking) return;
     ensureModeBeforeSearch();
     setShowSuggestions(false);
-    const query = searchValue.replace(/^@\w+\s*/, '').trim();
+    const query = inputQuery.trim();
     if (!query && searchMode !== null) return;
 
     // 映射关系（按你的要求）：
@@ -190,15 +207,28 @@ export default function ExplorePage() {
       setThinking(true);
       setGeneralResults([]);
       try {
-        const body: RagRequest = { query, format: 'markdown', stream: false };
-        const res = await agentApi.rag(body);
-        if (res.code === 200) {
-          setRagData(res.data);
-          setWxappResults(null);
-          setGeneralResults([]);
+        if (searchValue.startsWith('@wiki-chat')) {
+          const resp = await agentApi.chatCompletions({ query, stream: false });
+          if (resp.code === 200) {
+            setRagData({ response: (resp.data as any)?.content || '', sources: [] });
+            setWxappResults(null);
+            setGeneralResults([]);
+          } else {
+            const m = resp.msg || resp.message || '对话失败';
+            Taro.showToast({ title: m, icon: 'none' });
+            setErrorMsg(m);
+          }
         } else {
-          Taro.showToast({ title: res.msg || res.message || 'RAG 搜索失败', icon: 'none' });
-          setErrorMsg(res.msg || res.message || 'RAG 搜索失败');
+          const body: RagRequest = { query, format: 'markdown', stream: false };
+          const res = await agentApi.rag(body);
+          if (res.code === 200) {
+            setRagData(res.data);
+            setWxappResults(null);
+            setGeneralResults([]);
+          } else {
+            Taro.showToast({ title: res.msg || res.message || 'RAG 搜索失败', icon: 'none' });
+            setErrorMsg(res.msg || res.message || 'RAG 搜索失败');
+          }
         }
       } catch (e: any) {
         Taro.showToast({ title: e?.message || 'RAG 搜索失败', icon: 'none' });
@@ -232,7 +262,7 @@ export default function ExplorePage() {
       setErrorMsg(null);
       setThinking(true);
       try {
-        const q = searchMode === null ? searchValue.trim() : query;
+        const q = searchMode === null ? inputQuery.trim() : query;
         if (!q) { setThinking(false); return; }
         const res = await knowledgeApi.search({ query: q, page: 1, page_size: 20, max_content_length: 500 });
         if (res.code !== 200) {
@@ -255,6 +285,7 @@ export default function ExplorePage() {
 
   const handleClearInput = () => {
     setSearchValue('');
+    setInputQuery('');
     setSearchMode(null);
     setShowSuggestions(false);
     dispatch(clearSearchResults());
@@ -270,18 +301,10 @@ export default function ExplorePage() {
     }
   };
   
-  const renderHighlightedInput = () => {
-    if (!searchMode) {
-      return <Text className={styles.inputText}>{searchValue}</Text>;
-    }
-    const prefix = `@${searchMode}`;
-    const query = searchValue.substring(prefix.length);
-    return (
-      <View className={styles.highlightedText}>
-        <Text className={styles.inputPrefix}>{prefix}</Text>
-        <Text className={styles.inputText}>{query}</Text>
-      </View>
-    );
+  const renderPrefixLabel = () => {
+    if (!searchMode) return null;
+    // 当输入以 @ 开头但模式未完整（如 @wik），也显示当前模式标签
+    return <Text className={styles.prefixLabel}>@{searchMode}</Text>;
   };
   
   const renderSuggestions = () => {
@@ -318,6 +341,26 @@ export default function ExplorePage() {
           <View className={styles.resultTextContainer}>
             <Text className={styles.resultTitle}>{result?.title || ''}</Text>
             <Text className={styles.resultContent}>{result?.content || ''}</Text>
+            <View className={styles.thumbRow}>
+              <Text
+                className={styles.thumbUp}
+                onClick={async () => {
+                  try {
+                    await feedbackApi.sendThumbFeedback({ scope: 'search_result', action: 'up', title: result?.title, extra: { id: result?.id } });
+                    Taro.showToast({ title: '已反馈', icon: 'success' });
+                  } catch {}
+                }}
+              >👍 有用</Text>
+              <Text
+                className={styles.thumbDown}
+                onClick={async () => {
+                  try {
+                    await feedbackApi.sendThumbFeedback({ scope: 'search_result', action: 'down', title: result?.title, extra: { id: result?.id } });
+                    Taro.showToast({ title: '已反馈', icon: 'success' });
+                  } catch {}
+                }}
+              >👎 不相关</Text>
+            </View>
           </View>
         </View>
       ))}
@@ -420,6 +463,8 @@ export default function ExplorePage() {
     return renderInitialSearch();
   }
 
+  const getDisplayValue = () => inputQuery;
+
   return (
     <View className={styles.explorePage} onClick={() => setShowSuggestions(false)}>
       <CustomHeader title='探索' hideBack />
@@ -429,11 +474,11 @@ export default function ExplorePage() {
             <View className={styles.searchContainer}>
               <Image src={searchIcon} className={styles.searchIcon} />
               <View className={styles.inputWrapper}>
-                {renderHighlightedInput()}
+                {renderPrefixLabel()}
                 <Input
                   className={styles.searchInput}
                   placeholder='搜索校园知识'
-                  value={searchValue}
+                  value={getDisplayValue()}
                   onInput={handleInputChange}
                   confirmType='search'
                   onConfirm={handleSearch}
@@ -450,6 +495,45 @@ export default function ExplorePage() {
           <ScrollView scrollY className={styles.bodyScroll} enableFlex>
             {renderBody()}
           </ScrollView>
+          {/* 浮动上传知识按钮 */}
+          <View className={styles.fab} onClick={() => setShowUploadModal(true)}>
+            <Text className={styles.fabPlus}>＋</Text>
+          </View>
+          {showUploadModal && (
+            <View className={styles.uploadOverlay} onClick={() => setShowUploadModal(false)}>
+              <View className={styles.uploadModal} onClick={(e) => e.stopPropagation()}>
+                <Text className={styles.uploadTitle}>上传知识（链接或文本）</Text>
+                <Textarea
+                  className={styles.uploadTextarea}
+                  placeholder='粘贴链接或输入文本摘要...'
+                  value={uploadText}
+                  onInput={(e) => setUploadText(e.detail.value)}
+                  autoHeight
+                />
+                <View className={styles.uploadActions}>
+                  <Text className={styles.cancelBtn} onClick={() => setShowUploadModal(false)}>取消</Text>
+                  <Text
+                    className={styles.submitBtn}
+                    onClick={async () => {
+                      if (!uploadText.trim()) { Taro.showToast({ title: '请输入内容', icon: 'none' }); return; }
+                      try {
+                        await feedbackApi.createFeedback({ content: `[knowledge_upload] ${uploadText.trim()}`, type: 'suggest' });
+                        setShowUploadModal(false);
+                        setUploadText('');
+                        Taro.showToast({ title: '上传成功，奖励1枚知识令牌', icon: 'success' });
+                        try {
+                          const old = Number(Taro.getStorageSync('contrib_tokens') || 0);
+                          Taro.setStorageSync('contrib_tokens', String(old + 1));
+                        } catch {}
+                      } catch (e: any) {
+                        Taro.showToast({ title: e?.message || '上传失败', icon: 'none' });
+                      }
+                    }}
+                  >提交</Text>
+                </View>
+              </View>
+            </View>
+          )}
         </View>
       </View>
     </View>

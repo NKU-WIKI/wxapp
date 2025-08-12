@@ -1,15 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import {
-  ChatMessage,
-  ChatSession,
-  OpenAIRequestParams,
-  OpenAIMessage,
-} from "@/types/chat";
-import { KnowledgeSearchItem, RagSearchRequest } from "@/types/api/knowledge"; // 导入类型
-import knowledgeApi from '@/services/api/knowledge'; // 导入API服务
+import { ChatMessage, ChatSession } from "@/types/chat";
+import { KnowledgeSearchItem, RagSearchRequest } from "@/types/api/knowledge";
+import knowledgeApi from '@/services/api/knowledge';
+import agentApi from '@/services/api/agent';
 import Taro from "@tarojs/taro";
-
-declare const wx: any;
 
 // 聊天状态接口
 interface ChatState {
@@ -19,9 +13,6 @@ interface ChatState {
   isLoading: boolean;
   error: string | null;
   config: {
-    model: string;
-    temperature: number;
-    maxTokens: number;
     enableStreaming: boolean;
   };
   // 新增 RAG 搜索相关状态
@@ -47,10 +38,7 @@ const initialState: ChatState = {
   isLoading: false,
   error: null,
   config: {
-    model: "gpt-4o",
-    temperature: 0.7,
-    maxTokens: 4096,
-    enableStreaming: true,
+    enableStreaming: false,
   },
   // 初始化搜索状态
   searchResults: [],
@@ -84,155 +72,69 @@ export const streamMessageFromAI = createAsyncThunk(
     { dispatch, getState, rejectWithValue }
   ) => {
     const state = getState() as { chat: ChatState };
-    const { config, currentSession } = state.chat;
+    const { currentSession } = state.chat;
 
     if (!currentSession) {
       return rejectWithValue("No active session");
     }
 
-    const messageId = `ai_stream_${Date.now()}`;
+    const messageId = `ai_${Date.now()}`;
 
-    // 尝试获取相关知识
-    let contextInfo = "";
-    let references = undefined;
+    // 可选：并行检索知识库以展示参考资料
+    let references: any[] | undefined = undefined;
     try {
       const searchResult = await knowledgeApi.search({
         query: params.message,
         page: 1,
-        page_size: 20,
-        max_content_length: 500, // 限制内容长度
+        page_size: 10,
+        max_content_length: 300,
       });
-
-      if (searchResult && searchResult.data && searchResult.data.length > 0) {
-        contextInfo = searchResult.data
-          .map((item, index) => `[${index + 1}] ${item.title}\n${item.content}`)
-          .join("\n\n");
+      if (Array.isArray(searchResult?.data) && searchResult.data.length > 0) {
         references = searchResult.data;
       }
-    } catch (error) {
-      console.error("获取知识库信息失败:", error);
-    }
+    } catch {}
 
     const initialMessage: ChatMessage = {
       id: messageId,
       content: "",
       role: "assistant",
       timestamp: Date.now(),
-      isStreaming: true,
-      references: references,
+      isStreaming: false,
+      references,
     };
     dispatch(addMessage(initialMessage));
 
-    const messagesForAPI: OpenAIMessage[] = [];
-    const systemPrompt = `你是南开小知，南开知识社区的智能助理...`;
-    messagesForAPI.push({ role: "system" as const, content: systemPrompt });
-
-    const history = currentSession.messages
-      .slice(0, -1)
-      .filter((m) => m.role === "user" || m.role === "assistant")
-      .map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      }));
-    messagesForAPI.push(...history);
-
-    const currentUserMessage =
-      currentSession.messages[currentSession.messages.length - 1];
-    let userPrompt = currentUserMessage.content;
-
-    if (contextInfo) {
-      const instruction = `请根据以下参考资料回答我的问题...`;
-      userPrompt = instruction;
-    }
-
-    messagesForAPI.push({ role: "user" as const, content: userPrompt });
-
-    const requestBody: OpenAIRequestParams = {
-      model: config.model,
-      messages: messagesForAPI,
-      temperature: config.temperature,
-      max_tokens: config.maxTokens,
-      stream: true,
-    };
-
     try {
-      const decoder = new TextDecoder("utf-8");
-      let fullContent = "";
-
-      const requestTask = wx.request({
-        url: `${process.env.OPENAI_BASE_URL}/chat/completions`,
-        method: "POST",
-        header: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        data: requestBody,
-        responseType: "arraybuffer",
-        enableChunked: true,
-        success: () => {
-          dispatch(
-            updateStreamingMessage({
-              messageId,
-              content: fullContent,
-              isComplete: true,
-            })
-          );
-        },
-        fail: (err) => {
-          dispatch(setError(`请求错误: ${err.errMsg}`));
-          dispatch(
-            updateStreamingMessage({
-              messageId,
-              content: `Error: ${err.errMsg}`,
-              isComplete: true,
-            })
-          );
-        },
+      const res = await agentApi.chatCompletions({
+        query: params.message,
+        stream: false,
+        session_id: currentSession.id,
       });
 
-      let buffer = "";
-      requestTask.onChunkReceived((res: any) => {
-        const chunk = decoder.decode(res.data as ArrayBuffer);
-        buffer += chunk;
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const jsonStr = line.substring(6);
-            if (jsonStr.trim() === "[DONE]") {
-              requestTask.abort();
-              dispatch(
-                updateStreamingMessage({
-                  messageId,
-                  content: fullContent,
-                  isComplete: true,
-                })
-              );
-              return;
-            }
-            try {
-              const parsed = JSON.parse(jsonStr);
-              if (parsed.choices && parsed.choices[0].delta.content) {
-                fullContent += parsed.choices[0].delta.content;
-                dispatch(
-                  updateStreamingMessage({
-                    messageId,
-                    content: fullContent,
-                    isComplete: false,
-                  })
-                );
-              }
-            } catch (e) {
-              console.error("JSON parsing error:", line, e);
-            }
-          }
-        }
-      });
-
-      return messageId;
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
+      if (res.code === 200) {
+        const content = (res.data as any)?.content || "";
+        dispatch(
+          updateStreamingMessage({
+            messageId,
+            content,
+            isComplete: true,
+          })
+        );
+        return messageId;
+      } else {
+        const errMsg = res.msg || res.message || "对话失败";
+        dispatch(setError(errMsg));
+        dispatch(
+          updateStreamingMessage({
+            messageId,
+            content: `抱歉，出错了: ${errMsg}`,
+            isComplete: true,
+          })
+        );
+        return rejectWithValue(errMsg);
+      }
+    } catch (error: any) {
+      const errorMessage = error?.message || "网络错误";
       dispatch(setError(errorMessage));
       dispatch(
         updateStreamingMessage({
@@ -363,10 +265,7 @@ const chatSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
-    updateConfig: (
-      state,
-      action: PayloadAction<Partial<ChatState['config']>>
-    ) => {
+    updateConfig: (state, action: PayloadAction<Partial<ChatState['config']>>) => {
       state.config = { ...state.config, ...action.payload };
     },
     clearSearchResults: (state) => {
@@ -416,8 +315,6 @@ export const {
   deleteMessage,
   clearCurrentSession,
   deleteSession,
-  setTyping,
-  setLoading,
   setError,
   updateConfig,
   clearSearchResults, // 导出新 action
