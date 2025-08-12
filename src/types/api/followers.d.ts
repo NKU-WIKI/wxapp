@@ -1,4 +1,5 @@
 import { User } from './user';
+import { Pagination } from './common';
 
 // 关注/粉丝关系类型
 export type FollowRelation = 'mutual' | 'following' | 'follow_back' | 'none';
@@ -19,13 +20,13 @@ export interface GetFollowersParams {
   search?: string;
 }
 
-// 关注/粉丝列表响应
+// 关注/粉丝列表响应 - 修正为实际API响应格式
 export interface FollowersResponse {
-  items: FollowItem[];
-  total: number;
-  page: number;
-  page_size: number;
-  total_pages: number;
+  code: number;
+  msg?: string;
+  message?: string;
+  data: User[]; // 直接是用户数组
+  pagination?: Pagination; // 可选的分页信息
 }
 
 // 关注/取关参数

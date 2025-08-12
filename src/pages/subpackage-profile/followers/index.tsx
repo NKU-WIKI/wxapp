@@ -1,6 +1,9 @@
 import { View, Text, Button, Image, Input } from '@tarojs/components'
 import { useState, useEffect, useCallback } from 'react'
 import Taro from '@tarojs/taro'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '@/store'
+import { fetchUserProfile } from '@/store/slices/userSlice'
 import { GetFollowersParams, FollowActionParams, FollowRelation } from '@/types/api/followers'
 import { getFollowers, followAction } from '@/services/api/followers'
 import styles from './index.module.scss'
@@ -8,6 +11,7 @@ import styles from './index.module.scss'
 type TabType = 'following' | 'followers';
 
 const FollowersPage = () => {
+  const dispatch = useDispatch<AppDispatch>()
   const [activeTab, setActiveTab] = useState<TabType>('following')
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
@@ -105,6 +109,9 @@ const FollowersPage = () => {
             : user
         )) // 同时更新allUsers
         
+        // 更新Redux store中的用户信息，确保主页的粉丝数量实时更新
+        dispatch(fetchUserProfile())
+        
         Taro.showToast({
           title: isActive ? '关注成功' : '取消关注成功',
           icon: 'success'
@@ -119,7 +126,7 @@ const FollowersPage = () => {
         icon: 'error'
       })
     }
-  }, [activeTab])
+  }, [activeTab, dispatch])
 
   // 返回上一页
   const handleBack = () => {

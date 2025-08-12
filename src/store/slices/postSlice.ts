@@ -7,6 +7,7 @@ import postApi from '@/services/api/post';
 import actionApi from '@/services/api/action';
 import { ToggleActionParams, ToggleActionResponse } from '@/types/api/action.d';
 import { RootState } from '..';
+import { fetchUserProfile } from './userSlice';
 
 // 延迟函数
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -96,14 +97,19 @@ export const toggleAction = createAsyncThunk<
   { postId: number; actionType: ToggleActionParams['action_type']; response: ToggleActionResponse },
   { postId: number; actionType: ToggleActionParams['action_type'] },
   { state: RootState; rejectValue: string }
->('posts/toggleAction', async ({ postId, actionType }, { rejectWithValue }) => {
+>('posts/toggleAction', async ({ postId, actionType }, { rejectWithValue, dispatch }) => {
   try {
     const targetType = actionType === 'follow' ? 'user' : 'post';
     const response = await actionApi.toggleAction({
       target_type: targetType,
-      target_id: String(postId),
+      target_id: postId,
       action_type: actionType,
     });
+    
+    // 如果是关注操作，更新用户信息以确保粉丝数量实时更新
+    if (actionType === 'follow') {
+      dispatch(fetchUserProfile());
+    }
     
     return { postId, actionType, response: response.data };
   } catch (error: any) {
@@ -182,7 +188,7 @@ const postsSlice = createSlice({
             nickname: '未知用户',
             avatar: 'https://via.placeholder.com/150',
             gender: 0,
-            level: '0',
+            level: 0,
             bio: '该用户很神秘，什么也没留下',
           };
 

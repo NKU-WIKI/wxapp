@@ -1,22 +1,24 @@
-import { useEffect } from "react";
-import Taro from "@tarojs/taro";
-import { View, Text, Image, Button } from "@tarojs/components";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "@/store";
-import { logout, fetchUserProfile } from "@/store/slices/userSlice";
-import styles from "./index.module.scss";
+import { View, Text, Image, Button } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
+import { fetchUserProfile, logout } from '@/store/slices/userSlice';
+import { userApi } from '@/services/api/user';
+import { getFollowers } from '@/services/api/followers';
+import CustomHeader from '@/components/custom-header';
+import PostItemSkeleton from '@/components/post-item-skeleton';
+import styles from './index.module.scss';
 
-// 导入图标
-const defaultAvatar = "/assets/profile.png";
-import heartIcon from "@/assets/heart-outline.svg";
-import messageIcon from "@/assets/message-square.svg";
-const draftIcon = "/assets/draft.png";
-import shareIcon from "@/assets/share.svg";
-import CustomHeader from "@/components/custom-header";
-import PostItemSkeleton from "@/components/post-item-skeleton";
+// 用户统计数据接口
+interface UserStats {
+  following_count: number;
+  follower_count: number;
+  favorites_count: number;
+  likes_count: number;
+}
 
-const loginPromptIllustration = "/assets/logo.png";
-
+// 登录提示组件
 const LoginPrompt = () => {
   const handleLogin = () => {
     Taro.navigateTo({ url: "/pages/subpackage-profile/login/index" });
@@ -26,7 +28,7 @@ const LoginPrompt = () => {
     <View className={styles.loginPromptContainer}>
       <View className={styles.promptCard}>
         <Image
-          src={loginPromptIllustration}
+          src="/assets/logo.png"
           className={styles.logo}
           mode="aspectFit"
         />
@@ -34,25 +36,6 @@ const LoginPrompt = () => {
         <Text className={styles.subText}>
           发帖、评论、点赞、收藏，与数万校友分享你的见解
         </Text>
-
-        <View className={styles.actions}>
-          <View className={styles.actionItem}>
-            <Image src={heartIcon} className={styles.actionIcon} style={{ width: '18px', height: '18px' }} />
-            <Text>获赞</Text>
-          </View>
-          <View className={styles.actionItem}>
-            <Image src={messageIcon} className={styles.actionIcon} style={{ width: '18px', height: '18px' }} />
-            <Text>评论</Text>
-          </View>
-          <View className={styles.actionItem}>
-            <Image src={draftIcon} className={styles.actionIcon} style={{ width: '18px', height: '18px' }} />
-            <Text>发帖</Text>
-          </View>
-          <View className={styles.actionItem}>
-            <Image src={shareIcon} className={styles.actionIcon} style={{ width: '18px', height: '18px' }} />
-            <Text>分享</Text>
-          </View>
-        </View>
 
         <Button className={styles.loginButton} onClick={handleLogin}>
           立即登录/注册
@@ -64,15 +47,117 @@ const LoginPrompt = () => {
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { userInfo, isLoggedIn, status } = useSelector((state: RootState) => state.user);
+  const userState = useSelector((state: RootState) => state.user);
+  const userInfo = userState?.userInfo;
+  const isLoggedIn = userState?.isLoggedIn;
+  const status = userState?.status;
+  
+  // 添加统计数据状态
+  const [stats, setStats] = useState<UserStats>({
+    following_count: 0,
+    follower_count: 0,
+    favorites_count: 0,
+    likes_count: 0
+  });
+  const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
-    // 如果已登录，则在页面加载时获取最新的用户信息
-    // 这能确保数据是最新的，即使用户在其他设备上修改了信息
+    // 如果已登录，则在页面加载时获取最新的用户信息和统计数据
     if (isLoggedIn) {
       dispatch(fetchUserProfile());
+      fetchUserStats();
     }
   }, [isLoggedIn, dispatch]);
+
+  // 页面显示时刷新统计数据
+  useEffect(() => {
+    const handleShow = () => {
+      if (isLoggedIn) {
+        fetchUserStats();
+      }
+    };
+
+    // 监听页面显示事件
+    Taro.eventCenter.on('pageShow', handleShow);
+    
+    return () => {
+      Taro.eventCenter.off('pageShow', handleShow);
+    };
+  }, [isLoggedIn]);
+
+  // 获取用户统计数据
+  const fetchUserStats = async () => {
+    if (!isLoggedIn) return;
+    
+    setStatsLoading(true);
+    try {
+      // 获取关注数量 - 使用与followers页面相同的API
+      const followingResponse = await getFollowers({ type: 'following', page: 1, page_size: 1 });
+      let followingCount = 0;
+      if (followingResponse.code === 200) {
+        // 优先使用pagination.total，如果没有则使用data.length
+        if (followingResponse.pagination && typeof followingResponse.pagination.total === 'number') {
+          followingCount = followingResponse.pagination.total;
+        } else if (Array.isArray(followingResponse.data)) {
+          followingCount = followingResponse.data.length;
+        }
+      }
+      
+      // 获取粉丝数量 - 使用与followers页面相同的API
+      const followersResponse = await getFollowers({ type: 'followers', page: 1, page_size: 1 });
+      let followersCount = 0;
+      if (followersResponse.code === 200) {
+        // 优先使用pagination.total，如果没有则使用data.length
+        if (followersResponse.pagination && typeof followersResponse.pagination.total === 'number') {
+          followersCount = followersResponse.pagination.total;
+        } else if (Array.isArray(followersResponse.data)) {
+          followersCount = followersResponse.data.length;
+        }
+      }
+      
+      // 获取收藏数量 - 使用现有的收藏API
+      const favoritesResponse = await userApi.getUserFavorites({ page: 1, page_size: 1 });
+      let favoritesCount = 0;
+      if (favoritesResponse.code === 200) {
+        // 优先使用pagination.total，如果没有则使用data.length
+        if (favoritesResponse.pagination && typeof favoritesResponse.pagination.total === 'number') {
+          favoritesCount = favoritesResponse.pagination.total;
+        } else if (Array.isArray(favoritesResponse.data)) {
+          favoritesCount = favoritesResponse.data.length;
+        }
+      }
+      
+      // 获取点赞数量 - 使用现有的点赞API
+      const likesResponse = await userApi.getUserLikes({ page: 1, page_size: 1 });
+      let likesCount = 0;
+      if (likesResponse.code === 200) {
+        // 优先使用pagination.total，如果没有则使用data.length
+        if (likesResponse.pagination && typeof likesResponse.pagination.total === 'number') {
+          likesCount = likesResponse.pagination.total;
+        } else if (Array.isArray(likesResponse.data)) {
+          likesCount = likesResponse.data.length;
+        }
+      }
+      
+      console.log('获取到的统计数据:', {
+        following_count: followingCount,
+        follower_count: followersCount,
+        favorites_count: favoritesCount,
+        likes_count: likesCount
+      });
+      
+      setStats({
+        following_count: followingCount,
+        follower_count: followersCount,
+        favorites_count: favoritesCount,
+        likes_count: likesCount
+      });
+    } catch (error) {
+      console.error('获取用户统计数据失败:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
 
   const handleEditProfile = () => {
     Taro.navigateTo({ url: "/pages/subpackage-profile/edit-profile/index" });
@@ -179,7 +264,7 @@ const Profile = () => {
         <View className={styles.userInfoRow}>
           <View className={styles.avatarContainer}>
             <View className={styles.avatarWrapper}>
-              <Image src={userInfo?.avatar || defaultAvatar} className={styles.avatar} />
+              <Image src={userInfo?.avatar || "/assets/profile.png"} className={styles.avatar} />
             </View>
           </View>
           
@@ -209,14 +294,14 @@ const Profile = () => {
               </View>
             </View>
             <View className={styles.statItem} onClick={handleNavigateToLikes}>
-              <Text className={styles.statValue}>{userInfo?.total_likes ?? 0}</Text>
+              <Text className={styles.statValue}>{statsLoading ? '...' : stats.likes_count}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>❤️</Text>
                 <Text className={styles.statLabel}>获赞</Text>
               </View>
             </View>
             <View className={styles.statItem} onClick={handleNavigateToFollowers}>
-              <Text className={styles.statValue}>{userInfo?.following_count ?? 0}</Text>
+              <Text className={styles.statValue}>{statsLoading ? '...' : stats.following_count}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>👥</Text>
                 <Text className={styles.statLabel}>关注</Text>
@@ -226,14 +311,14 @@ const Profile = () => {
           
           <View className={styles.statsRow}>
             <View className={styles.statItem} onClick={handleNavigateToFollowers}>
-              <Text className={styles.statValue}>{userInfo?.follower_count ?? 0}</Text>
+              <Text className={styles.statValue}>{statsLoading ? '...' : stats.follower_count}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>👥</Text>
                 <Text className={styles.statLabel}>粉丝</Text>
               </View>
             </View>
             <View className={styles.statItem} onClick={handleNavigateToCollection}>
-              <Text className={styles.statValue}>{userInfo?.total_favorites ?? 0}</Text>
+              <Text className={styles.statValue}>{statsLoading ? '...' : stats.favorites_count}</Text>
               <View className={styles.statLabelRow}>
                 <Text className={styles.statIcon}>🔖</Text>
                 <Text className={styles.statLabel}>收藏</Text>

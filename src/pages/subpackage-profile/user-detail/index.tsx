@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Button } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { toggleAction } from '../../../store/slices/postSlice';
+import { fetchUserProfile } from '../../../store/slices/userSlice';
+import actionApi from '../../../services/api/action';
 import CustomHeader from '../../../components/custom-header';
 import styles from './index.module.scss';
 
@@ -60,17 +61,26 @@ const UserDetail: React.FC = () => {
     }
 
     try {
-      // 临时实现：直接切换状态，后续可以调用真实的关注API
-      setIsFollowing(!isFollowing);
-      Taro.showToast({
-        title: !isFollowing ? '关注成功' : '已取消关注',
-        icon: 'none',
-        duration: 1500
+      // 调用真实的关注API
+      const response = await actionApi.toggleAction({
+        target_type: 'user',
+        target_id: userId,
+        action_type: 'follow'
       });
       
-      // TODO: 调用真实的关注API
-      // const response = await followUser(userId);
-      // setIsFollowing(response.is_following);
+      if (response.code === 200 && response.data) {
+        const { is_active } = response.data;
+        setIsFollowing(is_active);
+        
+        // 更新用户信息以确保主页的粉丝数量实时更新
+        dispatch(fetchUserProfile());
+        
+        Taro.showToast({
+          title: is_active ? '关注成功' : '已取消关注',
+          icon: 'none',
+          duration: 1500
+        });
+      }
     } catch (error) {
       console.error('关注操作失败', error);
       Taro.showToast({

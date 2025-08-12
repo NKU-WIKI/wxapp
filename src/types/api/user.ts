@@ -36,6 +36,18 @@ export interface User {
 }
 
 /**
+ * @description 用户统计数据接口
+ */
+export interface UserStats {
+  post_count: number;
+  follower_count: number;
+  following_count: number;
+  total_likes: number;
+  total_favorites: number;
+  points: number;
+}
+
+/**
  * @description 登录接口的请求体
  */
 export interface LoginParams {
