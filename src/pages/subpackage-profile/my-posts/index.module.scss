@@ -1,0 +1,66 @@
+@import "@/styles/variables.scss";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: $bg-page-cool;
+}
+
+.scroll {
+  flex: 1;
+  padding: 16px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 8px;
+}
+
+.emptyDescription {
+  font-size: 14px;
+  color: $text-secondary-gray;
+  line-height: 1.5;
+}
+
+.bottomBar {
+  padding: 16px;
+  background-color: #fff;
+  border-top: 1px solid #e5e5e5;
+}
+
+.clearBtn {
+  width: 100%;
+  height: 44px;
+  background: $theme-primary !important;
+  color: $text-white !important;
+  font-size: 16px;
+  border-radius: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+
+  &:active {
+    background: $theme-primary-dark !important;
+  }
+} 
