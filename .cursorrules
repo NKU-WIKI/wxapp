@@ -2,12 +2,28 @@
 
 win11 powershell
 
-后端api文档参考kjxwr6px14.apifox.cn，或者cursor解析的docs @nkuwiki-openapi
+后端api文档参考kjxwr6px14.apifox.cn，或者cursor解析的docs @blockbondOpenapi
 或者请求http://123.56.196.155:8001/api/openapi.json
 
-## NKU-Wiki 项目规范
+用租户nankai(tenant_id = f6303899-a51a-460a-9cd8-fe35609151eb)测试
 
-欢迎来到 NKU-Wiki 项目！为了保证代码质量和开发效率，我们将所有的开发规范、最佳实践和工作流都进行了文档化。
+### 测试账号与令牌（仅本地开发）
+
+- nankai 租户（tenant_id = f6303899-a51a-460a-9cd8-fe35609151eb）
+  - username: nankai_user
+  - password: Test@1234
+  - token (bearer): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwidGVuYW50X2lkIjoiZjYzMDM4OTktYTUxYS00NjBhLTljZDgtZmUzNTYwOTE1MWViIiwibmlja25hbWUiOiJcdTUzNTdcdTVmMDBcdTc1MjhcdTYyMzciLCJyb2xlcyI6WyJ1c2VyIl0sImV4cCI6MTc1NTIzOTUxMH0.O6codTVhFej5r3vGDuWLmB0cYrQ9jo6L9oh7VSzJUKA
+
+- default 租户（tenant_id = 00000000-0000-0000-0000-000000000000）
+  - username: testuser2
+  - password: Test@1234
+  - token (bearer): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidGVuYW50X2lkIjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIiwibmlja25hbWUiOiJcdTZkNGJcdThiZDVcdTc1MjhcdTYyMzcyIiwicm9sZXMiOlsidXNlciJdLCJleHAiOjE3NTUyMzk1MTZ9.Pf-zywyMzsvH9aHNc1FC6queZAIOuvsmV3Tdk8UQXdM
+
+注：以上 token 为当前运行时生成，会随时间过期，过期后请通过 `/api/v1/auth/login` 重新获取。
+
+## Wiki 项目规范
+
+欢迎来到 Wiki 项目！为了保证代码质量和开发效率，我们将所有的开发规范、最佳实践和工作流都进行了文档化。
 
 原有的 `.cursorrules` 文件已被模块化拆分，以提高可读性和可维护性。请根据您关心的主题，查阅以下位于 `.cursor/rules/` 目录下的具体规范文档：
 
