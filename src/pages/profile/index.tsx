@@ -118,9 +118,14 @@ const Profile = () => {
   };
 
   const handleNavigateToPosts = () => {
-    Taro.showToast({
-      title: '帖子页面还未开发',
-      icon: 'none'
+    Taro.navigateTo({
+      url: '/pages/subpackage-profile/my-posts/index'
+    }).catch((err) => {
+      console.error('Navigation to my posts failed:', err);
+      Taro.showToast({
+        title: '页面跳转失败',
+        icon: 'error'
+      });
     });
   };
 

@@ -22,6 +22,7 @@ export default defineAppConfig({
         "user-detail/index",
         "history/index",
         "feedback/index",
+        "my-posts/index",
       ]
     },
     {
