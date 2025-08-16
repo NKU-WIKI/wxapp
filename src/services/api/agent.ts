@@ -12,7 +12,7 @@ import {
 } from "@/types/api/agent.d";
 
 export const rag = (data: RagRequest) => {
-  return http.post<any>("/agent/rag", data);
+  return http.get<any>("/agent/rag-answer", data);
 };
 
 export const chatCompletions = (data: ChatCompletionsRequest) => {
@@ -36,6 +36,7 @@ export const ragSearch = (params: RagSearchRequest) => {
 
 const agentApi = {
   chatCompletions,
+  rag,
   ragSearch,
 };
 

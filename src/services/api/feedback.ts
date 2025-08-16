@@ -45,6 +45,12 @@ export const deleteFeedback = (feedbackId: number) => {
 const feedbackApi = {
   createFeedback,
   getMyFeedbacks,
+  // 兼容旧调用：简单上报一个反馈记录
+  sendThumbFeedback: (data: { scope: string; action: 'up' | 'down'; title?: string; extra?: any }) =>
+    createFeedback({
+      content: `[thumb-${data.action}] ${data.title || ''}`.trim(),
+      type: 'suggest',
+    } as any),
 };
 
 export default feedbackApi; 

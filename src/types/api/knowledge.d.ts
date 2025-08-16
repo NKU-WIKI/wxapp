@@ -61,7 +61,8 @@ export interface HotSearchItem {
   search_query: string;
   search_count: number;
 }
-export type HotSearchResponse = HotSearchItem[];
+// 新接口 `/api/v1/search/hot-queries` 返回 string[]
+export type HotSearchResponse = string[];
 
 // 小程序综合搜索
 export interface WxappSearchPosts {

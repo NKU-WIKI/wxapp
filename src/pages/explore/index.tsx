@@ -51,7 +51,7 @@ export default function ExplorePage() {
   const dispatch = useDispatch<AppDispatch>();
 
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
+  const [rawValue, setRawValue] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>(null);
   const [suggestions, setSuggestions] = useState<typeof searchSkills>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -79,13 +79,13 @@ export default function ExplorePage() {
     };
   }, [dispatch]);
 
-  // 初始化热门搜索
+  // 初始化热门搜索（新接口：/api/v1/search/hot-queries）
   useEffect(() => {
     (async () => {
       try {
-        const res = await knowledgeApi.getHotSearches(10, 7);
-        if (res.code === 200 && Array.isArray(res.data)) {
-          setHotSearches(res.data.map((item: any) => item.search_query));
+        const res = await knowledgeApi.getHotSearches();
+        if (res.code === 0 && Array.isArray(res.data)) {
+          setHotSearches(res.data as string[]);
         }
       } catch (e) {}
     })();
@@ -107,45 +107,18 @@ export default function ExplorePage() {
 
   const handleInputChange = (e) => {
     const raw = (e.detail.value || '') as string;
-    // 未锁定模式：使用 raw 进行模式识别，同时作为 inputQuery
-    if (!searchMode) {
-      setInputQuery(raw);
-      let newMode: SearchMode = null;
-      for (const skill of searchSkills) {
-        if (raw.startsWith(skill.title)) {
-          newMode = skill.title.substring(1) as SearchMode;
-          break;
-        }
-      }
-      if (newMode) {
-        setSearchMode(newMode);
-        // 去掉前缀后的内容作为查询部分
-        const rest = raw.slice((`@${newMode}`).length).replace(/^\s*/, '');
-        setInputQuery(rest);
-      }
-      // 建议（仅未锁定模式）
-      const suggestionMatch = raw.match(/^@\w*$/);
-      if (suggestionMatch) {
-        const keyword = suggestionMatch[0];
-        const filtered = searchSkills.filter(skill => skill.title.startsWith(keyword));
-        setSuggestions(filtered);
-        setShowSuggestions(filtered.length > 0);
-      } else {
-        setShowSuggestions(false);
-      }
-    } else {
-      // 已锁定模式：仅更新查询部分
-      setInputQuery(raw);
-      setShowSuggestions(false);
-    }
 
-    // 动态建议（仅 knowledge，基于当前模式 + 查询部分）
-    if ((searchMode === 'knowledge' || raw.startsWith('@knowledge')) && (searchMode ? raw : raw.slice('@knowledge'.length).trim()).length >= 0) {
-      const query = searchMode === 'knowledge' ? raw : raw.slice('@knowledge'.length).trim();
-      if (query.length > 0) {
-        knowledgeApi.getSuggestions(query, 5)
-          .then(res => {
-            if (res.code === 200 && Array.isArray(res.data)) {
+    // 已锁定模式：Input 仅承载查询部分
+    if (searchMode) {
+      setInputQuery(raw);
+      setRawValue(`@${searchMode} ${raw}`);
+
+      // 动态建议（knowledge）
+      if (searchMode === 'knowledge' && raw.trim().length > 0) {
+        knowledgeApi
+          .getSuggestions(raw.trim(), 5)
+          .then((res) => {
+            if (res.code === 0 && Array.isArray(res.data)) {
               setDynamicSuggestions(res.data);
               setShowDynamicSuggestions(true);
             } else {
@@ -156,6 +129,44 @@ export default function ExplorePage() {
       } else {
         setShowDynamicSuggestions(false);
       }
+      return;
+    }
+
+    // 未锁定模式：输入可能以 @ 前缀开头
+    setRawValue(raw);
+
+    let mode: SearchMode = null;
+    let queryPart = raw;
+    const m = raw.match(/^@(wiki-chat|wiki|user|post|knowledge)\s*/);
+    if (m) {
+      const key = m[1];
+      mode = key === 'wiki-chat' ? 'wiki' : (key as SearchMode);
+      queryPart = raw.slice(m[0].length);
+    }
+    setSearchMode(mode);
+    setInputQuery(queryPart);
+
+    // 前缀建议
+    if (/^@\w*$/.test(raw)) {
+      const filtered = searchSkills.filter((s) => s.title.startsWith(raw));
+      setSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+
+    // 动态建议（knowledge）
+    if (mode === 'knowledge' && queryPart.trim().length > 0) {
+      knowledgeApi.getSuggestions(queryPart.trim(), 5)
+        .then((res) => {
+          if (res.code === 0 && Array.isArray(res.data)) {
+            setDynamicSuggestions(res.data);
+            setShowDynamicSuggestions(true);
+          } else {
+            setShowDynamicSuggestions(false);
+          }
+        })
+        .catch(() => setShowDynamicSuggestions(false));
     } else {
       setShowDynamicSuggestions(false);
     }
@@ -174,7 +185,7 @@ export default function ExplorePage() {
   const handleSuggestionClick = (suggestion: typeof searchSkills[0]) => {
     const mode = suggestion.title.substring(1) as SearchMode;
     setSearchMode(mode);
-    setSearchValue(`${suggestion.title} `);
+    setRawValue(`${suggestion.title} `);
     setInputQuery('');
     setShowSuggestions(false);
   };
@@ -182,7 +193,7 @@ export default function ExplorePage() {
   const handleDynamicSuggestionClick = (s: string) => {
     // 用 @knowledge 直接填充具体查询
     setSearchMode('knowledge');
-    setSearchValue(`@knowledge ${s}`);
+    setRawValue(`@knowledge ${s}`);
     setInputQuery(s);
     setShowDynamicSuggestions(false);
   };
@@ -207,9 +218,9 @@ export default function ExplorePage() {
       setThinking(true);
       setGeneralResults([]);
       try {
-        if (searchValue.startsWith('@wiki-chat')) {
+        if (rawValue.startsWith('@wiki-chat')) {
           const resp = await agentApi.chatCompletions({ query, stream: false });
-          if (resp.code === 200) {
+          if (resp.code === 0) {
             setRagData({ response: (resp.data as any)?.content || '', sources: [] });
             setWxappResults(null);
             setGeneralResults([]);
@@ -219,9 +230,9 @@ export default function ExplorePage() {
             setErrorMsg(m);
           }
         } else {
-          const body: RagRequest = { query, format: 'markdown', stream: false };
+          const body: RagRequest = { q: query, size: 10 };
           const res = await agentApi.rag(body);
-          if (res.code === 200) {
+          if (res.code === 0) {
             setRagData(res.data);
             setWxappResults(null);
             setGeneralResults([]);
@@ -241,7 +252,7 @@ export default function ExplorePage() {
       setThinking(true);
       try {
         const res = await knowledgeApi.searchWxapp({ query, search_type: searchMode, page: 1, page_size: 20, sort_by: 'time' });
-        if (res.code === 200) {
+        if (res.code === 0) {
           setWxappResults(res.data);
           setRagData(null);
           setGeneralResults([]);
@@ -265,7 +276,7 @@ export default function ExplorePage() {
         const q = searchMode === null ? inputQuery.trim() : query;
         if (!q) { setThinking(false); return; }
         const res = await knowledgeApi.search({ query: q, page: 1, page_size: 20, max_content_length: 500 });
-        if (res.code !== 200) {
+        if (res.code !== 0) {
           const m = res.msg || res.message || '搜索失败';
           Taro.showToast({ title: m, icon: 'none' });
           setErrorMsg(m);
@@ -284,7 +295,7 @@ export default function ExplorePage() {
   };
 
   const handleClearInput = () => {
-    setSearchValue('');
+    setRawValue('');
     setInputQuery('');
     setSearchMode(null);
     setShowSuggestions(false);
@@ -296,14 +307,15 @@ export default function ExplorePage() {
     // 清理持久化的上次错误，避免误显示错误页
     dispatch(clearSearchResults());
     setIsSearchActive(true);
-    if (searchValue.startsWith('@')) {
+    // 防止受控 focus 导致的二次渲染失焦，仅在自动聚焦场景使用一次
+    if (autoFocus) setAutoFocus(false);
+    if (rawValue.startsWith('@')) {
       setShowSuggestions(true);
     }
   };
   
   const renderPrefixLabel = () => {
     if (!searchMode) return null;
-    // 当输入以 @ 开头但模式未完整（如 @wik），也显示当前模式标签
     return <Text className={styles.prefixLabel}>@{searchMode}</Text>;
   };
   
@@ -463,7 +475,10 @@ export default function ExplorePage() {
     return renderInitialSearch();
   }
 
-  const getDisplayValue = () => inputQuery;
+  const getDisplayValue = () => (searchMode ? inputQuery : rawValue);
+
+  // 仅在需要时控制小程序的 focus，避免渲染时强制失焦
+  const inputFocusProps = autoFocus ? { focus: true as const } : {};
 
   return (
     <View className={styles.explorePage} onClick={() => setShowSuggestions(false)}>
@@ -483,10 +498,10 @@ export default function ExplorePage() {
                   confirmType='search'
                   onConfirm={handleSearch}
                   onFocus={handleFocus}
-                  focus={autoFocus}
+                  {...inputFocusProps}
                 />
               </View>
-              {searchValue && (
+              {rawValue && (
                 <Image src={xIcon} className={styles.clearIcon} onClick={handleClearInput} />
               )}
             </View>
