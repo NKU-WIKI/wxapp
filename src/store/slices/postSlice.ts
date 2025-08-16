@@ -14,8 +14,9 @@ import {
   updatePost as updatePostApi,
   deletePost as deletePostApi,
   getMyDrafts,
+  getPostDetail,
 } from "@/services/api/post";
-import { toggleAction } from "./likeSlice"; // 从 actionSlice (原likeSlice) 导入
+import { toggleAction } from "./actionSlice"; // 从 actionSlice 导入
 
 // 获取论坛帖子的 Thunk
 export const fetchForumPosts = createAsyncThunk(
@@ -24,8 +25,13 @@ export const fetchForumPosts = createAsyncThunk(
     try {
       const response = await getForumPosts(params);
       return {
-        items: response.data, // The API returns a PaginatedData object which has a 'data' field
-        pagination: response.pagination,
+        items: response.data, // API returns { code, message, data: Post[] }
+        pagination: {
+          skip: params.skip || 0,
+          limit: params.limit || 20,
+          total: response.data.length, // Approximate total from current response
+          has_more: response.data.length === (params.limit || 20), // Has more if returned count equals limit
+        },
       };
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch forum posts");
@@ -40,8 +46,13 @@ export const fetchFeed = createAsyncThunk(
     try {
       const response = await getFeed(params);
       return {
-        items: response.data, // The API returns a PaginatedData object which has a 'data' field
-        pagination: response.pagination,
+        items: response.data, // The API returns array data
+        pagination: {
+          skip: params.skip || 0,
+          limit: params.limit || 20,
+          total: response.data.length,
+          has_more: response.data.length === (params.limit || 20),
+        },
       };
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch feed");
@@ -55,7 +66,7 @@ export const createPost = createAsyncThunk(
   async (postData: CreateForumPostRequest, { rejectWithValue }) => {
     try {
       const response = await createForumPost(postData);
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to create post");
     }
@@ -68,7 +79,7 @@ export const updatePost = createAsyncThunk(
   async ({ postId, data }: { postId: number; data: PostUpdate }, { rejectWithValue }) => {
     try {
       const response = await updatePostApi(postId, data);
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to update post");
     }
@@ -88,13 +99,26 @@ export const deletePost = createAsyncThunk(
   }
 );
 
+// 获取帖子详情的 Thunk
+export const fetchPostDetail = createAsyncThunk(
+  "posts/fetchPostDetail",
+  async (postId: number, { rejectWithValue }) => {
+    try {
+      const response = await getPostDetail(postId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to fetch post detail");
+    }
+  }
+);
+
 // 获取草稿箱的 Thunk
 export const fetchDrafts = createAsyncThunk(
   "posts/fetchDrafts",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getMyDrafts();
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch drafts");
     }
@@ -103,15 +127,19 @@ export const fetchDrafts = createAsyncThunk(
 
 export interface PostsState {
   list: Post[];
+  currentPost: Post | null;
   pagination: PaginatedData<Post>["pagination"] | null;
   loading: "idle" | "pending" | "succeeded" | "failed";
+  detailLoading: "idle" | "pending" | "succeeded" | "failed";
   error: any;
 }
 
 const initialState: PostsState = {
   list: [],
+  currentPost: null,
   pagination: null,
   loading: "idle",
+  detailLoading: "idle",
   error: null,
 };
 
@@ -160,6 +188,18 @@ const postsSlice = createSlice({
       })
       .addCase(fetchFeed.rejected, (state, action) => {
         state.loading = "failed";
+        state.error = action.payload as string;
+      })
+      // Fetch Post Detail
+      .addCase(fetchPostDetail.pending, (state) => {
+        state.detailLoading = "pending";
+      })
+      .addCase(fetchPostDetail.fulfilled, (state, action) => {
+        state.detailLoading = "succeeded";
+        state.currentPost = action.payload;
+      })
+      .addCase(fetchPostDetail.rejected, (state, action) => {
+        state.detailLoading = "failed";
         state.error = action.payload as string;
       })
       // Create Post

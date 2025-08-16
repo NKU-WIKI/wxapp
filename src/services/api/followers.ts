@@ -1,6 +1,40 @@
 import { PaginationParams } from "@/types/api/common";
+import { User, CurrentUser } from "@/types/api/user";
+import { GetFollowersParams, FollowActionParams, FollowActionResponse } from "@/types/api/followers";
 import http from "../request";
-import { FollowerList } from "@/types/api/user";
+
+/**
+ * 获取关注/粉丝列表（支持当前用户）
+ * @param params 获取参数
+ * @returns
+ */
+export const getFollowers = async (params: GetFollowersParams) => {
+  // 首先获取当前用户信息以获得用户ID
+  try {
+    const userResponse = await http.get<CurrentUser>('/users/me');
+    const userId = userResponse.data?.user_id;
+    
+    if (!userId) {
+      throw new Error('无法获取用户ID');
+    }
+    
+    // 使用用户ID构建正确的端点
+    const endpoint = params.type === 'following' 
+      ? `/users/${userId}/following`
+      : `/users/${userId}/followers`;
+      
+    const queryParams = {
+      skip: ((params.page || 1) - 1) * (params.page_size || 20),
+      limit: params.page_size || 20,
+      ...(params.search && { search: params.search })
+    };
+    
+    return http.get<User[]>(endpoint, queryParams);
+  } catch (error) {
+    console.error('获取关注/粉丝列表失败:', error);
+    throw error;
+  }
+};
 
 /**
  * 获取指定用户的粉丝列表
@@ -8,11 +42,11 @@ import { FollowerList } from "@/types/api/user";
  * @param params 分页参数
  * @returns
  */
-export const getFollowers = (
+export const getUserFollowers = (
   userId: number,
   params: PaginationParams
 ) => {
-  return http.get<FollowerList>(
+  return http.get<User[]>(
     `/users/${userId}/followers`,
     params
   );
@@ -24,12 +58,26 @@ export const getFollowers = (
  * @param params 分页参数
  * @returns
  */
-export const getFollowing = (
+export const getUserFollowing = (
   userId: number,
   params: PaginationParams
 ) => {
-  return http.get<FollowerList>(
+  return http.get<User[]>(
     `/users/${userId}/following`,
     params
   );
+};
+
+/**
+ * 关注/取消关注用户
+ * @param params 关注操作参数
+ * @returns
+ */
+export const followAction = (params: FollowActionParams) => {
+  // 根据OpenAPI文档，使用 /actions/toggle 接口
+  return http.post<FollowActionResponse>("/actions/toggle", {
+    target_id: params.target_user_id,
+    target_type: "user",
+    action_type: "follow"
+  });
 };

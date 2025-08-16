@@ -32,11 +32,16 @@ export interface FollowersResponse {
 // 关注/取关参数
 export interface FollowActionParams {
   target_user_id: number;
-  action: 'follow' | 'unfollow';
+  action?: 'follow' | 'unfollow'; // 保留兼容性，但实际API使用toggle
 }
 
 // 关注/取关响应
 export interface FollowActionResponse {
-  is_following: boolean;
-  relation: FollowRelation;
+  code: number;
+  msg?: string;
+  message?: string;
+  data: {
+    is_active: boolean;
+    relation?: FollowRelation;
+  };
 }

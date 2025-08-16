@@ -8,7 +8,7 @@ import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { deletePost } from '@/store/slices/postSlice';
-import { toggleAction } from '@/store/slices/likeSlice';
+import { toggleAction } from '@/store/slices/actionSlice';
 import { showToast } from '@/utils/ui';
 
 // 引入所有需要的图标

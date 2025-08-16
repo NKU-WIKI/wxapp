@@ -13,7 +13,7 @@ import ShareIcon from '@/assets/share.svg';
 import LocationIcon from '@/assets/map-pin.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { toggleAction } from '@/store/slices/postSlice';
+import { toggleAction } from '@/store/slices/actionSlice';
 import { PostsState } from '@/store/slices/postSlice';
 
 interface PostDetailContentProps {
@@ -90,8 +90,10 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
     
     // 调用API进行点赞/取消点赞
     dispatch(toggleAction({ 
-      postId: post.id, 
-      actionType: 'like'
+      target_id: post.id,
+      target_type: 'post' as const,
+      action_type: 'like' as const,
+      active: !isLiked
     })).then((result: any) => {
       if (result.payload && result.payload.response) {
         const { is_active } = result.payload.response;
@@ -152,8 +154,10 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
     
     // 调用API进行收藏/取消收藏
     dispatch(toggleAction({ 
-      postId: post.id, 
-      actionType: 'favorite'
+      target_id: post.id,
+      target_type: 'post' as const,
+      action_type: 'favorite' as const,
+      active: !isFavorited
     })).then((result: any) => {
       if (result.payload && result.payload.response) {
         const { is_active } = result.payload.response;

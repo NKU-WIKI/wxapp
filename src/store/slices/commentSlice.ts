@@ -8,7 +8,22 @@ import {
   createComment as createCommentApi,
   updateComment as updateCommentApi,
   deleteComment as deleteCommentApi,
+  getComments,
 } from "@/services/api/comment";
+
+// 获取评论列表的 Thunk
+export const fetchComments = createAsyncThunk(
+  "comments/fetchComments",
+  async (params: { resource_id: number; resource_type: string }, { rejectWithValue }) => {
+    try {
+      const response = await getComments(params);
+      return response.data;
+    } catch (error: any) {
+      console.error("获取评论失败:", error);
+      return rejectWithValue(error.message || "Failed to fetch comments");
+    }
+  }
+);
 
 // 创建评论的 Thunk
 export const createComment = createAsyncThunk(
@@ -16,7 +31,7 @@ export const createComment = createAsyncThunk(
   async (params: CreateCommentRequest, { rejectWithValue }) => {
     try {
       const response = await createCommentApi(params);
-      return response;
+      return response.data; // 返回数据部分
     } catch (error: any) {
       console.error("创建评论失败:", error);
       return rejectWithValue(error.message || "Failed to create comment");
@@ -30,7 +45,7 @@ export const updateComment = createAsyncThunk(
   async ({ commentId, data }: { commentId: number; data: CommentUpdate }, { rejectWithValue }) => {
     try {
       const response = await updateCommentApi(commentId, data);
-      return response;
+      return response.data; // 返回数据部分
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to update comment");
     }
@@ -53,6 +68,7 @@ export const deleteComment = createAsyncThunk(
 export interface CommentState {
   // We can add a list to hold comments for a specific post
   comments: Comment[];
+  fetchStatus: "idle" | "pending" | "succeeded" | "failed";
   createStatus: "idle" | "pending" | "succeeded" | "failed";
   updateStatus: "idle" | "pending" | "succeeded" | "failed";
   deleteStatus: "idle" | "pending" | "succeeded" | "failed";
@@ -61,6 +77,7 @@ export interface CommentState {
 
 const initialState: CommentState = {
   comments: [],
+  fetchStatus: "idle",
   createStatus: "idle",
   updateStatus: "idle",
   deleteStatus: "idle",
@@ -78,6 +95,18 @@ const commentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // 处理获取评论
+      .addCase(fetchComments.pending, (state) => {
+        state.fetchStatus = "pending";
+      })
+      .addCase(fetchComments.fulfilled, (state, action) => {
+        state.fetchStatus = "succeeded";
+        state.comments = action.payload;
+      })
+      .addCase(fetchComments.rejected, (state, action) => {
+        state.fetchStatus = "failed";
+        state.error = action.payload as string;
+      })
       // 处理创建评论
       .addCase(createComment.pending, (state) => {
         state.createStatus = "pending";

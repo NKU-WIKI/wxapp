@@ -6,9 +6,8 @@ import {
   updateMeProfile,
   getMeProfile,
 } from "@/services/api/user";
-import { LoginRequest } from "@/types/api/auth";
+import { UnifiedLoginRequest } from "@/types/api/auth";
 import { User, UpdateUserProfileRequest, CurrentUser } from "@/types/api/user";
-import { DEFAULT_DEV_TOKEN } from "@/constants";
 import { RootState } from "@/store";
 
 interface UserState {
@@ -23,7 +22,7 @@ interface UserState {
 const initialState: UserState = {
   currentUser: null,
   userProfile: null,
-  token: Taro.getStorageSync("token") || DEFAULT_DEV_TOKEN,
+  token: Taro.getStorageSync("token") || null, // 移除默认token，让用户正常登录
   isLoggedIn: false, // Default to false, rely on API check
   status: "idle",
   error: null,
@@ -34,20 +33,30 @@ export const login = createAsyncThunk(
   async (code: string, { dispatch, rejectWithValue }) => {
     try {
       const tenantId = "f6303899-a51a-460a-9cd8-fe35609151eb"; // Nankai tenant ID
-      const loginData: LoginRequest = {
+      const loginData: UnifiedLoginRequest = {
         mode: 'weapp',
         weapp: {
           code: code,
           tenant_id: tenantId,
         }
       };
+      
+      console.log("Sending login request with data:", JSON.stringify(loginData));
       const response = await loginApi(loginData);
+      console.log("Login response:", response);
+      
       Taro.setStorageSync("token", response.data.access_token);
       // After login, immediately fetch current user info
       dispatch(fetchCurrentUser());
       return response.data;
     } catch (error: any) {
       console.error("Login API failed:", error);
+      console.error("Error details:", {
+        statusCode: error?.statusCode,
+        data: error?.data,
+        msg: error?.msg,
+        message: error?.message
+      });
       return rejectWithValue(error?.msg || error?.message || "登录失败");
     }
   }
@@ -183,7 +192,7 @@ const userSlice = createSlice({
       .addCase(updateUser.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(updateUser.fulfilled, (state, action) => {
+      .addCase(updateUser.fulfilled, (state) => {
         state.status = "succeeded";
         // Here we could update the userProfile if needed
         // For now, just mark as succeeded

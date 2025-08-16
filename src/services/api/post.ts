@@ -1,11 +1,10 @@
-import http from "../request";
 import {
   Post,
   GetForumPostsParams,
   CreateForumPostRequest,
   GetFeedParams,
 } from "@/types/api/post.d";
-import { PaginatedData } from "@/types/api/common.d";
+import http from "../request";
 
 /**
  * 获取论坛帖子列表
@@ -13,7 +12,30 @@ import { PaginatedData } from "@/types/api/common.d";
  * @returns
  */
 export const getForumPosts = (params: GetForumPostsParams) => {
-  return http.get<PaginatedData<Post>>("/forums/posts", params);
+  return http.get<Post[]>("/forums/posts", params);
+};
+
+/**
+ * 获取帖子列表（别名函数，为了兼容现有代码）
+ * @param params 包含分页参数
+ * @returns
+ */
+export const getPosts = (params: any) => {
+  return http.get<Post[]>("/forums/posts", params);
+};
+
+/**
+ * 根据ID获取单个帖子详情
+ */
+export const getPostById = (postId: number) => {
+  return http.get<Post>(`/forums/posts/${postId}`);
+};
+
+/**
+ * 获取帖子详情（别名）
+ */
+export const getPostDetail = (postId: number) => {
+  return getPostById(postId);
 };
 
 /**
@@ -58,5 +80,20 @@ export const getMyDrafts = () => {
  * @returns
  */
 export const getFeed = (params: GetFeedParams) => {
-  return http.get<PaginatedData<Post>>("/posts/feed", params);
+  // 使用相同的forums/posts端点获取信息流
+  return http.get<Post[]>("/forums/posts", params);
 };
+
+// 默认导出对象，包含所有API函数
+const postApi = {
+  getForumPosts,
+  getPosts,
+  getPostById,
+  createForumPost,
+  updatePost,
+  deletePost,
+  getMyDrafts,
+  getFeed,
+};
+
+export default postApi;

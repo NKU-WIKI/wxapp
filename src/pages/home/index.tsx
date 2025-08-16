@@ -1,6 +1,6 @@
 import { View, ScrollView, Text, Input, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { Post } from "@/types/api/post.d";
@@ -59,9 +59,11 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    // 首次加载，获取信息流
-    dispatch(fetchFeed({ skip: 0, limit: 10 }));
-  }, [dispatch]);
+    // 只在用户登录后获取信息流
+    if (isLoggedIn) {
+      dispatch(fetchFeed({ skip: 0, limit: 10 }));
+    }
+  }, [dispatch, isLoggedIn]);
 
   useDidShow(() => {
     const { refresh } = Taro.getCurrentInstance().router.params;
@@ -78,7 +80,7 @@ export default function Home() {
 
   // 下拉刷新处理函数
   const handlePullRefresh = async () => {
-    if (isRefreshing) return;
+    if (isRefreshing || !isLoggedIn) return; // 未登录时不刷新
 
     setIsRefreshing(true);
     try {
@@ -97,7 +99,7 @@ export default function Home() {
 
   // 滚动到底部加载更多
   const handleScrollToLower = async () => {
-    if (isLoading || isRefreshing || !pagination || !pagination.has_more) return;
+    if (isLoading || isRefreshing || !pagination || !pagination.has_more || !isLoggedIn) return;
 
     try {
       const nextSkip = (pagination.skip || 0) + (pagination.limit || 10);
@@ -116,6 +118,8 @@ export default function Home() {
   };
 
   const handleCategoryClick = (categoryId: number) => {
+    if (!isLoggedIn) return; // 未登录时不处理分类点击
+    
     const newSelectedCategory = selectedCategory === categoryId ? null : categoryId;
     setSelectedCategory(newSelectedCategory);
 
@@ -129,6 +133,15 @@ export default function Home() {
   };
 
   const renderContent = () => {
+    if (!isLoggedIn) {
+      return (
+        <EmptyState
+          icon={emptyIcon}
+          text="请先登录后查看帖子内容"
+        />
+      );
+    }
+
     if (isLoading && posts.length === 0) {
       return Array.from({ length: 3 }).map((_, index) => (
         <PostItemSkeleton key={index} className={styles.postListItem} />

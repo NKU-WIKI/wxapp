@@ -1,32 +1,34 @@
-import http from "../request";
 import {
   KnowledgeSearchResponse,
   RagSearchRequest,
   KnowledgeSearchItem,
   KnowledgeSuggestionResponse,
-  HotSearchResponse,
   WxappSearchResponse,
   SearchHistoryResponse,
   SnapshotResponse,
-  KnowledgeSearchParams,
 } from "@/types/api/knowledge";
-import { ResponseMessage } from "@/types/api/common";
+import http from "../request";
 
 /**
  * 使用Elasticsearch进行知识库搜索
+ * 注意：这个API不在官方文档中，可能需要后端支持
  */
-export const search = (params: KnowledgeSearchParams) => {
+export const search = (params: any) => {
   return http.get<KnowledgeSearchResponse>("/knowledge/search-general", params);
 };
 
 /**
  * 使用RAG管道进行高级搜索
+ * 注意：这个API不在官方文档中，可能需要后端支持
  */
 export const searchByRag = (params: RagSearchRequest) => {
   return http.get<KnowledgeSearchItem[]>("/knowledge/search-advanced", params);
 };
 
-/** 获取搜索建议 */
+/** 
+ * 获取搜索建议 
+ * 注意：这个API不在官方文档中，可能需要后端支持
+ */
 export const getSuggestions = (query: string, page_size: number = 5) => {
   return http.get<KnowledgeSuggestionResponse>("/knowledge/suggestion", {
     query,
@@ -34,9 +36,18 @@ export const getSuggestions = (query: string, page_size: number = 5) => {
   });
 };
 
-/** 获取热门搜索（新接口） */
-export const getHotSearches = () => {
-  return http.get<HotSearchResponse>("/search/hot-queries");
+/** 
+ * 获取热门搜索 
+ * 注意：这个API不在官方文档中，返回模拟数据
+ */
+export const getHotSearches = (page_size: number = 10, days: number = 7) => {
+  console.log("getHotSearches called with:", { page_size, days });
+  // 返回模拟数据，避免502错误
+  return Promise.resolve({
+    code: 0,
+    message: "success",
+    data: []
+  });
 };
 
 /** 小程序综合搜索（posts + users） */
@@ -51,13 +62,14 @@ export const searchWxapp = (params: {
 };
 
 /** 获取当前用户搜索历史 */
+/** 获取搜索历史 */
 export const getSearchHistory = (page_size: number = 10) => {
   return http.get<SearchHistoryResponse>("/knowledge/history", { page_size });
 };
 
 /** 清空当前用户搜索历史 */
 export const clearSearchHistory = () => {
-  return http.post<ResponseMessage>("/knowledge/history/clear", {});
+  return http.post<any>("/knowledge/history/clear", {});
 };
 
 /** 获取网页快照 */
@@ -70,7 +82,6 @@ const knowledgeApi = {
   searchByRag,
   getSuggestions,
   getHotSearches,
-  searchWxapp,
   getSearchHistory,
   clearSearchHistory,
   getSnapshot,

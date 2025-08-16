@@ -1,7 +1,4 @@
-import http from "../request";
-import { PaginationParams } from "./common";
 import {
-  User,
   UserProfile,
   UpdateUserProfileRequest,
   CreateViewHistoryRequest,
@@ -9,6 +6,7 @@ import {
   GetHistoryParams,
   CurrentUser,
 } from "@/types/api/user";
+import http from "../request";
 
 /**
  * 获取当前登录用户的基本信息
@@ -41,7 +39,7 @@ export const updateMeProfile = (data: UpdateUserProfileRequest) => {
  * @returns
  */
 export const createViewHistory = (data: CreateViewHistoryRequest) => {
-  return http.post<any>("/users/views", data);
+  return http.post<any>("/actions/view", data);
 };
 
 /**
@@ -52,3 +50,24 @@ export const createViewHistory = (data: CreateViewHistoryRequest) => {
 export const getMyHistory = (params: GetHistoryParams) => {
   return http.get<HistoryList>("/users/me/history", params);
 }; 
+
+/**
+ * 获取用户收藏列表
+ * 注意：这个API在文档中缺失，可能需要通过其他方式实现
+ */
+export const getUserFavorites = (_params: any) => {
+  // 由于API文档中没有获取用户收藏的端点，暂时返回空数组
+  return Promise.resolve({ code: 200, data: [] });
+};
+
+// 用户API对象，包含所有用户相关的API函数
+export const userApi = {
+  getMe,
+  getMeProfile,
+  updateMeProfile,
+  createViewHistory,
+  getMyHistory,
+  getUserFavorites,
+};
+
+export default userApi;

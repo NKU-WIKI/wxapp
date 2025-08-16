@@ -4,7 +4,6 @@ import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import 'taro-ui/dist/style/index.scss'
 import store, { persistor } from './store'
-import { DEFAULT_DEV_TOKEN } from './constants'
 import { initTabBarSync } from './utils/tabBarSync'
 import './app.scss'
 import { fetchCurrentUser } from "./store/slices/userSlice";
@@ -31,25 +30,20 @@ if (typeof globalThis.AbortController === 'undefined') {
 initTabBarSync();
 
 function App({ children }: PropsWithChildren<any>) {
-
-  // 在应用启动时检查并设置默认 Token
-  if (!Taro.getStorageSync('token')) {
-    Taro.setStorageSync('token', DEFAULT_DEV_TOKEN);
-  }
-
   useLaunch(() => {
-    // On app launch, check and set a default token if none exists.
-    if (!Taro.getStorageSync("token")) {
-      Taro.setStorageSync("token", DEFAULT_DEV_TOKEN);
+    // 检查是否有存储的token
+    const storedToken = Taro.getStorageSync("token");
+    
+    if (storedToken) {
+      // 如果有token，尝试验证其有效性
+      store.dispatch(fetchCurrentUser());
+    } else {
+      // 如果没有token，直接设置为未登录状态
+      console.log("No token found, user needs to login");
     }
-    // Then, immediately try to fetch the current user to verify the token.
-    // This will set the correct isLoggedIn state application-wide.
-    store.dispatch(fetchCurrentUser());
   })
 
   // children 是将要会渲染的页面
-  // The auth check is handled by the initial state in userSlice,
-  // so the useEffect hook for checkAuth is not needed here.
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>

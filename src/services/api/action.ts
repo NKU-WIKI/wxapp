@@ -1,8 +1,8 @@
-import http from "../request";
 import {
   ToggleActionRequest,
   ToggleActionResponse,
 } from "@/types/api/action";
+import http from "../request";
 
 /**
  * 切换用户交互状态 (点赞/收藏/关注)
@@ -17,3 +17,10 @@ export const toggleAction = (data: ToggleActionRequest) => {
     },
   });
 };
+
+// 动作API对象
+const actionApi = {
+  toggleAction,
+};
+
+export default actionApi;

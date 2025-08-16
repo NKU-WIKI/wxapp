@@ -41,7 +41,8 @@ const FollowersPage = () => {
       
       console.log('API Response:', response);
       
-      if (response.code === 200 && response.data) {
+      // 修复：API返回code为0表示成功，不是200
+      if ((response.code === 200 || response.code === 0) && response.data !== undefined) {
         // 处理API响应格式 - 根据后端文档，data直接是用户对象数组
         let newUsers: any[] = [];
         const responseData = response.data as any;
@@ -93,7 +94,8 @@ const FollowersPage = () => {
       
       const response = await followAction(params)
       
-      if (response.code === 200) {
+      // 修复：API返回code为0表示成功，不是200
+      if (response.code === 200 || response.code === 0) {
         const responseData = response.data as any;
         const isActive = responseData?.is_active;
         
@@ -198,7 +200,8 @@ const FollowersPage = () => {
         
         console.log('API Response:', response);
         
-        if (response.code === 200 && response.data) {
+        // 修复：API返回code为0表示成功，不是200
+        if ((response.code === 200 || response.code === 0) && response.data !== undefined) {
           let newUsers: any[] = [];
           const responseData = response.data as any;
           

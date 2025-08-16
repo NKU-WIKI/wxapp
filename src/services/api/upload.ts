@@ -1,7 +1,12 @@
 import Taro from "@tarojs/taro";
 import { HEADER_BRANCH_KEY, REQUEST_BRANCH } from "@/constants";
-import { UploadImageResponse } from "@/types/api/upload";
 import { BaseResponse } from "@/types/api/common";
+
+// 上传图片响应类型
+interface UploadImageResponse {
+  url: string;
+  file_id?: string;
+}
 
 const BASE_URL = process.env.BASE_URL;
 
@@ -18,7 +23,7 @@ export const uploadImage = (filePath: string): Promise<string> => {
     }
 
     Taro.uploadFile({
-      url: `${BASE_URL}/api/v1/upload/image`,
+      url: `${BASE_URL}/api/v1/uploads/file`,
       filePath: filePath,
       name: "file",
       header: {
@@ -47,3 +52,10 @@ export const uploadImage = (filePath: string): Promise<string> => {
     });
   });
 };
+
+// Upload API对象
+export const uploadApi = {
+  uploadImage,
+};
+
+export default uploadApi;

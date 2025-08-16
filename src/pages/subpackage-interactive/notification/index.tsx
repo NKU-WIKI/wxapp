@@ -38,6 +38,8 @@ const NotificationPage = () => {
     try {
       setLoading(true)
       setError(null)
+      // 注意：原API路径 /wxapp/notification/list 不在官方文档中
+      // 暂时保留原路径，但添加注释说明需要后端支持
       const res = await http.get<{ data: NotificationDTO[] }>(
         '/wxapp/notification/list',
         { page: 1, page_size: 20 },
@@ -150,6 +152,8 @@ const NotificationPage = () => {
           className={styles.markAllReadButton}
           onClick={async () => {
             try {
+              // 注意：原API路径 /wxapp/notification/read-all 不在官方文档中
+              // 暂时保留原路径，但添加注释说明需要后端支持
               const res = await http.post('/wxapp/notification/read-all', {})
               if ((res as any).code === 200) {
                 Taro.showToast({ title: '已全部标记为已读', icon: 'success' })

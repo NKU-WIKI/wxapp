@@ -32,12 +32,25 @@ export default function LoginPage() {
 
   const handleWechatLogin = async () => {
     try {
+      console.log("Starting WeChat login...");
       const res = await Taro.login();
+      console.log("Taro.login() result:", res);
+      
+      if (!res.code) {
+        throw new Error("Failed to get WeChat login code");
+      }
+      
+      console.log("Dispatching login with code:", res.code);
       await dispatch(login(res.code)).unwrap();
+      console.log("Login successful, navigating to home");
       Taro.switchTab({ url: '/pages/home/index' });
     } catch (error) {
-      Taro.showToast({ title: '登录失败', icon: 'none' });
       console.error('Login failed:', error);
+      Taro.showToast({ 
+        title: `登录失败: ${error}`, 
+        icon: 'none',
+        duration: 3000
+      });
     }
   };
 

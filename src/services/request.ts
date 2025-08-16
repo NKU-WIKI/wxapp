@@ -74,7 +74,7 @@ const interceptor = (chain) => {
 Taro.addInterceptor(interceptor);
 Taro.addInterceptor(Taro.interceptors.timeoutInterceptor);
 
-type HttpMethod = "GET" | "POST";
+type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 const request = (
   method: HttpMethod,
@@ -106,6 +106,22 @@ const http = {
     options?: Omit<Taro.request.Option, "url" | "data" | "method">
   ) =>
     request("POST", url, data, options).then(
+      (res) => res.data as BaseResponse<T>
+    ),
+  put: <T>(
+    url: string,
+    data?: object,
+    options?: Omit<Taro.request.Option, "url" | "data" | "method">
+  ) =>
+    request("PUT", url, data, options).then(
+      (res) => res.data as BaseResponse<T>
+    ),
+  delete: <T>(
+    url: string,
+    data?: object,
+    options?: Omit<Taro.request.Option, "url" | "data" | "method">
+  ) =>
+    request("DELETE", url, data, options).then(
       (res) => res.data as BaseResponse<T>
     ),
 };

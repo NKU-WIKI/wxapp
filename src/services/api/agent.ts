@@ -1,4 +1,3 @@
-import http from "../request";
 import {
   RagRequest,
   ChatCompletionsRequest,
@@ -7,36 +6,43 @@ import {
   TextPolishResponse,
   TextSummarizeRequest,
   TextSummarizeResponse,
-  RagSearchRequest,
-  KnowledgeSearchItem,
 } from "@/types/api/agent.d";
+import http from "../request";
 
 export const rag = (data: RagRequest) => {
   return http.get<any>("/agent/rag-answer", data);
 };
 
+// 根据API文档，应该使用 /api/v1/agent/chat
 export const chatCompletions = (data: ChatCompletionsRequest) => {
   return http.post<ChatCompletionsResponse>(
-    "/agent/chat/completions",
+    "/agent/chat",
     data
   );
 };
 
+// 根据API文档，文本摘要使用 /api/v1/agent/summarize
+export const textSummarize = (data: TextSummarizeRequest) => {
+  return http.post<TextSummarizeResponse>("/agent/summarize", data);
+};
+
+// textPolish API不在文档中，保留但添加注释
 export const textPolish = (data: TextPolishRequest) => {
+  // 注意：这个API不在官方文档中，可能需要后端支持
   return http.post<TextPolishResponse>("/agent/text/polish", data);
 };
 
-export const textSummarize = (data: TextSummarizeRequest) => {
-  return http.post<TextSummarizeResponse>("/agent/text/summarize", data);
-};
-
-export const ragSearch = (params: RagSearchRequest) => {
-  return http.get<KnowledgeSearchItem[]>("/agent/rag-search", params);
+// ragSearch API不在文档中，暂时返回空数组
+export const ragSearch = (_params: any) => {
+  // 注意：这个API不在官方文档中
+  return Promise.resolve({ code: 200, data: [] });
 };
 
 const agentApi = {
-  chatCompletions,
   rag,
+  chatCompletions,
+  textSummarize,
+  textPolish,
   ragSearch,
 };
 

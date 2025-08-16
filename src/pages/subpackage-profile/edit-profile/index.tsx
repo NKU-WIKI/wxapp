@@ -1,3 +1,8 @@
+import { AppDispatch, RootState } from "@/store";
+import { updateUser } from "@/store/slices/userSlice";
+import { User } from "@/types/api/user";
+import { uploadApi } from "@/services/api/upload";
+import CustomHeader from "@/components/custom-header";
 import { useState, useEffect } from "react";
 import {
   View,
@@ -6,21 +11,15 @@ import {
   Input,
   Button,
   ScrollView,
-  Textarea,
 } from "@tarojs/components";
 import { useDispatch, useSelector } from "react-redux";
 import Taro from "@tarojs/taro";
 import styles from "./index.module.scss";
-import { AppDispatch, RootState } from "@/store";
-import { updateUserProfile } from "@/store/slices/userSlice";
-import { User } from "@/types/api/user";
-import { uploadApi } from "@/services/api/upload";
-import CustomHeader from "@/components/custom-header";
 
 export default function EditProfilePage() {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user);
-  const userInfo = user?.userInfo || null;
+  const userInfo = user?.userProfile || null;
 
   const [avatar, setAvatar] = useState("");
   const [nickname, setNickname] = useState("");
@@ -43,9 +42,9 @@ export default function EditProfilePage() {
       setBirthday("2000-01-01"); // 默认生日
       setSchool("南开大学"); // 默认学校
       setCollege("计算机科学与技术学院"); // 默认学院
-      setWechatId(userInfo.wechatId || "");
-      setQqId(userInfo.qqId || "");
-      setPhone(userInfo.phone || "");
+      setWechatId(""); // 默认微信号
+      setQqId(""); // 默认QQ号
+      setPhone(""); // 默认手机号
       setLocation("中国 北京"); // 默认位置
       setInterests(["运动", "音乐", "摄影", "旅行", "美食", "科技"]); // 默认兴趣标签
     }
@@ -98,14 +97,11 @@ export default function EditProfilePage() {
     const formData: Partial<User> = {
       nickname,
       bio,
-      wechatId,
-      qqId,
-      phone,
       avatar,
     };
 
     try {
-      await dispatch(updateUserProfile(formData)).unwrap();
+      await dispatch(updateUser(formData)).unwrap();
       Taro.showToast({ title: "保存成功", icon: "success" });
       Taro.navigateBack();
     } catch (error) {
@@ -152,10 +148,6 @@ export default function EditProfilePage() {
     "绘画",
   ];
 
-  const handleBack = () => {
-    Taro.navigateBack();
-  };
-
   // 如果用户信息为空，显示加载状态
   if (!userInfo) {
     return (
@@ -164,7 +156,12 @@ export default function EditProfilePage() {
       >
         <CustomHeader title="编辑资料" />
         <View style={{ flex: 1, overflow: "hidden" }}>
-          <ScrollView scrollY style={{ height: "100%" }}>
+          <ScrollView 
+            scrollY 
+            style={{ height: "100%" }}
+            enhanced
+            showScrollbar={false}
+          >
             <View className={styles.content}>
               <Text>加载中...</Text>
             </View>
@@ -178,7 +175,12 @@ export default function EditProfilePage() {
     <View style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <CustomHeader title="编辑资料" />
       <View style={{ flex: 1, overflow: "hidden" }}>
-        <ScrollView scrollY style={{ height: "100%" }}>
+        <ScrollView 
+          scrollY 
+          style={{ height: "100%" }}
+          enhanced
+          showScrollbar={false}
+        >
           <View className={styles.content}>
             {/* 头像部分 */}
             <View className={styles.avatarSection}>

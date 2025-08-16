@@ -4,7 +4,8 @@ import persistStorage from '@/utils/persistStorage';
 import userReducer from "./slices/userSlice";
 import postReducer from "./slices/postSlice";
 import commentReducer from "./slices/commentSlice";
-import actionReducer from "./slices/likeSlice"; // Renamed from likeSlice
+import actionReducer from "./slices/actionSlice"; // Action slice for like/favorite/follow actions
+import likeReducer from "./slices/likeSlice"; // Like list slice
 import aboutReducer from "./slices/aboutSlice";
 import chatReducer from "./slices/chatSlice";
 import feedbackReducer from "./slices/feedbackSlice";
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   post: postReducer,
   comment: commentReducer,
   action: actionReducer,
+  like: likeReducer, // Add like list reducer
   about: aboutReducer,
   chat: chatReducer,
   feedback: feedbackReducer,
