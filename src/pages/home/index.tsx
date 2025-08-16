@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { Post } from "@/types/api/post.d";
-import { fetchPosts } from "@/store/slices/postSlice";
+import { fetchFeed, fetchForumPosts } from "@/store/slices/postSlice";
 import CustomHeader from "@/components/custom-header";
 import PostItem from "@/components/post-item";
 import PostItemSkeleton from "@/components/post-item-skeleton";
@@ -56,13 +56,11 @@ export default function Home() {
   const isLoading = loading === "pending";
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [page, setPage] = useState(1);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchPosts({ page: 1, page_size: 5, isAppend: false }));
-    setPage(1);
+    // 首次加载，获取信息流
+    dispatch(fetchFeed({ skip: 0, limit: 10 }));
   }, [dispatch]);
 
   useDidShow(() => {
@@ -84,18 +82,12 @@ export default function Home() {
 
     setIsRefreshing(true);
     try {
-      const params: { page: number; page_size: number; category_id?: number; isAppend: boolean } = {
-        page: 1,
-        page_size: 5,
-        isAppend: false, // 刷新时不追加，替换所有内容
-      };
-
+      const params = { skip: 0, limit: 10 };
       if (selectedCategory) {
-        params.category_id = selectedCategory;
+        await dispatch(fetchForumPosts({ ...params, category_id: selectedCategory })).unwrap();
+      } else {
+        await dispatch(fetchFeed(params)).unwrap();
       }
-
-      await dispatch(fetchPosts(params)).unwrap();
-      setPage(1);
     } catch (error) {
       console.error('刷新失败:', error);
     } finally {
@@ -105,30 +97,21 @@ export default function Home() {
 
   // 滚动到底部加载更多
   const handleScrollToLower = async () => {
-    if (isLoadingMore || isLoading || isRefreshing) return;
+    if (isLoading || isRefreshing || !pagination || !pagination.has_more) return;
 
-    setIsLoadingMore(true);
     try {
-      const nextPage = page + 1;
-      const params: { page: number; page_size: number; category_id?: number; isAppend: boolean } = {
-        page: nextPage,
-        page_size: 5,
-        isAppend: true, // 加载更多时追加到现有帖子后面
-      };
+      const nextSkip = (pagination.skip || 0) + (pagination.limit || 10);
+      const params = { skip: nextSkip, limit: 10 };
 
       if (selectedCategory) {
-        params.category_id = selectedCategory;
-      }
-
-      const result = await dispatch(fetchPosts(params)).unwrap();
-
-      if (result.items.length > 0) {
-        setPage(nextPage);
+        await dispatch(
+          fetchForumPosts({ ...params, category_id: selectedCategory })
+        ).unwrap();
+      } else {
+        await dispatch(fetchFeed(params)).unwrap();
       }
     } catch (error) {
       console.error('加载更多失败:', error);
-    } finally {
-      setIsLoadingMore(false);
     }
   };
 
@@ -136,18 +119,13 @@ export default function Home() {
     const newSelectedCategory = selectedCategory === categoryId ? null : categoryId;
     setSelectedCategory(newSelectedCategory);
 
-    const params: { page: number; page_size: number; category_id?: number; isAppend: boolean } = {
-      page: 1,
-      page_size: 5,
-      isAppend: false, // 分类筛选时不追加，替换内容
-    };
+    const params = { skip: 0, limit: 10 };
 
     if (newSelectedCategory) {
-      params.category_id = newSelectedCategory;
+      dispatch(fetchForumPosts({ ...params, category_id: newSelectedCategory }));
+    } else {
+      dispatch(fetchFeed(params));
     }
-
-    dispatch(fetchPosts(params));
-    setPage(1);
   };
 
   const renderContent = () => {
@@ -167,7 +145,7 @@ export default function Home() {
     }
 
     const content = posts
-      .filter((post) => post && post.id && post.author_info)
+      .filter((post) => post && post.id && post.user) // Changed from author_info to user
       .map((post) => (
         <PostItem key={post.id} post={post} className={styles.postListItem} />
       ));
@@ -182,7 +160,7 @@ export default function Home() {
     }
 
     // 添加没有更多数据的提示
-    if (posts.length > 0 && !isLoadingMore) {
+    if (posts.length > 0 && !isLoading && pagination && !pagination.has_more) {
       content.push(
         <View key="no-more" className={styles.noMoreTip}>
           <Text>没有更多内容了</Text>

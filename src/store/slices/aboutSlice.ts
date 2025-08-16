@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { aboutApi, AboutInfo } from '@/services/api/about';
+import { getAboutInfo } from '@/services/api/about';
+import { AboutInfo } from '@/types/about.d';
+
 
 interface AboutState {
   info: AboutInfo | null;
@@ -17,7 +19,7 @@ export const fetchAboutInfo = createAsyncThunk(
   'about/fetchInfo',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await aboutApi.getAboutInfo();
+      const response = await getAboutInfo();
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch about info');

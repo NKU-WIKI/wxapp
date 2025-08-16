@@ -82,7 +82,7 @@ const request = (
   data?: object,
   options?: Omit<Taro.request.Option, "url" | "data" | "method">
 ): Promise<Taro.request.SuccessCallbackResult<BaseResponse<any>>> => {
-  const finalUrl = `${BASE_URL}/api${url}`;
+  const finalUrl = `${BASE_URL}/api/v1${url}`;
   return Taro.request({
     url: finalUrl,
     data,

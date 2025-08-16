@@ -1,5 +1,4 @@
-import http from '../request';
-import { BaseResponse } from '@/types/api/common';
+import http from "../request";
 import {
   RagRequest,
   ChatCompletionsRequest,
@@ -8,30 +7,36 @@ import {
   TextPolishResponse,
   TextSummarizeRequest,
   TextSummarizeResponse,
-} from '@/types/api/agent.d';
+  RagSearchRequest,
+  KnowledgeSearchItem,
+} from "@/types/api/agent.d";
 
-export const agentApi = {
-  rag: (data: RagRequest): Promise<BaseResponse<any>> => {
-    return http.post<any>('/agent/rag', data);
-  },
+export const rag = (data: RagRequest) => {
+  return http.post<any>("/agent/rag", data);
+};
 
-  chatCompletions: (
-    data: ChatCompletionsRequest
-  ): Promise<BaseResponse<ChatCompletionsResponse>> => {
-    return http.post<ChatCompletionsResponse>('/agent/chat/completions', data);
-  },
+export const chatCompletions = (data: ChatCompletionsRequest) => {
+  return http.post<ChatCompletionsResponse>(
+    "/agent/chat/completions",
+    data
+  );
+};
 
-  textPolish: (
-    data: TextPolishRequest
-  ): Promise<BaseResponse<TextPolishResponse>> => {
-    return http.post<TextPolishResponse>('/agent/text/polish', data);
-  },
+export const textPolish = (data: TextPolishRequest) => {
+  return http.post<TextPolishResponse>("/agent/text/polish", data);
+};
 
-  textSummarize: (
-    data: TextSummarizeRequest
-  ): Promise<BaseResponse<TextSummarizeResponse>> => {
-    return http.post<TextSummarizeResponse>('/agent/text/summarize', data);
-  },
+export const textSummarize = (data: TextSummarizeRequest) => {
+  return http.post<TextSummarizeResponse>("/agent/text/summarize", data);
+};
+
+export const ragSearch = (params: RagSearchRequest) => {
+  return http.get<KnowledgeSearchItem[]>("/agent/rag-search", params);
+};
+
+const agentApi = {
+  chatCompletions,
+  ragSearch,
 };
 
 export default agentApi;

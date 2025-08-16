@@ -1,17 +1,19 @@
-import http from '../request';
-import { ToggleActionParams, ToggleActionResponse } from '@/types/api/action.d';
+import http from "../request";
+import {
+  ToggleActionRequest,
+  ToggleActionResponse,
+} from "@/types/api/action";
 
-const actionApi = {
-  toggleAction: (data: ToggleActionParams) => {
-    return http.post<ToggleActionResponse>('/wxapp/action/toggle', {
-      ...data,
-      target_id: String(data.target_id),
-    }, {
-      header: {
-        'X-No-Loading': true,
-      },
-    });
-  },
+/**
+ * 切换用户交互状态 (点赞/收藏/关注)
+ * @param data
+ * @returns
+ */
+export const toggleAction = (data: ToggleActionRequest) => {
+  return http.post<ToggleActionResponse>("/actions/toggle", data, {
+    // 根据项目规范，交互类API不显示全局加载提示
+    header: {
+      "X-Show-Loading": false,
+    },
+  });
 };
-
-export default actionApi;

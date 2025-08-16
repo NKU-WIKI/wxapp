@@ -1,7 +1,7 @@
 import { View, ScrollView, Text, Image } from "@tarojs/components";
 import { useEffect, useState } from "react";
 import Taro from "@tarojs/taro";
-import { recommendApi } from "@/services/api/recommend";
+import recommendApi from "@/services/api/recommend";
 import styles from "./index.module.scss";
 import CustomHeader from "../../components/custom-header";
 import Section from "./components/Section";
@@ -30,7 +30,7 @@ export default function Discover() {
       };
 
       console.log("开始获取热门帖子...");
-      const response = await recommendApi.getRecommendPost(params);
+      const response = await recommendApi.getRecommendations(params);
       console.log("热门帖子数据:", response);
       console.log("API调用成功，数据类型:", typeof response);
       console.log("API返回的完整响应:", JSON.stringify(response.code, null, 2));

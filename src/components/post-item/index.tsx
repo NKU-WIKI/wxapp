@@ -7,7 +7,8 @@ import { formatRelativeTime } from "@/utils/time";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { toggleAction, deletePost } from '@/store/slices/postSlice';
+import { deletePost } from '@/store/slices/postSlice';
+import { toggleAction } from '@/store/slices/likeSlice';
 import { showToast } from '@/utils/ui';
 
 // 引入所有需要的图标
@@ -26,8 +27,8 @@ interface PostItemProps {
 
 
 const PostItem = ({ post, className = "" }: PostItemProps) => {
-  if (!post || !post.author_info) {
-    // 如果 post 或 post.author_info 数据不存在，可以渲染一个骨架屏或直接返回 null
+  if (!post || !post.user) {
+    // 如果 post 或 post.user 数据不存在，可以渲染一个骨架屏或直接返回 null
     return null; // 或者返回一个加载状态的组件
   }
   const dispatch = useDispatch<AppDispatch>();
@@ -83,11 +84,11 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   const navigateToProfile = (e) => {
     e.stopPropagation();
     // 如果是当前用户，直接跳转到 profile tabbar 页面
-    if (post.author_info.id === userInfo?.id) {
+    if (post.user.id === userInfo?.id) {
       Taro.switchTab({ url: '/pages/profile/index' });
     } else {
       // 如果是其他用户，跳转到用户详情页（需要创建新页面）
-      Taro.navigateTo({ url: `/pages/subpackage-profile/user-detail/index?userId=${post.author_info.id}` });
+      Taro.navigateTo({ url: `/pages/subpackage-profile/user-detail/index?userId=${post.user.id}` });
     }
   };
 
@@ -98,11 +99,12 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
 
     // 调用关注API
     dispatch(toggleAction({
-      postId: post.author_info.id,
-      actionType: 'follow'
+      target_id: post.user.id,
+      target_type: 'user',
+      action_type: 'follow'
     })).then((result: any) => {
-      if (result.payload && result.payload.response) {
-        const { is_active } = result.payload.response;
+      if (result.payload && result.payload.is_active !== undefined) {
+        const { is_active } = result.payload;
         Taro.showToast({
           title: is_active ? '关注成功' : '已取消关注',
           icon: 'none',
@@ -136,7 +138,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
 
     // 增强的防抖动机制：检查时间间隔和加载状态
     const currentTime = Date.now();
-    if (actionType === 'like' || actionType === 'favorite') {
+    if (actionType === 'like' || actionType === 'favorite' || actionType === 'follow') {
       if (isActionLoading) {
         Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
         return;
@@ -173,11 +175,12 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         setIsActionLoading(true);
         // 直接派发 action 到 Redux，让 Redux 处理状态更新
         dispatch(toggleAction({
-          postId: post.id,
-          actionType
+          target_id: post.id,
+          target_type: 'post',
+          action_type: actionType
         })).then((result: any) => {
-          if (result.payload && result.payload.response) {
-            const { is_active } = result.payload.response;
+          if (result.payload && result.payload.is_active !== undefined) {
+            const { is_active } = result.payload;
 
             // 显示提示
             Taro.showToast({
@@ -214,7 +217,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         break;
       case 'follow':
         // 关注用户
-        dispatch(toggleAction({ postId: post.author_info.id, actionType: 'follow' }));
+        dispatch(toggleAction({ target_id: post.user.id, target_type: 'user', action_type: 'follow' }));
         break;
       case 'delete':
         handleDeletePost();
@@ -229,7 +232,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
       content: '确定要删除这条帖子吗？',
       success: (res) => {
         if (res.confirm) {
-          dispatch(deletePost({ postId: post.id }));
+          dispatch(deletePost(post.id));
         }
       }
     });
@@ -289,7 +292,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   const tags = getTags();
 
   // 判断是否可以删除
-  const canDelete = userInfo?.id === post.author_info.id || userInfo?.role === 'admin';
+  const canDelete = userInfo?.id === post.user.id || userInfo?.role === 'admin';
 
   const DEFAULT_AVATAR = '/assets/avatar1.png';
 
@@ -306,11 +309,11 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     return DEFAULT_AVATAR;
   };
 
-  const [avatarSrc, setAvatarSrc] = useState<string>(normalizeAvatar(post.author_info.avatar));
+  const [avatarSrc, setAvatarSrc] = useState<string>(normalizeAvatar(post.user.avatar));
 
   useEffect(() => {
-    setAvatarSrc(normalizeAvatar(post.author_info.avatar));
-  }, [post.author_info.avatar]);
+    setAvatarSrc(normalizeAvatar(post.user.avatar));
+  }, [post.user.avatar]);
 
   return (
     <View className={`${styles.postCard} ${className}`}>
@@ -324,9 +327,9 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           />
           <View className={styles.authorDetails}>
             <View className={styles.authorMainRow}>
-              <Text className={styles.authorName}>{post.author_info.nickname || '匿名'}</Text>
-              <View className={styles.levelBadge}><Text>Lv.{post.author_info.level || 0}</Text></View>
-              {userInfo?.id !== post.author_info.id && (
+              <Text className={styles.authorName}>{post.user.nickname || '匿名'}</Text>
+              <View className={styles.levelBadge}><Text>Lv.{post.user.level || 0}</Text></View>
+              {userInfo?.id !== post.user.id && (
                 <View
                   className={`${styles.followButton} ${isFollowing ? styles.followed : ''}`}
                   onClick={handleFollowClick}
@@ -335,7 +338,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
                 </View>
               )}
             </View>
-            <Text className={styles.authorBio}>{post.author_info.bio || ''}</Text>
+            <Text className={styles.authorBio}>{post.user.bio || ''}</Text>
           </View>
         </View>
         <View className={styles.headerActions}>

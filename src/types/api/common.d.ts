@@ -9,15 +9,23 @@ export interface BaseResponse<T> {
 }
 
 export interface Pagination {
-  page: number;
-  page_size: number;
+  skip: number;
+  limit: number;
   total: number;
   has_more: boolean;
 }
 
 export interface PaginatedData<T> {
-  items: T[];
+  data: T[]; // Changed from items to data
   pagination: Pagination;
+}
+
+/**
+ * @description 通用分页请求参数
+ */
+export interface PaginationParams {
+  skip?: number;
+  limit?: number;
 }
 
 // 更新：描述后端实际返回的分页响应结构

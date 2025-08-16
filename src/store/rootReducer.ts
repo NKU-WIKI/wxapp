@@ -1,21 +1,28 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import userReducer from './slices/userSlice';
-import postReducer from './slices/postSlice';
-import aboutReducer from './slices/aboutSlice';
-import chatReducer from './slices/chatSlice';
-import commentReducer from './slices/commentSlice';
-import likeReducer from './slices/likeSlice';
-import userCommentReducer from './slices/userCommentSlice';
-import feedbackReducer from './slices/feedbackSlice';
+import { combineReducers } from "@reduxjs/toolkit";
+import { persistReducer } from 'redux-persist';
+import persistStorage from '@/utils/persistStorage';
+import userReducer from "./slices/userSlice";
+import postReducer from "./slices/postSlice";
+import commentReducer from "./slices/commentSlice";
+import actionReducer from "./slices/likeSlice"; // Renamed from likeSlice
+import aboutReducer from "./slices/aboutSlice";
+import chatReducer from "./slices/chatSlice";
+import feedbackReducer from "./slices/feedbackSlice";
+
+const userPersistConfig = {
+  key: 'user',
+  storage: persistStorage,
+  // Do not persist these fields
+  blacklist: ['isLoggedIn', 'status', 'error'],
+};
 
 const rootReducer = combineReducers({
-  user: userReducer,
+  user: persistReducer(userPersistConfig, userReducer),
   post: postReducer,
+  comment: commentReducer,
+  action: actionReducer,
   about: aboutReducer,
   chat: chatReducer,
-  comment: commentReducer,
-  like: likeReducer,
-  userComment: userCommentReducer,
   feedback: feedbackReducer,
 });
 

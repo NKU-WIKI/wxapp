@@ -1,4 +1,4 @@
-export interface CompanyInfo {
+export interface AboutInfo {
   appName: string;
   version: string;
   website: string;

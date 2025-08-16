@@ -1,12 +1,11 @@
-import { View, Text, Image, Button } from '@tarojs/components';
+import { View, Text, Image, Button, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { fetchUserProfile, logout } from '@/store/slices/userSlice';
-import { userApi } from '@/services/api/user';
-import { getFollowers } from '@/services/api/followers';
-import CustomHeader from '@/components/custom-header';
+import { fetchCurrentUser, fetchUserProfile, logout } from '@/store/slices/userSlice';
+import { getFollowers, getFollowing } from '@/services/api/followers';
+import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import styles from './index.module.scss';
 
@@ -48,11 +47,15 @@ const LoginPrompt = () => {
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
   const userState = useSelector((state: RootState) => state.user);
-  const userInfo = userState?.userInfo;
+  const userInfo = userState?.userProfile; // Use userProfile for detailed info
   const isLoggedIn = userState?.isLoggedIn;
   const status = userState?.status;
+  const headerHeight = useCustomHeaderHeight();
+
+  console.log('[Profile Page] isLoggedIn status:', isLoggedIn);
   
-  // 添加统计数据状态
+  // Stats are now part of userProfile or need a new API, remove local state management for now
+  /*
   const [stats, setStats] = useState<UserStats>({
     following_count: 0,
     follower_count: 0,
@@ -60,104 +63,18 @@ const Profile = () => {
     likes_count: 0
   });
   const [statsLoading, setStatsLoading] = useState(false);
+  */
 
   useEffect(() => {
-    // 如果已登录，则在页面加载时获取最新的用户信息和统计数据
-    if (isLoggedIn) {
+    // If the user is logged in but profile is not loaded, fetch it.
+    // fetchCurrentUser is now handled globally in app.tsx
+    if (isLoggedIn && !userInfo) {
       dispatch(fetchUserProfile());
-      fetchUserStats();
     }
-  }, [isLoggedIn, dispatch]);
+  }, [isLoggedIn, userInfo, dispatch]);
 
-  // 页面显示时刷新统计数据
-  useEffect(() => {
-    const handleShow = () => {
-      if (isLoggedIn) {
-        fetchUserStats();
-      }
-    };
-
-    // 监听页面显示事件
-    Taro.eventCenter.on('pageShow', handleShow);
-    
-    return () => {
-      Taro.eventCenter.off('pageShow', handleShow);
-    };
-  }, [isLoggedIn]);
-
-  // 获取用户统计数据
-  const fetchUserStats = async () => {
-    if (!isLoggedIn) return;
-    
-    setStatsLoading(true);
-    try {
-      // 获取关注数量 - 使用与followers页面相同的API
-      const followingResponse = await getFollowers({ type: 'following', page: 1, page_size: 1 });
-      let followingCount = 0;
-      if (followingResponse.code === 200) {
-        // 优先使用pagination.total，如果没有则使用data.length
-        if (followingResponse.pagination && typeof followingResponse.pagination.total === 'number') {
-          followingCount = followingResponse.pagination.total;
-        } else if (Array.isArray(followingResponse.data)) {
-          followingCount = followingResponse.data.length;
-        }
-      }
-      
-      // 获取粉丝数量 - 使用与followers页面相同的API
-      const followersResponse = await getFollowers({ type: 'followers', page: 1, page_size: 1 });
-      let followersCount = 0;
-      if (followersResponse.code === 200) {
-        // 优先使用pagination.total，如果没有则使用data.length
-        if (followersResponse.pagination && typeof followersResponse.pagination.total === 'number') {
-          followersCount = followersResponse.pagination.total;
-        } else if (Array.isArray(followersResponse.data)) {
-          followersCount = followersResponse.data.length;
-        }
-      }
-      
-      // 获取收藏数量 - 使用现有的收藏API
-      const favoritesResponse = await userApi.getUserFavorites({ page: 1, page_size: 1 });
-      let favoritesCount = 0;
-      if (favoritesResponse.code === 200) {
-        // 优先使用pagination.total，如果没有则使用data.length
-        if (favoritesResponse.pagination && typeof favoritesResponse.pagination.total === 'number') {
-          favoritesCount = favoritesResponse.pagination.total;
-        } else if (Array.isArray(favoritesResponse.data)) {
-          favoritesCount = favoritesResponse.data.length;
-        }
-      }
-      
-      // 获取点赞数量 - 使用现有的点赞API
-      const likesResponse = await userApi.getUserLikes({ page: 1, page_size: 1 });
-      let likesCount = 0;
-      if (likesResponse.code === 200) {
-        // 优先使用pagination.total，如果没有则使用data.length
-        if (likesResponse.pagination && typeof likesResponse.pagination.total === 'number') {
-          likesCount = likesResponse.pagination.total;
-        } else if (Array.isArray(likesResponse.data)) {
-          likesCount = likesResponse.data.length;
-        }
-      }
-      
-      console.log('获取到的统计数据:', {
-        following_count: followingCount,
-        follower_count: followersCount,
-        favorites_count: favoritesCount,
-        likes_count: likesCount
-      });
-      
-      setStats({
-        following_count: followingCount,
-        follower_count: followersCount,
-        favorites_count: favoritesCount,
-        likes_count: likesCount
-      });
-    } catch (error) {
-      console.error('获取用户统计数据失败:', error);
-    } finally {
-      setStatsLoading(false);
-    }
-  };
+  // The rest of fetchUserStats logic is deprecated as the APIs were removed.
+  // Stats should be derived from userProfile.
 
   const handleEditProfile = () => {
     Taro.navigateTo({ url: "/pages/subpackage-profile/edit-profile/index" });
@@ -231,12 +148,18 @@ const Profile = () => {
     }
   };
 
+  const scrollViewStyle = { height: '100%', paddingTop: `${headerHeight}px` } as any;
+
   // 渲染骨架屏
   const renderSkeleton = () => (
     <View className={styles.pageContainer}>
       <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
-      <View style={{ padding: '20px' }}>
-        <PostItemSkeleton />
+      <View className={styles.content}>
+        <ScrollView scrollY className={styles.scrollView} style={scrollViewStyle}>
+          <View style={{ padding: '20px' }}>
+            <PostItemSkeleton />
+          </View>
+        </ScrollView>
       </View>
     </View>
   );
@@ -245,7 +168,11 @@ const Profile = () => {
     return (
       <View className={styles.pageContainer}>
         <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
-        <LoginPrompt />
+        <View className={styles.content}>
+          <ScrollView scrollY className={styles.scrollView} style={scrollViewStyle}>
+            <LoginPrompt />
+          </ScrollView>
+        </View>
       </View>
     );
   }
@@ -259,155 +186,158 @@ const Profile = () => {
   return (
     <View className={styles.pageContainer}>
       <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
-      
-      <View className={styles.userCard}>
-        <View className={styles.userInfoRow}>
-          <View className={styles.avatarContainer}>
-            <View className={styles.avatarWrapper}>
-              <Image src={userInfo?.avatar || "/assets/profile.png"} className={styles.avatar} />
+      <View className={styles.content}>
+        <ScrollView scrollY className={styles.scrollView} style={scrollViewStyle}>
+          <View className={styles.userCard}>
+            <View className={styles.userInfoRow}>
+              <View className={styles.avatarContainer}>
+                <View className={styles.avatarWrapper}>
+                  <Image src={userInfo?.avatar || "/assets/profile.png"} className={styles.avatar} />
+                </View>
+              </View>
+              
+              <View className={styles.userDetails}>
+                <Text className={styles.nickname}>{userInfo?.nickname || '未设置昵称'}</Text>
+                <Text className={styles.userBio}>{userInfo?.bio || '这个人很懒，还没有设置个性签名~'}</Text>
+              </View>
+
+              <View className={styles.levelBadge} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-profile/level/index' })} style={{ cursor: 'pointer' }}>
+                <Text className={styles.starIcon}>★</Text>
+                <Text className={styles.levelText}>LV.{userInfo?.level || '1'}</Text>
+              </View>
+
+              <Button className={styles.editButton} onClick={handleEditProfile}>
+                <Text className={styles.editIcon}>✎</Text>
+                <Text>编辑</Text>
+              </Button>
             </View>
-          </View>
-          
-          <View className={styles.userDetails}>
-            <Text className={styles.nickname}>{userInfo?.nickname || '未设置昵称'}</Text>
-            <Text className={styles.userBio}>{userInfo?.bio || '这个人很懒，还没有设置个性签名~'}</Text>
+
+            <View className={styles.statsContainer}>
+              <View className={styles.statsRow}>
+                <View className={styles.statItem} onClick={handleNavigateToPosts}>
+                  <Text className={styles.statValue}>{userInfo?.post_count ?? 0}</Text>
+                  <View className={styles.statLabelRow}>
+                    <Text className={styles.statIcon}>📝</Text>
+                    <Text className={styles.statLabel}>帖子</Text>
+                  </View>
+                </View>
+                <View className={styles.statItem} onClick={handleNavigateToLikes}>
+                  <Text className={styles.statValue}>{userInfo?.total_likes ?? 0}</Text>
+                  <View className={styles.statLabelRow}>
+                    <Text className={styles.statIcon}>❤️</Text>
+                    <Text className={styles.statLabel}>获赞</Text>
+                  </View>
+                </View>
+                <View className={styles.statItem} onClick={handleNavigateToFollowers}>
+                  <Text className={styles.statValue}>{userInfo?.following_count ?? 0}</Text>
+                  <View className={styles.statLabelRow}>
+                    <Text className={styles.statIcon}>👥</Text>
+                    <Text className={styles.statLabel}>关注</Text>
+                  </View>
+                </View>
+              </View>
+              
+              <View className={styles.statsRow}>
+                <View className={styles.statItem} onClick={handleNavigateToFollowers}>
+                  <Text className={styles.statValue}>{userInfo?.follower_count ?? 0}</Text>
+                  <View className={styles.statLabelRow}>
+                    <Text className={styles.statIcon}>👥</Text>
+                    <Text className={styles.statLabel}>粉丝</Text>
+                  </View>
+                </View>
+                <View className={styles.statItem} onClick={handleNavigateToCollection}>
+                  <Text className={styles.statValue}>{userInfo?.total_favorites ?? 0}</Text>
+                  <View className={styles.statLabelRow}>
+                    <Text className={styles.statIcon}>🔖</Text>
+                    <Text className={styles.statLabel}>收藏</Text>
+                  </View>
+                </View>
+                <View className={styles.statItem}>
+                  <Text className={styles.statValue}>{userInfo?.points ?? 0}</Text>
+                  <View className={styles.statLabelRow}>
+                    <Text className={styles.statIcon}>🏆</Text>
+                    <Text className={styles.statLabel}>积分</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
           </View>
 
-          <View className={styles.levelBadge} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-profile/level/index' })} style={{ cursor: 'pointer' }}>
-            <Text className={styles.starIcon}>★</Text>
-            <Text className={styles.levelText}>LV.{userInfo?.level || '1'}</Text>
-          </View>
+          <View className={styles.menuCard}>
+            <View className={styles.menuList}>
+              <View className={styles.menuItem} onClick={() => handleMenuClick('likes')}>
+                <View className={styles.menuLeft}>
+                  <Text className={styles.menuIcon}>❤️</Text>
+                  <Text className={styles.menuText}>我的点赞</Text>
+                </View>
+                <Text className={styles.chevron}>›</Text>
+              </View>
+              
+              <View className={styles.menuItem} onClick={() => handleMenuClick('favorites')}>
+                <View className={styles.menuLeft}>
+                  <Text className={styles.menuIcon}>⭐</Text>
+                  <Text className={styles.menuText}>我的收藏</Text>
+                </View>
+                <Text className={styles.chevron}>›</Text>
+              </View>
+              
+              <View className={styles.menuItem} onClick={() => handleMenuClick('comments')}>
+                <View className={styles.menuLeft}>
+                  <Text className={styles.menuIcon}>💬</Text>
+                  <Text className={styles.menuText}>我的评论</Text>
+                </View>
+                <Text className={styles.chevron}>›</Text>
+              </View>
+              
+              <View className={styles.menuItem} onClick={() => handleMenuClick('drafts')}>
+                <View className={styles.menuLeft}>
+                  <Text className={styles.menuIcon}>📁</Text>
+                  <Text className={styles.menuText}>草稿箱</Text>
+                </View>
+                <Text className={styles.chevron}>›</Text>
+              </View>
+              
+              <View className={styles.menuItem} onClick={() => handleMenuClick('history')}>
+                <View className={styles.menuLeft}>
+                  <Text className={styles.menuIcon}>🕒</Text>
+                  <Text className={styles.menuText}>浏览历史</Text>
+                </View>
+                <Text className={styles.chevron}>›</Text>
+              </View>
+              
+              <View className={styles.menuItem} onClick={() => handleMenuClick('feedback')}>
+                <View className={styles.menuLeft}>
+                  <Text className={styles.menuIcon}>✉️</Text>
+                  <Text className={styles.menuText}>意见反馈</Text>
+                </View>
+                <Text className={styles.chevron}>›</Text>
+              </View>
+              
+              <View className={styles.menuItem} onClick={() => handleMenuClick('about')}>
+                <View className={styles.menuLeft}>
+                  <Text className={styles.menuIcon}>ℹ️</Text>
+                  <Text className={styles.menuText}>关于我们</Text>
+                </View>
+                <Text className={styles.chevron}>›</Text>
+              </View>
+              
+              <View className={styles.menuItem} onClick={() => handleMenuClick('settings')}>
+                <View className={styles.menuLeft}>
+                  <Text className={styles.menuIcon}>⚙️</Text>
+                  <Text className={styles.menuText}>设置</Text>
+                </View>
+                <Text className={styles.chevron}>›</Text>
+              </View>
+            </View>
 
-          <Button className={styles.editButton} onClick={handleEditProfile}>
-            <Text className={styles.editIcon}>✎</Text>
-            <Text>编辑</Text>
-          </Button>
-        </View>
-
-        <View className={styles.statsContainer}>
-          <View className={styles.statsRow}>
-            <View className={styles.statItem} onClick={handleNavigateToPosts}>
-              <Text className={styles.statValue}>{userInfo?.post_count ?? 0}</Text>
-              <View className={styles.statLabelRow}>
-                <Text className={styles.statIcon}>📝</Text>
-                <Text className={styles.statLabel}>帖子</Text>
-              </View>
-            </View>
-            <View className={styles.statItem} onClick={handleNavigateToLikes}>
-              <Text className={styles.statValue}>{statsLoading ? '...' : stats.likes_count}</Text>
-              <View className={styles.statLabelRow}>
-                <Text className={styles.statIcon}>❤️</Text>
-                <Text className={styles.statLabel}>获赞</Text>
-              </View>
-            </View>
-            <View className={styles.statItem} onClick={handleNavigateToFollowers}>
-              <Text className={styles.statValue}>{statsLoading ? '...' : stats.following_count}</Text>
-              <View className={styles.statLabelRow}>
-                <Text className={styles.statIcon}>👥</Text>
-                <Text className={styles.statLabel}>关注</Text>
-              </View>
+            <View className={styles.logoutSection}>
+              <Button className={styles.logoutButton} onClick={handleLogout}>
+                <Text className={styles.logoutIcon}>⚡</Text>
+                <Text>退出登录</Text>
+              </Button>
             </View>
           </View>
-          
-          <View className={styles.statsRow}>
-            <View className={styles.statItem} onClick={handleNavigateToFollowers}>
-              <Text className={styles.statValue}>{statsLoading ? '...' : stats.follower_count}</Text>
-              <View className={styles.statLabelRow}>
-                <Text className={styles.statIcon}>👥</Text>
-                <Text className={styles.statLabel}>粉丝</Text>
-              </View>
-            </View>
-            <View className={styles.statItem} onClick={handleNavigateToCollection}>
-              <Text className={styles.statValue}>{statsLoading ? '...' : stats.favorites_count}</Text>
-              <View className={styles.statLabelRow}>
-                <Text className={styles.statIcon}>🔖</Text>
-                <Text className={styles.statLabel}>收藏</Text>
-              </View>
-            </View>
-            <View className={styles.statItem}>
-              <Text className={styles.statValue}>{userInfo?.points ?? 0}</Text>
-              <View className={styles.statLabelRow}>
-                <Text className={styles.statIcon}>🏆</Text>
-                <Text className={styles.statLabel}>积分</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      <View className={styles.menuCard}>
-        <View className={styles.menuList}>
-          <View className={styles.menuItem} onClick={() => handleMenuClick('likes')}>
-            <View className={styles.menuLeft}>
-              <Text className={styles.menuIcon}>❤️</Text>
-              <Text className={styles.menuText}>我的点赞</Text>
-            </View>
-            <Text className={styles.chevron}>›</Text>
-          </View>
-          
-          <View className={styles.menuItem} onClick={() => handleMenuClick('favorites')}>
-            <View className={styles.menuLeft}>
-              <Text className={styles.menuIcon}>⭐</Text>
-              <Text className={styles.menuText}>我的收藏</Text>
-            </View>
-            <Text className={styles.chevron}>›</Text>
-          </View>
-          
-          <View className={styles.menuItem} onClick={() => handleMenuClick('comments')}>
-            <View className={styles.menuLeft}>
-              <Text className={styles.menuIcon}>💬</Text>
-              <Text className={styles.menuText}>我的评论</Text>
-            </View>
-            <Text className={styles.chevron}>›</Text>
-          </View>
-          
-          <View className={styles.menuItem} onClick={() => handleMenuClick('drafts')}>
-            <View className={styles.menuLeft}>
-              <Text className={styles.menuIcon}>📁</Text>
-              <Text className={styles.menuText}>草稿箱</Text>
-            </View>
-            <Text className={styles.chevron}>›</Text>
-          </View>
-          
-          <View className={styles.menuItem} onClick={() => handleMenuClick('history')}>
-            <View className={styles.menuLeft}>
-              <Text className={styles.menuIcon}>🕒</Text>
-              <Text className={styles.menuText}>浏览历史</Text>
-            </View>
-            <Text className={styles.chevron}>›</Text>
-          </View>
-          
-          <View className={styles.menuItem} onClick={() => handleMenuClick('feedback')}>
-            <View className={styles.menuLeft}>
-              <Text className={styles.menuIcon}>✉️</Text>
-              <Text className={styles.menuText}>意见反馈</Text>
-            </View>
-            <Text className={styles.chevron}>›</Text>
-          </View>
-          
-          <View className={styles.menuItem} onClick={() => handleMenuClick('about')}>
-            <View className={styles.menuLeft}>
-              <Text className={styles.menuIcon}>ℹ️</Text>
-              <Text className={styles.menuText}>关于我们</Text>
-            </View>
-            <Text className={styles.chevron}>›</Text>
-          </View>
-          
-          <View className={styles.menuItem} onClick={() => handleMenuClick('settings')}>
-            <View className={styles.menuLeft}>
-              <Text className={styles.menuIcon}>⚙️</Text>
-              <Text className={styles.menuText}>设置</Text>
-            </View>
-            <Text className={styles.chevron}>›</Text>
-          </View>
-        </View>
-
-        <View className={styles.logoutSection}>
-          <Button className={styles.logoutButton} onClick={handleLogout}>
-            <Text className={styles.logoutIcon}>⚡</Text>
-            <Text>退出登录</Text>
-          </Button>
-        </View>
+        </ScrollView>
       </View>
     </View>
   );

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { AppDispatch, RootState } from '@/store';
 import CustomHeader from '@/components/custom-header';
 import EmptyState from '@/components/empty-state';
 import messageSquareIcon from '@/assets/message-square.svg';
 import styles from './index.module.scss';
-import { fetchUserComments, resetUserComments } from '@/store/slices/userCommentSlice';
+// import { fetchUserComments, resetUserComments } from '@/store/slices/userCommentSlice';
 import { formatRelativeTime } from '@/utils/time';
 
+/*
 const CommentItem = ({ comment }) => {
   const handleNavigateToPost = () => {
     Taro.navigateTo({
@@ -21,7 +22,6 @@ const CommentItem = ({ comment }) => {
 
   return (
     <View className={styles.commentItem} onClick={handleNavigateToPost}>
-      {/* 直接展示内容，不再显示类型标签 */}
       <Text className={styles.commentContent}>{comment.content}</Text>
       <View className={styles.commentMeta}>
         <Text className={styles.commentTime}>{formatRelativeTime(comment.create_time)}</Text>
@@ -70,8 +70,10 @@ const CommentItem = ({ comment }) => {
     </View>
   );
 };
+*/
 
 const CommentsPage: React.FC = () => {
+  /*
   const dispatch = useDispatch<AppDispatch>();
   const [page, setPage] = useState(1);
   const userCommentState = useSelector((state: RootState) => state.userComment);
@@ -177,14 +179,12 @@ const CommentsPage: React.FC = () => {
           <CommentItem key={comment.id} comment={comment} />
         ))}
         
-        {/* 加载更多提示 */}
         {loading === 'pending' && page > 1 && (
           <View className={styles.loadingMore}>
             <Text>加载更多...</Text>
           </View>
         )}
         
-        {/* 没有更多内容提示 */}
         {!pagination.has_more && comments.length > 0 && (
           <View className={styles.noMore}>
             <Text>没有更多内容了</Text>
@@ -193,26 +193,30 @@ const CommentsPage: React.FC = () => {
       </View>
     );
   };
+  */
 
   return (
     <View className={styles.commentsPage}>
-      {/* 自定义导航栏 */}
       <CustomHeader title="我的评论" />
-      
-      {/* 内容区域 */}
       <View className={styles.content}>
+        <EmptyState
+          icon={messageSquareIcon}
+          text="此功能正在开发中"
+        />
+        {/* 
         <ScrollView
           scrollY
           className={styles.scrollView}
           enableBackToTop
           refresherEnabled
-          refresherTriggered={loading === 'pending' && page === 1}
-          onRefresherRefresh={loadComments}
-          onScrollToLower={loadMoreComments}
+          // refresherTriggered={loading === 'pending' && page === 1}
+          // onRefresherRefresh={loadComments}
+          // onScrollToLower={loadMoreComments}
           lowerThreshold={50}
         >
           {renderContent()}
         </ScrollView>
+        */}
       </View>
     </View>
   );

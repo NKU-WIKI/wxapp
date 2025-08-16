@@ -1,29 +1,33 @@
-export interface recommendItem {
-  hot_posts: [],
-  "new_posts": [],
-  "recommended_posts": [],
-  "statistics": {
-    "total_hot_posts": number,
-    "total_new_posts": number,
-    "total_recommended_posts": number,
-    "data_sources": [],
-    "time_range": string,
-    "hot_weight": number,
-    "new_weight": number
+import { Post } from './post';
+
+export namespace API {
+  /**
+   * @description 获取推荐内容的请求参数
+   */
+  export interface RecommendParams {
+    enable_ai_recommendation?: boolean;
+    user_id?: string | null;
+    limit?: number;
+    hot_weight?: number;
+    new_weight?: number;
+    days?: number;
   }
-}
 
-export interface recommendResponse {
-  code: number;
-  message: string;
-  data: recommendItem;
-}
-
-export interface recommendParams {
-  enable_ai_recommendation?: boolean;
-  user_id?: string | null;
-  limit?: number;
-  hot_weight?: number;
-  new_weight?: number;
-  days?: number;
+  /**
+   * @description 推荐内容的数据结构
+   */
+  export interface RecommendData {
+    hot_posts: Post[];
+    new_posts: Post[];
+    recommended_posts: Post[];
+    statistics: {
+      total_hot_posts: number;
+      total_new_posts: number;
+      total_recommended_posts: number;
+      data_sources: string[];
+      time_range: string;
+      hot_weight: number;
+      new_weight: number;
+    };
+  }
 }

@@ -1,63 +1,81 @@
-// src/types/api/user.ts
+import { PaginatedData, PaginationParams } from "./common";
 
 /**
- * @description API 返回的原始用户信息结构
+ * @description /api/v1/users/me 接口返回的当前用户信息
  */
-export interface User {
+export interface CurrentUser {
+  user_id: number;
+  tenant_id: string;
+  nickname: string;
+  roles: string[];
+}
+
+/**
+ * @description API 返回的用户基础信息结构
+ */
+export interface User extends UserProfile {
   id: number;
-  openid?: string; // 用户的微信openid，在某些接口中会返回
   nickname: string;
   avatar: string;
   bio?: string;
-  
-  // 社交账号信息
-  wechatId?: string;
-  qqId?: string;
-  phone?: string;
-  
-  // 统计数据
-  post_count?: number;
-  follower_count?: number;
-  following_count?: number;
-  total_likes?: number;
-  total_favorites?: number;
-  
-  // 角色和等级
-  role?: 'user' | 'admin' | 'super_admin';
-  level?: number;
-  points?: number;
-  
-  // 其他信息
-  gender?: number; // 0: 未知, 1: 男, 2: 女
-  create_time?: string;
-
-  // 关系状态 (仅在特定接口中出现)
+  status?: "active" | "inactive" | "banned";
   is_following?: boolean;
 }
 
 /**
- * @description 用户统计数据接口
+ * @description API 返回的当前用户详细资料结构
  */
-export interface UserStats {
-  post_count: number;
-  follower_count: number;
-  following_count: number;
-  total_likes: number;
-  total_favorites: number;
-  points: number;
+export interface UserProfile {
+  assets: Record<string, any>; // 资产信息，结构不确定，使用 Record
+  interest_tags: string[];
 }
 
 /**
- * @description 登录接口的请求体
+ * @description 更新用户个人资料的请求体
  */
-export interface LoginParams {
-  code: string;
+export interface UpdateUserProfileRequest {
+  assets?: Record<string, any>;
+  interest_tags?: string[];
 }
 
 /**
- * @description 登录接口的成功响应体
+ * @description 粉丝/关注列表中的用户项
  */
-export interface LoginResponse {
-  token: string;
-  user_info: User;
+export interface Follower extends User {}
+
+/**
+ * @description 粉丝/关注列表的分页数据结构
+ */
+export type FollowerList = PaginatedData<Follower>;
+
+/**
+ * @description 创建浏览历史的请求体
+ */
+export interface CreateViewHistoryRequest {
+  target_type: "post" | "product" | "user";
+  target_id: number;
 }
+
+/**
+ * @description 浏览历史记录项
+ */
+export interface HistoryItem {
+  id: number;
+  user_id: number;
+  target_type: string;
+  target_id: number;
+  view_time: string; // ISO 8601 format date string
+  // 根据 target_type，可能会有关联的目标详情
+  target_detail?: any;
+}
+
+/**
+ * @description 浏览历史的分页数据结构
+ */
+export type HistoryList = PaginatedData<HistoryItem>;
+
+/**
+ * @description 获取浏览历史的查询参数
+ */
+export interface GetHistoryParams extends PaginationParams {}
+

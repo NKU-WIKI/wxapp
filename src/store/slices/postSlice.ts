@@ -1,329 +1,235 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import Taro from '@tarojs/taro';
-import { PaginatedData, Pagination } from '@/types/api/common';
-import { GetPostsParams, Post } from '@/types/api/post';
-import { User } from '@/types/api/user';
-import postApi from '@/services/api/post';
-import actionApi from '@/services/api/action';
-import { ToggleActionParams, ToggleActionResponse } from '@/types/api/action.d';
-import { RootState } from '..';
-import { fetchUserProfile } from './userSlice';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { PaginatedData } from "@/types/api/common";
+import {
+  Post,
+  GetForumPostsParams,
+  CreateForumPostRequest,
+  GetFeedParams,
+  PostUpdate,
+} from "@/types/api/post";
+import {
+  getForumPosts,
+  createForumPost,
+  getFeed,
+  updatePost as updatePostApi,
+  deletePost as deletePostApi,
+  getMyDrafts,
+} from "@/services/api/post";
+import { toggleAction } from "./likeSlice"; // 从 actionSlice (原likeSlice) 导入
 
-// 延迟函数
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-// 云存储链接转换函数
-const convertCloudUrl = (cloudUrl: string): string => {
-  if (!cloudUrl || !cloudUrl.startsWith('cloud://')) {
-    return cloudUrl;
-  }
-
-  try {
-    const cloudPath = cloudUrl.replace('cloud://', '');
-    const parts = cloudPath.split('/');
-    const envId = parts[0]; 
-    const filePath = parts.slice(1).join('/');
-
-    const envMatch = envId.match(/636c-cloud1-7gu881ir0a233c29-1352978573/);
-    if (envMatch) {
-      return `https://${envMatch[0]}.tcb.qcloud.la/${filePath}`;
-    }
-
-    return cloudUrl;
-  } catch (error) {
-    console.warn('转换云存储链接失败:', cloudUrl, error);
-    return cloudUrl;
-  }
-};
-
-// 获取帖子列表的 Thunk
-export const fetchPosts = createAsyncThunk<
-  { items: Post[]; pagination: Pagination; isAppend: boolean },
-  GetPostsParams
->(
-  'posts/fetchPosts',
-  async (params, { rejectWithValue, dispatch }) => {
+// 获取论坛帖子的 Thunk
+export const fetchForumPosts = createAsyncThunk(
+  "posts/fetchForumPosts",
+  async (params: GetForumPostsParams, { rejectWithValue }) => {
     try {
-      const response = await postApi.getPosts(params);
-
-      if (response.data && response.data.length > 0 && !params.isAppend) {
-        const postsToFetch = response.data.slice(0, 3);
-        
-        postsToFetch.forEach(post => {
-          dispatch(fetchPostDetail(post.id));
-        });
-      }
-
+      const response = await getForumPosts(params);
       return {
-        items: response.data,
+        items: response.data, // The API returns a PaginatedData object which has a 'data' field
         pagination: response.pagination,
-        isAppend: params.isAppend || false,
       };
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch posts');
+      return rejectWithValue(error.message || "Failed to fetch forum posts");
     }
   }
 );
 
-// 获取帖子详情的 Thunk（带重试机制）
-export const fetchPostDetail = createAsyncThunk<Post, number>(
-  'posts/fetchPostDetail',
-  async (postId, { rejectWithValue }) => {
-    const MAX_RETRIES = 3;
-    const RETRY_DELAY = 500; // ms
-
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        const response = await postApi.getPostById(postId);
-        return response.data;
-      } catch (error: any) {
-        // 只对404错误进行重试
-        if (error.statusCode === 404 && attempt < MAX_RETRIES) {
-          console.log(`获取帖子 ${postId} 失败 (尝试 ${attempt}/${MAX_RETRIES})，${RETRY_DELAY}ms后重试...`);
-          await delay(RETRY_DELAY);
-        } else {
-          // 如果不是404或已达到最大重试次数，则直接失败
-          return rejectWithValue(error.msg || `获取帖子详情失败 (尝试 ${attempt})`);
-        }
-      }
+// 获取社区动态信息流的 Thunk
+export const fetchFeed = createAsyncThunk(
+  "posts/fetchFeed",
+  async (params: GetFeedParams, { rejectWithValue }) => {
+    try {
+      const response = await getFeed(params);
+      return {
+        items: response.data, // The API returns a PaginatedData object which has a 'data' field
+        pagination: response.pagination,
+      };
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to fetch feed");
     }
-    // 循环结束后如果还未成功，则最终失败
-    return rejectWithValue(`获取帖子 ${postId} 失败，已达最大重试次数`);
   }
 );
 
-// 通用动作 Thunk (点赞/收藏/关注)
-export const toggleAction = createAsyncThunk<
-  { postId: number; actionType: ToggleActionParams['action_type']; response: ToggleActionResponse },
-  { postId: number; actionType: ToggleActionParams['action_type'] },
-  { state: RootState; rejectValue: string }
->('posts/toggleAction', async ({ postId, actionType }, { rejectWithValue, dispatch }) => {
-  try {
-    const targetType = actionType === 'follow' ? 'user' : 'post';
-    const response = await actionApi.toggleAction({
-      target_type: targetType,
-      target_id: postId,
-      action_type: actionType,
-    });
-    
-    // 如果是关注操作，更新用户信息以确保粉丝数量实时更新
-    if (actionType === 'follow') {
-      dispatch(fetchUserProfile());
+// 创建论坛帖子的 Thunk
+export const createPost = createAsyncThunk(
+  "posts/createPost",
+  async (postData: CreateForumPostRequest, { rejectWithValue }) => {
+    try {
+      const response = await createForumPost(postData);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to create post");
     }
-    
-    return { postId, actionType, response: response.data };
-  } catch (error: any) {
-    return rejectWithValue(error.message || `Failed to toggle ${actionType}`);
   }
-});
+);
 
-// 创建帖子 Thunk
-export const createPost = createAsyncThunk<
-  { id: number },
-  { title: string; content: string; category_id?: number; tag?: string[]; image_urls?: string[]; allow_comment?: boolean; is_public?: boolean },
-  { rejectValue: string }
->('posts/createPost', async (postData, { rejectWithValue }) => {
-  try {
-    const apiData = {
-      ...postData,
-      image: postData.image_urls
-    };
-    delete apiData.image_urls;
-
-    const response = await postApi.createPost(apiData);
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.message || 'Failed to create post');
+// 更新帖子的 Thunk
+export const updatePost = createAsyncThunk(
+  "posts/updatePost",
+  async ({ postId, data }: { postId: number; data: PostUpdate }, { rejectWithValue }) => {
+    try {
+      const response = await updatePostApi(postId, data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to update post");
+    }
   }
-});
+);
 
-// 删除帖子 Thunk
-export const deletePost = createAsyncThunk<
-  { postId: number },
-  { postId: number },
-  { rejectValue: string }
->('posts/deletePost', async ({ postId }, { rejectWithValue }) => {
-  try {
-    await postApi.deletePost(postId);
-    return { postId };
-  } catch (error: any) {
-    return rejectWithValue(error.message || 'Failed to delete post');
+// 删除帖子的 Thunk
+export const deletePost = createAsyncThunk(
+  "posts/deletePost",
+  async (postId: number, { rejectWithValue }) => {
+    try {
+      await deletePostApi(postId);
+      return postId; // Return the id to remove from the list
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to delete post");
+    }
   }
-});
+);
+
+// 获取草稿箱的 Thunk
+export const fetchDrafts = createAsyncThunk(
+  "posts/fetchDrafts",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getMyDrafts();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to fetch drafts");
+    }
+  }
+);
 
 export interface PostsState {
   list: Post[];
-  pagination: Pagination | null;
-  currentPost: Post | null;
-  loading: 'idle' | 'pending' | 'succeeded' | 'failed';
-  detailLoading: 'idle' | 'pending' | 'succeeded' | 'failed';
+  pagination: PaginatedData<Post>["pagination"] | null;
+  loading: "idle" | "pending" | "succeeded" | "failed";
   error: any;
 }
 
 const initialState: PostsState = {
   list: [],
   pagination: null,
-  currentPost: null,
-  loading: 'idle',
-  detailLoading: 'idle',
+  loading: "idle",
   error: null,
 };
 
 const postsSlice = createSlice({
-  name: 'posts',
+  name: "posts",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchPosts.pending, (state) => {
-        state.loading = 'pending';
+      // Fetch Forum Posts
+      .addCase(fetchForumPosts.pending, (state) => {
+        state.loading = "pending";
       })
-      .addCase(
-        fetchPosts.fulfilled,
-        (state, action: PayloadAction<{ items: Post[]; pagination: Pagination; isAppend: boolean }>) => {
-          state.loading = 'succeeded';
-          
-          const defaultAuthor: User = {
-            id: -1,
-            nickname: '未知用户',
-            avatar: 'https://via.placeholder.com/150',
-            gender: 0,
-            level: 0,
-            bio: '该用户很神秘，什么也没留下',
-          };
-
-          const existingPostsMap = new Map<number, Post>();
-          state.list.forEach(post => {
-            existingPostsMap.set(post.id, post);
-          });
-
-          const processedItems = action.payload.items.map(post => {
-            let updatedPost = { ...post };
-
-            if (!updatedPost.author_info) {
-              updatedPost.author_info = defaultAuthor;
-            }
-            
-            const existingPost = existingPostsMap.get(post.id);
-            if (existingPost) {
-              updatedPost = {
-                ...updatedPost,
-                is_liked: post.is_liked === true ? true : (existingPost.is_liked === true),
-                is_favorited: post.is_favorited === true ? true : (existingPost.is_favorited === true),
-                is_following_author: post.is_following_author === true ? true : (existingPost.is_following_author === true),
-              };
-            }
-            
-            return updatedPost;
-          });
-          
-          if (action.payload.isAppend) {
-            state.list = [...state.list, ...processedItems];
-          } else {
-            state.list = processedItems;
-          }
+      .addCase(fetchForumPosts.fulfilled, (state, action) => {
+        state.loading = "succeeded";
+        if (action.payload && action.payload.items) {
+          state.list = action.payload.items;
+        }
+        if (action.payload && action.payload.pagination) {
           state.pagination = action.payload.pagination;
         }
-      )
-      .addCase(fetchPosts.rejected, (state, action) => {
-        state.loading = 'failed';
+      })
+      .addCase(fetchForumPosts.rejected, (state, action) => {
+        state.loading = "failed";
         state.error = action.payload as string;
       })
-      .addCase(fetchPostDetail.pending, (state) => {
-        state.detailLoading = 'pending';
+      // Fetch Feed
+      .addCase(fetchFeed.pending, (state) => {
+        state.loading = "pending";
       })
-      .addCase(fetchPostDetail.fulfilled, (state, action: PayloadAction<Post>) => {
-        state.detailLoading = 'succeeded';
-        
-        state.currentPost = action.payload;
-        
-        const postIndex = state.list.findIndex(p => p.id === action.payload.id);
-        if (postIndex !== -1) {
-          const existingPost = state.list[postIndex];
-          
-          state.list[postIndex] = {
-            ...state.list[postIndex],
-            is_liked: action.payload.is_liked === true ? true : (existingPost.is_liked === true),
-            is_favorited: action.payload.is_favorited === true ? true : (existingPost.is_favorited === true),
-            is_following_author: action.payload.is_following_author === true ? true : (existingPost.is_following_author === true),
-          };
+      .addCase(fetchFeed.fulfilled, (state, action) => {
+        state.loading = "succeeded";
+        if (action.payload && action.payload.items) {
+          // Based on new logic, feed might be replacing or appending
+          if (action.payload.pagination && action.payload.pagination.skip > 0) {
+            // If it's not the first page (skip > 0), append
+            state.list = [...state.list, ...action.payload.items];
+          } else {
+            // Otherwise, replace the list
+            state.list = action.payload.items;
+          }
+        }
+        if (action.payload && action.payload.pagination) {
+          state.pagination = action.payload.pagination;
         }
       })
-      .addCase(fetchPostDetail.rejected, (state, action) => {
-        state.detailLoading = 'failed';
+      .addCase(fetchFeed.rejected, (state, action) => {
+        state.loading = "failed";
         state.error = action.payload as string;
       })
-      .addCase(toggleAction.fulfilled, (state, action) => {
-        const { postId, actionType, response } = action.payload;
-
-        if (actionType === 'follow') {
-          const authorId = postId; 
-          const isNowFollowing = response.is_active;
-
-          // 更新帖子列表，使用 map 返回一个新数组以确保状态更新
-          state.list = state.list.map((p) => {
-            if (p.author_info.id === authorId) {
-              // 创建一个新的帖子对象，而不是直接修改
-              return { ...p, is_following_author: isNowFollowing };
-            }
-            return p;
-          });
-
-          // 如果当前详情页的帖子作者是同一个人，也更新
-          if (state.currentPost && state.currentPost.author_info.id === authorId) {
-            state.currentPost.is_following_author = isNowFollowing;
-          }
-          return;
-        }
-
-        const postIndex = state.list.findIndex((p) => p.id === postId);
-        if (postIndex !== -1) {
-          const post = state.list[postIndex];
-          switch (actionType) {
-            case 'like':
-              post.is_liked = response.is_active;
-              post.like_count = response.count;
-              break;
-            case 'favorite':
-              post.is_favorited = response.is_active;
-              post.favorite_count = response.count;
-              break;
-            default:
-              break;
-          }
-        }
-
-        if (state.currentPost && state.currentPost.id === postId) {
-          switch (actionType) {
-            case 'like':
-              state.currentPost.is_liked = response.is_active;
-              state.currentPost.like_count = response.count;
-              break;
-            case 'favorite':
-              state.currentPost.is_favorited = response.is_active;
-              state.currentPost.favorite_count = response.count;
-              break;
-            default:
-              break;
-          }
-        }
-      })
-      .addCase(createPost.fulfilled, (state, action) => {
-        state.loading = 'succeeded';
-      })
+      // Create Post
       .addCase(createPost.pending, (state) => {
-        state.loading = 'pending';
+        state.loading = "pending";
         state.error = null;
       })
+      .addCase(createPost.fulfilled, (state, action) => {
+        state.loading = "succeeded";
+        // 可选：将新帖子添加到列表顶部
+        state.list.unshift(action.payload);
+      })
       .addCase(createPost.rejected, (state, action) => {
-        state.loading = 'failed';
+        state.loading = "failed";
         state.error = action.payload as string;
       })
+      // Update Post
+      .addCase(updatePost.fulfilled, (state, action) => {
+        const index = state.list.findIndex(p => p.id === action.payload.id);
+        if (index !== -1) {
+          state.list[index] = action.payload;
+        }
+        if (state.currentPost && state.currentPost.id === action.payload.id) {
+          state.currentPost = action.payload;
+        }
+      })
+      // Delete Post
       .addCase(deletePost.fulfilled, (state, action) => {
-        const { postId } = action.payload;
-        state.list = state.list.filter((p) => p.id !== postId);
-        if (state.currentPost && state.currentPost.id === postId) {
+        state.list = state.list.filter(p => p.id !== action.payload);
+        if (state.currentPost && state.currentPost.id === action.payload) {
           state.currentPost = null;
+        }
+      })
+      // Fetch Drafts
+      .addCase(fetchDrafts.fulfilled, (state, action) => {
+        // Assuming drafts are loaded into the main list for simplicity
+        // A separate state for drafts might be better
+        state.list = action.payload;
+      })
+      // Listen for the toggleAction from actionSlice
+      .addCase(toggleAction.fulfilled, (state, action) => {
+        const { request, is_active } = action.payload;
+        const { target_id, action_type, target_type } = request;
+
+        const updatePostState = (post: Post) => {
+          if (target_type === "post") {
+            if (action_type === "like") {
+              post.is_liked = is_active;
+              // Manually update count
+              post.like_count = (post.like_count || 0) + (is_active ? 1 : -1);
+            } else if (action_type === "favorite") {
+              post.is_favorited = is_active;
+              // Manually update count
+              post.favorite_count = (post.favorite_count || 0) + (is_active ? 1 : -1);
+            }
+          }
+          if (target_type === "user" && action_type === "follow") {
+            if (post.user.id === target_id) { // Changed from post.user_info.id
+              post.is_following_author = is_active;
+            }
+          }
+        };
+
+        const postInList = state.list.find((p) => p.id === target_id);
+        if (postInList) {
+          updatePostState(postInList);
+        }
+
+        if (state.currentPost && state.currentPost.id === target_id) {
+          updatePostState(state.currentPost);
         }
       });
   },
