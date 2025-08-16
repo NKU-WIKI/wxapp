@@ -12,7 +12,7 @@ interface RagSourceItem {
 }
 
 interface RagData {
-  response: string;
+  answer: string;
   sources?: RagSourceItem[];
 }
 
@@ -25,7 +25,7 @@ const botAvatar = '/assets/wiki.svg';
 
 export default function RagResult({ data }: Props) {
   if (!data) return null;
-  const { response, sources = [] } = data;
+  const { answer, sources = [] } = data;
   return (
     <View className={styles.ragContainer}>
       <View className={styles.card}>
@@ -33,7 +33,7 @@ export default function RagResult({ data }: Props) {
           <Image src={botAvatar} className={styles.avatar} />
           <Text className={styles.title}>南开小知 · AI 智能助理</Text>
         </View>
-        <Text className={styles.responseText}>{response}</Text>
+        <Text className={styles.responseText}>{answer}</Text>
         <View className={styles.thumbRow}>
           <Text
             className={styles.thumbUp}
