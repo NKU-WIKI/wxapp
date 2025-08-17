@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Post } from "@/types/api/post.d";
 import styles from "./index.module.scss";
 import { formatRelativeTime } from "@/utils/time";
+import { normalizeImageUrl, normalizeImageUrls } from '@/utils/image';
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -36,12 +37,13 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const lastActionTimeRef = useRef<number>(0);
   const userState = useSelector((state: RootState) => state.user);
+  const postState = useSelector((state: RootState) => state.post);
   const DEBOUNCE_DELAY = 500; // 500ms 防抖间隔
-  const userInfo = userState?.userInfo || null;
+  const DEFAULT_AVATAR = '/assets/avatar1.png';
+  const userInfo = (userState as any)?.userInfo || null;
 
   // 从 Redux 中获取最新的帖子状态
   const posts = postState?.list || [];
-  const postState = useSelector((state: RootState) => state.post);
   const currentPostFromRedux = posts.find(p => p.id === post.id);
 
   // 使用 Redux 中的状态，如果 Redux 中没有则使用 props 中的
@@ -62,7 +64,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
     if (post.image && typeof post.image === 'string') {
       try {
         const parsed = JSON.parse(post.image);
-        return Array.isArray(parsed) ? parsed : [];
+        return Array.isArray(parsed) ? normalizeImageUrls(parsed) : [];
       } catch (error) {
         console.error('解析图片失败:', error);
         return [];
@@ -294,25 +296,10 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   // 判断是否可以删除
   const canDelete = userInfo?.id === post.user.id || userInfo?.role === 'admin';
 
-  const DEFAULT_AVATAR = '/assets/avatar1.png';
-
-  const normalizeAvatar = (url?: string): string => {
-    if (!url || typeof url !== 'string') return DEFAULT_AVATAR;
-    const trimmed = url.trim();
-    // 无效或不可直接访问的协议/路径统一回退
-    const invalidPrefixes = ['cloud://', 'file://', 'blob:', 'data:image/', '/pages/'];
-    const isHttp = /^https?:\/\//i.test(trimmed);
-    const isWxFile = trimmed.startsWith('wxfile://');
-    if (invalidPrefixes.some(p => trimmed.startsWith(p))) return DEFAULT_AVATAR;
-    if (isHttp || isWxFile || trimmed.startsWith('/assets/')) return trimmed;
-    // 其它相对路径也回退到默认头像，避免被拼接为页面本地路径
-    return DEFAULT_AVATAR;
-  };
-
-  const [avatarSrc, setAvatarSrc] = useState<string>(normalizeAvatar(post.user.avatar));
+  const [avatarSrc, setAvatarSrc] = useState<string>(normalizeImageUrl(post.user.avatar || '') || DEFAULT_AVATAR);
 
   useEffect(() => {
-    setAvatarSrc(normalizeAvatar(post.user.avatar));
+    setAvatarSrc(normalizeImageUrl(post.user.avatar || '') || DEFAULT_AVATAR);
   }, [post.user.avatar]);
 
   return (
@@ -344,7 +331,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         <View className={styles.headerActions}>
           <Text className={styles.postTime}>{formatRelativeTime(post.create_time)}</Text>
           {canDelete && (
-            <View className={styles.moreButton} onClick={(e) => handleActionClick(e, 'delete')}>
+            <View className={styles.moreButton} onClick={(e: React.MouseEvent) => handleActionClick(e, 'delete')}>
               <Image src={moreIcon} className={styles.moreIcon} />
             </View>
           )}
@@ -370,7 +357,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           onClick={navigateToDetail}
         >
           {image_urls.slice(0, 3).map((url, index) => (
-            <Image key={index} src={url} className={styles.postImage} mode="aspectFill" />
+            <Image key={index} src={url || ''} className={styles.postImage} mode="aspectFill" />
           ))}
         </View>
       )}

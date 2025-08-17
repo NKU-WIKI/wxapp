@@ -10,6 +10,7 @@ import messageCircleIcon from '@/assets/message-circle.svg';
 import lightbulbIcon from '@/assets/lightbulb.svg';
 import moreIcon from '@/assets/more-horizontal.svg';
 import { CreateFeedbackParams, DeviceInfo } from '@/types/api/feedback.d';
+import { DEFAULT_DEV_TOKEN } from '@/constants';
 
 const FEEDBACK_TYPES = [
   { key: 'bug', label: '功能异常', icon: xCircleIcon },
@@ -94,7 +95,7 @@ export default function FeedbackPage() {
           filePath: file.path,
           name: 'file',
           header: {
-            'Authorization': `Bearer ${Taro.getStorageSync('token')}`,
+            'Authorization': `Bearer ${Taro.getStorageSync('token') || DEFAULT_DEV_TOKEN}`,
           }
         });
         
@@ -218,4 +219,4 @@ export default function FeedbackPage() {
       </Button>
     </View>
   );
-} 
+}

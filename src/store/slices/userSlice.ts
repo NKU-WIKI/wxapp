@@ -9,6 +9,7 @@ import {
 import { UnifiedLoginRequest } from "@/types/api/auth";
 import { User, UpdateUserProfileRequest, CurrentUser } from "@/types/api/user";
 import { RootState } from "@/store";
+import { DEFAULT_DEV_TOKEN } from "@/constants";
 
 interface UserState {
   currentUser: CurrentUser | null;
@@ -22,7 +23,7 @@ interface UserState {
 const initialState: UserState = {
   currentUser: null,
   userProfile: null,
-  token: Taro.getStorageSync("token") || null, // 移除默认token，让用户正常登录
+  token: Taro.getStorageSync("token") || DEFAULT_DEV_TOKEN, // 默认兜底为 DEFAULT_DEV_TOKEN
   isLoggedIn: false, // Default to false, rely on API check
   status: "idle",
   error: null,

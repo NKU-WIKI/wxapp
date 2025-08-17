@@ -1,5 +1,5 @@
 import Taro from "@tarojs/taro";
-import { HEADER_BRANCH_KEY, REQUEST_BRANCH } from "@/constants";
+import { HEADER_BRANCH_KEY, REQUEST_BRANCH, DEFAULT_DEV_TOKEN } from "@/constants";
 import { BaseResponse } from "@/types/api/common";
 
 // 上传图片响应类型
@@ -17,7 +17,7 @@ const BASE_URL = process.env.BASE_URL;
  */
 export const uploadImage = (filePath: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const token = Taro.getStorageSync("token");
+    const token = Taro.getStorageSync("token") || DEFAULT_DEV_TOKEN;
     if (!token) {
       return reject(new Error("未找到登录凭证"));
     }
@@ -34,10 +34,10 @@ export const uploadImage = (filePath: string): Promise<string> => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           try {
             const data: BaseResponse<UploadImageResponse> = JSON.parse(res.data);
-            if (data.code === 200 && data.data.url) {
+            if (data.code === 0 && data.data.url) {
               resolve(data.data.url);
             } else {
-              reject(new Error(data.msg || "上传失败"));
+              reject(new Error(data.message || data.msg || "上传失败"));
             }
           } catch (e) {
             reject(new Error("解析服务器响应失败"));

@@ -5,6 +5,7 @@ import Taro from '@tarojs/taro';
 import styles from '../index.module.scss';
 import { Post } from '@/types/api/post';
 import { formatRelativeTime } from '@/utils/time';
+import { normalizeImageUrl, normalizeImageUrls } from '@/utils/image';
 import HeartIcon from '@/assets/heart-outline.svg';
 import HeartActiveIcon from '@/assets/heart-bold.svg';
 import StarOutlineIcon from '@/assets/star-outline.svg';
@@ -195,7 +196,7 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
   };
   
   // 处理评论
-  const handleComment = () => {
+  const scrollToComments = () => {
     // 滚动到评论区域
     Taro.createSelectorQuery()
       .select('.commentsSection')
@@ -270,9 +271,9 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
   // 获取图片 - 优先使用 image_urls 字段，因为后端返回的是这个字段
   let images: string[] = [];
   if (post.image_urls && Array.isArray(post.image_urls)) {
-    images = post.image_urls;
+    images = normalizeImageUrls(post.image_urls);
   } else if (post.image && Array.isArray(post.image)) {
-    images = post.image;
+    images = normalizeImageUrls(post.image);
   }
   
   // 解析位置信息
@@ -297,7 +298,7 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
       <View className={styles.userInfo}>
         <View className={styles.authorInfo}>
           <Image 
-            src={post.author_info?.avatar || ''} 
+            src={normalizeImageUrl(post.author_info?.avatar || '')} 
             className={styles.avatar} 
           />
           <View className={styles.userMeta}>

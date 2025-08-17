@@ -15,6 +15,8 @@ import { uploadApi } from "@/services/api/upload";
 import commentApi from "@/services/api/comment";
 import knowledgeApi from "@/services/api/knowledge";
 import { saveDraft, getDrafts } from '@/utils/draft';
+import { DraftPost } from '@/types/draft';
+import { normalizeImageUrl } from '@/utils/image';
 import CustomHeader from "@/components/custom-header";
 import PublishSettings from "./components/PublishSettings";
 import styles from "./index.module.scss";
@@ -76,12 +78,13 @@ export default function PublishPost() {
   const [polishSuggestion, setPolishSuggestion] = useState<string>('建议调整：1. 增加段落间的过渡...');
   const [showRefPanel, setShowRefPanel] = useState(false);
   const [refSuggestions, setRefSuggestions] = useState<Array<{ type: 'history' | 'knowledge'; id?: string; title: string }>>([]);
-  const [refQuery, setRefQuery] = useState('');
+  const [showDraftPicker, setShowDraftPicker] = useState(false);
+  const [draftList, setDraftList] = useState<DraftPost[]>([]);
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const draftId = router?.params?.draftId;
-  const userInfo = useSelector((state: RootState) => state.user?.userInfo);
+  const userInfo = useSelector((state: RootState) => state.user?.currentUser || state.user?.userProfile);
 
   // 添加调试日志，查看当前选中的标签
   useEffect(() => {
@@ -100,6 +103,12 @@ export default function PublishPost() {
       }
     }
   }, [draftId]);
+
+  // 初始化草稿列表
+  useEffect(() => {
+    const drafts = getDrafts();
+    setDraftList(drafts);
+  }, []);
 
   // 回退时弹窗询问是否保存草稿
   const handleBack = () => {
@@ -420,7 +429,7 @@ export default function PublishPost() {
               {images.map((url, index) => (
                 <View key={index} className={styles.imageWrapper}>
                   <Image
-                    src={url}
+                    src={normalizeImageUrl(url)}
                     className={styles.previewImage}
                     mode='aspectFill'
                   />

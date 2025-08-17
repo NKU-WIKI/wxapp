@@ -7,6 +7,7 @@ import store, { persistor } from './store'
 import { initTabBarSync } from './utils/tabBarSync'
 import './app.scss'
 import { fetchCurrentUser } from "./store/slices/userSlice";
+import { DEFAULT_DEV_TOKEN } from "@/constants";
 
 // AbortController polyfill for WeChat miniprogram
 if (typeof globalThis.AbortController === 'undefined') {
@@ -38,8 +39,9 @@ function App({ children }: PropsWithChildren<any>) {
       // 如果有token，尝试验证其有效性
       store.dispatch(fetchCurrentUser());
     } else {
-      // 如果没有token，直接设置为未登录状态
-      console.log("No token found, user needs to login");
+      // 如果没有token，自动注入默认开发token
+      Taro.setStorageSync("token", DEFAULT_DEV_TOKEN);
+      store.dispatch(fetchCurrentUser());
     }
   })
 

@@ -21,4 +21,9 @@ export const HEADER_BRANCH_KEY = 'X-Branch';
 export const REQUEST_BRANCH = 'dev';
 
 // 默认开发用 Token
-export const DEFAULT_DEV_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidGVuYW50X2lkIjoiZjYzMDM4OTktYTUxYS00NjBhLTljZDgtZmUzNTYwOTE1MWViIiwibmlja25hbWUiOiJuYW5rYWlfdXNlciIsInJvbGVzIjpbInVzZXIiXSwiZXhwIjoxNzU3OTIxNTcwfQ.D2ob-m3rx7Ri3QNSamIAPA202eqd78cv6KUjZ1dQ9aI"; 
+export const DEFAULT_DEV_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidGVuYW50X2lkIjoiZjYzMDM4OTktYTUxYS00NjBhLTljZDgtZmUzNTYwOTE1MWViIiwibmlja25hbWUiOiJuYW5rYWlfdXNlciIsInJvbGVzIjpbInVzZXIiXSwiZXhwIjoxNzU4MDA1MTQ5fQ.NWRyI5bQRWyRwrV5oPozoI4R9lrGVk6NANFlN20HutE"; 
+
+/**
+ * 多租户：当前租户ID（用于RAG等需要tenant_id的接口）
+ */
+export const TENANT_ID = "f6303899-a51a-460a-9cd8-fe35609151eb";

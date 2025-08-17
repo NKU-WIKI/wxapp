@@ -1,8 +1,9 @@
 import { View, Image, Text } from '@tarojs/components';
 import styles from './MyPostItem.module.scss';
 import { Post } from '@/types/api/post.d';
-import deleteIcon from '@/assets/x.svg';
+import deleteIcon from '@/assets/x-circle.svg';
 import { formatRelativeTime } from '@/utils/time';
+import { normalizeImageUrl } from '@/utils/image';
 import Taro from '@tarojs/taro';
 
 interface Props {
@@ -52,7 +53,7 @@ const MyPostItem = ({ post, onDelete }: Props) => {
         </Text>
       </View>
       {coverImage && (
-        <Image src={coverImage} className={styles.cover} mode="aspectFill" />
+        <Image src={normalizeImageUrl(coverImage || '')} className={styles.cover} mode="aspectFill" />
       )}
       <View className={styles.right}>
         <Image
@@ -66,4 +67,4 @@ const MyPostItem = ({ post, onDelete }: Props) => {
   );
 };
 
-export default MyPostItem; 
+export default MyPostItem;

@@ -20,6 +20,7 @@ export interface User extends UserProfile {
   bio?: string;
   status?: "active" | "inactive" | "banned";
   is_following?: boolean;
+  level?: number; // 用户等级
 }
 
 /**

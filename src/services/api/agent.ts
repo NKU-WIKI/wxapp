@@ -8,9 +8,10 @@ import {
   TextSummarizeResponse,
 } from "@/types/api/agent.d";
 import http from "../request";
+import { TENANT_ID } from "@/constants";
 
 export const rag = (data: RagRequest) => {
-  return http.get<any>("/agent/rag-answer", data);
+  return http.get<any>("/agent/rag-answer", { ...data, tenant_id: TENANT_ID });
 };
 
 // 根据API文档，应该使用 /api/v1/agent/chat

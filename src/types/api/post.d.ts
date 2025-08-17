@@ -11,11 +11,16 @@ export interface Post {
   status: "published" | "draft";
   user_id: number;
   user: User; // Renamed from user_info
+  author_info?: User; // 兼容旧版API返回的作者信息
   view_count?: number;
   like_count?: number;
   favorite_count?: number; // Added
   comment_count?: number;
   create_time?: string;
+  image?: string | string[]; // 图片数据，可能是字符串或数组
+  image_urls?: string[]; // 图片URL数组
+  tag?: string | string[]; // 标签数据，可能是字符串或数组
+  location?: string; // 位置信息，可能是JSON字符串
   // User-specific states
   is_liked?: boolean;
   is_favorited?: boolean;
@@ -37,6 +42,10 @@ export interface CreateForumPostRequest {
   content?: string;
   status?: "published" | "draft";
   category_id?: number; // Added based on new docs
+  image_urls?: string[];
+  tag?: string | string[];
+  is_public?: boolean;
+  allow_comment?: boolean;
 }
 
 /**

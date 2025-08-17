@@ -54,33 +54,26 @@ export default function Home() {
   );
   const { isLoggedIn } = useSelector((state: RootState) => state.user || { isLoggedIn: false });
   const isLoading = loading === "pending";
+  const isLoadingMore = loading === "pending" && posts.length > 0;
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    // 只在用户登录后获取信息流
-    if (isLoggedIn) {
-      dispatch(fetchFeed({ skip: 0, limit: 10 }));
-    }
+    // 登录状态改变或首次加载时获取信息流
+    dispatch(fetchFeed({ skip: 0, limit: 10 }));
   }, [dispatch, isLoggedIn]);
 
   useDidShow(() => {
-    const { refresh } = Taro.getCurrentInstance().router.params;
-    if (refresh === 'true') {
+    const routerParams = Taro.getCurrentInstance().router?.params;
+    if (routerParams?.refresh === 'true') {
       handlePullRefresh();
     }
   });
 
-  // 根据分类名称获取分类ID
-  const getCategoryId = (categoryName: string): number | undefined => {
-    const category = mockCategories.find(cat => cat.name === categoryName);
-    return category?.id;
-  };
-
   // 下拉刷新处理函数
   const handlePullRefresh = async () => {
-    if (isRefreshing || !isLoggedIn) return; // 未登录时不刷新
+    if (isRefreshing) return;
 
     setIsRefreshing(true);
     try {
@@ -99,7 +92,7 @@ export default function Home() {
 
   // 滚动到底部加载更多
   const handleScrollToLower = async () => {
-    if (isLoading || isRefreshing || !pagination || !pagination.has_more || !isLoggedIn) return;
+    if (isLoading || isRefreshing || !pagination || !pagination.has_more) return;
 
     try {
       const nextSkip = (pagination.skip || 0) + (pagination.limit || 10);
@@ -118,8 +111,6 @@ export default function Home() {
   };
 
   const handleCategoryClick = (categoryId: number) => {
-    if (!isLoggedIn) return; // 未登录时不处理分类点击
-    
     const newSelectedCategory = selectedCategory === categoryId ? null : categoryId;
     setSelectedCategory(newSelectedCategory);
 
@@ -133,15 +124,6 @@ export default function Home() {
   };
 
   const renderContent = () => {
-    if (!isLoggedIn) {
-      return (
-        <EmptyState
-          icon={emptyIcon}
-          text="请先登录后查看帖子内容"
-        />
-      );
-    }
-
     if (isLoading && posts.length === 0) {
       return Array.from({ length: 3 }).map((_, index) => (
         <PostItemSkeleton key={index} className={styles.postListItem} />

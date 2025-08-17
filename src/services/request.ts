@@ -4,13 +4,14 @@ import {
   RESPONSE_SUCCESS_CODE,
   HEADER_BRANCH_KEY,
   REQUEST_BRANCH,
+  DEFAULT_DEV_TOKEN,
 } from "@/constants";
 import { BaseResponse } from "@/types/api/common";
 
 const BASE_URL = process.env.BASE_URL;
 
 const getToken = () => {
-  return Taro.getStorageSync("token");
+  return Taro.getStorageSync("token") || DEFAULT_DEV_TOKEN;
 };
 
 const interceptor = (chain) => {
