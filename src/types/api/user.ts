@@ -21,6 +21,12 @@ export interface User extends UserProfile {
   status?: "active" | "inactive" | "banned";
   is_following?: boolean;
   level?: number; // 用户等级
+  post_count?: number;
+  total_likes?: number;
+  following_count?: number;
+  follower_count?: number;
+  total_favorites?: number;
+  points?: number;
 }
 
 /**

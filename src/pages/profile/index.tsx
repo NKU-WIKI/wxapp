@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchCurrentUser, fetchUserProfile, logout } from '@/store/slices/userSlice';
-import { getFollowers, getFollowing } from '@/services/api/followers';
 import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import styles from './index.module.scss';
@@ -130,10 +129,7 @@ const Profile = () => {
   };
 
   const handleNavigateToLikes = () => {
-    Taro.showToast({
-      title: '获赞页面还未开发',
-      icon: 'none'
-    });
+    // 点击暂不处理
   };
 
   const handleMenuClick = (type: string) => {
