@@ -9,6 +9,7 @@ import likeReducer from "./slices/likeSlice"; // Like list slice
 import aboutReducer from "./slices/aboutSlice";
 import chatReducer from "./slices/chatSlice";
 import feedbackReducer from "./slices/feedbackSlice";
+import levelReducer from "./slices/levelSlice";
 
 const userPersistConfig = {
   key: 'user',
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   about: aboutReducer,
   chat: chatReducer,
   feedback: feedbackReducer,
+  level: levelReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -40,7 +40,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   const postState = useSelector((state: RootState) => state.post);
   const DEBOUNCE_DELAY = 500; // 500ms 防抖间隔
   const DEFAULT_AVATAR = '/assets/avatar1.png';
-  const userInfo = (userState as any)?.userInfo || null;
+  const userInfo = (userState as any)?.userProfile || null;
 
   // 从 Redux 中获取最新的帖子状态
   const posts = postState?.list || [];
@@ -75,6 +75,12 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
 
   const image_urls = getImages();
 
+  // 作者等级：优先使用帖子数据；若帖子无等级且作者为当前登录用户，则回退到全局的 userProfile.level
+  const currentUserId = (userState as any)?.currentUser?.user_id;
+  const fallbackLevel = (userState as any)?.userProfile?.level ?? 0;
+  const authorLevel: number = (typeof displayPost.user.level === 'number' && !Number.isNaN(displayPost.user.level))
+    ? (displayPost.user.level as number)
+    : (displayPost.user.id === currentUserId ? (fallbackLevel as number) : 0);
 
   // 跳转到详情页
   const navigateToDetail = (e) => {
@@ -315,7 +321,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
           <View className={styles.authorDetails}>
             <View className={styles.authorMainRow}>
               <Text className={styles.authorName}>{post.user.nickname || '匿名'}</Text>
-              <View className={styles.levelBadge}><Text>Lv.{post.user.level || 0}</Text></View>
+              <View className={styles.levelBadge}><Text>Lv.{authorLevel || 0}</Text></View>
               {userInfo?.id !== post.user.id && (
                 <View
                   className={`${styles.followButton} ${isFollowing ? styles.followed : ''}`}
