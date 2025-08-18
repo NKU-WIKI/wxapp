@@ -5,7 +5,7 @@ export interface Feedback {
   content: string;
   type: 'bug' | 'ux' | 'suggest' | 'other';
   contact?: string;
-  image: string[];
+  images: string[]; // 改为 images 以匹配API文档
   device_info?: DeviceInfo;
   version?: string;
   status: 'pending' | 'processing' | 'resolved' | 'rejected';
@@ -29,7 +29,7 @@ export interface CreateFeedbackParams {
   content: string;
   type: 'bug' | 'ux' | 'suggest' | 'other';
   contact?: string;
-  image?: string[];
+  images?: string[]; // 改为 images 以匹配API文档
   device_info?: DeviceInfo;
   version?: string;
 }

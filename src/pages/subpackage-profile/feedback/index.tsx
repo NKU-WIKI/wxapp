@@ -10,7 +10,7 @@ import messageCircleIcon from '@/assets/message-circle.svg';
 import lightbulbIcon from '@/assets/lightbulb.svg';
 import moreIcon from '@/assets/more-horizontal.svg';
 import { CreateFeedbackParams, DeviceInfo } from '@/types/api/feedback.d';
-import { DEFAULT_DEV_TOKEN } from '@/constants';
+import { uploadImage } from '@/services/api/upload';
 
 const FEEDBACK_TYPES = [
   { key: 'bug', label: '功能异常', icon: xCircleIcon },
@@ -44,7 +44,6 @@ export default function FeedbackPage() {
           app_version: '1.0.0', // 应用版本号
         });
         
-        // 获取应用版本号（如果有的话）
         const accountInfo = await Taro.getAccountInfoSync();
         setAppVersion(accountInfo.miniProgram?.version || '1.0.0');
       } catch (error) {
@@ -84,33 +83,10 @@ export default function FeedbackPage() {
     setFiles(files.filter((_, i) => i !== idx));
   };
 
-  // 上传图片到服务器
+  // 上传图片到服务器（统一使用 uploadApi）
   const uploadImages = async (): Promise<string[]> => {
     if (files.length === 0) return [];
-    
-    const uploadPromises = files.map(async (file) => {
-      try {
-        const uploadRes = await Taro.uploadFile({
-          url: `${process.env.BASE_URL}/api/wxapp/upload/image`,
-          filePath: file.path,
-          name: 'file',
-          header: {
-            'Authorization': `Bearer ${Taro.getStorageSync('token') || DEFAULT_DEV_TOKEN}`,
-          }
-        });
-        
-        const result = JSON.parse(uploadRes.data);
-        if (result.code === 200) {
-          return result.data.url;
-        } else {
-          throw new Error(result.message || '上传失败');
-        }
-      } catch (error) {
-        console.error('上传图片失败:', error);
-        throw error;
-      }
-    });
-    
+    const uploadPromises = files.map(async (file) => uploadImage(file.path));
     return Promise.all(uploadPromises);
   };
 
@@ -133,23 +109,19 @@ export default function FeedbackPage() {
       const feedbackData: CreateFeedbackParams = {
         content: desc.trim(),
         type,
-        image: imageUrls, // 图片URL列表，无图片时为空数组
-        device_info: deviceInfo, // 设备信息
-        version: appVersion, // 应用版本号
-        // contact字段可选，暂不添加
+        images: imageUrls,
+        device_info: deviceInfo,
+        version: appVersion,
       };
       
-      // 提交反馈
-      const result = await dispatch(submitFeedback(feedbackData)).unwrap();
+      await dispatch(submitFeedback(feedbackData)).unwrap();
       
-      if (result) {
-        Taro.showToast({ title: '反馈提交成功', icon: 'success' });
-        setTimeout(() => Taro.navigateBack(), 1200);
-      }
+      Taro.showToast({ title: '反馈成功，感谢您的付出', icon: 'success' });
+      setTimeout(() => Taro.navigateBack(), 1200);
     } catch (error) {
       console.error('提交反馈失败:', error);
       Taro.showToast({ 
-        title: error?.message || '提交失败，请重试', 
+        title: '反馈失败', 
         icon: 'none' 
       });
     }

@@ -1,50 +1,51 @@
 import http from "../request";
 import {
   Feedback,
-  CreateFeedbackRequest,
-  FeedbackListRequest,
+  CreateFeedbackParams,
+  GetFeedbackListParams,
+  CreateFeedbackResponse,
 } from "@/types/api/feedback.d";
-import { PaginatedData, ResponseMessage } from "@/types/api/common";
+import { PaginatedData } from "@/types/api/common";
 
 /**
  * 创建反馈
- * @param data
- * @returns
+ * - 直接使用 type 字段，符合API文档要求
  */
-export const createFeedback = (data: CreateFeedbackRequest) => {
-  return http.post<Feedback>("/feedbacks", data);
+export const createFeedback = (data: CreateFeedbackParams) => {
+  const payload = {
+    content: data.content,
+    type: data.type,
+    contact: data.contact,
+    images: data.images, // 直接使用 images 字段
+    device_info: data.device_info,
+    version: data.version,
+  };
+  return http.post<CreateFeedbackResponse>("/feedback/", payload);
 };
 
 /**
  * 获取当前用户创建的反馈列表
- * @param params
- * @returns
  */
-export const getMyFeedbacks = (params: FeedbackListRequest) => {
-  return http.get<PaginatedData<Feedback>>("/feedbacks/my", params);
+export const getMyFeedbacks = (params: GetFeedbackListParams) => {
+  return http.get<PaginatedData<Feedback>>("/feedback/my/list", params);
 };
 
-/**
- * 获取指定ID的反馈详情
- * @param feedbackId
- * @returns
- */
+// 兼容旧调用：getFeedbackList -> getMyFeedbacks
+export const getFeedbackList = (params: GetFeedbackListParams) => getMyFeedbacks(params);
+
+// 详情与删除（若后端暂未提供，可保留占位或后续根据文档调整）
 export const getFeedback = (feedbackId: number) => {
-  return http.get<Feedback>(`/feedbacks/${feedbackId}`);
+  return http.get<Feedback>(`/feedback/${feedbackId}`);
 };
 
-/**
- * 删除指定ID的反馈
- * @param feedbackId
- * @returns
- */
 export const deleteFeedback = (feedbackId: number) => {
-  return http.delete<ResponseMessage>(`/feedbacks/${feedbackId}`);
+  return http.delete<void>(`/feedback/${feedbackId}`);
 };
 
 const feedbackApi = {
   createFeedback,
   getMyFeedbacks,
+  getFeedbackList,
   // 兼容旧调用：简单上报一个反馈记录
   sendThumbFeedback: (data: { scope: string; action: 'up' | 'down'; title?: string; extra?: any }) =>
     createFeedback({
