@@ -1,4 +1,4 @@
-import { View, Text, Image } from "@tarojs/components";
+import { View, Text, Image, ITouchEvent } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useState, useRef, useEffect } from 'react';
 import { Post } from "@/types/api/post.d";
@@ -49,15 +49,24 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
   // 使用 Redux 中的状态，如果 Redux 中没有则使用 props 中的
   const displayPost = currentPostFromRedux || post;
 
-  // 使用后端返回的状态，确保布尔值转换正确
-  const isLiked = displayPost.is_liked === true;
-  const isFavorited = displayPost.is_favorited === true;
+  // 使用状态管理点赞和收藏的状态
+  const [isLiked, setIsLiked] = useState(displayPost.is_liked === true);
+  const [isFavorited, setIsFavorited] = useState(displayPost.is_favorited === true);
   const isFollowing = displayPost.is_following_author === true;
 
-  // 使用帖子的 like_count 和 favorite_count 属性，如果为 undefined 则显示 0
-  // 如果用户已点赞/收藏但数量为0，则显示1
-  const likeCount = isLiked && displayPost.like_count === 0 ? 1 : (displayPost.like_count || 0);
-  const favoriteCount = isFavorited && displayPost.favorite_count === 0 ? 1 : (displayPost.favorite_count || 0);
+  // 使用状态管理点赞和收藏的计数
+  const initialLikeCount = isLiked && displayPost.like_count === 0 ? 1 : (displayPost.like_count || 0);
+  const initialFavoriteCount = isFavorited && displayPost.favorite_count === 0 ? 1 : (displayPost.favorite_count || 0);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
+  const [favoriteCount, setFavoriteCount] = useState(initialFavoriteCount);
+  
+  // 当 displayPost 变化时更新状态
+  useEffect(() => {
+    setIsLiked(displayPost.is_liked === true);
+    setIsFavorited(displayPost.is_favorited === true);
+    setLikeCount(displayPost.is_liked === true && displayPost.like_count === 0 ? 1 : (displayPost.like_count || 0));
+    setFavoriteCount(displayPost.is_favorited === true && displayPost.favorite_count === 0 ? 1 : (displayPost.favorite_count || 0));
+  }, [displayPost]);
 
   // 解析图片
   const getImages = () => {
@@ -189,7 +198,18 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         })).then((result: any) => {
           if (result.payload && result.payload.is_active !== undefined) {
             const { is_active } = result.payload;
-
+            
+            // 根据 API 响应更新 UI 状态
+            if (actionType === 'like') {
+              setIsLiked(is_active);
+              // 根据新状态更新计数
+              setLikeCount(prev => is_active ? prev + 1 : Math.max(0, prev - 1));
+            } else if (actionType === 'favorite') {
+              setIsFavorited(is_active);
+              // 根据新状态更新计数
+              setFavoriteCount(prev => is_active ? prev + 1 : Math.max(0, prev - 1));
+            }
+            
             // 显示提示
             Taro.showToast({
               title: actionType === 'like'
@@ -337,7 +357,7 @@ const PostItem = ({ post, className = "" }: PostItemProps) => {
         <View className={styles.headerActions}>
           <Text className={styles.postTime}>{formatRelativeTime(post.create_time)}</Text>
           {canDelete && (
-            <View className={styles.moreButton} onClick={(e: React.MouseEvent) => handleActionClick(e, 'delete')}>
+            <View className={styles.moreButton} onClick={(e: ITouchEvent) => handleActionClick(e, 'delete')}>
               <Image src={moreIcon} className={styles.moreIcon} />
             </View>
           )}

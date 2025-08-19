@@ -11,7 +11,7 @@ import http from "../request";
  * @returns
  */
 export const createComment = (data: CreateCommentRequest) => {
-  return http.post<Comment>("/comments/", data);
+  return http.post<Comment>("/forums/comments", data);
 };
 
 /**
@@ -21,7 +21,7 @@ export const createComment = (data: CreateCommentRequest) => {
  * @returns
  */
 export const updateComment = (commentId: number, data: CommentUpdate) => {
-  return http.put<Comment>(`/comments/${commentId}`, data);
+  return http.put<Comment>(`/forums/comments/${commentId}`, data);
 };
 
 /**
@@ -30,7 +30,7 @@ export const updateComment = (commentId: number, data: CommentUpdate) => {
  * @returns
  */
 export const deleteComment = (commentId: number) => {
-  return http.delete<any>(`/comments/${commentId}`);
+  return http.delete<any>(`/forums/comments/${commentId}`);
 };
 
 /**
@@ -39,7 +39,16 @@ export const deleteComment = (commentId: number) => {
  * @returns
  */
 export const getComments = (params: { resource_id: number; resource_type: string }) => {
-  return http.get<Comment[]>("/comments/", params);
+  return http.get<Comment[]>("/forums/comments", params);
+};
+
+/**
+ * 获取我的评论列表
+ * @param params 分页参数
+ * @returns
+ */
+export const getMyComments = (params?: { skip?: number; limit?: number }) => {
+  return http.get<Comment[]>("/forums/comments/me", params);
 };
 
 /**
@@ -57,6 +66,7 @@ const commentApi = {
   updateComment,
   deleteComment,
   getComments,
+  getMyComments,
   getCommentReplies,
 };
 

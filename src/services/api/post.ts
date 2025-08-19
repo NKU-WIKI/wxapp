@@ -4,6 +4,7 @@ import {
   CreateForumPostRequest,
   GetFeedParams,
 } from "@/types/api/post.d";
+import { API } from "@/types/api/recommend";
 import http from "../request";
 
 /**
@@ -84,6 +85,33 @@ export const getFeed = (params: GetFeedParams) => {
   return http.get<Post[]>("/forums/posts", params);
 };
 
+/**
+ * 获取帖子Feed
+ * @param params 分页参数
+ * @returns 帖子Feed列表
+ */
+export const getPostsFeed = (params: GetFeedParams) => {
+  return http.get<Post[]>("/forums/posts/feed", params);
+};
+
+/**
+ * 生成AI帖子Feed
+ * @param topic 话题
+ * @returns 生成的帖子Feed列表
+ */
+export const generatePostsFeed = (topic: string) => {
+  return http.post<Post[]>("/forums/posts/feed/generate", {}, { topic });
+};
+
+/**
+ * 获取推荐帖子
+ * @param params 推荐参数
+ * @returns 推荐帖子列表
+ */
+export const getRecommendPosts = (params: API.RecommendParams) => {
+  return http.get<Post[]>("/forums/posts/recommend", params);
+};
+
 // 默认导出对象，包含所有API函数
 const postApi = {
   getForumPosts,
@@ -94,6 +122,9 @@ const postApi = {
   deletePost,
   getMyDrafts,
   getFeed,
+  getPostsFeed,
+  generatePostsFeed,
+  getRecommendPosts,
 };
 
 export default postApi;

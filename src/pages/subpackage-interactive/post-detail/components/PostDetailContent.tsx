@@ -96,8 +96,8 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
       action_type: 'like' as const,
       active: !isLiked
     })).then((result: any) => {
-      if (result.payload && result.payload.response) {
-        const { is_active } = result.payload.response;
+      if (result.payload && result.payload.is_active !== undefined) {
+        const { is_active } = result.payload;
         
         // 显示提示
         Taro.showToast({
@@ -160,8 +160,8 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
       action_type: 'favorite' as const,
       active: !isFavorited
     })).then((result: any) => {
-      if (result.payload && result.payload.response) {
-        const { is_active } = result.payload.response;
+      if (result.payload && result.payload.is_active !== undefined) {
+        const { is_active } = result.payload;
         
         // 显示提示
         Taro.showToast({
@@ -196,6 +196,7 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
   };
   
   // 处理评论
+  /* 暂时注释掉未使用的函数
   const scrollToComments = () => {
     // 滚动到评论区域
     Taro.createSelectorQuery()
@@ -210,6 +211,7 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
       })
       .exec();
   };
+  */
   
   // 处理分享
   const handleShare = () => {
@@ -397,4 +399,3 @@ const PostDetailContent: React.FC<PostDetailContentProps> = ({ post }) => {
 };
 
 export default PostDetailContent;
-

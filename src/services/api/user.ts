@@ -60,6 +60,15 @@ export const getUserFavorites = (_params: any) => {
   return Promise.resolve({ code: 200, data: [] });
 };
 
+/**
+ * 获取用户评论列表
+ * @param params 分页参数
+ * @returns 用户评论列表
+ */
+export const getUserComments = (params?: { skip?: number; limit?: number }) => {
+  return http.get<any>("/forums/comments/me", params);
+};
+
 // 用户API对象，包含所有用户相关的API函数
 export const userApi = {
   getMe,
@@ -68,6 +77,7 @@ export const userApi = {
   createViewHistory,
   getMyHistory,
   getUserFavorites,
+  getUserComments,
 };
 
 export default userApi;

@@ -37,7 +37,9 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
       
       if (response.data) {
         const newIsLiked = response.data.is_active;
-        const newLikeCount = response.data.count;
+        // 根据新状态计算点赞数量
+        const currentLikeCount = comment.like_count || 0;
+        const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
         onLikeUpdate(comment.id, newIsLiked, newLikeCount);
         
         Taro.showToast({
@@ -78,7 +80,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
               className={styles.subIcon} 
               src={comment.is_liked ? HeartActiveIcon : HeartIcon} 
             />
-            <Text>{comment.like_count}</Text>
+            <Text>{comment.like_count || 0}</Text>
           </View>
           <View className={styles.subReplyButton} onClick={() => onReply(comment)}>
             <Text>回复</Text>
@@ -139,7 +141,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
     console.log('🔥 开始评论点赞操作:', {
       commentId: comment.id,
       commentContent: comment.content?.substring(0, 20) + '...',
-      currentLikeCount: comment.like_count,
+      currentLikeCount: comment.like_count || 0,
       currentIsLiked: comment.is_liked
     });
     
@@ -155,7 +157,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
       
       // 更新本地状态
       if (onLikeUpdate) {
-        onLikeUpdate(comment.id, response.data.is_active, response.data.count);
+        const newIsLiked = response.data.is_active;
+        // 根据新状态计算点赞数量
+        const currentLikeCount = comment.like_count || 0;
+        const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
+        onLikeUpdate(comment.id, newIsLiked, newLikeCount);
       }
       
       // 显示操作结果
@@ -230,7 +236,8 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
         page_size: 50
       });
       
-      const repliesData = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+      // 修复数据结构处理，判断response是否为数组
+      const repliesData = Array.isArray(response) ? response : (response?.data || []);
       
       // 递归获取所有层级的子评论，传入主评论的昵称作为第一层子评论的父昵称
       const allReplies = await fetchAllNestedRepliesRecursive(repliesData, parentComment.nickname);
@@ -273,9 +280,10 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
             page_size: 50
           });
           
-          const nestedReplies = Array.isArray(nestedResponse.data) 
-            ? nestedResponse.data 
-            : (nestedResponse.data?.data || []);
+          // 修复数据结构处理，判断nestedResponse是否为数组
+          const nestedReplies = Array.isArray(nestedResponse) 
+            ? nestedResponse 
+            : (nestedResponse?.data || []);
           
           // 递归获取更深层级的回复，传入当前回复的昵称作为父昵称
           const deeperReplies = await fetchAllNestedRepliesRecursive(nestedReplies, reply.nickname);
@@ -416,7 +424,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
     if (sortBy === 'time') {
       return new Date(b.create_time).getTime() - new Date(a.create_time).getTime();
     } else {
-      return b.like_count - a.like_count;
+      return (b.like_count || 0) - (a.like_count || 0);
     }
   });
   

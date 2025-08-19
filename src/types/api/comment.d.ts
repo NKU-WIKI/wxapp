@@ -15,6 +15,19 @@ export interface Comment {
 }
 
 /**
+ * @description 评论详情信息结构，包含额外字段
+ */
+export interface CommentDetail extends Comment {
+  nickname?: string;
+  parent_author_nickname?: string;
+  reply_count?: number;
+  like_count?: number;
+  is_liked?: boolean;
+  children?: CommentDetail[];
+  avatar?: string; // 添加avatar属性
+}
+
+/**
  * @description 创建新评论的请求体
  */
 export interface CreateCommentRequest {
@@ -29,4 +42,4 @@ export interface CreateCommentRequest {
  */
 export interface CommentUpdate {
   content: string;
-} 
+}

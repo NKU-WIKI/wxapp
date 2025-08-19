@@ -90,8 +90,8 @@ export const fetchUserComments = createAsyncThunk(
     try {
       // 获取用户评论列表
       const response = await userApi.getUserComments({
-        page: params.page || 1,
-        page_size: params.page_size || 10
+        skip: ((params.page || 1) - 1) * (params.page_size || 10),
+        limit: params.page_size || 10
       });
       
       // 提取响应数据
@@ -217,4 +217,4 @@ const userCommentSlice = createSlice({
 });
 
 export const { resetUserComments } = userCommentSlice.actions;
-export default userCommentSlice.reducer; 
+export default userCommentSlice.reducer;

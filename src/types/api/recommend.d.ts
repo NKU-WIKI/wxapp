@@ -31,3 +31,6 @@ export namespace API {
     };
   }
 }
+
+// 导出类型别名，方便在其他文件中使用
+export type recommendParams = API.RecommendParams;
