@@ -32,6 +32,12 @@
   color: #999;
 }
 
+.error {
+  padding: 20px;
+  text-align: center;
+  color: #EF4444;
+}
+
 // 固定底部输入框
 .fixedBottomInput {
   position: fixed;
@@ -907,4 +913,4 @@
     color: #6B7280;
     line-height: 1.5;
   }
-} 
+}

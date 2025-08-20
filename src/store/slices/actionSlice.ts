@@ -13,7 +13,8 @@ export const toggleAction = createAsyncThunk<
 >("action/toggle", async (request, { rejectWithValue }) => {
   try {
     const response = await toggleActionApi(request);
-    return { ...response, request };
+    // 重要：仅返回后端响应的 data 字段，保持与 ToggleActionResponse 类型一致
+    return { ...response.data, request };
   } catch (error: any) {
     return rejectWithValue(error.message || `Failed to toggle action`);
   }
@@ -48,4 +49,4 @@ const actionSlice = createSlice({
   },
 });
 
-export default actionSlice.reducer; 
+export default actionSlice.reducer;

@@ -241,35 +241,62 @@ const postsSlice = createSlice({
       })
       // Listen for the toggleAction from actionSlice
       .addCase(toggleAction.fulfilled, (state, action) => {
-        const { request, is_active } = action.payload;
+        const { request, is_active, count } = action.payload;
         const { target_id, action_type, target_type } = request;
 
         const updatePostState = (post: Post) => {
           if (target_type === "post") {
             if (action_type === "like") {
               post.is_liked = is_active;
-              // Manually update count
-              post.like_count = (post.like_count || 0) + (is_active ? 1 : -1);
+              // 使用API返回的count字段更新点赞数量，如果没有则手动计算
+              if (count !== undefined) {
+                post.like_count = count;
+              } else {
+                // 手动计算点赞数量
+                post.like_count = (post.like_count || 0) + (is_active ? 1 : -1);
+              }
             } else if (action_type === "favorite") {
               post.is_favorited = is_active;
-              // Manually update count
-              post.favorite_count = (post.favorite_count || 0) + (is_active ? 1 : -1);
+              // 使用API返回的count字段更新收藏数量，如果没有则手动计算
+              if (count !== undefined) {
+                post.favorite_count = count;
+              } else {
+                // 手动计算收藏数量
+                post.favorite_count = (post.favorite_count || 0) + (is_active ? 1 : -1);
+              }
             }
           }
           if (target_type === "user" && action_type === "follow") {
-            if (post.user.id === target_id) { // Changed from post.user_info.id
+            if (post.user.id === target_id) {
               post.is_following_author = is_active;
             }
           }
         };
 
-        const postInList = state.list.find((p) => p.id === target_id);
-        if (postInList) {
-          updatePostState(postInList);
+        // 根据不同 target_type 精准更新
+        if (target_type === "post") {
+          const postInList = state.list.find((p) => p.id === target_id);
+          if (postInList) updatePostState(postInList);
+          if (state.currentPost && state.currentPost.id === target_id) {
+            updatePostState(state.currentPost);
+          }
         }
 
-        if (state.currentPost && state.currentPost.id === target_id) {
-          updatePostState(state.currentPost);
+        if (target_type === "user" && action_type === "follow") {
+          // 更新列表中所有由该作者发布的帖子
+          state.list.forEach((p) => {
+            if (p.user && p.user.id === target_id) {
+              updatePostState(p);
+            }
+          });
+          // 更新详情
+          if (
+            state.currentPost &&
+            state.currentPost.user &&
+            state.currentPost.user.id === target_id
+          ) {
+            updatePostState(state.currentPost);
+          }
         }
       });
   },

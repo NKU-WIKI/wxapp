@@ -4,12 +4,12 @@ import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import CustomHeader from '@/components/custom-header';
-import PostItem from '@/components/post-item';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import EmptyState from '@/components/empty-state';
 import heartOutlineIcon from '@/assets/heart-outline.svg';
 import styles from './index.module.scss';
 import { fetchLikes, resetLikes } from '@/store/slices/likeSlice';
+import Post from '@/components/post';
 
 const LikesPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -112,7 +112,7 @@ const LikesPage: React.FC = () => {
     const content = likes
       .filter(post => post && post.id && post.author_info)
       .map(post => (
-        <PostItem key={post.id} post={post} className={styles.postItem} />
+        <Post key={post.id} post={post} className={styles.postItem} mode="list" />
       ));
 
     // 添加加载更多的骨架屏
@@ -162,4 +162,4 @@ const LikesPage: React.FC = () => {
   );
 };
 
-export default LikesPage; 
+export default LikesPage;

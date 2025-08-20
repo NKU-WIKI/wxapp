@@ -1,0 +1,86 @@
+.postContainer {
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  min-height: 120px; /* 提升整体高度的最小值 */
+}
+
+.postContainer.detail {
+  border-radius: 0;
+  padding: 16px 16px 80px 16px;
+}
+
+.titleSection {
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.authorDetails {}
+
+.authorMainRow { display: flex; align-items: center; }
+.authorName { font-size: 16px; font-weight: 500; color: #222; }
+.levelBadge { margin-left: 6px; padding: 0 6px; height: 18px; border-radius: 9px; background: #f0f0f0; display: flex; align-items: center; }
+.followButton { margin-left: 8px; padding: 0 8px; height: 24px; border-radius: 12px; background: #222; color: #fff; font-size: 12px; display:flex; align-items: center; }
+.followButton.followed { background: #f5f5f5; color: #666; }
+.authorBio { font-size: 12px; color: #888; margin-top: 4px; }
+.meta { font-size: 12px; color: #666; margin-top: 2px; }
+
+.headerActions { display:flex; align-items: center; }
+.postTime { font-size: 12px; color: #999; margin-left: 8px; }
+.moreButton { width: 24px; height: 24px; display:flex; align-items: center; justify-content: center; }
+.moreIcon { width: 18px; height: 18px; }
+
+.content { margin-top: 10px; }
+.text { font-size: 14px; color: #333; line-height: 1.7; white-space: pre-wrap; }
+.postContent { margin-top: 12px; }
+
+/* 新增：列表内容标题与正文样式 */
+.contentTitle { font-size: 16px; font-weight: 600; color: #111; line-height: 1.5; }
+.contentText { font-size: 14px; color: #333; line-height: 1.7; margin-top: 6px; white-space: pre-wrap; }
+
+.images { display: grid; gap: 6px; margin-top: 8px; }
+.singleImage { grid-template-columns: 1fr; }
+.doubleImage { grid-template-columns: 1fr 1fr; }
+.gridImage { grid-template-columns: 1fr 1fr 1fr; }
+.postImage { width: 100%; height: 100px; border-radius: 8px; background: #f5f5f5; }
+
+.tagsSection { display:flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.tag { background: #f7f7f7; border-radius: 12px; padding: 2px 8px; }
+.tagText { font-size: 12px; color: #666; }
+.locationTag { background: #eef5ff; display:flex; align-items: center; gap: 4px; border-radius: 12px; padding: 2px 8px; }
+.locationIcon { width: 14px; height: 14px; }
+
+.footer { margin-top: 12px; display:flex; align-items: center; justify-content: space-between; }
+.actions { display:flex; align-items: center; gap: 20px; }
+.actionButton { display:flex; align-items: center; gap: 6px; }
+.actionIcon { width: 20px; height: 20px; }
+.actionCount { font-size: 13px; color: #666; }
+.activeIcon {}
+.active { color: #111; }
+
+/* 调整分享按钮尺寸以与点赞一致 */
+.shareIcon { width: 20px; height: 20px; }

@@ -3,10 +3,9 @@ import Taro, { useDidShow } from "@tarojs/taro";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { Post } from "@/types/api/post.d";
+import type { Post as PostType } from "@/types/api/post.d";
 import { fetchFeed, fetchForumPosts } from "@/store/slices/postSlice";
 import CustomHeader from "@/components/custom-header";
-import PostItem from "@/components/post-item";
 import PostItemSkeleton from "@/components/post-item-skeleton";
 import EmptyState from "@/components/empty-state";
 import styles from "./index.module.scss";
@@ -17,6 +16,7 @@ import hatIcon from "@/assets/hat.svg";
 import starIcon from "@/assets/star2.svg";
 import usersGroupIcon from "@/assets/p2p-fill.svg";
 import bagIcon from "@/assets/bag.svg";
+import Post from "@/components/post";
 
 const mockCategories = [
   {
@@ -50,7 +50,7 @@ export default function Home() {
   console.log("--- HOME COMPONENT RENDER CHECK (PRODUCTION) ---");
   const dispatch = useDispatch<AppDispatch>();
   const { list: posts, loading, pagination } = useSelector(
-    (state: RootState) => state.post || { list: [] as Post[], loading: 'idle', pagination: null }
+    (state: RootState) => state.post || { list: [] as PostType[], loading: 'idle', pagination: null }
   );
   const { isLoggedIn } = useSelector((state: RootState) => state.user || { isLoggedIn: false });
   const isLoading = loading === "pending";
@@ -142,7 +142,7 @@ export default function Home() {
     const content = posts
       .filter((post) => post && post.id && post.user) // Changed from author_info to user
       .map((post) => (
-        <PostItem key={post.id} post={post} className={styles.postListItem} />
+        <Post key={post.id} post={post} className={styles.postListItem} mode="list" />
       ));
 
     // 添加加载更多的骨架屏

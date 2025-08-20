@@ -14,6 +14,5 @@ export interface ToggleActionRequest {
  */
 export interface ToggleActionResponse {
   is_active: boolean;
-  // count is no longer part of the response according to the new docs
-  // count: number;
+  count?: number; // API响应中包含count字段
 }

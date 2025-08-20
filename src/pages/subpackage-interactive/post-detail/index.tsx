@@ -7,11 +7,11 @@ import { fetchPostDetail } from '@/store/slices/postSlice';
 import { useRouter } from '@tarojs/taro';
 import CustomHeader from '@/components/custom-header';
 import CommentSection from './components/CommentSection';
-import PostDetailContent from './components/PostDetailContent';
 import BottomInput from './components/BottomInput';
 import styles from './index.module.scss';
 import { CommentDetail } from '@/types/api/comment';
 import { addHistory } from '@/utils/history';
+import Post from '@/components/post';
 
 const PostDetailPage = () => {
   const router = useRouter();
@@ -102,7 +102,7 @@ const PostDetailPage = () => {
 
     return (
       <>
-        <PostDetailContent post={postState.currentPost} />
+        <Post post={postState.currentPost} mode="detail" />
         
         <CommentSection 
           comments={commentState?.comments || []} 
@@ -139,4 +139,4 @@ const PostDetailPage = () => {
   );
 };
 
-export default PostDetailPage; 
+export default PostDetailPage;

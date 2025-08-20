@@ -37,7 +37,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
       
       if (response.data) {
         const newIsLiked = response.data.is_active;
-        // 根据新状态计算点赞数量
+        // 根据新状态计算点赞数量，确保不会出现负数
         const currentLikeCount = comment.like_count || 0;
         const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
         onLikeUpdate(comment.id, newIsLiked, newLikeCount);
@@ -158,7 +158,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
       // 更新本地状态
       if (onLikeUpdate) {
         const newIsLiked = response.data.is_active;
-        // 根据新状态计算点赞数量
+        // 根据新状态计算点赞数量，确保不会出现负数
         const currentLikeCount = comment.like_count || 0;
         const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
         onLikeUpdate(comment.id, newIsLiked, newLikeCount);

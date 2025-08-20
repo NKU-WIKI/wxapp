@@ -4,7 +4,7 @@ import { useRouter } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomHeader from '@/components/custom-header';
 import styles from './index.module.scss';
-import PostDetailContent from './components/PostDetailContent';
+
 import CommentSection from './components/CommentSection';
 import BottomInput from './components/BottomInput';
 import { fetchPostDetail } from '@/store/slices/postSlice';
@@ -15,6 +15,7 @@ import emptyIcon from '@/assets/empty.svg';
 import { PostsState } from '@/store/slices/postSlice';
 import { CommentState } from '@/store/slices/commentSlice';
 import { addHistory } from '@/utils/history';
+import Post from '@/components/post';
 
 const PostDetailPage = () => {
   const router = useRouter();
@@ -67,7 +68,7 @@ const PostDetailPage = () => {
     
     return (
       <>
-        <PostDetailContent post={currentPost} />
+        <Post post={currentPost} mode="detail" />
         
         {commentsError ? (
           <View className={styles.errorContainer}>
@@ -98,4 +99,4 @@ const PostDetailPage = () => {
   );
 };
 
-export default PostDetailPage; 
+export default PostDetailPage;
