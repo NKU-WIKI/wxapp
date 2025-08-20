@@ -59,10 +59,10 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   
   // 从 Redux 中获取最新的帖子状态
   const posts = postState?.list || [];
-  const currentPostFromRedux = posts.find(p => p.id === post.id);
+  const postFromList = posts.find(p => p.id === post.id);
   
-  // 使用 Redux 中的状态，如果 Redux 中没有则使用 props 中的
-  const displayPost = currentPostFromRedux || post;
+  // 使用合并策略：列表中的快照在前，props 中的更完整数据在后，保证详情页数据覆盖
+  const displayPost = { ...(postFromList || {}), ...post } as PostData;
   
   // 统一字段处理：优先使用 user 字段，兼容 author_info
   const author = displayPost.user || displayPost.author_info;
@@ -75,6 +75,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   // 直接从 displayPost 获取计数，不使用本地状态管理
   const likeCount = Math.max(0, displayPost.like_count || 0);
   const favoriteCount = Math.max(0, displayPost.favorite_count || 0);
+  const commentCount = Math.max(0, displayPost.comment_count || 0);
   
   // 解析图片
   const getImages = () => {
@@ -348,12 +349,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   
   return (
     <View className={`${styles.postContainer} ${styles[mode]} ${className}`}>
-      {/* 标题部分 - 仅详情态显示 */}
-      {mode === 'detail' && (
-        <View className={styles.titleSection}>
-          <Text className={styles.title}>{displayPost.title}</Text>
-        </View>
-      )}
+
       
       {/* 用户信息区域 */}
       <View className={styles.userInfo}>
@@ -409,6 +405,13 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           )}
         </View>
       </View>
+
+      {/* 标题部分 - 仅详情态显示 */}
+      {mode === 'detail' && (
+        <View className={styles.titleSection}>
+          <Text className={styles.title}>{displayPost.title}</Text>
+        </View>
+      )}
       
       {/* 帖子内容 */}
       {mode === 'list' && (
@@ -479,7 +482,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           <ActionButton
             icon={commentIcon}
             activeIcon={commentIcon}
-            count={displayPost.comment_count}
+            count={commentCount}
             isActive={false}
             action="comment"
           />

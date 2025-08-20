@@ -64,7 +64,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
       <View className={styles.subContent}>
         <View className={styles.subHeader}>
           <Text className={styles.subName}>{comment.author_nickname}</Text>
-          <Text className={styles.subTime}>{formatRelativeTime(comment.create_time)}</Text>
+          <Text className={styles.subTime}>{formatRelativeTime(comment.create_at)}</Text>
         </View>
         <Text className={styles.subText}>
           {comment.parent_author_nickname ? (
@@ -303,7 +303,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
     <View className={styles.content}>
       <View className={styles.header}>
         <Text className={styles.name}>{comment?.author_nickname || '匿名用户'}</Text>
-        <Text className={styles.time}>{formatRelativeTime(comment.create_time)}</Text>
+        <Text className={styles.time}>{formatRelativeTime(comment.create_at)}</Text>
       </View>
         <Text className={styles.text}>{comment?.content}</Text>
       <View className={styles.actions}>
@@ -422,7 +422,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
   // 根据排序方式对评论进行排序
   const sortedComments = [...localComments].sort((a, b) => {
     if (sortBy === 'time') {
-      return new Date(b.create_time).getTime() - new Date(a.create_time).getTime();
+      return new Date(b.create_at).getTime() - new Date(a.create_at).getTime();
     } else {
       return (b.like_count || 0) - (a.like_count || 0);
     }

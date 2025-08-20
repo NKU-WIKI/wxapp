@@ -11,7 +11,7 @@ export interface Comment {
   parent_id?: number;
   user_id: number;
   user: User; // Renamed from user_info
-  create_time: string;
+  create_at: string;
 }
 
 /**
