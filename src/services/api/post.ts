@@ -29,7 +29,7 @@ export const getPosts = (params: any) => {
  * 根据ID获取单个帖子详情
  */
 export const getPostById = (postId: number) => {
-  return http.get<Post>(`/forums/posts/${postId}`);
+  return http.put<Post>(`/forums/posts/${postId}`);
 };
 
 /**
@@ -100,7 +100,7 @@ export const getPostsFeed = (params: GetFeedParams) => {
  * @returns 生成的帖子Feed列表
  */
 export const generatePostsFeed = (topic: string) => {
-  return http.post<Post[]>("/forums/posts/feed/generate", {}, { topic });
+  return http.post<Post[]>("/forums/posts/feed/generate", { topic });
 };
 
 /**
