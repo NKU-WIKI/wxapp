@@ -29,7 +29,7 @@ export const getPosts = (params: any) => {
  * 根据ID获取单个帖子详情
  */
 export const getPostById = (postId: number) => {
-  return http.put<Post>(`/forums/posts/${postId}`);
+  return http.get<Post>(`/forums/posts/${postId}`);
 };
 
 /**
