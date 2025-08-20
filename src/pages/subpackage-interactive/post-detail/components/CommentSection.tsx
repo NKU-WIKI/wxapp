@@ -60,10 +60,10 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
 
   return (
     <View className={styles.subCommentItem}>
-      <Image className={styles.subAvatar} src={comment.avatar} />
+      <Image className={styles.subAvatar} src={comment.avatar || ''} />
       <View className={styles.subContent}>
         <View className={styles.subHeader}>
-          <Text className={styles.subName}>{comment.nickname}</Text>
+          <Text className={styles.subName}>{comment.author_nickname}</Text>
           <Text className={styles.subTime}>{formatRelativeTime(comment.create_time)}</Text>
         </View>
         <Text className={styles.subText}>
@@ -240,7 +240,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
       const repliesData = Array.isArray(response) ? response : (response?.data || []);
       
       // 递归获取所有层级的子评论，传入主评论的昵称作为第一层子评论的父昵称
-      const allReplies = await fetchAllNestedRepliesRecursive(repliesData, parentComment.nickname);
+      const allReplies = await fetchAllNestedRepliesRecursive(repliesData, parentComment.author_nickname);
       
       // 更新本地状态，将获取到的所有回复添加到当前评论的children中
       const updatedComment = {
@@ -262,13 +262,13 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
   };
 
   // 递归获取所有层级的子评论
-  const fetchAllNestedRepliesRecursive = async (replies: any[], parentNickname?: string): Promise<any[]> => {
+  const fetchAllNestedRepliesRecursive = async (replies: any[], parentauthor_nickname?: string): Promise<any[]> => {
     const allReplies = [...replies];
     
     for (const reply of replies) {
-      // 如果当前回复没有parent_author_nickname，使用传入的parentNickname
-      if (!reply.parent_author_nickname && parentNickname) {
-        reply.parent_author_nickname = parentNickname;
+      // 如果当前回复没有parent_author_author_nickname，使用传入的parentauthor_nickname
+      if (!reply.parent_author_author_nickname && parentauthor_nickname) {
+        reply.parent_author_author_nickname = parentauthor_nickname;
       }
       
       if (reply.reply_count > 0) {
@@ -286,7 +286,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
             : (nestedResponse?.data || []);
           
           // 递归获取更深层级的回复，传入当前回复的昵称作为父昵称
-          const deeperReplies = await fetchAllNestedRepliesRecursive(nestedReplies, reply.nickname);
+          const deeperReplies = await fetchAllNestedRepliesRecursive(nestedReplies, reply.author_nickname);
           allReplies.push(...deeperReplies);
         } catch (error) {
           console.error(`❌ 获取评论 ${reply.id} 的子回复失败:`, error);
@@ -302,7 +302,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
       <Image src={comment.avatar || ''} className={styles.avatar} />
     <View className={styles.content}>
       <View className={styles.header}>
-        <Text className={styles.name}>{comment?.nickname || '匿名用户'}</Text>
+        <Text className={styles.name}>{comment?.author_nickname || '匿名用户'}</Text>
         <Text className={styles.time}>{formatRelativeTime(comment.create_time)}</Text>
       </View>
         <Text className={styles.text}>{comment?.content}</Text>
@@ -375,7 +375,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
       return prevComments.map(comment => {
         // 检查是否是主评论
         if (comment.id === commentId) {
-          console.log('✅ 更新主评论点赞状态:', comment.nickname);
+          console.log('✅ 更新主评论点赞状态:', comment.author_nickname);
           return { ...comment, is_liked: isLiked, like_count: likeCount };
         }
         
@@ -383,7 +383,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
         if (comment.children && comment.children.length > 0) {
           const updatedChildren = comment.children.map(child => {
             if (child.id === commentId) {
-              console.log('✅ 更新子评论点赞状态:', child.nickname);
+              console.log('✅ 更新子评论点赞状态:', child.author_nickname);
               return { ...child, is_liked: isLiked, like_count: likeCount };
             }
             return child;

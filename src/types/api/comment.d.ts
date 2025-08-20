@@ -18,7 +18,7 @@ export interface Comment {
  * @description 评论详情信息结构，包含额外字段
  */
 export interface CommentDetail extends Comment {
-  nickname?: string;
+  author_nickname?: string;
   parent_author_nickname?: string;
   reply_count?: number;
   like_count?: number;
