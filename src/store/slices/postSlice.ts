@@ -156,7 +156,23 @@ const postsSlice = createSlice({
       .addCase(fetchForumPosts.fulfilled, (state, action) => {
         state.loading = "succeeded";
         if (action.payload && action.payload.items) {
-          state.list = action.payload.items;
+          // 刷新时保留用户交互状态：合并新数据与现有交互状态
+          const existingPostsMap = new Map(state.list.map(post => [post.id, post]));
+          state.list = action.payload.items.map(newPost => {
+            const existingPost = existingPostsMap.get(newPost.id);
+            if (existingPost) {
+              // 保留用户交互状态，使用新数据更新其他字段
+              return {
+                ...newPost,
+                is_liked: existingPost.is_liked,
+                like_count: existingPost.like_count,
+                is_favorited: existingPost.is_favorited,
+                favorite_count: existingPost.favorite_count,
+                is_following_author: existingPost.is_following_author
+              };
+            }
+            return newPost;
+          });
         }
         if (action.payload && action.payload.pagination) {
           state.pagination = action.payload.pagination;
@@ -178,8 +194,23 @@ const postsSlice = createSlice({
             // If it's not the first page (skip > 0), append
             state.list = [...state.list, ...action.payload.items];
           } else {
-            // Otherwise, replace the list
-            state.list = action.payload.items;
+            // 刷新时保留用户交互状态：合并新数据与现有交互状态
+            const existingPostsMap = new Map(state.list.map(post => [post.id, post]));
+            state.list = action.payload.items.map(newPost => {
+              const existingPost = existingPostsMap.get(newPost.id);
+              if (existingPost) {
+                // 保留用户交互状态，使用新数据更新其他字段
+                return {
+                  ...newPost,
+                  is_liked: existingPost.is_liked,
+                  like_count: existingPost.like_count,
+                  is_favorited: existingPost.is_favorited,
+                  favorite_count: existingPost.favorite_count,
+                  is_following_author: existingPost.is_following_author
+                };
+              }
+              return newPost;
+            });
           }
         }
         if (action.payload && action.payload.pagination) {

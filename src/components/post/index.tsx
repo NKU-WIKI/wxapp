@@ -67,24 +67,14 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   // 统一字段处理：优先使用 user 字段，兼容 author_info
   const author = displayPost.user || displayPost.author_info;
   
-  // 使用状态管理点赞和收藏的状态
-  const [isLiked, setIsLiked] = useState(displayPost.is_liked === true);
-  const [isFavorited, setIsFavorited] = useState(displayPost.is_favorited === true);
-  // 关注状态直接从 displayPost 获取，不做本地管理
+  // 直接从 displayPost 获取状态，不使用本地状态管理
+  const isLiked = displayPost.is_liked === true;
+  const isFavorited = displayPost.is_favorited === true;
   const isFollowing = displayPost.is_following_author === true;
   
-  // 使用状态管理点赞和收藏的计数
-  const [likeCount, setLikeCount] = useState(Math.max(0, displayPost.like_count || 0));
-  const [favoriteCount, setFavoriteCount] = useState(Math.max(0, displayPost.favorite_count || 0));
-  
-  // 当 displayPost 变化时更新状态
-  useEffect(() => {
-    setIsLiked(displayPost.is_liked === true);
-    setIsFavorited(displayPost.is_favorited === true);
-    // 移除关注状态的本地同步，因为现在直接从 displayPost 读取
-    setLikeCount(Math.max(0, displayPost.like_count || 0));
-    setFavoriteCount(Math.max(0, displayPost.favorite_count || 0));
-  }, [displayPost]);
+  // 直接从 displayPost 获取计数，不使用本地状态管理
+  const likeCount = Math.max(0, displayPost.like_count || 0);
+  const favoriteCount = Math.max(0, displayPost.favorite_count || 0);
   
   // 解析图片
   const getImages = () => {
@@ -281,23 +271,8 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           action_type: actionType
         })).then((result: any) => {
           if (result.payload && result.payload.is_active !== undefined) {
-            const { is_active, count } = result.payload;
-            
-            if (actionType === 'like') {
-              setIsLiked(is_active);
-              if (count !== undefined) {
-                setLikeCount(count);
-              } else {
-                setLikeCount(prev => Math.max(0, (prev || 0) + (is_active ? 1 : -1)));
-              }
-            } else if (actionType === 'favorite') {
-              setIsFavorited(is_active);
-              if (count !== undefined) {
-                setFavoriteCount(count);
-              } else {
-                setFavoriteCount(prev => Math.max(0, (prev || 0) + (is_active ? 1 : -1)));
-              }
-            }
+            const { is_active } = result.payload;
+            // 移除本地状态更新，完全依赖Redux store更新
             
             Taro.showToast({
               title: actionType === 'like'
