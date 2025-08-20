@@ -61,7 +61,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
 
   return (
     <View className={styles.subCommentItem}>
-      <Image className={styles.subAvatar} src={comment.avatar || ''} />
+      <Image className={styles.subAvatar} src={normalizeImageUrl(comment.author_avatar) || ''} />
       <View className={styles.subContent}>
         <View className={styles.subHeader}>
           <Text className={styles.subName}>{comment.author_nickname}</Text>
@@ -240,8 +240,16 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
       // 修复数据结构处理，判断response是否为数组
       const repliesData = Array.isArray(response) ? response : (response?.data || []);
       
+      // 标准化字段：author_nickname / author_avatar / create_at
+      const normalizedReplies = (repliesData || []).map((r: any) => ({
+        ...r,
+        author_nickname: r?.author_nickname ?? r?.user?.nickname ?? r?.user?.name ?? '',
+        author_avatar: r?.author_avatar ?? r?.avatar ?? r?.user?.avatar ?? '',
+        create_at: r?.create_at || r?.created_at || r?.create_time || r?.update_time || ''
+      }));
+      
       // 递归获取所有层级的子评论，传入主评论的昵称作为第一层子评论的父昵称
-      const allReplies = await fetchAllNestedRepliesRecursive(repliesData, parentComment.author_nickname);
+      const allReplies = await fetchAllNestedRepliesRecursive(normalizedReplies, parentComment.author_nickname);
       
       // 更新本地状态，将获取到的所有回复添加到当前评论的children中
       const updatedComment = {
@@ -282,9 +290,17 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
           });
           
           // 修复数据结构处理，判断nestedResponse是否为数组
-          const nestedReplies = Array.isArray(nestedResponse) 
+          const rawNested = Array.isArray(nestedResponse) 
             ? nestedResponse 
             : (nestedResponse?.data || []);
+          
+          // 标准化子层回复的关键字段
+          const nestedReplies = (rawNested || []).map((r: any) => ({
+            ...r,
+            author_nickname: r?.author_nickname ?? r?.user?.nickname ?? r?.user?.name ?? '',
+            author_avatar: r?.author_avatar ?? r?.avatar ?? r?.user?.avatar ?? '',
+            create_at: r?.create_at || r?.created_at || r?.create_time || r?.update_time || ''
+          }));
           
           // 递归获取更深层级的回复，传入当前回复的昵称作为父昵称
           const deeperReplies = await fetchAllNestedRepliesRecursive(nestedReplies, reply.author_nickname);
@@ -300,7 +316,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
   
   return (
   <View className={styles.commentItem}>
-      <Image src={normalizeImageUrl(comment.avatar) || ''} className={styles.avatar} />
+      <Image src={normalizeImageUrl(comment.author_avatar) || ''} className={styles.avatar} />
     <View className={styles.content}>
       <View className={styles.header}>
         <Text className={styles.name}>{comment?.author_nickname || '匿名用户'}</Text>

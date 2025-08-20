@@ -106,6 +106,7 @@ const commentSlice = createSlice({
           ...c,
           create_at: c?.create_at || c?.created_at || c?.create_time || c?.update_time || '',
           author_nickname: c?.author_nickname ?? c?.user?.nickname ?? c?.user?.name ?? '',
+          author_avatar: c?.author_avatar ?? c?.avatar ?? c?.user?.avatar ?? '',
         }));
       })
       .addCase(fetchComments.rejected, (state, action) => {
@@ -123,6 +124,7 @@ const commentSlice = createSlice({
           ...payload,
           create_at: payload?.create_at || payload?.created_at || payload?.create_time || new Date().toISOString(),
           author_nickname: payload?.author_nickname ?? payload?.user?.nickname ?? payload?.user?.name ?? '',
+          author_avatar: payload?.author_avatar ?? payload?.avatar ?? payload?.user?.avatar ?? '',
         } as any;
         state.comments.push(normalized); // Add new comment to the list
       })

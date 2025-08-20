@@ -25,6 +25,7 @@ export interface CommentDetail extends Comment {
   is_liked?: boolean;
   children?: CommentDetail[];
   avatar?: string; // 添加avatar属性
+  author_avatar?: string; // 标准化字段：作者头像
 }
 
 /**
