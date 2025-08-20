@@ -7,6 +7,7 @@ import { fetchUserProfile } from '@/store/slices/userSlice'
 import { GetFollowersParams, FollowActionParams, FollowRelation } from '@/types/api/followers'
 import { getFollowers, followAction } from '@/services/api/followers'
 import styles from './index.module.scss'
+import { normalizeImageUrl } from '@/utils/image'
 
 type TabType = 'following' | 'followers';
 
@@ -326,7 +327,7 @@ const FollowersPage = () => {
                 <View key={user.id || index} className={styles.userItem}>
                   <View className={styles.userInfo}>
                     <View className={styles.userAvatar}>
-                      <Image src={user.avatar || ''} mode='aspectFill' />
+                      <Image src={normalizeImageUrl(user.avatar) || ''} mode='aspectFill' />
                     </View>
                     <View className={styles.userDetails}>
                       <Text className={styles.userName}>{user.nickname || ''}</Text>

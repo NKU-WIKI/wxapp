@@ -8,6 +8,7 @@ import likeIcon from '@/assets/thumbs-up.svg';
 import commentIcon from '@/assets/message-circle.svg';
 import defaultAvatar from '@/assets/profile.png';
 import { fetchMyLevel, fetchTodayExperienceRecords } from '@/store/slices/levelSlice';
+import { normalizeImageUrl } from '@/utils/image';
 
 const LEVELS = [
   { lv: 0, label: 'Lv0', range: '0经验值' },
@@ -48,14 +49,14 @@ export default function LevelPage() {
   }, [level, exp]);
 
   const nickname = user?.nickname || '未设置昵称';
-  const avatar = user?.avatar || defaultAvatar;
+  const avatarUrl = normalizeImageUrl(user?.avatar) || defaultAvatar;
 
   return (
     <View className={styles.page}>
       {/* 用户信息卡片 */}
       <View className={styles.card} style={{ marginTop: 16 }}>
         <View className={styles.userInfoRow}>
-          <Image src={avatar} className={styles.avatar} />
+          <Image src={avatarUrl} className={styles.avatar} />
           <View className={styles.userMeta}>
             <Text className={styles.nickname}>{nickname}</Text>
             <Text className={styles.levelBlue}>Lv{level}: {exp}</Text>

@@ -4,6 +4,7 @@ import styles from './ProfileSummary.module.scss'
 import { UserInfo } from '@/types/api/user' // Assuming UserInfo is defined in user types
 import { tabBarSyncManager } from '@/utils/tabBarSync'
 import awardIcon from '@/assets/award.svg'
+import { normalizeImageUrl } from '@/utils/image'
 
 interface ProfileSummaryProps {
   userInfo: UserInfo;
@@ -74,7 +75,7 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
   return (
     <View className={styles.profileSummary}>
       <View className={styles.userInfoRow}>
-        <Image src={userInfo?.avatar || ''} className={styles.avatar} />
+        <Image src={normalizeImageUrl(userInfo?.avatar) || ''} className={styles.avatar} />
         <View className={styles.userDetails}>
           <View className={styles.nameRow}>
             <Text className={styles.nickname}>{userInfo?.nickname || ''}</Text>
