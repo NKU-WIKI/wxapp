@@ -36,10 +36,10 @@ export const uploadImage = (filePath: string): Promise<string> => {
           try {
             const data: BaseResponse<UploadImageResponse> = JSON.parse(res.data);
             if (data.code === 0 && data.data.url) {
-              // 确保URL使用HTTPS协议
+              // 统一使用 HTTP 协议
               let imageUrl = data.data.url;
-              if (imageUrl.startsWith('http:')) {
-                imageUrl = imageUrl.replace('http:', 'https:');
+              if (imageUrl.startsWith('https:')) {
+                imageUrl = imageUrl.replace('https:', 'http:');
               }
               // 标准化URL（处理以/开头的相对路径等）
               resolve(normalizeImageUrl(imageUrl));

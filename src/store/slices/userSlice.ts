@@ -111,14 +111,13 @@ export const fetchUserProfile = createAsyncThunk(
 
 export const updateUser = createAsyncThunk(
   "user/updateUser",
-  async (data: UpdateUserProfileRequest, { rejectWithValue }) => {
+  async (data: UpdateUserProfileRequest, { dispatch, rejectWithValue }) => {
     try {
       // 注意：这里我们调用 updateMeProfile，但返回的是 UserProfile
       // 我们只用它来更新部分用户信息，或者需要后端返回更新后的 User 对象
       const response = await updateMeProfile(data);
-      // 假设我们希望更新后能拿到完整的用户信息，可能需要重新 fetch 或后端直接返回
-      // 为简化，这里我们只返回 payload，并在 reducer 中进行 optimistic update
-      // 或者我们可以 dispatch(fetchUser())
+      // 更新成功后，重新获取用户资料以确保数据同步
+      await dispatch(fetchUserProfile());
       return response; // 返回的是 UserProfile
     } catch (error: any) {
       console.error("Update profile API failed:", error);
@@ -195,8 +194,7 @@ const userSlice = createSlice({
       })
       .addCase(updateUser.fulfilled, (state) => {
         state.status = "succeeded";
-        // Here we could update the userProfile if needed
-        // For now, just mark as succeeded
+        // 用户资料更新成功，fetchUserProfile已在thunk中调用
         state.error = null;
       })
       .addCase(updateUser.rejected, (state, action) => {
