@@ -101,7 +101,12 @@ const commentSlice = createSlice({
       })
       .addCase(fetchComments.fulfilled, (state, action) => {
         state.fetchStatus = "succeeded";
-        state.comments = action.payload;
+        // 规范化时间与作者昵称，确保 create_at 存在
+        state.comments = (action.payload || []).map((c: any) => ({
+          ...c,
+          create_at: c?.create_at || c?.created_at || c?.create_time || c?.update_time || '',
+          author_nickname: c?.author_nickname ?? c?.user?.nickname ?? c?.user?.name ?? '',
+        }));
       })
       .addCase(fetchComments.rejected, (state, action) => {
         state.fetchStatus = "failed";
@@ -113,7 +118,13 @@ const commentSlice = createSlice({
       })
       .addCase(createComment.fulfilled, (state, action) => {
         state.createStatus = "succeeded";
-        state.comments.push(action.payload); // Add new comment to the list
+        const payload: any = action.payload;
+        const normalized = {
+          ...payload,
+          create_at: payload?.create_at || payload?.created_at || payload?.create_time || new Date().toISOString(),
+          author_nickname: payload?.author_nickname ?? payload?.user?.nickname ?? payload?.user?.name ?? '',
+        } as any;
+        state.comments.push(normalized); // Add new comment to the list
       })
       .addCase(createComment.rejected, (state, action) => {
         state.createStatus = "failed";
@@ -151,4 +162,4 @@ const commentSlice = createSlice({
 
 export const { resetCreateStatus } = commentSlice.actions;
 
-export default commentSlice.reducer; 
+export default commentSlice.reducer;
