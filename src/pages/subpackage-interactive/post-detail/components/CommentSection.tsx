@@ -12,6 +12,7 @@ import { RootState } from "@/store";
 import actionApi from "@/services/api/action";
 import Taro from "@tarojs/taro";
 import commentApi from "@/services/api/comment";
+import { normalizeImageUrl } from "@/utils/image";
 
 interface SubCommentItemProps {
   comment: CommentDetail;
@@ -60,7 +61,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
 
   return (
     <View className={styles.subCommentItem}>
-      <Image className={styles.subAvatar} src={comment.avatar} />
+      <Image className={styles.subAvatar} src={normalizeImageUrl(comment.avatar) || ''} />
       <View className={styles.subContent}>
         <View className={styles.subHeader}>
           <Text className={styles.subName}>{comment.nickname}</Text>
@@ -299,7 +300,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
   
   return (
   <View className={styles.commentItem}>
-      <Image src={comment.avatar || ''} className={styles.avatar} />
+      <Image src={normalizeImageUrl(comment.avatar) || ''} className={styles.avatar} />
     <View className={styles.content}>
       <View className={styles.header}>
         <Text className={styles.name}>{comment?.nickname || '匿名用户'}</Text>

@@ -1,7 +1,9 @@
 import { AppDispatch, RootState } from "@/store";
 import { updateUser } from "@/store/slices/userSlice";
 import { User } from "@/types/api/user";
+import { UpdateUserProfileRequest } from "@/types/api/user";
 import { uploadApi } from "@/services/api/upload";
+import { normalizeImageUrl } from "@/utils/image";
 import CustomHeader from "@/components/custom-header";
 import { useState, useEffect } from "react";
 import {
@@ -85,6 +87,12 @@ export default function EditProfilePage() {
           Taro.showToast({ title: "选择图片失败", icon: "none" });
         }
       },
+      complete: () => {
+        // 确保在所有情况下都隐藏加载提示
+        if (Taro.hideLoading) {
+          Taro.hideLoading();
+        }
+      }
     });
   };
 
@@ -94,10 +102,12 @@ export default function EditProfilePage() {
       return;
     }
 
-    const formData: Partial<User> = {
+    const formData: UpdateUserProfileRequest = {
       nickname,
       bio,
       avatar,
+      // 添加兴趣标签
+      interest_tags: interests,
     };
 
     try {
@@ -190,7 +200,7 @@ export default function EditProfilePage() {
               >
                 <Image
                   src={
-                    avatar ||
+                    normalizeImageUrl(avatar) ||
                     "https://ai-public.mastergo.com/ai/img_res/e5f6df9701ea8cf889b7a90a029d2d29.jpg"
                   }
                   className={styles.avatar}

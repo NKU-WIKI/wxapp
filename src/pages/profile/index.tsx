@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from '@/store';
 import { fetchCurrentUser, fetchUserProfile, logout } from '@/store/slices/userSlice';
 import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
+import { normalizeImageUrl } from '@/utils/image';
 import styles from './index.module.scss';
 
 // 用户统计数据接口
@@ -193,7 +194,7 @@ const Profile = () => {
             <View className={styles.userInfoRow}>
               <View className={styles.avatarContainer}>
                 <View className={styles.avatarWrapper}>
-                  <Image src={userInfo?.avatar || "/assets/profile.png"} className={styles.avatar} />
+                  <Image src={normalizeImageUrl(userInfo?.avatar) || "/assets/profile.png"} className={styles.avatar} />
                 </View>
               </View>
               

@@ -1,5 +1,6 @@
 import { View, Image, Text } from '@tarojs/components'
 import styles from './NotificationItem.module.scss'
+import { normalizeImageUrl } from '@/utils/image'
 
 // Define a more specific type for the notification item
 interface Notification {
@@ -20,7 +21,7 @@ const NotificationItem = ({ item }: NotificationItemProps) => {
   return (
     <View className={styles.notificationItem}>
       <View className={styles.avatarContainer}>
-        <Image src={item?.avatar || ''} className={styles.avatar} />
+        <Image src={normalizeImageUrl(item?.avatar) || ''} className={styles.avatar} />
         {item?.unread && <View className={styles.unreadDot} />}
       </View>
       <View className={styles.content}>
