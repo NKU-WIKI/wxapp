@@ -59,8 +59,8 @@
 .postContent { margin-top: 12px; }
 
 /* 新增：列表内容标题与正文样式 */
-.contentTitle { font-size: 16px; font-weight: 600; color: #111; line-height: 1.5; }
-.contentText { font-size: 14px; color: #333; line-height: 1.7; margin-top: 6px; white-space: pre-wrap; }
+.contentTitle { font-size: 16px; font-weight: 600; color: #111; line-height: 1.5; display: block; }
+.contentText { font-size: 14px; color: #333; line-height: 1.7; margin-top: 6px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
 
 .images { display: grid; gap: 6px; margin-top: 8px; }
 .singleImage { grid-template-columns: 1fr; }
