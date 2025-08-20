@@ -28,6 +28,9 @@ const PostDetailPage = () => {
     nickname: string;
   } | null>(null);
 
+  // 下拉刷新状态
+  const [refreshing, setRefreshing] = useState(false);
+
   // 获取帖子详情
   useEffect(() => {
     if (postId) {
@@ -51,7 +54,7 @@ const PostDetailPage = () => {
         title: post.title,
         cover: post.image_urls?.[0] || '',
         avatar: post.author_info?.avatar || '',
-        createdAt: post.create_time,
+        createdAt: post.create_time || '',
         viewedAt: new Date().toISOString()
       });
     }
@@ -62,7 +65,7 @@ const PostDetailPage = () => {
     console.log('💬 回复评论:', comment);
     setReplyTo({
       commentId: comment.id,
-      nickname: comment.nickname
+      nickname: comment.author_nickname || ''
     });
   };
 
@@ -74,6 +77,27 @@ const PostDetailPage = () => {
     if (postId) {
       console.log('🔄 重新获取评论列表以同步点赞状态');
       dispatch(fetchComments({ resource_id: postId, resource_type: 'post' }));
+    }
+  };
+
+  // 处理下拉刷新
+  const handleRefresh = async () => {
+    if (!postId || refreshing) return;
+    
+    console.log('🔄 开始下拉刷新帖子详情');
+    setRefreshing(true);
+    
+    try {
+      // 同时刷新帖子详情和评论列表
+      await Promise.all([
+        dispatch(fetchPostDetail(postId)),
+        dispatch(fetchComments({ resource_id: postId, resource_type: 'post' }))
+      ]);
+      console.log('✅ 下拉刷新完成');
+    } catch (error) {
+      console.error('❌ 下拉刷新失败:', error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -120,6 +144,9 @@ const PostDetailPage = () => {
         <ScrollView 
           scrollY 
           className={styles.scrollView}
+          refresherEnabled
+          refresherTriggered={refreshing}
+          onRefresherRefresh={handleRefresh}
         >
           <View className={styles.mainContent}>
             {renderContent()}
