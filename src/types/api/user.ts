@@ -4,7 +4,7 @@ import { PaginatedData, PaginationParams } from "./common";
  * @description /api/v1/users/me 接口返回的当前用户信息
  */
 export interface CurrentUser {
-  user_id: number;
+  user_id: string;
   tenant_id: string;
   nickname: string;
   roles: string[];
@@ -14,7 +14,7 @@ export interface CurrentUser {
  * @description API 返回的用户基础信息结构
  */
 export interface User extends UserProfile {
-  id: number;
+  id: string;
   nickname: string;
   avatar: string;
   bio?: string;
@@ -60,17 +60,17 @@ export type FollowerList = PaginatedData<Follower>;
  */
 export interface CreateViewHistoryRequest {
   target_type: "post" | "product" | "user";
-  target_id: number;
+  target_id: string;
 }
 
 /**
  * @description 浏览历史记录项
  */
 export interface HistoryItem {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   target_type: string;
-  target_id: number;
+  target_id: string;
   view_time: string; // ISO 8601 format date string
   // 根据 target_type，可能会有关联的目标详情
   target_detail?: any;

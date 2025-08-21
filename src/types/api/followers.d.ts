@@ -18,6 +18,7 @@ export interface GetFollowersParams {
   page_size?: number;
   type: 'following' | 'followers';
   search?: string;
+  target_user_id: string;
 }
 
 // 关注/粉丝列表响应 - 修正为实际API响应格式

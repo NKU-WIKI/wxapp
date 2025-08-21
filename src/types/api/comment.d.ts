@@ -9,7 +9,7 @@ export interface Comment {
   resource_id: number;
   resource_type: string;
   parent_id?: number;
-  user_id: number;
+  user_id: string;
   user: User; // Renamed from user_info
   create_at: string;
 }

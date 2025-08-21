@@ -9,7 +9,7 @@ import {
 import { UnifiedLoginRequest } from "@/types/api/auth";
 import { User, UpdateUserProfileRequest, CurrentUser } from "@/types/api/user";
 import { RootState } from "@/store";
-import { DEFAULT_DEV_TOKEN } from "@/constants";
+import { DEFAULT_DEV_TOKEN, NON_LOGGED_IN_USER_ID } from "@/constants";
 
 interface UserState {
   currentUser: CurrentUser | null;
@@ -94,7 +94,7 @@ export const fetchUserProfile = createAsyncThunk(
 
       // Combine basic user info with profile details
       const combinedProfile = {
-        id: currentUser?.user_id || 0,
+        id: (currentUser as any)?.user_id || (currentUser as any)?.id || '',
         nickname: currentUser?.nickname || '',
         avatar: '', // Assuming avatar is not in these responses, default to empty
         ...response.data, // This will include assets and interest_tags
@@ -159,8 +159,10 @@ const userSlice = createSlice({
       // Fetch Current User (minimal info)
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // Per business logic, user_id 1 indicates a non-logged-in state
-        if (action.payload.user_id === 1) {
+        // 按业务约定：当 user_id 或 id 等于 NON_LOGGED_IN_USER_ID 时视为未登录
+        const payload: any = action.payload as any;
+        const uid = String(payload?.user_id ?? payload?.id ?? "");
+        if (uid === NON_LOGGED_IN_USER_ID) {
           state.isLoggedIn = false;
           state.currentUser = null;
         } else {

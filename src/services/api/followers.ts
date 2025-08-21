@@ -12,7 +12,7 @@ export const getFollowers = async (params: GetFollowersParams) => {
   // 首先获取当前用户信息以获得用户ID
   try {
     const userResponse = await http.get<CurrentUser>('/users/me');
-    const userId = userResponse.data?.user_id;
+    const userId = (userResponse.data as any)?.user_id ?? (userResponse.data as any)?.id;
     
     if (!userId) {
       throw new Error('无法获取用户ID');
@@ -43,7 +43,7 @@ export const getFollowers = async (params: GetFollowersParams) => {
  * @returns
  */
 export const getUserFollowers = (
-  userId: number,
+  userId: string,
   params: PaginationParams
 ) => {
   return http.get<User[]>(
@@ -59,7 +59,7 @@ export const getUserFollowers = (
  * @returns
  */
 export const getUserFollowing = (
-  userId: number,
+  userId: string,
   params: PaginationParams
 ) => {
   return http.get<User[]>(

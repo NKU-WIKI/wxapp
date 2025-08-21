@@ -9,7 +9,7 @@ export interface Post {
   title: string;
   content?: string;
   status: "published" | "draft";
-  user_id: number;
+  user_id: string;
   user: User; // Renamed from user_info
   author_info?: User; // 兼容旧版API返回的作者信息
   view_count?: number;

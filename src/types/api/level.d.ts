@@ -33,7 +33,7 @@ export interface ExperienceRecord {
   tenant_id: string;
   created_at: string;
   updated_at: string;
-  user_id: number;
+  user_id: string;
   /** 事件类型：如 login / like_received / comment */
   event_type: string;
   /** 可选描述 */
@@ -49,4 +49,4 @@ export interface ExperienceRecordPage {
   page_size: number;
 }
 
-export type ExperienceRecordList = ExperienceRecord[]; 
+export type ExperienceRecordList = ExperienceRecord[];

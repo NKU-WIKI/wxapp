@@ -142,7 +142,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   const location = getLocation();
   
   // 作者等级处理
-  const currentUserId = (userState as any)?.currentUser?.user_id;
+  const currentUserId = (userState as any)?.currentUser?.user_id || (userState as any)?.currentUser?.id;
   const fallbackLevel = (userState as any)?.userProfile?.level ?? 0;
   const authorLevel: number = (typeof author?.level === 'number' && !Number.isNaN(author.level))
     ? (author.level as number)
