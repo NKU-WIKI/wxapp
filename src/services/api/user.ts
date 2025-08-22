@@ -5,6 +5,7 @@ import {
   HistoryList,
   GetHistoryParams,
   CurrentUser,
+  User,
 } from "@/types/api/user";
 import http from "../request";
 
@@ -131,7 +132,16 @@ export const getUserFavorites = (_params: any) => {
  * @returns 用户评论列表
  */
 export const getUserComments = (params?: { skip?: number; limit?: number }) => {
-  return http.get<any>("/forums/comments/me", params);
+  return http.get<any>("/comments/me", params);
+};
+
+/**
+ * 根据用户ID获取用户信息
+ * @param userId 用户ID
+ * @returns 用户信息
+ */
+export const getUserById = (userId: string) => {
+  return http.get<User>(`/users/${userId}`);
 };
 
 // 用户API对象，包含所有用户相关的API函数
@@ -150,6 +160,7 @@ export const userApi = {
   upsertMyTag,
   getUserFavorites,
   getUserComments,
+  getUserById,
 };
 
 export default userApi;

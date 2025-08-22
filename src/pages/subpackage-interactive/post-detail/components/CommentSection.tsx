@@ -17,7 +17,7 @@ import { normalizeImageUrl } from "@/utils/image";
 interface SubCommentItemProps {
   comment: CommentDetail;
   onReply: (comment: CommentDetail) => void;
-  onLikeUpdate: (commentId: number, isLiked: boolean, likeCount: number) => void;
+  onLikeUpdate: (commentId: string, isLiked: boolean, likeCount: number) => void;
 }
 
 const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLikeUpdate }) => {
@@ -95,8 +95,8 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
 interface CommentItemProps {
   comment: CommentDetail;
   onReply: (comment: CommentDetail) => void;
-  onLikeUpdate: (commentId: number, isLiked: boolean, likeCount: number) => void;
-  onUpdateComment: (commentId: number, updatedComment: CommentDetail) => void;
+  onLikeUpdate: (commentId: string, isLiked: boolean, likeCount: number) => void;
+  onUpdateComment: (commentId: string, updatedComment: CommentDetail) => void;
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdate, onUpdateComment }) => {

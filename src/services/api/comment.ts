@@ -11,7 +11,7 @@ import http from "../request";
  * @returns
  */
 export const createComment = (data: CreateCommentRequest) => {
-  return http.post<Comment>("/forums/comments", data);
+  return http.post<Comment>("/comments/", data);
 };
 
 /**
@@ -20,8 +20,8 @@ export const createComment = (data: CreateCommentRequest) => {
  * @param data 要更新的内容
  * @returns
  */
-export const updateComment = (commentId: number, data: CommentUpdate) => {
-  return http.put<Comment>(`/forums/comments/${commentId}`, data);
+export const updateComment = (commentId: string, data: CommentUpdate) => {
+  return http.put<Comment>(`/comments/${commentId}`, data);
 };
 
 /**
@@ -29,17 +29,25 @@ export const updateComment = (commentId: number, data: CommentUpdate) => {
  * @param commentId 评论ID
  * @returns
  */
-export const deleteComment = (commentId: number) => {
-  return http.delete<any>(`/forums/comments/${commentId}`);
+export const deleteComment = (commentId: string) => {
+  return http.delete<any>(`/comments/${commentId}`);
 };
 
 /**
  * 获取评论列表
- * @param params 包含资源ID和资源类型的参数
+ * @param params 包含资源ID、资源类型、分页和排序等参数
  * @returns
  */
-export const getComments = (params: { resource_id: string; resource_type: string }) => {
-  return http.get<Comment[]>("/forums/comments", params);
+export const getComments = (params: {
+  resource_id: string;
+  resource_type: string;
+  parent_id?: string;
+  skip?: number;
+  limit?: number;
+  sort_by?: string;
+  sort_desc?: boolean;
+}) => {
+  return http.get<{ items: Comment[]; total: number; skip: number; limit: number }>("/comments/", params);
 };
 
 /**
@@ -48,7 +56,7 @@ export const getComments = (params: { resource_id: string; resource_type: string
  * @returns
  */
 export const getMyComments = (params?: { skip?: number; limit?: number }) => {
-  return http.get<Comment[]>("/forums/comments/me", params);
+  return http.get<Comment[]>("/comments/me", params);
 };
 
 /**

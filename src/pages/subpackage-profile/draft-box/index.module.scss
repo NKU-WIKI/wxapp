@@ -13,11 +13,22 @@
   padding: 0 0 16px 0;
 }
 
-.empty {
+.empty, .loading {
   text-align: center;
   color: $text-secondary-gray;
   font-size: 16px;
   margin-top: 48px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  padding: 16px 16px 8px 16px;
+  font-size: 14px;
+  color: $text-secondary-gray;
+  font-weight: 500;
 }
 
 .bottomBar {

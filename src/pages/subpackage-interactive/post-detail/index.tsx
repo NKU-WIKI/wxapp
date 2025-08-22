@@ -24,7 +24,7 @@ const PostDetailPage = () => {
 
   // 回复状态管理
   const [replyTo, setReplyTo] = useState<{
-    commentId: number;
+    commentId: string; // 修复：改为string以匹配comment.id类型
     nickname: string;
   } | null>(null);
 
@@ -70,7 +70,7 @@ const PostDetailPage = () => {
   };
 
   // 处理点赞状态更新
-  const handleLikeUpdate = (commentId: number, isLiked: boolean, likeCount: number) => {
+  const handleLikeUpdate = (commentId: string, isLiked: boolean, likeCount: number) => {
     console.log('🔥 处理点赞状态更新:', { commentId, isLiked, likeCount });
     
     // 重新获取评论列表以同步状态

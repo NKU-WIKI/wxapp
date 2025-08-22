@@ -17,15 +17,15 @@ import arrowRightIcon from '@/assets/arrow-right.svg';
 
 const SettingsList = () => {
   const menuItems = [
-    { icon: heartIcon, text: '我的点赞', link: '/pages/likes/index' },
+    { icon: heartIcon, text: '我的点赞', link: '/pages/subpackage-profile/likes/index' },
     { icon: starIcon, text: '我的收藏', link: '/pages/subpackage-profile/collection/index' },
-    { icon: messageSquareIcon, text: '我的评论', link: '/pages/comments/index' },
-    { icon: draftIcon, text: '草稿箱', link: '/pages/drafts/index' },
-    { icon: userIcon, text: '关于我们', link: '/pages/about/index' },
+    { icon: messageSquareIcon, text: '我的评论', link: '/pages/subpackage-profile/comments/index' },
+    { icon: draftIcon, text: '草稿箱', link: '/pages/subpackage-profile/draft-box/index' },
+    { icon: userIcon, text: '关于我们', link: '/pages/subpackage-profile/about/index' },
     { icon: settingsIcon, text: '设置', link: '/pages/subpackage-profile/settings/index' },
     { icon: historyIcon, text: '浏览历史', link: '/pages/subpackage-profile/history/index' },
     { icon: feedbackIcon, text: '意见反馈', link: '/pages/subpackage-profile/feedback/index' },
-    { icon: aboutIcon, text: '关于我们', link: '/pages/about/index', extra: '版本 0.1.0' },
+    { icon: aboutIcon, text: '关于我们', link: '/pages/subpackage-profile/about/index', extra: '版本 0.1.0' },
     { icon: logoutIcon, text: '退出登录', action: 'logout' },
   ];
 
