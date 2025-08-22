@@ -18,6 +18,20 @@ const HistoryPage = () => {
   const loadHistory = (reset = false) => {
     const nextPage = reset ? 1 : page;
     const data = historyUtils.getHistory(nextPage, PAGE_SIZE);
+    
+    // 调试日志：查看从本地存储读取的数据
+    console.log('📱 加载浏览历史:', {
+      reset,
+      nextPage,
+      dataLength: data.length,
+      data: data.map(item => ({
+        id: item.id,
+        title: item.title,
+        createdAt: item.createdAt,
+        viewedAt: item.viewedAt
+      }))
+    });
+    
     if (reset) {
       setHistory(data);
       setPage(1);

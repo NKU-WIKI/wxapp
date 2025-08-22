@@ -14,7 +14,7 @@ import {
 // 获取评论列表的 Thunk
 export const fetchComments = createAsyncThunk(
   "comments/fetchComments",
-  async (params: { resource_id: number; resource_type: string }, { rejectWithValue }) => {
+  async (params: { resource_id: string; resource_type: string }, { rejectWithValue }) => {
     try {
       const response = await getComments(params);
       return response.data;

@@ -54,7 +54,7 @@ export const updateMeProfile = (data: UpdateUserProfileRequest) => {
  * @returns
  */
 export const createViewHistory = (data: CreateViewHistoryRequest) => {
-  return http.post<any>("/users/views", data);
+  return http.post<void>("/users/views", data);
 };
 
 /**
