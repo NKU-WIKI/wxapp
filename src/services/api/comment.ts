@@ -38,7 +38,7 @@ export const deleteComment = (commentId: number) => {
  * @param params 包含资源ID和资源类型的参数
  * @returns
  */
-export const getComments = (params: { resource_id: number; resource_type: string }) => {
+export const getComments = (params: { resource_id: string; resource_type: string }) => {
   return http.get<Comment[]>("/forums/comments", params);
 };
 

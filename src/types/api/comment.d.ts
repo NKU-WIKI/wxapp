@@ -6,7 +6,7 @@ import { User } from "./user";
 export interface Comment {
   id: number;
   content: string;
-  resource_id: number;
+  resource_id: string; // 改为string以支持帖子UUID
   resource_type: string;
   parent_id?: number;
   user_id: string;
@@ -33,7 +33,7 @@ export interface CommentDetail extends Comment {
  */
 export interface CreateCommentRequest {
   content: string;
-  resource_id: number;
+  resource_id: string; // 改为string以支持帖子UUID
   resource_type: string;
   parent_id?: number;
 }

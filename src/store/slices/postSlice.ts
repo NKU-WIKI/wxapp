@@ -76,7 +76,7 @@ export const createPost = createAsyncThunk(
 // 更新帖子的 Thunk
 export const updatePost = createAsyncThunk(
   "posts/updatePost",
-  async ({ postId, data }: { postId: number; data: PostUpdate }, { rejectWithValue }) => {
+  async ({ postId, data }: { postId: string; data: PostUpdate }, { rejectWithValue }) => {
     try {
       const response = await updatePostApi(postId, data);
       return response.data;
@@ -89,7 +89,7 @@ export const updatePost = createAsyncThunk(
 // 删除帖子的 Thunk
 export const deletePost = createAsyncThunk(
   "posts/deletePost",
-  async (postId: number, { rejectWithValue }) => {
+  async (postId: string, { rejectWithValue }) => {
     try {
       await deletePostApi(postId);
       return postId; // Return the id to remove from the list
@@ -102,7 +102,7 @@ export const deletePost = createAsyncThunk(
 // 获取帖子详情的 Thunk
 export const fetchPostDetail = createAsyncThunk(
   "posts/fetchPostDetail",
-  async (postId: number, { rejectWithValue }) => {
+  async (postId: string, { rejectWithValue }) => {
     try {
       const response = await getPostDetail(postId);
       return response.data;

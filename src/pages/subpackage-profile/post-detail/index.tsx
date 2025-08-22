@@ -24,7 +24,7 @@ const PostDetailPage = () => {
   const { comments, loading: commentsLoading, error: commentsError } = useSelector((state: RootState) => state.comment as CommentState);
   
   // 从路由参数中获取帖子ID
-  const postId = Number(router.params.id);
+  const postId = router.params.id;
   
   useEffect(() => {
     if (postId) {

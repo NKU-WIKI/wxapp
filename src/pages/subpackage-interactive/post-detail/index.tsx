@@ -19,8 +19,8 @@ const PostDetailPage = () => {
   const postState = useSelector((state: RootState) => state.post);
   const commentState = useSelector((state: RootState) => state.comment);
 
-  // 从路由参数中获取帖子ID
-  const postId = Number(router.params.id);
+  // 从路由参数中获取帖子ID（UUID字符串）
+  const postId = router.params.id;
 
   // 回复状态管理
   const [replyTo, setReplyTo] = useState<{
@@ -50,7 +50,7 @@ const PostDetailPage = () => {
     if (postState?.currentPost) {
       const post = postState.currentPost;
       addHistory({
-        id: String(post.id),
+        id: post.id, // post.id已经是string类型（UUID）
         title: post.title,
         cover: post.image_urls?.[0] || '',
         avatar: post.author_info?.avatar || '',

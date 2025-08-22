@@ -28,14 +28,14 @@ export const getPosts = (params: any) => {
 /**
  * 根据ID获取单个帖子详情
  */
-export const getPostById = (postId: number) => {
+export const getPostById = (postId: string) => {
   return http.get<Post>(`/forums/posts/${postId}`);
 };
 
 /**
  * 获取帖子详情（别名）
  */
-export const getPostDetail = (postId: number) => {
+export const getPostDetail = (postId: string) => {
   return getPostById(postId);
 };
 
@@ -54,7 +54,7 @@ export const createForumPost = (data: CreateForumPostRequest) => {
  * @param data 要更新的数据
  * @returns
  */
-export const updatePost = (postId: number, data: any) => { // Using 'any' for PostUpdate type temporarily
+export const updatePost = (postId: string, data: any) => { // Using 'any' for PostUpdate type temporarily
   return http.put<Post>(`/forums/posts/${postId}`, data);
 };
 
@@ -63,7 +63,7 @@ export const updatePost = (postId: number, data: any) => { // Using 'any' for Po
  * @param postId 帖子ID
  * @returns
  */
-export const deletePost = (postId: number) => {
+export const deletePost = (postId: string) => {
   return http.delete<any>(`/forums/posts/${postId}`); // Assuming standard success response
 };
 
