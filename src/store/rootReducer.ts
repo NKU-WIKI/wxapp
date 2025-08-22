@@ -10,12 +10,19 @@ import aboutReducer from "./slices/aboutSlice";
 import chatReducer from "./slices/chatSlice";
 import feedbackReducer from "./slices/feedbackSlice";
 import levelReducer from "./slices/levelSlice";
+import settingsReducer from "./slices/settingsSlice"; // Settings slice
 
 const userPersistConfig = {
   key: 'user',
   storage: persistStorage,
   // Do not persist these fields
   blacklist: ['isLoggedIn', 'status', 'error'],
+};
+
+const settingsPersistConfig = {
+  key: 'settings',
+  storage: persistStorage,
+  // 持久化所有设置
 };
 
 const rootReducer = combineReducers({
@@ -28,6 +35,7 @@ const rootReducer = combineReducers({
   chat: chatReducer,
   feedback: feedbackReducer,
   level: levelReducer,
+  settings: persistReducer(settingsPersistConfig, settingsReducer), // Add settings reducer
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

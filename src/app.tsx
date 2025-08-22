@@ -7,6 +7,7 @@ import store, { persistor } from './store'
 import { initTabBarSync } from './utils/tabBarSync'
 import './app.scss'
 import { fetchCurrentUser } from "./store/slices/userSlice";
+import { initializeSettings, applyFontSize, applyNightMode } from "./store/slices/settingsSlice";
 import { DEFAULT_DEV_TOKEN } from "@/constants";
 
 // AbortController polyfill for WeChat miniprogram
@@ -32,6 +33,17 @@ initTabBarSync();
 
 function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {
+    // 初始化设置
+    store.dispatch(initializeSettings());
+    
+    // 应用当前设置
+    const state = store.getState();
+    const settings = state.settings;
+    
+    // 应用字体大小和夜间模式
+    applyFontSize(settings.fontSize);
+    applyNightMode(settings.nightMode);
+    
     // 检查是否有存储的token
     const storedToken = Taro.getStorageSync("token");
     

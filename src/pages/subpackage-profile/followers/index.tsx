@@ -42,14 +42,14 @@ const FollowersPage = () => {
       
       console.log('API Response:', response);
       
-      // 修复：API返回code为0表示成功，不是200
-      if ((response.code === 200 || response.code === 0) && response.data !== undefined) {
-        // 处理API响应格式 - 根据后端文档，data直接是用户对象数组
+      // 根据OpenAPI文档，标准响应格式为 ApiResponse<User[]>
+      if (response.code === 0 && response.data !== undefined) {
+        // 处理API响应格式 - data是用户对象数组
         let newUsers: any[] = [];
-        const responseData = response.data as any;
+        const responseData = response.data as any[];
         
         if (Array.isArray(responseData)) {
-          // 如果data直接是数组，为每个用户添加关注状态
+          // 为每个用户添加关注状态
           newUsers = responseData.map((user: any) => ({
             ...user,
             // 关注列表中的用户都是已关注状态，粉丝列表中需要根据实际情况判断（默认为未关注）
@@ -86,7 +86,7 @@ const FollowersPage = () => {
   }
 
   // 处理关注/取消关注
-  const handleFollowAction = useCallback(async (userId: number, relation: FollowRelation) => {
+  const handleFollowAction = useCallback(async (userId: string, relation: FollowRelation) => {
     try {
       const params: FollowActionParams = {
         target_user_id: userId,
@@ -95,8 +95,8 @@ const FollowersPage = () => {
       
       const response = await followAction(params)
       
-      // 修复：API返回code为0表示成功，不是200
-      if (response.code === 200 || response.code === 0) {
+      // 根据OpenAPI文档，标准响应格式为 ApiResponse
+      if (response.code === 0) {
         const responseData = response.data as any;
         const isActive = responseData?.is_active;
         
@@ -120,7 +120,7 @@ const FollowersPage = () => {
           icon: 'success'
         })
       } else {
-        throw new Error((response as any).msg || (response as any).message || '操作失败')
+        throw new Error(response.message || '操作失败')
       }
     } catch (err) {
       console.error('Follow action failed:', err)

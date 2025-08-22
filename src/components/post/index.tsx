@@ -171,7 +171,25 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
     if (author.id === userInfo?.id) {
       Taro.switchTab({ url: '/pages/profile/index' });
     } else {
-      Taro.navigateTo({ url: `/pages/subpackage-profile/user-detail/index?userId=${author.id}` });
+      // 传递用户信息到用户详情页
+      const userParams = {
+        userId: author.id,
+        nickname: encodeURIComponent(author.nickname || '未知用户'),
+        avatar: author.avatar || '',
+        bio: encodeURIComponent(author.bio || ''),
+        level: author.level || 1,
+        follower_count: author.follower_count || 0,
+        following_count: author.following_count || 0,
+        post_count: author.post_count || 0,
+      };
+      
+      const queryString = Object.entries(userParams)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('&');
+        
+      Taro.navigateTo({ 
+        url: `/pages/subpackage-profile/user-detail/index?${queryString}` 
+      });
     }
   };
   

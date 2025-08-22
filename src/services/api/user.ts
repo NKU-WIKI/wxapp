@@ -17,6 +17,21 @@ export const getMe = () => {
 };
 
 /**
+ * 获取用户对特定目标的操作状态
+ * @param targetId 目标ID  
+ * @param targetType 目标类型
+ * @param actionType 操作类型
+ * @returns
+ */
+export const getActionStatus = (targetId: string, targetType: 'user' | 'post' | 'comment' | 'knowledge', actionType: 'like' | 'favorite' | 'follow') => {
+  return http.get<{ is_active: boolean; count: number }>("/actions/status", {
+    target_id: targetId,
+    target_type: targetType,
+    action_type: actionType
+  });
+};
+
+/**
  * 获取当前登录用户的详细资料
  * @returns
  */
@@ -39,7 +54,7 @@ export const updateMeProfile = (data: UpdateUserProfileRequest) => {
  * @returns
  */
 export const createViewHistory = (data: CreateViewHistoryRequest) => {
-  return http.post<any>("/actions/view", data);
+  return http.post<any>("/users/views", data);
 };
 
 /**
@@ -49,6 +64,56 @@ export const createViewHistory = (data: CreateViewHistoryRequest) => {
  */
 export const getMyHistory = (params: GetHistoryParams) => {
   return http.get<HistoryList>("/users/me/history", params);
+}; 
+
+/**
+ * 获取当前用户的标签列表
+ * @returns
+ */
+export const getMyTags = () => {
+  return http.get<any>("/personas/me/tags");
+}; 
+
+/**
+ * 获取当前用户统计画像
+ * @returns
+ */
+export const getMyStats = () => {
+  return http.get<any>("/personas/me/stats");
+};
+
+/**
+ * 获取当前用户的等级信息
+ * @returns
+ */
+export const getMyLevel = () => {
+  return http.get<any>("/personas/me/level");
+};
+
+/**
+ * 获取当前用户经验明细
+ * @param params 分页参数
+ * @returns
+ */
+export const getMyExperienceRecords = (params?: { page?: number; size?: number }) => {
+  return http.get<any>("/personas/me/experience-records", params);
+};
+
+/**
+ * 获取经验值规则说明
+ * @returns
+ */
+export const getExpRules = () => {
+  return http.get<any>("/personas/exp-rules");
+};
+
+/**
+ * 新增或更新当前用户标签
+ * @param data 标签数据
+ * @returns
+ */
+export const upsertMyTag = (data: { tag: string; weight?: number }) => {
+  return http.post<any>("/personas/me/tags", data);
 }; 
 
 /**
@@ -72,10 +137,17 @@ export const getUserComments = (params?: { skip?: number; limit?: number }) => {
 // 用户API对象，包含所有用户相关的API函数
 export const userApi = {
   getMe,
+  getActionStatus,
   getMeProfile,
   updateMeProfile,
   createViewHistory,
   getMyHistory,
+  getMyTags,
+  getMyStats,
+  getMyLevel,
+  getMyExperienceRecords,
+  getExpRules,
+  upsertMyTag,
   getUserFavorites,
   getUserComments,
 };

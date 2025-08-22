@@ -1,21 +1,13 @@
 import { View, Text, Image, Button, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { fetchCurrentUser, fetchUserProfile, logout } from '@/store/slices/userSlice';
+import { fetchUserProfile, fetchUserLevel, logout } from '@/store/slices/userSlice';
 import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import { normalizeImageUrl } from '@/utils/image';
 import styles from './index.module.scss';
-
-// 用户统计数据接口
-interface UserStats {
-  following_count: number;
-  follower_count: number;
-  favorites_count: number;
-  likes_count: number;
-}
 
 // 登录提示组件
 const LoginPrompt = () => {
@@ -48,30 +40,26 @@ const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
   const userState = useSelector((state: RootState) => state.user);
   const userInfo = userState?.userProfile; // Use userProfile for detailed info
+  const userLevel = userState?.userLevel; // 用户等级信息
   const isLoggedIn = userState?.isLoggedIn;
   const status = userState?.status;
+  const levelStatus = userState?.levelStatus;
   const headerHeight = useCustomHeaderHeight();
 
   console.log('[Profile Page] isLoggedIn status:', isLoggedIn);
   
-  // Stats are now part of userProfile or need a new API, remove local state management for now
-  /*
-  const [stats, setStats] = useState<UserStats>({
-    following_count: 0,
-    follower_count: 0,
-    favorites_count: 0,
-    likes_count: 0
-  });
-  const [statsLoading, setStatsLoading] = useState(false);
-  */
-
   useEffect(() => {
     // If the user is logged in but profile is not loaded, fetch it.
     // fetchCurrentUser is now handled globally in app.tsx
     if (isLoggedIn && !userInfo) {
       dispatch(fetchUserProfile());
     }
-  }, [isLoggedIn, userInfo, dispatch]);
+    
+    // 获取用户等级信息
+    if (isLoggedIn && !userLevel && levelStatus !== 'loading') {
+      dispatch(fetchUserLevel());
+    }
+  }, [isLoggedIn, userInfo, userLevel, levelStatus, dispatch]);
 
   // The rest of fetchUserStats logic is deprecated as the APIs were removed.
   // Stats should be derived from userProfile.
@@ -194,7 +182,7 @@ const Profile = () => {
             <View className={styles.userInfoRow}>
               <View className={styles.avatarContainer}>
                 <View className={styles.avatarWrapper}>
-                  <Image src={normalizeImageUrl(userInfo?.avatar) || "/assets/profile.png"} className={styles.avatar} />
+                  <Image src={normalizeImageUrl(userInfo?.avatar || '') || "/assets/profile.png"} className={styles.avatar} />
                 </View>
               </View>
               
@@ -205,7 +193,9 @@ const Profile = () => {
 
               <View className={styles.levelBadge} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-profile/level/index' })} style={{ cursor: 'pointer' }}>
                 <Text className={styles.starIcon}>★</Text>
-                <Text className={styles.levelText}>LV.{userInfo?.level || '1'}</Text>
+                <Text className={styles.levelText}>
+                  {userLevel ? `LV.${userLevel.level}` : `LV.${userInfo?.level || '0'}`}
+                </Text>
               </View>
 
               <Button className={styles.editButton} onClick={handleEditProfile}>

@@ -1,5 +1,5 @@
 import { User } from './user';
-import { Pagination } from './common';
+import { Pagination, BaseResponse } from './common';
 
 // 关注/粉丝关系类型
 export type FollowRelation = 'mutual' | 'following' | 'follow_back' | 'none';
@@ -32,17 +32,14 @@ export interface FollowersResponse {
 
 // 关注/取关参数
 export interface FollowActionParams {
-  target_user_id: number;
+  target_user_id: string; // 根据OpenAPI文档，用户ID是UUID字符串
   action?: 'follow' | 'unfollow'; // 保留兼容性，但实际API使用toggle
 }
 
-// 关注/取关响应
-export interface FollowActionResponse {
-  code: number;
-  msg?: string;
-  message?: string;
-  data: {
-    is_active: boolean;
-    relation?: FollowRelation;
-  };
+// 关注操作结果 (基于 ActionToggleResult)
+export interface ActionToggleResult {
+  is_active: boolean;
 }
+
+// 关注/取关响应 (使用BaseResponse包装ActionToggleResult)
+export interface FollowActionResponse extends BaseResponse<ActionToggleResult> {}
