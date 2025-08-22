@@ -23,15 +23,7 @@ const HistoryItem = ({ item, onDelete }: HistoryItemProps) => {
     onDelete()
   }
 
-  // 调试时间字段
-  console.log('🔍 历史项时间调试:', {
-    id: item.id,
-    title: item.title,
-    createdAt: item.createdAt,
-    viewedAt: item.viewedAt,
-    createdAtFormatted: formatRelativeTime(item.createdAt),
-    viewedAtFormatted: formatRelativeTime(item.viewedAt)
-  });
+
 
   return (
     <View className={styles.item} onClick={handleClick}>

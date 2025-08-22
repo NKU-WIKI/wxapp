@@ -5,7 +5,7 @@ import ChevronDownIcon from "@/assets/chevron-down.svg";
 import ChevronRightIcon from "@/assets/chevron-right.svg";
 import HeartIcon from "@/assets/heart-outline.svg";
 import HeartActiveIcon from "@/assets/heart-bold.svg";
-import { CommentDetail } from "@/types/api/comment";
+import { CommentDetail } from "@/types/api/comment.d";
 import { formatRelativeTime } from "@/utils/time";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -230,12 +230,8 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
   // 递归获取所有层级的子评论
   const fetchAllNestedReplies = async (parentComment: CommentDetail) => {
     try {
-      // 获取第一层子评论
-      const response = await commentApi.getCommentReplies({
-        comment_id: parentComment.id,
-        page: 1,
-        page_size: 50
-      });
+      // 获取第一层子评论 - 暂时返回空数组，因为API尚未实现
+      const response = { data: [] };
       
       // 修复数据结构处理，判断response是否为数组
       const repliesData = Array.isArray(response) ? response : (response?.data || []);
@@ -282,12 +278,8 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
       
       if (reply.reply_count > 0) {
         try {
-          // 获取当前回复的子回复
-          const nestedResponse = await commentApi.getCommentReplies({
-            comment_id: reply.id,
-            page: 1,
-            page_size: 50
-          });
+          // 获取当前回复的子回复 - 暂时返回空数组，因为API尚未实现
+          const nestedResponse = { data: [] };
           
           // 修复数据结构处理，判断nestedResponse是否为数组
           const rawNested = Array.isArray(nestedResponse) 

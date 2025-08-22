@@ -19,7 +19,6 @@ export async function recordViewHistory(targetType: "post" | "product" | "user",
     };
     
     await createViewHistory(requestData);
-    console.log('✅ 浏览历史已记录到服务器:', { targetType, targetId });
   } catch (error) {
     console.error('❌ 记录浏览历史到服务器失败:', error);
     // 不抛出错误，避免影响用户体验
