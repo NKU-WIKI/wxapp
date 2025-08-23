@@ -5,7 +5,7 @@ import { User } from "./user";
  * @description 帖子信息结构
  */
 export interface Post {
-  id: number;
+  id: string;
   title: string;
   content?: string;
   status: "published" | "draft";

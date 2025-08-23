@@ -74,12 +74,6 @@ const UserDetail: React.FC = () => {
         
         // 更新用户信息以确保主页的粉丝数量实时更新
         dispatch(fetchUserProfile());
-        
-        Taro.showToast({
-          title: is_active ? '关注成功' : '已取消关注',
-          icon: 'none',
-          duration: 1500
-        });
       }
     } catch (error) {
       console.error('关注操作失败', error);

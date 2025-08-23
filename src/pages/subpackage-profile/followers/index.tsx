@@ -114,11 +114,6 @@ const FollowersPage = () => {
         
         // 更新Redux store中的用户信息，确保主页的粉丝数量实时更新
         dispatch(fetchUserProfile())
-        
-        Taro.showToast({
-          title: isActive ? '关注成功' : '取消关注成功',
-          icon: 'success'
-        })
       } else {
         throw new Error((response as any).msg || (response as any).message || '操作失败')
       }

@@ -4,11 +4,11 @@ import { User } from "./user";
  * @description 评论信息结构
  */
 export interface Comment {
-  id: number;
+  id: string;
   content: string;
-  resource_id: number;
+  resource_id: string;
   resource_type: string;
-  parent_id?: number;
+  parent_id?: string;
   user_id: string;
   user: User; // Renamed from user_info
   create_at: string;
@@ -33,9 +33,9 @@ export interface CommentDetail extends Comment {
  */
 export interface CreateCommentRequest {
   content: string;
-  resource_id: number;
+  resource_id: string;
   resource_type: string;
-  parent_id?: number;
+  parent_id?: string;
 }
 
 /**

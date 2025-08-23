@@ -66,7 +66,7 @@ export const getUserFavorites = (_params: any) => {
  * @returns 用户评论列表
  */
 export const getUserComments = (params?: { skip?: number; limit?: number }) => {
-  return http.get<any>("/forums/comments/me", params);
+  return http.get<any>("/comments/me", params);
 };
 
 // 用户API对象，包含所有用户相关的API函数

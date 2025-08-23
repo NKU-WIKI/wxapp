@@ -42,11 +42,6 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
         const currentLikeCount = comment.like_count || 0;
         const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
         onLikeUpdate(comment.id, newIsLiked, newLikeCount);
-        
-        Taro.showToast({
-          title: newIsLiked ? '已点赞' : '已取消点赞',
-          icon: 'success'
-        });
       }
     } catch (error) {
       console.error('❌ 子评论点赞失败:', error);
@@ -164,13 +159,6 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
         const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
         onLikeUpdate(comment.id, newIsLiked, newLikeCount);
       }
-      
-      // 显示操作结果
-      Taro.showToast({
-        title: response.data.is_active ? '点赞成功' : '已取消点赞',
-        icon: 'none',
-        duration: 1500
-      });
     } catch (error: any) {
       console.error('❌ 评论点赞失败:', error);
       

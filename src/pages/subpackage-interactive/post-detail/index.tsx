@@ -19,8 +19,8 @@ const PostDetailPage = () => {
   const postState = useSelector((state: RootState) => state.post);
   const commentState = useSelector((state: RootState) => state.comment);
 
-  // 从路由参数中获取帖子ID
-  const postId = Number(router.params.id);
+  // 从路由参数中获取帖子ID（UUID格式）
+  const postId = router.params.id as string;
 
   // 回复状态管理
   const [replyTo, setReplyTo] = useState<{

@@ -76,7 +76,7 @@ export const createPost = createAsyncThunk(
 // 更新帖子的 Thunk
 export const updatePost = createAsyncThunk(
   "posts/updatePost",
-  async ({ postId, data }: { postId: number; data: PostUpdate }, { rejectWithValue }) => {
+  async ({ postId, data }: { postId: string; data: PostUpdate }, { rejectWithValue }) => {
     try {
       const response = await updatePostApi(postId, data);
       return response.data;
@@ -89,7 +89,7 @@ export const updatePost = createAsyncThunk(
 // 删除帖子的 Thunk
 export const deletePost = createAsyncThunk(
   "posts/deletePost",
-  async (postId: number, { rejectWithValue }) => {
+  async (postId: string, { rejectWithValue }) => {
     try {
       await deletePostApi(postId);
       return postId; // Return the id to remove from the list
@@ -102,7 +102,7 @@ export const deletePost = createAsyncThunk(
 // 获取帖子详情的 Thunk
 export const fetchPostDetail = createAsyncThunk(
   "posts/fetchPostDetail",
-  async (postId: number, { rejectWithValue }) => {
+  async (postId: string, { rejectWithValue }) => {
     try {
       const response = await getPostDetail(postId);
       return response.data;
@@ -156,23 +156,15 @@ const postsSlice = createSlice({
       .addCase(fetchForumPosts.fulfilled, (state, action) => {
         state.loading = "succeeded";
         if (action.payload && action.payload.items) {
-          // 刷新时保留用户交互状态：合并新数据与现有交互状态
-          const existingPostsMap = new Map(state.list.map(post => [post.id, post]));
-          state.list = action.payload.items.map(newPost => {
-            const existingPost = existingPostsMap.get(newPost.id);
-            if (existingPost) {
-              // 保留用户交互状态，使用新数据更新其他字段
-              return {
-                ...newPost,
-                is_liked: existingPost.is_liked,
-                like_count: existingPost.like_count,
-                is_favorited: existingPost.is_favorited,
-                favorite_count: existingPost.favorite_count,
-                is_following_author: existingPost.is_following_author
-              };
-            }
-            return newPost;
-          });
+          // 使用API返回的最新状态，直接替换旧数据
+          // 用户交互状态应通过toggleAction异步更新，而不是在fetch时保留
+          if (action.payload.pagination && action.payload.pagination.skip > 0) {
+            // 如果是加载更多，追加到现有列表
+            state.list = [...state.list, ...action.payload.items];
+          } else {
+            // 如果是刷新或首次加载，直接替换
+            state.list = action.payload.items;
+          }
         }
         if (action.payload && action.payload.pagination) {
           state.pagination = action.payload.pagination;
@@ -189,28 +181,14 @@ const postsSlice = createSlice({
       .addCase(fetchFeed.fulfilled, (state, action) => {
         state.loading = "succeeded";
         if (action.payload && action.payload.items) {
-          // Based on new logic, feed might be replacing or appending
+          // 使用API返回的最新状态
           if (action.payload.pagination && action.payload.pagination.skip > 0) {
-            // If it's not the first page (skip > 0), append
+            // 如果是加载更多，追加到现有列表
             state.list = [...state.list, ...action.payload.items];
           } else {
-            // 刷新时保留用户交互状态：合并新数据与现有交互状态
-            const existingPostsMap = new Map(state.list.map(post => [post.id, post]));
-            state.list = action.payload.items.map(newPost => {
-              const existingPost = existingPostsMap.get(newPost.id);
-              if (existingPost) {
-                // 保留用户交互状态，使用新数据更新其他字段
-                return {
-                  ...newPost,
-                  is_liked: existingPost.is_liked,
-                  like_count: existingPost.like_count,
-                  is_favorited: existingPost.is_favorited,
-                  favorite_count: existingPost.favorite_count,
-                  is_following_author: existingPost.is_following_author
-                };
-              }
-              return newPost;
-            });
+            // 如果是刷新或首次加载，直接使用API返回的数据
+            // 用户交互状态应通过toggleAction异步更新，而不是在fetch时保留
+            state.list = action.payload.items;
           }
         }
         if (action.payload && action.payload.pagination) {

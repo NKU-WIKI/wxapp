@@ -14,10 +14,10 @@ import {
 // 获取评论列表的 Thunk
 export const fetchComments = createAsyncThunk(
   "comments/fetchComments",
-  async (params: { resource_id: number; resource_type: string }, { rejectWithValue }) => {
+  async (params: { resource_id: string; resource_type: string }, { rejectWithValue }) => {
     try {
       const response = await getComments(params);
-      return response.data;
+      return response; // 返回完整的 response 对象，包含 code, message, data 等
     } catch (error: any) {
       console.error("获取评论失败:", error);
       return rejectWithValue(error.message || "Failed to fetch comments");
@@ -42,7 +42,7 @@ export const createComment = createAsyncThunk(
 // 更新评论的 Thunk
 export const updateComment = createAsyncThunk(
   "comments/updateComment",
-  async ({ commentId, data }: { commentId: number; data: CommentUpdate }, { rejectWithValue }) => {
+  async ({ commentId, data }: { commentId: string; data: CommentUpdate }, { rejectWithValue }) => {
     try {
       const response = await updateCommentApi(commentId, data);
       return response.data; // 返回数据部分
@@ -55,7 +55,7 @@ export const updateComment = createAsyncThunk(
 // 删除评论的 Thunk
 export const deleteComment = createAsyncThunk(
   "comments/deleteComment",
-  async (commentId: number, { rejectWithValue }) => {
+  async (commentId: string, { rejectWithValue }) => {
     try {
       await deleteCommentApi(commentId);
       return commentId;
@@ -101,8 +101,10 @@ const commentSlice = createSlice({
       })
       .addCase(fetchComments.fulfilled, (state, action) => {
         state.fetchStatus = "succeeded";
+        // action.payload 是 BaseResponse<Comment[]> 格式，数据在 data 字段中
+        const commentsData = action.payload?.data || [];
         // 规范化时间与作者昵称，确保 create_at 存在
-        state.comments = (action.payload || []).map((c: any) => ({
+        state.comments = commentsData.map((c: any) => ({
           ...c,
           create_at: c?.create_at || c?.created_at || c?.create_time || c?.update_time || '',
           author_nickname: c?.author_nickname ?? c?.user?.nickname ?? c?.user?.name ?? '',

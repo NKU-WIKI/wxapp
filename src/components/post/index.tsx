@@ -188,11 +188,6 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       if (result.payload && result.payload.is_active !== undefined) {
         const { is_active } = result.payload;
         // 移除本地关注状态设置，完全依赖 Redux store 更新
-        Taro.showToast({
-          title: is_active ? '关注成功' : '已取消关注',
-          icon: 'none',
-          duration: 1500
-        });
       }
     }).catch(error => {
       console.error('关注操作失败', error);
@@ -274,14 +269,6 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           if (result.payload && result.payload.is_active !== undefined) {
             const { is_active } = result.payload;
             // 移除本地状态更新，完全依赖Redux store更新
-            
-            Taro.showToast({
-              title: actionType === 'like'
-                ? (is_active ? '点赞成功' : '已取消点赞')
-                : (is_active ? '收藏成功' : '已取消收藏'),
-              icon: 'none',
-              duration: 1500
-            });
           }
         }).catch(error => {
           console.error(`${actionType}操作失败`, error);
