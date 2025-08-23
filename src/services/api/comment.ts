@@ -17,8 +17,6 @@ export const createComment = (data: CreateCommentRequest) => {
  */
 export const updateComment = (commentId: string, data: CommentUpdate) => {
   return http.put<Comment>(`/comments/${commentId}`, data);
-export const updateComment = (commentId: string, data: CommentUpdate) => {
-  return http.put<Comment>(`/comments/${commentId}`, data);
 };
 
 /**
@@ -28,8 +26,6 @@ export const updateComment = (commentId: string, data: CommentUpdate) => {
  */
 export const deleteComment = (commentId: string) => {
   return http.delete<any>(`/comments/${commentId}`);
-export const deleteComment = (commentId: string) => {
-  return http.delete<any>(`/comments/${commentId}`);
 };
 
 /**
@@ -37,12 +33,19 @@ export const deleteComment = (commentId: string) => {
  * @param params 包含资源ID、资源类型、分页和排序等参数
  * @returns
  */
-export const getComments = (params: { resource_id: string; resource_type: string }) => {
+export const getComments = (params: {
+  resource_id: string;
+  resource_type: string;
+  parent_id?: string;
+  skip?: number;
+  limit?: number;
+  sort_by?: string;
+  sort_desc?: boolean;
+}) => {
   return http.get<Comment[]>("/comments", params);
 };
 
 export const getMyComments = (params?: { skip?: number; limit?: number }) => {
-  return http.get<Comment[]>("/comments/me", params);
   return http.get<Comment[]>("/comments/me", params);
 };
 
