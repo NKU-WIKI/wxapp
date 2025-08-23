@@ -4,7 +4,7 @@ import {
   Comment,
   CommentDetail,
   CommentUpdate,
-} from "@/types/api/comment";
+} from "@/types/api/comment.d";
 import {
   createComment as createCommentApi,
   updateComment as updateCommentApi,

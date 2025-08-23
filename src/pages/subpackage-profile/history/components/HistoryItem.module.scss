@@ -6,6 +6,12 @@
   padding: 16px 0 16px 16px;
   border-bottom: 1px solid $border-light;
   background: $bg-card;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:active {
+    background-color: $bg-input;
+  }
 }
 
 .avatar {
@@ -14,6 +20,7 @@
   border-radius: 50%;
   margin-right: 12px;
   flex-shrink: 0;
+  background-color: $bg-input;
 }
 
 .cover {
@@ -41,11 +48,16 @@
   margin-bottom: 4px;
   text-align: left;
   word-break: break-all;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .publishTime {
   font-size: 13px;
-  color: $text-secondary-gray;
+  color: $text-secondary;
   text-align: left;
 }
 
@@ -67,17 +79,22 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: $status-error-light;
+  background: #FF4444; // 简单的红色
   display: flex;
   align-items: center;
   justify-content: center;
-  mask-image: var(--icon-url);
-  mask-size: contain;
-  mask-position: center;
-  mask-repeat: no-repeat;
-  -webkit-mask-image: var(--icon-url);
-  -webkit-mask-size: contain;
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  background-color: $status-error;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:active {
+    background-color: #CC3333; // 点击时更深的红色
+  }
+
+  &::before {
+    content: '×'; // 简单的X符号
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+  }
 } 

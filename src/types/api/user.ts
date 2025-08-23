@@ -96,7 +96,7 @@ export type FollowerList = PaginatedData<Follower>;
  */
 export interface CreateViewHistoryRequest {
   target_type: "post" | "product" | "user";
-  target_id: string;
+  target_id: number;
 }
 
 /**
