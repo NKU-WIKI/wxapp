@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, Text, Input, Image, Textarea } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import { useDispatch } from 'react-redux';
-import CustomHeader from '@/components/custom-header';
+import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import { AppDispatch } from '@/store';
 import { clearSearchResults } from '@/store/slices/chatSlice';
 // import { tabBarSyncManager } from '@/utils/tabBarSync';
@@ -49,7 +49,7 @@ const masonryContent = [
 
 export default function ExplorePage() {
   const dispatch = useDispatch<AppDispatch>();
-
+  const headerHeight = useCustomHeaderHeight();
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [rawValue, setRawValue] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>(null);
@@ -483,74 +483,81 @@ export default function ExplorePage() {
   return (
     <View className={styles.explorePage} onClick={() => setShowSuggestions(false)}>
       <CustomHeader title='探索' hideBack />
-      <View style={{ flex: 1 }}>
-        <View className={styles.pageContent}>
-          <View className={styles.searchBarWrapper}>
-            <View className={styles.searchContainer}>
-              <Image src={searchIcon} className={styles.searchIcon} />
-              <View className={styles.inputWrapper}>
-                {renderPrefixLabel()}
-                <Input
-                  className={styles.searchInput}
-                  placeholder='搜索校园知识'
-                  value={getDisplayValue()}
-                  onInput={handleInputChange}
-                  confirmType='search'
-                  onConfirm={handleSearch}
-                  onFocus={handleFocus}
-                  {...inputFocusProps}
-                />
-              </View>
-              {rawValue && (
-                <Image src={xIcon} className={styles.clearIcon} onClick={handleClearInput} />
-              )}
+
+      {/* 固定搜索区域 - 位于导航栏下方 */}
+      <View className={styles.fixedSearchArea} style={{ top: `${headerHeight}px` }}>
+        <View className={styles.searchBarWrapper}>
+          <View className={styles.searchContainer}>
+            <Image src={searchIcon} className={styles.searchIcon} />
+            <View className={styles.inputWrapper}>
+              {renderPrefixLabel()}
+              <Input
+                className={styles.searchInput}
+                placeholder='搜索校园知识'
+                value={getDisplayValue()}
+                onInput={handleInputChange}
+                confirmType='search'
+                onConfirm={handleSearch}
+                onFocus={handleFocus}
+                {...inputFocusProps}
+              />
             </View>
-            {renderSuggestions()}
+            {rawValue && (
+              <Image src={xIcon} className={styles.clearIcon} onClick={handleClearInput} />
+            )}
           </View>
-          <ScrollView scrollY className={styles.bodyScroll} enableFlex>
-            {renderBody()}
-          </ScrollView>
-          {/* 浮动上传知识按钮 */}
-          <View className={styles.fab} onClick={() => setShowUploadModal(true)}>
-            <Text className={styles.fabPlus}>＋</Text>
-          </View>
-          {showUploadModal && (
-            <View className={styles.uploadOverlay} onClick={() => setShowUploadModal(false)}>
-              <View className={styles.uploadModal} onClick={(e) => e.stopPropagation()}>
-                <Text className={styles.uploadTitle}>上传知识（链接或文本）</Text>
-                <Textarea
-                  className={styles.uploadTextarea}
-                  placeholder='粘贴链接或输入文本摘要...'
-                  value={uploadText}
-                  onInput={(e) => setUploadText(e.detail.value)}
-                  autoHeight
-                />
-                <View className={styles.uploadActions}>
-                  <Text className={styles.cancelBtn} onClick={() => setShowUploadModal(false)}>取消</Text>
-                  <Text
-                    className={styles.submitBtn}
-                    onClick={async () => {
-                      if (!uploadText.trim()) { Taro.showToast({ title: '请输入内容', icon: 'none' }); return; }
-                      try {
-                        await feedbackApi.createFeedback({ content: `[knowledge_upload] ${uploadText.trim()}`, type: 'suggest' });
-                        setShowUploadModal(false);
-                        setUploadText('');
-                        Taro.showToast({ title: '上传成功，奖励1枚知识令牌', icon: 'success' });
-                        try {
-                          const old = Number(Taro.getStorageSync('contrib_tokens') || 0);
-                          Taro.setStorageSync('contrib_tokens', String(old + 1));
-                        } catch {}
-                      } catch (e: any) {
-                        Taro.showToast({ title: e?.message || '上传失败', icon: 'none' });
-                      }
-                    }}
-                  >提交</Text>
-                </View>
-              </View>
-            </View>
-          )}
+          {renderSuggestions()}
         </View>
       </View>
+
+      {/* 内容滚动区域 */}
+      <View className={styles.contentScrollContainer} style={{ paddingTop: `${headerHeight}px` }}>
+        <ScrollView scrollY className={styles.contentScrollView} enableFlex>
+          <View className={styles.contentArea}>
+            {renderBody()}
+          </View>
+        </ScrollView>
+      </View>
+
+      {/* 浮动上传知识按钮 */}
+      <View className={styles.fab} onClick={() => setShowUploadModal(true)}>
+        <Text className={styles.fabPlus}>＋</Text>
+      </View>
+      {showUploadModal && (
+        <View className={styles.uploadOverlay} onClick={() => setShowUploadModal(false)}>
+          <View className={styles.uploadModal} onClick={(e) => e.stopPropagation()}>
+            <Text className={styles.uploadTitle}>上传知识（链接或文本）</Text>
+            <Textarea
+              className={styles.uploadTextarea}
+              placeholder='粘贴链接或输入文本摘要...'
+              value={uploadText}
+              onInput={(e) => setUploadText(e.detail.value)}
+              autoHeight
+            />
+            <View className={styles.uploadActions}>
+              <Text className={styles.cancelBtn} onClick={() => setShowUploadModal(false)}>取消</Text>
+              <Text
+                className={styles.submitBtn}
+                onClick={async () => {
+                  if (!uploadText.trim()) { Taro.showToast({ title: '请输入内容', icon: 'none' }); return; }
+                  try {
+                    await feedbackApi.createFeedback({ content: `[knowledge_upload] ${uploadText.trim()}`, type: 'suggest' });
+                    setShowUploadModal(false);
+                    setUploadText('');
+                    Taro.showToast({ title: '上传成功，奖励1枚知识令牌', icon: 'success' });
+                    try {
+                      const old = Number(Taro.getStorageSync('contrib_tokens') || 0);
+                      Taro.setStorageSync('contrib_tokens', String(old + 1));
+                    } catch {}
+                  } catch (e: any) {
+                    Taro.showToast({ title: e?.message || '上传失败', icon: 'none' });
+                  }
+                }}
+              >提交</Text>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 }

@@ -1,44 +1,155 @@
 @use "../../../styles/variables.scss" as *;
 
 .ragContainer {
-  padding: 16px;
+  padding: 8px 16px 16px 16px; // 减少上边距，保持左右和下边距
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+}
+
+// Markdown 样式
+.responseText {
+  line-height: 1.6;
+  color: $text-primary;
+}
+
+.markdown-p {
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+.markdown-h1,
+.markdown-h2,
+.markdown-h3,
+.markdown-h4,
+.markdown-h5,
+.markdown-h6 {
+  margin: 16px 0 8px 0;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.markdown-h1 { font-size: 24px; }
+.markdown-h2 { font-size: 20px; }
+.markdown-h3 { font-size: 18px; }
+.markdown-h4 { font-size: 16px; }
+.markdown-h5 { font-size: 14px; }
+.markdown-h6 { font-size: 14px; }
+
+.markdown-ul,
+.markdown-ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.markdown-li {
+  margin: 4px 0;
+}
+
+.markdown-blockquote {
+  margin: 12px 0;
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-left: 4px solid $theme-primary;
+  border-radius: 0 4px 4px 0;
+  font-style: italic;
+  color: $text-secondary;
+}
+
+.markdown-a {
+  color: $theme-primary;
+  text-decoration: underline;
+}
+
+.markdown-code {
+  background-color: rgba(0, 0, 0, 0.08);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  color: #e74c3c;
+}
+
+.code-block {
+  background-color: rgba(0, 0, 0, 0.08);
+  padding: 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.markdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+
+.markdown-th,
+.markdown-td {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.markdown-th {
+  background-color: rgba(0, 0, 0, 0.04);
+  font-weight: 600;
 }
 
 .card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid linear-gradient(90deg, $theme-primary, rgba(79, 70, 229, 0.3));
 }
 
 .avatar {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
+  border: 3px solid rgba(79, 70, 229, 0.2);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
 }
 
 .title {
-  font-weight: 600;
-  color: $text-primary-dark;
+  font-weight: 700;
+  font-size: 16px;
+  color: $theme-primary;
+  background: linear-gradient(135deg, $theme-primary, rgba(79, 70, 229, 0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .responseText {
-  color: #333;
-  font-size: 14px;
-  line-height: 1.6;
+  color: $text-primary;
+  font-size: 15px;
+  line-height: 1.7;
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: anywhere;
+  margin-bottom: 16px;
+  text-align: justify;
 }
 
 .sourcesSection {
@@ -46,49 +157,150 @@
 }
 
 .sourcesHeader {
+  font-weight: 700;
+  font-size: 16px;
+  color: $theme-primary;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sourcesCount {
+  background: linear-gradient(135deg, $theme-primary, rgba(79, 70, 229, 0.8));
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
   font-weight: 600;
-  margin-bottom: 8px;
 }
 
 .sourceItem {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: flex-start;
-  padding: 10px 0;
-  border-top: 1px solid $border-light;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.6), rgba(241, 245, 249, 0.6));
+  border: 1px solid rgba(79, 70, 229, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sourceItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, $theme-primary, rgba(79, 70, 229, 0.3));
+}
+
+.sourceItem:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.15);
+  border-color: rgba(79, 70, 229, 0.2);
 }
 
 .platformIcon {
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: white;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .sourceContent {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
+  flex: 1;
 }
 
 .sourceTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text-primary;
+  line-height: 1.4;
+}
+
+.sourceContentText {
   font-size: 14px;
-  color: $text-primary-dark;
+  color: $text-secondary;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .sourceMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-size: 12px;
-  color: $text-secondary;
+  color: $text-helper-gray;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metaIcon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.6;
+}
+
+.sourceUrl {
+  color: $theme-primary;
+  font-size: 12px;
+  word-break: break-all;
+  margin-top: 4px;
+  padding: 8px;
+  background: rgba(79, 70, 229, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid $theme-primary;
 }
 
 .thumbRow {
   display: flex;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 12px;
+  justify-content: flex-end;
 }
 
 .thumbUp, .thumbDown {
   font-size: 13px;
   color: $text-secondary;
+  padding: 6px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.thumbUp:hover, .thumbDown:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.thumbUp:active, .thumbDown:active {
+  transform: scale(0.95);
 }
 
 

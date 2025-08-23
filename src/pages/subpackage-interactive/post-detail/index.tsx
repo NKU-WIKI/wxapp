@@ -11,6 +11,7 @@ import CommentSection from './components/CommentSection';
 import BottomInput from './components/BottomInput';
 import Post from '@/components/post';
 import { addHistoryWithServerSync } from '@/utils/history';
+import commentApi from '@/services/api/comment';
 import styles from './index.module.scss';
 
 const PostDetailPage = () => {
@@ -123,13 +124,70 @@ const PostDetailPage = () => {
   };
 
   // 处理删除评论
-  const handleDeleteComment = (commentId: string) => {
+  const handleDeleteComment = async (commentId: string) => {
     console.log('🗑️ 处理删除评论:', commentId);
-    // TODO: 实现删除评论逻辑
-    Taro.showToast({
-      title: '删除功能待实现',
-      icon: 'none'
-    });
+
+    try {
+      // 显示确认对话框
+      const res = await new Promise<boolean>((resolve) => {
+        Taro.showModal({
+          title: '确认删除',
+          content: '确定要删除这条评论吗？',
+          success: (result) => {
+            resolve(result.confirm);
+          },
+          fail: () => {
+            resolve(false);
+          }
+        });
+      });
+
+      if (!res) {
+        console.log('用户取消删除');
+        return;
+      }
+
+      // 显示加载提示
+      Taro.showLoading({
+        title: '删除中...'
+      });
+
+      // 调用删除API
+      await commentApi.deleteComment(commentId);
+
+      // 隐藏加载提示
+      Taro.hideLoading();
+
+      // 显示成功提示
+      Taro.showToast({
+        title: '删除成功',
+        icon: 'success'
+      });
+
+      // 重新获取评论列表
+      if (postId) {
+        console.log('🔄 重新获取评论列表');
+        dispatch(fetchComments({
+          resource_id: postId,
+          resource_type: 'post',
+          max_depth: 5,
+          limit_per_level: 10,
+          limit: 20
+        }));
+      }
+
+    } catch (error: any) {
+      console.error('❌ 删除评论失败:', error);
+
+      // 隐藏加载提示
+      Taro.hideLoading();
+
+      // 显示错误提示
+      Taro.showToast({
+        title: error.message || '删除失败，请重试',
+        icon: 'error'
+      });
+    }
   };
 
   // 处理下拉刷新

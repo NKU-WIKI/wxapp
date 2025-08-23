@@ -86,6 +86,7 @@ const knowledgeApi = {
   searchByRag,
   getSuggestions,
   getHotSearches,
+  searchWxapp,
   getSearchHistory,
   clearSearchHistory,
   getSnapshot,

@@ -5,23 +5,40 @@
   flex-direction: column;
   height: 100vh;
   background-color: $bg-page;
+  position: relative;
 }
 
-.pageContent {
+/* 固定搜索区域 - 位于导航栏下方，始终可见 */
+.fixedSearchArea {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: $bg-page;
+}
+
+/* 内容滚动容器 */
+.contentScrollContainer {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  position: relative;
   overflow: hidden;
-  min-height: 0; // 关键：允许子元素（ScrollView）在 flex 容器内正确计算高度
+}
+
+.contentScrollView {
+  height: 100%;
+  width: 100%;
+}
+
+.contentArea {
+  min-height: 100%;
 }
 
 .searchBarWrapper {
   padding: 16px;
-  background-color: $bg-card;
+  background-color: $bg-card !important;
   border-bottom: 1px solid $border-gray;
-  position: sticky;
-  top: 0;
-  z-index: 20; // keep above results
+  backdrop-filter: blur(10px);
 }
 
 .searchContainer {
@@ -125,7 +142,7 @@
 }
 
 .resultsContainer {
-  padding: 16px;
+  padding: 8px 16px 16px 16px; // 减少上边距，保持左右和下边距
 }
 
 .resultItem {
@@ -165,7 +182,7 @@
 
 
 .loadingState, .errorState {
-  padding: 40px 16px;
+  padding: 24px 16px 40px 16px; // 减少上边距，保持左右和下边距
   text-align: center;
   color: $text-helper-light;
 }
@@ -175,7 +192,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 100%;
+  min-height: 200px;
 }
 
 .fab {
@@ -233,7 +250,7 @@
 /* Fallback views */
 .searchSkillsContainer {
   flex: 1;
-  padding: 16px;
+  padding: 8px 16px 16px 16px; // 减少上边距，保持左右和下边距
   background-color: $bg-card;
   height: 100%;
 }
@@ -301,6 +318,7 @@
   color: $text-secondary;
 }
 
+// 保留这些样式以兼容现有代码，但不再使用
 .scrollView {
   height: 100%;
 }
