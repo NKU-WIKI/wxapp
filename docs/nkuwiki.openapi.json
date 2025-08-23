@@ -58,7 +58,7 @@
       "name": "uploads"
     },
     {
-      "name": "personas"
+      "name": "persona"
     },
     {
       "name": "moderation"
@@ -3687,14 +3687,14 @@
         ]
       }
     },
-    "/api/v1/personas/me/stats": {
+    "/api/v1/persona/me/stats": {
       "get": {
         "summary": "获取当前用户统计画像",
         "deprecated": false,
         "description": "",
         "operationId": "get_my_stats_api_v1_personas_me_stats_get",
         "tags": [
-          "personas"
+          "persona"
         ],
         "parameters": [],
         "responses": {
@@ -3717,14 +3717,14 @@
         ]
       }
     },
-    "/api/v1/personas/me/tags": {
+    "/api/v1/persona/me/tags": {
       "get": {
         "summary": "获取当前用户标签",
         "deprecated": false,
         "description": "",
         "operationId": "list_my_tags_api_v1_personas_me_tags_get",
         "tags": [
-          "personas"
+          "persona"
         ],
         "parameters": [],
         "responses": {
@@ -3752,7 +3752,7 @@
         "description": "",
         "operationId": "add_or_update_tag_api_v1_personas_me_tags_post",
         "tags": [
-          "personas"
+          "persona"
         ],
         "parameters": [],
         "requestBody": {
@@ -3796,14 +3796,14 @@
         ]
       }
     },
-    "/api/v1/personas/scenarios": {
+    "/api/v1/persona/scenarios": {
       "get": {
         "summary": "获取场景列表",
         "deprecated": false,
         "description": "",
         "operationId": "list_scenarios_api_v1_personas_scenarios_get",
         "tags": [
-          "personas"
+          "persona"
         ],
         "parameters": [],
         "responses": {
@@ -3831,7 +3831,7 @@
         "description": "",
         "operationId": "create_scenario_api_v1_personas_scenarios_post",
         "tags": [
-          "personas"
+          "persona"
         ],
         "parameters": [],
         "requestBody": {
@@ -3875,14 +3875,14 @@
         ]
       }
     },
-    "/api/v1/personas/me/scenario-preferences": {
+    "/api/v1/persona/me/scenario-preferences": {
       "get": {
         "summary": "获取当前用户场景偏好",
         "deprecated": false,
         "description": "",
         "operationId": "list_my_scenario_preferences_api_v1_personas_me_scenario_preferences_get",
         "tags": [
-          "personas"
+          "persona"
         ],
         "parameters": [],
         "responses": {
@@ -3910,7 +3910,7 @@
         "description": "",
         "operationId": "upsert_my_scenario_preference_api_v1_personas_me_scenario_preferences_post",
         "tags": [
-          "personas"
+          "persona"
         ],
         "parameters": [],
         "requestBody": {

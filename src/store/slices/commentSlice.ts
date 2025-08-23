@@ -18,20 +18,22 @@ const getFallbackUserInfo = (userId: string) => {
   return { nickname: `用户${suffix}`, avatar: "" };
 };
 
-// 获取评论列表的 Thunk
+// 获取评论列表的 Thunk - 使用树形接口
 export const fetchComments = createAsyncThunk(
   "comments/fetchComments",
-  async (params: { 
-    resource_id: string; 
+  async (params: {
+    resource_id: string;
     resource_type: string;
     parent_id?: string;
     skip?: number;
     limit?: number;
     sort_by?: string;
     sort_desc?: boolean;
-  }, { rejectWithValue, getState }) => {
+    max_depth?: number;
+    limit_per_level?: number;
+  }, { rejectWithValue }) => {
     try {
-      // 设置默认参数（仅在提供时传递 parent_id，避免传入字符串 'undefined'）
+      // 设置默认参数
       const apiParams: {
         resource_id: string;
         resource_type: string;
@@ -40,67 +42,56 @@ export const fetchComments = createAsyncThunk(
         limit: number;
         sort_by: string;
         sort_desc: boolean;
+        max_depth?: number;
+        limit_per_level?: number;
       } = {
         resource_id: params.resource_id,
         resource_type: params.resource_type,
         skip: params.skip || 0,
         limit: params.limit || 20,
         sort_by: params.sort_by || 'created_at',
-        sort_desc: params.sort_desc !== undefined ? params.sort_desc : true
+        sort_desc: params.sort_desc !== undefined ? params.sort_desc : true,
+        max_depth: params.max_depth || 5,
+        limit_per_level: params.limit_per_level || 10
       };
 
       if (params.parent_id && params.parent_id !== 'undefined' && params.parent_id !== 'null') {
         apiParams.parent_id = params.parent_id;
       }
-      
-      const response = await getComments(apiParams);
-      const state = getState() as any;
-      const currentUser = state?.user;
-      
-      // 兼容后端返回：data 可能是数组或包含分页的对象
-      // 1) { code, data: Comment[] }
-      // 2) { code, data: { items: Comment[], total, skip, limit } }
-      const rawData: any = response?.data;
-      const commentsData: any[] = Array.isArray(rawData)
-        ? rawData
-        : Array.isArray(rawData?.items)
-          ? rawData.items
-          : [];
-      
-      // 并行获取所有评论的用户信息
-      const processedComments = await Promise.all(
-        commentsData.map(async (c: any) => {
-          // 如果是当前用户，直接使用当前用户信息
-          if (currentUser?.currentUser?.user_id === c?.user_id) {
-            return {
-              ...c,
-              // 统一字段
-              created_at: c?.created_at || c?.update_time || c?.create_time || new Date().toISOString(),
-              create_at: c?.create_at || c?.created_at || c?.update_time || c?.create_time || new Date().toISOString(),
-              like_count: c?.like_count ?? c?.likes_count ?? 0,
-              is_liked: c?.is_liked ?? c?.has_liked ?? false,
-              author_nickname: currentUser?.currentUser?.nickname || currentUser?.userProfile?.nickname || '我',
-              author_avatar: currentUser?.userProfile?.avatar || '',
-            } as CommentDetail;
-          }
 
-          // 没有用户详情接口，使用本地回退
-          const userInfo = getFallbackUserInfo(c?.user_id);
-          
-          return {
-            ...c,
-            // 统一字段
-            created_at: c?.created_at || c?.update_time || c?.create_time || new Date().toISOString(),
-            create_at: c?.create_at || c?.created_at || c?.update_time || c?.create_time || new Date().toISOString(),
-            like_count: c?.like_count ?? c?.likes_count ?? 0,
-            is_liked: c?.is_liked ?? c?.has_liked ?? false,
-            author_nickname: c?.author_nickname ?? c?.user?.nickname ?? userInfo.nickname,
-            author_avatar: c?.author_avatar ?? c?.avatar ?? c?.user?.avatar ?? userInfo.avatar,
-          } as CommentDetail;
-        })
-      );
-      
-      return processedComments;
+      const response = await getComments(apiParams);
+
+      // API返回的是 Comment[] 类型，我们需要转换为 CommentDetail[] 格式
+      const commentData: Comment[] = response?.data || [];
+
+      // 转换数据为 CommentDetail[] 格式
+      const convertToCommentDetails = (comments: Comment[]): CommentDetail[] => {
+        return comments.map(comment => {
+          // 递归转换子评论
+          const convertedChildren = comment.children ? convertToCommentDetails(comment.children) : [];
+
+          const commentDetail: CommentDetail = {
+            ...comment,
+            // 转换字段名以匹配现有组件期望的格式
+            created_at: comment.created_at,
+            create_at: comment.created_at, // 兼容字段
+            like_count: comment.likes_count || 0,
+            is_liked: comment.has_liked || false,
+            reply_count: convertedChildren.length,
+            // 使用API返回的user信息
+            author_nickname: comment.user?.nickname || comment.author_nickname || getFallbackUserInfo(comment.user_id).nickname,
+            author_avatar: comment.user?.avatar || comment.author_avatar || getFallbackUserInfo(comment.user_id).avatar,
+            // 递归转换子评论，确保子评论也有正确的用户信息
+            children: convertedChildren
+          };
+
+
+
+          return commentDetail;
+        });
+      };
+
+      return convertToCommentDetails(commentData);
     } catch (error: any) {
       console.error("获取评论失败:", error);
       return rejectWithValue(error.message || "Failed to fetch comments");

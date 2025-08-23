@@ -38,10 +38,16 @@ const PostDetailPage = () => {
     }
   }, [postId, dispatch]);
 
-  // 获取评论列表
+  // 获取评论列表 - 使用树形接口
   useEffect(() => {
     if (postId) {
-      dispatch(fetchComments({ resource_id: postId, resource_type: 'post' }));
+      dispatch(fetchComments({
+        resource_id: postId,
+        resource_type: 'post',
+        max_depth: 5, // 限制评论树深度
+        limit_per_level: 10, // 每层最多10个评论
+        limit: 20 // 每次获取20个顶级评论
+      }));
     }
   }, [postId, dispatch]);
 
@@ -106,8 +112,24 @@ const PostDetailPage = () => {
     // 重新获取评论列表以同步状态
     if (postId) {
       console.log('🔄 重新获取评论列表以同步点赞状态');
-      dispatch(fetchComments({ resource_id: postId, resource_type: 'post' }));
+      dispatch(fetchComments({
+        resource_id: postId,
+        resource_type: 'post',
+        max_depth: 5,
+        limit_per_level: 10,
+        limit: 20
+      }));
     }
+  };
+
+  // 处理删除评论
+  const handleDeleteComment = (commentId: string) => {
+    console.log('🗑️ 处理删除评论:', commentId);
+    // TODO: 实现删除评论逻辑
+    Taro.showToast({
+      title: '删除功能待实现',
+      icon: 'none'
+    });
   };
 
   // 处理下拉刷新
@@ -121,7 +143,13 @@ const PostDetailPage = () => {
       // 同时刷新帖子详情和评论列表
       await Promise.all([
         dispatch(fetchPostDetail(postId)),
-        dispatch(fetchComments({ resource_id: postId, resource_type: 'post' }))
+        dispatch(fetchComments({
+          resource_id: postId,
+          resource_type: 'post',
+          max_depth: 5,
+          limit_per_level: 10,
+          limit: 20
+        }))
       ]);
       console.log('✅ 下拉刷新完成');
     } catch (error) {
@@ -158,10 +186,11 @@ const PostDetailPage = () => {
       <>
         <Post post={postState.currentPost} mode="detail" />
         
-        <CommentSection 
-          comments={commentState?.comments || []} 
+        <CommentSection
+          comments={commentState?.comments || []}
           onReply={handleReply}
           onLikeUpdate={handleLikeUpdate}
+          onDeleteComment={handleDeleteComment}
         />
       </>
     );

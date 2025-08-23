@@ -72,7 +72,7 @@ export const getMyHistory = (params: GetHistoryParams) => {
  * @returns
  */
 export const getMyTags = () => {
-  return http.get<any>("/personas/me/tags");
+  return http.get<any>("/persona/me/tags");
 }; 
 
 /**
@@ -80,7 +80,7 @@ export const getMyTags = () => {
  * @returns
  */
 export const getMyStats = () => {
-  return http.get<any>("/personas/me/stats");
+  return http.get<any>("/persona/me/stats");
 };
 
 /**
@@ -88,7 +88,7 @@ export const getMyStats = () => {
  * @returns
  */
 export const getMyLevel = () => {
-  return http.get<any>("/personas/me/level");
+  return http.get<any>("/persona/me/level");
 };
 
 /**
@@ -97,7 +97,7 @@ export const getMyLevel = () => {
  * @returns
  */
 export const getMyExperienceRecords = (params?: { page?: number; size?: number }) => {
-  return http.get<any>("/personas/me/experience-records", params);
+  return http.get<any>("/persona/me/experience-records", params);
 };
 
 /**
@@ -105,7 +105,7 @@ export const getMyExperienceRecords = (params?: { page?: number; size?: number }
  * @returns
  */
 export const getExpRules = () => {
-  return http.get<any>("/personas/exp-rules");
+  return http.get<any>("/persona/exp-rules");
 };
 
 /**
@@ -114,7 +114,7 @@ export const getExpRules = () => {
  * @returns
  */
 export const upsertMyTag = (data: { tag: string; weight?: number }) => {
-  return http.post<any>("/personas/me/tags", data);
+  return http.post<any>("/persona/me/tags", data);
 }; 
 
 /**

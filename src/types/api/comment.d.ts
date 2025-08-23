@@ -1,6 +1,34 @@
 import { User } from "./user";
 
 /**
+ * @description 评论树形结构（新API使用）- 匹配CommentTreeRead API
+ */
+export interface CommentTreeRead {
+  id: string;
+  tenant_id: string;
+  created_at: string;
+  updated_at: string;
+  resource_type: string;
+  resource_id: string;
+  user_id: string;
+  user?: User; // API返回的完整用户信息
+  content: string;
+  parent_id?: string | null;
+  root_id?: string | null;
+  path: string;
+  depth: number;
+  likes_count: number;
+  replies_count_immediate: number;
+  has_liked?: boolean;
+  attachments?: any;
+  children?: CommentTreeRead[];
+  total_children_count?: number;
+  tree_depth?: number;
+  has_more_children?: boolean;
+  is_expanded?: boolean;
+}
+
+/**
  * @description 评论信息结构 - 匹配CommentRead API
  */
 export interface Comment {
@@ -23,6 +51,7 @@ export interface Comment {
   // 🎯 新增：API返回的用户信息字段
   author_nickname?: string; // 作者昵称
   author_avatar?: string; // 作者头像
+  children?: Comment[]; // 子评论列表
   // 保留兼容字段
   user?: User; // 可能从其他接口获取
 }

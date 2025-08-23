@@ -41,8 +41,11 @@ export const getComments = (params: {
   limit?: number;
   sort_by?: string;
   sort_desc?: boolean;
+  max_depth?: number;
+  limit_per_level?: number;
 }) => {
-  return http.get<Comment[]>("/comments", params);
+  const { resource_id, resource_type, parent_id, ...queryParams } = params;
+  return http.get<Comment[]>(`/comments/resource/${resource_type}/${resource_id}/trees`, queryParams);
 };
 
 export const getMyComments = (params?: { skip?: number; limit?: number }) => {

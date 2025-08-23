@@ -28,10 +28,13 @@ const PostDetailPage = () => {
     if (postId) {
       // 获取帖子详情
       dispatch(fetchPostDetail(postId));
-      // 获取帖子评论
+      // 获取帖子评论 - 使用树形接口
       dispatch(fetchComments({
         resource_id: postId,
-        resource_type: 'post'
+        resource_type: 'post',
+        max_depth: 5,
+        limit_per_level: 10,
+        limit: 20
       }));
     }
   }, [dispatch, postId]);

@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image } from "@tarojs/components";
-import styles from "../index.module.scss";
+import { useSelector } from "react-redux";
+import Taro from "@tarojs/taro";
+
+import { CommentDetail } from "@/types/api/comment.d";
+import { formatRelativeTime } from "@/utils/time";
+import { normalizeImageUrl } from "@/utils/image";
+import { RootState } from "@/store";
+import actionApi from "@/services/api/action";
 import ChevronDownIcon from "@/assets/chevron-down.svg";
 import ChevronRightIcon from "@/assets/chevron-right.svg";
 import HeartIcon from "@/assets/heart-outline.svg";
 import HeartActiveIcon from "@/assets/heart-bold.svg";
-import { CommentDetail } from "@/types/api/comment.d";
-import { formatRelativeTime } from "@/utils/time";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
-import actionApi from "@/services/api/action";
-import Taro from "@tarojs/taro";
-import commentApi from "@/services/api/comment";
-import { normalizeImageUrl } from "@/utils/image";
+import TrashIcon from "@/assets/trash.svg";
+
+import styles from "../index.module.scss";
 
 interface SubCommentItemProps {
   comment: CommentDetail;
   onReply: (comment: CommentDetail) => void;
   onLikeUpdate: (commentId: string, isLiked: boolean, likeCount: number) => void;
+  onDeleteComment?: (commentId: string) => void;
 }
 
-const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLikeUpdate }) => {
+const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLikeUpdate, onDeleteComment }) => {
   const [isLiking, setIsLiking] = useState(false);
+  const userState = useSelector((state: RootState) => state.user);
+  const isCommentAuthor = userState?.currentUser?.user_id === comment.user_id;
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -61,6 +66,12 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
         <View className={styles.subHeader}>
           <Text className={styles.subName}>{comment.author_nickname}</Text>
           <Text className={styles.subTime}>{formatRelativeTime(comment.create_at || (comment as any).created_at || '')}</Text>
+          {/* 子评论删除按钮 - 仅作者可见 */}
+          {isCommentAuthor && onDeleteComment ? (
+            <View className={styles.subDeleteButton} onClick={() => onDeleteComment(comment.id)}>
+              <Image src={TrashIcon} className={styles.subDeleteIcon} />
+            </View>
+          ) : null}
         </View>
         <Text className={styles.subText}>
           {comment.parent_author_nickname ? (
@@ -92,9 +103,10 @@ interface CommentItemProps {
   onReply: (comment: CommentDetail) => void;
   onLikeUpdate: (commentId: string, isLiked: boolean, likeCount: number) => void;
   onUpdateComment: (commentId: string, updatedComment: CommentDetail) => void;
+  onDeleteComment?: (commentId: string) => void;
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdate, onUpdateComment }) => {
+const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdate, onUpdateComment, onDeleteComment }) => {
   const userState = useSelector((state: RootState) => state.user);
   const isLoggedIn = userState?.isLoggedIn || false;
   const token = userState?.token || null;
@@ -294,6 +306,9 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
     return allReplies;
   };
   
+  // 检查当前用户是否为评论作者
+  const isCommentAuthor = userState?.currentUser?.user_id === comment.user_id;
+
   return (
   <View className={styles.commentItem}>
       <Image src={normalizeImageUrl(comment.author_avatar) || ''} className={styles.avatar} />
@@ -301,6 +316,12 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
       <View className={styles.header}>
         <Text className={styles.name}>{comment?.author_nickname || '匿名用户'}</Text>
         <Text className={styles.time}>{formatRelativeTime(comment.create_at || (comment as any).created_at || '')}</Text>
+        {/* 删除按钮 - 仅作者可见 */}
+        {isCommentAuthor && onDeleteComment && (
+          <View className={styles.deleteButton} onClick={() => onDeleteComment(comment.id)}>
+            <Image src={TrashIcon} className={styles.deleteIcon} />
+          </View>
+        )}
       </View>
         <Text className={styles.text}>{comment?.content}</Text>
       <View className={styles.actions}>
@@ -329,11 +350,12 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
         {hasReplies && (shouldAutoShow || shouldShowToggleButton) && (
           <View className={styles.repliesContainer}>
             {repliesToShow.map((reply) => (
-              <SubCommentItem 
-                key={reply.id} 
-                comment={reply} 
+              <SubCommentItem
+                key={reply.id}
+                comment={reply}
                 onReply={onReply}
                 onLikeUpdate={onLikeUpdate}
+                onDeleteComment={onDeleteComment}
               />
             ))}
           </View>
@@ -347,9 +369,10 @@ interface CommentSectionProps {
   comments: CommentDetail[];
   onReply: (comment: CommentDetail) => void;
   onLikeUpdate: (commentId: string, isLiked: boolean, likeCount: number) => void;
+  onDeleteComment?: (commentId: string) => void;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLikeUpdate }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLikeUpdate, onDeleteComment }) => {
   const [sortBy, setSortBy] = useState<'time' | 'likes'>('time');
   const [localComments, setLocalComments] = useState<CommentDetail[]>([]);
   
@@ -450,6 +473,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
             onReply={onReply}
             onLikeUpdate={handleLikeUpdate}
             onUpdateComment={handleUpdateComment}
+            onDeleteComment={onDeleteComment}
           />
         ))
       ) : (
