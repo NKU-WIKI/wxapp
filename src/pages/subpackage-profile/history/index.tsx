@@ -18,6 +18,9 @@ const HistoryPage = () => {
   const loadHistory = (reset = false) => {
     const nextPage = reset ? 1 : page;
     const data = historyUtils.getHistory(nextPage, PAGE_SIZE);
+    
+
+    
     if (reset) {
       setHistory(data);
       setPage(1);

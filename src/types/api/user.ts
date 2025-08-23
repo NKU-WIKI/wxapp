@@ -11,16 +11,27 @@ export interface CurrentUser {
 }
 
 /**
- * @description API 返回的用户基础信息结构
+ * @description API 返回的用户基础信息结构 (基于 UserRead)
  */
-export interface User extends UserProfile {
+export interface User {
   id: string;
+  tenant_id: string;
+  created_at: string;
+  updated_at: string;
   nickname: string;
-  avatar: string;
-  bio?: string;
-  status?: "active" | "inactive" | "banned";
+  avatar?: string | null;
+  bio?: string | null;
+  birthday?: string | null;
+  school?: string | null;
+  college?: string | null;
+  location?: string | null;
+  wechat_id?: string | null;
+  qq_id?: string | null;
+  tel?: string | null;
+  status: "active" | "inactive" | "banned";
+  // 扩展字段（可能在某些接口中返回）
   is_following?: boolean;
-  level?: number; // 用户等级
+  level?: number;
   post_count?: number;
   total_likes?: number;
   following_count?: number;
@@ -30,19 +41,44 @@ export interface User extends UserProfile {
 }
 
 /**
- * @description API 返回的当前用户详细资料结构
+ * @description API 返回的用户详细资料结构 (基于 UserProfileDetail)
  */
 export interface UserProfile {
-  assets: Record<string, any>; // 资产信息，结构不确定，使用 Record
+  assets: Record<string, any>;
   interest_tags: string[];
+  tokens: number;
+  user_id: string;
+  nickname: string;
+  avatar?: string | null;
+  bio?: string | null;
+  wechat_id?: string | null;
+  qq_id?: string | null;
+  phone?: string | null;
+  post_count: number;
+  follower_count: number;
+  following_count: number;
+  total_likes: number;
+  total_favorites: number;
+  role?: string | null;
+  level?: number | null;
+  points?: number | null;
+  gender?: number | null;
+  create_time?: string | null;
 }
 
 /**
- * @description 更新用户个人资料的请求体
+ * @description 更新用户个人资料的请求体 (基于 UserProfileUpdate)
  */
 export interface UpdateUserProfileRequest {
-  assets?: Record<string, any>;
-  interest_tags?: string[];
+  assets?: Record<string, any> | null;
+  interest_tags?: string[] | null;
+  nickname?: string | null;
+  avatar?: string | null;
+  bio?: string | null;
+  wechat_id?: string | null;
+  qq_id?: string | null;
+  phone?: string | null;
+  gender?: number | null;
 }
 
 /**
@@ -60,19 +96,21 @@ export type FollowerList = PaginatedData<Follower>;
  */
 export interface CreateViewHistoryRequest {
   target_type: "post" | "product" | "user";
-  target_id: string;
+  target_id: number;
 }
 
 /**
- * @description 浏览历史记录项
+ * @description 浏览历史记录项 (基于 ViewHistoryRead)
  */
 export interface HistoryItem {
   id: string;
-  user_id: string;
-  target_type: string;
+  tenant_id: string;
+  created_at: string;
+  updated_at: string;
+  target_type: "post" | "product" | "user";
   target_id: string;
-  view_time: string; // ISO 8601 format date string
-  // 根据 target_type，可能会有关联的目标详情
+  user_id: string;
+  // 可能会有关联的目标详情
   target_detail?: any;
 }
 
@@ -85,4 +123,98 @@ export type HistoryList = PaginatedData<HistoryItem>;
  * @description 获取浏览历史的查询参数
  */
 export interface GetHistoryParams extends PaginationParams {}
+
+/**
+ * @description 用户标签项 (基于 UserTagRead)
+ */
+export interface UserTag {
+  id: string;
+  tenant_id: string;
+  created_at: string;
+  updated_at: string;
+  tag: string;
+  weight: number;
+  source?: string | null; // 标签来源：manual/behavior/import
+  user_id: string;
+}
+
+/**
+ * @description 用户标签列表
+ */
+export type UserTagList = UserTag[];
+
+/**
+ * @description 用户统计画像 (基于 UserStatsRead)
+ */
+export interface UserStats {
+  id: string;
+  tenant_id: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  post_count: number;
+  comment_count: number;
+  like_count: number;
+  favorite_count: number;
+  order_count: number;
+  message_count: number;
+  exp: number;
+  last_active_at?: string | null;
+}
+
+/**
+ * @description 等级规则 (基于 LevelRule)
+ */
+export interface LevelRule {
+  level: number;
+  name: string;
+  min_exp: number;
+  max_exp?: number | null;
+}
+
+/**
+ * @description 等级信息 (基于 LevelInfo)
+ */
+export interface LevelInfo {
+  level: number;
+  exp: number;
+  next_level_exp?: number | null;
+  prev_level_exp?: number | null;
+  progress: number;
+  level_name: string;
+  next_level_name?: string | null;
+  rules: LevelRule[];
+}
+
+/**
+ * @description 经验记录 (基于 ExperienceRecordRead)
+ */
+export interface ExperienceRecord {
+  id: string;
+  tenant_id: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  event_type: string;
+  description?: string | null;
+  delta: number;
+}
+
+/**
+ * @description 经验记录分页数据 (基于 Page_ExperienceRecordRead_)
+ */
+export interface ExperienceRecordPage {
+  items: ExperienceRecord[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+/**
+ * @description 标签更新请求 (基于 TagUpsertRequest)
+ */
+export interface TagUpsertRequest {
+  tag: string;
+  weight?: number;
+}
 

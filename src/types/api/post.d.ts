@@ -5,7 +5,7 @@ import { User } from "./user";
  * @description 帖子信息结构
  */
 export interface Post {
-  id: string;
+  id: string; // 改为string以支持UUID
   title: string;
   content?: string;
   status: "published" | "draft";
@@ -17,6 +17,7 @@ export interface Post {
   favorite_count?: number; // Added
   comment_count?: number;
   create_time?: string;
+  created_at?: string; // 后端返回的创建时间字段
   image?: string | string[]; // 图片数据，可能是字符串或数组
   image_urls?: string[]; // 图片URL数组
   tag?: string | string[]; // 标签数据，可能是字符串或数组

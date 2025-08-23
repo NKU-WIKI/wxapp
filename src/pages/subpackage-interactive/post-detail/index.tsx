@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { View, ScrollView } from '@tarojs/components';
+import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { fetchComments } from '@/store/slices/commentSlice';
 import { fetchPostDetail } from '@/store/slices/postSlice';
-import { useRouter } from '@tarojs/taro';
+import { fetchComments, CommentState } from '@/store/slices/commentSlice';
+import { CommentDetail } from '@/types/api/comment';
 import CustomHeader from '@/components/custom-header';
 import CommentSection from './components/CommentSection';
 import BottomInput from './components/BottomInput';
-import styles from './index.module.scss';
-import { CommentDetail } from '@/types/api/comment';
-import { addHistory } from '@/utils/history';
 import Post from '@/components/post';
+import { addHistoryWithServerSync } from '@/utils/history';
+import styles from './index.module.scss';
 
 const PostDetailPage = () => {
   const router = useRouter();
@@ -24,7 +24,7 @@ const PostDetailPage = () => {
 
   // 回复状态管理
   const [replyTo, setReplyTo] = useState<{
-    commentId: number;
+    commentId: string; // 修复：改为string以匹配comment.id类型
     nickname: string;
   } | null>(null);
 
@@ -49,14 +49,44 @@ const PostDetailPage = () => {
   useEffect(() => {
     if (postState?.currentPost) {
       const post = postState.currentPost;
-      addHistory({
-        id: String(post.id),
+      
+      // 记录到本地和服务器
+      // 注意：post.id是string类型（UUID），但服务器API需要number类型
+      // 这里我们尝试将UUID转换为数字，如果失败则使用一个默认值
+      const numericId = parseInt(post.id) || 0;
+      
+      // 获取头像：优先使用 user.avatar，兼容 author_info.avatar
+      const author = post.user || post.author_info;
+      const avatarUrl = author?.avatar || '';
+      
+      // 获取时间：优先使用 created_at，兼容 create_time，如果没有则使用当前时间
+      const createTime = post.created_at || post.create_time || new Date().toISOString();
+      const viewTime = new Date().toISOString();
+      
+      // 调试日志
+      console.log('📝 记录浏览历史:', {
+        postId: post.id,
         title: post.title,
-        cover: post.image_urls?.[0] || '',
-        avatar: post.author_info?.avatar || '',
-        createdAt: post.create_time || '',
-        viewedAt: new Date().toISOString()
+        avatarUrl: avatarUrl,
+        createTime: createTime,
+        viewTime: viewTime,
+        postCreatedAt: post.created_at,
+        postCreateTime: post.create_time,
+        postData: post
       });
+      
+      addHistoryWithServerSync(
+        {
+          id: post.id, // post.id已经是string类型（UUID）
+          title: post.title,
+          cover: post.image_urls?.[0] || '',
+          avatar: avatarUrl,
+          createdAt: createTime,
+          viewedAt: viewTime
+        },
+        'post',
+        numericId
+      );
     }
   }, [postState?.currentPost]);
 
@@ -70,7 +100,7 @@ const PostDetailPage = () => {
   };
 
   // 处理点赞状态更新
-  const handleLikeUpdate = (commentId: number, isLiked: boolean, likeCount: number) => {
+  const handleLikeUpdate = (commentId: string, isLiked: boolean, likeCount: number) => {
     console.log('🔥 处理点赞状态更新:', { commentId, isLiked, likeCount });
     
     // 重新获取评论列表以同步状态
@@ -157,7 +187,7 @@ const PostDetailPage = () => {
       {/* 固定在底部的输入框 */}
       <View className={styles.fixedBottomInput}>
         <BottomInput 
-          postId={postId}
+          postId={postId || ''}
           replyTo={replyTo}
           onCancelReply={() => setReplyTo(null)}
         />

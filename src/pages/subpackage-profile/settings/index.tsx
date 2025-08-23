@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, Button, Switch } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/store/slices/userSlice';
+import {
+  setMessageNotification,
+  setPushNotification,
+  setPrivateMessage,
+  setFontSize,
+  setNightMode,
+  setWhoCanMessage,
+  setWhoCanComment,
+  setWhoCanViewPosts,
+} from '@/store/slices/settingsSlice';
+import { RootState } from '@/store/rootReducer';
 import styles from './index.module.scss';
 
 // 图标组件（使用Unicode字符）
@@ -28,114 +39,90 @@ interface SettingSection {
 
 const Settings: React.FC = () => {
   const dispatch = useDispatch();
-
-  // 设置状态
-  const [messageNotification, setMessageNotification] = useState(true);
-  const [pushNotification, setPushNotification] = useState(true);
-  const [privateMessage, setPrivateMessage] = useState(true);
-  const [fontSize, setFontSize] = useState('中');
-  const [nightMode, setNightMode] = useState('自动跟随系统');
   
-  // 隐私设置状态
-  const [whoCanMessage, setWhoCanMessage] = useState('所有人');
-  const [whoCanComment, setWhoCanComment] = useState('关注的人');
-  const [whoCanViewPosts, setWhoCanViewPosts] = useState('所有人');
-
-  // 设置键名常量
-  const SETTINGS_KEYS = {
-    MESSAGE_NOTIFICATION: 'settings_message_notification',
-    PUSH_NOTIFICATION: 'settings_push_notification', 
-    PRIVATE_MESSAGE: 'settings_private_message',
-    FONT_SIZE: 'settings_font_size',
-    NIGHT_MODE: 'settings_night_mode',
-    WHO_CAN_MESSAGE: 'settings_who_can_message',
-    WHO_CAN_COMMENT: 'settings_who_can_comment',
-    WHO_CAN_VIEW_POSTS: 'settings_who_can_view_posts'
+  // 从 Redux store 获取设置状态
+  const settings = useSelector((state: RootState) => state.settings);
+  
+  // 映射中文和英文值
+  const fontSizeMap = {
+    small: '小',
+    medium: '中',
+    large: '大'
+  };
+  
+  const nightModeMap = {
+    auto: '自动跟随系统',
+    light: '关闭',
+    dark: '开启'
+  };
+  
+  const privacyMap = {
+    everyone: '所有人',
+    followers: '关注的人',
+    none: '不允许',
+    self: '仅自己'
   };
 
-  // 加载保存的设置
-  useEffect(() => {
-    const loadSettings = () => {
-      try {
-        const savedMessageNotification = Taro.getStorageSync(SETTINGS_KEYS.MESSAGE_NOTIFICATION);
-        const savedPushNotification = Taro.getStorageSync(SETTINGS_KEYS.PUSH_NOTIFICATION);
-        const savedPrivateMessage = Taro.getStorageSync(SETTINGS_KEYS.PRIVATE_MESSAGE);
-        const savedFontSize = Taro.getStorageSync(SETTINGS_KEYS.FONT_SIZE);
-        const savedNightMode = Taro.getStorageSync(SETTINGS_KEYS.NIGHT_MODE);
-        const savedWhoCanMessage = Taro.getStorageSync(SETTINGS_KEYS.WHO_CAN_MESSAGE);
-        const savedWhoCanComment = Taro.getStorageSync(SETTINGS_KEYS.WHO_CAN_COMMENT);
-        const savedWhoCanViewPosts = Taro.getStorageSync(SETTINGS_KEYS.WHO_CAN_VIEW_POSTS);
-
-        // 只有当有保存的值时才更新状态
-        if (savedMessageNotification !== '') {
-          setMessageNotification(savedMessageNotification);
-        }
-        if (savedPushNotification !== '') {
-          setPushNotification(savedPushNotification);
-        }
-        if (savedPrivateMessage !== '') {
-          setPrivateMessage(savedPrivateMessage);
-        }
-        if (savedFontSize) {
-          setFontSize(savedFontSize);
-        }
-        if (savedNightMode) {
-          setNightMode(savedNightMode);
-        }
-        if (savedWhoCanMessage) {
-          setWhoCanMessage(savedWhoCanMessage);
-        }
-        if (savedWhoCanComment) {
-          setWhoCanComment(savedWhoCanComment);
-        }
-        if (savedWhoCanViewPosts) {
-          setWhoCanViewPosts(savedWhoCanViewPosts);
-        }
-      } catch (error) {
-        console.log('加载设置失败:', error);
-      }
-    };
-
-    loadSettings();
-  }, []);
-
-  // 保存单个设置到本地存储
-  const saveSetting = (key: string, value: any) => {
-    try {
-      Taro.setStorageSync(key, value);
-    } catch (error) {
-      console.log('保存设置失败:', error);
-    }
-  };
+  // 反向映射
+  const fontSizeReverseMap = {
+    '小': 'small',
+    '中': 'medium', 
+    '大': 'large'
+  } as const;
+  
+  const nightModeReverseMap = {
+    '自动跟随系统': 'auto',
+    '关闭': 'light',
+    '开启': 'dark'
+  } as const;
+  
+  const privacyReverseMap = {
+    '所有人': 'everyone',
+    '关注的人': 'followers',
+    '不允许': 'none',
+    '仅自己': 'self'
+  } as const;
 
   // 处理字体大小选择
   const handleFontSizeChange = (size: string) => {
-    setFontSize(size);
-    saveSetting(SETTINGS_KEYS.FONT_SIZE, size);
-    // 这里可以实际应用字体大小设置
-    Taro.showToast({
-      title: `字体大小已设置为${size}`,
-      icon: 'success'
-    });
+    const englishSize = fontSizeReverseMap[size as keyof typeof fontSizeReverseMap];
+    if (englishSize) {
+      dispatch(setFontSize(englishSize));
+      Taro.showToast({
+        title: `字体大小已设置为${size}`,
+        icon: 'success'
+      });
+    }
   };
 
   // 处理隐私设置选择
-  const handlePrivacySettings = (_type: string, title: string, options: string[], _currentValue: string, setter: (value: string) => void) => {
+  const handlePrivacySettings = (type: string, title: string, options: string[]) => {
     Taro.showActionSheet({
       itemList: options,
       success: (res) => {
         const selectedValue = options[res.tapIndex];
-        setter(selectedValue);
         
-        // 根据setter函数保存对应的设置
-        if (setter === setWhoCanMessage) {
-          saveSetting(SETTINGS_KEYS.WHO_CAN_MESSAGE, selectedValue);
-        } else if (setter === setWhoCanComment) {
-          saveSetting(SETTINGS_KEYS.WHO_CAN_COMMENT, selectedValue);
-        } else if (setter === setWhoCanViewPosts) {
-          saveSetting(SETTINGS_KEYS.WHO_CAN_VIEW_POSTS, selectedValue);
-        } else if (setter === setNightMode) {
-          saveSetting(SETTINGS_KEYS.NIGHT_MODE, selectedValue);
+        // 根据类型转换为英文值并dispatch
+        if (type === 'night') {
+          const englishValue = nightModeReverseMap[selectedValue as keyof typeof nightModeReverseMap];
+          if (englishValue) {
+            dispatch(setNightMode(englishValue));
+          }
+        } else if (type === 'message') {
+          const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
+          if (englishValue && englishValue !== 'self') {
+            dispatch(setWhoCanMessage(englishValue));
+          }
+        } else if (type === 'comment') {
+          const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
+          if (englishValue && englishValue !== 'self') {
+            dispatch(setWhoCanComment(englishValue));
+          }
+        } else if (type === 'view') {
+          const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
+          if (englishValue && englishValue !== 'none') {
+            dispatch(setWhoCanViewPosts(englishValue));
+          }
         }
         
         Taro.showToast({
@@ -201,23 +188,18 @@ const Settings: React.FC = () => {
     });
   };
 
-  // 保存设置
+  // 保存设置并返回profile页面
   const handleSaveSettings = () => {
     try {
-      // 保存所有当前设置到本地存储
-      saveSetting(SETTINGS_KEYS.MESSAGE_NOTIFICATION, messageNotification);
-      saveSetting(SETTINGS_KEYS.PUSH_NOTIFICATION, pushNotification);
-      saveSetting(SETTINGS_KEYS.PRIVATE_MESSAGE, privateMessage);
-      saveSetting(SETTINGS_KEYS.FONT_SIZE, fontSize);
-      saveSetting(SETTINGS_KEYS.NIGHT_MODE, nightMode);
-      saveSetting(SETTINGS_KEYS.WHO_CAN_MESSAGE, whoCanMessage);
-      saveSetting(SETTINGS_KEYS.WHO_CAN_COMMENT, whoCanComment);
-      saveSetting(SETTINGS_KEYS.WHO_CAN_VIEW_POSTS, whoCanViewPosts);
-      
       Taro.showToast({
         title: '设置已保存',
         icon: 'success'
       });
+      
+      // 延迟一下显示toast，然后返回profile页面
+      setTimeout(() => {
+        Taro.navigateBack();
+      }, 1000);
     } catch (error) {
       Taro.showToast({
         title: '保存失败，请重试',
@@ -239,24 +221,24 @@ const Settings: React.FC = () => {
         },
         {
           label: '谁可以私信我',
-          value: whoCanMessage,
+          value: privacyMap[settings.whoCanMessage],
           type: 'selection',
           options: ['所有人', '关注的人', '不允许'],
-          action: () => handlePrivacySettings('message', '私信权限', ['所有人', '关注的人', '不允许'], whoCanMessage, setWhoCanMessage)
+          action: () => handlePrivacySettings('message', '私信权限', ['所有人', '关注的人', '不允许'])
         },
         {
           label: '谁可以评论我的帖子',
-          value: whoCanComment,
+          value: privacyMap[settings.whoCanComment],
           type: 'selection',
           options: ['所有人', '关注的人', '不允许'],
-          action: () => handlePrivacySettings('comment', '评论权限', ['所有人', '关注的人', '不允许'], whoCanComment, setWhoCanComment)
+          action: () => handlePrivacySettings('comment', '评论权限', ['所有人', '关注的人', '不允许'])
         },
         {
           label: '谁可以查看我的帖子',
-          value: whoCanViewPosts,
+          value: privacyMap[settings.whoCanViewPosts],
           type: 'selection',
           options: ['所有人', '关注的人', '仅自己'],
-          action: () => handlePrivacySettings('view', '查看权限', ['所有人', '关注的人', '仅自己'], whoCanViewPosts, setWhoCanViewPosts)
+          action: () => handlePrivacySettings('view', '查看权限', ['所有人', '关注的人', '仅自己'])
         }
       ]
     },
@@ -284,14 +266,14 @@ const Settings: React.FC = () => {
       items: [
         {
           label: '夜间模式',
-          value: nightMode,
+          value: nightModeMap[settings.nightMode],
           type: 'selection',
           options: ['自动跟随系统', '开启', '关闭'],
-          action: () => handlePrivacySettings('night', '夜间模式', ['自动跟随系统', '开启', '关闭'], nightMode, setNightMode)
+          action: () => handlePrivacySettings('night', '夜间模式', ['自动跟随系统', '开启', '关闭'])
         },
         {
           label: '字体大小调整',
-          value: fontSize,
+          value: fontSizeMap[settings.fontSize],
           type: 'button'
         },
         {
@@ -320,14 +302,6 @@ const Settings: React.FC = () => {
     }
   ];
 
-  // 包装的开关更改处理函数，立即保存设置
-  const handleToggleChange = (setter: (value: boolean) => void, storageKey: string) => {
-    return (value: boolean) => {
-      setter(value);
-      saveSetting(storageKey, value);
-    };
-  };
-
   const renderToggleSwitch = (label: string, value: boolean, onChange: (value: boolean) => void, description?: string) => (
     <View className={styles.toggleItem}>
       <View className={styles.toggleContent}>
@@ -338,7 +312,7 @@ const Settings: React.FC = () => {
         checked={value}
         onChange={(e) => onChange(e.detail.value)}
         className={styles.switch}
-        color="#4F46E5"
+        color='#4F46E5'
       />
     </View>
   );
@@ -350,7 +324,7 @@ const Settings: React.FC = () => {
         {['小', '中', '大'].map((size) => (
           <Button
             key={size}
-            className={`${styles.fontSizeButton} ${fontSize === size ? styles.fontSizeButtonActive : ''}`}
+            className={`${styles.fontSizeButton} ${fontSizeMap[settings.fontSize] === size ? styles.fontSizeButtonActive : ''}`}
             onClick={() => handleFontSizeChange(size)}
           >
             {size}
@@ -366,22 +340,22 @@ const Settings: React.FC = () => {
         case '消息通知开关':
           return renderToggleSwitch(
             item.label,
-            messageNotification,
-            handleToggleChange(setMessageNotification, SETTINGS_KEYS.MESSAGE_NOTIFICATION),
+            settings.messageNotification,
+            (value) => dispatch(setMessageNotification(value)),
             '如评论、点赞、系统通知等'
           );
         case '是否开启推送':
           return renderToggleSwitch(
             item.label,
-            pushNotification,
-            handleToggleChange(setPushNotification, SETTINGS_KEYS.PUSH_NOTIFICATION),
+            settings.pushNotification,
+            (value) => dispatch(setPushNotification(value)),
             '如使用系统推送'
           );
         case '是否接收私信':
           return renderToggleSwitch(
             item.label,
-            privateMessage,
-            handleToggleChange(setPrivateMessage, SETTINGS_KEYS.PRIVATE_MESSAGE)
+            settings.privateMessage,
+            (value) => dispatch(setPrivateMessage(value))
           );
         default:
           return null;

@@ -9,9 +9,9 @@ import { AppDispatch, RootState } from '@/store';
 import { createComment } from '@/store/slices/commentSlice';
 
 interface BottomInputProps {
-  postId: number;
+  postId: string; // 改为string以支持UUID
   replyTo?: {
-    commentId: number;
+    commentId: string; // 改为string UUID
     nickname: string;
   } | null;
   onCancelReply?: () => void;
@@ -59,7 +59,7 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelRepl
       
       // 构建评论参数
       const commentParams = {
-        resource_id: postId,
+        resource_id: postId, // 保持原始postId（string UUID）
         resource_type: 'post' as const,
         content: comment.trim(),
         ...(replyTo ? { parent_id: replyTo.commentId } : {})

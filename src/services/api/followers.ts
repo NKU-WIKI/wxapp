@@ -1,6 +1,6 @@
 import { PaginationParams } from "@/types/api/common";
 import { User, CurrentUser } from "@/types/api/user";
-import { GetFollowersParams, FollowActionParams, FollowActionResponse } from "@/types/api/followers";
+import { GetFollowersParams, FollowActionParams } from "@/types/api/followers";
 import http from "../request";
 
 /**
@@ -75,9 +75,16 @@ export const getUserFollowing = (
  */
 export const followAction = (params: FollowActionParams) => {
   // 根据OpenAPI文档，使用 /actions/toggle 接口
-  return http.post<FollowActionResponse>("/actions/toggle", {
+  return http.post<{ is_active: boolean }>("/actions/toggle", {
     target_id: params.target_user_id,
     target_type: "user",
     action_type: "follow"
   });
+};
+
+export default {
+  getFollowers,
+  getUserFollowers,
+  getUserFollowing,
+  followAction,
 };

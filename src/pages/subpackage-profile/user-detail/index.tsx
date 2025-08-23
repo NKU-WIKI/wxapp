@@ -3,74 +3,105 @@ import { View, Text, Image, Button } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchUserProfile } from '../../../store/slices/userSlice';
-import actionApi from '../../../services/api/action';
+import { getActionStatus } from '../../../services/api/user';
+import { followAction } from '../../../services/api/followers';
 import CustomHeader from '../../../components/custom-header';
+import { normalizeImageUrl } from '../../../utils/image';
 import styles from './index.module.scss';
 
 const UserDetail: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { userInfo } = useAppSelector(state => state.user);
+  const { isLoggedIn } = useAppSelector(state => state.user);
   const [targetUser, setTargetUser] = useState<any>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [followLoading, setFollowLoading] = useState(false);
 
-  const userId = router.params.userId ? parseInt(router.params.userId) : null;
+  const userId = router.params.userId || '';
 
   useEffect(() => {
-    if (userId) {
-      fetchUserDetail();
-    }
-  }, [userId]);
-
-  const fetchUserDetail = async () => {
-    try {
-      setLoading(true);
-      // TODO: 调用获取用户详情的API
-      // const response = await getUserDetail(userId);
-      // setTargetUser(response.data);
-      // setIsFollowing(response.data.is_following);
+    const fetchData = async () => {
+      if (!userId) return;
       
-      // 临时模拟数据
-      setTargetUser({
-        id: userId,
-        nickname: '用户昵称',
-        avatar: '',
-        bio: '这是用户的个人简介',
-        level: 5,
-        followers_count: 128,
-        following_count: 256,
-        posts_count: 42
-      });
-      setIsFollowing(false);
-    } catch (error) {
-      console.error('获取用户详情失败:', error);
-      Taro.showToast({
-        title: '获取用户信息失败',
-        icon: 'none'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        setLoading(true);
+        
+        // 从路由参数中获取用户信息
+        const userInfoFromParams = router.params;
+        console.log('用户信息参数:', userInfoFromParams);
+        
+        // 使用路由参数构建用户信息
+        const tempUser = {
+          id: userId,
+          nickname: decodeURIComponent(userInfoFromParams.nickname || '未知用户'),
+          avatar: userInfoFromParams.avatar || '',
+          bio: decodeURIComponent(userInfoFromParams.bio || ''),
+          level: parseInt(userInfoFromParams.level || '1'),
+          follower_count: parseInt(userInfoFromParams.follower_count || '0'),
+          following_count: parseInt(userInfoFromParams.following_count || '0'),
+          post_count: parseInt(userInfoFromParams.post_count || '0'),
+        };
+        
+        setTargetUser(tempUser);
+        
+        // 获取关注状态
+        if (isLoggedIn && userId) {
+          try {
+            const statusResponse = await getActionStatus(userId, 'user', 'follow');
+            setIsFollowing(statusResponse.data.is_active);
+          } catch (error: any) {
+            console.log('获取关注状态失败，使用默认值:', error);
+            
+            // 特别处理422错误（OpenAPI文档target_id类型定义错误）
+            if (error?.statusCode === 422) {
+              console.warn('422错误：后端API文档中target_id定义为integer类型，但实际需要UUID字符串');
+              // 暂时使用默认值，等待后端修复OpenAPI文档
+            }
+            
+            setIsFollowing(false);
+          }
+        }
+      } catch (error) {
+        console.error('获取用户详情失败:', error);
+        Taro.showToast({
+          title: '获取用户信息失败',
+          icon: 'none'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [userId, router.params, isLoggedIn]);
 
   const handleFollow = async () => {
-    if (!userInfo || !userId) {
+    if (!isLoggedIn || !userId) {
       Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
       return;
     }
 
     try {
-      // 调用真实的关注API
-      const response = await actionApi.toggleAction({
-        target_type: 'user',
-        target_id: userId,
-        action_type: 'follow'
+      setFollowLoading(true);
+      // 调用关注API
+      const response = await followAction({
+        target_user_id: userId,
       });
       
-      if (response.code === 200 && response.data) {
+      if (response.code === 0 && response.data) {
         const { is_active } = response.data;
         setIsFollowing(is_active);
+        
+        // 更新targetUser的follower_count
+        if (targetUser) {
+          setTargetUser({
+            ...targetUser,
+            follower_count: is_active 
+              ? (targetUser.follower_count || 0) + 1 
+              : Math.max((targetUser.follower_count || 0) - 1, 0)
+          });
+        }
         
         // 更新用户信息以确保主页的粉丝数量实时更新
         dispatch(fetchUserProfile());
@@ -81,6 +112,8 @@ const UserDetail: React.FC = () => {
         title: '操作失败，请重试',
         icon: 'none'
       });
+    } finally {
+      setFollowLoading(false);
     }
   };
 
@@ -113,13 +146,13 @@ const UserDetail: React.FC = () => {
       <View className={styles.content}>
         <View className={styles.userInfo}>
           <Image 
-            src={targetUser.avatar || '/assets/placeholder.jpg'} 
+            src={normalizeImageUrl(targetUser.avatar) || '/assets/placeholder.jpg'} 
             className={styles.avatar}
           />
           <View className={styles.userDetails}>
             <Text className={styles.nickname}>{targetUser.nickname}</Text>
             <View className={styles.levelBadge}>
-              <Text>Lv.{targetUser.level}</Text>
+              <Text>Lv.{targetUser.level || 1}</Text>
             </View>
             {targetUser.bio && (
               <Text className={styles.bio}>{targetUser.bio}</Text>
@@ -129,15 +162,15 @@ const UserDetail: React.FC = () => {
 
         <View className={styles.stats}>
           <View className={styles.statItem}>
-            <Text className={styles.statNumber}>{targetUser.posts_count}</Text>
+            <Text className={styles.statNumber}>{targetUser.post_count || 0}</Text>
             <Text className={styles.statLabel}>帖子</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statNumber}>{targetUser.followers_count}</Text>
+            <Text className={styles.statNumber}>{targetUser.follower_count || 0}</Text>
             <Text className={styles.statLabel}>粉丝</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statNumber}>{targetUser.following_count}</Text>
+            <Text className={styles.statNumber}>{targetUser.following_count || 0}</Text>
             <Text className={styles.statLabel}>关注</Text>
           </View>
         </View>
@@ -146,6 +179,8 @@ const UserDetail: React.FC = () => {
           <Button 
             className={`${styles.followButton} ${isFollowing ? styles.following : ''}`}
             onClick={handleFollow}
+            loading={followLoading}
+            disabled={followLoading}
           >
             {isFollowing ? '已关注' : '关注'}
           </Button>

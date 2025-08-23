@@ -2,13 +2,48 @@
 @use "taro-ui/dist/style/index.scss";
 @use "./styles/variables.scss" as *;
 
+/* CSS 自定义属性定义 */
+:root {
+  /* 字体大小变量 */
+  --app-font-size: 16px;
+  --app-font-size-small: 14px;
+  --app-font-size-large: 18px;
+  
+  /* 浅色主题变量 */
+  --app-bg-color: #ffffff;
+  --app-text-color: #333333;
+  --app-card-bg: #ffffff;
+  --app-border-color: #e2e8f0;
+  --app-primary-color: #4f46e5;
+  --app-secondary-color: #6b7280;
+  --app-success-color: #10b981;
+  --app-warning-color: #f59e0b;
+  --app-error-color: #ef4444;
+}
+
+/* 深色主题变量 */
+:root.dark-theme {
+  --app-bg-color: #1a1a1a;
+  --app-text-color: #ffffff;
+  --app-card-bg: #2d2d2d;
+  --app-border-color: #404040;
+  --app-primary-color: #5a67d8;
+  --app-secondary-color: #9ca3af;
+  --app-success-color: #34d399;
+  --app-warning-color: #fbbf24;
+  --app-error-color: #f87171;
+}
+
 /* 根节点样式 */
 page {
-  background-color: $bg-page;
+  background-color: var(--app-bg-color);
+  color: var(--app-text-color);
+  font-size: var(--app-font-size);
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
     Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB',
     'Microsoft Yahei', sans-serif;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* 全局设置盒模型，防止 padding 和 border 影响元素最终尺寸 */

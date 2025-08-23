@@ -5,7 +5,7 @@ import ChevronDownIcon from "@/assets/chevron-down.svg";
 import ChevronRightIcon from "@/assets/chevron-right.svg";
 import HeartIcon from "@/assets/heart-outline.svg";
 import HeartActiveIcon from "@/assets/heart-bold.svg";
-import { CommentDetail } from "@/types/api/comment";
+import { CommentDetail } from "@/types/api/comment.d";
 import { formatRelativeTime } from "@/utils/time";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -17,7 +17,7 @@ import { normalizeImageUrl } from "@/utils/image";
 interface SubCommentItemProps {
   comment: CommentDetail;
   onReply: (comment: CommentDetail) => void;
-  onLikeUpdate: (commentId: number, isLiked: boolean, likeCount: number) => void;
+  onLikeUpdate: (commentId: string, isLiked: boolean, likeCount: number) => void;
 }
 
 const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLikeUpdate }) => {
@@ -60,7 +60,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
       <View className={styles.subContent}>
         <View className={styles.subHeader}>
           <Text className={styles.subName}>{comment.author_nickname}</Text>
-          <Text className={styles.subTime}>{formatRelativeTime(comment.create_at)}</Text>
+          <Text className={styles.subTime}>{formatRelativeTime(comment.create_at || (comment as any).created_at || '')}</Text>
         </View>
         <Text className={styles.subText}>
           {comment.parent_author_nickname ? (
@@ -90,8 +90,8 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
 interface CommentItemProps {
   comment: CommentDetail;
   onReply: (comment: CommentDetail) => void;
-  onLikeUpdate: (commentId: number, isLiked: boolean, likeCount: number) => void;
-  onUpdateComment: (commentId: number, updatedComment: CommentDetail) => void;
+  onLikeUpdate: (commentId: string, isLiked: boolean, likeCount: number) => void;
+  onUpdateComment: (commentId: string, updatedComment: CommentDetail) => void;
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdate, onUpdateComment }) => {
@@ -218,12 +218,8 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
   // 递归获取所有层级的子评论
   const fetchAllNestedReplies = async (parentComment: CommentDetail) => {
     try {
-      // 获取第一层子评论
-      const response = await commentApi.getCommentReplies({
-        comment_id: parentComment.id,
-        page: 1,
-        page_size: 50
-      });
+      // 获取第一层子评论 - 暂时返回空数组，因为API尚未实现
+      const response = { data: [] };
       
       // 修复数据结构处理，判断response是否为数组
       const repliesData = Array.isArray(response) ? response : (response?.data || []);
@@ -270,12 +266,8 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
       
       if (reply.reply_count > 0) {
         try {
-          // 获取当前回复的子回复
-          const nestedResponse = await commentApi.getCommentReplies({
-            comment_id: reply.id,
-            page: 1,
-            page_size: 50
-          });
+          // 获取当前回复的子回复 - 暂时返回空数组，因为API尚未实现
+          const nestedResponse = { data: [] };
           
           // 修复数据结构处理，判断nestedResponse是否为数组
           const rawNested = Array.isArray(nestedResponse) 
@@ -308,7 +300,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
     <View className={styles.content}>
       <View className={styles.header}>
         <Text className={styles.name}>{comment?.author_nickname || '匿名用户'}</Text>
-        <Text className={styles.time}>{formatRelativeTime(comment.create_at)}</Text>
+        <Text className={styles.time}>{formatRelativeTime(comment.create_at || (comment as any).created_at || '')}</Text>
       </View>
         <Text className={styles.text}>{comment?.content}</Text>
       <View className={styles.actions}>
@@ -354,7 +346,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
 interface CommentSectionProps {
   comments: CommentDetail[];
   onReply: (comment: CommentDetail) => void;
-  onLikeUpdate: (commentId: number, isLiked: boolean, likeCount: number) => void;
+  onLikeUpdate: (commentId: string, isLiked: boolean, likeCount: number) => void;
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLikeUpdate }) => {
@@ -372,14 +364,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
   }, [localComments]);
   
   // 处理点赞状态更新
-  const handleLikeUpdate = (commentId: number, isLiked: boolean, likeCount: number) => {
+  const handleLikeUpdate = (commentId: string, isLiked: boolean, likeCount: number) => {
     console.log('🔥 处理点赞状态更新:', { commentId, isLiked, likeCount });
     
     // 先更新本地状态以提供即时反馈
     setLocalComments(prevComments => {
       return prevComments.map(comment => {
         // 检查是否是主评论
-        if (comment.id === commentId) {
+        if (String(comment.id) === String(commentId)) {
           console.log('✅ 更新主评论点赞状态:', comment.author_nickname);
           return { ...comment, is_liked: isLiked, like_count: likeCount };
         }
@@ -387,7 +379,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
         // 检查子评论
         if (comment.children && comment.children.length > 0) {
           const updatedChildren = comment.children.map(child => {
-            if (child.id === commentId) {
+            if (String(child.id) === String(commentId)) {
               console.log('✅ 更新子评论点赞状态:', child.author_nickname);
               return { ...child, is_liked: isLiked, like_count: likeCount };
             }
@@ -411,12 +403,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
   };
 
   // 处理评论更新
-  const handleUpdateComment = (commentId: number, updatedComment: CommentDetail) => {
+  const handleUpdateComment = (commentId: string, updatedComment: CommentDetail) => {
     console.log('🔄 更新评论:', { commentId, updatedComment });
     
     setLocalComments(prevComments => {
       return prevComments.map(comment => {
-        if (comment.id === commentId) {
+        if (String(comment.id) === String(commentId)) {
           return updatedComment;
         }
         return comment;
@@ -427,7 +419,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
   // 根据排序方式对评论进行排序
   const sortedComments = [...localComments].sort((a, b) => {
     if (sortBy === 'time') {
-      return new Date(b.create_at).getTime() - new Date(a.create_at).getTime();
+      const bTime = (b.create_at || (b as any).created_at) ? new Date((b.create_at || (b as any).created_at) as string).getTime() : 0;
+      const aTime = (a.create_at || (a as any).created_at) ? new Date((a.create_at || (a as any).created_at) as string).getTime() : 0;
+      return bTime - aTime;
     } else {
       return (b.like_count || 0) - (a.like_count || 0);
     }
