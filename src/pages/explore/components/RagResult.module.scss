@@ -11,16 +11,19 @@
 .responseText {
   line-height: 1.6;
   color: $text-primary;
+  font-size: 13px; // 减小默认字体大小
 }
 
 .markdown-content {
   line-height: 1.6;
   margin-top: 0px; // 移除与header的间距
+  font-size: 13px; // 减小整体字体大小
 }
 
 .markdown-p {
   margin: 0 0 8px 0; // 移除上边距，只保留下边距
   line-height: 1.6;
+  font-size: 13px; // 减小段落字体大小
 }
 
 .markdown-h1,
@@ -34,21 +37,25 @@
   color: $text-primary;
 }
 
-.markdown-h1 { font-size: 24px; }
-.markdown-h2 { font-size: 20px; }
-.markdown-h3 { font-size: 18px; }
-.markdown-h4 { font-size: 16px; }
-.markdown-h5 { font-size: 14px; }
-.markdown-h6 { font-size: 14px; }
+.markdown-h1 { font-size: 20px; } // 从24px减小到20px
+.markdown-h2 { font-size: 18px; } // 从20px减小到18px
+.markdown-h3 { font-size: 16px; } // 从18px减小到16px
+.markdown-h4 { font-size: 14px; } // 从16px减小到14px
+.markdown-h5 { font-size: 13px; } // 从14px减小到13px
+.markdown-h6 { font-size: 13px; } // 从14px减小到13px
 
 .markdown-ul,
 .markdown-ol {
-  margin: 4px 0; // 进一步减少列表容器的上下边距
-  padding-left: 20px;
+  margin: 1px 0; // 从2px进一步减少到1px
+  padding-left: 16px; // 从20px减少到16px，减少缩进
+  line-height: 1.2; // 从1.4进一步减少到1.2
 }
 
 .markdown-li {
-  margin: 0; // 移除列表项之间的间距
+  margin: 0 0 1px 0; // 添加极小的底部间距，避免列表项粘连
+  line-height: 1.2; // 从1.4进一步减少到1.2
+  font-size: 13px; // 确保与整体字体大小一致
+  padding: 0; // 确保没有内边距
 }
 
 .markdown-blockquote {
@@ -71,7 +78,7 @@
   padding: 2px 4px;
   border-radius: 3px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
+  font-size: 12px; // 从14px减小到12px
   color: #e74c3c;
 }
 
@@ -82,7 +89,7 @@
   margin: 8px 0;
   overflow-x: auto;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
+  font-size: 12px; // 从14px减小到12px
   line-height: 1.4;
 }
 
@@ -382,5 +389,3 @@
 .thumbUp:active, .thumbDown:active {
   transform: scale(0.95);
 }
-
-
