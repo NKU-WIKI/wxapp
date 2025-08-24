@@ -8,7 +8,7 @@ import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header'
 import knowledgeApi from '@/services/api/knowledge';
 import agentApi from '@/services/api/agent';
 import feedbackApi from '@/services/api/feedback';
-import AIReadingAnimation from '@/components/ai-reading-animation';
+import GeminiReadingAnimation from '@/components/gemini-reading-animation';
 
 // Icon imports
 import xIcon from '@/assets/x.svg';
@@ -21,6 +21,7 @@ import wechatIcon from '@/assets/wechat.png';
 import marketIcon from '@/assets/market.png';
 import douyinIcon from '@/assets/douyin.png';
 import robotIcon from '@/assets/robot.svg';
+
 import RagResult from './components/RagResult';
 import styles from './index.module.scss';
 
@@ -68,6 +69,7 @@ export default function ExplorePage() {
   const [uploadText, setUploadText] = useState('');
   const [searchSources, setSearchSources] = useState<any[]>([]);
   const [isReading, setIsReading] = useState(false);
+  const [ragResponseReady, setRagResponseReady] = useState(false); // 跟踪RAG响应是否准备好
 
   // Use string path for icons to align with asset loading rules
   const searchIcon = '/assets/search.svg';
@@ -218,46 +220,57 @@ export default function ExplorePage() {
       setErrorMsg(null);
       setThinking(true);
       setGeneralResults([]);
+      setRagResponseReady(false); // 重置RAG响应准备状态
 
       try {
         if (rawValue.startsWith('@wiki-chat')) {
           const resp = await agentApi.chatCompletions({ query, stream: false });
           if (resp.code === 0) {
             setRagData({ response: (resp.data as any)?.content || '', sources: [] });
+            setRagResponseReady(true); // 聊天模式直接标记为准备好
             setWxappResults(null);
             setGeneralResults([]);
           } else {
             const m = resp.msg || resp.message || '对话失败';
             Taro.showToast({ title: m, icon: 'none' });
             setErrorMsg(m);
+            setRagResponseReady(false);
           }
         } else {
-          // 直接调用rag-sources获取参考文献，然后显示阅读动画
-          try {
-            const sourcesResponse = await agentApi.ragSources({ q: query, size: 10 });
-            setSearchSources(sourcesResponse.data || []);
+          // RAG 搜索流程
+          const performRagSearch = async () => {
+            try {
+              // 阶段 1: 获取数据源，并立即开始播放动画
+              const sourcesResponse = await agentApi.ragSources({ q: query, size: 10 });
+              const sources = sourcesResponse.data?.sources || [];
+              setSearchSources(sources);
 
-            // 开始显示阅读动画
-            setIsReading(true);
-            setThinking(true);
+              if (sources.length > 0) {
+                setIsReading(true);
+              }
 
-            // 并发调用rag-answer获取答案
-            const ragResponse = await agentApi.rag({ q: query, size: 10 });
-            if (ragResponse.code === 0 && ragResponse.data) {
-              setRagData(ragResponse.data);
-            } else {
-              const errorMessage = ragResponse.msg || 'RAG搜索失败';
+              // 阶段 2: 在后台获取RAG答案
+              const ragResponse = await agentApi.rag({ q: query, size: 10 });
+              if (ragResponse.code === 0 && ragResponse.data) {
+                setRagData(ragResponse.data);
+                setRagResponseReady(true); // 标记RAG响应准备好
+              } else {
+                const errorMessage = ragResponse.msg || 'RAG搜索失败';
+                Taro.showToast({ title: errorMessage, icon: 'none' });
+                setErrorMsg(errorMessage);
+                setIsReading(false); // 如果获取答案失败，也应停止动画
+                setRagResponseReady(false);
+              }
+
+            } catch (e: any) {
+              const errorMessage = e?.message || '搜索失败';
               Taro.showToast({ title: errorMessage, icon: 'none' });
               setErrorMsg(errorMessage);
+              setIsReading(false); // 异常时停止动画
             }
-          } catch (e: any) {
-            const errorMessage = e?.message || '搜索失败';
-            Taro.showToast({ title: errorMessage, icon: 'none' });
-            setErrorMsg(errorMessage);
-          } finally {
-            setThinking(false);
-            setIsReading(false);
-          }
+          };
+
+          performRagSearch();
         }
       } catch (e: any) {
         Taro.showToast({ title: e?.message || '搜索失败', icon: 'none' });
@@ -464,17 +477,30 @@ export default function ExplorePage() {
     // 搜索框应保持固定，Body 仅渲染内容区域
     if (!isSearchActive) return renderDefaultView();
 
-    // 如果正在阅读动画，显示AI阅读动画
+    // 优先级 1: 如果有RAG数据并且响应已准备好，显示最终结果
+    if (ragData && ragResponseReady) {
+      return <RagResult data={ragData} />
+    }
+
+    // 优先级 2: 如果正在阅读(播放动画)，则显示动画
     if (isReading && searchSources.length > 0) {
       return (
-        <AIReadingAnimation
+        <GeminiReadingAnimation
           sources={searchSources}
-          onComplete={() => {}} // 动画完成后不做额外操作，等待ragData更新
-          duration={8000} // 8秒动画，给用户更多时间观看
+          onComplete={() => {
+            setIsReading(false); // 动画结束
+            setRagResponseReady(false); // 重置状态
+          }}
+          duration={Math.min(searchSources.length * 1000, 5000)} // 每篇1秒，最长5秒
+          shouldStop={ragResponseReady} // 当RAG响应准备好时停止动画
         />
       );
     }
+    
+    // 优先级 3: 显示错误信息
+    if (errorMsg) return <View className={styles.errorState}>{errorMsg}</View>;
 
+    // 优先级 4: 显示加载状态 (例如，在获取sources时)
     if (thinking) {
       return (
         <View className={`${styles.loadingState} ${styles.ragLoading}`}>
@@ -482,10 +508,6 @@ export default function ExplorePage() {
           <Text>正在检索与思考中…</Text>
         </View>
       );
-    }
-    if (errorMsg) return <View className={styles.errorState}>{errorMsg}</View>;
-    if (ragData) {
-      return <RagResult data={ragData} />
     }
     if (wxappResults) {
       return (
