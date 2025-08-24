@@ -9,7 +9,6 @@ import fileTextIcon from '@/assets/file-text.svg';
 import { View, Text, Image, RichText } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useState, useEffect } from 'react';
-import feedbackApi from '@/services/api/feedback';
 import { markdownToHtml } from '@/utils/markdown';
 import { RAG_CONTENT_COLLAPSE_THRESHOLD, RAG_CONTENT_MAX_HEIGHT } from '@/constants';
 import styles from './RagResult.module.scss';
@@ -103,26 +102,7 @@ export default function RagResult({ data }: Props) {
             </View>
           )}
         </View>
-        <View className={styles.thumbRow}>
-          <Text
-            className={styles.thumbUp}
-            onClick={async () => {
-              try {
-                await feedbackApi.sendThumbFeedback({ scope: 'rag_answer', action: 'up' });
-                Taro.showToast({ title: '已反馈', icon: 'success' });
-              } catch {}
-            }}
-          >👍 有帮助</Text>
-          <Text
-            className={styles.thumbDown}
-            onClick={async () => {
-              try {
-                await feedbackApi.sendThumbFeedback({ scope: 'rag_answer', action: 'down' });
-                Taro.showToast({ title: '已反馈', icon: 'success' });
-              } catch {}
-            }}
-          >👎 不准确</Text>
-        </View>
+
       </View>
 
       {sources.length > 0 && (
@@ -184,27 +164,6 @@ export default function RagResult({ data }: Props) {
                     🔗 {s.original_url || s.url}
                   </Text>
                 )}
-
-                <View className={styles.thumbRow}>
-                  <Text
-                    className={styles.thumbUp}
-                    onClick={async () => {
-                      try {
-                        await feedbackApi.sendThumbFeedback({ scope: 'rag_source', action: 'up', title: s.title, extra: { platform: s.platform } });
-                        Taro.showToast({ title: '感谢反馈', icon: 'success' });
-                      } catch {}
-                    }}
-                  >👍 相关</Text>
-                  <Text
-                    className={styles.thumbDown}
-                    onClick={async () => {
-                      try {
-                        await feedbackApi.sendThumbFeedback({ scope: 'rag_source', action: 'down', title: s.title, extra: { platform: s.platform } });
-                        Taro.showToast({ title: '已记录', icon: 'success' });
-                      } catch {}
-                    }}
-                  >👎 无关</Text>
-                </View>
               </View>
             </View>
           ))}
