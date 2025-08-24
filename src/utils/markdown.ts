@@ -11,10 +11,14 @@ const parseMarkdown = (markdown: string): string => {
 
   // 解析各种markdown元素
   let html = processedMarkdown
-    // 标题（必须在分隔线之前处理）
+    // 标题（一级和二级标题转换为三级标题，其他保持不变）
     .replace(/^### (.*$)/gim, '<h3 class="markdown-h3">$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2 class="markdown-h2">$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1 class="markdown-h1">$1</h1>')
+    .replace(/^## (.*$)/gim, '<h3 class="markdown-h3">$1</h3>')
+    .replace(/^# (.*$)/gim, '<h3 class="markdown-h3">$1</h3>')
+    // 四级及更小标题保持原样
+    .replace(/^#### (.*$)/gim, '<h4 class="markdown-h4">$1</h4>')
+    .replace(/^##### (.*$)/gim, '<h5 class="markdown-h5">$1</h5>')
+    .replace(/^###### (.*$)/gim, '<h6 class="markdown-h6">$1</h6>')
     // 分隔线（---、***、___ 三种形式）
     .replace(/^[-*_]{3,}$/gm, '<hr class="markdown-hr">')
     // 代码块（必须在其他代码处理之前）
@@ -61,6 +65,9 @@ const parseMarkdown = (markdown: string): string => {
     if (!html.startsWith('<h1 class="markdown-h1">') &&
         !html.startsWith('<h2 class="markdown-h2">') &&
         !html.startsWith('<h3 class="markdown-h3">') &&
+        !html.startsWith('<h4 class="markdown-h4">') &&
+        !html.startsWith('<h5 class="markdown-h5">') &&
+        !html.startsWith('<h6 class="markdown-h6">') &&
         !html.startsWith('<span class="markdown-list-item">') &&
         !html.startsWith('<pre class="code-block">') &&
         !html.startsWith('<hr class="markdown-hr">')) {
