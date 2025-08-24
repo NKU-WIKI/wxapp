@@ -1,15 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { View, ScrollView, Text, Input, Image, Textarea } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import { useDispatch } from 'react-redux';
-import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import { AppDispatch } from '@/store';
 import { clearSearchResults } from '@/store/slices/chatSlice';
-// import { tabBarSyncManager } from '@/utils/tabBarSync';
+import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import knowledgeApi from '@/services/api/knowledge';
 import agentApi from '@/services/api/agent';
-import { RagRequest } from '@/types/api/agent.d';
 import feedbackApi from '@/services/api/feedback';
+import AIReadingAnimation from '@/components/ai-reading-animation';
 
 // Icon imports
 import xIcon from '@/assets/x.svg';
@@ -67,6 +66,8 @@ export default function ExplorePage() {
   const [autoFocus, setAutoFocus] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadText, setUploadText] = useState('');
+  const [searchSources, setSearchSources] = useState<any[]>([]);
+  const [isReading, setIsReading] = useState(false);
 
   // Use string path for icons to align with asset loading rules
   const searchIcon = '/assets/search.svg';
@@ -217,6 +218,7 @@ export default function ExplorePage() {
       setErrorMsg(null);
       setThinking(true);
       setGeneralResults([]);
+
       try {
         if (rawValue.startsWith('@wiki-chat')) {
           const resp = await agentApi.chatCompletions({ query, stream: false });
@@ -230,20 +232,36 @@ export default function ExplorePage() {
             setErrorMsg(m);
           }
         } else {
-          const body: RagRequest = { q: query, size: 10 };
-          const res = await agentApi.rag(body);
-          if (res.code === 0) {
-            setRagData(res.data);
-            setWxappResults(null);
-            setGeneralResults([]);
-          } else {
-            Taro.showToast({ title: res.msg || res.message || 'RAG 搜索失败', icon: 'none' });
-            setErrorMsg(res.msg || res.message || 'RAG 搜索失败');
+          // 直接调用rag-sources获取参考文献，然后显示阅读动画
+          try {
+            const sourcesResponse = await agentApi.ragSources({ q: query, size: 10 });
+            setSearchSources(sourcesResponse.data || []);
+
+            // 开始显示阅读动画
+            setIsReading(true);
+            setThinking(true);
+
+            // 并发调用rag-answer获取答案
+            const ragResponse = await agentApi.rag({ q: query, size: 10 });
+            if (ragResponse.code === 0 && ragResponse.data) {
+              setRagData(ragResponse.data);
+            } else {
+              const errorMessage = ragResponse.msg || 'RAG搜索失败';
+              Taro.showToast({ title: errorMessage, icon: 'none' });
+              setErrorMsg(errorMessage);
+            }
+          } catch (e: any) {
+            const errorMessage = e?.message || '搜索失败';
+            Taro.showToast({ title: errorMessage, icon: 'none' });
+            setErrorMsg(errorMessage);
+          } finally {
+            setThinking(false);
+            setIsReading(false);
           }
         }
       } catch (e: any) {
-        Taro.showToast({ title: e?.message || 'RAG 搜索失败', icon: 'none' });
-        setErrorMsg(e?.message || 'RAG 搜索失败');
+        Taro.showToast({ title: e?.message || '搜索失败', icon: 'none' });
+        setErrorMsg(e?.message || '搜索失败');
       } finally {
         setThinking(false);
       }
@@ -299,9 +317,13 @@ export default function ExplorePage() {
     setInputQuery('');
     setSearchMode(null);
     setShowSuggestions(false);
+    setSearchSources([]);
+    setIsReading(false);
     dispatch(clearSearchResults());
     setIsSearchActive(false);
   };
+
+
   
   const handleFocus = () => {
     // 清理持久化的上次错误，避免误显示错误页
@@ -441,6 +463,18 @@ export default function ExplorePage() {
   const renderBody = () => {
     // 搜索框应保持固定，Body 仅渲染内容区域
     if (!isSearchActive) return renderDefaultView();
+
+    // 如果正在阅读动画，显示AI阅读动画
+    if (isReading && searchSources.length > 0) {
+      return (
+        <AIReadingAnimation
+          sources={searchSources}
+          onComplete={() => {}} // 动画完成后不做额外操作，等待ragData更新
+          duration={8000} // 8秒动画，给用户更多时间观看
+        />
+      );
+    }
+
     if (thinking) {
       return (
         <View className={`${styles.loadingState} ${styles.ragLoading}`}>

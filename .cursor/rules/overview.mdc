@@ -68,7 +68,6 @@ alwaysApply: true
 │       └── api              # API 相关类型
 ├── types                    # TypeScript 类型定义 (全局)
 │   └── global.d.ts
-├── backend-api              # 后端接口文档
 ├── .cursorrules             # Cursor AI 配置文件
 ├── .editorconfig            # 编辑器配置文件
 ├── .eslintrc                # ESLint 配置文件
@@ -169,7 +168,6 @@ alwaysApply: true
 │       └── api              # API 相关类型
 ├── types                    # TypeScript 类型定义 (全局)
 │   └── global.d.ts
-├── backend-api              # 后端接口文档
 ├── .cursorrules             # Cursor AI 配置文件
 ├── .editorconfig            # 编辑器配置文件
 ├── .eslintrc                # ESLint 配置文件

@@ -3,6 +3,31 @@ export interface RagRequest {
   size?: number | null;
 }
 
+export interface RagSourcesRequest {
+  q: string;
+  size?: number | null;
+}
+
+export interface DocSource {
+  id: number;
+  tenant_id: string;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  content?: string;
+  url?: string;
+  platform?: string;
+  author?: string;
+  publish_time?: string;
+  pagerank_score?: number;
+}
+
+export interface RAGResponse {
+  answer: string;
+  sources: DocSource[];
+}
+
+
 export interface ChatCompletionsRequest {
   query: string;
   stream?: boolean | null;

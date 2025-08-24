@@ -44,18 +44,12 @@
 .markdown-h5 { font-size: 13px; } // 从14px减小到13px
 .markdown-h6 { font-size: 13px; } // 从14px减小到13px
 
-.markdown-ul,
-.markdown-ol {
-  margin: 1px 0; // 从2px进一步减少到1px
-  padding-left: 16px; // 从20px减少到16px，减少缩进
-  line-height: 1.2; // 从1.4进一步减少到1.2
-}
-
-.markdown-li {
-  margin: 0 0 1px 0; // 添加极小的底部间距，避免列表项粘连
-  line-height: 1.2; // 从1.4进一步减少到1.2
-  font-size: 13px; // 确保与整体字体大小一致
-  padding: 0; // 确保没有内边距
+.markdown-list-item {
+  display: block;
+  margin: 2px 0; // 紧凑的上下间距
+  line-height: 1.4; // 适当的行高
+  font-size: 13px; // 与整体字体大小一致
+  color: $text-primary;
 }
 
 .markdown-blockquote {

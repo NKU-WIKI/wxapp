@@ -6,12 +6,19 @@ import {
   TextPolishResponse,
   TextSummarizeRequest,
   TextSummarizeResponse,
+  RagSourcesRequest,
+  RAGResponse,
+  DocSource,
 } from "@/types/api/agent.d";
-import http from "../request";
 import { TENANT_ID } from "@/constants";
+import http from "../request";
 
 export const rag = (data: RagRequest) => {
-  return http.get<any>("/agent/rag-answer", { ...data, tenant_id: TENANT_ID });
+  return http.get<RAGResponse>("/agent/rag-answer", { ...data, tenant_id: TENANT_ID });
+};
+
+export const ragSources = (data: RagSourcesRequest) => {
+  return http.get<any>("/agent/rag-sources", { ...data, tenant_id: TENANT_ID });
 };
 
 // 根据API文档，应该使用 /api/v1/agent/chat
@@ -41,6 +48,7 @@ export const ragSearch = (_params: any) => {
 
 const agentApi = {
   rag,
+  ragSources,
   chatCompletions,
   textSummarize,
   textPolish,

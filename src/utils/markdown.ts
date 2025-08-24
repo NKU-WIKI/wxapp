@@ -28,10 +28,10 @@ const parseMarkdown = (markdown: string): string => {
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
     // 行内代码
     .replace(/`(.*?)`/g, '<code class="markdown-code">$1</code>')
-    // 无序列表
-    .replace(/- (.*$)/gim, '<li class="markdown-li">$1</li>')
-    // 有序列表
-    .replace(/(\d+)\. (.*$)/gim, '<li class="markdown-li">$2</li>')
+    // 无序列表 - 改为带点的加粗格式
+    .replace(/- (.*$)/gim, '<span class="markdown-list-item">• <strong>$1</strong></span>')
+    // 有序列表 - 改为带点的加粗格式
+    .replace(/(\d+)\. (.*$)/gim, '<span class="markdown-list-item">• <strong>$2</strong></span>')
     // 段落分隔（双换行转为段落分隔）
     .replace(/\n\n/g, '</p><p class="markdown-p">')
     // 单换行在列表中保持，段落中转为换行符
@@ -45,9 +45,7 @@ const parseMarkdown = (markdown: string): string => {
       return '<br>';
     });
 
-  // 包装列表（将连续的li元素包装在ul中）
-  html = html
-    .replace(/(<li class="markdown-li">.*?<\/li>)+/g, '<ul class="markdown-ul">$&</ul>');
+  // 不再需要包装列表，列表项直接作为span元素
 
   // 清理HTML结构
   html = html
@@ -63,7 +61,7 @@ const parseMarkdown = (markdown: string): string => {
     if (!html.startsWith('<h1 class="markdown-h1">') &&
         !html.startsWith('<h2 class="markdown-h2">') &&
         !html.startsWith('<h3 class="markdown-h3">') &&
-        !html.startsWith('<ul class="markdown-ul">') &&
+        !html.startsWith('<span class="markdown-list-item">') &&
         !html.startsWith('<pre class="code-block">') &&
         !html.startsWith('<hr class="markdown-hr">')) {
       // 使用div包装而不是p，以减少默认间距
@@ -94,10 +92,7 @@ export function markdownToHtml(markdown: string): string {
       .replace(/<p>/g, '<p class="markdown-p">')
       // 确保标题有合适的样式
       .replace(/<h(\d)>/g, '<h$1 class="markdown-h$1">')
-      // 确保列表有合适的样式
-      .replace(/<ul>/g, '<ul class="markdown-ul">')
-      .replace(/<ol>/g, '<ol class="markdown-ol">')
-      .replace(/<li>/g, '<li class="markdown-li">')
+      // 列表项使用span标签，已在前面处理
       // 确保引用有合适的样式
       .replace(/<blockquote>/g, '<blockquote class="markdown-blockquote">')
       // 确保链接有合适的样式
