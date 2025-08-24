@@ -1,9 +1,10 @@
 import { View, Text, Image, Button, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { fetchUserProfile, fetchUserLevel, fetchUserStats, logout } from '@/store/slices/userSlice';
+import { fetchUserProfile, fetchUserLevel, fetchUserStats, fetchFollowersCount, fetchCollectionCount, logout, resetUserStats, resetUserLevel, resetFollowersCount, resetCollectionCount } from '@/store/slices/userSlice';
+import { fetchUserPostCount, fetchUserLikeCount, resetUserPostCount, resetUserLikeCount } from '@/store/slices/userPostsSlice';
 import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import { normalizeImageUrl } from '@/utils/image';
@@ -39,36 +40,90 @@ const LoginPrompt = () => {
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
   const userState = useSelector((state: RootState) => state.user);
+  const userPostsState = useSelector((state: RootState) => state.userPosts);
   const userInfo = userState?.userProfile; // Use userProfile for detailed info
   const userLevel = userState?.userLevel; // 用户等级信息
   const userStats = userState?.userStats; // 用户统计信息
+  const followersCount = userState?.followersCount; // 关注/粉丝总数
+  const collectionCount = userState?.collectionCount; // 收藏的帖子数量
   const isLoggedIn = userState?.isLoggedIn;
   const status = userState?.status;
   const levelStatus = userState?.levelStatus;
   const statsStatus = userState?.statsStatus;
+  const followersCountStatus = userState?.followersCountStatus;
+  const collectionCountStatus = userState?.collectionCountStatus;
   const headerHeight = useCustomHeaderHeight();
 
-  console.log('[Profile Page] isLoggedIn status:', isLoggedIn);
-  console.log('[Profile Page] userInfo:', userInfo);
-  console.log('[Profile Page] userStats:', userStats);
+
   
+  // 页面显示时刷新数字数据（仅在数据不存在时）
+  useDidShow(() => {
+    if (isLoggedIn) {
+      // 只在数据不存在时才刷新数字相关的数据，避免闪烁
+      if (!followersCount) {
+        dispatch(fetchFollowersCount());
+      }
+      if (!collectionCount) {
+        dispatch(fetchCollectionCount());
+      }
+      if (userPostsState?.postCount === null || userPostsState?.postCount === undefined) {
+        dispatch(fetchUserPostCount({}));
+      }
+      if (userPostsState?.likeCount === null || userPostsState?.likeCount === undefined) {
+        dispatch(fetchUserLikeCount({}));
+      }
+    }
+  });
+
+  // 下拉刷新
+  usePullDownRefresh(async () => {
+    if (isLoggedIn) {
+      try {
+        // 先重置状态，确保显示加载状态
+        dispatch(resetUserStats());
+        dispatch(resetUserLevel());
+        dispatch(resetFollowersCount());
+        dispatch(resetCollectionCount());
+        dispatch(resetUserPostCount());
+        dispatch(resetUserLikeCount());
+        
+        await Promise.all([
+          dispatch(fetchUserProfile()).unwrap(),
+          dispatch(fetchUserLevel()).unwrap(),
+          dispatch(fetchUserStats()).unwrap(),
+          dispatch(fetchFollowersCount()).unwrap(),
+          dispatch(fetchCollectionCount()).unwrap(),
+          dispatch(fetchUserPostCount({})).unwrap(),
+          dispatch(fetchUserLikeCount({})).unwrap()
+        ]);
+        Taro.showToast({
+          title: '刷新成功',
+          icon: 'success',
+          duration: 1000
+        });
+      } catch (error) {
+        console.error('[Profile Page] Refresh failed:', error);
+        Taro.showToast({
+          title: '刷新失败',
+          icon: 'error',
+          duration: 1000
+        });
+      }
+    }
+    Taro.stopPullDownRefresh();
+  });
+
   useEffect(() => {
-    // If the user is logged in but profile is not loaded, fetch it.
-    // fetchCurrentUser is now handled globally in app.tsx
+    // 初始加载时的逻辑
     if (isLoggedIn && !userInfo) {
-      console.log('[Profile Page] Fetching user profile...');
       dispatch(fetchUserProfile());
     }
     
-    // 获取用户等级信息
     if (isLoggedIn && !userLevel && levelStatus !== 'loading') {
-      console.log('[Profile Page] Fetching user level...');
       dispatch(fetchUserLevel());
     }
     
-    // 获取用户统计信息
     if (isLoggedIn && !userStats && statsStatus !== 'loading') {
-      console.log('[Profile Page] Fetching user stats...');
       dispatch(fetchUserStats());
     }
   }, [isLoggedIn, userInfo, userLevel, userStats, levelStatus, statsStatus, dispatch]);
@@ -92,15 +147,29 @@ const Profile = () => {
     });
   };
 
-  const handleNavigateToFollowers = () => {
-    console.log('Navigate to followers triggered'); // 调试日志
-    // 导航到关注/粉丝页面
+  const handleNavigateToFollowing = () => {
+    // 导航到关注页面
     Taro.navigateTo({
-      url: '/pages/subpackage-profile/followers/index'
+      url: '/pages/subpackage-profile/followers/index?tab=following'
     }).then(() => {
-      console.log('Navigation success');
+      // Navigation success
     }).catch((err) => {
-      console.error('Navigation failed:', err);
+      console.error('Navigation to following failed:', err);
+      Taro.showToast({
+        title: '页面跳转失败',
+        icon: 'error'
+      });
+    });
+  };
+
+  const handleNavigateToFollowers = () => {
+    // 导航到粉丝页面
+    Taro.navigateTo({
+      url: '/pages/subpackage-profile/followers/index?tab=followers'
+    }).then(() => {
+      // Navigation success
+    }).catch((err) => {
+      console.error('Navigation to followers failed:', err);
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -130,11 +199,11 @@ const Profile = () => {
   };
 
   const handleNavigateToLikes = () => {
-    // 导航到点赞页面
+    // 导航到获赞页面
     Taro.navigateTo({
-      url: '/pages/subpackage-profile/likes/index'
+      url: '/pages/subpackage-profile/received-likes/index'
     }).catch((err) => {
-      console.error('Navigation to likes failed:', err);
+      console.error('Navigation to received likes failed:', err);
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -189,7 +258,7 @@ const Profile = () => {
   }
 
   // 如果正在加载，或者已经登录但还没有用户信息，则显示骨架屏
-  if (status === 'loading' || (isLoggedIn && !userInfo)) {
+  if (status === 'loading' || levelStatus === 'loading' || statsStatus === 'loading' || followersCountStatus === 'loading' || collectionCountStatus === 'loading' || userPostsState?.postCountLoading === 'pending' || userPostsState?.likeCountLoading === 'pending' || (isLoggedIn && !userInfo)) {
     return renderSkeleton();
   }
 
@@ -215,7 +284,7 @@ const Profile = () => {
               <View className={styles.levelBadge} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-profile/level/index' })} style={{ cursor: 'pointer' }}>
                 <Text className={styles.starIcon}>★</Text>
                 <Text className={styles.levelText}>
-                  {userLevel ? `LV.${userLevel.level}` : `LV.${userInfo?.level || '0'}`}
+                  {levelStatus === 'loading' ? '...' : (userLevel ? `LV.${userLevel.level}` : `LV.${userInfo?.level || '0'}`)}
                 </Text>
               </View>
 
@@ -229,7 +298,7 @@ const Profile = () => {
               <View className={styles.statsRow}>
                 <View className={styles.statItem} onClick={handleNavigateToPosts}>
                   <Text className={styles.statValue}>
-                    {userStats?.post_count ?? userInfo?.post_count ?? 0}
+                    {userPostsState?.postCountLoading === 'pending' ? '...' : (userPostsState?.postCount ?? userStats?.post_count ?? userInfo?.post_count ?? 0)}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>📝</Text>
@@ -238,16 +307,16 @@ const Profile = () => {
                 </View>
                 <View className={styles.statItem} onClick={handleNavigateToLikes}>
                   <Text className={styles.statValue}>
-                    {userStats?.like_count ?? userInfo?.total_likes ?? 0}
+                    {userPostsState?.likeCountLoading === 'pending' ? '...' : (userPostsState?.likeCount ?? userStats?.like_count ?? userInfo?.total_likes ?? 0)}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>❤️</Text>
                     <Text className={styles.statLabel}>获赞</Text>
                   </View>
                 </View>
-                <View className={styles.statItem} onClick={handleNavigateToFollowers}>
+                <View className={styles.statItem} onClick={handleNavigateToFollowing}>
                   <Text className={styles.statValue}>
-                    {userInfo?.following_count ?? 0}
+                    {followersCountStatus === 'loading' ? '...' : (followersCount?.following_count ?? userInfo?.following_count ?? 0)}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>👥</Text>
@@ -259,7 +328,7 @@ const Profile = () => {
               <View className={styles.statsRow}>
                 <View className={styles.statItem} onClick={handleNavigateToFollowers}>
                   <Text className={styles.statValue}>
-                    {userInfo?.follower_count ?? 0}
+                    {followersCountStatus === 'loading' ? '...' : (followersCount?.follower_count ?? userInfo?.follower_count ?? 0)}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>👥</Text>
@@ -268,7 +337,7 @@ const Profile = () => {
                 </View>
                 <View className={styles.statItem} onClick={handleNavigateToCollection}>
                   <Text className={styles.statValue}>
-                    {userStats?.favorite_count ?? userInfo?.total_favorites ?? 0}
+                    {collectionCountStatus === 'loading' ? '...' : (collectionCount ?? userStats?.favorite_count ?? userInfo?.total_favorites ?? 0)}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>🔖</Text>
@@ -277,7 +346,7 @@ const Profile = () => {
                 </View>
                 <View className={styles.statItem}>
                   <Text className={styles.statValue}>
-                    {userInfo?.points ?? 0}
+                    {status === 'loading' ? '...' : (userInfo?.points ?? 0)}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>🏆</Text>

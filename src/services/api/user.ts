@@ -83,7 +83,12 @@ export const getMyTags = () => {
  * @returns
  */
 export const getMyStats = () => {
-  return http.get<any>("/persona/me/stats");
+  return http.get<any>("/persona/me/stats").then(response => {
+    return response;
+  }).catch(error => {
+    console.error('[getMyStats] API error:', error);
+    throw error;
+  });
 };
 
 /**
@@ -179,7 +184,62 @@ export const getUserById = (userId: string) => {
  * @returns
  */
 export const getUserPosts = (userId: string, params?: PaginationParams) => {
-  return http.get<Post[]>(`/users/${userId}/posts`, params);
+  // 确保参数在合理范围内
+  const safeParams = {
+    skip: Math.max(0, params?.skip || 0),
+    limit: Math.min(100, Math.max(1, params?.limit || 20))
+  };
+  
+  return http.get<Post[]>(`/users/${userId}/posts`, safeParams).then(response => {
+    return response;
+  }).catch(error => {
+    console.error('[getUserPosts] API error:', error);
+    throw error;
+  });
+};
+
+/**
+ * 获取当前用户发布的帖子列表
+ * @param params 分页参数
+ * @returns
+ */
+export const getMyPosts = (params?: PaginationParams) => {
+  // 确保参数在合理范围内
+  const safeParams = {
+    skip: Math.max(0, params?.skip || 0),
+    limit: Math.min(100, Math.max(1, params?.limit || 20))
+  };
+  
+  return http.get<Post[]>("/users/me/posts", safeParams).then(response => {
+    return response;
+  }).catch(error => {
+    console.error('[getMyPosts] API error:', error);
+    throw error;
+  });
+};
+
+/**
+ * 获取当前用户的帖子数量
+ * 通过获取所有帖子并计算数量
+ * @returns 帖子数量
+ */
+export const getMyPostCount = async () => {
+  try {
+    // 获取所有帖子，设置较大的limit来获取所有帖子
+    const response = await http.get<Post[]>("/forums/posts", { limit: 1000 });
+    if (response.code === 0 && response.data) {
+      // 过滤出当前用户的帖子
+      const myPosts = response.data.filter((post: any) => {
+        // 检查帖子是否属于当前用户
+        return post.user_id || post.author_info?.id;
+      });
+      return myPosts.length;
+    }
+    return 0;
+  } catch (error) {
+    console.error('Error getting my post count:', error);
+    return 0;
+  }
 };
 
 /**

@@ -1,0 +1,122 @@
+@import "../../../styles/variables.scss";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-page;
+}
+
+.scrollView {
+  flex: 1;
+  padding: 20px;
+}
+
+.postsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.postWrapper {
+  background-color: $bg-card;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.loadingText {
+  color: $text-secondary;
+  font-size: 16px;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  gap: 16px;
+}
+
+.errorText {
+  color: $status-error;
+  font-size: 16px;
+  text-align: center;
+}
+
+.retryButton {
+  background-color: $theme-primary;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.retryText {
+  color: white;
+  font-size: 14px;
+}
+
+.actionContainer {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.publishButton {
+  background-color: $theme-primary;
+  color: white;
+  padding: 16px 32px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+  }
+}
+
+.publishButtonText {
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.loadMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.loadMoreText {
+  color: $text-secondary;
+  font-size: 14px;
+}
+
+.noMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.noMoreText {
+  color: $text-helper-gray;
+  font-size: 14px;
+} 

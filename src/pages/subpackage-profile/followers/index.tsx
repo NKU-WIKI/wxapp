@@ -13,7 +13,14 @@ type TabType = 'following' | 'followers';
 
 const FollowersPage = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const [activeTab, setActiveTab] = useState<TabType>('following')
+  
+  // 从URL参数获取初始标签页，默认为'following'
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const pages = Taro.getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    const options = currentPage.options;
+    return (options.tab as TabType) || 'following';
+  })
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -36,11 +43,7 @@ const FollowersPage = () => {
         page_size: 20
       }
       
-      console.log('[COMPONENT] 请求参数:', params);
-      
       const response = await getFollowers(params)
-      
-      console.log('API Response:', response);
       
       // 根据OpenAPI文档，标准响应格式为 ApiResponse<User[]>
       if (response.code === 0 && response.data !== undefined) {
@@ -59,8 +62,6 @@ const FollowersPage = () => {
           console.warn('Unexpected API response format:', responseData);
           newUsers = [];
         }
-        
-        console.log('Processed users:', newUsers);
         
         if (isRefresh) {
           setUsers(newUsers)
@@ -126,10 +127,7 @@ const FollowersPage = () => {
     }
   }, [activeTab, dispatch])
 
-  // 返回上一页
-  const handleBack = () => {
-    Taro.navigateBack()
-  }
+
 
   // 切换标签页
   const handleTabSwitch = (tab: TabType) => {
@@ -190,11 +188,7 @@ const FollowersPage = () => {
           page_size: 20
         }
         
-        console.log('[COMPONENT] 初始加载请求参数:', params);
-        
         const response = await getFollowers(params)
-        
-        console.log('API Response:', response);
         
         // 修复：API返回code为0表示成功，不是200
         if ((response.code === 200 || response.code === 0) && response.data !== undefined) {
@@ -228,13 +222,6 @@ const FollowersPage = () => {
 
   return (
     <View className={styles.container}>
-      {/* 固定头部 */}
-      <View className={styles.header}>
-        <Button className={styles.backButton} onClick={handleBack}>
-          ←
-        </Button>
-        <Text className={styles.title}>我的好友</Text>
-      </View>
 
       {/* 标签页导航 */}
       <View className={styles.tabsContainer}>

@@ -18,6 +18,7 @@ export default {
         "collection/index",
         "followers/index",
         "likes/index",
+        "received-likes/index",
         "comments/index",
         "user-detail/index",
         "history/index",

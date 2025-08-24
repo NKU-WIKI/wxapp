@@ -8,6 +8,8 @@ import {
   getMyLevel,
   getMyStats,
 } from "@/services/api/user";
+import { getFollowersCount } from "@/services/api/followers";
+import { getCollectionCount } from "@/services/api/collection";
 import { UnifiedLoginRequest } from "@/types/api/auth";
 import { User, UpdateUserProfileRequest, CurrentUser, LevelInfo, UserStats } from "@/types/api/user";
 import { RootState } from "@/store";
@@ -23,6 +25,10 @@ interface UserState {
   status: "idle" | "loading" | "succeeded" | "failed";
   levelStatus: "idle" | "loading" | "succeeded" | "failed";
   statsStatus: "idle" | "loading" | "succeeded" | "failed";
+  followersCount: { following_count: number; follower_count: number } | null; // 关注/粉丝总数
+  followersCountStatus: "idle" | "loading" | "succeeded" | "failed";
+  collectionCount: number | null; // 收藏的帖子数量
+  collectionCountStatus: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
@@ -36,6 +42,10 @@ const initialState: UserState = {
   status: "idle",
   levelStatus: "idle",
   statsStatus: "idle",
+  followersCount: null,
+  followersCountStatus: "idle",
+  collectionCount: null,
+  collectionCountStatus: "idle",
   error: null,
 };
 
@@ -198,6 +208,38 @@ export const fetchUserStats = createAsyncThunk(
   }
 );
 
+// 获取关注/粉丝总数
+export const fetchFollowersCount = createAsyncThunk(
+  "user/fetchFollowersCount",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getFollowersCount();
+      return response;
+    } catch (error: any) {
+      console.error("Fetch followers count API failed:", error);
+      return rejectWithValue(
+        error?.msg || error?.message || "获取关注/粉丝总数失败"
+      );
+    }
+  }
+);
+
+// 获取收藏的帖子数量
+export const fetchCollectionCount = createAsyncThunk(
+  "user/fetchCollectionCount",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getCollectionCount();
+      return response;
+    } catch (error: any) {
+      console.error("Fetch collection count API failed:", error);
+      return rejectWithValue(
+        error?.msg || error?.message || "获取收藏数量失败"
+      );
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -214,6 +256,22 @@ const userSlice = createSlice({
       state.statsStatus = "idle";
       state.error = null;
       Taro.removeStorageSync("token");
+    },
+    resetUserStats: (state) => {
+      state.userStats = null;
+      state.statsStatus = "idle";
+    },
+    resetUserLevel: (state) => {
+      state.userLevel = null;
+      state.levelStatus = "idle";
+    },
+    resetFollowersCount: (state) => {
+      state.followersCount = null;
+      state.followersCountStatus = "idle";
+    },
+    resetCollectionCount: (state) => {
+      state.collectionCount = null;
+      state.collectionCountStatus = "idle";
     },
   },
   extraReducers: (builder) => {
@@ -302,10 +360,34 @@ const userSlice = createSlice({
       .addCase(fetchUserStats.rejected, (state, action) => {
         state.statsStatus = "failed";
         state.error = action.payload as string;
+      })
+      // Fetch Followers Count
+      .addCase(fetchFollowersCount.pending, (state) => {
+        state.followersCountStatus = "loading";
+      })
+      .addCase(fetchFollowersCount.fulfilled, (state, action) => {
+        state.followersCountStatus = "succeeded";
+        state.followersCount = action.payload;
+      })
+      .addCase(fetchFollowersCount.rejected, (state, action) => {
+        state.followersCountStatus = "failed";
+        state.error = action.payload as string;
+      })
+      // Fetch Collection Count
+      .addCase(fetchCollectionCount.pending, (state) => {
+        state.collectionCountStatus = "loading";
+      })
+      .addCase(fetchCollectionCount.fulfilled, (state, action) => {
+        state.collectionCountStatus = "succeeded";
+        state.collectionCount = action.payload;
+      })
+      .addCase(fetchCollectionCount.rejected, (state, action) => {
+        state.collectionCountStatus = "failed";
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { logout } = userSlice.actions;
+export const { logout, resetUserStats, resetUserLevel, resetFollowersCount, resetCollectionCount } = userSlice.actions;
 
 export default userSlice.reducer;

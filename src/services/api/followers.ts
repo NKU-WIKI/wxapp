@@ -82,9 +82,44 @@ export const followAction = (params: FollowActionParams) => {
   });
 };
 
+/**
+ * 获取当前用户的关注和粉丝总数
+ * @returns 包含following_count和follower_count的对象
+ */
+export const getFollowersCount = async () => {
+  try {
+    // 获取当前用户信息
+    const userResponse = await http.get<CurrentUser>('/users/me');
+    const userId = (userResponse.data as any)?.user_id ?? (userResponse.data as any)?.id;
+    
+    if (!userId) {
+      throw new Error('无法获取用户ID');
+    }
+    
+    // 并行获取关注和粉丝列表的第一页来计算总数
+    const [followingResponse, followersResponse] = await Promise.all([
+      http.get<User[]>(`/users/${userId}/following`, { skip: 0, limit: 100 }),
+      http.get<User[]>(`/users/${userId}/followers`, { skip: 0, limit: 100 })
+    ]);
+    
+    // 计算总数（这里假设API返回的是完整列表，如果API支持总数查询，应该使用API返回的总数）
+    const followingCount = Array.isArray(followingResponse.data) ? followingResponse.data.length : 0;
+    const followerCount = Array.isArray(followersResponse.data) ? followersResponse.data.length : 0;
+    
+    return {
+      following_count: followingCount,
+      follower_count: followerCount
+    };
+  } catch (error) {
+    console.error('获取关注/粉丝总数失败:', error);
+    throw error;
+  }
+};
+
 export default {
   getFollowers,
   getUserFollowers,
   getUserFollowing,
   followAction,
+  getFollowersCount,
 };
