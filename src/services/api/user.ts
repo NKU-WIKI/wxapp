@@ -260,6 +260,60 @@ export const getMyLikes = (params?: PaginationParams) => {
   return http.get<ActionRead[]>("/users/me/likes", params);
 };
 
+/**
+ * 获取指定用户的帖子数量
+ * @param userId 用户ID
+ * @returns 帖子数量
+ */
+export const getUserPostCount = async (userId: string) => {
+  try {
+    const response = await http.get<Post[]>(`/users/${userId}/posts`, { skip: 0, limit: 100 });
+    if (response.code === 0 && response.data) {
+      return response.data.length;
+    }
+    return 0;
+  } catch (error) {
+    console.error('获取用户帖子数量失败:', error);
+    return 0;
+  }
+};
+
+/**
+ * 获取指定用户的粉丝数量
+ * @param userId 用户ID
+ * @returns 粉丝数量
+ */
+export const getUserFollowersCount = async (userId: string) => {
+  try {
+    const response = await http.get<any>(`/users/${userId}/followers`, { skip: 0, limit: 100 });
+    if (response.code === 0 && response.data) {
+      return response.data.length;
+    }
+    return 0;
+  } catch (error) {
+    console.error('获取用户粉丝数量失败:', error);
+    return 0;
+  }
+};
+
+/**
+ * 获取指定用户的关注数量
+ * @param userId 用户ID
+ * @returns 关注数量
+ */
+export const getUserFollowingCount = async (userId: string) => {
+  try {
+    const response = await http.get<any>(`/users/${userId}/following`, { skip: 0, limit: 100 });
+    if (response.code === 0 && response.data) {
+      return response.data.length;
+    }
+    return 0;
+  } catch (error) {
+    console.error('获取用户关注数量失败:', error);
+    return 0;
+  }
+};
+
 // 用户API对象，包含所有用户相关的API函数
 
 const userApi = {
@@ -283,6 +337,9 @@ const userApi = {
   getUserPosts,
   getMyFavorites,
   getMyLikes,
+  getUserPostCount,
+  getUserFollowersCount,
+  getUserFollowingCount,
 };
 
 export default userApi;

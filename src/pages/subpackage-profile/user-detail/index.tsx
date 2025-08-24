@@ -3,7 +3,7 @@ import { View, Text, Image, Button } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchUserProfile } from '../../../store/slices/userSlice';
-import { getActionStatus } from '../../../services/api/user';
+import { getActionStatus, getUserPostCount, getUserFollowersCount, getUserFollowingCount } from '../../../services/api/user';
 import { followAction } from '../../../services/api/followers';
 import CustomHeader from '../../../components/custom-header';
 import { normalizeImageUrl } from '../../../utils/image';
@@ -38,12 +38,32 @@ const UserDetail: React.FC = () => {
           avatar: userInfoFromParams.avatar || '',
           bio: decodeURIComponent(userInfoFromParams.bio || ''),
           level: parseInt(userInfoFromParams.level || '1'),
-          follower_count: parseInt(userInfoFromParams.follower_count || '0'),
-          following_count: parseInt(userInfoFromParams.following_count || '0'),
-          post_count: parseInt(userInfoFromParams.post_count || '0'),
+          follower_count: 0, // 初始化为0，稍后通过API获取
+          following_count: 0, // 初始化为0，稍后通过API获取
+          post_count: 0, // 初始化为0，稍后通过API获取
         };
         
         setTargetUser(tempUser);
+        
+        // 并行获取用户的统计数据
+        try {
+          const [postCount, followersCount, followingCount] = await Promise.all([
+            getUserPostCount(userId),
+            getUserFollowersCount(userId),
+            getUserFollowingCount(userId)
+          ]);
+          
+          // 更新用户信息 with 真实数据
+          setTargetUser(prev => ({
+            ...prev,
+            post_count: postCount,
+            follower_count: followersCount,
+            following_count: followingCount
+          }));
+        } catch (error) {
+          console.error('获取用户统计数据失败:', error);
+          // 如果API调用失败，保持默认值0
+        }
         
         // 获取关注状态
         if (isLoggedIn && userId) {
@@ -93,14 +113,24 @@ const UserDetail: React.FC = () => {
         const { is_active } = response.data;
         setIsFollowing(is_active);
         
-        // 更新targetUser的follower_count
-        if (targetUser) {
-          setTargetUser({
-            ...targetUser,
-            follower_count: is_active 
-              ? (targetUser.follower_count || 0) + 1 
-              : Math.max((targetUser.follower_count || 0) - 1, 0)
-          });
+        // 重新获取真实的粉丝数量
+        try {
+          const newFollowersCount = await getUserFollowersCount(userId);
+          setTargetUser(prev => ({
+            ...prev,
+            follower_count: newFollowersCount
+          }));
+        } catch (error) {
+          console.error('更新粉丝数量失败:', error);
+          // 如果获取失败，使用简单的加减逻辑作为备选
+          if (targetUser) {
+            setTargetUser({
+              ...targetUser,
+              follower_count: is_active 
+                ? (targetUser.follower_count || 0) + 1 
+                : Math.max((targetUser.follower_count || 0) - 1, 0)
+            });
+          }
         }
         
         // 更新用户信息以确保主页的粉丝数量实时更新
