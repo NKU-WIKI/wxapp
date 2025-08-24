@@ -11,6 +11,7 @@ import Taro from '@tarojs/taro';
 import { useState, useEffect } from 'react';
 import feedbackApi from '@/services/api/feedback';
 import { markdownToHtml } from '@/utils/markdown';
+import { RAG_CONTENT_COLLAPSE_THRESHOLD, RAG_CONTENT_MAX_HEIGHT } from '@/constants';
 import styles from './RagResult.module.scss';
 
 interface RagSourceItem {
@@ -52,20 +53,25 @@ const getPlatformIcon = (platform?: string): string => {
 
 export default function RagResult({ data }: Props) {
   const [renderedAnswer, setRenderedAnswer] = useState<string>('');
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   // 同步将markdown转换为HTML
   useEffect(() => {
     if (!data?.answer) {
       setRenderedAnswer('');
+      setIsExpanded(false);
       return;
     }
 
     try {
       const html = markdownToHtml(data.answer);
       setRenderedAnswer(html);
+      // 如果内容较长，默认折叠
+      setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD);
     } catch (error) {
       console.error('Failed to render markdown:', error);
       setRenderedAnswer(data.answer); // 失败时使用原始文本
+      setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD);
     }
   }, [data?.answer]);
 
@@ -81,7 +87,21 @@ export default function RagResult({ data }: Props) {
           <Text className={styles.title}>南开小知 · AI 智能助理</Text>
         </View>
         <View className={styles.responseText}>
-          <RichText nodes={renderedAnswer} />
+          <View
+            className={`${styles.contentWrapper} ${!isExpanded ? styles.collapsed : ''}`}
+            style={!isExpanded ? { '--max-height': `${RAG_CONTENT_MAX_HEIGHT}px` } as any : {}}
+          >
+            <RichText nodes={renderedAnswer} />
+          </View>
+          {renderedAnswer && renderedAnswer.length > RAG_CONTENT_COLLAPSE_THRESHOLD && (
+            <View className={styles.expandButtonContainer} onClick={() => setIsExpanded(!isExpanded)}>
+              <View className={styles.expandButton}>
+                <Text className={styles.expandText}>
+                  {isExpanded ? '收起内容' : '展开全部'}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
         <View className={styles.thumbRow}>
           <Text

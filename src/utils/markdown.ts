@@ -1,24 +1,80 @@
 // 简单的同步markdown解析器，避免Taro模块加载问题
 const parseMarkdown = (markdown: string): string => {
-  // 简单的markdown转HTML实现
-  let html = markdown
+  // 预处理：清理多余的空行，但保留段落分隔
+  let processedMarkdown = markdown
+    // 将多个连续空行压缩为两个（保留段落分隔）
+    .replace(/\n{3,}/g, '\n\n')
+    // 移除行首和行尾的空白字符
+    .split('\n')
+    .map(line => line.trim())
+    .join('\n');
+
+  // 解析各种markdown元素
+  let html = processedMarkdown
+    // 标题（必须在分隔线之前处理）
     .replace(/^### (.*$)/gim, '<h3 class="markdown-h3">$1</h3>')
     .replace(/^## (.*$)/gim, '<h2 class="markdown-h2">$1</h2>')
     .replace(/^# (.*$)/gim, '<h1 class="markdown-h1">$1</h1>')
+    // 分隔线（---、***、___ 三种形式）
+    .replace(/^[-*_]{3,}$/gm, '<hr class="markdown-hr">')
+    // 代码块（必须在其他代码处理之前）
+    .replace(/```([\s\S]*?)```/g, (_, code) => {
+      // 清理代码内容，移除首尾空白行
+      const cleanCode = code.replace(/^\n+|\n+$/g, '');
+      return `<pre class="code-block"><code>${cleanCode}</code></pre>`;
+    })
+    // 粗体和斜体
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // 行内代码
     .replace(/`(.*?)`/g, '<code class="markdown-code">$1</code>')
-    .replace(/```([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>')
+    // 无序列表
     .replace(/- (.*$)/gim, '<li class="markdown-li">$1</li>')
+    // 有序列表
     .replace(/(\d+)\. (.*$)/gim, '<li class="markdown-li">$2</li>')
+    // 段落分隔（双换行转为段落分隔）
     .replace(/\n\n/g, '</p><p class="markdown-p">')
-    .replace(/\n/g, '<br>');
+    // 单换行在列表中保持，段落中转为换行符
+    .replace(/\n/g, (match, offset, string) => {
+      // 如果在列表内部，保留换行；否则转为<br>
+      const beforeChar = offset > 0 ? string[offset - 1] : '';
+      const afterChar = offset < string.length - 1 ? string[offset + 1] : '';
+      if (beforeChar === '-' || afterChar === '-') {
+        return '\n';
+      }
+      return '<br>';
+    });
 
-  // 包装列表
+  // 包装列表（将连续的li元素包装在ul中）
   html = html
-    .replace(/(<li class="markdown-li">.*<\/li>)+/g, '<ul class="markdown-ul">$&</ul>');
+    .replace(/(<li class="markdown-li">.*?<\/li>)+/g, '<ul class="markdown-ul">$&</ul>');
 
-  return `<p class="markdown-p">${html}</p>`;
+  // 清理HTML结构
+  html = html
+    // 移除空的段落
+    .replace(/<p class="markdown-p"><\/p>/g, '')
+    // 移除开头和结尾的段落包装，以减少与周围元素的间距
+    .replace(/^<p class="markdown-p">/, '')
+    .replace(/<\/p>$/, '');
+
+  // 重新包装内容，但使用更紧凑的结构
+  if (html.trim()) {
+    // 如果内容以块级元素开头，不需要额外包装
+    if (!html.startsWith('<h1 class="markdown-h1">') &&
+        !html.startsWith('<h2 class="markdown-h2">') &&
+        !html.startsWith('<h3 class="markdown-h3">') &&
+        !html.startsWith('<ul class="markdown-ul">') &&
+        !html.startsWith('<pre class="code-block">') &&
+        !html.startsWith('<hr class="markdown-hr">')) {
+      // 使用div包装而不是p，以减少默认间距
+      html = `<div class="markdown-content">${html}</div>`;
+    } else {
+      // 如果以块级元素开头，直接返回
+      html = `<div class="markdown-content">${html}</div>`;
+    }
+  }
+
+  return html;
 };
 
 // 将markdown转换为小程序RichText支持的HTML格式
@@ -86,11 +142,12 @@ export function testMarkdown(): void {
     '```javascript\nconsole.log("Hello World");\n```',
     '> 这是一个引用块\n\n- 项目1\n- 项目2',
     '[链接文本](https://example.com)',
+    '---\n\n分隔线测试\n\n***\n\n另一个分隔线\n\n___\n\n多余的\n\n\n\n换行测试',
   ];
 
   console.log('Testing Markdown Rendering:');
   testCases.forEach((test, index) => {
-    console.log(`Test ${index + 1}:`, test);
+    console.log(`Test ${index + 1}:`, JSON.stringify(test));
     console.log('Rendered:', markdownToHtml(test));
     console.log('---');
   });

@@ -35,3 +35,17 @@ export const TENANT_ID = "f6303899-a51a-460a-9cd8-fe35609151eb";
  * 前端应视为未登录状态（isLoggedIn=false），忽略 currentUser。
  */
 export const NON_LOGGED_IN_USER_ID = "8d963d2a-7672-4b4a-9a6a-b3605d0b2d52";
+
+/**
+ * UI 界面配置常量
+ */
+/**
+ * RAG结果折叠的字符数阈值
+ * 当内容超过此长度时显示折叠按钮
+ */
+export const RAG_CONTENT_COLLAPSE_THRESHOLD = 400;
+
+/**
+ * 折叠时显示的最大高度（像素）
+ */
+export const RAG_CONTENT_MAX_HEIGHT = 300;
