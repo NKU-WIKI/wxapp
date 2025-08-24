@@ -82,6 +82,18 @@ export const deleteDraft = (draftId: string) => {
   return http.delete<any>(`/forums/drafts/${draftId}`);
 };
 /**
+ * 给帖子添加一个标签
+ */
+export const addPostTag = (postId: string, tagName: string) => {
+  return http.post<any>(`/forums/posts/${postId}/tags`, { tag_name: tagName });
+};
+/**
+ * 获取某个帖子的标签列表
+ */
+export const getPostTags = (postId: string) => {
+  return http.get<any[]>(`/forums/posts/${postId}/tags`);
+};
+/**
  * 删除所有草稿
  */
 export const clearAllDrafts = () => {
@@ -142,6 +154,8 @@ const postApi = {
   deletePost,
   getMyDrafts,
   deleteDraft,
+  addPostTag,
+  getPostTags,
   clearAllDrafts,
   getFeed,
   getPostsFeed,

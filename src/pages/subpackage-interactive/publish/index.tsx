@@ -88,6 +88,32 @@ export default function PublishPost() {
   const [draftList, setDraftList] = useState<DraftPost[]>([]);
   const [serverDrafts, setServerDrafts] = useState<Post[]>([]);
 
+  // Tag helpers: normalize and format
+  const normalizeTagText = (t: string): string => {
+    if (!t) return '';
+    let s = String(t);
+    s = s.replace(/[“”"']/g, ''); // remove quotes
+    s = s.trim();
+    if (s.startsWith('#')) s = s.slice(1);
+    return s;
+  };
+  const formatTagForState = (t: string): string => {
+    const s = normalizeTagText(t);
+    return s ? `#${s}` : '';
+  };
+  const formatTagsForPayload = (arr: string[]): string[] => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    (arr || []).forEach((t) => {
+      const s = normalizeTagText(t);
+      if (s && !seen.has(s)) {
+        seen.add(s);
+        out.push(s);
+      }
+    });
+    return out;
+  };
+
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const draftId = router?.params?.draftId;
@@ -108,6 +134,19 @@ export default function PublishPost() {
       if (draft) {
         setTitle(draft.title || '');
         setContent(draft.content || '');
+        // 同步本地草稿的标签与分类
+        try {
+          const tagTexts = Array.isArray((draft as any).tags) ? (draft as any).tags : [];
+          if (tagTexts.length > 0) {
+            const withSharp = tagTexts.map((t: string) => (t && t.startsWith('#') ? t : `#${t}`));
+            setSelectedTags(withSharp);
+            console.log('[draft] apply local tags:', withSharp);
+          }
+        } catch {}
+        if ((draft as any).category_id) {
+          setSelectedCategory((draft as any).category_id);
+          console.log('[draft] apply local category_id:', (draft as any).category_id);
+        }
         // setImages(draft.images || []); // 如有图片字段可补充
       }
     }
@@ -136,6 +175,13 @@ export default function PublishPost() {
             ? p.image_urls
             : (typeof p?.image === 'string' ? [p.image] : Array.isArray(p?.image) ? p.image : []);
           if (imgs?.length) setImages(imgs);
+          // 同步草稿的标签与分类
+          try {
+            const rawTags: any[] = Array.isArray((p as any).tags) ? (p as any).tags : [];
+            const tagTexts = rawTags.map((t: any) => (typeof t === 'string' ? t : (t?.name || ''))).filter((t: string) => !!t);
+            if (tagTexts.length > 0) setSelectedTags(tagTexts.map(formatTagForState));
+          } catch {}
+          if ((p as any).category_id) setSelectedCategory((p as any).category_id);
           try { await deleteDraft(postId); } catch {}
           try { Taro.removeStorageSync('tmp_server_draft'); } catch {}
         }
@@ -181,17 +227,20 @@ export default function PublishPost() {
             const canSaveServer = title.trim().length >= 1 && content.trim().length >= 1;
             if (canSaveServer) {
               try {
-                const processedTags = selectedTags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
-                await dispatch(createPost({
+                const processedTags = formatTagsForPayload(selectedTags);
+                const payloadForDraft: import('@/types/api/post.d').CreateForumPostRequest = {
                   title: title.trim(),
                   content: content.trim(),
-                  status: 'draft',
+                  status: 'draft' as const,
                   category_id: selectedCategory,
                   images: images,
                   tags: processedTags,
                   is_public: isPublic,
                   allow_comments: allowComments,
-                })).unwrap();
+                };
+                console.log('[publish] create draft payload:', JSON.stringify(payloadForDraft));
+                const created: any = await dispatch(createPost(payloadForDraft)).unwrap();
+                console.log('[publish] create draft response:', JSON.stringify(created || {}));
                 setHasSavedDraft(true);
                 Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
                 setTimeout(() => {
@@ -204,12 +253,15 @@ export default function PublishPost() {
             }
 
             const id = draftId || uuid();
+            const processedTags = formatTagsForPayload(selectedTags);
             saveDraft({
               id,
               title,
               content,
               avatar: userInfo?.avatar || defaultAvatar,
               updatedAt: Date.now(),
+              tags: processedTags,
+              category_id: selectedCategory,
             });
             setHasSavedDraft(true);
             Taro.showToast({ title: '已保存到草稿箱（本地）', icon: 'success' });
@@ -232,13 +284,16 @@ export default function PublishPost() {
   useUnload(() => {
     if (!hasSavedDraft && (title.trim() || content.trim()) && !draftId) {
       const id = uuid();
+      const processedTags = formatTagsForPayload(selectedTags);
       saveDraft({
         id,
         title,
         content,
         avatar: userInfo?.avatar || defaultAvatar,
         updatedAt: Date.now(),
-      });
+        tags: processedTags,
+        category_id: selectedCategory,
+      } as any);
     }
   });
 
@@ -278,17 +333,19 @@ export default function PublishPost() {
   };
 
   const handleTagToggle = (tag: string) => {
-    console.log('点击标签:', tag, '当前选中状态:', selectedTags.includes(tag));
+    const s = (tag || '').replace(/[“”"']/g, '').trim();
+    const cleaned = s.startsWith('#') ? s : `#${s}`;
+    if (!cleaned) return;
 
-    // 如果标签已经被选中，则取消选中
-    if (selectedTags.includes(tag)) {
-      const newTags = selectedTags.filter(t => t !== tag);
+    console.log('点击标签:', cleaned, '当前选中状态:', selectedTags.includes(cleaned));
+
+    if (selectedTags.includes(cleaned)) {
+      const newTags = selectedTags.filter(t => t !== cleaned);
       console.log('取消选中后的标签:', newTags);
       setSelectedTags(newTags);
     } else {
-      // 如果标签未被选中，且选中数量小于3，则选中
       if (selectedTags.length < 3) {
-        const newTags = [...selectedTags, tag];
+        const newTags = [...selectedTags, cleaned];
         console.log('选中后的标签:', newTags);
         setSelectedTags(newTags);
       } else {
@@ -303,9 +360,9 @@ export default function PublishPost() {
       return;
     }
 
-    // 格式化自定义标签，确保以#开头
-    let formattedTag = customTag.trim();
-    if (!formattedTag.startsWith('#')) {
+    // 格式化自定义标签
+    let formattedTag = (customTag || '').replace(/[“”"']/g, '').trim();
+    if (formattedTag && !formattedTag.startsWith('#')) {
       formattedTag = `#${formattedTag}`;
     }
 

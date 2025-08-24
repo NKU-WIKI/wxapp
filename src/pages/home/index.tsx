@@ -19,31 +19,11 @@ import bagIcon from "@/assets/bag.svg";
 import Post from "@/components/post";
 
 const mockCategories = [
-  {
-    id: 1,
-    name: "学习交流",
-    icon: studyIcon,
-  },
-  {
-    id: 2,
-    name: "校园生活",
-    icon: hatIcon,
-  },
-  {
-    id: 3,
-    name: "就业创业",
-    icon: starIcon,
-  },
-  {
-    id: 4,
-    name: "社团活动",
-    icon: usersGroupIcon,
-  },
-  {
-    id: 5,
-    name: "失物招领",
-    icon: bagIcon,
-  },
+  { id: 'c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f', name: '学习交流', icon: studyIcon },
+  { id: 'c2b8f8f5-b6b7-4c2c-9d9e-1f1f1f1f1f1f', name: '校园生活', icon: hatIcon },
+  { id: 'c3c9a9a6-c7c8-4d3d-aeaf-2a2b2c2d2e2f', name: '就业创业', icon: starIcon },
+  { id: 'd4d1a1a7-d8d9-4e4e-bfbf-3a3b3c3d3e3f', name: '社团活动', icon: usersGroupIcon },
+  { id: 'e5e2b2b8-e9ea-4f5f-cfdf-4a4b4c4d4e4f', name: '失物招领', icon: bagIcon },
 ];
 
 export default function Home() {
@@ -56,7 +36,7 @@ export default function Home() {
   const isLoading = loading === "pending";
   const isLoadingMore = loading === "pending" && posts.length > 0;
 
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
@@ -79,7 +59,7 @@ export default function Home() {
     try {
       const params = { skip: 0, limit: 10 };
       if (selectedCategory) {
-        await dispatch(fetchForumPosts({ ...params, category_id: selectedCategory })).unwrap();
+        await dispatch(fetchForumPosts({ ...params, category_id: selectedCategory as any })).unwrap();
       } else {
         await dispatch(fetchFeed(params)).unwrap();
       }
@@ -110,14 +90,14 @@ export default function Home() {
     }
   };
 
-  const handleCategoryClick = (categoryId: number) => {
+  const handleCategoryClick = (categoryId: string) => {
     const newSelectedCategory = selectedCategory === categoryId ? null : categoryId;
     setSelectedCategory(newSelectedCategory);
 
     const params = { skip: 0, limit: 10 };
 
     if (newSelectedCategory) {
-      dispatch(fetchForumPosts({ ...params, category_id: newSelectedCategory }));
+      dispatch(fetchForumPosts({ ...params, category_id: newSelectedCategory as any }));
     } else {
       dispatch(fetchFeed(params));
     }

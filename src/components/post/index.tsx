@@ -98,47 +98,65 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   
   // 解析图片
   const getImages = () => {
-    // 优先使用 image_urls 字段
-    if (displayPost.image_urls && Array.isArray(displayPost.image_urls)) {
-      return normalizeImageUrls(displayPost.image_urls);
+    // 优先使用新版字段 images: string[]
+    if (Array.isArray((displayPost as any).images)) {
+      return normalizeImageUrls((displayPost as any).images as string[]);
     }
-    
-    // 兼容 image 字段
-    if (displayPost.image) {
-      if (typeof displayPost.image === 'string') {
+    // 其次兼容 image_urls: string[]
+    if (Array.isArray((displayPost as any).image_urls)) {
+      return normalizeImageUrls((displayPost as any).image_urls as string[]);
+    }
+    // 兼容旧版 image: string | string[] | json-string
+    const legacy = (displayPost as any).image;
+    if (legacy) {
+      if (typeof legacy === 'string') {
         try {
-          const parsed = JSON.parse(displayPost.image);
+          const parsed = JSON.parse(legacy);
           return Array.isArray(parsed) ? normalizeImageUrls(parsed) : [];
-        } catch (error) {
-          console.error('解析图片失败:', error);
+        } catch {
           return [];
         }
-      } else if (Array.isArray(displayPost.image)) {
-        return normalizeImageUrls(displayPost.image);
+      }
+      if (Array.isArray(legacy)) {
+        return normalizeImageUrls(legacy);
       }
     }
-    
     return [];
   };
   
   const images = getImages();
   
-  // 处理标签数据
+  // 处理标签数据（清洗引号/空白/前导#）
   const getTags = () => {
-    if (Array.isArray(displayPost.tag)) {
-      return displayPost.tag;
+    const normalize = (val: any): string => {
+      let s = typeof val === 'string' ? val : (val?.name || '');
+      s = String(s).replace(/[“”"']/g, '').trim();
+      if (s.startsWith('#')) s = s.slice(1);
+      return s;
+    };
+
+    // 新版字段 tags: string[] | TagRead[]
+    const tagsAny = (displayPost as any).tags;
+    if (Array.isArray(tagsAny)) {
+      const out = tagsAny.map(normalize).filter((t) => t.length > 0);
+      return out;
     }
-    
-    if (displayPost.tag && typeof displayPost.tag === 'string') {
+
+    // 兼容旧版字段 tag: string | string[] | json-string
+    const legacy = (displayPost as any).tag;
+    if (Array.isArray(legacy)) {
+      return legacy.map(normalize).filter((t: string) => t.length > 0);
+    }
+    if (legacy && typeof legacy === 'string') {
       try {
-        const parsed = JSON.parse(displayPost.tag);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (error) {
-        console.error('解析标签失败:', error);
+        const parsed = JSON.parse(legacy);
+        return Array.isArray(parsed)
+          ? parsed.map(normalize).filter((t: string) => t.length > 0)
+          : [];
+      } catch {
         return [];
       }
     }
-    
     return [];
   };
   

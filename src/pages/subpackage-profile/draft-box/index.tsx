@@ -114,6 +114,28 @@ const DraftBox = () => {
   };
 
   // 合并并排序所有草稿
+  const mapServerPostToUnified = (post: any) => ({
+    id: post.id,
+    title: post.title,
+    content: post.content || '',
+    avatar: post.user?.avatar || '',
+    updatedAt: new Date(post.updated_at || post.created_at || post.create_time || '').getTime() || Date.now(),
+    likeCount: post.like_count ?? 0,
+    favoriteCount: post.favorite_count ?? 0,
+    commentCount: post.comment_count ?? 0,
+    viewCount: post.view_count ?? 0,
+    status: post.status,
+    // tags 可能为字符串数组或对象数组（TagRead），统一映射为字符串数组
+    tags: Array.isArray(post.tags)
+      ? post.tags.map((t: any) => (typeof t === 'string' ? t : (t?.name || '') )).filter((t: string) => !!t)
+      : [],
+    images: Array.isArray(post.images) ? post.images : (Array.isArray((post as any).image_urls) ? (post as any).image_urls : []),
+    categoryId: post.category_id || '',
+    isPublic: post.is_public ?? true,
+    allowComments: post.allow_comments ?? true,
+    source: 'server' as const,
+  });
+
   const allDrafts = [
     ...localDrafts.map(draft => ({
       id: draft.id,
@@ -121,16 +143,19 @@ const DraftBox = () => {
       content: draft.content,
       avatar: draft.avatar,
       updatedAt: draft.updatedAt,
+      tags: Array.isArray(draft.tags) ? draft.tags : [],
+      categoryId: draft.category_id || '',
+      likeCount: 0,
+      favoriteCount: 0,
+      commentCount: 0,
+      viewCount: 0,
+      status: 'draft' as const,
+      images: [],
+      isPublic: true,
+      allowComments: true,
       source: 'local' as const,
     })),
-    ...serverDrafts.map(post => ({
-      id: post.id,
-      title: post.title,
-      content: post.content || '',
-      avatar: post.user?.avatar || '',
-      updatedAt: new Date(post.updated_at || post.created_at || (post as any).create_time || '').getTime() || Date.now(),
-      source: 'server' as const,
-    }))
+    ...serverDrafts.map(mapServerPostToUnified)
   ]
   // 去重：以 id 优先服务端覆盖本地
   .reduce((acc: any[], item) => {

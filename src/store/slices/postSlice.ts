@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import Taro from "@tarojs/taro";
 import { PaginatedData } from "@/types/api/common";
 import {
   Post,
@@ -24,7 +25,20 @@ export const fetchForumPosts = createAsyncThunk(
   async (params: GetForumPostsParams, { rejectWithValue }) => {
     try {
       const response = await getForumPosts(params);
-      const items = Array.isArray(response.data) ? response.data.filter((p: any) => p?.status === 'published') : [];
+      const rawItems = Array.isArray(response.data) ? response.data : [];
+      const items = rawItems
+        .filter((p: any) => p?.status === 'published')
+        .map((p: any) => {
+          if ((!Array.isArray(p?.tags) || p.tags.length === 0) && p?.id) {
+            try {
+              const map = Taro.getStorageSync('post_tags_map') || {};
+              if (Array.isArray(map[p.id]) && map[p.id].length > 0) {
+                p.tags = map[p.id];
+              }
+            } catch {}
+          }
+          return p;
+        });
       return {
         items, // keep only published items in feed/list
         pagination: {
@@ -46,7 +60,20 @@ export const fetchFeed = createAsyncThunk(
   async (params: GetFeedParams, { rejectWithValue }) => {
     try {
       const response = await getFeed(params);
-      const items = Array.isArray(response.data) ? response.data.filter((p: any) => p?.status === 'published') : [];
+      const rawItems = Array.isArray(response.data) ? response.data : [];
+      const items = rawItems
+        .filter((p: any) => p?.status === 'published')
+        .map((p: any) => {
+          if ((!Array.isArray(p?.tags) || p.tags.length === 0) && p?.id) {
+            try {
+              const map = Taro.getStorageSync('post_tags_map') || {};
+              if (Array.isArray(map[p.id]) && map[p.id].length > 0) {
+                p.tags = map[p.id];
+              }
+            } catch {}
+          }
+          return p;
+        });
       return {
         items,
         pagination: {
@@ -212,7 +239,24 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPostDetail.fulfilled, (state, action) => {
         state.detailLoading = "succeeded";
-        state.currentPost = action.payload;
+        const payload: any = action.payload || {};
+        const inList = state.list.find(p => p.id === payload.id) as any;
+        if ((!Array.isArray(payload.tags) || payload.tags.length === 0) && Array.isArray(inList?.tags) && inList.tags.length > 0) {
+          payload.tags = inList.tags;
+        }
+        if ((!Array.isArray(payload.images) || payload.images.length === 0) && Array.isArray(inList?.images) && inList.images.length > 0) {
+          payload.images = inList.images;
+        }
+        // 本地映射兜底
+        try {
+          if ((!Array.isArray(payload.tags) || payload.tags.length === 0) && payload?.id) {
+            const map = Taro.getStorageSync('post_tags_map') || {};
+            if (Array.isArray(map[payload.id]) && map[payload.id].length > 0) {
+              payload.tags = map[payload.id];
+            }
+          }
+        } catch {}
+        state.currentPost = payload;
       })
       .addCase(fetchPostDetail.rejected, (state, action) => {
         state.detailLoading = "failed";
@@ -225,9 +269,26 @@ const postsSlice = createSlice({
       })
       .addCase(createPost.fulfilled, (state, action) => {
         state.loading = "succeeded";
+        const req = action.meta?.arg as CreateForumPostRequest | undefined;
+        const payload: any = action.payload || {};
+        // 将发布时选择的 tags/images 回填到新帖子（后端当前未回传）
+        if ((!Array.isArray(payload?.tags) || payload.tags.length === 0) && Array.isArray(req?.tags)) {
+          payload.tags = req?.tags;
+        }
+        if ((!Array.isArray(payload?.images) || payload.images.length === 0) && Array.isArray(req?.images)) {
+          payload.images = req?.images;
+        }
+        // 记录标签映射，供后续拉取时兜底
+        try {
+          if (payload?.id && Array.isArray(payload?.tags)) {
+            const map = Taro.getStorageSync('post_tags_map') || {};
+            map[payload.id] = payload.tags;
+            Taro.setStorageSync('post_tags_map', map);
+          }
+        } catch {}
         // 仅当为已发布帖子时才插入到当前列表，避免草稿短暂出现在首页
-        if ((action.payload as any)?.status === 'published') {
-          state.list.unshift(action.payload);
+        if ((payload as any)?.status === 'published') {
+          state.list.unshift(payload);
         }
       })
       .addCase(createPost.rejected, (state, action) => {
