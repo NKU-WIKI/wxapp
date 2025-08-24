@@ -1,80 +1,150 @@
-.likesPage {
+@import "@/styles/variables.scss";
+
+.container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #ffffff;
-}
-
-.content {
-  flex: 1;
-  overflow: hidden;
+  background: $bg-page-cool;
 }
 
 .scrollView {
-  height: 100%;
-  margin: 0 4px 16px;
+  flex: 1;
+  width: 100%;
 }
 
-.postList {
-  padding: 0 18px 32px 14px;
-  display: flex;
-  flex-direction: column;
+.likesContainer {
+  padding: 72px 16px 40px 16px; /* 进一步增加顶部内边距到72px */
 }
 
-.postItem {
-  & + & {
-    margin-top: 4px;
+.likeWrapper {
+  margin-bottom: 16px;
+  
+  &:last-child {
+    margin-bottom: 0;
   }
 }
 
-.loading {
+.basicItem {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.itemType {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 8px;
+}
+
+.itemId {
+  font-size: 14px;
+  color: $text-secondary-gray;
+  margin-bottom: 4px;
+}
+
+.itemTime {
+  font-size: 12px;
+  color: $text-secondary-gray;
+}
+
+.itemStatus {
+  font-size: 12px;
+  color: $status-warning;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.loadingContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px;
-  color: #666;
-  font-size: 14px;
+  padding: 60px 20px;
 }
 
-.loadingMore {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 60px;
-  color: #666;
-  font-size: 14px;
-}
-
-.noMore {
-  text-align: center;
-  padding: 16px 0;
-  color: #999;
-  font-size: 14px;
-  margin: 8px 0 48px 0;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+.loadingText {
+  font-size: 16px;
+  color: $text-secondary-gray;
 }
 
 .errorContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  height: 200px;
-  padding: 20px;
-}
-
-.errorText {
-  color: #ff4d4f;
-  font-size: 14px;
-  margin-bottom: 16px;
+  justify-content: center;
+  padding: 60px 20px;
   text-align: center;
 }
 
+.errorText {
+  font-size: 16px;
+  color: $text-secondary-gray;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
 .retryButton {
-  background-color: #4F46E5;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 12px 24px;
+  background: $theme-primary;
+  border-radius: 8px;
+  cursor: pointer;
+  
+  &:active {
+    background: $theme-primary-dark;
+  }
+}
+
+.retryText {
+  color: $text-white;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.actionContainer {
+  padding: 20px 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.exploreButton {
+  padding: 12px 24px;
+  background: $theme-primary;
+  border-radius: 8px;
+  cursor: pointer;
+  
+  &:active {
+    background: $theme-primary-dark;
+  }
+}
+
+.exploreButtonText {
+  color: $text-white;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.loadMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.loadMoreText {
   font-size: 14px;
-} 
+  color: $text-secondary-gray;
+}
+
+.noMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.noMoreText {
+  font-size: 14px;
+  color: $text-secondary-gray;
+}
