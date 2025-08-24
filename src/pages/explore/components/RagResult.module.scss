@@ -1,7 +1,7 @@
 @use "../../../styles/variables.scss" as *;
 
 .ragContainer {
-  padding: 8px 16px 16px 16px; // 减少上边距，保持左右和下边距
+  padding: 0px 16px 16px 16px; // 移除上边距
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -13,8 +13,13 @@
   color: $text-primary;
 }
 
+.markdown-content {
+  line-height: 1.6;
+  margin-top: 0px; // 移除与header的间距
+}
+
 .markdown-p {
-  margin: 8px 0;
+  margin: 0 0 8px 0; // 移除上边距，只保留下边距
   line-height: 1.6;
 }
 
@@ -24,7 +29,7 @@
 .markdown-h4,
 .markdown-h5,
 .markdown-h6 {
-  margin: 16px 0 8px 0;
+  margin: 12px 0 6px 0; // 减少标题的上下边距
   font-weight: 600;
   color: $text-primary;
 }
@@ -38,12 +43,12 @@
 
 .markdown-ul,
 .markdown-ol {
-  margin: 8px 0;
+  margin: 4px 0; // 进一步减少列表容器的上下边距
   padding-left: 20px;
 }
 
 .markdown-li {
-  margin: 4px 0;
+  margin: 0; // 移除列表项之间的间距
 }
 
 .markdown-blockquote {
@@ -99,6 +104,14 @@
   font-weight: 600;
 }
 
+.markdown-hr {
+  border: none;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.12);
+  margin: 16px 0;
+  width: 100%;
+}
+
 .card {
   background: #ffffff;
   border-radius: 16px;
@@ -118,8 +131,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 2px; // 最小化与正文的间距
+  padding-bottom: 2px; // 最小化底部内边距
   border-bottom: 2px solid linear-gradient(90deg, $theme-primary, rgba(79, 70, 229, 0.3));
 }
 
@@ -150,6 +163,73 @@
   overflow-wrap: anywhere;
   margin-bottom: 16px;
   text-align: justify;
+  position: relative;
+}
+
+.contentWrapper {
+  transition: max-height 0.3s ease;
+}
+
+.collapsed {
+  max-height: var(--max-height, 120px); // 使用CSS变量，默认120px
+  overflow: hidden;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px; // 增加遮罩高度适应更大的内容
+    background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.6) 40%,
+      rgba(255, 255, 255, 0.9) 100%);
+    pointer-events: none;
+    border-radius: 0 0 16px 16px;
+  }
+}
+
+.expandButton {
+  padding: 6px 14px;
+  background: linear-gradient(135deg,
+    rgba(79, 70, 229, 0.1) 0%,
+    rgba(79, 70, 229, 0.05) 50%,
+    rgba(79, 70, 229, 0.08) 100%);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+  backdrop-filter: blur(8px);
+
+  &:active {
+    transform: scale(0.96) translateY(1px);
+    background: linear-gradient(135deg,
+      rgba(79, 70, 229, 0.15) 0%,
+      rgba(79, 70, 229, 0.08) 50%,
+      rgba(79, 70, 229, 0.12) 100%);
+    border-color: rgba(79, 70, 229, 0.3);
+    box-shadow: 0 1px 4px rgba(79, 70, 229, 0.15);
+  }
+}
+
+.expandButtonContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+  position: relative;
+  z-index: 2; // 确保在渐变遮罩之上
+}
+
+.expandText {
+  color: $theme-primary;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(79, 70, 229, 0.1);
 }
 
 .sourcesSection {
@@ -277,7 +357,7 @@
 .thumbRow {
   display: flex;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 8px; // 减少与正文的间距
   justify-content: flex-end;
 }
 

@@ -142,7 +142,7 @@
 }
 
 .resultsContainer {
-  padding: 8px 16px 16px 16px; // 减少上边距，保持左右和下边距
+  padding: 0px 16px 16px 16px; // 移除上边距
 }
 
 .resultItem {
@@ -250,7 +250,7 @@
 /* Fallback views */
 .searchSkillsContainer {
   flex: 1;
-  padding: 8px 16px 16px 16px; // 减少上边距，保持左右和下边距
+  padding: 0px 16px 16px 16px; // 移除上边距
   background-color: $bg-card;
   height: 100%;
 }
