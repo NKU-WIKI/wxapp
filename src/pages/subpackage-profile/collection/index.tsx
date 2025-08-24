@@ -1,430 +1,308 @@
-import { useState, useEffect, useCallback } from 'react';
-import { View, Text, Image, Input, Button } from '@tarojs/components';
-import Taro, { useDidShow } from '@tarojs/taro';
-import { userApi } from '@/services/api/user';
-import actionApi from '@/services/api/action';
-import postApi from '@/services/api/post';
-import { CollectionItem, GetCollectionParams } from '@/types/api/collection.d';
+import React, { useEffect, useCallback } from 'react';
+import { View, Text, ScrollView } from '@tarojs/components';
+import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
+import { fetchFavorites, FavoriteItem, setFavorites } from '@/store/slices/favoriteSlice';
+import { formatRelativeTime } from '@/utils/time';
+import CustomHeader from '@/components/custom-header';
+import EmptyState from '@/components/empty-state';
+import Post from '@/components/post';
+import starOutlineIcon from '@/assets/star-outline.svg';
 import styles from './index.module.scss';
 
-type FilterType = 'all' | 'post' | 'material' | 'activity';
-
-interface FilterOption {
-  key: FilterType;
-  label: string;
+interface FavoriteItemProps {
+  favorite: FavoriteItem;
 }
 
-const filterOptions: FilterOption[] = [
-  { key: 'all', label: '全部' },
-  { key: 'post', label: '帖子' },
-  { key: 'material', label: '资料' },
-  { key: 'activity', label: '活动' }
-];
-
-export default function CollectionPage() {
-  const [collections, setCollections] = useState<CollectionItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const [postStats, setPostStats] = useState<Record<number, { view_count: number; comment_count: number; like_count: number }>>({});
-
-  // 获取单个帖子的统计信息
-  const fetchPostStats = useCallback(async (postId: number) => {
-    try {
-      const response = await postApi.getPostById(postId);
-      if (response && response.data) {
-        setPostStats(prev => ({
-          ...prev,
-          [postId]: {
-            view_count: response.data.view_count || 0,
-            comment_count: response.data.comment_count || 0,
-            like_count: response.data.like_count || 0
-          }
-        }));
-      }
-    } catch (err) {
-      console.error('获取帖子统计失败:', err);
-    }
-  }, []);
-
-  // 获取收藏列表
-  const fetchCollections = useCallback(async (params: GetCollectionParams = {}, isRefresh = false) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const requestParams = {
-        page: params.page || 1,
-        page_size: params.page_size || 10,
-        search: params.search || searchKeyword || undefined
-        // 不传递category参数，始终获取用户所有收藏
-      };
-
-      const response = await userApi.getUserFavorites(requestParams);
-      
-      if (response && response.data) {
-        // 处理响应数据，response.data 可能直接是帖子数组
-        let items: CollectionItem[] = [];
-        
-        if (Array.isArray(response.data)) {
-          // 如果返回的是帖子数组，转换为收藏项格式
-          items = response.data.map((post: any, index: number) => ({
-            id: post.id || index,
-            post: {
-              id: post.id,
-              user_id: post.user_id || 0,
-              title: post.title || '',
-              content: post.content || '',
-              image_urls: post.image ? JSON.parse(post.image || '[]') : [],
-              tag: post.tag || null,
-              location: post.location || null,
-              view_count: post.view_count || 0,
-              like_count: post.like_count || 0,
-              comment_count: post.comment_count || 0,
-              favorite_count: post.favorite_count || 0,
-              create_time: post.create_time || new Date().toISOString(),
-              author_info: {
-                id: post.author_id || 0,
-                level: post.author_level || '',
-                nickname: post.author_nickname || '匿名用户',
-                avatar: post.author_avatar || '/assets/profile.png',
-                gender: post.author_gender || 0,
-                bio: post.author_bio || '',
-                wechatId: post.author_wechat_id || '',
-                qqId: post.author_qq_id || '',
-                phone: post.author_phone || '',
-                post_count: post.author_post_count || 0,
-                follower_count: post.author_follower_count || 0,
-                following_count: post.author_following_count || 0,
-                create_time: post.author_created_at || new Date().toISOString(),
-                role: post.author_role || ''
-              },
-              is_liked: post.is_liked || false,
-              is_favorited: post.is_favorited || false,
-              is_following_author: post.is_following_author || false
-            },
-            created_at: post.create_time || new Date().toISOString()
-          }));
-        } else if (response.data && typeof response.data === 'object' && (response.data as any).items) {
-          // 如果返回的是带有items的对象
-          items = (response.data as any).items;
-        }
-        
-        if (isRefresh || requestParams.page === 1) {
-          setCollections(items);
-          // 获取所有帖子的最新统计信息
-          items.forEach(item => {
-            fetchPostStats(item.post.id);
-          });
-        } else {
-          setCollections(prev => [...prev, ...items]);
-          // 获取新加载帖子的统计信息
-          items.forEach(item => {
-            fetchPostStats(item.post.id);
-          });
-        }
-      }
-    } catch (err) {
-      console.error('获取收藏列表失败:', err);
-      setError('获取收藏列表失败，请重试');
-      Taro.showToast({
-        title: '获取收藏列表失败',
-        icon: 'none'
+const FavoriteItemComponent: React.FC<FavoriteItemProps> = ({ favorite }) => {
+  const handleNavigateToContent = () => {
+    if (favorite.target_type === 'post' && favorite.content) {
+      Taro.navigateTo({
+        url: `/pages/subpackage-interactive/post-detail/index?id=${favorite.target_id}`
       });
-    } finally {
-      setLoading(false);
     }
-  }, [searchKeyword, fetchPostStats]);
-
-  // 初始化数据
-  useEffect(() => {
-    fetchCollections({ page: 1 }, true);
-  }, [fetchCollections]);
-
-  // 页面显示时刷新数据 - 确保从其他页面返回时获取最新的收藏列表
-  useDidShow(() => {
-    console.log('[Collection] 页面显示，刷新收藏列表');
-    fetchCollections({ page: 1 }, true);
-  });
-
-  // 处理搜索
-  const handleSearch = useCallback((value: string) => {
-    setSearchKeyword(value);
-  }, []);
-
-  // 处理搜索按钮点击或回车搜索
-  const handleSearchClick = useCallback(() => {
-    if (searchKeyword.trim()) {
-      fetchCollections({ page: 1, search: searchKeyword.trim() }, true);
-    } else {
-      // 如果搜索词为空，显示所有收藏
-      fetchCollections({ page: 1 }, true);
-    }
-  }, [fetchCollections, searchKeyword]);
-
-  // 处理分类筛选
-  const handleFilterChange = useCallback((filter: FilterType) => {
-    setActiveFilter(filter);
-    // 对于收藏页面，所有筛选都显示用户的收藏帖子，不传递category参数
-    fetchCollections({ page: 1 }, true);
-  }, [fetchCollections]);
-
-  // 处理移除收藏
-  const handleRemoveFromCollection = useCallback(async (postId: number) => {
-    Taro.showModal({
-      title: '确认取消收藏',
-      content: '确定要取消收藏这个内容吗？',
-      success: async (res) => {
-        if (res.confirm) {
-          try {
-            console.log('[Collection] 开始取消收藏，postId:', postId);
-            
-            const response = await actionApi.toggleAction({ 
-              target_type: 'post', 
-              target_id: postId, 
-              action_type: 'favorite' 
-            });
-            
-            console.log('[Collection] 取消收藏API响应:', response);
-            
-            // 检查API响应是否成功
-            if (response && response.code === 200) {
-              const responseData = response.data;
-              
-              // 根据is_active判断操作结果
-              // is_active为false表示已取消收藏
-              if (responseData && responseData.is_active === false) {
-                // 从列表中移除
-                setCollections(prev => prev.filter(item => item.post.id !== postId));
-                
-                Taro.showToast({
-                  title: '已取消收藏',
-                  icon: 'success'
-                });
-                
-                console.log('[Collection] 成功取消收藏，已从列表中移除');
-              } else {
-                // 如果is_active为true，说明是重新收藏了，这种情况不应该发生
-                console.warn('[Collection] 意外的响应：is_active为true，应该是false');
-                Taro.showToast({
-                  title: '操作异常，请重试',
-                  icon: 'none'
-                });
-              }
-            } else {
-              // API响应失败
-              console.error('[Collection] API响应失败:', response);
-              throw new Error((response as any)?.message || '取消收藏失败');
-            }
-          } catch (err) {
-            console.error('[Collection] 取消收藏失败:', err);
-            Taro.showToast({
-              title: err instanceof Error ? err.message : '取消收藏失败',
-              icon: 'none'
-            });
-          }
-        }
-      }
-    });
-  }, []);
-
-  // 处理帖子点击
-  const handlePostClick = useCallback((postId: number) => {
-    // 点击时获取该帖子的最新统计信息
-    fetchPostStats(postId);
-    Taro.navigateTo({
-      url: `/pages/subpackage-interactive/post-detail/index?id=${postId}`
-    });
-  }, [fetchPostStats]);
-
-  // 返回上一页
-  const handleBack = useCallback(() => {
-    Taro.navigateBack();
-  }, []);
-
-  // 重试
-  const handleRetry = useCallback(() => {
-    fetchCollections({ page: 1 }, true);
-  }, [fetchCollections]);
-
-  // 格式化数字
-  const formatNumber = (num: number): string => {
-    if (num >= 10000) {
-      return `${(num / 10000).toFixed(1)}万`;
-    }
-    if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}k`;
-    }
-    return num.toString();
+    // TODO: 添加对其他类型（knowledge等）的导航支持
   };
 
-  // 根据当前筛选类型过滤收藏列表
-  const filteredCollections = collections.filter(item => {
-    if (activeFilter === 'all') {
-      return true;
-    }
-    if (activeFilter === 'post') {
-      return item.post.title || item.post.content; // 有标题或内容的视为帖子
-    }
-    if (activeFilter === 'material') {
-      // 根据标签或其他特征判断是否为资料
-      return item.post.tag && (
-        typeof item.post.tag === 'string' 
-          ? item.post.tag.includes('资料') || item.post.tag.includes('教程') || item.post.tag.includes('文档')
-          : Array.isArray(item.post.tag) && item.post.tag.some(tag => 
-              tag.includes('资料') || tag.includes('教程') || tag.includes('文档')
-            )
-      );
-    }
-    if (activeFilter === 'activity') {
-      // 根据标签或其他特征判断是否为活动
-      return item.post.tag && (
-        typeof item.post.tag === 'string' 
-          ? item.post.tag.includes('活动') || item.post.tag.includes('讲座') || item.post.tag.includes('会议')
-          : Array.isArray(item.post.tag) && item.post.tag.some(tag => 
-              tag.includes('活动') || tag.includes('讲座') || tag.includes('会议')
-            )
-      );
-    }
-    return true;
-  });
+  // 如果是帖子类型且有内容信息，使用Post组件渲染
+  if (favorite.target_type === 'post' && favorite.content) {
+    // 获取作者信息
+    const authorInfo = favorite.content.author_info;
+    console.log('Collection favorite author info:', authorInfo);
+    
+    const postData = {
+      id: favorite.content.id,
+      title: favorite.content.title || '',
+      content: favorite.content.content || '',
+      status: 'published' as const,
+      user_id: authorInfo?.id || '',
+      user: authorInfo ? {
+        id: authorInfo.id,
+        tenant_id: favorite.tenant_id,
+        created_at: favorite.created_at,
+        updated_at: favorite.updated_at,
+        nickname: authorInfo.nickname,
+        avatar: authorInfo.avatar || null,
+        bio: null,
+        birthday: null,
+        school: null,
+        college: null,
+        location: null,
+        wechat_id: null,
+        qq_id: null,
+        tel: null,
+        status: 'active' as const
+      } : {
+        id: '',
+        tenant_id: favorite.tenant_id,
+        created_at: favorite.created_at,
+        updated_at: favorite.updated_at,
+        nickname: '未知用户',
+        avatar: null,
+        bio: null,
+        birthday: null,
+        school: null,
+        college: null,
+        location: null,
+        wechat_id: null,
+        qq_id: null,
+        tel: null,
+        status: 'active' as const
+      },
+      author_info: favorite.content.author_info ? {
+        id: favorite.content.author_info.id,
+        tenant_id: favorite.tenant_id,
+        created_at: favorite.created_at,
+        updated_at: favorite.updated_at,
+        nickname: favorite.content.author_info.nickname,
+        avatar: favorite.content.author_info.avatar || null,
+        bio: null,
+        birthday: null,
+        school: null,
+        college: null,
+        location: null,
+        wechat_id: null,
+        qq_id: null,
+        tel: null,
+        status: 'active' as const
+      } : undefined,
+      created_at: favorite.content.created_at || favorite.created_at,
+      view_count: favorite.content.view_count || 0,
+      like_count: favorite.content.like_count || 0,
+      comment_count: favorite.content.comment_count || 0,
+      tenant_id: favorite.tenant_id,
+      updated_at: favorite.updated_at
+    };
 
+    return (
+      <Post 
+        post={postData} 
+        className={styles.favoriteItem} 
+        mode='list' 
+      />
+    );
+  }
+
+  // 对于其他类型或没有详细内容的项目，显示基本信息
   return (
-    <View className={styles.container}>
-      {/* 固定头部 */}
-      <View className={styles.header}>
-        <View className={styles.headerTitle}>
-          <Button className={styles.backButton} onClick={handleBack}>
-            <Text>←</Text>
-          </Button>
-          <Text className={styles.titleText}>我的收藏</Text>
-        </View>
-        
-        {/* 搜索区域 */}
-        <View className={styles.searchSection}>
-          <View className={styles.searchBox}>
-            <Input
-              className={styles.searchInput}
-              placeholder='搜索我的收藏'
-              value={searchKeyword}
-              onInput={(e) => handleSearch(e.detail.value)}
-              onConfirm={handleSearchClick}
-            />
-            <Text className={styles.searchIcon}>🔍</Text>
-            <Button className={styles.searchButton} onClick={handleSearchClick}>
-              搜索
-            </Button>
-          </View>
-        </View>
-
-        {/* 筛选标签 */}
-        <View className={styles.filterSection}>
-          <View className={styles.filterTabs}>
-            {filterOptions.map((option) => (
-              <Button
-                key={option.key}
-                className={`${styles.filterTab} ${activeFilter === option.key ? styles.active : ''}`}
-                onClick={() => handleFilterChange(option.key)}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </View>
-        </View>
+    <View className={styles.favoriteCard} onClick={handleNavigateToContent}>
+      <View className={styles.favoriteHeader}>
+        <Text className={styles.favoriteType}>
+          {favorite.target_type === 'post' ? '帖子' : 
+           favorite.target_type === 'knowledge' ? '知识' :
+           favorite.target_type === 'comment' ? '评论' : '收藏项'}
+        </Text>
+        <Text className={styles.favoriteTime}>
+          {formatRelativeTime(favorite.created_at)}
+        </Text>
       </View>
-
-      {/* 主要内容 */}
-      <View className={styles.main}>
-        {error ? (
-          <View className={styles.error}>
-            <Text className={styles.errorIcon}>⚠️</Text>
-            <Text className={styles.errorTitle}>加载失败</Text>
-            <Text className={styles.errorDescription}>{error}</Text>
-            <Button className={styles.retryButton} onClick={handleRetry}>
-              重试
-            </Button>
-          </View>
-        ) : filteredCollections.length === 0 && !loading ? (
-          <View className={styles.emptyState}>
-            <Text className={styles.emptyIcon}>📭</Text>
-            <Text className={styles.emptyTitle}>暂无收藏内容</Text>
-            <Text className={styles.emptyDescription}>
-              {searchKeyword ? '没有找到相关的收藏内容' : '快去收藏一些有趣的内容吧'}
+      
+      {favorite.content ? (
+        <View className={styles.favoriteContent}>
+          {favorite.content.title && (
+            <Text className={styles.favoriteTitle}>{favorite.content.title}</Text>
+          )}
+          {favorite.content.content && (
+            <Text className={styles.favoriteText}>{favorite.content.content}</Text>
+          )}
+          {favorite.content.author_info && (
+            <Text className={styles.favoriteAuthor}>
+              作者: {favorite.content.author_info.nickname}
             </Text>
-          </View>
-        ) : (
-          <View className={styles.collectionList}>
-            {filteredCollections.map((item) => (
-              <View key={item.id} className={styles.collectionItem}>
-                {/* 作者信息 */}
-                <View className={styles.authorInfo}>
-                  <View className={styles.authorAvatar}>
-                    <Image
-                      src={item.post.author_info?.avatar || '/assets/profile.png'}
-                      mode='aspectFill'
-                    />
-                  </View>
-                  <Text className={styles.authorName}>
-                    {item.post.author_info?.nickname || '匿名用户'}
-                  </Text>
-                </View>
-
-                {/* 封面图片 */}
-                {item.post.image_urls && item.post.image_urls.length > 0 && (
-                  <View className={styles.coverImage} onClick={() => handlePostClick(item.post.id)}>
-                    <Image
-                      src={item.post.image_urls[0]}
-                      mode='aspectFill'
-                    />
-                  </View>
-                )}
-
-                {/* 内容区域 */}
-                <View className={styles.content} onClick={() => handlePostClick(item.post.id)}>
-                  <Text className={styles.title}>{item.post.title}</Text>
-                  <Text className={styles.description}>{item.post.content}</Text>
-                  
-                  {/* 操作栏 */}
-                  <View className={styles.actionBar}>
-                    <View className={styles.stats}>
-                      <View className={styles.statItem}>
-                        <Text className={styles.icon}>👁</Text>
-                        <Text>{formatNumber(postStats[item.post.id]?.view_count ?? item.post.view_count)}</Text>
-                      </View>
-                      <View className={styles.statItem}>
-                        <Text className={styles.icon}>💬</Text>
-                        <Text>{formatNumber(postStats[item.post.id]?.comment_count ?? item.post.comment_count)}</Text>
-                      </View>
-                    </View>
-                    
-                    <View className={styles.actions}>
-                      <Button
-                        className={styles.removeButton}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveFromCollection(item.post.id);
-                        }}
-                      >
-                        取消收藏
-                      </Button>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {loading && (
-          <View className={styles.loading}>
-            <Text className={styles.loadingText}>加载中...</Text>
-          </View>
-        )}
-      </View>
-
-      {/* 底部占位 */}
-      <View className={styles.bottomSpacer} />
+          )}
+        </View>
+      ) : (
+        <View className={styles.favoriteContent}>
+          <Text className={styles.favoriteTitle}>收藏项 #{favorite.target_id}</Text>
+          <Text className={styles.favoriteText}>详细信息暂不可用</Text>
+        </View>
+      )}
     </View>
   );
-}
+};
+
+const CollectionPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  // 兼容持久化或热更新导致的初始状态缺失，做运行时兜底
+  const favoriteState = useSelector((state: RootState) => (state as any).favorite);
+  const favorites = favoriteState?.items ?? [];
+  const loading: 'idle' | 'pending' | 'succeeded' | 'failed' = favoriteState?.loading ?? 'idle';
+  const error: string | null = favoriteState?.error ?? null;
+  const pagination = favoriteState?.pagination ?? { skip: 0, limit: 20, total: 0, has_more: false };
+  const { isLoggedIn } = useSelector((state: RootState) => state.user);
+
+  // 加载收藏列表
+  const loadFavorites = useCallback((refresh = false) => {
+    const skip = refresh ? 0 : favorites.length;
+    const limit = 20;
+
+    // 优先使用 thunk；若构建缓存导致 thunk 未就绪，使用 API+同步 action 兜底
+    const maybeThunk: any = fetchFavorites as any;
+    if (typeof maybeThunk === 'function') {
+      dispatch(maybeThunk({ skip, limit, isAppend: !refresh }));
+    } else {
+      // API兜底方案
+      console.warn('fetchFavorites thunk not available, using API fallback');
+      
+      // 简化的API兜底：直接返回空数据
+      const nextPagination = { skip, limit, total: 0, has_more: false };
+      dispatch(setFavorites({ items: [], pagination: nextPagination, append: !refresh }));
+      
+      // TODO: 实现完整的API兜底逻辑
+      /*
+      getMe().then(userResponse => {
+        if (userResponse.code === 0 && userResponse.data?.user_id) {
+          const userId = userResponse.data.user_id;
+          return http.get(`/users/${userId}/favorites`, { skip, limit });
+        }
+        throw new Error('Cannot get user info');
+      }).then(res => {
+        if (res.code === 0) {
+          const items = res.data || [];
+          const nextPagination = { skip, limit, total: items.length, has_more: items.length >= limit };
+          dispatch(setFavorites({ items, pagination: nextPagination, append: !refresh }));
+        }
+      }).catch(error => {
+        console.error('API fallback failed:', error);
+      });
+      */
+    }
+  }, [dispatch, favorites.length]);
+
+  // 检查登录状态并初始化数据
+  useEffect(() => {
+    if (!isLoggedIn) {
+      Taro.showModal({
+        title: '提示',
+        content: '请先登录后查看收藏',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+          } else {
+            Taro.navigateBack();
+          }
+        }
+      });
+      return;
+    }
+
+    loadFavorites(true);
+  }, [isLoggedIn, loadFavorites]);
+
+  // 下拉刷新
+  usePullDownRefresh(() => {
+    loadFavorites(true);
+    Taro.stopPullDownRefresh();
+  });
+
+  // 上拉加载更多
+  useReachBottom(() => {
+    if (pagination.has_more && loading !== 'pending') {
+      loadFavorites(false);
+    }
+  });
+
+  // 处理重试
+  const handleRetry = () => {
+    loadFavorites(true);
+  };
+
+  // 渲染内容
+  const renderContent = () => {
+    if (loading === 'pending' && favorites.length === 0) {
+      return (
+        <View className={styles.loading}>
+          <Text>加载中...</Text>
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View className={styles.errorContainer}>
+          <Text className={styles.errorText}>加载失败: {error}</Text>
+          <View className={styles.retryButton} onClick={handleRetry}>
+            <Text>重试</Text>
+          </View>
+        </View>
+      );
+    }
+
+    if (favorites.length === 0) {
+      return (
+        <EmptyState
+          icon={starOutlineIcon}
+          text='暂无收藏内容'
+        />
+      );
+    }
+
+    return (
+      <View className={styles.favoritesList}>
+        {favorites.map(favorite => (
+          <FavoriteItemComponent key={favorite.id} favorite={favorite} />
+        ))}
+        
+        {loading === 'pending' && favorites.length > 0 && (
+          <View className={styles.loadingMore}>
+            <Text>加载更多...</Text>
+          </View>
+        )}
+        
+        {!pagination.has_more && favorites.length > 0 && (
+          <View className={styles.noMore}>
+            <Text>没有更多内容了</Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  return (
+    <View className={styles.collectionPage}>
+      <CustomHeader title='我的收藏' />
+      <View className={styles.content}>
+        <ScrollView
+          scrollY
+          className={styles.scrollView}
+          enableBackToTop
+          refresherEnabled
+          refresherTriggered={loading === 'pending' && favorites.length === 0}
+          onRefresherRefresh={() => loadFavorites(true)}
+          onScrollToLower={() => {
+            if (pagination.has_more && loading !== 'pending') {
+              loadFavorites(false);
+            }
+          }}
+          lowerThreshold={50}
+        >
+          {renderContent()}
+        </ScrollView>
+      </View>
+    </View>
+  );
+};
+
+export default CollectionPage;

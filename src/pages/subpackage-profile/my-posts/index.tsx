@@ -1,177 +1,172 @@
-import { useEffect, useState } from 'react';
-import { View, ScrollView, Text } from '@tarojs/components';
-import Taro, { useReachBottom, usePullDownRefresh } from '@tarojs/taro';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-
-import MyPostItem from './components/MyPostItem';
-import Button from '@/components/button';
+import React, { useEffect, useCallback, useState } from 'react';
+import { View, Text, ScrollView } from '@tarojs/components';
+import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
+import { fetchUserPosts, resetUserPosts } from '@/store/slices/userPostsSlice';
+import EmptyState from '@/components/empty-state';
+import Post from '@/components/post';
+import penToolIcon from '@/assets/pen-tool.svg';
 import styles from './index.module.scss';
-import { Post } from '@/types/api/post.d';
-import postApi from '@/services/api/post';
 
-const PAGE_SIZE = 20;
-
-const MyPostsPage = () => {
+const MyPostsPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { items: posts, loading, error: userPostsError, pagination } = useSelector((state: RootState) => state.userPosts);
   const userState = useSelector((state: RootState) => state.user);
-  const userInfo = userState?.userInfo;
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const loadMyPosts = async (reset = false) => {
-    if (loading) return;
-    
-    setLoading(true);
+  // 使用 ref 保存 pagination 的最新值，避免依赖循环
+  const paginationRef = React.useRef(pagination);
+  paginationRef.current = pagination;
+
+  // 加载我的帖子
+  const loadMyPosts = useCallback(async (isRefresh = false) => {
     try {
-      const nextPage = reset ? 1 : page;
-      const response = await postApi.getPosts({
-        page: nextPage,
-        page_size: PAGE_SIZE,
-        tab: 'new' // 使用new标签获取最新帖子
-      });
-
-      if (response.code === 200 && response.data) {
-        // 过滤出当前用户的帖子
-        const myPosts = response.data.filter(post => post.user_id === userInfo?.id);
-        
-        if (reset) {
-          setPosts(myPosts);
-          setPage(1);
-          setHasMore(myPosts.length === PAGE_SIZE);
-        } else {
-          setPosts(prev => [...prev, ...myPosts]);
-          setHasMore(myPosts.length === PAGE_SIZE);
-        }
+      // 从 ref 获取最新的 pagination 状态
+      const currentPagination = paginationRef.current;
+      const params = {
+        skip: isRefresh ? 0 : currentPagination.skip + currentPagination.limit,
+        limit: 20,
+        isAppend: !isRefresh
+      };
+      
+      if (isRefresh) {
+        dispatch(resetUserPosts());
       }
-    } catch (error) {
-      console.error('获取我的帖子失败:', error);
+      
+      await dispatch(fetchUserPosts(params)).unwrap();
+    } catch (err) {
+      console.error('Failed to load user posts:', err);
       Taro.showToast({
-        title: '获取帖子失败',
-        icon: 'error'
+        title: String(err) || '加载失败',
+        icon: 'none'
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [dispatch]); // 只依赖 dispatch
 
+  // 初始加载 - 避免循环依赖
   useEffect(() => {
-    if (userInfo?.id) {
+    if (!userState.isLoggedIn) {
+      Taro.showToast({
+        title: '请先登录',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    if (!isInitialized) {
+      setIsInitialized(true);
       loadMyPosts(true);
     }
-  }, [userInfo?.id]);
+  }, [userState.isLoggedIn, isInitialized, loadMyPosts]);
 
-  usePullDownRefresh(() => {
-    loadMyPosts(true);
+  // 下拉刷新
+  usePullDownRefresh(async () => {
+    await loadMyPosts(true);
     Taro.stopPullDownRefresh();
   });
 
-  useReachBottom(() => {
-    if (hasMore && !loading) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      loadMyPosts(false);
+  // 上拉加载更多
+  useReachBottom(async () => {
+    if (pagination.has_more && loading !== 'pending') {
+      await loadMyPosts(false);
     }
   });
 
-  const handleDelete = async (postId: number) => {
-    Taro.showModal({
-      title: '确认删除',
-      content: '确定要删除这篇帖子吗？删除后无法恢复。',
-      success: async (res) => {
-        if (res.confirm) {
-          try {
-            const response = await postApi.deletePost(postId);
-            if (response.code === 200) {
-              Taro.showToast({
-                title: '删除成功',
-                icon: 'success'
-              });
-              // 从列表中移除被删除的帖子
-              setPosts(prev => prev.filter(post => post.id !== postId));
-            } else {
-              throw new Error(response.msg || '删除失败');
-            }
-          } catch (error) {
-            console.error('删除帖子失败:', error);
-            Taro.showToast({
-              title: '删除失败',
-              icon: 'error'
-            });
-          }
-        }
-      },
-    });
-  };
+  // 渲染加载状态
+  if (loading === 'pending' && posts.length === 0) {
+    return (
+      <View className={styles.container}>
+        <View className={styles.loadingContainer}>
+          <Text className={styles.loadingText}>加载中...</Text>
+        </View>
+      </View>
+    );
+  }
 
-  const handleClearAll = () => {
-    Taro.showModal({
-      title: '确认删除',
-      content: '确定要删除所有已发布的帖子吗？此操作不可恢复！',
-      success: async (res) => {
-        if (res.confirm) {
-          try {
-            // 批量删除所有帖子
-            const deletePromises = posts.map(post => 
-              postApi.deletePost(post.id)
-            );
-            
-            await Promise.all(deletePromises);
-            
-            Taro.showToast({
-              title: '删除成功',
-              icon: 'success'
-            });
-            
-            // 清空列表
-            setPosts([]);
-            setPage(1);
-            setHasMore(false);
-          } catch (error) {
-            console.error('批量删除帖子失败:', error);
-            Taro.showToast({
-              title: '删除失败',
-              icon: 'error'
-            });
+  // 渲染错误状态
+  if (loading === 'failed' && posts.length === 0) {
+    return (
+      <View className={styles.container}>
+        <View className={styles.errorContainer}>
+          <Text className={styles.errorText}>{userPostsError || '加载失败，请重试'}</Text>
+          <View 
+            className={styles.retryButton}
+            onClick={() => loadMyPosts(true)}
+          >
+            <Text className={styles.retryText}>重新加载</Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // 渲染空状态
+  if (posts.length === 0) {
+    return (
+      <View className={styles.container}>
+        <EmptyState
+          icon={penToolIcon}
+          text={
+            <View>
+              <Text>还没有发布帖子</Text>
+              <Text>快去发布你的第一篇帖子吧</Text>
+            </View>
           }
-        }
-      },
-    });
-  };
+        />
+        <View className={styles.actionContainer}>
+          <View 
+            className={styles.createButton}
+            onClick={() => {
+              Taro.navigateTo({
+                url: '/pages/subpackage-post/create/index'
+              });
+            }}
+          >
+            <Text className={styles.createButtonText}>去发帖</Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View className={styles.container}>
-      <ScrollView scrollY className={styles.scroll}>
-        {posts.length === 0 ? (
-          <View className={styles.empty}>
-            <Text className={styles.emptyIcon}>📝</Text>
-            <Text className={styles.emptyTitle}>暂无发布的帖子</Text>
-            <Text className={styles.emptyDescription}>快去发布你的第一篇帖子吧！</Text>
-          </View>
-        ) : (
-          posts.map((post) => (
-            <MyPostItem
-              key={post.id}
-              post={post}
-              onDelete={() => handleDelete(post.id)}
-            />
-          ))
-        )}
-      </ScrollView>
-      {posts.length > 0 && (
-        <View className={styles.bottomBar}>
-          <Button
-            className={styles.clearBtn}
-            type="danger"
-            onClick={handleClearAll}
-          >
-            删除所有已发布的帖子
-          </Button>
+      
+      <ScrollView
+        className={styles.scrollView}
+        scrollY
+        enhanced
+        showScrollbar={false}
+      >
+        <View className={styles.postsContainer}>
+          {posts.map((post) => (
+            <View key={post.id} className={styles.postWrapper}>
+              <Post 
+                post={post}
+                mode='list'
+                enableNavigation
+              />
+            </View>
+          ))}
+          
+          {/* 加载更多指示器 */}
+          {loading === 'pending' && posts.length > 0 && (
+            <View className={styles.loadMore}>
+              <Text className={styles.loadMoreText}>加载中...</Text>
+            </View>
+          )}
+          
+          {/* 没有更多数据提示 */}
+          {!pagination.has_more && posts.length > 0 && (
+            <View className={styles.noMore}>
+              <Text className={styles.noMoreText}>没有更多帖子了</Text>
+            </View>
+          )}
         </View>
-      )}
+      </ScrollView>
     </View>
   );
 };
 
-export default MyPostsPage; 
+export default MyPostsPage;

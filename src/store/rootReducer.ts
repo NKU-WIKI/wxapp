@@ -6,6 +6,10 @@ import postReducer from "./slices/postSlice";
 import commentReducer from "./slices/commentSlice";
 import actionReducer from "./slices/actionSlice"; // Action slice for like/favorite/follow actions
 import likeReducer from "./slices/likeSlice"; // Like list slice
+import userCommentReducer from "./slices/userCommentSlice"; // User comment list slice
+import favoriteReducer from "./slices/favoriteSlice"; // Favorite list slice
+import userPostsReducer from "./slices/userPostsSlice"; // User posts list slice
+import likesReducer from "./slices/likesSlice"; // User likes list slice
 import aboutReducer from "./slices/aboutSlice";
 import chatReducer from "./slices/chatSlice";
 import feedbackReducer from "./slices/feedbackSlice";
@@ -31,6 +35,10 @@ const rootReducer = combineReducers({
   comment: commentReducer,
   action: actionReducer,
   like: likeReducer, // Add like list reducer
+  userComment: userCommentReducer, // Add user comment list reducer
+  favorite: favoriteReducer, // Add favorite list reducer
+  userPosts: userPostsReducer, // Add user posts list reducer
+  likes: likesReducer, // Add user likes list reducer
   about: aboutReducer,
   chat: chatReducer,
   feedback: feedbackReducer,

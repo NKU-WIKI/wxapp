@@ -7,6 +7,9 @@ import {
   CurrentUser,
   User,
 } from "@/types/api/user";
+import { Post } from "@/types/api/post.d";
+import { PaginatedData, PaginationParams } from "@/types/api/common";
+import { ActionRead } from "@/store/slices/favoriteSlice";
 import http from "../request";
 
 /**
@@ -127,12 +130,37 @@ export const getUserFavorites = (_params: any) => {
 };
 
 /**
- * 获取用户评论列表
+ * 获取当前用户点赞的帖子列表
  * @param params 分页参数
- * @returns 用户评论列表
+ * @returns 用户点赞的帖子列表
+ */
+export const getUserLikedPosts = (params?: PaginationParams) => {
+  return http.get<PaginatedData<Post>>("/users/me/liked-posts", params);
+};
+
+/**
+ * 获取当前用户点赞的笔记列表
+ * @param params 分页参数
+ * @returns 用户点赞的笔记列表
+ */
+export const getUserLikedNotes = (params?: PaginationParams) => {
+  return http.get<PaginatedData<any>>("/users/me/liked-notes", params);
+};
+
+/**
+ * 获取当前用户评论列表（旧版本API - 保持向后兼容）
+ * OpenAPI 指定为 /comments/me
  */
 export const getUserComments = (params?: { skip?: number; limit?: number }) => {
   return http.get<any>("/comments/me", params);
+};
+
+/**
+ * 获取我的评论列表（新版本API）
+ * OpenAPI 指定为 /users/me/comments
+ */
+export const getMyComments = (params?: PaginationParams) => {
+  return http.get<any>("/users/me/comments", params);
 };
 
 /**
@@ -144,8 +172,37 @@ export const getUserById = (userId: string) => {
   return http.get<User>(`/users/${userId}`);
 };
 
+/**
+ * 获取用户发布的帖子列表
+ * @param userId 用户ID
+ * @param params 分页参数
+ * @returns
+ */
+export const getUserPosts = (userId: string, params?: PaginationParams) => {
+  return http.get<Post[]>(`/users/${userId}/posts`, params);
+};
+
+/**
+ * 获取我的收藏列表
+ * @param params 分页参数
+ * @returns
+ */
+export const getMyFavorites = (params?: PaginationParams) => {
+  return http.get<ActionRead[]>("/users/me/favorites", params);
+};
+
+/**
+ * 获取我的点赞列表
+ * @param params 分页参数
+ * @returns
+ */
+export const getMyLikes = (params?: PaginationParams) => {
+  return http.get<ActionRead[]>("/users/me/likes", params);
+};
+
 // 用户API对象，包含所有用户相关的API函数
-export const userApi = {
+
+const userApi = {
   getMe,
   getActionStatus,
   getMeProfile,
@@ -161,6 +218,11 @@ export const userApi = {
   getUserFavorites,
   getUserComments,
   getUserById,
+  getUserLikedPosts,
+  getUserLikedNotes,
+  getUserPosts,
+  getMyFavorites,
+  getMyLikes,
 };
 
 export default userApi;

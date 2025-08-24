@@ -3,7 +3,7 @@ import Taro from '@tarojs/taro';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { fetchUserProfile, fetchUserLevel, logout } from '@/store/slices/userSlice';
+import { fetchUserProfile, fetchUserLevel, fetchUserStats, logout } from '@/store/slices/userSlice';
 import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import { normalizeImageUrl } from '@/utils/image';
@@ -41,25 +41,37 @@ const Profile = () => {
   const userState = useSelector((state: RootState) => state.user);
   const userInfo = userState?.userProfile; // Use userProfile for detailed info
   const userLevel = userState?.userLevel; // 用户等级信息
+  const userStats = userState?.userStats; // 用户统计信息
   const isLoggedIn = userState?.isLoggedIn;
   const status = userState?.status;
   const levelStatus = userState?.levelStatus;
+  const statsStatus = userState?.statsStatus;
   const headerHeight = useCustomHeaderHeight();
 
   console.log('[Profile Page] isLoggedIn status:', isLoggedIn);
+  console.log('[Profile Page] userInfo:', userInfo);
+  console.log('[Profile Page] userStats:', userStats);
   
   useEffect(() => {
     // If the user is logged in but profile is not loaded, fetch it.
     // fetchCurrentUser is now handled globally in app.tsx
     if (isLoggedIn && !userInfo) {
+      console.log('[Profile Page] Fetching user profile...');
       dispatch(fetchUserProfile());
     }
     
     // 获取用户等级信息
     if (isLoggedIn && !userLevel && levelStatus !== 'loading') {
+      console.log('[Profile Page] Fetching user level...');
       dispatch(fetchUserLevel());
     }
-  }, [isLoggedIn, userInfo, userLevel, levelStatus, dispatch]);
+    
+    // 获取用户统计信息
+    if (isLoggedIn && !userStats && statsStatus !== 'loading') {
+      console.log('[Profile Page] Fetching user stats...');
+      dispatch(fetchUserStats());
+    }
+  }, [isLoggedIn, userInfo, userLevel, userStats, levelStatus, statsStatus, dispatch]);
 
   // The rest of fetchUserStats logic is deprecated as the APIs were removed.
   // Stats should be derived from userProfile.
@@ -118,7 +130,16 @@ const Profile = () => {
   };
 
   const handleNavigateToLikes = () => {
-    // 点击暂不处理
+    // 导航到点赞页面
+    Taro.navigateTo({
+      url: '/pages/subpackage-profile/likes/index'
+    }).catch((err) => {
+      console.error('Navigation to likes failed:', err);
+      Taro.showToast({
+        title: '页面跳转失败',
+        icon: 'error'
+      });
+    });
   };
 
   const handleMenuClick = (type: string) => {
@@ -207,21 +228,27 @@ const Profile = () => {
             <View className={styles.statsContainer}>
               <View className={styles.statsRow}>
                 <View className={styles.statItem} onClick={handleNavigateToPosts}>
-                  <Text className={styles.statValue}>{userInfo?.post_count ?? 0}</Text>
+                  <Text className={styles.statValue}>
+                    {userStats?.post_count ?? userInfo?.post_count ?? 0}
+                  </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>📝</Text>
                     <Text className={styles.statLabel}>帖子</Text>
                   </View>
                 </View>
                 <View className={styles.statItem} onClick={handleNavigateToLikes}>
-                  <Text className={styles.statValue}>{userInfo?.total_likes ?? 0}</Text>
+                  <Text className={styles.statValue}>
+                    {userStats?.like_count ?? userInfo?.total_likes ?? 0}
+                  </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>❤️</Text>
                     <Text className={styles.statLabel}>获赞</Text>
                   </View>
                 </View>
                 <View className={styles.statItem} onClick={handleNavigateToFollowers}>
-                  <Text className={styles.statValue}>{userInfo?.following_count ?? 0}</Text>
+                  <Text className={styles.statValue}>
+                    {userInfo?.following_count ?? 0}
+                  </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>👥</Text>
                     <Text className={styles.statLabel}>关注</Text>
@@ -231,21 +258,27 @@ const Profile = () => {
               
               <View className={styles.statsRow}>
                 <View className={styles.statItem} onClick={handleNavigateToFollowers}>
-                  <Text className={styles.statValue}>{userInfo?.follower_count ?? 0}</Text>
+                  <Text className={styles.statValue}>
+                    {userInfo?.follower_count ?? 0}
+                  </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>👥</Text>
                     <Text className={styles.statLabel}>粉丝</Text>
                   </View>
                 </View>
                 <View className={styles.statItem} onClick={handleNavigateToCollection}>
-                  <Text className={styles.statValue}>{userInfo?.total_favorites ?? 0}</Text>
+                  <Text className={styles.statValue}>
+                    {userStats?.favorite_count ?? userInfo?.total_favorites ?? 0}
+                  </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>🔖</Text>
                     <Text className={styles.statLabel}>收藏</Text>
                   </View>
                 </View>
                 <View className={styles.statItem}>
-                  <Text className={styles.statValue}>{userInfo?.points ?? 0}</Text>
+                  <Text className={styles.statValue}>
+                    {userInfo?.points ?? 0}
+                  </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>🏆</Text>
                     <Text className={styles.statLabel}>积分</Text>

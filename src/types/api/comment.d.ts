@@ -1,6 +1,29 @@
 import { User } from "./user";
 
 /**
+ * @description 评论输出模型（匹配OpenAPI CommentRead）
+ */
+export interface CommentRead {
+  id: string;
+  tenant_id: string;
+  created_at: string;
+  updated_at: string;
+  resource_type: string;
+  resource_id: string;
+  user_id: string;
+  content: string;
+  parent_id?: string | null;
+  root_id?: string | null;
+  path: string;
+  depth: number;
+  likes_count: number;
+  replies_count_immediate: number;
+  has_liked?: boolean;
+  attachments?: Record<string, any> | null;
+  user?: User | null;
+}
+
+/**
  * @description 评论树形结构（新API使用）- 匹配CommentTreeRead API
  */
 export interface CommentTreeRead {

@@ -2,7 +2,9 @@ import {
   Comment,
   CreateCommentRequest,
   CommentUpdate,
+  CommentRead,
 } from "@/types/api/comment.d";
+import { PaginationParams } from "@/types/api/common";
 import http from "../request";
 
 export const createComment = (data: CreateCommentRequest) => {
@@ -48,8 +50,14 @@ export const getComments = (params: {
   return http.get<Comment[]>(`/comments/resource/${resource_type}/${resource_id}/trees`, queryParams);
 };
 
-export const getMyComments = (params?: { skip?: number; limit?: number }) => {
-  return http.get<Comment[]>("/comments/me", params);
+/**
+ * 获取当前用户的评论列表
+ * @param params 分页参数
+ * @returns
+ */
+export const getMyComments = (params?: PaginationParams) => {
+  // 按 OpenAPI 使用 /comments/me；同时保留对可能出现的分页对象返回的兼容解析
+  return http.get<CommentRead[] | { items: CommentRead[]; total?: number; has_more?: boolean }>("/comments/me", params);
 };
 
 const commentApi = {

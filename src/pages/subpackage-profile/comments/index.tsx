@@ -1,95 +1,183 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { AppDispatch, RootState } from '@/store';
-import CustomHeader from '@/components/custom-header';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { getMyComments } from '@/services/api/user';
+import { getPostById } from '@/services/api/post';
+import { formatRelativeTime } from '@/utils/time';
+import { CommentRead } from '@/types/api/comment.d';
+import { Post } from '@/types/api/post.d';
 import EmptyState from '@/components/empty-state';
 import messageSquareIcon from '@/assets/message-square.svg';
+import arrowLeftIcon from '@/assets/arrow-left.svg';
 import styles from './index.module.scss';
-// import { fetchUserComments, resetUserComments } from '@/store/slices/userCommentSlice';
-import { formatRelativeTime } from '@/utils/time';
 
-/*
-const CommentItem = ({ comment }) => {
-  const handleNavigateToPost = () => {
-    Taro.navigateTo({
-      url: `/pages/subpackage-interactive/post-detail/index?id=${comment.post_id}`
-    });
+interface CommentItemProps {
+  comment: CommentRead;
+}
+
+const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
+  const [postInfo, setPostInfo] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // 获取帖子信息
+  useEffect(() => {
+    if (comment.resource_type === 'post' && comment.resource_id) {
+      setLoading(true);
+      getPostById(comment.resource_id)
+        .then(response => {
+          if (response.code === 0) {
+            setPostInfo(response.data);
+          }
+        })
+        .catch(error => {
+          console.error('获取帖子信息失败:', error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [comment.resource_id, comment.resource_type]);
+
+  const handleNavigateToContent = () => {
+    // 根据资源类型导航到对应页面
+    if (comment.resource_type === 'post') {
+      Taro.navigateTo({
+        url: `/pages/subpackage-interactive/post-detail/index?id=${comment.resource_id}`
+      });
+    } else if (comment.resource_type === 'note') {
+      Taro.navigateTo({
+        url: `/pages/subpackage-interactive/note-detail/index?id=${comment.resource_id}`
+      });
+    }
   };
 
-  const isReply = comment.is_reply || comment.parent_id;
+  // 显示帖子作者名字或加载状态
+  const getResourceAuthor = () => {
+    if (comment.resource_type === 'post') {
+      if (loading) return '加载中...';
+      return postInfo?.user?.nickname || postInfo?.author_info?.nickname || '未知作者';
+    }
+    return comment.user?.nickname || '未知作者';
+  };
+
+  // 显示帖子标题或ID
+  const getResourceTitle = () => {
+    if (comment.resource_type === 'post') {
+      if (loading) return `#${comment.resource_id}`;
+      return postInfo?.title || `#${comment.resource_id}`;
+    }
+    return `#${comment.resource_id}`;
+  };
 
   return (
-    <View className={styles.commentItem} onClick={handleNavigateToPost}>
-      <Text className={styles.commentContent}>{comment.content}</Text>
+    <View className={styles.commentItem} onClick={handleNavigateToContent}>
+      <View className={styles.commentContent}>
+        <Text className={styles.contentText}>{comment.content}</Text>
+      </View>
+      
       <View className={styles.commentMeta}>
-        <Text className={styles.commentTime}>{formatRelativeTime(comment.create_time)}</Text>
-        <Text>{comment.like_count || 0} 赞</Text>
-        {comment.reply_count > 0 && (
-          <Text>{comment.reply_count} 回复</Text>
+        <Text className={styles.metaTime}>{formatRelativeTime(comment.created_at)}</Text>
+        <Text className={styles.metaLikes}>{comment.likes_count || 0} 赞</Text>
+        {comment.replies_count_immediate > 0 && (
+          <Text className={styles.metaReplies}>{comment.replies_count_immediate} 回复</Text>
         )}
       </View>
-      <View className={styles.originalInfo}>
-        {isReply ? (
-          <View className={styles.parentCommentInfo}>
-            {comment.parent_comment_author && comment.parent_comment_content ? (
-              <>
-                <Text className={styles.parentAuthor}>
-                  @{comment.parent_comment_author}
-                </Text>
-                <Text className={styles.parentContent}>
-                  {comment.parent_comment_content}
-                </Text>
-              </>
-            ) : (
-              <View className={styles.parentPlaceholder}>
-                <Text className={styles.parentHint}>
-                  原评论信息不可用
-                </Text>
-                {comment.parent_id && (
-                  <Text className={styles.parentId}>
-                    评论ID: #{comment.parent_id}
-                  </Text>
-                )}
-              </View>
-            )}
-          </View>
-        ) : (
-          <View className={styles.postInfoCard}>
-            <Text className={styles.postTitle}>
-              {comment.post_title}
-              {comment.post_author_nickname ? ` - ${comment.post_author_nickname}` : ''}
-            </Text>
-            {comment.post_content && comment.post_content !== '内容不可用' && (
-              <Text className={styles.postContent}>{comment.post_content}</Text>
-            )}
-          </View>
-        )}
+
+      <View className={styles.resourceInfo}>
+        <View className={styles.resourceHeader}>
+          <Text className={styles.resourceType}>
+            {comment.resource_type === 'post' ? '帖子' : '笔记'}
+          </Text>
+          <Text className={styles.resourceAuthor}>
+            {getResourceAuthor()}
+          </Text>
+        </View>
+        
+        <Text className={styles.resourceTitle}>
+          评论于 {comment.resource_type === 'post' ? '帖子' : '笔记'}: {getResourceTitle()}
+        </Text>
       </View>
+
+      {comment.parent_id && (
+        <View className={styles.replyInfo}>
+          <Text className={styles.replyLabel}>这是一条回复</Text>
+          <Text className={styles.replyTarget}>回复 #{comment.parent_id}</Text>
+        </View>
+      )}
     </View>
   );
 };
-*/
 
 const CommentsPage: React.FC = () => {
-  /*
-  const dispatch = useDispatch<AppDispatch>();
-  const [page, setPage] = useState(1);
-  const userCommentState = useSelector((state: RootState) => state.userComment);
-  const userState = useSelector((state: RootState) => state.user);
+  const [comments, setComments] = useState<CommentRead[]>([]);
+  const [loading, setLoading] = useState<'idle' | 'pending' | 'succeeded' | 'failed'>('idle');
+  const [error, setError] = useState<string | null>(null);
+  const [statusBarHeight, setStatusBarHeight] = useState(20); // 默认状态栏高度
+  const [pagination, setPagination] = useState({
+    skip: 0,
+    limit: 10,
+    total: 0,
+    has_more: false
+  });
   
-  // 解构状态，处理可能的undefined
-  const comments = userCommentState?.items || [];
-  const pagination = userCommentState?.pagination || { page: 1, page_size: 10, total: 0, has_more: false };
-  const loading = userCommentState?.loading || 'idle';
-  const error = userCommentState?.error || null;
-  const isLoggedIn = userState?.isLoggedIn || false;
-  const token = userState?.token || null;
+  const { isLoggedIn } = useSelector((state: RootState) => state.user);
 
-  // 检查登录状态
+  // 获取状态栏高度
   useEffect(() => {
-    if (!isLoggedIn || !token) {
+    Taro.getSystemInfo().then(res => {
+      setStatusBarHeight(res.statusBarHeight || 20);
+    });
+  }, []);
+
+  // 加载评论列表
+  const loadComments = useCallback(async (refresh = false) => {
+    try {
+      setLoading('pending');
+      setError(null);
+      
+      const skip = refresh ? 0 : comments.length;
+      const limit = 10;
+
+      const response = await getMyComments({ skip, limit });
+      
+      if (response.code !== 0) {
+        throw new Error(response.message || 'Failed to fetch comments');
+      }
+
+      const raw = response.data as any;
+      const items: CommentRead[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
+      const totalFromApi = Array.isArray(raw) ? undefined : raw?.total;
+      const hasMoreFromApi = Array.isArray(raw) ? undefined : raw?.has_more;
+
+      const hasMore = typeof hasMoreFromApi === 'boolean' ? hasMoreFromApi : items.length >= limit;
+      const total = typeof totalFromApi === 'number' ? totalFromApi : items.length;
+
+      if (refresh) {
+        setComments(items);
+      } else {
+        setComments(prev => [...prev, ...items]);
+      }
+      
+      setPagination({
+        skip,
+        limit,
+        total,
+        has_more: hasMore
+      });
+      
+      setLoading('succeeded');
+    } catch (err: any) {
+      console.error("Error fetching user comments:", err);
+      setError(err.message || "Failed to fetch user comments");
+      setLoading('failed');
+    }
+  }, [comments.length]);
+
+  // 检查登录状态并初始化数据
+  useEffect(() => {
+    if (!isLoggedIn) {
       Taro.showModal({
         title: '提示',
         content: '请先登录后查看评论',
@@ -102,50 +190,33 @@ const CommentsPage: React.FC = () => {
           }
         }
       });
-    } else {
-      // 已登录，加载评论列表
-      loadComments();
+      return;
     }
-  }, [isLoggedIn, token]);
 
-  // 加载评论列表
-  const loadComments = () => {
-    dispatch(fetchUserComments({ page: 1, page_size: 10 }));
-    setPage(1);
-  };
-
-  // 加载更多评论
-  const loadMoreComments = () => {
-    if (pagination && pagination.has_more && loading !== 'pending') {
-      const nextPage = page + 1;
-      dispatch(fetchUserComments({ 
-        page: nextPage, 
-        page_size: 10,
-        isAppend: true 
-      }));
-      setPage(nextPage);
-    }
-  };
+    loadComments(true);
+  }, [isLoggedIn, loadComments]);
 
   // 下拉刷新
   usePullDownRefresh(() => {
-    loadComments();
+    loadComments(true);
     Taro.stopPullDownRefresh();
   });
 
   // 上拉加载更多
   useReachBottom(() => {
-    loadMoreComments();
+    if (pagination.has_more && loading !== 'pending') {
+      loadComments(false);
+    }
   });
 
   // 处理重试
   const handleRetry = () => {
-    loadComments();
+    loadComments(true);
   };
 
   // 渲染内容
   const renderContent = () => {
-    if (loading === 'pending' && page === 1) {
+    if (loading === 'pending' && comments.length === 0) {
       return (
         <View className={styles.loading}>
           <Text>加载中...</Text>
@@ -168,7 +239,7 @@ const CommentsPage: React.FC = () => {
       return (
         <EmptyState
           icon={messageSquareIcon}
-          text="暂无评论内容"
+          text='暂无评论内容'
         />
       );
     }
@@ -179,7 +250,7 @@ const CommentsPage: React.FC = () => {
           <CommentItem key={comment.id} comment={comment} />
         ))}
         
-        {loading === 'pending' && page > 1 && (
+        {loading === 'pending' && comments.length > 0 && (
           <View className={styles.loadingMore}>
             <Text>加载更多...</Text>
           </View>
@@ -193,30 +264,42 @@ const CommentsPage: React.FC = () => {
       </View>
     );
   };
-  */
 
   return (
     <View className={styles.commentsPage}>
-      <CustomHeader title="我的评论" />
+      {/* 自定义导航栏 */}
+      <View 
+        className={styles.navbar}
+        style={{ paddingTop: `${statusBarHeight}px` }}
+      >
+        <View className={styles.navLeft} onClick={() => Taro.navigateBack()}>
+          <Image src={arrowLeftIcon} className={styles.backIcon} />
+        </View>
+        <View className={styles.navCenter}>
+          <Text className={styles.navTitle}>我的评论</Text>
+        </View>
+        <View className={styles.navRight}>
+          {/* 占位元素，保持布局平衡 */}
+        </View>
+      </View>
+      
       <View className={styles.content}>
-        <EmptyState
-          icon={messageSquareIcon}
-          text="此功能正在开发中"
-        />
-        {/* 
         <ScrollView
           scrollY
           className={styles.scrollView}
           enableBackToTop
           refresherEnabled
-          // refresherTriggered={loading === 'pending' && page === 1}
-          // onRefresherRefresh={loadComments}
-          // onScrollToLower={loadMoreComments}
+          refresherTriggered={loading === 'pending' && comments.length === 0}
+          onRefresherRefresh={() => loadComments(true)}
+          onScrollToLower={() => {
+            if (pagination.has_more && loading !== 'pending') {
+              loadComments(false);
+            }
+          }}
           lowerThreshold={50}
         >
           {renderContent()}
         </ScrollView>
-        */}
       </View>
     </View>
   );

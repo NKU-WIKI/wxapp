@@ -1,5 +1,154 @@
 @import '@/styles/variables.scss';
 
+.collectionPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f8f8f8;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.scrollView {
+  height: 100%;
+  margin: 0 4px 16px;
+}
+
+.favoritesList {
+  padding: 0 18px 32px 14px;
+}
+
+.favoriteItem {
+  margin-bottom: 12px;
+}
+
+.favoriteCard {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+}
+
+.favoriteHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.favoriteType {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.favoriteTime {
+  font-size: 12px;
+  color: #999;
+}
+
+.favoriteContent {
+  margin-bottom: 8px;
+}
+
+.favoriteTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favoriteText {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #666;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favoriteAuthor {
+  font-size: 12px;
+  color: #999;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: #666;
+  font-size: 13px;
+}
+
+.noMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: #999;
+  font-size: 12px;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.errorText {
+  color: #f56565;
+  font-size: 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.retryButton {
+  background-color: #4285f4;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #3367d6;
+  }
+}
+
 // 页面容器
 .container {
   min-height: 100vh;
