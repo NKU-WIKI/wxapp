@@ -52,6 +52,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
 
   // 提前声明avatar相关的状态，避免条件调用
   const [avatarSrc, setAvatarSrc] = useState<string>('');
+  const [authorLevel, setAuthorLevel] = useState<number | null>(null);
 
   // 提前声明currentUser相关的变量，用于useEffect
   const userInfo = (userState as any)?.userProfile || null;
@@ -73,6 +74,18 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       setAvatarSrc(normalizeImageUrl(currentUser?.avatar || '') || DEFAULT_AVATAR);
     }
   }, [currentUser?.avatar, setAvatarSrc, post]);
+
+  // 获取发帖人的等级信息
+  useEffect(() => {
+    // 由于后端没有提供获取其他用户详细信息的API，我们使用帖子数据中的用户信息
+    // 如果帖子数据中没有等级信息，使用默认等级1
+    if (!isAnonymous && author) {
+      setAuthorLevel(author.level || 1);
+    } else {
+      // 匿名用户使用默认等级
+      setAuthorLevel(1);
+    }
+  }, [author?.level, isAnonymous]);
 
   if (!post) {
     return null;
@@ -390,7 +403,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
             <View className={styles.authorMainRow}>
               <Text className={styles.authorName}>{currentUser?.nickname || '匿名'}</Text>
               <View className={styles.levelBadge}>
-                <Text>Lv.{currentUser?.level || 0}</Text>
+                <Text>Lv.{authorLevel || currentUser?.level || 1}</Text>
               </View>
               {userInfo?.id !== author?.id && mode === 'detail' && !isAnonymous && (
                 <View
