@@ -273,10 +273,11 @@ const PostDetailPage = () => {
       
       {/* 固定在底部的输入框 */}
       <View className={styles.fixedBottomInput}>
-        <BottomInput 
+        <BottomInput
           postId={postId || ''}
           replyTo={replyTo}
           onCancelReply={() => setReplyTo(null)}
+          allowComments={postState?.currentPost?.allow_comments !== false}
         />
       </View>
     </View>

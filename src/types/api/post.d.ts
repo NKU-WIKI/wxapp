@@ -26,13 +26,16 @@ export interface Post {
   is_liked?: boolean;
   is_favorited?: boolean;
   is_following_author?: boolean;
+  // Privacy settings
+  is_public?: boolean;
+  allow_comments?: boolean;
 }
 
 /**
  * @description 获取论坛帖子列表的查询参数
  */
 export interface GetForumPostsParams extends PaginationParams {
-  category_id?: number;
+  category_id?: string;
 }
 
 /**
@@ -42,11 +45,11 @@ export interface CreateForumPostRequest {
   title: string;
   content?: string;
   status?: "published" | "draft";
-  category_id?: number; // Added based on new docs
-  image_urls?: string[];
-  tag?: string | string[];
+  category_id?: string; // UUID string as per API docs
+  images?: string[]; // Changed from image_urls to images
+  tags?: string[]; // Changed from tag to tags, and from union to array
   is_public?: boolean;
-  allow_comment?: boolean;
+  allow_comments?: boolean; // Changed from allow_comment to allow_comments
 }
 
 /**

@@ -24,7 +24,7 @@ export const uploadImage = (filePath: string): Promise<string> => {
     }
 
     Taro.uploadFile({
-      url: `${BASE_URL}/api/v1/uploads/file`,
+      url: `${BASE_URL}/api/v1/tools/uploads/file`,
       filePath: filePath,
       name: "file",
       header: {

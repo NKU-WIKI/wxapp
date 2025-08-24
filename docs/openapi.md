@@ -203,9 +203,9 @@
 -   **成功响应 (200 OK)**:
     -   返回 `ActionToggleResult` 对象，包含 `is_active` 状态。
 
-### 文件上传 (uploads)
+### 文件上传 (tools/uploads)
 
-#### `POST /api/v1/uploads/file`
+#### `POST /api/v1/tools/uploads/file`
 -   **用途**: 上传单个文件/图片。
 -   **请求体** (`multipart/form-data`):
     -   `file` (binary, required): 文件本身。
@@ -213,7 +213,7 @@
 -   **成功响应 (200 OK)**:
     -   返回 `FileUploadRead` 对象，包含文件的元数据和 URL。
 
-#### `GET /api/v1/uploads/presign/put`
+#### `GET /api/v1/tools/uploads/presign/put`
 -   **用途**: 获取用于客户端直传的 PUT 预签名 URL。
 -   **查询参数**:
     -   `key` (string, required): 文件在对象存储中的完整路径。

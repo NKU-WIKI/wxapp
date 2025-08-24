@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, Input, Image, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import styles from '../index.module.scss';
-import SendIcon from '@/assets/sendcomment.svg';
-import CloseIcon from '@/assets/x.svg';
-import { useDispatch, useSelector } from 'react-redux';
+
+// Absolute imports (alphabetical order)
 import { AppDispatch, RootState } from '@/store';
 import { createComment } from '@/store/slices/commentSlice';
+import CloseIcon from '@/assets/x.svg';
+import SendIcon from '@/assets/sendcomment.svg';
+import { useDispatch, useSelector } from 'react-redux';
+
+// Relative imports
+import styles from '../index.module.scss';
 
 interface BottomInputProps {
   postId: string; // 改为string以支持UUID
@@ -15,9 +19,10 @@ interface BottomInputProps {
     nickname: string;
   } | null;
   onCancelReply?: () => void;
+  allowComments?: boolean; // 是否允许评论，默认true
 }
 
-const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelReply }) => {
+const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelReply, allowComments = true }) => {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userState = useSelector((state: RootState) => state.user);
@@ -39,7 +44,17 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelRepl
     if (!comment.trim() || isSubmitting) {
       return;
     }
-    
+
+    // 检查是否允许评论
+    if (!allowComments) {
+      Taro.showToast({
+        title: '作者已关闭评论',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+
     // 检查是否登录
     if (!token || !isLoggedIn) {
       Taro.showModal({
@@ -95,9 +110,11 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelRepl
     }
   };
 
-  const placeholder = replyTo 
-    ? `回复 @${replyTo.nickname}...` 
-    : '说点什么...';
+  const placeholder = !allowComments
+    ? '作者已关闭评论'
+    : replyTo
+      ? `回复 @${replyTo.nickname}...`
+      : '说点什么...';
 
   return (
     <View className={styles.bottomInputWrapper}>
@@ -120,11 +137,11 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelRepl
           placeholder={placeholder}
           value={comment}
           onInput={(e) => setComment(e.detail.value)}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !allowComments}
           focus={!!replyTo}
         />
-        <View 
-          className={`${styles.sendButton} ${isSubmitting ? styles.disabled : ''}`}
+        <View
+          className={`${styles.sendButton} ${(isSubmitting || !allowComments) ? styles.disabled : ''}`}
           onClick={handleSendComment}
         >
           <Image 

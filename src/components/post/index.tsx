@@ -1,16 +1,15 @@
 import { View, Text, Image, ITouchEvent } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useState, useRef, useEffect } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { showToast } from '@/utils/ui';
 import { Post as PostData } from "@/types/api/post.d";
-import styles from "./index.module.scss";
 import { formatRelativeTime } from "@/utils/time";
 import { normalizeImageUrl, normalizeImageUrls } from '@/utils/image';
 import { useAuthGuard } from "@/hooks/useAuthGuard";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
 import { deletePost } from '@/store/slices/postSlice';
 import { toggleAction } from '@/store/slices/actionSlice';
-import { showToast } from '@/utils/ui';
 
 // 引入所有需要的图标
 import heartIcon from "@/assets/heart-outline.svg";
@@ -22,6 +21,9 @@ import sendIcon from "@/assets/send.svg";
 import shareIcon from "@/assets/share.svg";
 import moreIcon from "@/assets/more-horizontal.svg";
 import locationIcon from "@/assets/map-pin.svg";
+import profileIcon from "@/assets/profile.svg"; // 匿名用户头像
+
+import styles from "./index.module.scss";
 
 export type PostMode = 'list' | 'detail';
 
@@ -41,31 +43,48 @@ interface PostProps {
  * @param enableNavigation - 是否启用点击跳转，默认为 true
  */
 const Post = ({ post, className = "", mode = "list", enableNavigation = true }: PostProps) => {
-  if (!post) {
-    return null;
-  }
-
   const dispatch = useDispatch<AppDispatch>();
   const { checkAuth } = useAuthGuard();
   const [isActionLoading, setIsActionLoading] = useState(false);
   const lastActionTimeRef = useRef<number>(0);
   const userState = useSelector((state: RootState) => state.user);
   const postState = useSelector((state: RootState) => state.post);
-  const DEBOUNCE_DELAY = 500;
-  const DEFAULT_AVATAR = '/assets/avatar1.png';
-  
-  // 获取当前用户信息
+
+  // 提前声明avatar相关的状态，避免条件调用
+  const [avatarSrc, setAvatarSrc] = useState<string>('');
+
+  // 提前声明currentUser相关的变量，用于useEffect
   const userInfo = (userState as any)?.userProfile || null;
-  
-  // 从 Redux 中获取最新的帖子状态
   const posts = postState?.list || [];
   const postFromList = posts.find(p => p.id === post.id);
-  
-  // 使用合并策略：列表中的快照在前，props 中的更完整数据在后，保证详情页数据覆盖
   const displayPost = { ...(postFromList || {}), ...post } as PostData;
-  
-  // 统一字段处理：优先使用 user 字段，兼容 author_info
   const author = displayPost.user || displayPost.author_info;
+  const isAnonymous = displayPost.is_public === false;
+  const anonymousUser = {
+    nickname: '匿名用户',
+    avatar: profileIcon,
+    bio: '',
+    level: displayPost.user?.level || 0
+  };
+  const currentUser = isAnonymous ? anonymousUser : author;
+
+  useEffect(() => {
+    if (post) {
+      setAvatarSrc(normalizeImageUrl(currentUser?.avatar || '') || DEFAULT_AVATAR);
+    }
+  }, [currentUser?.avatar, setAvatarSrc, post]);
+
+  if (!post) {
+    return null;
+  }
+
+    const DEBOUNCE_DELAY = 500;
+  const DEFAULT_AVATAR = '/assets/avatar1.png';
+
+  // 初始化avatar状态
+  if (avatarSrc === '') {
+    setAvatarSrc(normalizeImageUrl(currentUser?.avatar || '') || DEFAULT_AVATAR);
+  }
   
   // 直接从 displayPost 获取状态，不使用本地状态管理
   const isLiked = displayPost.is_liked === true;
@@ -141,20 +160,6 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   
   const location = getLocation();
   
-  // 作者等级处理
-  const currentUserId = (userState as any)?.currentUser?.user_id || (userState as any)?.currentUser?.id;
-  const fallbackLevel = (userState as any)?.userProfile?.level ?? 0;
-  const authorLevel: number = (typeof author?.level === 'number' && !Number.isNaN(author.level))
-    ? (author.level as number)
-    : (author?.id === currentUserId ? (fallbackLevel as number) : 0);
-  
-  // 头像状态管理
-  const [avatarSrc, setAvatarSrc] = useState<string>(normalizeImageUrl(author?.avatar || '') || DEFAULT_AVATAR);
-  
-  useEffect(() => {
-    setAvatarSrc(normalizeImageUrl(author?.avatar || '') || DEFAULT_AVATAR);
-  }, [author?.avatar]);
-  
   // 跳转到详情页
   const navigateToDetail = (e) => {
     e.stopPropagation();
@@ -204,7 +209,6 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       action_type: 'follow'
     })).then((result: any) => {
       if (result.payload && result.payload.is_active !== undefined) {
-        const { is_active } = result.payload;
         // 移除本地关注状态设置，完全依赖 Redux store 更新
       }
     }).catch(error => {
@@ -285,7 +289,6 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           action_type: actionType
         })).then((result: any) => {
           if (result.payload && result.payload.is_active !== undefined) {
-            const { is_active } = result.payload;
             // 移除本地状态更新，完全依赖Redux store更新
           }
         }).catch(error => {
@@ -358,7 +361,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       
       {/* 用户信息区域 */}
       <View className={styles.userInfo}>
-        <View className={styles.authorInfo} onClick={navigateToProfile}>
+        <View className={styles.authorInfo} onClick={isAnonymous ? undefined : navigateToProfile}>
           <Image
             src={avatarSrc}
             className={styles.avatar}
@@ -367,11 +370,11 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           />
           <View className={styles.authorDetails}>
             <View className={styles.authorMainRow}>
-              <Text className={styles.authorName}>{author?.nickname || '匿名'}</Text>
+              <Text className={styles.authorName}>{currentUser?.nickname || '匿名'}</Text>
               <View className={styles.levelBadge}>
-                <Text>Lv.{authorLevel || 0}</Text>
+                <Text>Lv.{currentUser?.level || 0}</Text>
               </View>
-              {userInfo?.id !== author?.id && mode === 'detail' && (
+              {userInfo?.id !== author?.id && mode === 'detail' && !isAnonymous && (
                 <View
                   className={`${styles.followButton} ${isFollowing ? styles.followed : ''}`}
                   onClick={handleFollowClick}
@@ -380,7 +383,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
                 </View>
               )}
             </View>
-            {mode === 'list' && <Text className={styles.authorBio}>{author?.bio || ''}</Text>}
+            {mode === 'list' && !isAnonymous && <Text className={styles.authorBio}>{currentUser?.bio || ''}</Text>}
             {mode === 'detail' && (
               <Text className={styles.meta}>
                 {formatRelativeTime((displayPost as any).created_at || displayPost.create_time)}
@@ -390,7 +393,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
         </View>
         
         <View className={styles.headerActions}>
-          {mode === 'list' && userInfo?.id !== author?.id && (
+          {mode === 'list' && userInfo?.id !== author?.id && !isAnonymous && (
             <View
               className={`${styles.followButton} ${isFollowing ? styles.followed : ''}`}
               onClick={handleFollowClick}
@@ -450,7 +453,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
               key={index}
               src={url || ''}
               className={styles.postImage}
-              mode="aspectFill"
+              mode='aspectFill'
               onClick={() => mode === 'detail' ? previewImage(url) : navigateToDetail(null)}
             />
           ))}
@@ -482,21 +485,21 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
             activeIcon={heartActiveIcon}
             count={likeCount}
             isActive={isLiked}
-            action="like"
+            action='like'
           />
           <ActionButton
             icon={commentIcon}
             activeIcon={commentIcon}
             count={commentCount}
             isActive={false}
-            action="comment"
+            action='comment'
           />
           <ActionButton
             icon={starIcon}
             activeIcon={starActiveIcon}
             count={favoriteCount}
             isActive={isFavorited}
-            action="favorite"
+            action='favorite'
           />
         </View>
         <View

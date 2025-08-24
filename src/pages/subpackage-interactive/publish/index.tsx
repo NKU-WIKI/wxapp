@@ -9,33 +9,37 @@ import {
   Image,
   ScrollView,
 } from "@tarojs/components";
+
+// Absolute imports (alphabetical order)
 import { AppDispatch, RootState } from "@/store";
-import { createPost } from "@/store/slices/postSlice";
-import { uploadApi } from "@/services/api/upload";
-import commentApi from "@/services/api/comment";
+import agentApi from "@/services/api/agent";
+
 import knowledgeApi from "@/services/api/knowledge";
-import { saveDraft, getDrafts } from '@/utils/draft';
-import { DraftPost } from '@/types/draft';
-import { normalizeImageUrl } from '@/utils/image';
+import { uploadApi } from "@/services/api/upload";
+import { createPost } from "@/store/slices/postSlice";
 import CustomHeader from "@/components/custom-header";
-import PublishSettings from "./components/PublishSettings";
-import styles from "./index.module.scss";
-// Import new SVG icons
-import imageIcon from "@/assets/image.svg"; // Assuming this remains, or replace with SVG
-import boldIcon from "@/assets/bold.svg";
-import italicIcon from "@/assets/italic.svg";
+import { DraftPost } from "@/types/draft";
+import { normalizeImageUrl } from "@/utils/image";
+import { saveDraft, getDrafts } from "@/utils/draft";
+
+// Asset imports
 import atSignIcon from "@/assets/at-sign.svg";
-import penToolIcon from "@/assets/pen-tool.svg";
-import lightbulbIcon from "@/assets/lightbulb.svg";
-import agentApi from '@/services/api/agent';
-import xCircleIcon from "@/assets/x-circle.svg"; // for deleting images
-import defaultAvatar from '@/assets/profile.png';
-// 导入分类图标
-import studyIcon from "@/assets/school.svg";
+import bagIcon from "@/assets/bag.svg";
+import boldIcon from "@/assets/bold.svg";
+import defaultAvatar from "@/assets/profile.png";
 import hatIcon from "@/assets/hat.svg";
+import imageIcon from "@/assets/image.svg";
+import italicIcon from "@/assets/italic.svg";
+import lightbulbIcon from "@/assets/lightbulb.svg";
+import penToolIcon from "@/assets/pen-tool.svg";
+import school from "@/assets/school.svg";
 import starIcon from "@/assets/star2.svg";
 import usersGroupIcon from "@/assets/p2p-fill.svg";
-import bagIcon from "@/assets/bag.svg";
+import xCircleIcon from "@/assets/x-circle.svg";
+
+// Relative imports
+import PublishSettings from "./components/PublishSettings";
+import styles from "./index.module.scss";
 
 const mockData = {
   tags: ["#校园生活", "#学习交流", "#求助", "#资源分享", "#活动通知"],
@@ -44,7 +48,7 @@ const mockData = {
 
 // 分类数据，与首页保持一致
 const categories = [
-  { id: "c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f", name: "学习交流", icon: studyIcon },
+  { id: "c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f", name: "学习交流", icon: school },
   { id: "c2b8f8f5-b6b7-4c2c-9d9e-1f1f1f1f1f1f", name: "校园生活", icon: hatIcon },
   { id: "c3c9a9a6-c7c8-4d3d-aeaf-2a2b2c2d2e2f", name: "就业创业", icon: starIcon },
   { id: "d4d1a1a7-d8d9-4e4e-bfbf-3a3b3c3d3e3f", name: "社团活动", icon: usersGroupIcon },
@@ -78,6 +82,7 @@ export default function PublishPost() {
   const [polishSuggestion, setPolishSuggestion] = useState<string>('建议调整：1. 增加段落间的过渡...');
   const [showRefPanel, setShowRefPanel] = useState(false);
   const [refSuggestions, setRefSuggestions] = useState<Array<{ type: 'history' | 'knowledge'; id?: string; title: string }>>([]);
+
   const [showDraftPicker, setShowDraftPicker] = useState(false);
   const [draftList, setDraftList] = useState<DraftPost[]>([]);
 
@@ -267,14 +272,14 @@ export default function PublishPost() {
       const processedTags = selectedTags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
       console.log('发布帖子，处理后的标签:', processedTags);
 
-      const result = await dispatch(
+      await dispatch(
         createPost({
           title,
           content,
-          image_urls: images,
-          tag: processedTags, // 添加标签数据
+          images: images,
+          tags: processedTags, // 添加标签数据
           is_public: isPublic,
-          allow_comment: allowComments,
+          allow_comments: allowComments,
           category_id: selectedCategory, // 添加分类ID
         })
       ).unwrap();
@@ -285,18 +290,7 @@ export default function PublishPost() {
         duration: 1500,
       });
 
-      // 智能体自动评论（静默）
-      try {
-        const newId = (result as any)?.id;
-        if (newId) {
-          const prompt = `请以友好、中立的语气对以下帖子给出1条简短评论（不超过40字）：\n标题：${title}\n内容：${content.slice(0, 300)}`;
-          const resp = await agentApi.chatCompletions({ query: prompt, stream: false });
-          const aiComment = (resp.data as any)?.content || '';
-          if (aiComment) {
-            await commentApi.createComment({ resource_id: newId, resource_type: 'post', content: aiComment });
-          }
-        }
-      } catch {}
+
 
       // 1.5秒后跳转到首页并强制刷新
       setTimeout(() => {
@@ -373,7 +367,6 @@ export default function PublishPost() {
                 const match = v.match(/(^|\s)@([^\s@]{0,30})$/);
                 if (match) {
                   const query = match[2] || '';
-                  setRefQuery(query);
                   const isKnowledge = /^k:|^knowledge:/i.test(query);
                   const pure = query.replace(/^k:|^knowledge:/i, '').trim();
                   if (isKnowledge) {
@@ -598,7 +591,8 @@ export default function PublishPost() {
                   setShowDraftPicker(false);
                   console.log('[publish] 选择草稿并跳转:', d.id);
                   Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?draftId=${d.id}` });
-                }}>
+                }}
+                >
                   <Text className={styles.draftItemTitle}>{d.title?.trim() || '无标题草稿'}</Text>
                 </View>
               ))}

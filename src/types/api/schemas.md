@@ -192,7 +192,7 @@
 
 ---
 
-## 文件上传 (Uploads) 模型
+## 文件上传 (tools/uploads) 模型
 
 ### FileUploadRead
 > 文件上传成功后返回的元数据。
