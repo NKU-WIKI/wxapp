@@ -76,6 +76,26 @@ export const getMyDrafts = () => {
 };
 
 /**
+ * 删除服务端草稿
+ */
+export const deleteDraft = (draftId: string) => {
+  return http.delete<any>(`/forums/drafts/${draftId}`);
+};
+/**
+ * 删除所有草稿
+ */
+export const clearAllDrafts = () => {
+  // 如果后端无批量删除端点，前端可以先获取列表逐个删除
+  return getMyDrafts().then(async (resp) => {
+    const list = Array.isArray(resp.data) ? resp.data : [];
+    for (const d of list) {
+      try { await deleteDraft((d as any).id); } catch {}
+    }
+    return { code: 0 } as any;
+  });
+};
+
+/**
  * 获取社区动态信息流
  * @param params 分页参数
  * @returns
@@ -121,6 +141,8 @@ const postApi = {
   updatePost,
   deletePost,
   getMyDrafts,
+  deleteDraft,
+  clearAllDrafts,
   getFeed,
   getPostsFeed,
   generatePostsFeed,

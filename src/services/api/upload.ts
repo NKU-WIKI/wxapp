@@ -1,5 +1,5 @@
 import Taro from "@tarojs/taro";
-import { HEADER_BRANCH_KEY, REQUEST_BRANCH, DEFAULT_DEV_TOKEN } from "@/constants";
+import { DEFAULT_DEV_TOKEN } from "@/constants";
 import { BaseResponse } from "@/types/api/common";
 import { normalizeImageUrl } from "@/utils/image";
 
@@ -29,22 +29,19 @@ export const uploadImage = (filePath: string): Promise<string> => {
       name: "file",
       header: {
         Authorization: `Bearer ${token}`,
-        [HEADER_BRANCH_KEY]: REQUEST_BRANCH,
       },
       success: (res) => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           try {
             const data: BaseResponse<UploadImageResponse> = JSON.parse(res.data);
-            if (data.code === 0 && data.data.url) {
-              // 统一使用 HTTP 协议
-              let imageUrl = data.data.url;
+            if (data.code === 0 && (data.data as any)?.url) {
+              let imageUrl = (data.data as any).url as string;
               if (imageUrl.startsWith('https:')) {
                 imageUrl = imageUrl.replace('https:', 'http:');
               }
-              // 标准化URL（处理以/开头的相对路径等）
               resolve(normalizeImageUrl(imageUrl));
             } else {
-              reject(new Error(data.message || data.msg || "上传失败"));
+              reject(new Error((data as any).message || (data as any).msg || "上传失败"));
             }
           } catch (e) {
             reject(new Error("解析服务器响应失败"));

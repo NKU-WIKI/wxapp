@@ -20,7 +20,9 @@ export interface Post {
   created_at?: string; // 后端返回的创建时间字段
   image?: string | string[]; // 图片数据，可能是字符串或数组
   image_urls?: string[]; // 图片URL数组
+  images?: string[]; // 兼容后端字段
   tag?: string | string[]; // 标签数据，可能是字符串或数组
+  tags?: string[]; // 兼容后端字段
   location?: string; // 位置信息，可能是JSON字符串
   // User-specific states
   is_liked?: boolean;

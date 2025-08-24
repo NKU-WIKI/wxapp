@@ -24,13 +24,14 @@ export const fetchForumPosts = createAsyncThunk(
   async (params: GetForumPostsParams, { rejectWithValue }) => {
     try {
       const response = await getForumPosts(params);
+      const items = Array.isArray(response.data) ? response.data.filter((p: any) => p?.status === 'published') : [];
       return {
-        items: response.data, // API returns { code, message, data: Post[] }
+        items, // keep only published items in feed/list
         pagination: {
           skip: params.skip || 0,
           limit: params.limit || 20,
-          total: response.data.length, // Approximate total from current response
-          has_more: response.data.length === (params.limit || 20), // Has more if returned count equals limit
+          total: items.length, // Approximate total from current response
+          has_more: items.length === (params.limit || 20), // Has more if returned count equals limit
         },
       };
     } catch (error: any) {
@@ -45,13 +46,14 @@ export const fetchFeed = createAsyncThunk(
   async (params: GetFeedParams, { rejectWithValue }) => {
     try {
       const response = await getFeed(params);
+      const items = Array.isArray(response.data) ? response.data.filter((p: any) => p?.status === 'published') : [];
       return {
-        items: response.data, // The API returns array data
+        items,
         pagination: {
           skip: params.skip || 0,
           limit: params.limit || 20,
-          total: response.data.length,
-          has_more: response.data.length === (params.limit || 20),
+          total: items.length,
+          has_more: items.length === (params.limit || 20),
         },
       };
     } catch (error: any) {
@@ -118,8 +120,11 @@ export const fetchDrafts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getMyDrafts();
-      return response.data;
+      const list = Array.isArray(response.data) ? response.data.filter((p: any) => p?.status === 'draft') : [];
+      console.log('[drafts] server response count:', list.length);
+      return list;
     } catch (error: any) {
+      console.log('[drafts] fetch error:', error?.message || error);
       return rejectWithValue(error.message || "Failed to fetch drafts");
     }
   }
@@ -131,6 +136,7 @@ export interface PostsState {
   pagination: PaginatedData<Post>["pagination"] | null;
   loading: "idle" | "pending" | "succeeded" | "failed";
   detailLoading: "idle" | "pending" | "succeeded" | "failed";
+  draftsLoading: "idle" | "pending" | "succeeded" | "failed";
   error: any;
 }
 
@@ -140,6 +146,7 @@ const initialState: PostsState = {
   pagination: null,
   loading: "idle",
   detailLoading: "idle",
+  draftsLoading: "idle",
   error: null,
 };
 
@@ -218,8 +225,10 @@ const postsSlice = createSlice({
       })
       .addCase(createPost.fulfilled, (state, action) => {
         state.loading = "succeeded";
-        // 可选：将新帖子添加到列表顶部
-        state.list.unshift(action.payload);
+        // 仅当为已发布帖子时才插入到当前列表，避免草稿短暂出现在首页
+        if ((action.payload as any)?.status === 'published') {
+          state.list.unshift(action.payload);
+        }
       })
       .addCase(createPost.rejected, (state, action) => {
         state.loading = "failed";
@@ -244,9 +253,15 @@ const postsSlice = createSlice({
       })
       // Fetch Drafts
       .addCase(fetchDrafts.fulfilled, (state, action) => {
-        // Assuming drafts are loaded into the main list for simplicity
-        // A separate state for drafts might be better
+        state.draftsLoading = "succeeded";
         state.list = action.payload;
+      })
+      .addCase(fetchDrafts.pending, (state) => {
+        state.draftsLoading = "pending";
+      })
+      .addCase(fetchDrafts.rejected, (state, action) => {
+        state.draftsLoading = "failed";
+        state.error = action.payload as string;
       })
       // Listen for the toggleAction from actionSlice
       .addCase(toggleAction.fulfilled, (state, action) => {

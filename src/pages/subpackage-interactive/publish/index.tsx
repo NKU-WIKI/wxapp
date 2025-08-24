@@ -12,15 +12,16 @@ import {
 
 // Absolute imports (alphabetical order)
 import { AppDispatch, RootState } from "@/store";
+import CustomHeader from "@/components/custom-header";
 import agentApi from "@/services/api/agent";
-
 import knowledgeApi from "@/services/api/knowledge";
 import { uploadApi } from "@/services/api/upload";
+import { getPostDetail, getMyDrafts, deleteDraft } from "@/services/api/post";
 import { createPost } from "@/store/slices/postSlice";
-import CustomHeader from "@/components/custom-header";
 import { DraftPost } from "@/types/draft";
 import { normalizeImageUrl } from "@/utils/image";
 import { saveDraft, getDrafts } from "@/utils/draft";
+import type { Post } from "@/types/api/post.d";
 
 // Asset imports
 import atSignIcon from "@/assets/at-sign.svg";
@@ -32,7 +33,7 @@ import imageIcon from "@/assets/image.svg";
 import italicIcon from "@/assets/italic.svg";
 import lightbulbIcon from "@/assets/lightbulb.svg";
 import penToolIcon from "@/assets/pen-tool.svg";
-import school from "@/assets/school.svg";
+import studyIcon from "@/assets/school.svg";
 import starIcon from "@/assets/star2.svg";
 import usersGroupIcon from "@/assets/p2p-fill.svg";
 import xCircleIcon from "@/assets/x-circle.svg";
@@ -48,7 +49,7 @@ const mockData = {
 
 // 分类数据，与首页保持一致
 const categories = [
-  { id: "c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f", name: "学习交流", icon: school },
+  { id: "c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f", name: "学习交流", icon: studyIcon },
   { id: "c2b8f8f5-b6b7-4c2c-9d9e-1f1f1f1f1f1f", name: "校园生活", icon: hatIcon },
   { id: "c3c9a9a6-c7c8-4d3d-aeaf-2a2b2c2d2e2f", name: "就业创业", icon: starIcon },
   { id: "d4d1a1a7-d8d9-4e4e-bfbf-3a3b3c3d3e3f", name: "社团活动", icon: usersGroupIcon },
@@ -82,13 +83,16 @@ export default function PublishPost() {
   const [polishSuggestion, setPolishSuggestion] = useState<string>('建议调整：1. 增加段落间的过渡...');
   const [showRefPanel, setShowRefPanel] = useState(false);
   const [refSuggestions, setRefSuggestions] = useState<Array<{ type: 'history' | 'knowledge'; id?: string; title: string }>>([]);
-
+  const [refQuery, setRefQuery] = useState<string>('');
   const [showDraftPicker, setShowDraftPicker] = useState(false);
   const [draftList, setDraftList] = useState<DraftPost[]>([]);
+  const [serverDrafts, setServerDrafts] = useState<Post[]>([]);
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const draftId = router?.params?.draftId;
+  const postId = router?.params?.postId;
+  const isEdit = router?.params?.isEdit === 'true';
   const userInfo = useSelector((state: RootState) => state.user?.currentUser || state.user?.userProfile);
 
   // 添加调试日志，查看当前选中的标签
@@ -109,10 +113,58 @@ export default function PublishPost() {
     }
   }, [draftId]);
 
-  // 初始化草稿列表
+  // 从服务端草稿加载预填（通过 postId 参数）
   useEffect(() => {
-    const drafts = getDrafts();
-    setDraftList(drafts);
+    const loadServerDraft = async () => {
+      if (!postId) return;
+      try {
+        // 优先从临时缓存读取，避免因接口权限/路径导致的404
+        const cached: any = Taro.getStorageSync('tmp_server_draft');
+        let p: any = cached && cached.id === postId ? cached : null;
+        if (!p) {
+          try {
+            const res = await getPostDetail(postId);
+            p = res?.data;
+          } catch {}
+        }
+        if (p) {
+          setTitle(p?.title || '');
+          setContent(p?.content || '');
+          const imgs: string[] = Array.isArray(p?.images)
+            ? p.images
+            : Array.isArray(p?.image_urls)
+            ? p.image_urls
+            : (typeof p?.image === 'string' ? [p.image] : Array.isArray(p?.image) ? p.image : []);
+          if (imgs?.length) setImages(imgs);
+          try { await deleteDraft(postId); } catch {}
+          try { Taro.removeStorageSync('tmp_server_draft'); } catch {}
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    loadServerDraft();
+  }, [postId]);
+
+  // 初始化草稿列表（本地 + 服务端），若存在则弹出选择窗口
+  useEffect(() => {
+    const initDrafts = async () => {
+      const localDrafts = getDrafts();
+      setDraftList(localDrafts);
+      try {
+        const res = await getMyDrafts();
+        const s = Array.isArray(res.data) ? res.data.filter((p: any) => p.status === 'draft') : [];
+        setServerDrafts(s as Post[]);
+        if (!draftId && !postId && (localDrafts.length > 0 || s.length > 0)) {
+          setShowDraftPicker(true);
+        }
+      } catch {
+        if (!draftId && !postId && localDrafts.length > 0) {
+          setShowDraftPicker(true);
+        }
+      }
+    };
+    initDrafts();
   }, []);
 
   // 回退时弹窗询问是否保存草稿
@@ -123,8 +175,34 @@ export default function PublishPost() {
         content: '你有未发布的内容，是否保存为草稿？',
         confirmText: '保存',
         cancelText: '不保存',
-        success: (res) => {
+        success: async (res) => {
           if (res.confirm) {
+            // 优先保存到服务器草稿；若不满足后端必填或失败，则回退本地保存
+            const canSaveServer = title.trim().length >= 1 && content.trim().length >= 1;
+            if (canSaveServer) {
+              try {
+                const processedTags = selectedTags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
+                await dispatch(createPost({
+                  title: title.trim(),
+                  content: content.trim(),
+                  status: 'draft',
+                  category_id: selectedCategory,
+                  images: images,
+                  tags: processedTags,
+                  is_public: isPublic,
+                  allow_comments: allowComments,
+                })).unwrap();
+                setHasSavedDraft(true);
+                Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
+                setTimeout(() => {
+                  Taro.navigateBack();
+                }, 500);
+                return;
+              } catch (e) {
+                // fallthrough to local save
+              }
+            }
+
             const id = draftId || uuid();
             saveDraft({
               id,
@@ -134,7 +212,7 @@ export default function PublishPost() {
               updatedAt: Date.now(),
             });
             setHasSavedDraft(true);
-            Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
+            Taro.showToast({ title: '已保存到草稿箱（本地）', icon: 'success' });
             setTimeout(() => {
               Taro.navigateBack();
             }, 500);
@@ -276,6 +354,7 @@ export default function PublishPost() {
         createPost({
           title,
           content,
+          status: 'published',
           images: images,
           tags: processedTags, // 添加标签数据
           is_public: isPublic,
@@ -586,16 +665,37 @@ export default function PublishPost() {
           <View className={styles.draftModal}>
             <Text className={styles.draftTitle}>从草稿继续编辑</Text>
             <ScrollView scrollY className={styles.draftList}>
-              {draftList.map((d) => (
-                <View key={d.id} className={styles.draftItem} onClick={() => {
-                  setShowDraftPicker(false);
-                  console.log('[publish] 选择草稿并跳转:', d.id);
-                  Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?draftId=${d.id}` });
-                }}
-                >
-                  <Text className={styles.draftItemTitle}>{d.title?.trim() || '无标题草稿'}</Text>
-                </View>
-              ))}
+              {([...
+                serverDrafts.map((p) => ({ id: p.id, title: p.title, source: 'server' as const })),
+                ...draftList.map((d) => ({ id: d.id, title: d.title, source: 'local' as const }))
+              ] as Array<{ id: string; title: string; source: 'server' | 'local' }>)
+                .reduce((acc: any[], item) => {
+                  const idx = acc.findIndex(x => x.id === item.id);
+                  if (idx >= 0) {
+                    if (item.source === 'server') acc[idx] = item;
+                  } else acc.push(item);
+                  return acc;
+                }, [])
+                .map((item) => (
+                  <View key={item.id} className={styles.draftItem} onClick={async () => {
+                    setShowDraftPicker(false);
+                    if (item.source === 'server') {
+                      try {
+                        const draft = serverDrafts.find(p => p.id === item.id);
+                        if (draft) Taro.setStorageSync('tmp_server_draft', draft);
+                      } catch {}
+                      Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?postId=${item.id}&isEdit=true` });
+                    } else {
+                      try {
+                        const { removeDraft } = await import('@/utils/draft');
+                        removeDraft(item.id);
+                      } catch {}
+                      Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?draftId=${item.id}` });
+                    }
+                  }}>
+                    <Text className={styles.draftItemTitle}>{(item.title || '').trim() || '无标题草稿'}</Text>
+                  </View>
+                ))}
             </ScrollView>
             <View className={styles.newPostButton} onClick={() => setShowDraftPicker(false)}>
               <Text>不使用草稿，新建帖子</Text>
