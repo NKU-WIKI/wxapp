@@ -4,14 +4,43 @@ import {
   RESPONSE_SUCCESS_CODE,
   HEADER_BRANCH_KEY,
   REQUEST_BRANCH,
-  DEFAULT_DEV_TOKEN,
 } from "@/constants";
 import { BaseResponse } from "@/types/api/common";
 
 const BASE_URL = process.env.BASE_URL;
 
 const getToken = () => {
-  return Taro.getStorageSync("token") || DEFAULT_DEV_TOKEN;
+  return Taro.getStorageSync("token") || null;
+};
+
+/**
+ * 获取默认租户ID
+ * 优先从store获取，如果没有则从本地存储获取
+ */
+const getDefaultTenantId = () => {
+  try {
+    // 尝试从store中获取aboutInfo
+    const store = require("@/store").default;
+    const state = store.getState();
+    const aboutInfo = state.user.aboutInfo;
+
+    if (aboutInfo?.tenants) {
+      // 使用南开大学作为默认租户
+      return aboutInfo.tenants["南开大学"] || "";
+    }
+
+    // 如果store中没有，尝试从本地存储获取缓存的租户信息
+    const cachedAboutInfo = Taro.getStorageSync("aboutInfo");
+    if (cachedAboutInfo?.tenants) {
+      return cachedAboutInfo.tenants["南开大学"] || "";
+    }
+  } catch (error) {
+    console.warn("Failed to get tenant info from store:", error);
+  }
+
+  // 如果都获取失败，尝试使用硬编码的默认租户ID作为最后手段
+  console.warn("Using fallback tenant ID");
+  return "f6303899-a51a-460a-9cd8-fe35609151eb";
 };
 
 const interceptor = (chain) => {
@@ -25,12 +54,18 @@ const interceptor = (chain) => {
 
   const token = getToken();
   const branch = REQUEST_BRANCH;
+  const tenantId = getDefaultTenantId();
 
   requestParams.header = {
     ...customHeader,
     "Content-Type": "application/json",
     [HEADER_BRANCH_KEY]: branch,
   };
+
+  // 如果没有token，添加x_tenant_id头部用于标识租户
+  if (!token && tenantId) {
+    requestParams.header["x-tenant-id"] = tenantId;
+  }
 
   if (token) {
     requestParams.header.Authorization = `Bearer ${token}`;

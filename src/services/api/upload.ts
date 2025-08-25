@@ -1,5 +1,4 @@
 import Taro from "@tarojs/taro";
-import { DEFAULT_DEV_TOKEN } from "@/constants";
 import { BaseResponse } from "@/types/api/common";
 import { normalizeImageUrl, compressImage, isImageFile } from "@/utils/image";
 
@@ -27,7 +26,7 @@ export const uploadImage = (
   } = {}
 ): Promise<string> => {
   return new Promise(async (resolve, reject) => {
-    const token = Taro.getStorageSync("token") || DEFAULT_DEV_TOKEN;
+    const token = Taro.getStorageSync("token")
     if (!token) {
       return reject(new Error("未找到登录凭证"));
     }

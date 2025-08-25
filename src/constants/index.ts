@@ -20,21 +20,10 @@ export const HEADER_BRANCH_KEY = 'X-Branch';
  */
 export const REQUEST_BRANCH = 'dev';
 
-// 默认开发用 Token
-export const DEFAULT_DEV_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4ZDk2M2QyYS03NjcyLTRiNGEtOWE2YS1iMzYwNWQwYjJkNTIiLCJ0ZW5hbnRfaWQiOiJmNjMwMzg5OS1hNTFhLTQ2MGEtOWNkOC1mZTM1NjA5MTUxZWIiLCJuaWNrbmFtZSI6Im5hbmthaV91c2VyIiwicm9sZXMiOlsidXNlciJdLCJleHAiOjE3NTgzNzE1OTh9.Jnp_KrgFF6t9lmW--NDTB-EbE8qAc-KCzK7I-f7aa2k"; 
-
 /**
- * 多租户：当前租户ID（用于RAG等需要tenant_id的接口）
+ * 默认租户名称（用于获取对应的 tenant_id）
  */
-export const TENANT_ID = "f6303899-a51a-460a-9cd8-fe35609151eb";
-
-/**
- * 未登录态的占位用户ID。
- *
- * 说明：当后端返回的当前用户 user_id 等于该 UUID 时，表示并未真正登录，
- * 前端应视为未登录状态（isLoggedIn=false），忽略 currentUser。
- */
-export const NON_LOGGED_IN_USER_ID = "8d963d2a-7672-4b4a-9a6a-b3605d0b2d52";
+export const DEFAULT_TENANT_NAME = "南开大学";
 
 /**
  * UI 界面配置常量
