@@ -13,13 +13,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import styles from '../index.module.scss';
 
 interface BottomInputProps {
-  postId: string; // 改为string以支持UUID
+  postId: string;
   replyTo?: {
-    commentId: string; // 改为string UUID
+    commentId: string;
     nickname: string;
+    replyToNickname?: string;
   } | null;
   onCancelReply?: () => void;
-  allowComments?: boolean; // 是否允许评论，默认true
+  allowComments?: boolean;
 }
 
 const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelReply, allowComments = true }) => {
@@ -77,7 +78,10 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelRepl
         resource_id: postId, // 保持原始postId（string UUID）
         resource_type: 'post' as const,
         content: comment.trim(),
-        ...(replyTo ? { parent_id: replyTo.commentId } : {})
+        ...(replyTo ? { 
+          parent_id: replyTo.commentId,
+          parent_author_nickname: replyTo.replyToNickname
+        } : {})
       };
       
       // 发送评论 - createComment 内部会自动刷新评论列表
@@ -154,4 +158,4 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelRepl
   );
 };
 
-export default BottomInput; 
+export default BottomInput;

@@ -107,9 +107,34 @@ export const createComment = createAsyncThunk(
       const response = await createCommentApi(params);
       const state = getState() as any;
       const currentUser = state?.user;
+      const commentState = state?.comment;
       
       // 确保response.data存在
       const payload = (response.data || response) as any;
+      
+      // 查找被回复用户的昵称（如果是回复）
+      let parentAuthorNickname = '';
+      if (params.parent_id) {
+        // 如果请求参数中已经包含了parent_author_nickname，直接使用
+        if ((params as any).parent_author_nickname) {
+          parentAuthorNickname = (params as any).parent_author_nickname;
+        } else {
+          // 否则在现有评论中查找父评论的作者昵称
+          const findParentAuthor = (comments: CommentDetail[]): string => {
+            for (const comment of comments) {
+              if (comment.id === params.parent_id) {
+                return comment.author_nickname || '';
+              }
+              if (comment.children && comment.children.length > 0) {
+                const found = findParentAuthor(comment.children);
+                if (found) return found;
+              }
+            }
+            return '';
+          };
+          parentAuthorNickname = findParentAuthor(commentState?.comments || []);
+        }
+      }
       
       // 如果是当前用户，直接使用当前用户信息
       if (currentUser?.currentUser?.user_id === payload?.user_id) {
@@ -122,6 +147,7 @@ export const createComment = createAsyncThunk(
           is_liked: payload?.is_liked ?? payload?.has_liked ?? false,
           author_nickname: currentUser?.currentUser?.nickname || currentUser?.userProfile?.nickname || '我',
           author_avatar: currentUser?.userProfile?.avatar || '',
+          parent_author_nickname: parentAuthorNickname,
         } as CommentDetail;
         return normalized;
       }
@@ -138,6 +164,7 @@ export const createComment = createAsyncThunk(
         is_liked: payload?.is_liked ?? payload?.has_liked ?? false,
         author_nickname: payload?.author_nickname ?? payload?.user?.nickname ?? userInfo.nickname,
         author_avatar: payload?.author_avatar ?? payload?.avatar ?? payload?.user?.avatar ?? userInfo.avatar,
+        parent_author_nickname: parentAuthorNickname,
       } as CommentDetail;
       
       return normalized;
@@ -223,8 +250,44 @@ const commentSlice = createSlice({
       })
       .addCase(createComment.fulfilled, (state, action) => {
         state.createStatus = "succeeded";
-        // 数据已在thunk中处理完毕，直接使用
-        state.comments.push(action.payload); // Add new comment to the list
+        const newComment = action.payload;
+        
+        // 如果是回复评论（有parent_id），需要添加到对应父评论的children中
+        if (newComment.parent_id) {
+          const addToParent = (comments: CommentDetail[]): boolean => {
+            for (const comment of comments) {
+              // 找到父评论
+               if (comment.id === newComment.parent_id) {
+                 if (!comment.children) {
+                   comment.children = [];
+                 }
+                 comment.children.push(newComment);
+                 // 更新父评论的回复数量
+                 comment.reply_count = (comment.reply_count || 0) + 1;
+                 return true;
+               }
+              // 递归查找子评论中的父评论
+              if (comment.children && comment.children.length > 0) {
+                if (addToParent(comment.children)) {
+                  return true;
+                }
+              }
+            }
+            return false;
+          };
+          
+          // 尝试添加到父评论的children中
+          const added = addToParent(state.comments);
+          
+          // 如果没有找到父评论，说明可能是数据不一致，仍然添加到顶级列表
+          if (!added) {
+            console.warn('未找到父评论，将回复添加到顶级评论列表', newComment);
+            state.comments.push(newComment);
+          }
+        } else {
+          // 顶级评论直接添加到列表中
+          state.comments.push(newComment);
+        }
       })
       .addCase(createComment.rejected, (state, action) => {
         state.createStatus = "failed";
