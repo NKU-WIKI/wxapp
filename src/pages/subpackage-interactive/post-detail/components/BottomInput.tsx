@@ -74,13 +74,20 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelRepl
       setIsSubmitting(true);
       
       // 构建评论参数
+      let finalContent = comment.trim();
+      
+      // 如果是回复评论，在内容前添加 @ 用户名格式
+      if (replyTo && replyTo.nickname) {
+        finalContent = `@${replyTo.nickname} ${finalContent}`;
+      }
+      
       const commentParams = {
         resource_id: postId, // 保持原始postId（string UUID）
         resource_type: 'post' as const,
-        content: comment.trim(),
+        content: finalContent,
         ...(replyTo ? { 
           parent_id: replyTo.commentId,
-          parent_author_nickname: replyTo.replyToNickname
+          parent_author_nickname: replyTo.nickname
         } : {})
       };
       

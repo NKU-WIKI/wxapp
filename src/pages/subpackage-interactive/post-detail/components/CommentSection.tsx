@@ -16,6 +16,46 @@ import TrashIcon from "@/assets/trash.svg";
 
 import styles from "../index.module.scss";
 
+// 渲染带有@用户名高亮的评论内容
+const renderCommentContent = (content: string): React.ReactNode => {
+  // 正则表达式匹配 @用户名 格式（用户名可以包含中文、英文、数字、下划线）
+  const mentionRegex = /@([\u4e00-\u9fa5\w]+)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = mentionRegex.exec(content)) !== null) {
+    // 添加@之前的普通文本
+    if (match.index > lastIndex) {
+      parts.push(
+        <Text key={`text-${lastIndex}`}>
+          {content.slice(lastIndex, match.index)}
+        </Text>
+      );
+    }
+    
+    // 添加高亮的@用户名
+    parts.push(
+      <Text key={`mention-${match.index}`} className={styles.mentionText}>
+        {match[0]}
+      </Text>
+    );
+    
+    lastIndex = match.index + match[0].length;
+  }
+  
+  // 添加剩余的普通文本
+  if (lastIndex < content.length) {
+    parts.push(
+      <Text key={`text-${lastIndex}`}>
+        {content.slice(lastIndex)}
+      </Text>
+    );
+  }
+  
+  return parts.length > 0 ? parts : <Text>{content}</Text>;
+};
+
 interface SubCommentItemProps {
   comment: CommentDetail;
   onReply: (comment: CommentDetail) => void;
@@ -39,7 +79,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
         action_type: 'like'
       });
       
-      console.log('❤️ 子评论点赞API响应:', response.data, '本地is_liked:', comment.is_liked);
+      console.log('❤️ 子评论点赞API响应:', response.data, '本地has_liked:', comment.has_liked);
       
       if (response.data) {
         const newIsLiked = response.data.is_active;
@@ -74,18 +114,13 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment, onReply, onLik
           ) : null}
         </View>
         <Text className={styles.subText}>
-          {comment.parent_author_nickname ? (
-            <>
-              <Text className={styles.replyPrefix}>回复{comment.parent_author_nickname}：</Text>
-              {comment.content}
-            </>
-          ) : comment.content}
+          {renderCommentContent(comment.content)}
         </Text>
         <View className={styles.subActions}>
           <View className={styles.subLikeButton} onClick={handleLike}>
             <Image 
               className={styles.subIcon} 
-              src={comment.is_liked ? HeartActiveIcon : HeartIcon} 
+              src={comment.has_liked ? HeartActiveIcon : HeartIcon} 
             />
             <Text>{comment.like_count || 0}</Text>
           </View>
@@ -150,7 +185,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
       commentId: comment.id,
       commentContent: comment.content?.substring(0, 20) + '...',
       currentLikeCount: comment.like_count || 0,
-      currentIsLiked: comment.is_liked
+      currentIsLiked: comment.has_liked
     });
     
     try {
@@ -161,7 +196,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
         action_type: 'like'
       });
       
-      console.log('❤️ 评论点赞API响应:', response.data, '本地is_liked:', comment.is_liked);
+      console.log('❤️ 评论点赞API响应:', response.data, '本地has_liked:', comment.has_liked);
       
       // 更新本地状态
       if (onLikeUpdate) {
@@ -323,11 +358,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, onLikeUpdat
           </View>
         )}
       </View>
-        <Text className={styles.text}>{comment?.content}</Text>
+        <Text className={styles.text}>{renderCommentContent(comment?.content || '')}</Text>
       <View className={styles.actions}>
           <View className={styles.likeButton} onClick={handleLike}>
             <Image 
-              src={comment.is_liked ? HeartActiveIcon : HeartIcon} 
+              src={comment.has_liked ? HeartActiveIcon : HeartIcon} 
               className={styles.icon} 
             />
           <Text>{comment?.like_count || 0}</Text>
@@ -396,7 +431,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
         // 检查是否是主评论
         if (String(comment.id) === String(commentId)) {
           console.log('✅ 更新主评论点赞状态:', comment.author_nickname);
-          return { ...comment, is_liked: isLiked, like_count: likeCount };
+          return { ...comment, has_liked: isLiked, like_count: likeCount };
         }
         
         // 检查子评论
@@ -404,7 +439,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onReply, onLi
           const updatedChildren = comment.children.map(child => {
             if (String(child.id) === String(commentId)) {
               console.log('✅ 更新子评论点赞状态:', child.author_nickname);
-              return { ...child, is_liked: isLiked, like_count: likeCount };
+              return { ...child, has_liked: isLiked, like_count: likeCount };
             }
             return child;
           });

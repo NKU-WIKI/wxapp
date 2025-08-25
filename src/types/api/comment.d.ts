@@ -86,7 +86,7 @@ export interface CommentDetail extends Comment {
   parent_author_nickname?: string; // 父评论作者昵称
   reply_count?: number;
   like_count?: number;
-  is_liked?: boolean;
+  has_liked?: boolean;
   children?: CommentDetail[];
   avatar?: string; // 兼容字段，建议使用 author_avatar
   create_at?: string; // 兼容字段，用于UI展示

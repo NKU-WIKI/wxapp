@@ -76,7 +76,7 @@ export const fetchComments = createAsyncThunk(
             created_at: comment.created_at,
             create_at: comment.created_at, // 兼容字段
             like_count: comment.likes_count || 0,
-            is_liked: comment.has_liked || false,
+            has_liked: comment.has_liked || false,
             reply_count: convertedChildren.length,
             // 使用API返回的user信息
             author_nickname: comment.user?.nickname || comment.author_nickname || getFallbackUserInfo(comment.user_id).nickname,
@@ -144,7 +144,7 @@ export const createComment = createAsyncThunk(
           created_at: payload?.created_at || payload?.update_time || payload?.create_time || new Date().toISOString(),
           create_at: payload?.create_at || payload?.created_at || payload?.update_time || payload?.create_time || new Date().toISOString(),
           like_count: payload?.like_count ?? payload?.likes_count ?? 0,
-          is_liked: payload?.is_liked ?? payload?.has_liked ?? false,
+          has_liked: payload?.is_liked ?? payload?.has_liked ?? false,
           author_nickname: currentUser?.currentUser?.nickname || currentUser?.userProfile?.nickname || '我',
           author_avatar: currentUser?.userProfile?.avatar || '',
           parent_author_nickname: parentAuthorNickname,
@@ -161,7 +161,7 @@ export const createComment = createAsyncThunk(
         created_at: payload?.created_at || payload?.update_time || payload?.create_time || new Date().toISOString(),
         create_at: payload?.create_at || payload?.created_at || payload?.update_time || payload?.create_time || new Date().toISOString(),
         like_count: payload?.like_count ?? payload?.likes_count ?? 0,
-        is_liked: payload?.is_liked ?? payload?.has_liked ?? false,
+        has_liked: payload?.is_liked ?? payload?.has_liked ?? false,
         author_nickname: payload?.author_nickname ?? payload?.user?.nickname ?? userInfo.nickname,
         author_avatar: payload?.author_avatar ?? payload?.avatar ?? payload?.user?.avatar ?? userInfo.avatar,
         parent_author_nickname: parentAuthorNickname,
