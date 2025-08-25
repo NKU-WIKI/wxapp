@@ -72,14 +72,25 @@ export const deletePost = (postId: string) => {
  * @returns
  */
 export const getMyDrafts = () => {
-  return http.get<Post[]>("/forums/me/drafts");
+  return http.get<Post[]>("/forums/me/drafts").then(response => {
+    if (Array.isArray(response?.data)) {
+      // 过滤出真正的草稿
+      const drafts = response.data.filter((item: any) => item?.status === 'draft');
+      return {
+        ...response,
+        data: drafts
+      };
+    }
+    return response;
+  });
 };
 
 /**
  * 删除服务端草稿
+ * 使用统一的帖子删除接口，因为草稿和帖子使用相同的数据结构
  */
 export const deleteDraft = (draftId: string) => {
-  return http.delete<any>(`/forums/drafts/${draftId}`);
+  return http.delete<any>(`/forums/posts/${draftId}`);
 };
 /**
  * 给帖子添加一个标签
@@ -101,7 +112,9 @@ export const clearAllDrafts = () => {
   return getMyDrafts().then(async (resp) => {
     const list = Array.isArray(resp.data) ? resp.data : [];
     for (const d of list) {
-      try { await deleteDraft((d as any).id); } catch {}
+      try { 
+        await deleteDraft((d as any).id);
+      } catch {}
     }
     return { code: 0 } as any;
   });

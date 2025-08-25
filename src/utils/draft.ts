@@ -13,20 +13,12 @@ export function saveDraft(draft: DraftPost): void {
   const idx = drafts.findIndex(d => d.id === draft.id);
   const now = Date.now();
   const draftToSave: DraftPost = { ...draft, updatedAt: now };
-  try {
-    console.log('[draft] saveDraft input:', JSON.stringify(draft));
-    console.log('[draft] saveDraft normalized:', JSON.stringify(draftToSave));
-  } catch {}
   if (idx > -1) {
     drafts[idx] = draftToSave;
   } else {
     drafts.unshift(draftToSave);
   }
   Taro.setStorageSync(DRAFT_KEY, drafts);
-  try {
-    const latest = Taro.getStorageSync(DRAFT_KEY) || [];
-    console.log('[draft] after save, total:', latest.length, 'first item:', JSON.stringify(latest[0]));
-  } catch {}
 }
 
 export function removeDraft(id: string): void {

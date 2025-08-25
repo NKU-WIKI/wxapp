@@ -20,13 +20,11 @@ const DraftBox = () => {
   // 封装刷新本地草稿逻辑
   const refreshLocalDrafts = () => {
     const list = getDrafts();
-    console.log('[drafts] local count:', list.length);
     setLocalDrafts(list);
   };
 
   // 封装刷新服务端草稿逻辑
   const refreshServerDrafts = () => {
-    console.log('[drafts] refreshing server drafts...');
     dispatch(fetchDrafts());
   };
 
@@ -38,7 +36,6 @@ const DraftBox = () => {
   usePullDownRefresh(() => {
     refreshLocalDrafts();
     refreshServerDrafts();
-    console.log('[drafts] pull-down refreshed');
     Taro.stopPullDownRefresh();
   });
 

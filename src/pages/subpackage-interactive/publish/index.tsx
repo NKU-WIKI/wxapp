@@ -140,12 +140,10 @@ export default function PublishPost() {
           if (tagTexts.length > 0) {
             const withSharp = tagTexts.map((t: string) => (t && t.startsWith('#') ? t : `#${t}`));
             setSelectedTags(withSharp);
-            console.log('[draft] apply local tags:', withSharp);
           }
         } catch {}
         if ((draft as any).category_id) {
           setSelectedCategory((draft as any).category_id);
-          console.log('[draft] apply local category_id:', (draft as any).category_id);
         }
         // setImages(draft.images || []); // 如有图片字段可补充
       }
@@ -238,9 +236,7 @@ export default function PublishPost() {
                   is_public: isPublic,
                   allow_comments: allowComments,
                 };
-                console.log('[publish] create draft payload:', JSON.stringify(payloadForDraft));
                 const created: any = await dispatch(createPost(payloadForDraft)).unwrap();
-                console.log('[publish] create draft response:', JSON.stringify(created || {}));
                 setHasSavedDraft(true);
                 Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
                 setTimeout(() => {

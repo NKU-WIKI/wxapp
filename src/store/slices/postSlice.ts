@@ -148,10 +148,8 @@ export const fetchDrafts = createAsyncThunk(
     try {
       const response = await getMyDrafts();
       const list = Array.isArray(response.data) ? response.data.filter((p: any) => p?.status === 'draft') : [];
-      console.log('[drafts] server response count:', list.length);
       return list;
     } catch (error: any) {
-      console.log('[drafts] fetch error:', error?.message || error);
       return rejectWithValue(error.message || "Failed to fetch drafts");
     }
   }
