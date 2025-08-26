@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Image, Text, Input } from '@tarojs/components';
+import { useState } from 'react';
+import { View, Image, Text, Input, Checkbox } from '@tarojs/components';
 import { useDispatch } from 'react-redux';
 import Taro from '@tarojs/taro';
 import { AppDispatch } from '@/store';
@@ -26,9 +26,33 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [nickname, setNickname] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // 检查协议同意状态
+  const checkAgreement = () => {
+    console.log('Checking agreement, agreedToTerms:', agreedToTerms, typeof agreedToTerms);
+    if (!agreedToTerms) {
+      console.log('Agreement not checked, showing toast');
+      Taro.showToast({ title: '请先阅读并同意用户协议和隐私政策', icon: 'none' });
+      return false;
+    }
+    console.log('Agreement checked, proceeding...');
+    return true;
+  };
+
+  // 协议查看函数
+  const handleViewUserAgreement = () => {
+    Taro.navigateTo({ url: '/pages/subpackage-profile/user-agreement/index' });
+  };
+
+  const handleViewPrivacyPolicy = () => {
+    Taro.navigateTo({ url: '/pages/subpackage-profile/privacy-policy/index' });
+  };
 
   // 手机号/验证码登录逻辑 (保留，但目前未实现)
   const handlePhoneLogin = () => {
+    if (!checkAgreement()) return;
+
     console.log('Phone:', phone);
     console.log('Code:', code);
     Taro.showToast({ title: '手机登录功能暂未开放', icon: 'none' });
@@ -41,6 +65,8 @@ export default function LoginPage() {
 
   // 用户名密码登录逻辑
   const handleUsernameLogin = async () => {
+    if (!checkAgreement()) return;
+
     if (!username.trim() || !password.trim()) {
       Taro.showToast({ title: '请输入用户名和密码', icon: 'none' });
       return;
@@ -64,6 +90,8 @@ export default function LoginPage() {
 
   // 用户注册逻辑
   const handleRegister = async () => {
+    if (!checkAgreement()) return;
+
     if (!username.trim() || !password.trim() || !nickname.trim()) {
       Taro.showToast({ title: '请填写完整信息', icon: 'none' });
       return;
@@ -100,21 +128,36 @@ export default function LoginPage() {
   };
 
   const handleWechatLogin = async () => {
+    console.log("WeChat login clicked, checking agreement...");
+    if (!checkAgreement()) {
+      console.log("Agreement check failed, returning");
+      return;
+    }
+
     try {
       console.log("Starting WeChat login...");
+      Taro.showLoading({ title: '正在登录...' });
+
       const res = await Taro.login();
       console.log("Taro.login() result:", res);
 
       if (!res.code) {
-        throw new Error("Failed to get WeChat login code");
+        throw new Error("获取微信登录code失败");
       }
 
       console.log("Dispatching login with code:", res.code);
       await dispatch(login(res.code)).unwrap();
+
+      Taro.hideLoading();
       console.log("Login successful, navigating to home");
-      Taro.switchTab({ url: '/pages/home/index' });
+      Taro.showToast({ title: '登录成功', icon: 'success' });
+
+      setTimeout(() => {
+        Taro.switchTab({ url: '/pages/home/index' });
+      }, 1500);
     } catch (error) {
       console.error('Login failed:', error);
+      Taro.hideLoading();
       Taro.showToast({
         title: `登录失败: ${error}`,
         icon: 'none',
@@ -126,7 +169,7 @@ export default function LoginPage() {
   return (
     <View className={styles.loginContainer}>
       <View className={styles.header}>
-        <Image src={logo} className={styles.logo} mode="aspectFit" />
+        <Image src={logo} className={styles.logo} mode='aspectFit' />
         <Text className={styles.title}>开源·共治·普惠</Text>
         <Text className={styles.subtitle}>加入我们, 探索无限可能</Text>
       </View>
@@ -154,8 +197,8 @@ export default function LoginPage() {
             <View className={styles.inputWrapper}>
               <Image src={phoneIcon} className={styles.inputIcon} />
               <Input
-                type="number"
-                placeholder="请输入手机号码"
+                type='number'
+                placeholder='请输入手机号码'
                 className={styles.input}
                 onInput={(e) => setPhone(e.detail.value)}
               />
@@ -163,8 +206,8 @@ export default function LoginPage() {
             <View className={styles.inputWrapper}>
               <Image src={shieldIcon} className={styles.inputIcon} />
               <Input
-                type="number"
-                placeholder="请输入验证码"
+                type='number'
+                placeholder='请输入验证码'
                 className={styles.input}
                 onInput={(e) => setCode(e.detail.value)}
               />
@@ -184,8 +227,8 @@ export default function LoginPage() {
             <View className={styles.inputWrapper}>
               <Image src={userIcon} className={styles.inputIcon} />
               <Input
-                type="text"
-                placeholder="请输入用户名"
+                type='text'
+                placeholder='请输入用户名'
                 className={styles.input}
                 onInput={(e) => setUsername(e.detail.value)}
               />
@@ -193,8 +236,9 @@ export default function LoginPage() {
             <View className={styles.inputWrapper}>
               <Image src={lockIcon} className={styles.inputIcon} />
               <Input
-                type="password"
-                placeholder="请输入密码"
+                type='text'
+                password
+                placeholder='请输入密码'
                 className={styles.input}
                 onInput={(e) => setPassword(e.detail.value)}
               />
@@ -216,8 +260,8 @@ export default function LoginPage() {
             <View className={styles.inputWrapper}>
               <Image src={userIcon} className={styles.inputIcon} />
               <Input
-                type="text"
-                placeholder="请输入用户名"
+                type='text'
+                placeholder='请输入用户名'
                 className={styles.input}
                 onInput={(e) => setUsername(e.detail.value)}
               />
@@ -225,8 +269,8 @@ export default function LoginPage() {
             <View className={styles.inputWrapper}>
               <Image src={userIcon} className={styles.inputIcon} />
               <Input
-                type="text"
-                placeholder="请输入昵称"
+                type='text'
+                placeholder='请输入昵称'
                 className={styles.input}
                 onInput={(e) => setNickname(e.detail.value)}
               />
@@ -234,8 +278,9 @@ export default function LoginPage() {
             <View className={styles.inputWrapper}>
               <Image src={lockIcon} className={styles.inputIcon} />
               <Input
-                type="password"
-                placeholder="请输入密码"
+                type='text'
+                password
+                placeholder='请输入密码'
                 className={styles.input}
                 onInput={(e) => setPassword(e.detail.value)}
               />
@@ -243,8 +288,8 @@ export default function LoginPage() {
             <View className={styles.inputWrapper}>
               <Image src={lockIcon} className={styles.inputIcon} />
               <Input
-                type="password"
-                placeholder="请确认密码"
+                type='text'
+                placeholder='请确认密码'
                 className={styles.input}
                 onInput={(e) => setConfirmPassword(e.detail.value)}
               />
@@ -271,12 +316,25 @@ export default function LoginPage() {
         </View>
       </View>
 
-      <View className={styles.footer}>
-        <Text className={styles.agreement}>
-          登录即表示同意{' '}
-          <Text className={styles.link}>用户协议</Text> 和{' '}
-          <Text className={styles.link}>隐私政策</Text>
-        </Text>
+      {/* 协议同意区域 */}
+      <View className={styles.agreementSection}>
+        <View className={styles.agreementRow}>
+          <Checkbox
+            value='agree'
+            checked={agreedToTerms}
+            onChange={(e) => {
+              console.log('Checkbox change:', e.detail);
+              setAgreedToTerms(e.detail.checked || false);
+            }}
+            className={styles.checkbox}
+          />
+          <Text className={styles.agreementText}>
+            我已仔细阅读并同意{' '}
+            <Text className={styles.link} onClick={handleViewUserAgreement}>《用户服务协议》</Text>
+            和{' '}
+            <Text className={styles.link} onClick={handleViewPrivacyPolicy}>《隐私政策》</Text>
+          </Text>
+        </View>
       </View>
     </View>
   );

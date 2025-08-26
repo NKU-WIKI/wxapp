@@ -13,6 +13,8 @@ export default {
         "level/index",
         "about/index",
         "login/index",
+        "user-agreement/index",
+        "privacy-policy/index",
         "settings/index",
         "draft-box/index",
         "collection/index",
@@ -41,6 +43,11 @@ export default {
     navigationBarBackgroundColor: "#fff",
     navigationBarTitleText: "WeChat",
     navigationBarTextStyle: "black",
+  },
+  permission: {
+    "scope.userInfo": {
+      "desc": "用于获取用户基本信息"
+    }
   },
   tabBar: {
     custom: true,

@@ -25,14 +25,14 @@ const getDefaultTenantId = () => {
     const aboutInfo = state.user.aboutInfo;
 
     if (aboutInfo?.tenants) {
-      // 使用南开大学作为默认租户
-      return aboutInfo.tenants["南开大学"] || "";
+      // 使用默认租户
+      return aboutInfo.tenants["default"] || "";
     }
 
     // 如果store中没有，尝试从本地存储获取缓存的租户信息
     const cachedAboutInfo = Taro.getStorageSync("aboutInfo");
     if (cachedAboutInfo?.tenants) {
-      return cachedAboutInfo.tenants["南开大学"] || "";
+      return cachedAboutInfo.tenants["default"] || "";
     }
   } catch (error) {
     console.warn("Failed to get tenant info from store:", error);
@@ -40,7 +40,7 @@ const getDefaultTenantId = () => {
 
   // 如果都获取失败，尝试使用硬编码的默认租户ID作为最后手段
   console.warn("Using fallback tenant ID");
-  return "f6303899-a51a-460a-9cd8-fe35609151eb";
+  return "00000000-0000-0000-0000-000000000000";
 };
 
 const interceptor = (chain) => {
