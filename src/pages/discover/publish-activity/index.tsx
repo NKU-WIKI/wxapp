@@ -14,7 +14,9 @@ interface FormState {
   start_time: string; // 手动输入日期时间
   end_time: string;   // 手动输入日期时间
   location: string;
+  online_url: string;
   tags: string;
+  max_participants: number;
 }
 
 export default function PublishActivity() {
@@ -30,11 +32,16 @@ export default function PublishActivity() {
     start_time: format(now),
     end_time: format(oneHourLater),
     location: '',
-    tags: ''
+    online_url: '',
+    tags: '',
+    max_participants: 5
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const requiredFilled = form.title && form.category && form.description && form.start_time && form.end_time;
+  const requiredFilled = form.title && form.category && form.description && form.start_time && form.end_time &&
+    ((form.activity_type === ActivityType.Offline && form.location) ||
+     (form.activity_type === ActivityType.Online && form.online_url) ||
+     (form.activity_type === ActivityType.Hybrid));
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -52,6 +59,17 @@ export default function PublishActivity() {
       Taro.showToast({ title: '请完善必填项', icon: 'none' });
       return;
     }
+
+    // 根据活动类型验证具体字段
+    if (form.activity_type === ActivityType.Offline && !form.location) {
+      Taro.showToast({ title: '线下活动请填写地点', icon: 'none' });
+      return;
+    }
+    if (form.activity_type === ActivityType.Online && !form.online_url) {
+      Taro.showToast({ title: '线上活动请填写活动链接', icon: 'none' });
+      return;
+    }
+
     const start = parseDate(form.start_time);
     const end = parseDate(form.end_time);
     if (!start || !end) {
@@ -71,14 +89,17 @@ export default function PublishActivity() {
         activity_type: form.activity_type,
         start_time: start,
         end_time: end,
-        location: form.location || undefined,
+        location: form.activity_type !== ActivityType.Online ? (form.location || undefined) : undefined,
+        online_url: form.activity_type !== ActivityType.Offline ? (form.online_url || undefined) : undefined,
         tags: form.tags ? form.tags.split(/[,，\s]+/).filter(Boolean) : undefined,
+        max_participants: form.max_participants > 0 ? form.max_participants : null,
         visibility: ActivityVisibility.Public
       } as ActivityCreateRequest;
       const res: any = await activityApi.createActivity(payload);
       if (res && res.code === 0) {
         Taro.showToast({ title: '发布成功', icon: 'success' });
-        setTimeout(() => { Taro.navigateBack(); }, 600);
+        // 重新启用自动跳转，发布成功后返回上一页
+        setTimeout(() => { Taro.navigateBack(); }, 1000);
       }
     } catch (e) {
       // 错误已由拦截器处理
@@ -98,8 +119,13 @@ export default function PublishActivity() {
       <CustomHeader title='发布活动' hideBack={false} />
 
       <View className={styles.formItem}>
-        <Text className={styles.label}>标题 *</Text>
+        <Text className={styles.label}>活动标题 *</Text>
         <Input className={styles.input} value={form.title} placeholder='例如：校园技术交流会' onInput={e => update('title', e.detail.value)} />
+      </View>
+
+      <View className={styles.formItem}>
+        <Text className={styles.label}>活动内容 *</Text>
+        <Textarea className={styles.textarea} value={form.description} placeholder='介绍活动目的、流程、参与要求等...' onInput={e => update('description', e.detail.value)} />
       </View>
 
       <View className={styles.formItem}>
@@ -123,29 +149,76 @@ export default function PublishActivity() {
       </View>
 
       <View className={styles.formItem}>
-        <Text className={styles.label}>开始时间 * (YYYY-MM-DD HH:mm)</Text>
-        <Input
-          className={styles.input}
-          value={form.start_time}
-          placeholder='例如 2025-09-01 14:00'
-          onInput={e => update('start_time', e.detail.value)}
-        />
+        <Text className={styles.label}>活动时间 *</Text>
+        <View className={styles.timeRow}>
+          <View className={styles.timeItem}>
+            <Text className={styles.timeLabel}>开始时间</Text>
+            <Input
+              className={styles.input}
+              value={form.start_time}
+              placeholder='2025-09-01 14:00'
+              onInput={e => update('start_time', e.detail.value)}
+            />
+          </View>
+          <View className={styles.timeItem}>
+            <Text className={styles.timeLabel}>结束时间</Text>
+            <Input
+              className={styles.input}
+              value={form.end_time}
+              placeholder='2025-09-01 16:00'
+              onInput={e => update('end_time', e.detail.value)}
+            />
+          </View>
+        </View>
       </View>
 
-      <View className={styles.formItem}>
-        <Text className={styles.label}>结束时间 * (YYYY-MM-DD HH:mm)</Text>
-        <Input
-          className={styles.input}
-          value={form.end_time}
-          placeholder='例如 2025-09-01 16:00'
-          onInput={e => update('end_time', e.detail.value)}
-        />
-      </View>
+      {/* 动态显示地点或链接输入框 */}
+      {form.activity_type === ActivityType.Offline && (
+        <View className={styles.formItem}>
+          <Text className={styles.label}>地点 *</Text>
+          <Input
+            className={styles.input}
+            value={form.location}
+            placeholder='请填写活动地点，例如：图书馆201会议室'
+            onInput={e => update('location', e.detail.value)}
+          />
+        </View>
+      )}
 
-      <View className={styles.formItem}>
-        <Text className={styles.label}>地点</Text>
-        <Input className={styles.input} value={form.location} placeholder='线下活动填写地点，线上可留空' onInput={e => update('location', e.detail.value)} />
-      </View>
+      {form.activity_type === ActivityType.Online && (
+        <View className={styles.formItem}>
+          <Text className={styles.label}>线上链接 *</Text>
+          <Input
+            className={styles.input}
+            value={form.online_url}
+            placeholder='请填写线上活动链接，例如：腾讯会议链接'
+            onInput={e => update('online_url', e.detail.value)}
+          />
+        </View>
+      )}
+
+      {form.activity_type === ActivityType.Hybrid && (
+        <>
+          <View className={styles.formItem}>
+            <Text className={styles.label}>地点</Text>
+            <Input
+              className={styles.input}
+              value={form.location}
+              placeholder='请填写线下活动地点'
+              onInput={e => update('location', e.detail.value)}
+            />
+          </View>
+          <View className={styles.formItem}>
+            <Text className={styles.label}>线上链接</Text>
+            <Input
+              className={styles.input}
+              value={form.online_url}
+              placeholder='请填写线上参与链接'
+              onInput={e => update('online_url', e.detail.value)}
+            />
+          </View>
+        </>
+      )}
 
       <View className={styles.formItem}>
         <Text className={styles.label}>标签</Text>
@@ -154,8 +227,46 @@ export default function PublishActivity() {
       </View>
 
       <View className={styles.formItem}>
-        <Text className={styles.label}>描述 *</Text>
-        <Textarea className={styles.textarea} value={form.description} placeholder='介绍活动目的、流程、参与要求等...' onInput={e => update('description', e.detail.value)} />
+        <Text className={styles.label}>参与人数上限</Text>
+        <View className={styles.participantCounterWrapper}>
+          <View
+            className={styles.counterButton}
+            onClick={() => {
+              console.log('减少按钮被点击，当前值:', form.max_participants);
+              const newValue = Math.max(1, form.max_participants - 1);
+              console.log('新值:', newValue);
+              setForm(prev => {
+                console.log('更新前状态:', prev.max_participants);
+                const newState = { ...prev, max_participants: newValue };
+                console.log('更新后状态:', newState.max_participants);
+                return newState;
+              });
+            }}
+          >
+            <Text className={styles.counterButtonText}>-</Text>
+          </View>
+          <View className={styles.counterDisplay}>
+            <Text className={styles.counterNumber}>{form.max_participants}</Text>
+            <Text className={styles.counterUnit}>人</Text>
+          </View>
+          <View
+            className={styles.counterButton}
+            onClick={() => {
+              console.log('增加按钮被点击，当前值:', form.max_participants);
+              const newValue = Math.min(999, form.max_participants + 1);
+              console.log('新值:', newValue);
+              setForm(prev => {
+                console.log('更新前状态:', prev.max_participants);
+                const newState = { ...prev, max_participants: newValue };
+                console.log('更新后状态:', newState.max_participants);
+                return newState;
+              });
+            }}
+          >
+            <Text className={styles.counterButtonText}>+</Text>
+          </View>
+        </View>
+        <Text className={styles.helper}>最少1人，最多999人</Text>
       </View>
 
       <View

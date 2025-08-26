@@ -75,7 +75,7 @@ export default function Discover() {
         limit: 10,
         status: ActivityStatus.Published,
         sort_by: 'start_time',
-        sort_order: 'asc'
+        sort_order: 'desc'
       };
       const res = await activityApi.getActivityList(params);
       // 兼容后端 data?.data?.items / data?.data?.items 结构
