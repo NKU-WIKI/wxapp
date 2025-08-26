@@ -63,6 +63,7 @@
   align-items: center;
   min-width: 0;
   height: 28px;
+  overflow: hidden;
 }
 
 .searchInput {
@@ -75,6 +76,11 @@
   line-height: 28px;
   color: $text-primary-dark;
   caret-color: $text-primary-dark;
+  
+  &::placeholder {
+    color: #9CA3AF;
+    font-size: 14px;
+  }
 }
 
 .highlightedText { display: none; }
@@ -83,11 +89,28 @@
 
 .inputText { display: none; }
 
-.prefixLabel {
-  color: $theme-primary;
-  font-weight: 500;
-  line-height: 28px;
+.prefixLabelContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.prefixLabel {
+  color: #6B46C1; /* 深紫色 */
+  font-weight: 600;
+  line-height: 28px;
+  flex-shrink: 0;
+}
+
+.prefixDesc {
+  color: #9CA3AF; /* 灰色 */
+  font-size: 14px; /* 从12px增加到14px */
+  line-height: 28px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 
@@ -291,6 +314,14 @@
   align-items: center;
   text-align: center;
   gap: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  
+  &:active {
+    transform: scale(0.96);
+    background-color: $alpha-primary-10;
+    border-color: $theme-primary;
+  }
 }
 
 .skillIconContainer {
