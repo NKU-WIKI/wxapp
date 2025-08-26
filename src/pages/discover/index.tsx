@@ -1,149 +1,116 @@
 import { View, ScrollView, Text, Image } from "@tarojs/components";
-import { useEffect, useState } from "react";
 import Taro from "@tarojs/taro";
+import { useEffect, useState, useCallback } from "react";
 import recommendApi from "@/services/api/recommend";
+import { recommendParams } from "@/types/api/recommend";
 import styles from "./index.module.scss";
 import CustomHeader from "../../components/custom-header";
 import Section from "./components/Section";
-import { aiAssistants, activity, resources } from "./mock";
-import { recommendParams } from "@/types/api/recommend";
+import { activity } from "./mock";
 
+interface HotPost {
+  id?: string | number;
+  title?: string;
+  comment_count?: number;
+  view_count?: number;
+  like_count?: number;
+  platform?: string;
+  original_url?: string;
+}
 
 export default function Discover() {
-  const [hotPosts, setHotPosts] = useState([]);
+  const [hotPosts, setHotPosts] = useState<HotPost[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [enableAiRecommendation, setEnableAiRecommendation] = useState(false);
 
-  const fetchHotPosts = async (showLoading = true) => {
+  const fetchHotPosts = useCallback(async (showLoading = true) => {
     try {
       if (showLoading) {
         setIsRefreshing(true);
       }
 
       const params: recommendParams = {
-        enable_ai_recommendation: enableAiRecommendation, // 使用状态中的AI推荐设置
-        limit: 20, // 限制返回的帖子数量
-        hot_weight: 0.7, // 热门帖子的权重
-        new_weight: 0.3, // 新帖子的权重
-        user_id: null, // 用户ID，如果需要可以传入
-        days: 7 // 获取最近7天的数据
+        enable_ai_recommendation: enableAiRecommendation,
+        limit: 20,
+        hot_weight: 0.7,
+        new_weight: 0.3,
+        user_id: null,
+        days: 7
       };
 
-      console.log("开始获取热门帖子...");
-      const response = await recommendApi.getRecommendations(params);
-      console.log("热门帖子数据:", response);
-      console.log("API调用成功，数据类型:", typeof response);
-      console.log("API返回的完整响应:", JSON.stringify(response.code, null, 2));
-      let postsData = [];
+      const response: any = await recommendApi.getRecommendations(params);
+      let postsData: HotPost[] = [];
 
-      // 保存热门帖子数据到状态，确保是数组
       if (response && response.data) {
-        if (enableAiRecommendation) {
-          // 启用AI推荐时使用 ai_recommended_posts
-          if (response.data.ai_recommended_posts && Array.isArray(response.data.ai_recommended_posts)) {
-            postsData = response.data.ai_recommended_posts;
-          } else if (Array.isArray(response.data.recommended_posts) && response.data.recommended_posts) {
-            postsData = response.data.recommended_posts;
-          }
-        } else {
-          // 不启用AI推荐时使用 recommended_posts
-          if (response.data.recommended_posts && Array.isArray(response.data.recommended_posts)) {
-            postsData = response.data.recommended_posts;
-          } else if (Array.isArray(response.data)) {
-            postsData = []
-          }
+        const data: any = response.data;
+        if (enableAiRecommendation && Array.isArray(data.ai_recommended_posts)) {
+          postsData = data.ai_recommended_posts as HotPost[];
+        } else if (Array.isArray(data.recommended_posts)) {
+          postsData = data.recommended_posts as HotPost[];
         }
-
         setHotPosts(postsData);
-        console.log(`使用${enableAiRecommendation ? 'AI推荐' : '普通推荐'}数据，获取到${postsData.length}条帖子`);
       } else {
-        console.warn("API响应中没有data字段");
         setHotPosts([]);
       }
     } catch (error) {
-      console.error("获取热门帖子失败:", error);
-      console.error("错误详情:", error.message);
-      setHotPosts([]); // 错误时设置为空数组
+      // 失败时重置为空
+      setHotPosts([]);
     } finally {
       if (showLoading) {
         setIsRefreshing(false);
       }
     }
-  };
-
-  // 切换AI推荐
-  const toggleAiRecommendation = () => {
-    setEnableAiRecommendation(!enableAiRecommendation);
-  };
-
-  // 监听AI推荐状态变化，重新获取数据
-  useEffect(() => {
-    if (hotPosts.length > 0) { // 避免初始化时重复请求
-      fetchHotPosts(false);
-    }
   }, [enableAiRecommendation]);
 
-  // 下拉刷新处理函数
+  const toggleAiRecommendation = () => {
+    setEnableAiRecommendation(prev => !prev);
+  };
+
   const handleRefresh = async () => {
     await fetchHotPosts(true);
   };
 
-  // 处理帖子点击事件
-  const handlePostClick = (post) => {
-    // 如果是小程序内部帖子，直接跳转到详情页面
+  const handlePostClick = (post: HotPost) => {
     if (post.platform === 'wxapp' && post.id) {
       Taro.navigateTo({
         url: `/pages/subpackage-interactive/post-detail/index?id=${post.id}`
       }).catch(() => {
-        Taro.showToast({
-          title: '暂无详情页面',
-          icon: 'none'
-        });
+        Taro.showToast({ title: '暂无详情页面', icon: 'none' });
       });
       return;
     }
 
-    // 如果有原始链接，使用webview打开
     if (post.original_url) {
       Taro.navigateTo({
-        url: `/pages/webview/index?url=${encodeURIComponent(post.original_url)}&title=${encodeURIComponent(post.title)}`
+        url: `/pages/webview/index?url=${encodeURIComponent(post.original_url)}&title=${encodeURIComponent(post.title || '')}`
       }).catch(() => {
-        // 如果webview页面不存在，尝试使用系统浏览器打开
         Taro.showModal({
           title: '打开链接',
           content: '是否使用浏览器打开此链接？',
           success: (res) => {
-            if (res.confirm) {
-              // 在小程序中，可以复制链接到剪贴板
+            if (res.confirm && post.original_url) {
               Taro.setClipboardData({
                 data: post.original_url,
                 success: () => {
-                  Taro.showToast({
-                    title: '链接已复制',
-                    icon: 'success'
-                  });
+                  Taro.showToast({ title: '链接已复制', icon: 'success' });
                 }
               });
             }
           }
         });
       });
-    } else {
-      // 如果没有原始链接，跳转到帖子详情页面
+    } else if (post.id) {
       Taro.navigateTo({
         url: `/pages/subpackage-interactive/post-detail/index?id=${post.id}`
       }).catch(() => {
-        Taro.showToast({
-          title: '暂无详情页面',
-          icon: 'none'
-        });
+        Taro.showToast({ title: '暂无详情页面', icon: 'none' });
       });
     }
   };
 
   useEffect(() => {
     fetchHotPosts(false);
-  }, []);
+  }, [fetchHotPosts]);
 
   return (
     <View className={styles.discoverPage}>
@@ -152,8 +119,8 @@ export default function Discover() {
       <ScrollView scrollY className={styles.scrollView}>
         {/* 热门帖子 */}
         <Section
-          title='校园热点'
-          showAiToggle={true}
+          title='活动广场'
+          showAiToggle
           aiEnabled={enableAiRecommendation}
           onAiToggle={toggleAiRecommendation}
         >
@@ -161,13 +128,13 @@ export default function Discover() {
             scrollY
             className={styles.hotPostsList}
             style={{ height: '300px' }}
-            refresherEnabled={true}
+            refresherEnabled
             refresherTriggered={isRefreshing}
             onRefresherRefresh={handleRefresh}
-            refresherBackground="#f8fafc"
+            refresherBackground='#f8fafc'
           >
             {Array.isArray(hotPosts) && hotPosts.length > 0 ? (
-              hotPosts.map((post, index) => (
+              hotPosts.map((post: HotPost, index: number) => (
                 <View
                   key={post.id || index}
                   className={styles.hotPostItem}
@@ -192,7 +159,6 @@ export default function Discover() {
                 </View>
               ))
             ) : (
-              // 如果没有数据，显示默认的热点内容
               [
                 { id: '1', title: '实习工资怎么理财', readCount: '5.9K', rank: 1 },
                 { id: '2', title: '心事和谁说比较好', readCount: '4.6K', rank: 2 },
@@ -204,10 +170,7 @@ export default function Discover() {
                   key={item.id}
                   className={styles.hotPostItem}
                   onClick={() => {
-                    Taro.showToast({
-                      title: `点击了: ${item.title}`,
-                      icon: 'none'
-                    });
+                    Taro.showToast({ title: `点击了: ${item.title}`, icon: 'none' });
                   }}
                 >
                   <View className={styles.hotPostContent}>
@@ -227,39 +190,10 @@ export default function Discover() {
           </ScrollView>
         </Section>
 
-        {/* AI 助手 */}
-        <Section title='AI 助手' extraText='查看更多' isLink>
-          <View className={styles.aiAssistantsContainer}>
-            {aiAssistants.slice(0, 3).map((item) => (
-              <View key={item.id} className={styles.aiAssistantCard}>
-                <View className={styles.aiIconWrapper}>
-                  <Image src={item.icon} className={styles.aiAssistantIcon} />
-                </View>
-                <Text className={styles.aiAssistantName}>{item.name}</Text>
-              </View>
-            ))}
-          </View>
-        </Section>
-
-        {/* 学习资源 */}
-        <Section title='学习资源' extraText='更多资源' isLink>
-          <View className={styles.resourcesContainer}>
-            {resources.slice(0, 3).map((item) => (
-              <View key={item.id} className={styles.resourceCard}>
-                <View className={styles.resourceIcon}>
-                  <Image src={item.icon} className={styles.resourceIconImage} />
-                </View>
-                <View className={styles.resourceInfo}>
-                  <Text className={styles.resourceTitle}>{item.title}</Text>
-                  <Text className={styles.resourceCount}>{item.count}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </Section>
-
         {/* 校园活动 */}
-        <Section title='校园活动' extraText='全部活动' isLink>
+        <Section title='校园活动' extraText='发布活动' isLink onExtraClick={() => {
+          Taro.navigateTo({ url: '/pages/discover/publish-activity/index' });
+        }}>
           <View className={styles.activityCard}>
             <Image
               src={activity.image}
@@ -285,10 +219,7 @@ export default function Discover() {
           </View>
         </Section>
 
-        {/* 底部间距 */}
         <View className={styles.bottomSpacing} />
-
-        {/* 底部提示 */}
         <View className={styles.bottomTip}>
           <Text>已经到底了</Text>
         </View>

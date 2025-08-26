@@ -8,6 +8,7 @@ interface SectionProps {
   showAiToggle?: boolean;
   aiEnabled?: boolean;
   onAiToggle?: () => void;
+  onExtraClick?: () => void; // 新增
   children: React.ReactNode;
 }
 
@@ -18,6 +19,7 @@ export default function Section({
   showAiToggle,
   aiEnabled,
   onAiToggle,
+  onExtraClick,
   children
 }: SectionProps) {
   return (
@@ -35,7 +37,7 @@ export default function Section({
             </View>
           </View>
         ) : extraText && (
-          <View className={isLink ? styles.link : styles.extra}>
+          <View className={isLink ? styles.link : styles.extra} onClick={onExtraClick}>
              <Text>{extraText}</Text>
           </View>
         )}

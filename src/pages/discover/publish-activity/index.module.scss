@@ -1,0 +1,64 @@
+.publishActivityPage {
+  padding: 16px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+.formItem {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.label {
+  font-size: 28rpx;
+  color: #334155;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.input, .textarea, .picker, .selector {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 28rpx;
+}
+.textarea {
+  min-height: 160px;
+}
+.typeSelector {
+  display: flex;
+  gap: 12px;
+}
+.typeOption {
+  padding: 8px 20px;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  font-size: 24rpx;
+  color: #475569;
+}
+.typeOptionActive {
+  background: #4f46e5;
+  color: #fff;
+  border-color: #4f46e5;
+}
+.submitBtn {
+  margin-top: 24px;
+  background: #4f46e5;
+  color: #fff;
+  padding: 14px 0;
+  text-align: center;
+  border-radius: 10px;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+.disabledBtn {
+  opacity: .5;
+}
+.tagsInput {
+  font-size: 26rpx;
+}
+.helper {
+  font-size: 22rpx;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
