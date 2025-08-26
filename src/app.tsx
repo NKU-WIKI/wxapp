@@ -6,9 +6,9 @@ import 'taro-ui/dist/style/index.scss'
 import store, { persistor } from './store'
 import { initTabBarSync } from './utils/tabBarSync'
 import './app.scss'
-import { fetchCurrentUser } from "./store/slices/userSlice";
+import { fetchCurrentUser, fetchAboutInfo } from "./store/slices/userSlice";
 import { initializeSettings, applyFontSize, applyNightMode } from "./store/slices/settingsSlice";
-import { DEFAULT_DEV_TOKEN } from "@/constants";
+
 
 // AbortController polyfill for WeChat miniprogram
 if (typeof globalThis.AbortController === 'undefined') {
@@ -35,26 +35,26 @@ function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {
     // 初始化设置
     store.dispatch(initializeSettings());
-    
+
+    // 获取应用信息（包含租户信息）
+    store.dispatch(fetchAboutInfo());
+
     // 应用当前设置
     const state = store.getState();
     const settings = state.settings;
-    
+
     // 应用字体大小和夜间模式
     applyFontSize(settings.fontSize);
     applyNightMode(settings.nightMode);
-    
+
     // 检查是否有存储的token
     const storedToken = Taro.getStorageSync("token");
-    
+
     if (storedToken) {
       // 如果有token，尝试验证其有效性
       store.dispatch(fetchCurrentUser());
-    } else {
-      // 如果没有token，自动注入默认开发token
-      Taro.setStorageSync("token", DEFAULT_DEV_TOKEN);
-      store.dispatch(fetchCurrentUser());
     }
+    // 如果没有token，不自动注入，保持未登录状态
   })
 
   // children 是将要会渲染的页面

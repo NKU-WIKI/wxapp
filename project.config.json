@@ -3,7 +3,7 @@
   "description": "nkuwiki",
   "appid": "wxe0c82418cb888db0",
   "setting": {
-    "urlCheck": false,
+    "urlCheck": true,
     "es6": true,
     "enhance": true,
     "compileHotReLoad": false,

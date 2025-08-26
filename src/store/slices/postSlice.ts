@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Taro from "@tarojs/taro";
 import { PaginatedData } from "@/types/api/common";
 import {
@@ -18,12 +18,23 @@ import {
   getPostDetail,
 } from "@/services/api/post";
 import { toggleAction } from "./actionSlice"; // 从 actionSlice 导入
+import { fetchAboutInfo } from "./userSlice"; // 从 userSlice 导入
 
 // 获取论坛帖子的 Thunk
 export const fetchForumPosts = createAsyncThunk(
   "posts/fetchForumPosts",
-  async (params: GetForumPostsParams, { rejectWithValue }) => {
+  async (params: GetForumPostsParams, { rejectWithValue, dispatch, getState }) => {
     try {
+      // 确保在调用帖子接口前先获取about信息（包含租户信息）
+      const state = getState() as any;
+      if (!state.user.aboutInfo) {
+        try {
+          await dispatch(fetchAboutInfo());
+        } catch (error) {
+          console.warn("Failed to fetch about info before getting posts:", error);
+        }
+      }
+
       const response = await getForumPosts(params);
       const rawItems = Array.isArray(response.data) ? response.data : [];
       const items = rawItems
@@ -57,8 +68,18 @@ export const fetchForumPosts = createAsyncThunk(
 // 获取社区动态信息流的 Thunk
 export const fetchFeed = createAsyncThunk(
   "posts/fetchFeed",
-  async (params: GetFeedParams, { rejectWithValue }) => {
+  async (params: GetFeedParams, { rejectWithValue, dispatch, getState }) => {
     try {
+      // 确保在调用帖子接口前先获取about信息（包含租户信息）
+      const state = getState() as any;
+      if (!state.user.aboutInfo) {
+        try {
+          await dispatch(fetchAboutInfo());
+        } catch (error) {
+          console.warn("Failed to fetch about info before getting feed:", error);
+        }
+      }
+
       const response = await getFeed(params);
       const rawItems = Array.isArray(response.data) ? response.data : [];
       const items = rawItems
@@ -148,10 +169,8 @@ export const fetchDrafts = createAsyncThunk(
     try {
       const response = await getMyDrafts();
       const list = Array.isArray(response.data) ? response.data.filter((p: any) => p?.status === 'draft') : [];
-      console.log('[drafts] server response count:', list.length);
       return list;
     } catch (error: any) {
-      console.log('[drafts] fetch error:', error?.message || error);
       return rejectWithValue(error.message || "Failed to fetch drafts");
     }
   }

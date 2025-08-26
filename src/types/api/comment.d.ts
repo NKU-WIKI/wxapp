@@ -86,7 +86,7 @@ export interface CommentDetail extends Comment {
   parent_author_nickname?: string; // 父评论作者昵称
   reply_count?: number;
   like_count?: number;
-  is_liked?: boolean;
+  has_liked?: boolean;
   children?: CommentDetail[];
   avatar?: string; // 兼容字段，建议使用 author_avatar
   create_at?: string; // 兼容字段，用于UI展示
@@ -100,6 +100,7 @@ export interface CreateCommentRequest {
   resource_id: string; // 帖子ID，UUID字符串格式
   resource_type: string; // 资源类型，如'post'
   parent_id?: string | number; // 父评论ID，可选，支持string或number类型
+  parent_author_nickname?: string; // 被回复用户的昵称，用于嵌套评论显示
   attachments?: Record<string, any>; // 附件信息，可选
 }
 

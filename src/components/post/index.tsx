@@ -85,7 +85,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       // 匿名用户使用默认等级
       setAuthorLevel(1);
     }
-  }, [author?.level, isAnonymous]);
+  }, [author, isAnonymous]);
 
   if (!post) {
     return null;
@@ -270,7 +270,30 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       content: '确定要删除这条帖子吗？',
       success: (res) => {
         if (res.confirm) {
-          dispatch(deletePost(displayPost.id));
+          dispatch(deletePost(displayPost.id))
+            .then(() => {
+              // 删除成功后显示提示
+              Taro.showToast({
+                title: '删除成功',
+                icon: 'success',
+                duration: 2000
+              });
+
+              // 如果在详情页，删除后返回上一页
+              if (mode === 'detail') {
+                setTimeout(() => {
+                  Taro.navigateBack();
+                }, 1500);
+              }
+            })
+            .catch((error) => {
+              console.error('删除失败:', error);
+              Taro.showToast({
+                title: '删除失败，请重试',
+                icon: 'none',
+                duration: 2000
+              });
+            });
         }
       }
     });

@@ -14,6 +14,8 @@ export default {
         "level/index",
         "about/index",
         "login/index",
+        "user-agreement/index",
+        "privacy-policy/index",
         "settings/index",
         "draft-box/index",
         "collection/index",
@@ -38,11 +40,12 @@ export default {
     }
   ],
   window: {
-    backgroundTextStyle: "light",
-    navigationBarBackgroundColor: "#fff",
-    navigationBarTitleText: "WeChat",
-    navigationBarTextStyle: "black",
+    backgroundTextStyle: 'light',
+    navigationBarBackgroundColor: '#fff',
+    navigationBarTitleText: 'nku元智wiki',
+    navigationBarTextStyle: 'black',
   },
+
   tabBar: {
     custom: true,
     color: "#9B9B9B",

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Taro from "@tarojs/taro";
-import { login as loginApi } from "@/services/api/auth";
+import { login as loginApi, register as registerApi } from "@/services/api/auth";
+import { getAboutInfo } from "@/services/api/about";
 import {
   getMe,
   updateMeProfile,
@@ -10,10 +11,11 @@ import {
 } from "@/services/api/user";
 import { getFollowersCount } from "@/services/api/followers";
 import { getCollectionCount } from "@/services/api/collection";
-import { UnifiedLoginRequest } from "@/types/api/auth";
+import { UnifiedLoginRequest, LoginRequest, RegisterRequest } from "@/types/api/auth";
 import { User, UpdateUserProfileRequest, CurrentUser, LevelInfo, UserStats } from "@/types/api/user";
+import { AboutInfo } from "@/types/about";
 import { RootState } from "@/store";
-import { DEFAULT_DEV_TOKEN, NON_LOGGED_IN_USER_ID } from "@/constants";
+import { DEFAULT_TENANT_NAME } from "@/constants";
 
 interface UserState {
   currentUser: CurrentUser | null;
@@ -29,6 +31,8 @@ interface UserState {
   followersCountStatus: "idle" | "loading" | "succeeded" | "failed";
   collectionCount: number | null; // 收藏的帖子数量
   collectionCountStatus: "idle" | "loading" | "succeeded" | "failed";
+  aboutInfo: AboutInfo | null; // 健康检查信息（包含租户信息）
+  aboutStatus: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
@@ -37,7 +41,7 @@ const initialState: UserState = {
   userProfile: null,
   userLevel: null,
   userStats: null,
-  token: Taro.getStorageSync("token") || DEFAULT_DEV_TOKEN, // 默认兜底为 DEFAULT_DEV_TOKEN
+  token: Taro.getStorageSync("token") || null, // 从本地存储获取token
   isLoggedIn: false, // Default to false, rely on API check
   status: "idle",
   levelStatus: "idle",
@@ -46,14 +50,30 @@ const initialState: UserState = {
   followersCountStatus: "idle",
   collectionCount: null,
   collectionCountStatus: "idle",
+  aboutInfo: null,
+  aboutStatus: "idle",
   error: null,
 };
 
 export const login = createAsyncThunk(
   "user/login",
-  async (code: string, { dispatch, rejectWithValue }) => {
+  async (code: string, { dispatch, getState, rejectWithValue }) => {
     try {
-      const tenantId = "f6303899-a51a-460a-9cd8-fe35609151eb"; // Nankai tenant ID
+      // 获取健康信息以获得租户ID
+      const state = getState() as RootState;
+      let aboutInfo = state.user.aboutInfo;
+
+      if (!aboutInfo) {
+        // 如果没有健康信息，先获取
+        const aboutResponse = await getAboutInfo();
+        aboutInfo = aboutResponse.data;
+      }
+
+      const tenantId = getTenantId(aboutInfo);
+      if (!tenantId) {
+        return rejectWithValue("无法获取租户信息，请重试");
+      }
+
       const loginData: UnifiedLoginRequest = {
         mode: 'weapp',
         weapp: {
@@ -61,11 +81,11 @@ export const login = createAsyncThunk(
           tenant_id: tenantId,
         }
       };
-      
+
       console.log("Sending login request with data:", JSON.stringify(loginData));
       const response = await loginApi(loginData);
       console.log("Login response:", response);
-      
+
       Taro.setStorageSync("token", response.data.access_token);
       // After login, immediately fetch current user info
       dispatch(fetchCurrentUser());
@@ -79,6 +99,133 @@ export const login = createAsyncThunk(
         message: error?.message
       });
       return rejectWithValue(error?.msg || error?.message || "登录失败");
+    }
+  }
+);
+
+/**
+ * 用户名密码登录
+ */
+/**
+ * 获取健康检查信息（包含租户信息）
+ */
+export const fetchAboutInfo = createAsyncThunk(
+  "user/fetchAboutInfo",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getAboutInfo();
+      return response.data;
+    } catch (error: any) {
+      console.error("Fetch about info API failed:", error);
+      return rejectWithValue(error?.msg || error?.message || "获取租户信息失败");
+    }
+  }
+);
+
+/**
+ * 获取租户ID（通过租户名称）
+ */
+const getTenantId = (aboutInfo: AboutInfo | null, tenantName: string = DEFAULT_TENANT_NAME): string => {
+  if (!aboutInfo?.tenants) {
+    console.warn("About info not available, using empty tenant_id");
+    return "";
+  }
+
+  const tenantId = aboutInfo.tenants[tenantName];
+  if (!tenantId) {
+    console.warn(`Tenant "${tenantName}" not found in about info`);
+    return "";
+  }
+
+  return tenantId;
+};
+
+export const loginWithUsername = createAsyncThunk(
+  "user/loginWithUsername",
+  async (credentials: { username: string; password: string }, { dispatch, getState, rejectWithValue }) => {
+    try {
+      // 先获取健康信息以获得租户ID
+      const state = getState() as RootState;
+      let aboutInfo = state.user.aboutInfo;
+
+      if (!aboutInfo) {
+        // 如果没有健康信息，先获取
+        const aboutResponse = await getAboutInfo();
+        aboutInfo = aboutResponse.data;
+      }
+
+      const tenantId = getTenantId(aboutInfo);
+      if (!tenantId) {
+        return rejectWithValue("无法获取租户信息，请重试");
+      }
+
+      const loginData: LoginRequest = {
+        username: credentials.username,
+        password: credentials.password,
+        tenant_id: tenantId,
+      };
+
+      console.log("Sending username/password login request");
+      const response = await loginApi(loginData);
+      console.log("Username login response:", response);
+
+      Taro.setStorageSync("token", response.data.access_token);
+      // After login, immediately fetch current user info
+      dispatch(fetchCurrentUser());
+      return response.data;
+    } catch (error: any) {
+      console.error("Username login API failed:", error);
+      return rejectWithValue(error?.msg || error?.message || "用户名或密码错误");
+    }
+  }
+);
+
+/**
+ * 用户注册
+ */
+export const registerUser = createAsyncThunk(
+  "user/registerUser",
+  async (userData: { username: string; password: string; nickname: string }, { dispatch, getState, rejectWithValue }) => {
+    try {
+      const registerData: RegisterRequest = {
+        username: userData.username,
+        password: userData.password,
+        nickname: userData.nickname,
+      };
+
+      console.log("Sending register request");
+      const response = await registerApi(registerData);
+      console.log("Register response:", response);
+
+      // 注册成功后自动登录
+      const state = getState() as RootState;
+      let aboutInfo = state.user.aboutInfo;
+
+      if (!aboutInfo) {
+        // 如果没有健康信息，先获取
+        const aboutResponse = await getAboutInfo();
+        aboutInfo = aboutResponse.data;
+      }
+
+      const tenantId = getTenantId(aboutInfo);
+      if (!tenantId) {
+        return rejectWithValue("无法获取租户信息，请重试");
+      }
+
+      const loginData: LoginRequest = {
+        username: userData.username,
+        password: userData.password,
+        tenant_id: tenantId,
+      };
+
+      const loginResponse = await loginApi(loginData);
+      Taro.setStorageSync("token", loginResponse.data.access_token);
+      dispatch(fetchCurrentUser());
+
+      return loginResponse.data;
+    } catch (error: any) {
+      console.error("Register API failed:", error);
+      return rejectWithValue(error?.msg || error?.message || "注册失败");
     }
   }
 );
@@ -254,6 +401,8 @@ const userSlice = createSlice({
       state.status = "idle";
       state.levelStatus = "idle";
       state.statsStatus = "idle";
+      state.aboutInfo = null; // 清除应用信息
+      state.aboutStatus = "idle";
       state.error = null;
       Taro.removeStorageSync("token");
     },
@@ -273,10 +422,14 @@ const userSlice = createSlice({
       state.collectionCount = null;
       state.collectionCountStatus = "idle";
     },
+    resetAboutInfo: (state) => {
+      state.aboutInfo = null;
+      state.aboutStatus = "idle";
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Login
+      // Login (WeChat)
       .addCase(login.pending, (state) => {
         state.status = "loading";
       })
@@ -290,27 +443,57 @@ const userSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
+      // Login with Username
+      .addCase(loginWithUsername.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(loginWithUsername.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.token = action.payload.access_token;
+        // Do NOT set isLoggedIn here. Let fetchCurrentUser handle it.
+        state.error = null;
+      })
+      .addCase(loginWithUsername.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      })
+      // Register
+      .addCase(registerUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.token = action.payload.access_token;
+        // Do NOT set isLoggedIn here. Let fetchCurrentUser handle it.
+        state.error = null;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      })
       // Fetch Current User (minimal info)
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // 按业务约定：当 user_id 或 id 等于 NON_LOGGED_IN_USER_ID 时视为未登录
-        const payload: any = action.payload as any;
-        const uid = String(payload?.user_id ?? payload?.id ?? "");
-        if (uid === NON_LOGGED_IN_USER_ID) {
-          state.isLoggedIn = false;
-          state.currentUser = null;
-        } else {
+        // 通过 token 判断登录状态：有 token 且获取用户信息成功即视为已登录
+        if (state.token) {
+          // 有有效 token 且获取到用户信息，视为已登录
           state.currentUser = action.payload;
           state.isLoggedIn = true;
+        } else {
+          // 无 token，视为未登录
+          state.isLoggedIn = false;
+          state.currentUser = null;
         }
         state.error = null;
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+        // 当获取用户信息失败时，清除 token 并设为未登录状态
         state.isLoggedIn = false;
         state.currentUser = null;
         state.token = null;
+        Taro.removeStorageSync("token");
       })
       // Fetch User Profile
       .addCase(fetchUserProfile.pending, (state) => {
@@ -384,10 +567,24 @@ const userSlice = createSlice({
       .addCase(fetchCollectionCount.rejected, (state, action) => {
         state.collectionCountStatus = "failed";
         state.error = action.payload as string;
+      })
+      // Fetch About Info
+      .addCase(fetchAboutInfo.pending, (state) => {
+        state.aboutStatus = "loading";
+      })
+      .addCase(fetchAboutInfo.fulfilled, (state, action) => {
+        state.aboutStatus = "succeeded";
+        state.aboutInfo = action.payload;
+        // 将aboutInfo缓存到本地存储，以便在logout后仍能使用
+        Taro.setStorageSync("aboutInfo", action.payload);
+      })
+      .addCase(fetchAboutInfo.rejected, (state, action) => {
+        state.aboutStatus = "failed";
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { logout, resetUserStats, resetUserLevel, resetFollowersCount, resetCollectionCount } = userSlice.actions;
+export const { logout, resetUserStats, resetUserLevel, resetFollowersCount, resetCollectionCount, resetAboutInfo } = userSlice.actions;
 
 export default userSlice.reducer;

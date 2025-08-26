@@ -4,7 +4,7 @@ import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { getMyComments } from '@/services/api/user';
-import { getPostById } from '@/services/api/post';
+import { getPostByIdSilent } from '@/services/api/post';
 import { formatRelativeTime } from '@/utils/time';
 import { CommentRead } from '@/types/api/comment.d';
 import { Post } from '@/types/api/post.d';
@@ -25,10 +25,16 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
   useEffect(() => {
     if (comment.resource_type === 'post' && comment.resource_id) {
       setLoading(true);
-      getPostById(comment.resource_id)
+      getPostByIdSilent(comment.resource_id)
         .then(response => {
-          if (response.code === 0) {
+          if (response.code === 0 && response.data) {
             setPostInfo(response.data);
+          } else if (response.code === 404) {
+            // 帖子已被删除，使用友好的提示信息
+            console.log(`💬 评论对应的帖子 ${comment.resource_id} 已被删除`);
+            setPostInfo(null);
+          } else {
+            console.warn(`获取帖子信息失败: ${response.message}`);
           }
         })
         .catch(error => {
@@ -148,16 +154,52 @@ const CommentsPage: React.FC = () => {
 
       const raw = response.data as any;
       const items: CommentRead[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
+      
+      // 过滤掉对应资源已被删除的评论
+      const validComments: CommentRead[] = [];
+      let filteredCount = 0;
+      
+      for (const comment of items) {
+        if (comment.resource_type === 'post') {
+          try {
+            const postResponse = await getPostByIdSilent(comment.resource_id);
+            if (postResponse.code === 0 && postResponse.data) {
+              // 帖子存在，保留评论
+              validComments.push(comment);
+            } else if (postResponse.code === 404) {
+              // 帖子已被删除，过滤掉评论
+              console.log(`💬 评论对应的帖子 ${comment.resource_id} 已被删除，该评论已隐藏`);
+              filteredCount++;
+            } else {
+              // 其他错误，保留评论但会显示"未知"信息
+              validComments.push(comment);
+            }
+          } catch (validationError) {
+            // 网络错误等，保留评论
+            console.warn(`Failed to validate post ${comment.resource_id}:`, validationError);
+            validComments.push(comment);
+          }
+        } else {
+          // 非帖子类型的评论直接保留
+          validComments.push(comment);
+        }
+      }
+      
+      // 如果有被过滤的评论，输出提示信息
+      if (filteredCount > 0) {
+        console.log(`💬 共过滤掉 ${filteredCount} 个已删除帖子的评论`);
+      }
+
       const totalFromApi = Array.isArray(raw) ? undefined : raw?.total;
       const hasMoreFromApi = Array.isArray(raw) ? undefined : raw?.has_more;
 
-      const hasMore = typeof hasMoreFromApi === 'boolean' ? hasMoreFromApi : items.length >= limit;
-      const total = typeof totalFromApi === 'number' ? totalFromApi : items.length;
+      const hasMore = typeof hasMoreFromApi === 'boolean' ? hasMoreFromApi : validComments.length >= limit;
+      const total = typeof totalFromApi === 'number' ? totalFromApi : validComments.length;
 
       if (refresh) {
-        setComments(items);
+        setComments(validComments);
       } else {
-        setComments(prev => [...prev, ...items]);
+        setComments(prev => [...prev, ...validComments]);
       }
       
       setPagination({

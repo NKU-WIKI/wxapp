@@ -465,6 +465,11 @@
       word-wrap: break-word;
     }
     
+    .mentionText {
+      color: #4F46E5;
+      font-weight: 500;
+    }
+    
     .actions {
       display: flex;
       align-items: center;
@@ -623,6 +628,11 @@
       word-wrap: break-word;
       
       .replyPrefix {
+        color: #4F46E5;
+        font-weight: 500;
+      }
+      
+      .mentionText {
         color: #4F46E5;
         font-weight: 500;
       }

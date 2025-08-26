@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { getMyFavorites } from '@/services/api/user';
-import { getPostById } from '@/services/api/post';
+import { getPostByIdSilent } from '@/services/api/post';
 import { PaginationParams } from '@/types/api/common';
 
 // 收藏项的动作类型
@@ -51,6 +51,7 @@ export const fetchFavorites = createAsyncThunk<
       total: number;
       has_more: boolean;
     };
+    filteredCount?: number;
   },
   GetFavoritesParams,
   { rejectValue: string }
@@ -85,58 +86,77 @@ export const fetchFavorites = createAsyncThunk<
     console.log('Active favorites after filtering:', activeFavorites);
 
     // 获取收藏内容的详细信息
-    const favoriteItems: FavoriteItem[] = await Promise.all(
-      activeFavorites.map(async (action) => {
-        // 设置默认的 target_type，如果没有的话假设是 post
-        const targetType = action.target_type || 'post';
-        
-        const favoriteItem: FavoriteItem = { 
-          ...action, 
-          target_type: targetType 
-        };
+    const favoriteItems: FavoriteItem[] = [];
+    let filteredCount = 0; // 记录被过滤掉的收藏项数量
+    
+    for (const action of activeFavorites) {
+      // 设置默认的 target_type，如果没有的话假设是 post
+      const targetType = action.target_type || 'post';
+      
+      const favoriteItem: FavoriteItem = { 
+        ...action, 
+        target_type: targetType 
+      };
 
-        try {
-          // 根据目标类型获取具体内容
-          if (targetType === 'post') {
-            const postResponse = await getPostById(action.target_id);
-            console.log('Post response for target_id:', action.target_id, postResponse);
-            if (postResponse.code === 0 && postResponse.data) {
-              const post = postResponse.data;
-              console.log('Post data author_info:', post.author_info);
-              console.log('Post data user:', post.user);
-              
-              // 获取作者信息，优先使用 author_info，其次使用 user
-              const authorInfo = post.author_info || post.user;
-              
-              favoriteItem.content = {
-                id: post.id,
-                title: post.title,
-                content: post.content,
-                author_info: authorInfo ? {
-                  id: authorInfo.id,
-                  nickname: authorInfo.nickname,
-                  avatar: authorInfo.avatar || undefined
-                } : undefined,
-                created_at: post.created_at,
-                view_count: post.view_count,
-                like_count: post.like_count,
-                comment_count: post.comment_count,
-                type: 'post'
-              };
-            }
+      try {
+        // 根据目标类型获取具体内容
+        if (targetType === 'post') {
+          const postResponse = await getPostByIdSilent(action.target_id);
+          console.log('Post response for target_id:', action.target_id, postResponse);
+          if (postResponse.code === 0 && postResponse.data) {
+            const post = postResponse.data;
+            console.log('Post data author_info:', post.author_info);
+            console.log('Post data user:', post.user);
+            
+            // 获取作者信息，优先使用 author_info，其次使用 user
+            const authorInfo = post.author_info || post.user;
+            
+            favoriteItem.content = {
+              id: post.id,
+              title: post.title,
+              content: post.content,
+              author_info: authorInfo ? {
+                id: authorInfo.id,
+                nickname: authorInfo.nickname,
+                avatar: authorInfo.avatar || undefined
+              } : undefined,
+              created_at: post.created_at,
+              view_count: post.view_count,
+              like_count: post.like_count,
+              comment_count: post.comment_count,
+              type: 'post'
+            };
+            
+            // 只有成功获取到内容的收藏项才添加到列表中
+            favoriteItems.push(favoriteItem);
+          } else if (postResponse.code === 404) {
+            // 帖子已被删除，静默处理
+            console.log(`📋 收藏的内容 ${action.target_id} 已被删除，已从收藏列表中隐藏`);
+            filteredCount++;
+            continue; // 跳过这个收藏项
+          } else {
+            console.warn(`Post ${action.target_id} not found or error: ${postResponse.message}, skipping from favorites`);
+            filteredCount++;
           }
+        } else {
           // TODO: 添加对 knowledge、note 等其他类型的支持
-        } catch (error) {
-          console.warn(`Failed to fetch content for ${action.target_type} ${action.target_id}:`, error);
-          // 即使获取内容失败，也保留收藏记录，但没有详细内容
+          // 对于其他类型，暂时保留但没有详细内容
+          favoriteItems.push(favoriteItem);
         }
-
-        return favoriteItem;
-      })
-    );
+      } catch (error: any) {
+        // 处理其他意外错误
+        console.warn(`Unexpected error fetching content for ${action.target_type} ${action.target_id}:`, error);
+        favoriteItems.push(favoriteItem);
+      }
+    }
 
     // 计算分页信息
     const hasMore = favoriteItems.length >= limit;
+    
+    // 如果有被过滤的项目，输出提示信息
+    if (filteredCount > 0) {
+      console.log(`📋 共过滤掉 ${filteredCount} 个已删除的收藏项`);
+    }
     
     return {
       items: favoriteItems,
@@ -145,7 +165,8 @@ export const fetchFavorites = createAsyncThunk<
         limit,
         total: favoriteItems.length,
         has_more: hasMore
-      }
+      },
+      filteredCount
     };
   } catch (error: any) {
     console.error('Error fetching favorites:', error);
@@ -173,6 +194,7 @@ export interface FavoriteState {
   };
   loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   error: string | null;
+  filteredCount?: number; // 被过滤掉的收藏项数量（已删除的内容）
 }
 
 const initialState: FavoriteState = {
@@ -184,7 +206,8 @@ const initialState: FavoriteState = {
     has_more: false
   },
   loading: 'idle',
-  error: null
+  error: null,
+  filteredCount: 0
 };
 
 const favoriteSlice = createSlice({
@@ -201,6 +224,7 @@ const favoriteSlice = createSlice({
       };
       state.loading = 'idle';
       state.error = null;
+      state.filteredCount = 0;
     },
     // 同步设置收藏列表的后备action
     setFavorites: (
@@ -230,7 +254,7 @@ const favoriteSlice = createSlice({
       })
       .addCase(fetchFavorites.fulfilled, (state, action) => {
         state.loading = 'succeeded';
-        const { items, pagination } = action.payload;
+        const { items, pagination, filteredCount } = action.payload;
         
         // 检查是否是追加模式
         const isAppend = (action.meta.arg as GetFavoritesParams).isAppend;
@@ -244,6 +268,11 @@ const favoriteSlice = createSlice({
         }
         
         state.pagination = pagination;
+        
+        // 更新被过滤的收藏项数量
+        if (filteredCount !== undefined) {
+          state.filteredCount = (state.filteredCount || 0) + filteredCount;
+        }
       })
       .addCase(fetchFavorites.rejected, (state, action) => {
         state.loading = 'failed';

@@ -3,7 +3,7 @@
   background: #fff;
   border-radius: 12px;
   margin-bottom: 12px;
-  min-height: 120px; /* 提升整体高度的最小值 */
+  /* 移除 min-height 以避免空白区域 */
 }
 
 .postContainer.detail {

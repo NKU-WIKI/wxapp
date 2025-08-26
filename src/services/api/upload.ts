@@ -1,7 +1,6 @@
 import Taro from "@tarojs/taro";
-import { DEFAULT_DEV_TOKEN } from "@/constants";
 import { BaseResponse } from "@/types/api/common";
-import { normalizeImageUrl } from "@/utils/image";
+import { normalizeImageUrl, compressImage, isImageFile } from "@/utils/image";
 
 // 上传图片响应类型
 interface UploadImageResponse {
@@ -14,18 +13,46 @@ const BASE_URL = process.env.BASE_URL;
 /**
  * 上传图片文件
  * @param filePath 图片临时文件路径
+ * @param options 上传选项
+ * @param options.compress 是否压缩图片 (默认true)
+ * @param options.quality 压缩质量 (0-1，默认0.8)
  * @returns 图片URL
  */
-export const uploadImage = (filePath: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const token = Taro.getStorageSync("token") || DEFAULT_DEV_TOKEN;
+export const uploadImage = (
+  filePath: string,
+  options: {
+    compress?: boolean;
+    quality?: number;
+  } = {}
+): Promise<string> => {
+  return new Promise(async (resolve, reject) => {
+    const token = Taro.getStorageSync("token")
     if (!token) {
       return reject(new Error("未找到登录凭证"));
     }
 
+    let finalFilePath = filePath;
+    
+    // 如果是图片格式且需要压缩，则先进行压缩
+    const {
+      compress = true,
+      quality = 0.8
+    } = options;
+    
+    if (compress && isImageFile(filePath)) {
+      try {
+        console.log('开始压缩图片:', filePath);
+        finalFilePath = await compressImage(filePath, quality);
+        console.log('图片压缩完成:', finalFilePath);
+      } catch (error) {
+        console.warn('图片压缩失败，使用原图片:', error);
+        finalFilePath = filePath;
+      }
+    }
+    
     Taro.uploadFile({
       url: `${BASE_URL}/api/v1/tools/uploads/file`,
-      filePath: filePath,
+      filePath: finalFilePath,
       name: "file",
       header: {
         Authorization: `Bearer ${token}`,

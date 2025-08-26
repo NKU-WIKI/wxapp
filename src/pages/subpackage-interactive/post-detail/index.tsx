@@ -27,6 +27,7 @@ const PostDetailPage = () => {
   const [replyTo, setReplyTo] = useState<{
     commentId: string; // 修复：改为string以匹配comment.id类型
     nickname: string;
+    replyToNickname?: string; // 被回复用户的昵称
   } | null>(null);
 
   // 下拉刷新状态
@@ -100,9 +101,53 @@ const PostDetailPage = () => {
   // 处理回复评论
   const handleReply = (comment: CommentDetail) => {
     console.log('💬 回复评论:', comment);
+    
+    // 查找顶级父评论ID的辅助函数
+    const findRootCommentId = (targetComment: CommentDetail): string => {
+      // 如果comment有root_id，说明它是子评论，返回root_id
+      if (targetComment.root_id) {
+        return targetComment.root_id;
+      }
+      
+      // 如果comment没有root_id，需要在评论树中查找它的顶级父评论
+      const findInComments = (comments: CommentDetail[], targetId: string): string | null => {
+        for (const c of comments) {
+          // 如果在顶级评论中找到，说明它就是顶级评论
+          if (c.id === targetId) {
+            return c.id;
+          }
+          // 在子评论中查找
+          if (c.children && c.children.length > 0) {
+            const found = findInChildren(c.children, targetId, c.id);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      
+      const findInChildren = (children: CommentDetail[], targetId: string, rootId: string): string | null => {
+        for (const child of children) {
+          if (child.id === targetId) {
+            return rootId; // 返回顶级评论ID
+          }
+          if (child.children && child.children.length > 0) {
+            const found = findInChildren(child.children, targetId, rootId);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      
+      const rootId = findInComments(commentState?.comments || [], targetComment.id);
+      return rootId || targetComment.id; // 如果找不到，默认返回自己的ID
+    };
+    
+    const rootCommentId = findRootCommentId(comment);
+    
     setReplyTo({
-      commentId: comment.id,
-      nickname: comment.author_nickname || ''
+      commentId: rootCommentId, // 使用顶级父评论ID作为parent_id
+      nickname: comment.author_nickname || '',
+      replyToNickname: comment.author_nickname || '' // 保存被回复用户的昵称
     });
   };
 
