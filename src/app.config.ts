@@ -39,16 +39,12 @@ export default {
     }
   ],
   window: {
-    backgroundTextStyle: "light",
-    navigationBarBackgroundColor: "#fff",
-    navigationBarTitleText: "WeChat",
-    navigationBarTextStyle: "black",
+    backgroundTextStyle: 'light',
+    navigationBarBackgroundColor: '#fff',
+    navigationBarTitleText: 'nku元智wiki',
+    navigationBarTextStyle: 'black',
   },
-  permission: {
-    "scope.userInfo": {
-      "desc": "用于获取用户基本信息"
-    }
-  },
+
   tabBar: {
     custom: true,
     color: "#9B9B9B",

@@ -30,13 +30,17 @@ export default function LoginPage() {
 
   // 检查协议同意状态
   const checkAgreement = () => {
-    console.log('Checking agreement, agreedToTerms:', agreedToTerms, typeof agreedToTerms);
+    console.log('=== CHECKING AGREEMENT ===');
+    console.log('agreedToTerms:', agreedToTerms);
+    console.log('typeof agreedToTerms:', typeof agreedToTerms);
+    console.log('Boolean value:', Boolean(agreedToTerms));
+
     if (!agreedToTerms) {
-      console.log('Agreement not checked, showing toast');
+      console.log('❌ Agreement not checked, showing toast');
       Taro.showToast({ title: '请先阅读并同意用户协议和隐私政策', icon: 'none' });
       return false;
     }
-    console.log('Agreement checked, proceeding...');
+    console.log('✅ Agreement checked, proceeding...');
     return true;
   };
 
@@ -318,21 +322,40 @@ export default function LoginPage() {
 
       {/* 协议同意区域 */}
       <View className={styles.agreementSection}>
-        <View className={styles.agreementRow}>
+        <View
+          className={styles.agreementRow}
+          onClick={() => {
+            console.log('Agreement row clicked, current state:', agreedToTerms);
+            setAgreedToTerms(!agreedToTerms);
+            console.log('New state will be:', !agreedToTerms);
+          }}
+        >
           <Checkbox
             value='agree'
             checked={agreedToTerms}
-            onChange={(e) => {
-              console.log('Checkbox change:', e.detail);
-              setAgreedToTerms(e.detail.checked || false);
-            }}
             className={styles.checkbox}
           />
           <Text className={styles.agreementText}>
             我已仔细阅读并同意{' '}
-            <Text className={styles.link} onClick={handleViewUserAgreement}>《用户服务协议》</Text>
+            <Text
+              className={styles.link}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewUserAgreement();
+              }}
+            >
+              《用户服务协议》
+            </Text>
             和{' '}
-            <Text className={styles.link} onClick={handleViewPrivacyPolicy}>《隐私政策》</Text>
+            <Text
+              className={styles.link}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewPrivacyPolicy();
+              }}
+            >
+              《隐私政策》
+            </Text>
           </Text>
         </View>
       </View>
