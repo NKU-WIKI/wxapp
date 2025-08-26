@@ -53,6 +53,7 @@ export default function ExplorePage() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [rawValue, setRawValue] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>(null);
+  const [searchModeDesc, setSearchModeDesc] = useState<string>(''); // 新增：存储当前模式的描述
   const [suggestions, setSuggestions] = useState<typeof searchSkills>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
@@ -116,6 +117,15 @@ export default function ExplorePage() {
       setInputQuery(raw);
       setRawValue(`@${searchMode} ${raw}`);
 
+      // 如果用户删除了所有内容，重置搜索模式
+      if (raw === '') {
+        setSearchMode(null);
+        setSearchModeDesc('');
+        setRawValue('');
+        setShowDynamicSuggestions(false);
+        return;
+      }
+
       // 动态建议（knowledge）
       if (searchMode === 'knowledge' && raw.trim().length > 0) {
         knowledgeApi
@@ -139,14 +149,22 @@ export default function ExplorePage() {
     setRawValue(raw);
 
     let mode: SearchMode = null;
+    let modeDesc = '';
     let queryPart = raw;
     const m = raw.match(/^@(wiki-chat|wiki|user|post|knowledge)\s*/);
     if (m) {
       const key = m[1];
       mode = key === 'wiki-chat' ? 'wiki' : (key as SearchMode);
       queryPart = raw.slice(m[0].length);
+      
+      // 根据模式设置描述
+      const skill = searchSkills.find(s => s.title === `@${mode}` || (key === 'wiki-chat' && s.title === '@wiki-chat'));
+      if (skill) {
+        modeDesc = skill.desc;
+      }
     }
     setSearchMode(mode);
+    setSearchModeDesc(modeDesc);
     setInputQuery(queryPart);
 
     // 前缀建议
@@ -188,6 +206,7 @@ export default function ExplorePage() {
   const handleSuggestionClick = (suggestion: typeof searchSkills[0]) => {
     const mode = suggestion.title.substring(1) as SearchMode;
     setSearchMode(mode);
+    setSearchModeDesc(suggestion.desc);
     setRawValue(`${suggestion.title} `);
     setInputQuery('');
     setShowSuggestions(false);
@@ -196,6 +215,7 @@ export default function ExplorePage() {
   const handleDynamicSuggestionClick = (s: string) => {
     // 用 @knowledge 直接填充具体查询
     setSearchMode('knowledge');
+    setSearchModeDesc('搜索知识库，获取校园资讯');
     setRawValue(`@knowledge ${s}`);
     setInputQuery(s);
     setShowDynamicSuggestions(false);
@@ -329,6 +349,7 @@ export default function ExplorePage() {
     setRawValue('');
     setInputQuery('');
     setSearchMode(null);
+    setSearchModeDesc('');
     setShowSuggestions(false);
     setSearchSources([]);
     setIsReading(false);
@@ -351,7 +372,11 @@ export default function ExplorePage() {
   
   const renderPrefixLabel = () => {
     if (!searchMode) return null;
-    return <Text className={styles.prefixLabel}>@{searchMode}</Text>;
+    return (
+      <View className={styles.prefixLabelContainer}>
+        <Text className={styles.prefixLabel}>@{searchMode}</Text>
+      </View>
+    );
   };
   
   const renderSuggestions = () => {
@@ -422,7 +447,7 @@ export default function ExplorePage() {
       </View>
       <View className={styles.skillsGrid}>
         {searchSkills.map((skill, index) => (
-          <View key={index} className={styles.skillCard}>
+          <View key={index} className={styles.skillCard} onClick={() => handleSuggestionClick(skill)}>
             <View className={styles.skillIconContainer}>
               <Image src={skill.icon} className={styles.skillIcon} />
             </View>
@@ -549,7 +574,7 @@ export default function ExplorePage() {
               {renderPrefixLabel()}
               <Input
                 className={styles.searchInput}
-                placeholder='搜索校园知识'
+                placeholder={searchMode && searchModeDesc ? searchModeDesc : (searchMode ? '' : '搜索校园知识')}
                 value={getDisplayValue()}
                 onInput={handleInputChange}
                 confirmType='search'
