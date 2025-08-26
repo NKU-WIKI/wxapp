@@ -76,7 +76,7 @@ win11 powershell
       <Image src={myLogo} />
       ```
     此规则旨在确保图片被 `Taro` 的 `copy` 机制正确处理，并由小程序本身在运行时进行加载，从而绕开编译阶段潜在的 `loader` 问题。
-- **API 对接工作流 (强制)**: 严格遵循“读文档 -> 定义类型 -> 创建 Service -> 创建 Thunk -> 组件使用”的五步流程。
+- **API 对接工作流 (强制)**: 不需要添加api/v1/前缀已经在api.ts全局添加严格遵循“读文档 -> 定义类型 -> 创建 Service -> 创建 Thunk -> 组件使用”的五步流程。
 - **状态管理**: 选用 Redux Toolkit (RTK)，在 `src/store/slices` 中组织 `slice` 文件。接口请求通过 `createAsyncThunk` 更新 store，使用 `redux-persist` 持久化关键数据。
 - **Git 工作流**: 采用 `Git Flow` 模型，Commit Message 遵循 `Angular` 规范（推荐使用 `commitizen`），并使用 `Husky` + `lint-staged` 保证代码质量。
 - **代码测试**: 使用 `Jest` 和 `@tarojs/test-utils-react` 进行单元测试，测试文件以 `.spec.ts` 结尾。

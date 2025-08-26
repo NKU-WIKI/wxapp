@@ -76,9 +76,11 @@
 }
 
 .contentInput {
-  min-height: 200px;
+  min-height: 120px;
+  max-height: 300px;
   resize: none;
   line-height: 1.5; // 添加行高，提升可读性
+  overflow-y: auto; // 当内容超过高度时显示滚动条
   // padding: 4px 0; // 添加上下内边距，与标题输入框保持一致
 }
 
@@ -134,16 +136,123 @@
 .toolbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-top: 16px;
+  gap: 16px;
+}
+
+.leftTools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .toolbarIcon {
   width: 20px;
   height: 20px;
   color: $text-secondary;
-  margin-right: 16px;
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.7;
+  }
 }
 
+/* 润色工具组 */
+.polishGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* 文风选择器 */
+.styleSelector {
+  position: relative;
+}
+
+.styleButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: $bg-input;
+  color: $text-secondary;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid $border-light;
+  min-width: 60px;
+  justify-content: center;
+
+  &:active {
+    background-color: $bg-input-focus;
+  }
+}
+
+.styleText {
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.arrow {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid $text-secondary;
+  transition: transform 0.2s ease;
+}
+
+.arrowUp {
+  transform: rotate(180deg);
+}
+
+.arrowDown {
+  transform: rotate(0deg);
+}
+
+.styleDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: $bg-card;
+  border: 1px solid $border-light;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 80px;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.styleOption {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: $text-secondary;
+  cursor: pointer;
+
+  &:active {
+    background-color: $bg-input-focus;
+  }
+
+  &.selected {
+    background-color: $alpha-primary-10;
+    color: $theme-primary;
+    font-weight: 500;
+  }
+
+  &:first-child {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+
+  &:last-child {
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+  }
+}
+
+/* 润色按钮 */
 .wikiBtn {
   display: flex;
   align-items: center;
@@ -153,12 +262,110 @@
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 14px;
+  cursor: pointer;
+  border: 1px solid $alpha-primary-20;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+    background-color: $alpha-primary-20;
+  }
+
+  &.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
 }
 
 .wikiIcon {
   width: 16px;
   height: 16px;
 }
+
+/* 打字机动画样式 */
+.typingContainer {
+  background-color: $bg-card;
+  border: 1px solid $border-light;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 120px;
+  position: relative;
+}
+
+.typingText {
+  font-size: 15px;
+  color: $theme-primary;
+  line-height: 1.5;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.typing {
+  color: $theme-primary;
+  font-weight: 600;
+  animation: pulse 1.5s infinite;
+}
+
+.cursor {
+  animation: blink 1s infinite;
+  color: $theme-primary;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* 接受/拒绝按钮样式 */
+.polishActions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.acceptBtn {
+  background-color: $status-success;
+  color: $text-white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  &:active {
+    transform: scale(0.95);
+    background-color: $status-success-dark;
+  }
+}
+
+.rejectBtn {
+  background-color: $status-error;
+  color: $text-white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  &:active {
+    transform: scale(0.95);
+    background-color: $status-error-dark;
+  }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+
 
 .sectionTitle {
   font-size: 16px;
@@ -283,59 +490,9 @@
   }
 }
 
-.suggestionCard {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
 
-.suggestionIcon {
-  width: 20px;
-  height: 20px;
-  color: $theme-primary;
-  margin-top: 4px;
-}
 
-.suggestionContent {
-  flex: 1;
-}
 
-.suggestionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.applyBtn {
-  color: $theme-primary;
-  font-size: 14px;
-}
-
-.suggestionText {
-  font-size: 14px;
-  color: $text-secondary;
-  line-height: 1.5;
-}
-
-.stylesContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.styleItem {
-  background-color: $bg-input-focus;
-  color: $text-secondary;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-
-  &.selected {
-    background-color: $theme-primary;
-    color: $text-white;
-  }
-}
 
 // 分类选择器样式
 .categoriesContainer {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Taro, { useRouter, useUnload } from "@tarojs/taro";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -13,7 +13,7 @@ import {
 // Absolute imports (alphabetical order)
 import { AppDispatch, RootState } from "@/store";
 import CustomHeader from "@/components/custom-header";
-import agentApi from "@/services/api/agent";
+import { usePolish } from "@/hooks/usePolish";
 import knowledgeApi from "@/services/api/knowledge";
 import { uploadApi } from "@/services/api/upload";
 import { getPostDetail, getMyDrafts, deleteDraft } from "@/services/api/post";
@@ -31,7 +31,7 @@ import defaultAvatar from "@/assets/profile.png";
 import hatIcon from "@/assets/hat.svg";
 import imageIcon from "@/assets/image.svg";
 import italicIcon from "@/assets/italic.svg";
-import lightbulbIcon from "@/assets/lightbulb.svg";
+
 import penToolIcon from "@/assets/pen-tool.svg";
 import studyIcon from "@/assets/school.svg";
 import starIcon from "@/assets/star2.svg";
@@ -79,28 +79,40 @@ export default function PublishPost() {
   const [selectedCategory, setSelectedCategory] = useState<string>("c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f"); // 默认选择第一个分类
   // 标记是否已通过弹窗保存过草稿，避免 useUnload 再次保存
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
-  const [polishLoading, setPolishLoading] = useState(false);
-  const [polishSuggestion, setPolishSuggestion] = useState<string>('建议调整：1. 增加段落间的过渡...');
   const [showRefPanel, setShowRefPanel] = useState(false);
   const [refSuggestions, setRefSuggestions] = useState<Array<{ type: 'history' | 'knowledge'; id?: string; title: string }>>([]);
-  const [refQuery, setRefQuery] = useState<string>('');
   const [showDraftPicker, setShowDraftPicker] = useState(false);
   const [draftList, setDraftList] = useState<DraftPost[]>([]);
   const [serverDrafts, setServerDrafts] = useState<Post[]>([]);
 
+  // 使用润色Hook
+  const {
+    loading: polishLoading,
+    typingText,
+    isTyping,
+    showOptions,
+    polishTextWithAnimation,
+    acceptPolish,
+    rejectPolish
+  } = usePolish();
+
+  // 文风选择状态
+  const [showStyleSelector, setShowStyleSelector] = useState(false);
+
   // Tag helpers: normalize and format
-  const normalizeTagText = (t: string): string => {
+  const normalizeTagText = useCallback((t: string): string => {
     if (!t) return '';
     let s = String(t);
     s = s.replace(/[“”"']/g, ''); // remove quotes
     s = s.trim();
     if (s.startsWith('#')) s = s.slice(1);
     return s;
-  };
-  const formatTagForState = (t: string): string => {
+  }, []);
+
+  const formatTagForState = useCallback((t: string): string => {
     const s = normalizeTagText(t);
     return s ? `#${s}` : '';
-  };
+  }, [normalizeTagText]);
   const formatTagsForPayload = (arr: string[]): string[] => {
     const seen = new Set<string>();
     const out: string[] = [];
@@ -118,7 +130,6 @@ export default function PublishPost() {
   const router = useRouter();
   const draftId = router?.params?.draftId;
   const postId = router?.params?.postId;
-  const isEdit = router?.params?.isEdit === 'true';
   const userInfo = useSelector((state: RootState) => state.user?.currentUser || state.user?.userProfile);
 
   // 添加调试日志，查看当前选中的标签
@@ -188,7 +199,7 @@ export default function PublishPost() {
       }
     };
     loadServerDraft();
-  }, [postId]);
+  }, [postId, formatTagForState]);
 
   // 初始化草稿列表（本地 + 服务端），若存在则弹出选择窗口
   useEffect(() => {
@@ -209,7 +220,25 @@ export default function PublishPost() {
       }
     };
     initDrafts();
-  }, []);
+  }, [draftId, postId]);
+
+  // 点击外部关闭文风选择器
+  useEffect(() => {
+    const handleClickOutside = (event: any) => {
+      if (showStyleSelector && event.target) {
+        const styleSelector = event.target.closest('.styleSelector');
+        const styleButton = event.target.closest('.styleButton');
+        if (!styleSelector && !styleButton) {
+          setShowStyleSelector(false);
+        }
+      }
+    };
+
+    if (showStyleSelector) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showStyleSelector]);
 
   // 回退时弹窗询问是否保存草稿
   const handleBack = () => {
@@ -236,7 +265,7 @@ export default function PublishPost() {
                   is_public: isPublic,
                   allow_comments: allowComments,
                 };
-                const created: any = await dispatch(createPost(payloadForDraft)).unwrap();
+                await dispatch(createPost(payloadForDraft)).unwrap();
                 setHasSavedDraft(true);
                 Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
                 setTimeout(() => {
@@ -254,7 +283,7 @@ export default function PublishPost() {
               id,
               title,
               content,
-              avatar: userInfo?.avatar || defaultAvatar,
+              avatar: (userInfo as any)?.avatar || defaultAvatar,
               updatedAt: Date.now(),
               tags: processedTags,
               category_id: selectedCategory,
@@ -285,7 +314,7 @@ export default function PublishPost() {
         id,
         title,
         content,
-        avatar: userInfo?.avatar || defaultAvatar,
+        avatar: (userInfo as any)?.avatar || defaultAvatar,
         updatedAt: Date.now(),
         tags: processedTags,
         category_id: selectedCategory,
@@ -439,32 +468,37 @@ export default function PublishPost() {
     }
   };
 
+  const handleAcceptPolish = () => {
+    acceptPolish((polishedText) => {
+      // 先清空内容，然后重新设置，确保Textarea正确计算高度
+      setContent('');
+      setTimeout(() => {
+        setContent(polishedText);
+        Taro.showToast({ title: '已采纳润色', icon: 'success' });
+      }, 50);
+    });
+  };
+
+  const handleRejectPolish = () => {
+    rejectPolish();
+    Taro.showToast({ title: '已拒绝润色', icon: 'none' });
+  };
+
   const handlePolish = async () => {
     if (!content.trim()) {
       Taro.showToast({ title: '请先输入内容', icon: 'none' });
       return;
     }
-    setPolishLoading(true);
     try {
-      const res = await agentApi.textPolish({ text: content, mode: 'professional', stream: false });
-      if (res.code === 200) {
-        setPolishSuggestion((res.data as any)?.content || '');
-      } else {
-        const m = res.msg || res.message || '润色失败';
-        Taro.showToast({ title: m, icon: 'none' });
-      }
-    } catch (e: any) {
-      Taro.showToast({ title: e?.message || '润色失败', icon: 'none' });
-    } finally {
-      setPolishLoading(false);
+      // 开启打字机动画，动画完成后会显示接受/拒绝选项
+      await polishTextWithAnimation(content, selectedStyle);
+      // 动画完成后会自动显示选项，不需要额外操作
+    } catch (error) {
+      // 错误已在hook中处理
     }
   };
 
-  const applyPolish = () => {
-    if (!polishSuggestion) return;
-    setContent(polishSuggestion);
-    Taro.showToast({ title: '已应用润色', icon: 'success' });
-  };
+
 
   // 检查标签是否被选中的辅助函数
   const isTagSelected = (tag: string): boolean => {
@@ -489,45 +523,65 @@ export default function PublishPost() {
               onInput={(e) => setTitle(e.detail.value)}
             />
             <View className={styles.separator} />
-            <Textarea
-              placeholder='分享你的想法...'
-              className={styles.contentInput}
-              value={content}
-              onInput={async (e) => {
-                const v = e.detail.value;
-                setContent(v);
-                const match = v.match(/(^|\s)@([^\s@]{0,30})$/);
-                if (match) {
-                  const query = match[2] || '';
-                  const isKnowledge = /^k:|^knowledge:/i.test(query);
-                  const pure = query.replace(/^k:|^knowledge:/i, '').trim();
-                  if (isKnowledge) {
-                    try {
-                      const res = await knowledgeApi.getSuggestions(pure || '', 6);
-                      const items = Array.isArray(res.data) ? res.data.slice(0, 6) : [];
-                      setRefSuggestions(items.map((t: string) => ({ type: 'knowledge', title: t })));
-                      setShowRefPanel(true);
-                    } catch {
-                      setShowRefPanel(false);
+            {/* 润色打字机动画或普通输入框 */}
+            {isTyping || typingText ? (
+              <View className={styles.typingContainer}>
+                <Text className={`${styles.typingText} ${isTyping ? styles.typing : ''}`}>
+                  {typingText}
+                  {isTyping && <Text className={styles.cursor}>|</Text>}
+                </Text>
+                {/* 接受/拒绝按钮 */}
+                {showOptions && (
+                  <View className={styles.polishActions}>
+                    <View className={styles.rejectBtn} onClick={handleRejectPolish}>
+                      <Text>拒绝</Text>
+                    </View>
+                    <View className={styles.acceptBtn} onClick={handleAcceptPolish}>
+                      <Text>采纳</Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <Textarea
+                placeholder='分享你的想法...'
+                className={styles.contentInput}
+                value={content}
+                onInput={async (e) => {
+                  const v = e.detail.value;
+                  setContent(v);
+                  const match = v.match(/(^|\s)@([^\s@]{0,30})$/);
+                  if (match) {
+                    const query = match[2] || '';
+                    const isKnowledge = /^k:|^knowledge:/i.test(query);
+                    const pure = query.replace(/^k:|^knowledge:/i, '').trim();
+                    if (isKnowledge) {
+                      try {
+                        const res = await knowledgeApi.getSuggestions(pure || '', 6);
+                        const items = Array.isArray(res.data) ? res.data.slice(0, 6) : [];
+                        setRefSuggestions(items.map((t: string) => ({ type: 'knowledge', title: t })));
+                        setShowRefPanel(true);
+                      } catch {
+                        setShowRefPanel(false);
+                      }
+                    } else {
+                      try {
+                        const { getHistory } = await import('@/utils/history');
+                        const list = getHistory(1, 50) || [];
+                        const filtered = list.filter((h) => h.title.toLowerCase().includes((query || '').toLowerCase()));
+                        setRefSuggestions(filtered.slice(0, 6).map((h) => ({ type: 'history', id: h.id, title: h.title })));
+                        setShowRefPanel(true);
+                      } catch {
+                        setShowRefPanel(false);
+                      }
                     }
                   } else {
-                    try {
-                      const { getHistory } = await import('@/utils/history');
-                      const list = getHistory(1, 50) || [];
-                      const filtered = list.filter((h) => h.title.toLowerCase().includes((query || '').toLowerCase()));
-                      setRefSuggestions(filtered.slice(0, 6).map((h) => ({ type: 'history', id: h.id, title: h.title })));
-                      setShowRefPanel(true);
-                    } catch {
-                      setShowRefPanel(false);
-                    }
+                    setShowRefPanel(false);
                   }
-                } else {
-                  setShowRefPanel(false);
-                }
-              }}
-              maxlength={2000}
-              autoHeight
-            />
+                }}
+                maxlength={2000}
+              />
+            )}
             {showRefPanel && refSuggestions.length > 0 && (
               <View className={styles.refPanel}>
                 {refSuggestions.map((s, i) => (
@@ -577,9 +631,46 @@ export default function PublishPost() {
                 onClick={handleChooseImage}
               />
               <Image src={atSignIcon} className={styles.toolbarIcon} />
-              <View className={styles.wikiBtn} onClick={handlePolish}>
-                <Image src={penToolIcon} className={styles.wikiIcon} />
-                <Text>{polishLoading ? '润色中…' : 'Wiki 润色'}</Text>
+
+              {/* 润色工具组 */}
+              <View className={styles.polishGroup}>
+                {/* 文风选择器 */}
+                <View className={styles.styleSelector}>
+                  <View
+                    className={styles.styleButton}
+                    onClick={() => setShowStyleSelector(!showStyleSelector)}
+                  >
+                    <Text className={styles.styleText}>{selectedStyle}</Text>
+                    <View className={`${styles.arrow} ${showStyleSelector ? styles.arrowUp : styles.arrowDown}`} />
+                  </View>
+
+                  {/* 文风选择下拉菜单 */}
+                  {showStyleSelector && (
+                    <View className={styles.styleDropdown}>
+                      {mockData.styles.map((style) => (
+                        <View
+                          key={style}
+                          className={`${styles.styleOption} ${selectedStyle === style ? styles.selected : ''}`}
+                          onClick={() => {
+                            setSelectedStyle(style);
+                            setShowStyleSelector(false);
+                          }}
+                        >
+                          <Text>{style}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+
+                {/* 润色按钮 */}
+                <View
+                  className={`${styles.wikiBtn} ${polishLoading ? styles.loading : ''}`}
+                  onClick={handlePolish}
+                >
+                  <Image src={penToolIcon} className={styles.wikiIcon} />
+                  <Text>{polishLoading ? '润色中…' : '润色'}</Text>
+                </View>
               </View>
             </View>
           </View>
@@ -645,6 +736,8 @@ export default function PublishPost() {
             )}
           </View>
 
+
+
           {/* Category Selection */}
           <View className={styles.publishCard}>
             <Text className={styles.sectionTitle}>选择分类</Text>
@@ -664,37 +757,9 @@ export default function PublishPost() {
             </View>
           </View>
 
-          {/* Wiki Polish Suggestion */}
-          <View className={`${styles.suggestionCard} ${styles.publishCard}`}>
-            <Image src={lightbulbIcon} className={styles.suggestionIcon} />
-            <View className={styles.suggestionContent}>
-              <View className={styles.suggestionHeader}>
-                <Text className={styles.sectionTitle}>Wiki 润色建议</Text>
-                <Text className={styles.applyBtn} onClick={applyPolish}>应用</Text>
-              </View>
-              <Text className={styles.suggestionText}>
-                {polishSuggestion}
-              </Text>
-            </View>
-          </View>
 
-          {/* Writing Style Selection */}
-          <View className={styles.publishCard}>
-            <Text className={styles.sectionTitle}>文风选择</Text>
-            <View className={styles.stylesContainer}>
-              {mockData.styles.map((style) => (
-                <View
-                  key={style}
-                  className={`${styles.styleItem} ${
-                    selectedStyle === style ? styles.selected : ""
-                  }`}
-                  onClick={() => setSelectedStyle(style)}
-                >
-                  <Text>{style}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
+
+
 
           <PublishSettings
             isPublic={isPublic}
@@ -745,9 +810,9 @@ export default function PublishPost() {
                       } catch {}
                       Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?draftId=${item.id}` });
                     }
-                  }}>
-                    <Text className={styles.draftItemTitle}>{(item.title || '').trim() || '无标题草稿'}</Text>
-                  </View>
+                }}>
+                  <Text className={styles.draftItemTitle}>{(item.title || '').trim() || '无标题草稿'}</Text>
+                </View>
                 ))}
             </ScrollView>
             <View className={styles.newPostButton} onClick={() => setShowDraftPicker(false)}>

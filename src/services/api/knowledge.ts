@@ -8,7 +8,6 @@ import {
   SnapshotResponse,
 } from "@/types/api/knowledge";
 import http from "../request";
-import { TENANT_ID } from "@/constants";
 
 /**
  * 使用Elasticsearch进行知识库搜索
@@ -25,7 +24,7 @@ export const search = (params: any) => {
 export const searchByRag = (params: RagSearchRequest) => {
   return http.get<KnowledgeSearchItem[]>(
     "/knowledge/search-advanced",
-    { ...params, tenant_id: TENANT_ID }
+    params
   );
 };
 
