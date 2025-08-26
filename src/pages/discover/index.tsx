@@ -3,6 +3,8 @@ import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback } from "react";
 import recommendApi from "@/services/api/recommend";
 import { recommendParams } from "@/types/api/recommend";
+import activityApi from "@/services/api/activity"; // moved up absolute import
+import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d"; // moved up absolute import
 import styles from "./index.module.scss";
 import CustomHeader from "../../components/custom-header";
 import Section from "./components/Section";
@@ -18,10 +20,13 @@ interface HotPost {
   original_url?: string;
 }
 
+// eslint-disable-next-line import/no-unused-modules
 export default function Discover() {
   const [hotPosts, setHotPosts] = useState<HotPost[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [enableAiRecommendation, setEnableAiRecommendation] = useState(false);
+  const [activities, setActivities] = useState<ActivityRead[]>([]); // 新增活动列表
+  const [activitiesLoading, setActivitiesLoading] = useState(false); // 新增加载状态
 
   const fetchHotPosts = useCallback(async (showLoading = true) => {
     try {
@@ -62,6 +67,47 @@ export default function Discover() {
     }
   }, [enableAiRecommendation]);
 
+  // 新增：获取活动列表
+  const fetchActivities = useCallback(async () => {
+    try {
+      setActivitiesLoading(true);
+      const params: GetActivityListRequest = {
+        limit: 10,
+        status: ActivityStatus.Published,
+        sort_by: 'start_time',
+        sort_order: 'asc'
+      };
+      const res = await activityApi.getActivityList(params);
+      // 兼容后端 data?.data?.items / data?.data?.items 结构
+      let list: ActivityRead[] = [];
+      if (res?.data) {
+        // 优先 PageActivityRead 结构
+        const pageData: any = res.data as any;
+        if (pageData?.items && Array.isArray(pageData.items)) {
+          list = pageData.items as ActivityRead[];
+        } else if (Array.isArray(res.data as any)) {
+          list = res.data as unknown as ActivityRead[];
+        }
+      }
+      setActivities(list);
+      console.log('Fetched activities:', res); // 终端输出列表
+    } catch (err) {
+      console.warn('获取活动失败', err);
+      setActivities([]);
+    } finally {
+      setActivitiesLoading(false);
+    }
+  }, []);
+
+  // 获取热门帖子与活动
+  useEffect(() => {
+    fetchHotPosts(false);
+  }, [fetchHotPosts]);
+
+  useEffect(() => {
+    fetchActivities();
+  }, [fetchActivities]);
+
   const toggleAiRecommendation = () => {
     setEnableAiRecommendation(prev => !prev);
   };
@@ -98,8 +144,10 @@ export default function Discover() {
             }
           }
         });
-      });
-    } else if (post.id) {
+    });
+      return;
+    }
+    else if (post.id) {
       Taro.navigateTo({
         url: `/pages/subpackage-interactive/post-detail/index?id=${post.id}`
       }).catch(() => {
@@ -107,10 +155,6 @@ export default function Discover() {
       });
     }
   };
-
-  useEffect(() => {
-    fetchHotPosts(false);
-  }, [fetchHotPosts]);
 
   return (
     <View className={styles.discoverPage}>
@@ -190,33 +234,74 @@ export default function Discover() {
           </ScrollView>
         </Section>
 
-        {/* 校园活动 */}
-        <Section title='校园活动' extraText='发布活动' isLink onExtraClick={() => {
-          Taro.navigateTo({ url: '/pages/discover/publish-activity/index' });
-        }}>
-          <View className={styles.activityCard}>
-            <Image
-              src={activity.image}
-              className={styles.activityImage}
-              mode='aspectFill'
-            />
-            <View className={styles.activityInfo}>
-              <Text className={styles.activityTitle}>{activity.title}</Text>
-              <View className={styles.activityDetails}>
-                <View className={styles.activityDetailItem}>
-                  <Image src={require("../../assets/clock.svg")} className={styles.detailIcon} />
-                  <Text className={styles.activityDetail}>{activity.time}</Text>
-                </View>
-                <View className={styles.activityDetailItem}>
-                  <Image src={require("../../assets/map-pin.svg")} className={styles.detailIcon} />
-                  <Text className={styles.activityDetail}>{activity.location}</Text>
+        {/* 活动广场 */}
+        <Section
+          title='活动广场'
+          extraText='发布活动'
+          isLink
+          onExtraClick={() => {
+            Taro.navigateTo({ url: '/pages/discover/publish-activity/index' });
+          }}
+        >
+          {activitiesLoading ? (
+            <View className={styles.emptyState}>加载中...</View>
+          ) : (activities && activities.length > 0 ? (
+            activities.map(act => (
+              <View
+                key={act.id}
+                className={styles.activityCard}
+                onClick={() => {
+                  Taro.showToast({ title: act.title, icon: 'none' });
+                }}
+              >
+                <Image
+                  src='https://via.placeholder.com/240x240.png?text=Activity'
+                  className={styles.activityImage}
+                  mode='aspectFill'
+                />
+                <View className={styles.activityInfo}>
+                  <Text className={styles.activityTitle}>{act.title}</Text>
+                  <View className={styles.activityDetails}>
+                    <View className={styles.activityDetailItem}>
+                      <Image src={require("../../assets/clock.svg")} className={styles.detailIcon} />
+                      <Text className={styles.activityDetail}>{(act.start_time ? (new Date(act.start_time).toLocaleString()) : '-') }</Text>
+                    </View>
+                    <View className={styles.activityDetailItem}>
+                      <Image src={require("../../assets/map-pin.svg")} className={styles.detailIcon} />
+                      <Text className={styles.activityDetail}>{act.location || '待定'}</Text>
+                    </View>
+                  </View>
+                  <View className={styles.activityAction}>
+                    <Text className={styles.actionButton}>立即报名</Text>
+                  </View>
                 </View>
               </View>
-              <View className={styles.activityAction}>
-                <Text className={styles.actionButton}>立即报名</Text>
+            ))
+          ) : (
+            <View className={styles.activityCard}>
+              <Image
+                src={activity.image}
+                className={styles.activityImage}
+                mode='aspectFill'
+              />
+              <View className={styles.activityInfo}>
+                <Text className={styles.activityTitle}>{activity.title}</Text>
+                <View className={styles.activityDetails}>
+                  <View className={styles.activityDetailItem}>
+                    <Image src={require("../../assets/clock.svg")} className={styles.detailIcon} />
+                    <Text className={styles.activityDetail}>{activity.time}</Text>
+                  </View>
+                  <View className={styles.activityDetailItem}>
+                    <Image src={require("../../assets/map-pin.svg")} className={styles.detailIcon} />
+                    <Text className={styles.activityDetail}>{activity.location}</Text>
+                  </View>
+                </View>
+                <View className={styles.activityAction}>
+                  <Text className={styles.actionButton}>立即报名</Text>
+                </View>
               </View>
             </View>
-          </View>
+          ))}
         </Section>
 
         <View className={styles.bottomSpacing} />
