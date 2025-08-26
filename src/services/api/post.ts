@@ -33,6 +33,28 @@ export const getPostById = (postId: string) => {
 };
 
 /**
+ * 根据ID获取单个帖子详情（静默模式，不显示404错误）
+ * 用于用户收藏/点赞/评论列表中的帖子信息获取
+ */
+export const getPostByIdSilent = (postId: string) => {
+  return new Promise<{ code: number; data?: Post; message?: string }>((resolve) => {
+    http.get<Post>(`/forums/posts/${postId}`)
+      .then(response => {
+        resolve(response);
+      })
+      .catch(error => {
+        // 静默处理404错误，不抛出异常
+        if (error?.statusCode === 404 || error?.status === 404) {
+          resolve({ code: 404, message: 'Post not found' });
+        } else {
+          // 对于其他错误，仍然返回错误信息但不抛出异常
+          resolve({ code: error?.code || 500, message: error?.message || 'Unknown error' });
+        }
+      });
+  });
+};
+
+/**
  * 获取帖子详情（别名）
  */
 export const getPostDetail = (postId: string) => {
@@ -162,6 +184,7 @@ const postApi = {
   getForumPosts,
   getPosts,
   getPostById,
+  getPostByIdSilent,
   createForumPost,
   updatePost,
   deletePost,

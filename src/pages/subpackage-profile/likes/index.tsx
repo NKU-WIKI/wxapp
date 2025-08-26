@@ -4,7 +4,7 @@ import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchLikes, resetLikes } from '@/store/slices/likesSlice';
-import CustomHeader from '@/components/custom-header';
+import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import EmptyState from '@/components/empty-state';
 import Post from '@/components/post';
 import heartOutlineIcon from '@/assets/heart-outline.svg';
@@ -17,6 +17,12 @@ interface LikeItemProps {
 
 const LikeItemComponent: React.FC<LikeItemProps> = ({ like }) => {
   console.log('Rendering like item:', like);
+  
+  // 如果是帖子类型但没有内容，不渲染任何内容（被删除的帖子）
+  if (like.target_type === 'post' && !like.content) {
+    console.log('Post like without content, skipping render:', like.target_id);
+    return null;
+  }
   
   // 如果有具体内容，渲染具体内容；否则显示基本信息
   if (like.content && like.target_type === 'post') {
@@ -207,8 +213,16 @@ const LikesPage: React.FC = () => {
         showScrollbar={false}
       >
         <View className={styles.likesContainer}>
-          {likes.map((like) => (
-            <View key={like.id} className={styles.likeWrapper}>
+          {likes
+            .filter(like => {
+              // 双重过滤确保只显示有效的点赞项
+              if (like.target_type === 'post') {
+                return like.content && like.content.id; // 确保帖子有内容且有ID
+              }
+              return true; // 非帖子类型的点赞直接通过
+            })
+            .map((like, index) => (
+            <View key={`like-${like.id}-${like.target_id}-${index}`} className={styles.likeWrapper}>
               <LikeItemComponent like={like} />
             </View>
           ))}

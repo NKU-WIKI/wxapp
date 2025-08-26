@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { getMyLikes } from '@/services/api/user';
-import { getPostById } from '@/services/api/post';
+import { getPostByIdSilent } from '@/services/api/post';
 import { PaginationParams } from '@/types/api/common';
 
 // 点赞项的动作类型 (复用收藏的类型定义)
@@ -51,6 +51,7 @@ export const fetchLikes = createAsyncThunk<
       total: number;
       has_more: boolean;
     };
+    filteredCount?: number; // 可选字段，用于统计被过滤的删除内容数量
   },
   GetLikesParams,
   { rejectValue: string }
@@ -85,58 +86,87 @@ export const fetchLikes = createAsyncThunk<
     console.log('Active likes after filtering:', activeLikes);
 
     // 获取点赞内容的详细信息
-    const likeItems: LikeItem[] = await Promise.all(
-      activeLikes.map(async (action) => {
-        // 设置默认的 target_type，如果没有的话假设是 post
-        const targetType = action.target_type || 'post';
-        
-        const likeItem: LikeItem = { 
-          ...action, 
-          target_type: targetType 
-        };
+    const likeItems: LikeItem[] = [];
+    let filteredCount = 0; // 记录被过滤掉的删除内容数量
+    
+    for (const action of activeLikes) {
+      // 设置默认的 target_type，如果没有的话假设是 post
+      const targetType = action.target_type || 'post';
+      
+      const likeItem: LikeItem = { 
+        ...action, 
+        target_type: targetType 
+      };
 
-        try {
-          // 根据目标类型获取具体内容
-          if (targetType === 'post') {
-            const postResponse = await getPostById(action.target_id);
-            console.log('Post response for target_id:', action.target_id, postResponse);
-            if (postResponse.code === 0 && postResponse.data) {
-              const post = postResponse.data;
-              console.log('Post data author_info:', post.author_info);
-              console.log('Post data user:', post.user);
-              
-              // 获取作者信息，优先使用 author_info，其次使用 user
-              const authorInfo = post.author_info || post.user;
-              
-              likeItem.content = {
-                id: post.id,
-                title: post.title,
-                content: post.content,
-                author_info: authorInfo ? {
-                  id: authorInfo.id,
-                  nickname: authorInfo.nickname,
-                  avatar: authorInfo.avatar || undefined
-                } : undefined,
-                created_at: post.created_at,
-                view_count: post.view_count,
-                like_count: post.like_count,
-                comment_count: post.comment_count,
-                type: 'post'
-              };
-            }
+      try {
+        // 根据目标类型获取具体内容
+        if (targetType === 'post') {
+          const postResponse = await getPostByIdSilent(action.target_id);
+          console.log('Post response for target_id:', action.target_id, postResponse);
+          if (postResponse.code === 0 && postResponse.data) {
+            const post = postResponse.data;
+            console.log('Post data author_info:', post.author_info);
+            console.log('Post data user:', post.user);
+            
+            // 获取作者信息，优先使用 author_info，其次使用 user
+            const authorInfo = post.author_info || post.user;
+            
+            likeItem.content = {
+              id: post.id,
+              title: post.title,
+              content: post.content,
+              author_info: authorInfo ? {
+                id: authorInfo.id,
+                nickname: authorInfo.nickname,
+                avatar: authorInfo.avatar || undefined
+              } : undefined,
+              created_at: post.created_at,
+              view_count: post.view_count,
+              like_count: post.like_count,
+              comment_count: post.comment_count,
+              type: 'post'
+            };
+            
+            // 只有成功获取到内容的点赞项才添加到列表中
+            likeItems.push(likeItem);
+          } else if (postResponse.code === 404) {
+            // 帖子已被删除，从点赞列表中隐藏
+            console.log(`👍 点赞的内容 ${action.target_id} 已被删除，已从点赞列表中隐藏`);
+            filteredCount++;
+            continue; // 跳过这个点赞项
+          } else {
+            console.warn(`Failed to fetch post ${action.target_id}: ${postResponse.message}, skipping from likes`);
+            filteredCount++;
           }
+        } else {
           // TODO: 添加对 comment、knowledge 等其他类型的支持
-        } catch (error) {
-          console.warn(`Failed to fetch content for ${action.target_type} ${action.target_id}:`, error);
-          // 即使获取内容失败，也保留点赞记录，但没有详细内容
+          // 对于其他类型，暂时保留但没有详细内容
+          likeItems.push(likeItem);
         }
-
-        return likeItem;
-      })
-    );
+      } catch (error: any) {
+        // 处理其他意外错误
+        console.warn(`Unexpected error fetching content for ${action.target_type} ${action.target_id}:`, error);
+        
+        // 如果是网络错误或其他临时错误，可以保留但标记为失败
+        // 如果是404类似的错误，则跳过
+        if (error?.statusCode === 404 || error?.status === 404 || error?.message?.includes('404')) {
+          console.log(`👍 点赞的内容 ${action.target_id} 可能已被删除（网络错误检测），已从点赞列表中隐藏`);
+          filteredCount++;
+          continue; // 跳过这个点赞项
+        }
+        
+        // 对于其他网络错误，暂时保留项目但没有详细内容
+        likeItems.push(likeItem);
+      }
+    }
 
     // 计算分页信息
     const hasMore = likeItems.length >= limit;
+    
+    // 如果有被过滤的项目，输出提示信息
+    if (filteredCount > 0) {
+      console.log(`👍 共过滤掉 ${filteredCount} 个已删除的点赞项`);
+    }
     
     return {
       items: likeItems,
@@ -145,7 +175,8 @@ export const fetchLikes = createAsyncThunk<
         limit,
         total: likeItems.length,
         has_more: hasMore
-      }
+      },
+      filteredCount
     };
   } catch (error: any) {
     console.error('Error fetching likes:', error);
@@ -173,6 +204,7 @@ export interface LikesState {
   };
   loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   error: string | null;
+  filteredCount: number; // 被过滤掉的删除内容数量
 }
 
 const initialState: LikesState = {
@@ -184,7 +216,8 @@ const initialState: LikesState = {
     has_more: false
   },
   loading: 'idle',
-  error: null
+  error: null,
+  filteredCount: 0
 };
 
 const likesSlice = createSlice({
@@ -201,6 +234,7 @@ const likesSlice = createSlice({
       };
       state.loading = 'idle';
       state.error = null;
+      state.filteredCount = 0;
     },
     // 同步设置点赞列表的后备action
     setLikes: (
@@ -230,7 +264,7 @@ const likesSlice = createSlice({
       })
       .addCase(fetchLikes.fulfilled, (state, action) => {
         state.loading = 'succeeded';
-        const { items, pagination } = action.payload;
+        const { items, pagination, filteredCount } = action.payload;
         
         // 检查是否是追加模式
         const isAppend = (action.meta.arg as GetLikesParams).isAppend;
@@ -244,6 +278,11 @@ const likesSlice = createSlice({
         }
         
         state.pagination = pagination;
+        
+        // 更新被过滤的内容数量
+        if (filteredCount !== undefined) {
+          state.filteredCount = filteredCount;
+        }
       })
       .addCase(fetchLikes.rejected, (state, action) => {
         state.loading = 'failed';
