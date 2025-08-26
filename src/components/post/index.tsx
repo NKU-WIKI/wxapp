@@ -49,6 +49,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   const lastActionTimeRef = useRef<number>(0);
   const userState = useSelector((state: RootState) => state.user);
   const postState = useSelector((state: RootState) => state.post);
+  const [localFollowStatus, setLocalFollowStatus] = useState<boolean | null>(null);
 
   // 提前声明avatar相关的状态，避免条件调用
   const [avatarSrc, setAvatarSrc] = useState<string>('');
@@ -102,7 +103,8 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   // 直接从 displayPost 获取状态，不使用本地状态管理
   const isLiked = displayPost.is_liked === true;
   const isFavorited = displayPost.is_favorited === true;
-  const isFollowing = displayPost.is_following_author === true;
+  // 关注状态：优先使用本地状态，其次使用传入的状态
+  const isFollowing = localFollowStatus !== null ? localFollowStatus : (displayPost.is_following_author === true);
   
   // 直接从 displayPost 获取计数，不使用本地状态管理
   const likeCount = Math.max(0, displayPost.like_count || 0);
@@ -240,7 +242,8 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       action_type: 'follow'
     })).then((result: any) => {
       if (result.payload && result.payload.is_active !== undefined) {
-        // 移除本地关注状态设置，完全依赖 Redux store 更新
+        // 更新本地关注状态
+        setLocalFollowStatus(result.payload.is_active);
       }
     }).catch(error => {
       console.error('关注操作失败', error);

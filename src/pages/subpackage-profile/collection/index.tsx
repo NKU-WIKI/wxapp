@@ -1,9 +1,10 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchFavorites, FavoriteItem, setFavorites } from '@/store/slices/favoriteSlice';
+import { useMultipleFollowStatus } from '@/hooks/useFollowStatus';
 import { formatRelativeTime } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
 import EmptyState from '@/components/empty-state';
@@ -13,9 +14,10 @@ import styles from './index.module.scss';
 
 interface FavoriteItemProps {
   favorite: FavoriteItem;
+  isFollowingAuthor?: boolean; // 新增：是否关注作者
 }
 
-const FavoriteItemComponent: React.FC<FavoriteItemProps> = ({ favorite }) => {
+const FavoriteItemComponent: React.FC<FavoriteItemProps> = ({ favorite, isFollowingAuthor = false }) => {
   const handleNavigateToContent = () => {
     if (favorite.target_type === 'post' && favorite.content) {
       Taro.navigateTo({
@@ -91,6 +93,8 @@ const FavoriteItemComponent: React.FC<FavoriteItemProps> = ({ favorite }) => {
       view_count: favorite.content.view_count || 0,
       like_count: favorite.content.like_count || 0,
       comment_count: favorite.content.comment_count || 0,
+      is_favorited: true, // 因为这是收藏列表，所以肯定是已收藏的
+      is_following_author: isFollowingAuthor, // 设置关注状态
       tenant_id: favorite.tenant_id,
       updated_at: favorite.updated_at
     };
@@ -146,11 +150,28 @@ const CollectionPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   // 兼容持久化或热更新导致的初始状态缺失，做运行时兜底
   const favoriteState = useSelector((state: RootState) => (state as any).favorite);
-  const favorites = favoriteState?.items ?? [];
   const loading: 'idle' | 'pending' | 'succeeded' | 'failed' = favoriteState?.loading ?? 'idle';
   const error: string | null = favoriteState?.error ?? null;
   const pagination = favoriteState?.pagination ?? { skip: 0, limit: 20, total: 0, has_more: false };
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
+
+  // 提取所有帖子作者的ID用于批量获取关注状态
+  const { favorites, authorIds } = useMemo(() => {
+    const favs = favoriteState?.items ?? [];
+    const ids: string[] = [];
+    favs.forEach(favorite => {
+      if (favorite.target_type === 'post' && favorite.content) {
+        const authorInfo = favorite.content.author_info;
+        if (authorInfo?.id && !ids.includes(authorInfo.id)) {
+          ids.push(authorInfo.id);
+        }
+      }
+    });
+    return { favorites: favs, authorIds: ids };
+  }, [favoriteState?.items]);
+
+  // 获取所有作者的关注状态
+  const { followStatusMap } = useMultipleFollowStatus(authorIds);
 
   // 加载收藏列表
   const loadFavorites = useCallback((refresh = false) => {
@@ -261,9 +282,19 @@ const CollectionPage: React.FC = () => {
 
     return (
       <View className={styles.favoritesList}>
-        {favorites.map(favorite => (
-          <FavoriteItemComponent key={favorite.id} favorite={favorite} />
-        ))}
+        {favorites.map(favorite => {
+          // 获取当前帖子作者的关注状态
+          const authorInfo = favorite.content?.author_info;
+          const isFollowingAuthor = authorInfo?.id ? followStatusMap[authorInfo.id] || false : false;
+          
+          return (
+            <FavoriteItemComponent 
+              key={favorite.id} 
+              favorite={favorite} 
+              isFollowingAuthor={isFollowingAuthor}
+            />
+          );
+        })}
         
         {loading === 'pending' && favorites.length > 0 && (
           <View className={styles.loadingMore}>

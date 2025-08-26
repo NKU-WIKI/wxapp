@@ -13,7 +13,7 @@
 }
 
 .likesContainer {
-  padding: 16px 16px 40px 16px; /* 减少顶部内边距从72px到16px，让帖子更靠近顶部 */
+  padding: 104px 16px 40px 16px; /* 增加顶部内边距到104px，避免被导航栏遮住 */
 }
 
 .likeWrapper {

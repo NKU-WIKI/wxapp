@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchLikes, resetLikes } from '@/store/slices/likesSlice';
-import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
+import { useMultipleFollowStatus } from '@/hooks/useFollowStatus';
+import CustomHeader from '@/components/custom-header';
 import EmptyState from '@/components/empty-state';
 import Post from '@/components/post';
 import heartOutlineIcon from '@/assets/heart-outline.svg';
@@ -13,9 +14,10 @@ import styles from './index.module.scss';
 // 点赞项组件
 interface LikeItemProps {
   like: any; // 使用any暂时，待类型完善
+  isFollowingAuthor?: boolean; // 新增：是否关注作者
 }
 
-const LikeItemComponent: React.FC<LikeItemProps> = ({ like }) => {
+const LikeItemComponent: React.FC<LikeItemProps> = ({ like, isFollowingAuthor = false }) => {
   console.log('Rendering like item:', like);
   
   // 如果是帖子类型但没有内容，不渲染任何内容（被删除的帖子）
@@ -51,6 +53,7 @@ const LikeItemComponent: React.FC<LikeItemProps> = ({ like }) => {
       like_count: like.content.like_count,
       comment_count: like.content.comment_count,
       is_liked: true, // 因为这是点赞列表，所以肯定是已点赞的
+      is_following_author: isFollowingAuthor, // 设置关注状态
     };
 
     return (
@@ -84,6 +87,23 @@ const LikesPage: React.FC = () => {
   const { items: likes, loading, error, pagination } = useSelector((state: RootState) => state.likes);
   const userState = useSelector((state: RootState) => state.user);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // 提取所有帖子作者的ID用于批量获取关注状态
+  const authorIds = useMemo(() => {
+    const ids: string[] = [];
+    likes.forEach(like => {
+      if (like.target_type === 'post' && like.content) {
+        const authorInfo = like.content.author_info;
+        if (authorInfo?.id && !ids.includes(authorInfo.id)) {
+          ids.push(authorInfo.id);
+        }
+      }
+    });
+    return ids;
+  }, [likes]);
+
+  // 获取所有作者的关注状态
+  const { followStatusMap } = useMultipleFollowStatus(authorIds);
 
   // 加载我的点赞 - 使用 ref 来获取最新的 pagination 状态
   const paginationRef = React.useRef(pagination);
@@ -221,11 +241,17 @@ const LikesPage: React.FC = () => {
               }
               return true; // 非帖子类型的点赞直接通过
             })
-            .map((like, index) => (
-            <View key={`like-${like.id}-${like.target_id}-${index}`} className={styles.likeWrapper}>
-              <LikeItemComponent like={like} />
-            </View>
-          ))}
+            .map((like, index) => {
+              // 获取当前帖子作者的关注状态
+              const authorInfo = like.content?.author_info;
+              const isFollowingAuthor = authorInfo?.id ? followStatusMap[authorInfo.id] || false : false;
+              
+              return (
+                <View key={`like-${like.id}-${like.target_id}-${index}`} className={styles.likeWrapper}>
+                  <LikeItemComponent like={like} isFollowingAuthor={isFollowingAuthor} />
+                </View>
+              );
+            })}
           
           {/* 加载更多指示器 */}
           {loading === 'pending' && likes.length > 0 && (
