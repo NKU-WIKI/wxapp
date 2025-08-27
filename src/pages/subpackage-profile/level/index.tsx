@@ -109,11 +109,10 @@ export default function LevelPage() {
         </View>
       </View>
       {/* 获取经验值说明 */}
-      <View className={styles.card}>
+      <View className={`${styles.card} ${styles.expCard}`}>
         <Text className={styles.expTitle}>获取经验值</Text>
         {(() => {
-                               const records = Array.isArray(levelState.records) ? levelState.records : [];
-          const hasLogin = records.some(r => r.event_type === 'daily_login');
+          const records = Array.isArray(levelState.records) ? levelState.records : [];
           const likeCount = records.filter(r => r.event_type === 'post_liked').length;
           const hasComment = records.some(r => r.event_type === 'comment_others');
 
@@ -121,8 +120,8 @@ export default function LevelPage() {
             {
               icon: checkinIcon,
               text: '每日登录',
-              status: hasLogin ? '今日已完成' : '未完成',
-              colorClass: hasLogin ? styles.statusBlue : styles.statusBlue,
+              status: '今日已完成 +2',
+              colorClass: styles.statusBlue,
             },
             {
               icon: likeIcon,

@@ -29,8 +29,12 @@
   background: $bg-card;
   border-radius: 12px;
   margin: 16px 16px 0 16px;
-  padding: 0 0 0 0;
+  padding: 0;
   box-shadow: 0 2px 8px rgba(79,70,229,0.03);
+}
+
+.expCard {
+  padding-top: 16px;
 }
 
 .userInfoRow {
@@ -135,24 +139,24 @@
 }
 
 .expTitle {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: $text-primary;
-  padding: 16px 20px 0 20px;
+  padding: 48px 20px 16px 20px;
 }
 .expRow {
   display: flex;
   align-items: center;
-  padding: 10px 20px 10px 20px;
+  padding: 16px 20px 16px 20px;
   position: relative;
 }
 .expIconWrap {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
+  margin-right: 12px;
 }
 .expIcon {
   width: 20px;
@@ -163,11 +167,13 @@
   font-size: 15px;
   color: $text-primary;
   flex: 1;
+  line-height: 1.4;
 }
 .expStatus {
   font-size: 14px;
   font-weight: 500;
-  margin-left: 8px;
+  margin-left: 12px;
+  line-height: 1.4;
 }
 .statusBlue {
   color: $theme-primary;
@@ -182,4 +188,9 @@
   bottom: 0;
   height: 1px;
   background: $border-light;
+}
+
+// 为最后一个任务项添加底部间距
+.expRow:last-child {
+  padding-bottom: 20px;
 }
