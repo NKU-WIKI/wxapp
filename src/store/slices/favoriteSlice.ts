@@ -131,11 +131,10 @@ export const fetchFavorites = createAsyncThunk<
             favoriteItems.push(favoriteItem);
           } else if (postResponse.code === 404) {
             // 帖子已被删除，静默处理
-            console.log(`📋 收藏的内容 ${action.target_id} 已被删除，已从收藏列表中隐藏`);
             filteredCount++;
             continue; // 跳过这个收藏项
           } else {
-            console.warn(`Post ${action.target_id} not found or error: ${postResponse.message}, skipping from favorites`);
+            // 其他错误也静默处理
             filteredCount++;
           }
         } else {
@@ -144,9 +143,8 @@ export const fetchFavorites = createAsyncThunk<
           favoriteItems.push(favoriteItem);
         }
       } catch (error: any) {
-        // 处理其他意外错误
-        console.warn(`Unexpected error fetching content for ${action.target_type} ${action.target_id}:`, error);
-        favoriteItems.push(favoriteItem);
+        // 静默处理其他意外错误
+        filteredCount++;
       }
     }
 

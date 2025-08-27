@@ -31,7 +31,6 @@ const FavoriteItemComponent: React.FC<FavoriteItemProps> = ({ favorite, isFollow
   if (favorite.target_type === 'post' && favorite.content) {
     // 获取作者信息
     const authorInfo = favorite.content.author_info;
-    console.log('Collection favorite author info:', authorInfo);
     
     const postData = {
       id: favorite.content.id,

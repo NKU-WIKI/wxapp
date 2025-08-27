@@ -37,4 +37,30 @@ declare namespace NodeJS {
   }
 }
 
+// 扩展 wx 全局对象的类型声明
+declare namespace wx {
+  interface RequestOption {
+    url: string;
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
+    data?: string | Record<string, any> | ArrayBuffer;
+    header?: Record<string, string>;
+    timeout?: number;
+    success?: (result: RequestSuccessCallbackResult) => void;
+    fail?: (result: any) => void;
+    complete?: (result: any) => void;
+  }
+
+  interface RequestSuccessCallbackResult {
+    data: any;
+    statusCode: number;
+    header: Record<string, string>;
+  }
+
+  function request(option: RequestOption): RequestTask;
+
+  interface RequestTask {
+    abort(): void;
+  }
+}
+
 

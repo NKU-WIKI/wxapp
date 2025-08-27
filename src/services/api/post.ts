@@ -1,3 +1,4 @@
+import Taro from "@tarojs/taro";
 import {
   Post,
   GetForumPostsParams,
@@ -33,24 +34,107 @@ export const getPostById = (postId: string) => {
 };
 
 /**
- * 根据ID获取单个帖子详情（静默模式，不显示404错误）
+ * 根据ID获取单个帖子详情（完全静默模式，不显示任何错误）
  * 用于用户收藏/点赞/评论列表中的帖子信息获取
+ * 完全绕过Taro拦截器，避免404错误在控制台显示
  */
 export const getPostByIdSilent = (postId: string) => {
   return new Promise<{ code: number; data?: Post; message?: string }>((resolve) => {
-    http.get<Post>(`/forums/posts/${postId}`)
-      .then(response => {
-        resolve(response);
-      })
-      .catch(error => {
-        // 静默处理404错误，不抛出异常
-        if (error?.statusCode === 404 || error?.status === 404) {
-          resolve({ code: 404, message: 'Post not found' });
-        } else {
-          // 对于其他错误，仍然返回错误信息但不抛出异常
-          resolve({ code: error?.code || 500, message: error?.message || 'Unknown error' });
+    // 使用微信小程序原生API，完全绕过Taro拦截器
+    if (typeof wx !== 'undefined') {
+      const BASE_URL = process.env.BASE_URL;
+      const getToken = () => Taro.getStorageSync("token") || null;
+      
+      // 获取默认租户ID的函数
+      const getDefaultTenantId = () => {
+        try {
+          const store = require("@/store").default;
+          const state = store.getState();
+          const aboutInfo = state.user.aboutInfo;
+          
+          if (aboutInfo?.tenants) {
+            const tenantId = aboutInfo.tenants["南开大学"];
+            if (tenantId) return tenantId;
+          }
+          
+          const cachedAboutInfo = Taro.getStorageSync("aboutInfo");
+          if (cachedAboutInfo?.tenants) {
+            const tenantId = cachedAboutInfo.tenants["南开大学"];
+            if (tenantId) return tenantId;
+          }
+          
+          return "f6303899-a51a-460a-9cd8-fe35609151eb"; // 默认南开大学租户ID
+        } catch (error) {
+          return "f6303899-a51a-460a-9cd8-fe35609151eb";
+        }
+      };
+
+      const token = getToken();
+      const headers: Record<string, string> = {
+        'content-type': 'application/json',
+        'X-Branch': 'dev'
+      };
+
+      if (!token) {
+        headers['x-tenant-id'] = getDefaultTenantId();
+      } else {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const finalUrl = `${BASE_URL}/api/v1/forums/posts/${postId}`;
+
+      // 使用微信小程序原生request API，完全绕过拦截器
+      wx.request({
+        url: finalUrl,
+        method: 'GET',
+        header: headers,
+        success: (res: any) => {
+          if (res.statusCode === 200) {
+            const responseData = res.data;
+            if (responseData.code === 0) {
+              resolve(responseData);
+            } else {
+              resolve({ code: responseData.code, message: responseData.msg || responseData.message });
+            }
+          } else if (res.statusCode === 404) {
+            // 静默处理404，不输出任何错误信息
+            resolve({ code: 404, message: 'Post not found' });
+          } else {
+            // 其他HTTP错误也静默处理
+            resolve({ code: res.statusCode, message: 'Request failed' });
+          }
+        },
+        fail: () => {
+          // 静默处理网络错误
+          resolve({ code: 500, message: 'Network error' });
         }
       });
+    } else {
+      // 如果不在微信小程序环境中，降级使用Taro请求（开发环境）
+      const finalUrl = `/forums/posts/${postId}`;
+      
+      Taro.request({
+        url: `${process.env.BASE_URL}/api/v1${finalUrl}`,
+        method: 'GET',
+        success: (res) => {
+          if (res.statusCode === 200) {
+            const responseData = res.data as any;
+            if (responseData.code === 0) {
+              resolve(responseData);
+            } else {
+              resolve({ code: responseData.code, message: responseData.msg || responseData.message });
+            }
+          } else if (res.statusCode === 404) {
+            resolve({ code: 404, message: 'Post not found' });
+          } else {
+            resolve({ code: res.statusCode, message: 'Request failed' });
+          }
+        },
+        fail: () => {
+          resolve({ code: 500, message: 'Network error' });
+        }
+      });
+    }
   });
 };
 

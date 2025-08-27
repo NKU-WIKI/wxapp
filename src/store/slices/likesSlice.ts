@@ -130,12 +130,11 @@ export const fetchLikes = createAsyncThunk<
             // 只有成功获取到内容的点赞项才添加到列表中
             likeItems.push(likeItem);
           } else if (postResponse.code === 404) {
-            // 帖子已被删除，从点赞列表中隐藏
-            console.log(`👍 点赞的内容 ${action.target_id} 已被删除，已从点赞列表中隐藏`);
+            // 帖子已被删除，静默处理，不在控制台输出任何信息
             filteredCount++;
             continue; // 跳过这个点赞项
           } else {
-            console.warn(`Failed to fetch post ${action.target_id}: ${postResponse.message}, skipping from likes`);
+            // 其他错误也静默处理
             filteredCount++;
           }
         } else {
@@ -144,19 +143,8 @@ export const fetchLikes = createAsyncThunk<
           likeItems.push(likeItem);
         }
       } catch (error: any) {
-        // 处理其他意外错误
-        console.warn(`Unexpected error fetching content for ${action.target_type} ${action.target_id}:`, error);
-        
-        // 如果是网络错误或其他临时错误，可以保留但标记为失败
-        // 如果是404类似的错误，则跳过
-        if (error?.statusCode === 404 || error?.status === 404 || error?.message?.includes('404')) {
-          console.log(`👍 点赞的内容 ${action.target_id} 可能已被删除（网络错误检测），已从点赞列表中隐藏`);
-          filteredCount++;
-          continue; // 跳过这个点赞项
-        }
-        
-        // 对于其他网络错误，暂时保留项目但没有详细内容
-        likeItems.push(likeItem);
+        // 静默处理其他意外错误
+        filteredCount++;
       }
     }
 

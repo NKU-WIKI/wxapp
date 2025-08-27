@@ -18,11 +18,8 @@ interface LikeItemProps {
 }
 
 const LikeItemComponent: React.FC<LikeItemProps> = ({ like, isFollowingAuthor = false }) => {
-  console.log('Rendering like item:', like);
-  
   // 如果是帖子类型但没有内容，不渲染任何内容（被删除的帖子）
   if (like.target_type === 'post' && !like.content) {
-    console.log('Post like without content, skipping render:', like.target_id);
     return null;
   }
   
@@ -30,7 +27,6 @@ const LikeItemComponent: React.FC<LikeItemProps> = ({ like, isFollowingAuthor = 
   if (like.content && like.target_type === 'post') {
     // 获取作者信息，优先使用 author_info，其次使用 user
     const authorInfo = like.content.author_info || like.content.user;
-    console.log('Author info:', authorInfo);
     
     // 转换为Post组件需要的格式
     const postData = {
