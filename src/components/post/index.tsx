@@ -50,6 +50,9 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   const userState = useSelector((state: RootState) => state.user);
   const postState = useSelector((state: RootState) => state.post);
   const [localFollowStatus, setLocalFollowStatus] = useState<boolean | null>(null);
+  
+  // 获取登录状态
+  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
 
   // 提前声明avatar相关的状态，避免条件调用
   const [avatarSrc, setAvatarSrc] = useState<string>('');
@@ -234,6 +237,23 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   // 处理关注按钮点击
   const handleFollowClick = (e: any) => {
     e.stopPropagation();
+    
+    // 如果未登录，弹出登录提示
+    if (!isLoggedIn) {
+      Taro.showModal({
+        title: '需要登录',
+        content: '请先登录后再关注用户',
+        confirmText: '去登录',
+        cancelText: '返回',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+          }
+        }
+      });
+      return;
+    }
+    
     if (!checkAuth() || !author) return;
     
     dispatch(toggleAction({
@@ -433,10 +453,10 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
               </View>
               {userInfo?.id !== author?.id && mode === 'detail' && !isAnonymous && (
                 <View
-                  className={`${styles.followButton} ${isFollowing ? styles.followed : ''}`}
+                  className={`${styles.followButton} ${isLoggedIn && isFollowing ? styles.followed : ''}`}
                   onClick={handleFollowClick}
                 >
-                  <Text>{isFollowing ? '已关注' : '+关注'}</Text>
+                  <Text>{isLoggedIn && isFollowing ? '已关注' : '+关注'}</Text>
                 </View>
               )}
             </View>
@@ -452,10 +472,10 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
         <View className={styles.headerActions}>
           {mode === 'list' && userInfo?.id !== author?.id && !isAnonymous && (
             <View
-              className={`${styles.followButton} ${isFollowing ? styles.followed : ''}`}
+              className={`${styles.followButton} ${isLoggedIn && isFollowing ? styles.followed : ''}`}
               onClick={handleFollowClick}
             >
-              <Text>{isFollowing ? '已关注' : '关注'}</Text>
+              <Text>{isLoggedIn && isFollowing ? '已关注' : '关注'}</Text>
             </View>
           )}
           {mode === 'list' && (

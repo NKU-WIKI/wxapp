@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import { getActionStatus } from '@/services/api/user';
 
 /**
@@ -9,9 +11,10 @@ import { getActionStatus } from '@/services/api/user';
 export const useFollowStatus = (userId: string | undefined) => {
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
 
   const refreshFollowStatus = useCallback(async () => {
-    if (!userId) {
+    if (!userId || !isLoggedIn) {
       setIsFollowing(false);
       return;
     }
@@ -26,7 +29,7 @@ export const useFollowStatus = (userId: string | undefined) => {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, isLoggedIn]);
 
   useEffect(() => {
     refreshFollowStatus();
@@ -47,9 +50,10 @@ export const useFollowStatus = (userId: string | undefined) => {
 export const useMultipleFollowStatus = (userIds: string[]) => {
   const [followStatusMap, setFollowStatusMap] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
 
   const refreshFollowStatus = useCallback(async () => {
-    if (!userIds.length) {
+    if (!userIds.length || !isLoggedIn) {
       setFollowStatusMap({});
       return;
     }
@@ -77,12 +81,12 @@ export const useMultipleFollowStatus = (userIds: string[]) => {
     } finally {
       setLoading(false);
     }
-  }, [userIds]);
+  }, [userIds, isLoggedIn]);
 
   useEffect(() => {
     refreshFollowStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userIds.length > 0 ? userIds.join(',') : '']); // 使用join来确保依赖数组的稳定性
+  }, [userIds.length > 0 ? userIds.join(',') : '', isLoggedIn]); // 添加isLoggedIn依赖
 
   const updateFollowStatus = useCallback((userId: string, newStatus: boolean) => {
     setFollowStatusMap(prev => ({

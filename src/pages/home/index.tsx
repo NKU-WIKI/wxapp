@@ -1,10 +1,11 @@
 import { View, ScrollView, Text, Input, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import type { Post as PostType } from "@/types/api/post.d";
 import { fetchFeed, fetchForumPosts } from "@/store/slices/postSlice";
+import { useMultipleFollowStatus } from "@/hooks/useFollowStatus";
 import CustomHeader from "@/components/custom-header";
 import PostItemSkeleton from "@/components/post-item-skeleton";
 import EmptyState from "@/components/empty-state";
@@ -38,6 +39,23 @@ export default function Home() {
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState<number>(0);
+
+  // 提取所有帖子作者ID用于批量获取关注状态
+  const authorIds = useMemo(() => {
+    // 只有在用户登录时才返回作者ID数组
+    if (!isLoggedIn) {
+      return [];
+    }
+    return Array.from(new Set(
+      posts
+        .filter(post => post?.user?.id)
+        .map(post => post.user.id)
+    ));
+  }, [posts, isLoggedIn]);
+
+  // 获取批量关注状态
+  const { followStatusMap, refreshFollowStatus } = useMultipleFollowStatus(authorIds);
 
   useEffect(() => {
     // 登录状态改变或首次加载时获取信息流
@@ -45,9 +63,25 @@ export default function Home() {
   }, [dispatch, isLoggedIn]);
 
   useDidShow(() => {
-    const routerParams = Taro.getCurrentInstance().router?.params;
-    if (routerParams?.refresh === 'true') {
-      handlePullRefresh();
+    // 每次显示首页时都刷新帖子数据和关注状态
+    console.log('首页显示，刷新数据');
+    
+    const now = Date.now();
+    
+    // 防抖：如果距离上次刷新不足2秒，则跳过
+    if (now - lastRefreshTime < 2000) {
+      console.log('距离上次刷新时间过短，跳过刷新');
+      return;
+    }
+    
+    setLastRefreshTime(now);
+    
+    // 刷新帖子数据
+    handlePullRefresh();
+    
+    // 刷新关注状态
+    if (isLoggedIn && authorIds.length > 0) {
+      refreshFollowStatus();
     }
   });
 
@@ -121,9 +155,25 @@ export default function Home() {
 
     const content = posts
       .filter((post) => post && post.id && post.user) // Changed from author_info to user
-      .map((post) => (
-        <Post key={post.id} post={post} className={styles.postListItem} mode="list" />
-      ));
+      .map((post) => {
+        // 从关注状态映射中获取该作者的关注状态
+        const isFollowingAuthor = followStatusMap[post.user.id] === true;
+        
+        // 创建包含正确关注状态的帖子对象
+        const postWithFollowStatus = {
+          ...post,
+          is_following_author: isFollowingAuthor
+        };
+        
+        return (
+          <Post 
+            key={post.id} 
+            post={postWithFollowStatus} 
+            className={styles.postListItem} 
+            mode="list" 
+          />
+        );
+      });
 
     // 添加加载更多的骨架屏
     if (isLoadingMore) {
