@@ -305,21 +305,62 @@ export default function PublishPost() {
     }
   };
 
-  // 页面卸载时自动保存草稿（仅在未弹窗保存时自动保存一次）
+  // 页面卸载时弹窗询问是否保存草稿（与左上角返回行为一致）
   useUnload(() => {
-    if (!hasSavedDraft && (title.trim() || content.trim()) && !draftId) {
-      const id = uuid();
-      const processedTags = formatTagsForPayload(selectedTags);
-      saveDraft({
-        id,
-        title,
-        content,
-        avatar: (userInfo as any)?.avatar || defaultAvatar,
-        updatedAt: Date.now(),
-        tags: processedTags,
-        category_id: selectedCategory,
-      } as any);
+    // 如果已经通过左上角按钮保存过，或者没有内容，则不处理
+    if (hasSavedDraft || (!title.trim() && !content.trim()) || draftId) {
+      return;
     }
+
+    // 弹窗询问是否保存草稿（与 handleBack 逻辑保持一致）
+    Taro.showModal({
+      title: '是否保存为草稿？',
+      content: '你有未发布的内容，是否保存为草稿？',
+      confirmText: '保存',
+      cancelText: '不保存',
+      success: async (res) => {
+        if (res.confirm) {
+          // 优先保存到服务器草稿；若不满足后端必填或失败，则回退本地保存
+          const canSaveServer = title.trim().length >= 1 && content.trim().length >= 1;
+          if (canSaveServer) {
+            try {
+              const processedTags = formatTagsForPayload(selectedTags);
+              const payloadForDraft: import('@/types/api/post.d').CreateForumPostRequest = {
+                title: title.trim(),
+                content: content.trim(),
+                status: 'draft' as const,
+                category_id: selectedCategory,
+                images: images,
+                tags: processedTags,
+                is_public: isPublic,
+                allow_comments: allowComments,
+              };
+              await dispatch(createPost(payloadForDraft)).unwrap();
+              Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
+              return;
+            } catch (e) {
+              // fallthrough to local save
+            }
+          }
+
+          // 如果服务器保存失败或不满足条件，则保存到本地
+          const id = uuid();
+          const processedTags = formatTagsForPayload(selectedTags);
+          saveDraft({
+            id,
+            title,
+            content,
+            avatar: (userInfo as any)?.avatar || defaultAvatar,
+            updatedAt: Date.now(),
+            tags: processedTags,
+            category_id: selectedCategory,
+          });
+          Taro.showToast({ title: '已保存到草稿箱（本地）', icon: 'success' });
+        }
+        // 无论选择保存还是不保存，都标记为已处理，避免重复弹窗
+        setHasSavedDraft(true);
+      }
+    });
   });
 
   const handleChooseImage = () => {
