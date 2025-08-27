@@ -38,12 +38,15 @@ import starIcon from "@/assets/star2.svg";
 import usersGroupIcon from "@/assets/p2p-fill.svg";
 import xCircleIcon from "@/assets/x-circle.svg";
 
+import topicIcon from "@/assets/hash_topic.svg";
+import settingIcon from "@/assets/cog.svg";
+import switchOffIcon from "@/assets/switch-off.svg";
+import switchOnIcon from "@/assets/switch-on.svg";
+
 // Relative imports
-import PublishSettings from "./components/PublishSettings";
 import styles from "./index.module.scss";
 
 const mockData = {
-  tags: ["#校园生活", "#学习交流", "#求助", "#资源分享", "#活动通知"],
   styles: ["正式", "轻松", "幽默", "专业"],
 };
 
@@ -84,6 +87,9 @@ export default function PublishPost() {
   const [showDraftPicker, setShowDraftPicker] = useState(false);
   const [draftList, setDraftList] = useState<DraftPost[]>([]);
   const [serverDrafts, setServerDrafts] = useState<Post[]>([]);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<'topic' | 'settings' | 'comments' | null>(null);
+  const [isQuickActionActive, setIsQuickActionActive] = useState(false);
 
   // 使用润色Hook
   const {
@@ -422,7 +428,8 @@ export default function PublishPost() {
 
   const handleAddCustomTag = () => {
     if (!customTag.trim()) {
-      Taro.showToast({ title: "请输入话题", icon: "none" });
+      // Taro.showToast({ title: "请输入话题", icon: "none" });
+      setIsAddingTag(false);
       return;
     }
 
@@ -547,7 +554,15 @@ export default function PublishPost() {
   };
 
   return (
-    <View className={styles.pageContainer} >
+    <View 
+      className={styles.pageContainer}
+      onClick={() => {
+        if (isQuickActionActive) {
+          setIsQuickActionActive(false);
+          setActiveMenu(null);
+        }
+      }}
+    >
       {/* 顶部提示 */}
        {/*<View style={{ background: '#FFFBEA', color: '#B7791F', padding: '8px 16px', fontSize: 13, textAlign: 'center' }}>
         返回请用左上角按钮，否则自动保存草稿
@@ -555,7 +570,14 @@ export default function PublishPost() {
       <CustomHeader title='发布帖子' onLeftClick={handleBack} />
 
       <View className={styles.contentWrapper}>
-        <ScrollView scrollY className={styles.scrollView}>
+        <ScrollView 
+          scrollY 
+          className={styles.scrollView}
+          onClick={(e) => {
+            // 阻止事件冒泡，避免触发容器的点击事件
+            e.stopPropagation();
+          }}
+        >
           <View className={styles.publishCard}>
             <Input
               placeholder='请输入标题'
@@ -588,6 +610,16 @@ export default function PublishPost() {
                 placeholder='分享你的想法...'
                 className={styles.contentInput}
                 value={content}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => {
+              setIsInputFocused(false);
+              // 延迟关闭，给用户时间点击快捷操作栏
+              setTimeout(() => {
+                if (!isQuickActionActive) {
+                  setActiveMenu(null);
+                }
+              }, 100);
+            }}
                 onInput={async (e) => {
                   const v = e.detail.value;
                   setContent(v);
@@ -715,52 +747,10 @@ export default function PublishPost() {
                 </View>
               </View>
             </View>
-          </View>
 
-          {/* Select Topic */}
-          <View className={styles.publishCard}>
-            <Text className={styles.sectionTitle}>选择话题 ({selectedTags.length}/3)</Text>
-            <View className={styles.tagsContainer}>
-              {mockData.tags.map((tag) => {
-                const selected = isTagSelected(tag);
-                return (
-                  <View
-                    key={tag}
-                    className={`${styles.tagItem} ${selected ? styles.selected : ''}`}
-                    onClick={() => handleTagToggle(tag)}
-                    style={{ backgroundColor: selected ? '#4F46E5' : undefined, color: selected ? '#FFFFFF' : undefined }}
-                  >
-                  <Text>{tag}</Text>
-                  </View>
-                );
-              })}
-
-              {isAddingTag ? (
-                <View className={`${styles.tagInputContainer}`}>
-                  <Input
-                    className={styles.tagInput}
-                    value={customTag}
-                    onInput={(e) => setCustomTag(e.detail.value)}
-                    placeholder='输入话题'
-                    focus
-                    onBlur={handleAddCustomTag}
-                    onConfirm={handleAddCustomTag}
-                  />
-                  <Text className={styles.addTagBtn} onClick={handleAddCustomTag}>确定</Text>
-                </View>
-              ) : (
-                <View
-                  className={`${styles.tagItem} ${styles.addTag}`}
-                  onClick={() => setIsAddingTag(true)}
-                >
-                <Text>#添加话题</Text>
-              </View>
-              )}
-            </View>
-
-            {selectedTags.length > 0 && (
+              {/* 这里展示已经选择的话题 */}
+              {selectedTags.length > 0 && (
               <View className={styles.selectedTagsContainer}>
-                <Text className={styles.selectedTagsTitle}>已选话题：</Text>
                 <View className={styles.selectedTagsList}>
                   {selectedTags.map((tag) => (
                     <View key={tag} className={styles.selectedTag}>
@@ -776,7 +766,17 @@ export default function PublishPost() {
                 </View>
               </View>
             )}
+            <View 
+              className={styles.visibleAll}
+              onClick={() => {
+                setIsQuickActionActive(true);
+                setActiveMenu(activeMenu === 'settings' ? null : 'settings');
+              }}
+            >
+              <Text>{isPublic ? '所有人可见 ◑' : '仅对自己可见 ◐'}</Text>
+            </View>
           </View>
+
 
 
 
@@ -792,7 +792,7 @@ export default function PublishPost() {
                   }`}
                   onClick={() => setSelectedCategory(category.id)}
                 >
-                  <Image src={category.icon} className={styles.categoryIcon} />
+                  {/* <Image src={category.icon} className={styles.categoryIcon} /> */}
                   <Text className={styles.categoryName}>{category.name}</Text>
                 </View>
               ))}
@@ -803,16 +803,136 @@ export default function PublishPost() {
 
 
 
-          <PublishSettings
-            isPublic={isPublic}
-            onPublicChange={setIsPublic}
-            allowComments={allowComments}
-            onAllowCommentsChange={setAllowComments}
-            useWikiAssistant={useWikiAssistant}
-            onWikiAssistantChange={setUseWikiAssistant}
-          />
         </ScrollView>
       </View>
+
+      {/* 快捷操作栏 - 当输入框获得焦点或用户与快捷操作栏交互时显示 */}
+      {(isInputFocused || isQuickActionActive) && (
+        <>
+            <View 
+              className={styles.quickActionBar}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsQuickActionActive(true);
+              }}
+            >
+            <View 
+              className={`${styles.quickActionItem} ${activeMenu === 'topic' ? styles.active : ''}`}
+              onClick={() => {
+                setIsQuickActionActive(true);
+                setActiveMenu(activeMenu === 'topic' ? null : 'topic');
+              }}
+            >
+              <Image src={topicIcon} className={styles.quickActionIcon} />
+            </View>
+            <View 
+              className={`${styles.quickActionItem} ${activeMenu === 'settings' ? styles.active : ''}`}
+              onClick={() => {
+                setIsQuickActionActive(true);
+                setActiveMenu(activeMenu === 'settings' ? null : 'settings');
+              }}
+            >
+              <Image src={settingIcon} className={styles.quickActionIcon} />
+            </View>
+
+          </View>
+          
+          {/* 子菜单界面 */}
+          {activeMenu && (
+            <View 
+              className={styles.subMenuContainer}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsQuickActionActive(true);
+              }}
+            >
+              {activeMenu === 'topic' && (
+                <View className={styles.subMenu}>
+                  <Text className={styles.sectionTitle}>选择话题 ({selectedTags.length}/3)</Text>
+                  <View className={styles.tagsContainer}>
+                    {isAddingTag ? (
+                      <View className={`${styles.tagInputContainer}`}>
+                        <Input
+                          className={styles.tagInput}
+                          value={customTag}
+                          onInput={(e) => setCustomTag(e.detail.value)}
+                          placeholder='输入话题'
+                          focus
+                          onBlur={handleAddCustomTag}
+                          onConfirm={handleAddCustomTag}
+                        />
+                        <Text 
+                          className={styles.addTagBtn} 
+                          onClick={() => {
+                            setIsQuickActionActive(true);
+                            handleAddCustomTag();
+                          }}
+                        >
+                          确定
+                        </Text>
+                      </View>
+                    ) : (
+                      <View
+                        className={`${styles.tagItem} ${styles.addTag}`}
+                        onClick={() => {
+                          setIsQuickActionActive(true);
+                          setIsAddingTag(true);
+                        }}
+                      >
+                        <Text>#添加话题</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              )}
+              
+              {activeMenu === 'settings' && (
+                <View className={styles.subMenu}>
+                  <View className={styles.settingItem}>
+                    <Text className={styles.settingLabel}>是否公开</Text>
+                    <Image 
+                      src={isPublic ? switchOnIcon : switchOffIcon} 
+                      className={styles.switchIcon}
+                      onClick={() => {
+                        setIsQuickActionActive(true);
+                        setIsPublic(!isPublic);
+                      }}
+                    />
+                  </View>
+                  <View className={styles.settingItem}>
+                    <Text className={styles.settingLabel}>允许评论</Text>
+                    <Image 
+                      src={allowComments ? switchOnIcon : switchOffIcon} 
+                      className={styles.switchIcon}
+                      onClick={() => {
+                        setIsQuickActionActive(true);
+                        setAllowComments(!allowComments);
+                      }}
+                    />
+                  </View>
+                </View>
+              )}
+              
+              {activeMenu === 'comments' && (
+                <View className={styles.subMenu}>
+                  <Text className={styles.sectionTitle}>评论设置</Text>
+                  <View className={styles.settingItem}>
+                    <Text className={styles.settingLabel}>允许评论</Text>
+                    <Image 
+                      src={allowComments ? switchOnIcon : switchOffIcon} 
+                      className={styles.switchIcon}
+                      onClick={() => {
+                        setIsQuickActionActive(true);
+                        setAllowComments(!allowComments);
+                      }}
+                    />
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
+        </>
+      )}
 
       <View className={styles.footer}>
         <View className={styles.publishButton} onClick={handlePublish}>

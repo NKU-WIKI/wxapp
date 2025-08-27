@@ -16,7 +16,90 @@
   height: 100%;
   box-sizing: border-box;
   padding: 16px;
-  padding-bottom: 80px;
+}
+
+.quickActionBar {
+  position: fixed;
+  bottom: 68px;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: $bg-page-gray;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 16px;
+  gap: 12px;
+  z-index: 100;
+}
+
+.quickActionItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: $bg-page-gray;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $bg-page-gray;
+  }
+
+  &.active {
+    background-color: $bg-page-gray;
+  }
+}
+
+.quickActionIcon {
+  width: 30px;
+  height: 30px;
+  transition: filter 0.3s ease;
+
+  .quickActionItem.active & {
+    filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(246deg) brightness(104%) contrast(97%);
+  }
+}
+
+.subMenuContainer {
+  position: fixed;
+  bottom: 98px;
+  left: 0;
+  right: 0;
+  background: $bg-page-gray;
+  border-top: 1px solid #e5e5e5;
+  z-index: 99;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.subMenu {
+  padding: 8px;
+}
+
+.settingItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.settingLabel {
+  font-size: 16px;
+  color: #333;
+}
+
+.switchIcon {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
 }
 
 .footer {
@@ -423,6 +506,15 @@
     }
   }
 }
+// 是否对所有人可见 样式
+.visibleAll {
+  @extend .tagItem;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  width: fit-content;
+  display: inline-block;
+}
+
 
 // 新增标签输入相关样式
 .tagInputContainer {
@@ -451,7 +543,8 @@
 }
 
 .selectedTagsContainer {
-  margin-top: 16px;
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
 .selectedTagsTitle {
@@ -499,6 +592,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  padding-top: 20rpx;
 }
 
 .categoryItem {

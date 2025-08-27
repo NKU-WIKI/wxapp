@@ -11,8 +11,6 @@ interface PublishSettingsProps {
   onPublicChange: (value: boolean) => void;
   allowComments: boolean;
   onAllowCommentsChange: (value: boolean) => void;
-  useWikiAssistant: boolean;
-  onWikiAssistantChange: (value: boolean) => void;
 }
 
 const PublishSettings = (props: PublishSettingsProps) => {
@@ -21,8 +19,6 @@ const PublishSettings = (props: PublishSettingsProps) => {
     onPublicChange,
     allowComments,
     onAllowCommentsChange,
-    useWikiAssistant,
-    onWikiAssistantChange,
   } = props;
 
   return (
@@ -44,15 +40,6 @@ const PublishSettings = (props: PublishSettingsProps) => {
       >
         <Image src={messageCircleIcon} className={styles.icon} />
         <Text className={styles.label}>允许评论</Text>
-      </View>
-      <View
-        className={classnames(styles.settingItem, {
-          [styles.active]: useWikiAssistant,
-        })}
-        onClick={() => onWikiAssistantChange(!useWikiAssistant)}
-      >
-        <Image src={robotIcon} className={styles.icon} />
-        <Text className={styles.label}>wiki小知</Text>
       </View>
     </View>
   );
