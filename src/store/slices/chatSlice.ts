@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { ChatMessage, ChatSession } from "@/types/chat";
-import { KnowledgeSearchItem, RagSearchRequest } from "@/types/api/knowledge";
-import knowledgeApi from '@/services/api/knowledge';
+// TODO: 更新为新的search类型定义
+// import { SearchResultItem, SearchRequest } from "@/types/api/search";
+// import searchApi from '@/services/api/search';
 import agentApi from '@/services/api/agent';
-import Taro from "@tarojs/taro";
 
 // 聊天状态接口
 interface ChatState {
@@ -15,8 +15,10 @@ interface ChatState {
   config: {
     enableStreaming: boolean;
   };
+  // TODO: 更新为新的搜索类型
   // 新增 RAG 搜索相关状态
-  searchResults: KnowledgeSearchItem[];
+  // searchResults: SearchResultItem[];
+  searchResults: any[]; // 暂时使用any类型
   searchLoading: boolean;
   searchError: string | null;
 }
@@ -47,21 +49,22 @@ const initialState: ChatState = {
 };
 
 // 异步 thunk: RAG 搜索
-export const searchByRag = createAsyncThunk(
-  "chat/searchByRag",
-  async (params: RagSearchRequest, { rejectWithValue }) => {
-    try {
-      const response = await knowledgeApi.searchByRag(params);
-      if (response.code === 200) {
-        return response.data;
-      } else {
-        return rejectWithValue(response.message || '搜索失败');
-      }
-    } catch (error: any) {
-      return rejectWithValue(error.message || "RAG 搜索请求失败");
-    }
-  }
-);
+// TODO: 此函数已废弃，需要更新为新的search API
+// export const searchByRag = createAsyncThunk(
+//   "chat/searchByRag",
+//   async (params: RagSearchRequest, { rejectWithValue }) => {
+//     try {
+//       const response = await knowledgeApi.searchByRag(params);
+//       if (response.code === 200) {
+//         return response.data;
+//       } else {
+//         return rejectWithValue(response.message || '搜索失败');
+//       }
+//     } catch (error: any) {
+//       return rejectWithValue(error.message || "RAG 搜索请求失败");
+//     }
+//   }
+// );
 
 
 // 异步 thunk：流式接收 AI 消息
@@ -80,19 +83,20 @@ export const streamMessageFromAI = createAsyncThunk(
 
     const messageId = `ai_${Date.now()}`;
 
+    // TODO: 知识库搜索已废弃，需要更新为新的search API
     // 可选：并行检索知识库以展示参考资料
-    let references: any[] | undefined = undefined;
-    try {
-      const searchResult = await knowledgeApi.search({
-        query: params.message,
-        page: 1,
-        page_size: 10,
-        max_content_length: 300,
-      });
-      if (Array.isArray(searchResult?.data) && searchResult.data.length > 0) {
-        references = searchResult.data;
-      }
-    } catch {}
+    let references: any[] | undefined;
+    // try {
+    //   const searchResult = await knowledgeApi.search({
+    //     query: params.message,
+    //     page: 1,
+    //     page_size: 10,
+    //     max_content_length: 300,
+    //   });
+    //   if (Array.isArray(searchResult?.data) && searchResult.data.length > 0) {
+    //     references = searchResult.data;
+    //   }
+    // } catch {}
 
     const initialMessage: ChatMessage = {
       id: messageId,
@@ -161,7 +165,7 @@ const chatSlice = createSlice({
         state.currentSession = state.sessions[0];
       }
     },
-    createSession: (state, action: PayloadAction<{ title?: string }> = { payload: {} }) => {
+    createSession: (state, action: PayloadAction<{ title?: string }>) => {
       const newSession: ChatSession = {
         id: `session_${Date.now()}`,
         title: action.payload?.title || "",
@@ -276,20 +280,20 @@ const chatSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // RAG Search
-      .addCase(searchByRag.pending, (state) => {
-        state.searchLoading = true;
-        state.searchError = null;
-        state.searchResults = [];
-      })
-      .addCase(searchByRag.fulfilled, (state, action) => {
-        state.searchLoading = false;
-        state.searchResults = action.payload;
-      })
-      .addCase(searchByRag.rejected, (state, action) => {
-        state.searchLoading = false;
-        state.searchError = action.payload as string;
-      })
+      // TODO: RAG Search reducer已废弃，需要更新为新的search API
+      // .addCase(searchByRag.pending, (state) => {
+      //   state.searchLoading = true;
+      //   state.searchError = null;
+      //   state.searchResults = [];
+      // })
+      // .addCase(searchByRag.fulfilled, (state, action) => {
+      //   state.searchLoading = false;
+      //   state.searchResults = action.payload;
+      // })
+      // .addCase(searchByRag.rejected, (state, action) => {
+      //   state.searchLoading = false;
+      //   state.searchError = action.payload as string;
+      // })
       // streamMessageFromAI
       .addCase(streamMessageFromAI.pending, (state) => {
         state.isTyping = true;

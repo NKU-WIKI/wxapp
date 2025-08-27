@@ -14,7 +14,7 @@ import {
 import { AppDispatch, RootState } from "@/store";
 import CustomHeader from "@/components/custom-header";
 import { usePolish } from "@/hooks/usePolish";
-import knowledgeApi from "@/services/api/knowledge";
+import searchApi from "@/services/api/search";
 import { uploadApi } from "@/services/api/upload";
 import { getPostDetail, getMyDrafts, deleteDraft } from "@/services/api/post";
 import { createPost } from "@/store/slices/postSlice";
@@ -554,11 +554,12 @@ export default function PublishPost() {
                   if (match) {
                     const query = match[2] || '';
                     const isKnowledge = /^k:|^knowledge:/i.test(query);
-                    const pure = query.replace(/^k:|^knowledge:/i, '').trim();
                     if (isKnowledge) {
                       try {
-                        const res = await knowledgeApi.getSuggestions(pure || '', 6);
-                        const items = Array.isArray(res.data) ? res.data.slice(0, 6) : [];
+                        // 使用热门搜索词作为知识建议的替代
+                        const hotQueries = await searchApi.getHotQueriesSimple();
+                        console.log('发布页面-获取到热门搜索词:', hotQueries);
+                        const items = hotQueries.slice(0, 6);
                         setRefSuggestions(items.map((t: string) => ({ type: 'knowledge', title: t })));
                         setShowRefPanel(true);
                       } catch {

@@ -66,10 +66,10 @@ const AboutPage: React.FC = () => {
           {/* 应用信息区域 */}
           <View className={styles.appInfo}>
             <View className={styles.logo}>
-              <Image 
-                src="/assets/logo.png" 
+              <Image
+                src='/assets/logo.png'
                 className={styles.logoImage}
-                mode="aspectFit"
+                mode='aspectFit'
               />
             </View>
             <View className={styles.appTextContainer}>
@@ -98,13 +98,13 @@ const AboutPage: React.FC = () => {
                 onClick={() => handleLinkClick('website')}
               >
                 <View className={styles.linkIcon}>
-                  <AboutIcon type="globe" size={20} color="#4a99cf" />
+                  <AboutIcon type='globe' size={20} color='#4a99cf' />
                 </View>
                 <Text className={styles.linkText}>
                   官方网站: {companyInfo.website}
                 </Text>
                 <View className={styles.linkArrow}>
-                  <AboutIcon type="arrow-right" size={16} color="#9B9B9B" />
+                  <AboutIcon type='arrow-right' size={16} color='#9B9B9B' />
                 </View>
               </View>
               
@@ -113,13 +113,13 @@ const AboutPage: React.FC = () => {
                 onClick={() => handleLinkClick('email')}
               >
                 <View className={styles.linkIcon}>
-                  <AboutIcon type="email" size={20} color="#4a99cf" />
+                  <AboutIcon type='email' size={20} color='#4a99cf' />
                 </View>
                 <Text className={styles.linkText}>
                   联系我们: {companyInfo.email}
                 </Text>
                 <View className={styles.linkArrow}>
-                  <AboutIcon type="arrow-right" size={16} color="#9B9B9B" />
+                  <AboutIcon type='arrow-right' size={16} color='#9B9B9B' />
                 </View>
               </View>
               
@@ -128,13 +128,13 @@ const AboutPage: React.FC = () => {
                 onClick={() => handleLinkClick('github')}
               >
                 <View className={styles.linkIcon}>
-                  <AboutIcon type="github" size={20} color="#4a99cf" />
+                  <AboutIcon type='github' size={20} color='#4a99cf' />
                 </View>
                 <Text className={styles.linkText}>
                   GitHub: {companyInfo.github}
                 </Text>
                 <View className={styles.linkArrow}>
-                  <AboutIcon type="arrow-right" size={16} color="#9B9B9B" />
+                  <AboutIcon type='arrow-right' size={16} color='#9B9B9B' />
                 </View>
               </View>
             </View>
@@ -155,6 +155,64 @@ const AboutPage: React.FC = () => {
               <Text className={styles.companyName}>{companyInfo.companyName}</Text>
             </View>
           </View>
+
+          {/* 调试区域 - 仅开发环境显示 */}
+          {process.env.NODE_ENV === 'development' && (
+            <View className={styles.debugSection}>
+              <Text className={styles.debugTitle}>开发调试</Text>
+              <View
+                className={styles.debugButton}
+                onClick={async () => {
+                  try {
+                    // 测试租户ID获取
+                    const { getDefaultTenantId } = await import('@/services/request');
+                    const tenantId = getDefaultTenantId();
+                    Taro.showModal({
+                      title: '租户ID信息',
+                      content: `当前租户ID: ${tenantId}`,
+                      showCancel: false,
+                      confirmText: '确定'
+                    });
+                  } catch (error) {
+                    Taro.showModal({
+                      title: '调试错误',
+                      content: `获取租户ID失败: ${error}`,
+                      showCancel: false,
+                      confirmText: '确定'
+                    });
+                  }
+                }}
+              >
+                <Text className={styles.debugButtonText}>测试租户ID</Text>
+              </View>
+
+              <View
+                className={styles.debugButton}
+                onClick={async () => {
+                  try {
+                    // 测试搜索API
+                    const { default: searchApi } = await import('@/services/api/search');
+                    const hotQueries = await searchApi.getHotQueriesSimple();
+                    Taro.showModal({
+                      title: '搜索API测试',
+                      content: `热门搜索词数量: ${hotQueries.length}\n前3个: ${hotQueries.slice(0, 3).join(', ')}`,
+                      showCancel: false,
+                      confirmText: '确定'
+                    });
+                  } catch (error) {
+                    Taro.showModal({
+                      title: '搜索API错误',
+                      content: `测试失败: ${error}`,
+                      showCancel: false,
+                      confirmText: '确定'
+                    });
+                  }
+                }}
+              >
+                <Text className={styles.debugButtonText}>测试搜索API</Text>
+              </View>
+            </View>
+          )}
 
           {/* 底部版权信息 */}
           <View className={styles.footer}>

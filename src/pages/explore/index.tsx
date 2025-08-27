@@ -5,10 +5,11 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
 import { clearSearchResults } from '@/store/slices/chatSlice';
 import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
-import knowledgeApi from '@/services/api/knowledge';
+import searchApi from '@/services/api/search';
 import agentApi from '@/services/api/agent';
 import feedbackApi from '@/services/api/feedback';
 import GeminiReadingAnimation from '@/components/gemini-reading-animation';
+import { SearchMode } from '@/types/api/search';
 
 // Icon imports
 import xIcon from '@/assets/x.svg';
@@ -25,14 +26,12 @@ import robotIcon from '@/assets/robot.svg';
 import RagResult from './components/RagResult';
 import styles from './index.module.scss';
 
-type SearchMode = 'wiki' | 'user' | 'post' | 'knowledge' | null;
-
 const searchSkills = [
   { icon: messageCircleIcon, title: '@wiki', desc: 'RAG 智能问答' },
   { icon: messageCircleIcon, title: '@wiki-chat', desc: '通用对话' },
   { icon: userIcon, title: '@user', desc: '查看和关注感兴趣的人' },
   { icon: fileTextIcon, title: '@post', desc: '查找帖子，发现校园热点内容' },
-  { icon: bookOpenIcon, title: '@knowledge', desc: '搜索知识库，获取校园资讯' }
+  { icon: bookOpenIcon, title: '@note', desc: '搜索笔记，获取学习资料' }
 ];
 
 const contentSources = [
@@ -83,15 +82,18 @@ export default function ExplorePage() {
     };
   }, [dispatch]);
 
-  // 初始化热门搜索（新接口：/api/v1/search/hot-queries）
+  // 初始化热门搜索词
   useEffect(() => {
     (async () => {
       try {
-        const res = await knowledgeApi.getHotSearches();
-        if (res.code === 0 && Array.isArray(res.data)) {
-          setHotSearches(res.data as string[]);
+        const hotQueries = await searchApi.getHotQueriesSimple();
+        console.log('获取到热门搜索词:', hotQueries);
+        if (hotQueries.length > 0) {
+          setHotSearches(hotQueries);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('获取热门搜索词失败:', e);
+      }
     })();
   }, []);
 
@@ -126,19 +128,14 @@ export default function ExplorePage() {
         return;
       }
 
-      // 动态建议（knowledge）
-      if (searchMode === 'knowledge' && raw.trim().length > 0) {
-        knowledgeApi
-          .getSuggestions(raw.trim(), 5)
-          .then((res) => {
-            if (res.code === 0 && Array.isArray(res.data)) {
-              setDynamicSuggestions(res.data);
-              setShowDynamicSuggestions(true);
-            } else {
-              setShowDynamicSuggestions(false);
-            }
-          })
-          .catch(() => setShowDynamicSuggestions(false));
+      // 动态建议（暂时使用热门搜索词作为建议）
+      if (raw.trim().length > 0) {
+        // 过滤热门搜索词作为动态建议
+        const filtered = hotSearches.filter(hot =>
+          hot.toLowerCase().includes(raw.toLowerCase())
+        );
+        setDynamicSuggestions(filtered.slice(0, 5));
+        setShowDynamicSuggestions(filtered.length > 0);
       } else {
         setShowDynamicSuggestions(false);
       }
@@ -151,12 +148,12 @@ export default function ExplorePage() {
     let mode: SearchMode = null;
     let modeDesc = '';
     let queryPart = raw;
-    const m = raw.match(/^@(wiki-chat|wiki|user|post|knowledge)\s*/);
+    const m = raw.match(/^@(wiki-chat|wiki|user|post|note)\s*/);
     if (m) {
       const key = m[1];
       mode = key === 'wiki-chat' ? 'wiki' : (key as SearchMode);
       queryPart = raw.slice(m[0].length);
-      
+
       // 根据模式设置描述
       const skill = searchSkills.find(s => s.title === `@${mode}` || (key === 'wiki-chat' && s.title === '@wiki-chat'));
       if (skill) {
@@ -176,31 +173,27 @@ export default function ExplorePage() {
       setShowSuggestions(false);
     }
 
-    // 动态建议（knowledge）
-    if (mode === 'knowledge' && queryPart.trim().length > 0) {
-      knowledgeApi.getSuggestions(queryPart.trim(), 5)
-        .then((res) => {
-          if (res.code === 0 && Array.isArray(res.data)) {
-            setDynamicSuggestions(res.data);
-            setShowDynamicSuggestions(true);
-          } else {
-            setShowDynamicSuggestions(false);
-          }
-        })
-        .catch(() => setShowDynamicSuggestions(false));
+    // 动态建议（暂时使用热门搜索词作为建议）
+    if (queryPart.trim().length > 0) {
+      // 过滤热门搜索词作为动态建议
+      const filtered = hotSearches.filter(hot =>
+        hot.toLowerCase().includes(queryPart.toLowerCase())
+      );
+      setDynamicSuggestions(filtered.slice(0, 5));
+      setShowDynamicSuggestions(filtered.length > 0);
     } else {
       setShowDynamicSuggestions(false);
     }
   };
 
-  // 兜底处理：回车时若未识别模式但以 @user/@post 开头，强制设置 searchMode
+  // 兜底处理：回车时若未识别模式但以 @user/@post/@note 开头，强制设置 searchMode
   const ensureModeBeforeSearch = () => {
     const trimmed = (`@${searchMode || ''} ${inputQuery}`).trim();
     if (trimmed.startsWith('@user')) setSearchMode('user');
     else if (trimmed.startsWith('@post')) setSearchMode('post');
+    else if (trimmed.startsWith('@note')) setSearchMode('note');
     else if (trimmed.startsWith('@wiki-chat')) setSearchMode('wiki');
     else if (trimmed.startsWith('@wiki')) setSearchMode('wiki');
-    else if (trimmed.startsWith('@knowledge')) setSearchMode('knowledge');
   };
   
   const handleSuggestionClick = (suggestion: typeof searchSkills[0]) => {
@@ -213,10 +206,10 @@ export default function ExplorePage() {
   };
 
   const handleDynamicSuggestionClick = (s: string) => {
-    // 用 @knowledge 直接填充具体查询
-    setSearchMode('knowledge');
-    setSearchModeDesc('搜索知识库，获取校园资讯');
-    setRawValue(`@knowledge ${s}`);
+    // 直接填充查询，不使用@前缀
+    setSearchMode(null);
+    setSearchModeDesc('');
+    setRawValue(s);
     setInputQuery(s);
     setShowDynamicSuggestions(false);
   };
@@ -298,13 +291,35 @@ export default function ExplorePage() {
       } finally {
         setThinking(false);
       }
-    } else if (searchMode === 'post' || searchMode === 'user') {
+    } else if (searchMode === 'post' || searchMode === 'user' || searchMode === 'note') {
       setErrorMsg(null);
       setThinking(true);
       try {
-        const res = await knowledgeApi.searchWxapp({ query, search_type: searchMode, page: 1, page_size: 20, sort_by: 'time' });
-        if (res.code === 0) {
-          setWxappResults(res.data);
+        const searchParams = {
+          q: query,
+          type: searchMode as 'post' | 'user' | 'note',
+          size: 20,
+          offset: 0,
+          sort_field: 'time' as const,
+          sort_order: 'desc' as const,
+        };
+        const res = await searchApi.search(searchParams);
+        if (res && res.data) {
+          // 转换数据格式以兼容现有组件
+          const convertedResults = res.data.items.map(item => ({
+            id: item.id,
+            title: item.title,
+            content: item.content,
+            nickname: item.nickname,
+            bio: item.bio,
+            // 保留其他字段
+            ...item
+          }));
+          setWxappResults({
+            posts: searchMode === 'post' ? { data: convertedResults, pagination: { page: 1, page_size: 20, has_more: false, total: res.data.total } } : { data: [], pagination: { page: 1, page_size: 20, has_more: false, total: 0 } },
+            users: searchMode === 'user' ? { data: convertedResults, pagination: { page: 1, page_size: 20, has_more: false, total: res.data.total } } : { data: [], pagination: { page: 1, page_size: 20, has_more: false, total: 0 } },
+            notes: searchMode === 'note' ? { data: convertedResults, pagination: { page: 1, page_size: 20, has_more: false, total: res.data.total } } : { data: [], pagination: { page: 1, page_size: 20, has_more: false, total: 0 } }
+          });
           setRagData(null);
           setGeneralResults([]);
         } else {
@@ -320,21 +335,29 @@ export default function ExplorePage() {
         setThinking(false);
       }
     } else {
-      // @knowledge 或者无前缀默认分支：使用通用 ES 搜索
+      // 默认搜索分支：使用通用搜索API
       setErrorMsg(null);
       setThinking(true);
       try {
         const q = searchMode === null ? inputQuery.trim() : query;
         if (!q) { setThinking(false); return; }
-        const res = await knowledgeApi.search({ query: q, page: 1, page_size: 20, max_content_length: 500 });
-        if (res.code !== 0) {
-          const m = res.msg || res.message || '搜索失败';
+        const searchParams = {
+          q,
+          size: 20,
+          offset: 0,
+          sort_field: 'relevance' as const,
+          sort_order: 'desc' as const,
+        };
+        const res = await searchApi.search(searchParams);
+        if (res && res.data) {
+          setWxappResults(null);
+          setRagData(null);
+          setGeneralResults(res.data.items);
+        } else {
+          const m = '搜索失败';
           Taro.showToast({ title: m, icon: 'none' });
           setErrorMsg(m);
         }
-        setWxappResults(null);
-        setRagData(null);
-        setGeneralResults(Array.isArray(res.data) ? res.data : []);
       } catch (e: any) {
         const m = e?.message || '搜索失败';
         Taro.showToast({ title: m, icon: 'none' });
@@ -547,6 +570,12 @@ export default function ExplorePage() {
             <View key={u.id || idx} className={styles.resultItem}>
               <Text className={styles.resultTitle}>{u.nickname || '用户'}</Text>
               <Text className={styles.resultContent}>{u.bio || ''}</Text>
+            </View>
+          ))}
+          {searchMode === 'note' && (wxappResults.notes?.data || []).map((n, idx) => (
+            <View key={n.id || idx} className={styles.resultItem}>
+              <Text className={styles.resultTitle}>{n.title || '笔记'}</Text>
+              <Text className={styles.resultContent}>{n.content || ''}</Text>
             </View>
           ))}
         </View>
