@@ -76,10 +76,22 @@
   overflow-y: auto;
   transform: translateY(0);
   transition: all 0.3s ease;
+  animation: slideUpIn 0.25s ease-out;
   
   &:hover {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     transform: translateY(-2px);
+  }
+}
+
+@keyframes slideUpIn {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
