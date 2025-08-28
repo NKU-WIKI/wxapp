@@ -67,3 +67,144 @@ export interface PostUpdate {
  * @description 获取社区动态信息流的查询参数
  */
 export interface GetFeedParams extends PaginationParams {}
+
+export interface GetHotPostsParams {
+  /**
+   * Limit，排行榜长度（1-50）
+   */
+  limit?: number;
+  [property: string]: any;
+}
+
+
+/**
+ * ApiResponse[List[PostHotRanking]]
+ */
+export interface HotPostsList {
+  /**
+   * Code，业务码，成功为 0
+   */
+  code?: number;
+  /**
+   * Data，负载数据
+   */
+  data?: PostHotRanking[] | null;
+  /**
+   * Message，简明中文信息
+   */
+  message?: string;
+  [property: string]: any;
+}
+
+/**
+ * PostHotRanking，帖子热度排行
+ */
+export interface PostHotRanking {
+  /**
+   * Comment Count
+   */
+  comment_count: number;
+  /**
+   * Favorite Count
+   */
+  favorite_count: number;
+  /**
+   * Hot Score
+   */
+  hot_score: number;
+  /**
+   * Like Count
+   */
+  like_count: number;
+  /**
+   * Post Id
+   */
+  post_id: string;
+  /**
+   * Title
+   */
+  title: string;
+  user: UserRead;
+  /**
+   * View Count
+   */
+  view_count: number;
+  [property: string]: any;
+}
+
+/**
+ * UserRead
+ */
+export interface UserRead {
+  /**
+   * Avatar
+   */
+  avatar?: null | string;
+  /**
+   * Bio
+   */
+  bio?: null | string;
+  /**
+   * Birthday
+   */
+  birthday?: Date | null;
+  /**
+   * College
+   */
+  college?: null | string;
+  /**
+   * Created At
+   */
+  created_at: Date;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Location
+   */
+  location?: null | string;
+  /**
+   * Nickname
+   */
+  nickname: string;
+  /**
+   * Qq Id
+   */
+  qq_id?: null | string;
+  /**
+   * School
+   */
+  school?: null | string;
+  status: UserStatus;
+  /**
+   * Tel
+   */
+  tel?: null | string;
+  /**
+   * Tenant Id
+   */
+  tenant_id: string;
+  /**
+   * Updated At
+   */
+  updated_at: Date;
+  /**
+   * Wechat Id
+   */
+  wechat_id?: null | string;
+  [property: string]: any;
+}
+
+/**
+ * UserStatus，用户状态枚举。
+ *
+ * ACTIVE: 正常用户，可以登录和使用所有功能
+ * INACTIVE: 未激活用户，可能是注册后未验证邮箱
+ * BANNED: 被禁用户，无法登录和使用功能
+ */
+export enum UserStatus {
+  Active = "active",
+  Banned = "banned",
+  Inactive = "inactive",
+}

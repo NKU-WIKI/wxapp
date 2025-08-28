@@ -3,7 +3,7 @@ import {
   Post,
   GetForumPostsParams,
   CreateForumPostRequest,
-  GetFeedParams,
+  GetFeedParams, GetHotPostsParams,
 } from "@/types/api/post.d";
 import { API } from "@/types/api/recommend";
 import http from "../request";
@@ -44,25 +44,25 @@ export const getPostByIdSilent = (postId: string) => {
     if (typeof wx !== 'undefined') {
       const BASE_URL = process.env.BASE_URL;
       const getToken = () => Taro.getStorageSync("token") || null;
-      
+
       // 获取默认租户ID的函数
       const getDefaultTenantId = () => {
         try {
           const store = require("@/store").default;
           const state = store.getState();
           const aboutInfo = state.user.aboutInfo;
-          
+
           if (aboutInfo?.tenants) {
             const tenantId = aboutInfo.tenants["南开大学"];
             if (tenantId) return tenantId;
           }
-          
+
           const cachedAboutInfo = Taro.getStorageSync("aboutInfo");
           if (cachedAboutInfo?.tenants) {
             const tenantId = cachedAboutInfo.tenants["南开大学"];
             if (tenantId) return tenantId;
           }
-          
+
           return "f6303899-a51a-460a-9cd8-fe35609151eb"; // 默认南开大学租户ID
         } catch (error) {
           return "f6303899-a51a-460a-9cd8-fe35609151eb";
@@ -112,7 +112,7 @@ export const getPostByIdSilent = (postId: string) => {
     } else {
       // 如果不在微信小程序环境中，降级使用Taro请求（开发环境）
       const finalUrl = `/forums/posts/${postId}`;
-      
+
       Taro.request({
         url: `${process.env.BASE_URL}/api/v1${finalUrl}`,
         method: 'GET',
@@ -218,7 +218,7 @@ export const clearAllDrafts = () => {
   return getMyDrafts().then(async (resp) => {
     const list = Array.isArray(resp.data) ? resp.data : [];
     for (const d of list) {
-      try { 
+      try {
         await deleteDraft((d as any).id);
       } catch {}
     }
@@ -263,6 +263,20 @@ export const getRecommendPosts = (params: API.RecommendParams) => {
   return http.get<Post[]>("/forums/posts/recommend", params);
 };
 
+/**
+ * 获取热门帖子列表
+ * @param params 查询参数
+ * @returns 热门帖子列表
+ */
+export const getHotPostList = (params?: GetHotPostsParams) => {
+  const raw = Taro.getStorageSync('token');
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
+  console.log("Fetching hot posts with params:", params, "and token:", token ? 'present' : 'absent', token);
+  return http.get<Post[]>("/forums/hot-posts", params,{
+    header: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+};
+
 // 默认导出对象，包含所有API函数
 const postApi = {
   getForumPosts,
@@ -281,6 +295,7 @@ const postApi = {
   getPostsFeed,
   generatePostsFeed,
   getRecommendPosts,
+  getHotPostList
 };
 
 export default postApi;

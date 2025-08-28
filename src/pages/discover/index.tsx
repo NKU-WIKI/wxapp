@@ -1,10 +1,9 @@
 import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback } from "react";
-import recommendApi from "@/services/api/recommend";
-import { recommendParams } from "@/types/api/recommend";
-import activityApi from "@/services/api/activity"; // moved up absolute import
-import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d"; // moved up absolute import
+import postApi from "@/services/api/post"; // 替换推荐 API 导入
+import activityApi from "@/services/api/activity";
+import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d";
 import styles from "./index.module.scss";
 import CustomHeader from "../../components/custom-header";
 import Section from "./components/Section";
@@ -20,13 +19,19 @@ interface HotPost {
   original_url?: string;
 }
 
+// 验证 UUID 格式的辅助函数
+function isValidUUID(uuid: string | number): boolean {
+  if (typeof uuid !== 'string') return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
+
 // eslint-disable-next-line import/no-unused-modules
 export default function Discover() {
   const [hotPosts, setHotPosts] = useState<HotPost[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [enableAiRecommendation, setEnableAiRecommendation] = useState(false);
-  const [activities, setActivities] = useState<ActivityRead[]>([]); // 新增活动列表
-  const [activitiesLoading, setActivitiesLoading] = useState(false); // 新增加载状态
+  const [activities, setActivities] = useState<ActivityRead[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
 
   const fetchHotPosts = useCallback(async (showLoading = true) => {
     try {
@@ -34,38 +39,33 @@ export default function Discover() {
         setIsRefreshing(true);
       }
 
-      const params: recommendParams = {
-        enable_ai_recommendation: enableAiRecommendation,
-        limit: 20,
-        hot_weight: 0.7,
-        new_weight: 0.3,
-        user_id: null,
-        days: 7
+      // 使用热门帖子接口
+      const params = {
+        limit: 20
       };
 
-      const response: any = await recommendApi.getRecommendations(params);
+      const response = await postApi.getHotPostList(params);
       let postsData: HotPost[] = [];
 
+      console.log(response);
+
       if (response && response.data) {
-        const data: any = response.data;
-        if (enableAiRecommendation && Array.isArray(data.ai_recommended_posts)) {
-          postsData = data.ai_recommended_posts as HotPost[];
-        } else if (Array.isArray(data.recommended_posts)) {
-          postsData = data.recommended_posts as HotPost[];
+        if (Array.isArray(response.data)) {
+          postsData = response.data as HotPost[];
         }
         setHotPosts(postsData);
       } else {
         setHotPosts([]);
       }
     } catch (error) {
-      // 失败时重置为空
+      console.error('获取热门帖子失败:', error);
       setHotPosts([]);
     } finally {
       if (showLoading) {
         setIsRefreshing(false);
       }
     }
-  }, [enableAiRecommendation]);
+  }, []);
 
   // 新增：获取活动列表
   const fetchActivities = useCallback(async () => {
@@ -108,10 +108,6 @@ export default function Discover() {
     fetchActivities();
   }, [fetchActivities]);
 
-  const toggleAiRecommendation = () => {
-    setEnableAiRecommendation(prev => !prev);
-  };
-
   const handleRefresh = async () => {
     await fetchHotPosts(true);
   };
@@ -144,15 +140,19 @@ export default function Discover() {
             }
           }
         });
-    });
+      });
       return;
     }
-    else if (post.id) {
+
+    if (post.id && isValidUUID(post.id)) {
       Taro.navigateTo({
         url: `/pages/subpackage-interactive/post-detail/index?id=${post.id}`
       }).catch(() => {
         Taro.showToast({ title: '暂无详情页面', icon: 'none' });
       });
+    } else {
+      // 对于无效的 ID，显示提示信息
+      Taro.showToast({ title: `点击了: ${post.title}`, icon: 'none' });
     }
   };
 
@@ -162,12 +162,7 @@ export default function Discover() {
 
       <ScrollView scrollY className={styles.scrollView}>
         {/* 热门帖子 */}
-        <Section
-          title='活动广场'
-          showAiToggle
-          aiEnabled={enableAiRecommendation}
-          onAiToggle={toggleAiRecommendation}
-        >
+        <Section title='热门帖子'>
           <ScrollView
             scrollY
             className={styles.hotPostsList}
