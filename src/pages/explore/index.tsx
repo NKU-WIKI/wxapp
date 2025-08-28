@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { View, ScrollView, Text, Input, Image, Textarea } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
 import { clearSearchResults } from '@/store/slices/chatSlice';
+import { fetchNoteFeed, loadMoreNotes, resetNotes, setRefreshing } from '@/store/slices/noteSlice';
 import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
+import MasonryLayout from '@/components/masonry-layout';
 import searchApi from '@/services/api/search';
 import agentApi from '@/services/api/agent';
 import feedbackApi from '@/services/api/feedback';
@@ -41,14 +43,15 @@ const contentSources = [
   { icon: douyinIcon, name: '抖音' }
 ];
 
-const masonryContent = [
-  { id: 1, image: 'https://ai-public.mastergo.com/ai/img_res/d0cbe5bd6d77c83d610705d1f432556b.jpg', title: '二次选拔流程须知' },
-  { id: 2, image: 'https://ai-public.mastergo.com/ai/img_res/6f8df3467172225dc952ba2620a2a330.jpg', title: '元和西饼新品测评' },
-];
-
 export default function ExplorePage() {
   const dispatch = useDispatch<AppDispatch>();
   const headerHeight = useCustomHeaderHeight();
+  
+  // Redux state
+  const { notes, loading, refreshing, hasMore } = useSelector((state: RootState) => state.note);
+  const { isLoggedIn } = useSelector((state: RootState) => state.user);
+  
+  // Local state for search functionality
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [rawValue, setRawValue] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>(null);
@@ -74,6 +77,41 @@ export default function ExplorePage() {
   // Use string path for icons to align with asset loading rules
   const searchIcon = '/assets/search.svg';
 
+  // 初始化时获取笔记动态 - 无论是否登录都应该能看到笔记
+  useEffect(() => {
+    if (!isSearchActive) {
+      console.log('Explore页面 - 开始获取笔记动态, 登录状态:', isLoggedIn);
+      dispatch(fetchNoteFeed({ skip: 0, limit: 20 }));
+    }
+  }, [dispatch, isSearchActive, isLoggedIn]);
+
+  // 调试信息
+  useEffect(() => {
+    console.log('Explore页面状态:', { 
+      isSearchActive, 
+      isLoggedIn, 
+      notesCount: notes.length, 
+      loading, 
+      hasMore 
+    });
+  }, [isSearchActive, isLoggedIn, notes.length, loading, hasMore]);
+
+  // 处理加载更多笔记
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      const skip = notes.length;
+      dispatch(loadMoreNotes({ skip, limit: 20 }));
+    }
+  };
+
+  // 处理刷新笔记
+  const handleRefresh = () => {
+    dispatch(setRefreshing(true));
+    dispatch(resetNotes());
+    dispatch(fetchNoteFeed({ skip: 0, limit: 20 }));
+  };
+
+  // 进入页面时清空上次持久化的搜索错误/结果，避免误显示错误态
   useEffect(() => {
     // 进入页面时清空上次持久化的搜索错误/结果，避免误显示错误态
     dispatch(clearSearchResults());
@@ -495,29 +533,31 @@ export default function ExplorePage() {
   );
 
   const renderDefaultView = () => (
-    <View>
-      <View className={styles.sourceNav}>
-        <View className={styles.sourceGrid}>
-          {contentSources.map((source) => (
-            <View key={source.name} className={styles.sourceItem}>
-              <Image src={source.icon} className={styles.sourceIcon} />
-              <Text className={styles.sourceName}>{source.name}</Text>
-            </View>
-          ))}
+    <View>      
+      {/* 瀑布流笔记展示 - 登录和未登录用户都能看到 */}
+      <MasonryLayout
+        notes={notes}
+        loading={loading}
+        hasMore={hasMore}
+        onLoadMore={handleLoadMore}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+      />
+      
+      {/* 未登录用户显示登录提示（浮动） */}
+      {!isLoggedIn && (
+        <View className={styles.loginHint}>
+          <Text className={styles.loginHintText}>登录后解锁更多个性化推荐</Text>
+          <View 
+            className={styles.loginHintButton}
+            onClick={() => {
+              Taro.switchTab({ url: '/pages/profile/index' });
+            }}
+          >
+            <Text className={styles.loginHintButtonText}>立即登录</Text>
+          </View>
         </View>
-      </View>
-      <View className={styles.masonryWrapper}>
-         <View className={styles.masonryContainer}>
-           {masonryContent.map(item => (
-             <View key={item.id} className={styles.masonryItem}>
-                <View className={styles.contentCard}>
-                  <Image src={item.image} className={styles.contentImage} mode='aspectFill' />
-                  <Text className={styles.contentTitle}>{item.title}</Text>
-                </View>
-             </View>
-           ))}
-         </View>
-      </View>
+      )}
     </View>
   );
 
@@ -618,10 +658,31 @@ export default function ExplorePage() {
           </View>
           {renderSuggestions()}
         </View>
+        
+        {/* 内容源导航栏 - 仅在非搜索状态下显示 */}
+        {!isSearchActive && (
+          <View className={styles.sourceNav}>
+            <View className={styles.sourceGrid}>
+              {contentSources.map((source) => (
+                <View key={source.name} className={styles.sourceItem}>
+                  <Image src={source.icon} className={styles.sourceIcon} />
+                  <Text className={styles.sourceName}>{source.name}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
       </View>
 
       {/* 内容滚动区域 */}
-      <View className={styles.contentScrollContainer} style={{ paddingTop: `${headerHeight}px` }}>
+      <View 
+        className={styles.contentScrollContainer} 
+        style={{ 
+          paddingTop: isSearchActive 
+            ? `${headerHeight + 48}px`  // 搜索状态：header + 搜索框
+            : `${headerHeight + 48 + 28}px`  // 默认状态：header + 搜索框 + sourceNav(减少间距)
+        }}
+      >
         <ScrollView scrollY className={styles.contentScrollView} enableFlex>
           <View className={styles.contentArea}>
             {renderBody()}

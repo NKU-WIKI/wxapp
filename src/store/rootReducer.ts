@@ -16,6 +16,7 @@ import feedbackReducer from "./slices/feedbackSlice";
 import levelReducer from "./slices/levelSlice";
 import settingsReducer from "./slices/settingsSlice"; // Settings slice
 import searchReducer from "./slices/searchSlice"; // Search slice
+import noteReducer from "./slices/noteSlice"; // Note slice
 
 const userPersistConfig = {
   key: 'user',
@@ -46,6 +47,7 @@ const rootReducer = combineReducers({
   level: levelReducer,
   settings: persistReducer(settingsPersistConfig, settingsReducer), // Add settings reducer
   search: searchReducer, // Add search reducer
+  note: noteReducer, // Add note reducer
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
