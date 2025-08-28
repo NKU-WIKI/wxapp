@@ -65,18 +65,26 @@
 
 .subMenuContainer {
   position: fixed;
-  bottom: 150rpx;
-  left: 0;
-  right: 0;
-  background: $bg-page-gray;
-  border-top: 1px solid #e5e5e5;
+  bottom: 120rpx;
+  left: 16px;
+  right: 16px;
+  background: $bg-card;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 99;
   max-height: 200px;
   overflow-y: auto;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
 }
 
 .subMenu {
-  padding: 8px;
+  padding: 20px;
 }
 
 .settingItem {
@@ -84,22 +92,51 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid $border-light;
+  transition: all 0.2s ease;
 
   &:last-child {
     border-bottom: none;
   }
+  
+  &:hover {
+    background-color: $bg-input;
+    margin: 0 -8px;
+    padding: 12px 8px;
+    border-radius: 6px;
+  }
 }
 
 .settingLabel {
-  font-size: 16px;
-  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: $text-primary;
+  font-weight: 500;
+  
+  &::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-color: $text-secondary;
+    opacity: 0.6;
+  }
 }
 
 .switchIcon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 .footer {
@@ -529,37 +566,61 @@
 .sectionTitle {
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-color: $theme-primary;
+    opacity: 0.8;
+    border-radius: 2px;
+  }
 }
 
 .tagsContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+  padding-top: 4px;
 }
 
 .tagItem {
-  background-color: $bg-input-focus;
+  background-color: $bg-input;
   color: $text-secondary;
-  padding: 6px 12px;
-  border-radius: 9999px;
+  padding: 8px 14px;
+  border-radius: 8px;
   font-size: 14px;
-  transition: all 0.3s ease;
+  font-weight: 500;
+  transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
   position: relative;
   overflow: hidden;
+  border: 1px solid $border-light;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    background-color: $bg-input-focus;
+    border-color: $theme-primary;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
 
   &:active {
-    opacity: 0.7;
-    transform: scale(0.98);
+    transform: scale(0.98) translateY(0);
   }
 
   &.selected {
     background-color: $theme-primary;
     color: $text-white;
-    font-weight: 500;
-    box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3);
+    font-weight: 600;
+    border-color: $theme-primary;
+    box-shadow: 0 3px 8px rgba(79, 70, 229, 0.3);
 
     &::after {
       content: '';
@@ -568,17 +629,29 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
       pointer-events: none;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
     }
   }
 
   &.addTag {
     border: 1px dashed $border-input;
     background-color: transparent;
+    color: $theme-primary;
+    font-weight: 500;
+
+    &:hover {
+      background-color: $alpha-primary-10;
+      border-color: $theme-primary;
+    }
 
     &:active {
-      background-color: $bg-input-focus;
+      background-color: $alpha-primary-20;
     }
   }
 }
@@ -609,26 +682,53 @@
 .tagInputContainer {
   display: flex;
   align-items: center;
-  background-color: $bg-input-focus;
-  border-radius: 9999px;
-  padding: 4px 8px;
+  background-color: $bg-card;
+  border-radius: 8px;
+  padding: 8px 12px;
   gap: 8px;
-  border: 1px solid $border-input-focus;
+  border: 1px solid $border-light;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: $theme-primary;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
+  }
 }
 
 .tagInput {
   flex: 1;
   font-size: 14px;
-  height: 28px;
+  height: 32px;
   min-width: 100px;
   border: none;
   background: transparent;
+  color: $text-primary;
+  
+  &:focus {
+    outline: none;
+  }
+  
+  &::placeholder {
+    color: $text-placeholder;
+  }
 }
 
 .addTagBtn {
   color: $theme-primary;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: $alpha-primary-10;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 .selectedTagsContainer {

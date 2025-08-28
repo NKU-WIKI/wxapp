@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布帖子</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F6DF5',
+                        secondary: '#9B6AFA',
+                        neutral: {
+                            100: '#F7F9FC',
+                            200: '#EDF1F7',
+                            300: '#C5CEE0',
+                            400: '#8F9BB3',
+                            500: '#2E3A59',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 10px rgba(0, 0, 0, 0.05)',
+                        'hover': '0 5px 15px rgba(0, 0, 0, 0.08)',
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-bg {
+                transition: background-color 0.2s ease;
+            }
+            .transition-transform {
+                transition: transform 0.2s ease;
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+            .text-balance {
+                text-wrap: balance;
+            }
+        }
+    </style>
+</head>
+<body class="bg-neutral-100 font-inter text-neutral-500 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-soft sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <button class="p-2 rounded-full hover:bg-neutral-100 transition-bg">
+                <i class="fa fa-arrow-left text-neutral-500"></i>
+            </button>
+            <h1 class="text-lg font-medium">发布帖子</h1>
+            <div class="flex items-center gap-3">
+                <button class="p-2 rounded-full hover:bg-neutral-100 transition-bg">
+                    <i class="fa fa-ellipsis-h text-neutral-500"></i>
+                </button>
+                <button class="p-2 rounded-full hover:bg-neutral-100 transition-bg">
+                    <i class="fa fa-eye text-neutral-500"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-5 max-w-md">
+        <!-- 输入区域 -->
+        <div class="bg-white rounded-xl shadow-soft p-5 mb-5 transform hover:shadow-hover transition-all-300">
+            <!-- 标题输入 -->
+            <div class="mb-4">
+                <input 
+                    type="text" 
+                    placeholder="请输入标题" 
+                    class="w-full text-lg font-medium border-b border-neutral-200 py-3 px-1 focus:outline-none focus:border-primary transition-all-300 placeholder-neutral-400"
+                >
+            </div>
+            
+            <!-- 内容输入 -->
+            <div class="mb-5">
+                <textarea 
+                    placeholder="分享你的想法..." 
+                    rows="6" 
+                    class="w-full text-neutral-500 border-b border-neutral-200 py-3 px-1 focus:outline-none focus:border-primary transition-all-300 placeholder-neutral-400 resize-none"
+                ></textarea>
+            </div>
+            
+            <!-- 工具栏 -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button class="p-2 rounded-full hover:bg-neutral-100 transition-bg text-neutral-500">
+                        <i class="fa fa-bold"></i>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-neutral-100 transition-bg text-neutral-500">
+                        <i class="fa fa-italic"></i>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-neutral-100 transition-bg text-neutral-500">
+                        <i class="fa fa-image"></i>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-neutral-100 transition-bg text-neutral-500">
+                        <i class="fa fa-at"></i>
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <select class="bg-neutral-100 border-none rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                        <option>正式</option>
+                        <option>草稿</option>
+                        <option>私密</option>
+                    </select>
+                    
+                    <button class="bg-secondary/10 text-secondary rounded-lg px-3 py-1.5 text-sm font-medium hover:bg-secondary/20 transition-bg">
+                        <i class="fa fa-magic mr-1"></i> 润色
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 分类选择 -->
+        <div class="bg-white rounded-xl shadow-soft p-5 mb-5 transform hover:shadow-hover transition-all-300">
+            <h2 class="text-base font-medium mb-4">选择分类</h2>
+            
+            <div class="grid grid-cols-3 gap-3">
+                <button class="bg-primary text-white rounded-lg py-2.5 text-sm font-medium hover:bg-primary/90 transition-bg">
+                    学习交流
+                </button>
+                <button class="bg-neutral-100 text-neutral-500 rounded-lg py-2.5 text-sm font-medium hover:bg-neutral-200 transition-bg">
+                    校园生活
+                </button>
+                <button class="bg-neutral-100 text-neutral-500 rounded-lg py-2.5 text-sm font-medium hover:bg-neutral-200 transition-bg">
+                    就业创业
+                </button>
+                <button class="bg-neutral-100 text-neutral-500 rounded-lg py-2.5 text-sm font-medium hover:bg-neutral-200 transition-bg">
+                    社团活动
+                </button>
+                <button class="bg-neutral-100 text-neutral-500 rounded-lg py-2.5 text-sm font-medium hover:bg-neutral-200 transition-bg">
+                    失物招领
+                </button>
+            </div>
+        </div>
+        
+        <!-- 隐私设置 -->
+        <div class="bg-white rounded-xl shadow-soft p-5 mb-8 transform hover:shadow-hover transition-all-300">
+            <!-- 是否公开 -->
+            <div class="flex items-center justify-between py-3 border-b border-neutral-100">
+                <div class="flex items-center gap-2">
+                    <i class="fa fa-globe text-neutral-400"></i>
+                    <span>是否公开</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-1 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+            
+            <!-- 允许评论 -->
+            <div class="flex items-center justify-between py-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa fa-comments text-neutral-400"></i>
+                    <span>允许评论</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-1 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+        </div>
+        
+        <!-- 标签和设置 -->
+        <div class="flex items-center justify-between mb-6">
+            <button class="p-2.5 rounded-full bg-white shadow-soft hover:shadow-hover transition-all-300">
+                <i class="fa fa-hashtag text-neutral-500"></i>
+            </button>
+            <button class="p-2.5 rounded-full bg-white shadow-soft hover:shadow-hover transition-all-300">
+                <i class="fa fa-cog text-neutral-500"></i>
+            </button>
+        </div>
+        
+        <!-- 发布按钮 -->
+        <button class="w-full bg-primary text-white rounded-xl py-4 font-medium text-base hover:bg-primary/90 transition-bg active:scale-98 transform transition-transform shadow-soft">
+            发布
+        </button>
+    </main>
+
+    <!-- 简单的交互脚本 -->
+    <script>
+        // 为分类按钮添加点击切换效果
+        document.querySelectorAll('.grid-cols-3 button').forEach(button => {
+            button.addEventListener('click', () => {
+                // 移除所有按钮的选中状态
+                document.querySelectorAll('.grid-cols-3 button').forEach(btn => {
+                    btn.classList.remove('bg-primary', 'text-white');
+                    btn.classList.add('bg-neutral-100', 'text-neutral-500');
+                });
+                
+                // 设置当前按钮为选中状态
+                button.classList.remove('bg-neutral-100', 'text-neutral-500');
+                button.classList.add('bg-primary', 'text-white');
+            });
+        });
+        
+        // 为发布按钮添加点击反馈
+        document.querySelector('button:last-of-type').addEventListener('click', function() {
+            this.classList.add('opacity-70');
+            setTimeout(() => {
+                this.classList.remove('opacity-70');
+            }, 200);
+        });
+    </script>
+</body>
+</html>
