@@ -75,7 +75,6 @@ export default function PublishPost() {
   const [selectedStyle, setSelectedStyle] = useState("正式");
   const [isPublic, setIsPublic] = useState(true);
   const [allowComments, setAllowComments] = useState(true);
-  const [useWikiAssistant, setUseWikiAssistant] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
   const [isAddingTag, setIsAddingTag] = useState(false);
@@ -370,35 +369,36 @@ export default function PublishPost() {
   });
 
   const handleChooseImage = () => {
-    if (isUploading) return;
-    const count = 9 - images.length;
-    if (count <= 0) {
-      Taro.showToast({ title: "最多上传9张图片", icon: "none" });
-      return;
-    }
-    Taro.chooseImage({
-      count,
-      sizeType: ["compressed"],
-      sourceType: ["album", "camera"],
-      success: async (res) => {
-        setIsUploading(true);
-        Taro.showLoading({ title: "上传中..." });
-        try {
-          const uploadPromises = res.tempFilePaths.map((path) =>
-            uploadApi.uploadImage(path)
-          );
-          const uploadedUrls = await Promise.all(uploadPromises);
-          setImages((prev) => [...prev, ...uploadedUrls]);
-        } catch (error) {
-          console.error("上传图片失败:", error);
-          Taro.showToast({ title: "上传失败，请重试", icon: "none" });
-        } finally {
-          setIsUploading(false);
-          Taro.hideLoading();
-        }
-      },
-    });
-  };
+  if (isUploading) return;
+  const count = 9 - images.length;
+  if (count <= 0) {
+    Taro.showToast({ title: "最多上传9张图片", icon: "none" });
+    return;
+  }
+  Taro.chooseImage({
+    count,
+    sizeType: ["compressed"],
+    sourceType: ["album", "camera"],
+    success: async (res) => {
+      setIsUploading(true);
+      Taro.showLoading({ title: "上传中...", mask: true });
+      try {
+        const uploadPromises = res.tempFilePaths.map((path) =>
+          uploadApi.uploadImage(path)
+        );
+        const uploadedUrls = await Promise.all(uploadPromises);
+        setImages((prev) => [...prev, ...uploadedUrls]);
+        Taro.showToast({ title: "上传成功", icon: "success" });
+      } catch (error) {
+        console.error("上传图片失败:", error);
+        Taro.showToast({ title: "上传失败，请重试", icon: "none" });
+      } finally {
+        setIsUploading(false);
+        Taro.hideLoading();
+      }
+    },
+  });
+};
 
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
@@ -455,6 +455,13 @@ export default function PublishPost() {
     setSelectedTags([...selectedTags, formattedTag]);
     setCustomTag("");
     setIsAddingTag(false);
+
+      // 添加成功反馈
+    Taro.showToast({ 
+      title: "话题添加成功", 
+      icon: "none",
+      duration: 1000 
+    });
   };
 
   const handlePublish = async () => {
@@ -548,10 +555,7 @@ export default function PublishPost() {
 
 
 
-  // 检查标签是否被选中的辅助函数
-  const isTagSelected = (tag: string): boolean => {
-    return selectedTags.includes(tag);
-  };
+
 
   return (
     <View 
@@ -933,11 +937,16 @@ export default function PublishPost() {
           )}
         </>
       )}
-
-      <View className={styles.footer}>
-        <View className={styles.publishButton} onClick={handlePublish}>
-          <Text>发布</Text>
-        </View>
+      {/* 在发布按钮添加禁用状态 */}
+      <View 
+        className={styles.publishButton} 
+        onClick={handlePublish}
+        style={{ 
+          opacity: (!title.trim() || !content.trim()) ? 0.7 : 1,
+          pointerEvents: (!title.trim() || !content.trim()) ? 'none' : 'auto'
+        }}
+      >
+        <Text>发布</Text>
       </View>
 
       {showDraftPicker && (
