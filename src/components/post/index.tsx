@@ -197,8 +197,10 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   const location = getLocation();
   
   // 跳转到详情页
-  const navigateToDetail = (e) => {
-    e.stopPropagation();
+  const navigateToDetail = (e?: ITouchEvent | null) => {
+    if (e) {
+      e.stopPropagation();
+    }
     if (enableNavigation && mode === 'list') {
       Taro.navigateTo({ url: `/pages/subpackage-interactive/post-detail/index?id=${displayPost.id}` });
     }
@@ -531,7 +533,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
               src={url || ''}
               className={styles.postImage}
               mode='aspectFill'
-              onClick={() => mode === 'detail' ? previewImage(url) : navigateToDetail(null)}
+              onClick={(e) => mode === 'detail' ? previewImage(url) : navigateToDetail(e)}
             />
           ))}
         </View>
