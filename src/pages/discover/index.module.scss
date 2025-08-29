@@ -378,8 +378,8 @@
 }
 
 .moduleIcon {
-  width: 64rpx;
-  height: 64rpx;
+  width: 80rpx; /* 从64rpx增加到80rpx */
+  height: 80rpx;
   margin-bottom: 16rpx;
   border-radius: 12rpx;
   flex-shrink: 0;

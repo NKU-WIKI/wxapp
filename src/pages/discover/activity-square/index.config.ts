@@ -1,4 +1,4 @@
 export default definePageConfig({
-  navigationBarTitleText: '活动广场'
+  navigationBarTitleText: '活动广场',
+  navigationStyle: 'custom'
 });
-

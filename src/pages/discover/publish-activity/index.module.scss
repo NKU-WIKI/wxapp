@@ -89,6 +89,49 @@ $text-secondary: #64748b;
 .tagsInput { font-size: 26rpx; letter-spacing: .5rpx; }
 .helper { font-size: 22rpx; color: #94a3b8; margin-top: 6rpx; }
 
+// 活动分类选择器样式
+.categorySelector {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.categoryOption {
+  padding: 12rpx 20rpx;
+  border: 2rpx solid #cbd5e1;
+  border-radius: 40rpx;
+  font-size: 24rpx;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.6);
+  position: relative;
+  overflow: hidden;
+  transition: color .25s, border-color .25s, background .25s, box-shadow .25s;
+  box-shadow: 0 2rpx 4rpx rgba(15,23,42,0.04);
+  flex-grow: 1;
+  text-align: center;
+  min-width: 30%;
+  max-width: 32%;
+  &:active { transform: scale(.97); }
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg,rgba(99,102,241,0.12),rgba(79,70,229,0));
+    opacity: 0;
+    transition: opacity .35s;
+  }
+  &:hover::after { opacity: 1; }
+}
+
+.categoryOptionActive {
+  background: $primary-grad;
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4rpx 10rpx rgba(79,70,229,0.35),0 2rpx 4rpx rgba(79,70,229,0.25);
+  &::after { display: none; }
+}
+
 .typeSelector {
   display: flex;
   gap: 24rpx;

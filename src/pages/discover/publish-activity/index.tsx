@@ -51,7 +51,7 @@ export default function PublishActivity() {
     // 支持 "YYYY-MM-DD HH:mm" 简易解析
     const replaced = value.replace('T', ' ');
     const ts = Date.parse(replaced.replace(/-/g, '/')); // iOS 兼容
-    return isNaN(ts) ? null : new Date(ts);
+    return Number.isNaN(ts) ? null : new Date(ts);
   };
 
   const handleSubmit = async () => {
@@ -114,6 +114,16 @@ export default function PublishActivity() {
     { label: '混合', value: ActivityType.Hybrid },
   ];
 
+  // 预定义活动分类
+  const activityCategories: { label: string; value: string }[] = [
+    { label: '运动健身', value: '运动健身' },
+    { label: '创意艺术', value: '创意艺术' },
+    { label: '志愿公益', value: '志愿公益' },
+    { label: '吃喝娱乐', value: '吃喝娱乐' },
+    { label: '学习搭子', value: '学习搭子' },
+    { label: '其他活动', value: '其他活动' },
+  ];
+
   return (
     <View className={styles.publishActivityPage}>
       <CustomHeader title='发布活动' hideBack={false} />
@@ -130,7 +140,17 @@ export default function PublishActivity() {
 
       <View className={styles.formItem}>
         <Text className={styles.label}>分类 *</Text>
-        <Input className={styles.input} value={form.category} placeholder='例如：技术 / 社团 / 招新' onInput={e => update('category', e.detail.value)} />
+        <View className={styles.categorySelector}>
+          {activityCategories.map(category => (
+            <View
+              key={category.value}
+              className={`${styles.categoryOption} ${form.category === category.value ? styles.categoryOptionActive : ''}`}
+              onClick={() => update('category', category.value)}
+            >
+              <Text>{category.label}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       <View className={styles.formItem}>
