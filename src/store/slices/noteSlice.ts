@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import noteApi, { NoteListItem } from '@/services/api/note';
+import noteApi, { NoteListItem, CreateNoteRequest, NoteDetail } from '@/services/api/note';
+import { BaseResponse } from '@/types/api/common';
 
 // Mock数据，用于展示功能
 const createMockNotes = (): NoteListItem[] => {
@@ -347,6 +348,25 @@ export const fetchNoteFeed = createAsyncThunk(
   }
 );
 
+// 异步thunk - 创建笔记
+export const createNote = createAsyncThunk<
+  BaseResponse<NoteDetail>,
+  CreateNoteRequest
+>(
+  'note/createNote',
+  async (noteData: CreateNoteRequest, { rejectWithValue }) => {
+    try {
+      console.log('创建笔记，数据:', noteData);
+      const response = await noteApi.createNote(noteData);
+      console.log('创建笔记响应:', response);
+      return response;
+    } catch (error: any) {
+      console.error('创建笔记失败:', error);
+      return rejectWithValue(error.message || '创建笔记失败');
+    }
+  }
+);
+
 // 异步thunk - 加载更多笔记
 export const loadMoreNotes = createAsyncThunk(
   'note/loadMoreNotes',
@@ -417,6 +437,8 @@ interface NoteState {
   error: string | null;
   page: number;
   pageSize: number;
+  creating: boolean;
+  createError: string | null;
 }
 
 const initialState: NoteState = {
@@ -427,6 +449,8 @@ const initialState: NoteState = {
   error: null,
   page: 1,
   pageSize: 20,
+  creating: false,
+  createError: null,
 };
 
 const noteSlice = createSlice({
@@ -495,6 +519,42 @@ const noteSlice = createSlice({
       .addCase(loadMoreNotes.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || '加载更多笔记失败';
+      })
+      // 创建笔记
+      .addCase(createNote.pending, (state) => {
+        state.creating = true;
+        state.createError = null;
+      })
+      .addCase(createNote.fulfilled, (state, action) => {
+        state.creating = false;
+        const response = action.payload;
+        console.log('createNote fulfilled, response:', response);
+        if (response.code === 0 && response.data) {
+          // 将新创建的笔记添加到列表顶部
+          const newNote: NoteListItem = {
+            id: response.data.id,
+            title: response.data.title,
+            content: response.data.content || '',
+            category_id: response.data.category_id,
+            tags: response.data.tags || [],
+            created_at: response.data.created_at,
+            updated_at: response.data.updated_at,
+            is_public: response.data.visibility === 'PUBLIC',
+            view_count: 0,
+            like_count: 0,
+            comment_count: 0,
+            author_name: response.data.author?.name || '我',
+            author_avatar: response.data.author?.avatar || ''
+          };
+          state.notes = [newNote, ...state.notes];
+          state.createError = null;
+        } else {
+          state.createError = response.message || '创建笔记失败';
+        }
+      })
+      .addCase(createNote.rejected, (state, action) => {
+        state.creating = false;
+        state.createError = action.payload as string || action.error.message || '创建笔记失败';
       });
   },
 });

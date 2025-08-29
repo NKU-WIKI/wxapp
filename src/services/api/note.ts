@@ -1,5 +1,11 @@
 import http from '../request';
 
+// 笔记可见性枚举
+export type NoteVisibility = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
+
+// 笔记状态枚举
+export type NoteStatus = 'draft' | 'published' | 'archived' | 'deleted';
+
 // 笔记列表项接口
 export interface NoteListItem {
   id: string;
@@ -32,6 +38,7 @@ export interface NoteDetail {
   user_id: string;
   link_info_id?: string;
   status: 'draft' | 'published' | 'archived' | 'deleted';
+  visibility: 'PUBLIC' | 'FRIENDS' | 'PRIVATE'; // 可见性设置
   view_count: number;
   like_count: number;
   favorite_count: number;
@@ -51,6 +58,7 @@ export interface NoteDetail {
   user?: any;
   category?: any;
   link_info?: any;
+  author?: { name?: string; avatar?: string }; // 作者信息
   is_liked: boolean;
   is_favorited: boolean;
 }
@@ -79,6 +87,28 @@ export interface GetNotesParams {
   sort_order?: 'asc' | 'desc'; // 排序方向，默认desc
   skip?: number; // 偏移量，默认0
   limit?: number; // 限制数量，默认20，最大100
+}
+
+// 创建笔记请求接口
+export interface CreateNoteRequest {
+  title: string; // 笔记标题(必填)
+  content?: string; // 笔记内容(可选)
+  summary?: string; // 内容摘要
+  excerpt?: string; // 摘录
+  category_id?: string; // 分类ID
+  tags?: string[]; // 标签列表
+  link_info_id?: string; // 链接信息ID
+  images?: string[]; // 图片URL列表
+  mentioned_users?: string[]; // 提及的用户ID列表
+  location?: string; // 地理位置信息
+  visibility?: 'PUBLIC' | 'FRIENDS' | 'PRIVATE'; // 可见性设置
+  allow_share?: boolean; // 是否允许转发
+  allow_comment?: boolean; // 是否允许评论
+  status?: 'draft' | 'published'; // 笔记状态
+  word_count?: number; // 字数统计
+  reading_time_minutes?: number; // 预计阅读时间
+  is_featured?: boolean; // 是否精选
+  featured_weight?: number; // 精选权重
 }
 
 /**
@@ -122,10 +152,18 @@ export const getNoteAnalytics = async (noteId: string, days: number = 30) => {
   return http.get<{ code: number; message: string; data: any }>(`/notes/${noteId}/analytics`, { days });
 };
 
+/**
+ * 创建笔记
+ */
+export const createNote = async (noteData: CreateNoteRequest) => {
+  return http.post<NoteDetail>('/notes', noteData);
+};
+
 export default {
   getNotes,
   getNoteDetail,
   getNoteFeed,
   getNoteStats,
   getNoteAnalytics,
+  createNote,
 };

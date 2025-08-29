@@ -1,0 +1,81 @@
+@import "../../../../styles/variables.scss";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: linear-gradient(to bottom right, #e6f7f0, #f5f7fa);
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 输入卡片样式 */
+.card {
+  background-color: #fff;
+  border-radius: 32px;
+  padding: 48px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  margin-bottom: 48px;
+}
+
+.quoteIcon {
+  font-size: 80px;
+  color: #eee;
+  margin-bottom: 32px;
+  line-height: 1;
+}
+
+.title {
+  font-size: 50rpx;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.inputArea {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 50rpx;
+  line-height: 1.6;
+  min-height: 240px;
+  background: transparent;
+  color: #333;
+  
+  &::placeholder {
+    color: #aaa;
+  }
+}
+
+/* 底部按钮样式 */
+.bottomBtn {
+  background-color: #b0a6fa !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 48px;
+  padding: auto;
+  font-size: 32px;
+  font-weight: 500;
+  width: 100%;
+  margin-top: auto;
+  height: 70px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+
+  &::after {
+    border: none;
+  }
+  
+  &:active {
+    background-color: #9f93fa !important;
+  }
+}

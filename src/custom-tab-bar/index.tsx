@@ -61,8 +61,8 @@ const CustomTabBar: FC = () => {
     if (type === 'post') {
       Taro.navigateTo({ url: '/pages/subpackage-interactive/publish/index' });
     } else if (type === 'note') {
-      // 发布笔记功能暂时搁置
-      Taro.showToast({ title: '功能开发中', icon: 'none' });
+      // 发布笔记功能
+      Taro.navigateTo({ url: '/pages/subpackage-interactive/note-publish/img_generate/index' });
     }
   };
 
@@ -97,7 +97,7 @@ const CustomTabBar: FC = () => {
           <View className={`${styles.subMenuItem} ${styles.noteItem}`} onClick={() => handleSubMenuClick('note')}>
             <View className={styles.textContent}>
               <View className={styles.text}>发布笔记</View>
-              <View className={styles.desc}>校内小事代办</View>
+              <View className={styles.desc}>共享知识与经验</View>
             </View>
             <View className={styles.icon}>📝</View>
           </View>
