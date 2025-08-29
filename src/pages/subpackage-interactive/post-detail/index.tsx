@@ -273,30 +273,40 @@ const PostDetailPage = () => {
       comments: commentState?.comments
     });
 
+    // 正在加载中，显示加载状态
     if (postState?.detailLoading === 'pending') {
       return <View className={styles.loading}>加载中...</View>;
     }
 
+    // 加载失败，显示错误信息
     if (postState?.detailLoading === 'failed' || postState?.error) {
       return <View className={styles.error}>加载失败: {postState.error}</View>;
     }
 
-    if (!postState?.currentPost) {
+    // 加载完成（成功或失败）后，如果 currentPost 为空，则显示帖子不存在
+    // 只有在加载完成后才判断帖子是否存在，避免首次加载时的闪烁问题
+    if (postState?.detailLoading === 'succeeded' && !postState?.currentPost) {
       return <View className={styles.error}>帖子不存在</View>;
     }
 
-    return (
-      <>
-        <Post post={postState.currentPost} mode="detail" />
-        
-        <CommentSection
-          comments={commentState?.comments || []}
-          onReply={handleReply}
-          onLikeUpdate={handleLikeUpdate}
-          onDeleteComment={handleDeleteComment}
-        />
-      </>
-    );
+    // 加载成功且帖子存在，显示帖子内容
+    if (postState?.detailLoading === 'succeeded' && postState?.currentPost) {
+      return (
+        <>
+          <Post post={postState.currentPost} mode="detail" />
+
+          <CommentSection
+            comments={commentState?.comments || []}
+            onReply={handleReply}
+            onLikeUpdate={handleLikeUpdate}
+            onDeleteComment={handleDeleteComment}
+          />
+        </>
+      );
+    }
+
+    // 默认情况下显示加载中（处理初始状态）
+    return <View className={styles.loading}>加载中...</View>;
   };
 
   return (

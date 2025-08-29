@@ -5,6 +5,8 @@ win11 powershell
 后端api文档参考kjxwr6px14.apifox.cn，或者cursor解析的docs @blockbondOpenapi
 或者请求http://123.56.196.155:8001/openapi.json
 
+禁止自己运行npm run等编译命令
+
 ### 测试账号与令牌（仅本地开发）
 
 - nankai 租户（tenant_id = f6303899-a51a-460a-9cd8-fe35609151eb）
