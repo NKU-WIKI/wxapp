@@ -136,8 +136,11 @@
 .activitiesContainer {
   display: flex;
   flex-direction: column;
+  align-items: stretch; // 确保子元素拉伸填充宽度
+  justify-content: flex-start; // 确保内容从顶部开始，不居中
   gap: 16px; // 从32px减少到16px，减小一半
   padding-bottom: 100px; // 为悬浮按钮预留空间
+  min-height: auto; // 确保容器高度自适应内容
 }
 
 .loadingState {
