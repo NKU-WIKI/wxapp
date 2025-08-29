@@ -3,6 +3,7 @@ export default {
     "pages/home/index",
     "pages/explore/index",
     "pages/discover/index",
+    "pages/discover/activity-square/index",
     "pages/discover/publish-activity/index",
     "pages/profile/index",
   ],

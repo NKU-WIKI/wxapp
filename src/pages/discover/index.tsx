@@ -1,13 +1,10 @@
 import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback } from "react";
-import postApi from "@/services/api/post"; // 替换推荐 API 导入
-import activityApi from "@/services/api/activity";
-import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d";
+import postApi from "@/services/api/post";
 import styles from "./index.module.scss";
 import CustomHeader from "../../components/custom-header";
 import Section from "./components/Section";
-import { activity } from "./mock";
 
 interface HotPost {
   id?: string | number;
@@ -30,8 +27,6 @@ function isValidUUID(uuid: string | number): boolean {
 export default function Discover() {
   const [hotPosts, setHotPosts] = useState<HotPost[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [activities, setActivities] = useState<ActivityRead[]>([]);
-  const [activitiesLoading, setActivitiesLoading] = useState(false);
 
   const fetchHotPosts = useCallback(async (showLoading = true) => {
     try {
@@ -39,9 +34,8 @@ export default function Discover() {
         setIsRefreshing(true);
       }
 
-      // 使用热门帖子接口
       const params = {
-        limit: 20
+        limit: 5
       };
 
       const response = await postApi.getHotPostList(params);
@@ -67,46 +61,9 @@ export default function Discover() {
     }
   }, []);
 
-  // 新增：获取活动列表
-  const fetchActivities = useCallback(async () => {
-    try {
-      setActivitiesLoading(true);
-      const params: GetActivityListRequest = {
-        limit: 10,
-        status: ActivityStatus.Published,
-        sort_by: 'start_time',
-        sort_order: 'desc'
-      };
-      const res = await activityApi.getActivityList(params);
-      // 兼容后端 data?.data?.items / data?.data?.items 结构
-      let list: ActivityRead[] = [];
-      if (res?.data) {
-        // 优先 PageActivityRead 结构
-        const pageData: any = res.data as any;
-        if (pageData?.items && Array.isArray(pageData.items)) {
-          list = pageData.items as ActivityRead[];
-        } else if (Array.isArray(res.data as any)) {
-          list = res.data as unknown as ActivityRead[];
-        }
-      }
-      setActivities(list);
-      console.log('Fetched activities:', res); // 终端输出列表
-    } catch (err) {
-      console.warn('获取活动失败', err);
-      setActivities([]);
-    } finally {
-      setActivitiesLoading(false);
-    }
-  }, []);
-
-  // 获取热门帖子与活动
   useEffect(() => {
     fetchHotPosts(false);
   }, [fetchHotPosts]);
-
-  useEffect(() => {
-    fetchActivities();
-  }, [fetchActivities]);
 
   const handleRefresh = async () => {
     await fetchHotPosts(true);
@@ -151,7 +108,6 @@ export default function Discover() {
         Taro.showToast({ title: '暂无详情页面', icon: 'none' });
       });
     } else {
-      // 对于无效的 ID，显示提示信息
       Taro.showToast({ title: `点击了: ${post.title}`, icon: 'none' });
     }
   };
@@ -160,9 +116,16 @@ export default function Discover() {
     <View className={styles.discoverPage}>
       <CustomHeader title='探索' hideBack showWikiButton showNotificationIcon />
 
-      <ScrollView scrollY className={styles.scrollView}>
+      <View className={styles.contentContainer}>
         {/* 热门帖子 */}
-        <Section title='热门帖子'>
+        <Section
+          title='热榜 TOP5'
+          extraText='更多'
+          isLink
+          onExtraClick={() => {
+            Taro.navigateTo({ url: '/pages/subpackage-interactive/hot-posts/index' });
+          }}
+        >
           <ScrollView
             scrollY
             className={styles.hotPostsList}
@@ -173,7 +136,7 @@ export default function Discover() {
             refresherBackground='#f8fafc'
           >
             {Array.isArray(hotPosts) && hotPosts.length > 0 ? (
-              hotPosts.map((post: HotPost, index: number) => (
+              hotPosts.slice(0, 5).map((post: HotPost, index: number) => (
                 <View
                   key={post.id || index}
                   className={styles.hotPostItem}
@@ -229,82 +192,67 @@ export default function Discover() {
           </ScrollView>
         </Section>
 
-        {/* 活动广场 */}
-        <Section
-          title='活动广场'
-          extraText='发布活动'
-          isLink
-          onExtraClick={() => {
-            Taro.navigateTo({ url: '/pages/discover/publish-activity/index' });
-          }}
-        >
-          {activitiesLoading ? (
-            <View className={styles.emptyState}>加载中...</View>
-          ) : (activities && activities.length > 0 ? (
-            activities.map(act => (
-              <View
-                key={act.id}
-                className={styles.activityCard}
-                onClick={() => {
-                  Taro.showToast({ title: act.title, icon: 'none' });
-                }}
-              >
-                <Image
-                  src='https://via.placeholder.com/240x240.png?text=Activity'
-                  className={styles.activityImage}
-                  mode='aspectFill'
-                />
-                <View className={styles.activityInfo}>
-                  <Text className={styles.activityTitle}>{act.title}</Text>
-                  <View className={styles.activityDetails}>
-                    <View className={styles.activityDetailItem}>
-                      <Image src={require("../../assets/clock.svg")} className={styles.detailIcon} />
-                      <Text className={styles.activityDetail}>{(act.start_time ? (new Date(act.start_time).toLocaleString()) : '-') }</Text>
-                    </View>
-                    <View className={styles.activityDetailItem}>
-                      <Image src={require("../../assets/map-pin.svg")} className={styles.detailIcon} />
-                      <Text className={styles.activityDetail}>{act.location || '待定'}</Text>
-                    </View>
-                  </View>
-                  <View className={styles.activityAction}>
-                    <Text className={styles.actionButton}>立即报名</Text>
-                  </View>
-                </View>
-              </View>
-            ))
-          ) : (
-            <View className={styles.activityCard}>
-              <Image
-                src={activity.image}
-                className={styles.activityImage}
-                mode='aspectFill'
-              />
-              <View className={styles.activityInfo}>
-                <Text className={styles.activityTitle}>{activity.title}</Text>
-                <View className={styles.activityDetails}>
-                  <View className={styles.activityDetailItem}>
-                    <Image src={require("../../assets/clock.svg")} className={styles.detailIcon} />
-                    <Text className={styles.activityDetail}>{activity.time}</Text>
-                  </View>
-                  <View className={styles.activityDetailItem}>
-                    <Image src={require("../../assets/map-pin.svg")} className={styles.detailIcon} />
-                    <Text className={styles.activityDetail}>{activity.location}</Text>
-                  </View>
-                </View>
-                <View className={styles.activityAction}>
-                  <Text className={styles.actionButton}>立即报名</Text>
-                </View>
+        {/* 功能模块 */}
+        <View className={styles.moduleGrid}>
+          {/* 第一行：活动广场 + 二手交易 */}
+          <View className={styles.moduleRow}>
+            <View
+              className={styles.moduleCard}
+              onClick={() => {
+                Taro.navigateTo({ url: '/pages/discover/activity-square/index' });
+              }}
+            >
+              <Image src={require("../../assets/group.png")} className={styles.moduleIcon} />
+              <View className={styles.moduleTextWrapper}>
+                <Text className={styles.moduleTitle}>活动广场</Text>
+                <Text className={styles.moduleSubtitle}>发现精彩活动</Text>
               </View>
             </View>
-          ))}
-        </Section>
 
-        <View className={styles.bottomSpacing} />
-        <View className={styles.bottomTip}>
-          <Text>已经到底了</Text>
+            <View
+              className={styles.moduleCard}
+              onClick={() => {
+                Taro.navigateTo({ url: '/pages/second-hand/index' });
+              }}
+            >
+              <Image src={require("../../assets/shopping-bag.svg")} className={styles.moduleIcon} />
+              <View className={styles.moduleTextWrapper}>
+                <Text className={styles.moduleTitle}>二手市场</Text>
+                <Text className={styles.moduleSubtitle}>买卖闲置物品</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* 第二行：学习资料 + 评分评价 */}
+          <View className={styles.moduleRow}>
+            <View
+              className={styles.moduleCard}
+              onClick={() => {
+                Taro.navigateTo({ url: '/pages/study-materials/index' });
+              }}
+            >
+              <Image src={require("../../assets/book.svg")} className={styles.moduleIcon} />
+              <View className={styles.moduleTextWrapper}>
+                <Text className={styles.moduleTitle}>学习资源</Text>
+                <Text className={styles.moduleSubtitle}>共享学习资料</Text>
+              </View>
+            </View>
+
+            <View
+              className={styles.moduleCard}
+              onClick={() => {
+                Taro.navigateTo({ url: '/pages/rating-review/index' });
+              }}
+            >
+              <Image src={require("../../assets/star.svg")} className={styles.moduleIcon} />
+              <View className={styles.moduleTextWrapper}>
+                <Text className={styles.moduleTitle}>课程评价</Text>
+                <Text className={styles.moduleSubtitle}>分享学习体验</Text>
+              </View>
+            </View>
+          </View>
         </View>
-      </ScrollView>
-      <View></View>
+      </View>
     </View>
   );
 }

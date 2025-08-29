@@ -5,14 +5,16 @@
   flex-direction: column;
   height: 100vh;
   background-color: #f9fafc;
+  overflow: hidden; /* 防止整个页面滚动 */
 }
 
-.scrollView {
-  padding: 100px 16px 16px 16px; // 进一步增加顶部内边距，让整个页面往下移更多
+.contentContainer {
+  padding: 16px 16px 16px 16px; /* 减少顶部padding从100px到16px */
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  height: 100%;
+  gap: 12px; /* 减少gap从24px到12px */
+  height: calc(100vh - 16px); /* 相应调整高度计算 */
+  overflow: hidden; /* 防止内容容器滚动 */
 
   //隐藏滚动条
   ::-webkit-scrollbar {
@@ -199,82 +201,6 @@
   text-align: center;
 }
 
-/* 校园活动 */
-.activityCard {
-  display: flex;
-  background-color: #ffffff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-
-  &:active {
-    transform: scale(0.98);
-  }
-}
-
-.activityImage {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.activityInfo {
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  flex: 1;
-  gap: 8px;
-}
-
-.activityTitle {
-  font-size: 18px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 4px;
-}
-
-.activityDetails {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.activityDetailItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.detailIcon {
-  width: 14px;
-  height: 14px;
-  opacity: 0.7;
-}
-
-.activityDetail {
-  font-size: 14px;
-  color: #6b7280;
-}
-
-.activityAction {
-  margin-top: auto;
-  padding-top: 8px;
-}
-
-.actionButton {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-align: center;
-  display: inline-block;
-  min-width: 80px;
-}
-
 /* 热门帖子列表样式 */
 .hotPostsList {
   background-color: #ffffff;
@@ -409,4 +335,63 @@
   font-size: 12px;
   color: #3b82f6;
   font-weight: 500;
+}
+
+/* 模块网格样式 */
+.moduleGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding: 16rpx 0;
+}
+
+.moduleRow {
+  display: flex;
+  gap: 16rpx;
+  width: 100%;
+}
+
+.moduleCard {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 16rpx;
+  padding: 48rpx 24rpx; /* 将垂直padding从24rpx增加到48rpx */
+  min-height: 140rpx; /* 添加最小高度确保足够的空间 */
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.12);
+  }
+}
+
+.moduleIcon {
+  width: 64rpx; /* 图标尺寸从48rpx增加到64rpx */
+  height: 64rpx;
+  margin-right: 20rpx; /* 右边距从16rpx增加到20rpx */
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+
+.moduleTextWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx; /* 添加文字间距 */
+}
+
+.moduleTitle {
+  font-size: 32rpx; /* 标题字体从28rpx增加到32rpx */
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.moduleSubtitle {
+  font-size: 26rpx; /* 副标题字体从22rpx增加到26rpx */
+  color: #64748b;
+  line-height: 1.3;
 }

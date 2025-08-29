@@ -1,0 +1,144 @@
+.activitySquarePage {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.scrollView {
+  height: 100vh;
+  padding: 0 32rpx;
+}
+
+.publishSection {
+  padding: 32rpx 0;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 32rpx;
+}
+
+.publishButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.3);
+}
+
+.publishIcon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 16rpx;
+  filter: brightness(0) invert(1);
+}
+
+.publishText {
+  color: white;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.activitiesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+}
+
+.loadingState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80rpx 0;
+  color: #64748b;
+  font-size: 28rpx;
+}
+
+.activityCard {
+  background: white;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.12);
+  }
+}
+
+.activityImage {
+  width: 100%;
+  height: 320rpx;
+  object-fit: cover;
+}
+
+.activityContent {
+  padding: 32rpx;
+}
+
+.activityTitle {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16rpx;
+  line-height: 1.4;
+}
+
+.activityDescription {
+  font-size: 28rpx;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 24rpx;
+}
+
+.activityDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.activityDetailItem {
+  display: flex;
+  align-items: center;
+}
+
+.detailIcon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 16rpx;
+  opacity: 0.7;
+}
+
+.activityDetail {
+  font-size: 26rpx;
+  color: #64748b;
+  flex: 1;
+}
+
+.activityAction {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.actionButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16rpx 32rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.3);
+}
+
+.bottomSpacing {
+  height: 80rpx;
+}
+
+.bottomTip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32rpx 0;
+  color: #94a3b8;
+  font-size: 24rpx;
+}
