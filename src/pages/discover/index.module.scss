@@ -12,7 +12,7 @@
   padding: 16px 16px 16px 16px; /* 减少顶部padding从100px到16px */
   display: flex;
   flex-direction: column;
-  gap: 12px; /* 减少gap从24px到12px */
+  gap: 8px; /* 进一步减少gap从12px到8px */
   height: calc(100vh - 16px); /* 相应调整高度计算 */
   overflow: hidden; /* 防止内容容器滚动 */
 
@@ -354,11 +354,12 @@
 .moduleCard {
   flex: 1;
   display: flex;
+  justify-content: flex-start; /* 改为左对齐 */
   align-items: center;
   background: white;
   border-radius: 16rpx;
-  padding: 48rpx 24rpx; /* 将垂直padding从24rpx增加到48rpx */
-  min-height: 140rpx; /* 添加最小高度确保足够的空间 */
+  padding: 32rpx 16rpx 32rpx 40rpx; /* 进一步增加左边距从32rpx到40rpx */
+  min-height: 180rpx;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 
@@ -368,30 +369,41 @@
   }
 }
 
+.moduleContentWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 改为左对齐 */
+  justify-content: center;
+  width: 100%;
+}
+
 .moduleIcon {
-  width: 64rpx; /* 图标尺寸从48rpx增加到64rpx */
+  width: 64rpx;
   height: 64rpx;
-  margin-right: 20rpx; /* 右边距从16rpx增加到20rpx */
+  margin-bottom: 16rpx;
   border-radius: 12rpx;
   flex-shrink: 0;
 }
 
 .moduleTextWrapper {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8rpx; /* 添加文字间距 */
+  align-items: flex-start; /* 改为左对齐 */
+  gap: 8rpx;
+  width: 100%;
 }
 
 .moduleTitle {
-  font-size: 32rpx; /* 标题字体从28rpx增加到32rpx */
+  font-size: 28rpx;
   font-weight: 600;
   color: #1e293b;
   line-height: 1.2;
+  text-align: left; /* 改为左对齐 */
 }
 
 .moduleSubtitle {
-  font-size: 26rpx; /* 副标题字体从22rpx增加到26rpx */
+  font-size: 22rpx;
   color: #64748b;
   line-height: 1.3;
+  text-align: left; /* 改为左对齐 */
 }

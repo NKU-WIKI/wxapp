@@ -7,7 +7,7 @@ import CustomHeader from "../../components/custom-header";
 import Section from "./components/Section";
 
 interface HotPost {
-  id?: string | number;
+  post_id?: string | number;
   title?: string;
   comment_count?: number;
   view_count?: number;
@@ -101,14 +101,14 @@ export default function Discover() {
       return;
     }
 
-    if (post.id && isValidUUID(post.id)) {
+    if (post.post_id) {
       Taro.navigateTo({
-        url: `/pages/subpackage-interactive/post-detail/index?id=${post.id}`
+        url: `/pages/subpackage-interactive/post-detail/index?id=${post.post_id}`
       }).catch(() => {
         Taro.showToast({ title: '暂无详情页面', icon: 'none' });
       });
     } else {
-      Taro.showToast({ title: `点击了: ${post.title}`, icon: 'none' });
+      Taro.showToast({ title: `点击了: ${post.post_id}`, icon: 'none' });
     }
   };
 
@@ -172,7 +172,12 @@ export default function Discover() {
                   key={item.id}
                   className={styles.hotPostItem}
                   onClick={() => {
-                    Taro.showToast({ title: `点击了: ${item.title}`, icon: 'none' });
+                    // 尝试跳转到详情页面，如果失败则显示提示
+                    Taro.navigateTo({
+                      url: `/pages/subpackage-interactive/post-detail/index?id=${item.id}`
+                    }).catch(() => {
+                      Taro.showToast({ title: '暂无详情页面', icon: 'none' });
+                    });
                   }}
                 >
                   <View className={styles.hotPostContent}>
@@ -202,10 +207,12 @@ export default function Discover() {
                 Taro.navigateTo({ url: '/pages/discover/activity-square/index' });
               }}
             >
-              <Image src={require("../../assets/group.png")} className={styles.moduleIcon} />
-              <View className={styles.moduleTextWrapper}>
-                <Text className={styles.moduleTitle}>活动广场</Text>
-                <Text className={styles.moduleSubtitle}>发现精彩活动</Text>
+              <View className={styles.moduleContentWrapper}>
+                <Image src={require("../../assets/activity.png")} className={styles.moduleIcon} />
+                <View className={styles.moduleTextWrapper}>
+                  <Text className={styles.moduleTitle}>活动广场</Text>
+                  <Text className={styles.moduleSubtitle}>发现精彩活动</Text>
+                </View>
               </View>
             </View>
 
@@ -215,10 +222,12 @@ export default function Discover() {
                 Taro.navigateTo({ url: '/pages/second-hand/index' });
               }}
             >
-              <Image src={require("../../assets/shopping-bag.svg")} className={styles.moduleIcon} />
-              <View className={styles.moduleTextWrapper}>
-                <Text className={styles.moduleTitle}>二手市场</Text>
-                <Text className={styles.moduleSubtitle}>买卖闲置物品</Text>
+              <View className={styles.moduleContentWrapper}>
+                <Image src={require("../../assets/exchange.png")} className={styles.moduleIcon} />
+                <View className={styles.moduleTextWrapper}>
+                  <Text className={styles.moduleTitle}>二手市场</Text>
+                  <Text className={styles.moduleSubtitle}>买卖闲置物品</Text>
+                </View>
               </View>
             </View>
           </View>
@@ -231,10 +240,12 @@ export default function Discover() {
                 Taro.navigateTo({ url: '/pages/study-materials/index' });
               }}
             >
-              <Image src={require("../../assets/book.svg")} className={styles.moduleIcon} />
-              <View className={styles.moduleTextWrapper}>
-                <Text className={styles.moduleTitle}>学习资源</Text>
-                <Text className={styles.moduleSubtitle}>共享学习资料</Text>
+              <View className={styles.moduleContentWrapper}>
+                <Image src={require("../../assets/book-green.png")} className={styles.moduleIcon} />
+                <View className={styles.moduleTextWrapper}>
+                  <Text className={styles.moduleTitle}>学习资源</Text>
+                  <Text className={styles.moduleSubtitle}>共享学习资料</Text>
+                </View>
               </View>
             </View>
 
@@ -244,10 +255,12 @@ export default function Discover() {
                 Taro.navigateTo({ url: '/pages/rating-review/index' });
               }}
             >
-              <Image src={require("../../assets/star.svg")} className={styles.moduleIcon} />
-              <View className={styles.moduleTextWrapper}>
-                <Text className={styles.moduleTitle}>课程评价</Text>
-                <Text className={styles.moduleSubtitle}>分享学习体验</Text>
+              <View className={styles.moduleContentWrapper}>
+                <Image src={require("../../assets/star-yellow.png")} className={styles.moduleIcon} />
+                <View className={styles.moduleTextWrapper}>
+                  <Text className={styles.moduleTitle}>课程评价</Text>
+                  <Text className={styles.moduleSubtitle}>分享学习体验</Text>
+                </View>
               </View>
             </View>
           </View>
