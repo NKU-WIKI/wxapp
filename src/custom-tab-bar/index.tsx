@@ -18,6 +18,7 @@ const plusIcon = require("@/assets/plus.svg"); // 使用新的白色+号SVG图�
 
 const CustomTabBar: FC = () => {
   const [selected, setSelected] = useState(0);
+  const [showSubMenu, setShowSubMenu] = useState(false);
   const { checkAuth } = useAuthGuard();
 
   const list = useMemo(() => [
@@ -44,7 +45,7 @@ const CustomTabBar: FC = () => {
     const item = list[uiIndex];
     if (item.isPublish) {
       if (checkAuth()) {
-        Taro.navigateTo({ url });
+        setShowSubMenu(true);
       }
     } else {
       const syncIndex = TAB_BAR_PAGES.indexOf(item.pagePath);
@@ -55,6 +56,20 @@ const CustomTabBar: FC = () => {
     }
   };
 
+  const handleSubMenuClick = (type: 'post' | 'note') => {
+    setShowSubMenu(false);
+    if (type === 'post') {
+      Taro.navigateTo({ url: '/pages/subpackage-interactive/publish/index' });
+    } else if (type === 'note') {
+      // 发布笔记功能暂时搁置
+      Taro.showToast({ title: '功能开发中', icon: 'none' });
+    }
+  };
+
+  const handleOverlayClick = () => {
+    setShowSubMenu(false);
+  };
+
   useEffect(() => {
     tabBarSync.subscribe();
     return () => {
@@ -63,35 +78,62 @@ const CustomTabBar: FC = () => {
   }, [tabBarSync]);
 
   return (
-    <View className={styles.tabBar}>
-      {list.map((item, index) => (
-        <View
-          key={index}
-          className={styles.tabBarItem}
-          onClick={() => switchTab(index, item.pagePath)}
-        >
-          {item.isPublish ? (
-            <View className={styles.publishButton}>
-              <Image src={item.iconPath} className={styles.publishIcon} />
+    <>
+      {/* 灰色滤镜遮罩 */}
+      {showSubMenu && (
+        <View className={styles.overlay} onClick={handleOverlayClick} />
+      )}
+      
+      {/* 子菜单 */}
+      {showSubMenu && (
+        <View className={styles.subMenuContainer}>
+          <View className={`${styles.subMenuItem} ${styles.postItem}`} onClick={() => handleSubMenuClick('post')}>
+            <View className={styles.textContent}>
+              <View className={styles.text}>发布帖子</View>
+              <View className={styles.desc}>分享校园生活</View>
             </View>
-          ) : (
-            <>
-              <Image
-                src={selected === index ? item.selectedIconPath : item.iconPath}
-                className={styles.icon}
-              />
-              <View
-                className={`${styles.text} ${
-                  selected === index ? styles.selected : ""
-                }`}
-              >
-                {item.text}
-              </View>
-            </>
-          )}
+            <View className={styles.icon}>🏫</View>
+          </View>
+          <View className={`${styles.subMenuItem} ${styles.noteItem}`} onClick={() => handleSubMenuClick('note')}>
+            <View className={styles.textContent}>
+              <View className={styles.text}>发布笔记</View>
+              <View className={styles.desc}>校内小事代办</View>
+            </View>
+            <View className={styles.icon}>📝</View>
+          </View>
         </View>
-      ))}
-    </View>
+      )}
+      
+      <View className={styles.tabBar}>
+        {list.map((item, index) => (
+          <View
+            key={index}
+            className={styles.tabBarItem}
+            onClick={() => switchTab(index, item.pagePath)}
+          >
+            {item.isPublish ? (
+              <View className={styles.publishButton}>
+                <Image src={item.iconPath} className={styles.publishIcon} />
+              </View>
+            ) : (
+              <>
+                <Image
+                  src={selected === index ? item.selectedIconPath : item.iconPath}
+                  className={styles.icon}
+                />
+                <View
+                  className={`${styles.text} ${
+                    selected === index ? styles.selected : ""
+                  }`}
+                >
+                  {item.text}
+                </View>
+              </>
+            )}
+          </View>
+        ))}
+      </View>
+    </>
   );
 };
 
