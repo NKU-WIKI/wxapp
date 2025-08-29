@@ -111,10 +111,7 @@ const ImgTypeChoose: React.FC = () => {
     }
   }, [cardContent, selectedColorId])
 
-  // 处理返回按钮点击
-  const handleBack = () => {
-    Taro.navigateBack()
-  }
+
 
   // 处理颜色选择
   const handleColorSelect = (colorId: string) => {

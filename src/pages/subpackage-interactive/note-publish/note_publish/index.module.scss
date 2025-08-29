@@ -261,33 +261,7 @@
 .refType { font-size: 12px; color: $theme-primary; }
 .refTitle { font-size: 14px; color: $text-primary; }
 
-.imagePreviewContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 16px 0;
-}
 
-.imageWrapper {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-  
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-.previewImage {
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  object-fit: cover;
-}
 
 .deleteIcon {
   position: absolute;
@@ -327,11 +301,7 @@
   gap: 12px;
 }
 
-.leftTools {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+
 
 .toolbarIcon {
   width: 20px;
@@ -798,80 +768,9 @@
 
 
 
-// 分类选择器样式
-.categoriesContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding-top: 8px;
-}
 
-.categoryItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: $bg-input;
-  padding: 12px 8px;
-  border-radius: 8px;
-  border: 1px solid $border-light;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  user-select: none;
-  min-height: 48px;
 
-  &:hover {
-    background-color: $bg-input-focus;
-  }
 
-  &:active {
-    opacity: 0.7;
-    transform: scale(0.98);
-  }
-
-  &.selected {
-    background-color: $theme-primary;
-    border-color: $theme-primary;
-    color: $text-white;
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
-  }
-}
-
-.categoryIcon {
-  width: 24px;
-  height: 24px;
-  margin-bottom: 8px;
-  color: $text-secondary;
-
-  .categoryItem.selected & {
-    color: $theme-primary;
-  }
-}
-
-.categoryName {
-  font-size: 14px;
-  color: $text-secondary;
-  font-weight: 500;
-  text-align: center;
-
-  .categoryItem.selected & {
-    color: $text-white;
-    font-weight: 500;
-  }
-}
-
-.publishSettings {
-  .settingLabel {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: $theme-primary;
-  }
-
-  .settingValue {
-    color: $text-secondary;
-  }
-}
 
 .publishButton {
   height: 44px;

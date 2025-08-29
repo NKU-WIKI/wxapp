@@ -25,23 +25,7 @@
   position: relative;
 }
 
-// 引号符号
-.quoteIcon {
-  font-size: 80px;
-  color: #eee;
-  margin-bottom: 32px;
-  line-height: 1;
-}
 
-// 卡片内容文字
-.cardContent {
-  font-size: 50rpx;
-  font-weight: 600;
-  color: #333;
-  text-align: left;
-  line-height: 1.6;
-  width: 100%;
-}
 
 // 底部区域
 .bottomSection {
@@ -165,14 +149,7 @@
     padding: 6vh 6vw;
   }
   
-  .quoteIcon {
-    font-size: 15vw;
-    margin-bottom: 4vh;
-  }
-  
-  .cardContent {
-    font-size: 12vw;
-  }
+
   
   .bottomSection {
     padding: 1vh 3vw 1vh;

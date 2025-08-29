@@ -15,27 +15,20 @@ import { AppDispatch, RootState } from "@/store";
 import CustomHeader from "@/components/custom-header";
 import { usePolish } from "@/hooks/usePolish";
 import searchApi from "@/services/api/search";
-import { uploadApi } from "@/services/api/upload";
 import { getPostDetail, getMyDrafts, deleteDraft } from "@/services/api/post";
 import { createNote } from '@/store/slices/noteSlice';
 import { DraftPost } from "@/types/draft";
-import { normalizeImageUrl } from "@/utils/image";
+
 import { saveDraft, getDrafts } from "@/utils/draft";
 import type { Post } from "@/types/api/post.d";
 
 // Asset imports
 import atSignIcon from "@/assets/at-sign.svg";
-import bagIcon from "@/assets/bag.svg";
 import boldIcon from "@/assets/bold.svg";
 import defaultAvatar from "@/assets/profile.png";
-import hatIcon from "@/assets/hat.svg";
-import imageIcon from "@/assets/image.svg";
 import italicIcon from "@/assets/italic.svg";
 
 import penToolIcon from "@/assets/pen-tool.svg";
-import studyIcon from "@/assets/school.svg";
-import starIcon from "@/assets/star2.svg";
-import usersGroupIcon from "@/assets/p2p-fill.svg";
 import xCircleIcon from "@/assets/x-circle.svg";
 
 import topicIcon from "@/assets/hash_topic.svg";
@@ -46,9 +39,7 @@ import switchOnIcon from "@/assets/switch-on.svg";
 // Relative imports
 import styles from "./index.module.scss";
 
-const mockData = {
-  styles: ["正式", "轻松", "幽默", "专业"],
-};
+
 
 
 
@@ -64,7 +55,6 @@ export default function PublishPost() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<string[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState("正式");
   const [isPublic, setIsPublic] = useState(true);
   const [allowComments, setAllowComments] = useState(true);
@@ -382,9 +372,7 @@ export default function PublishPost() {
   });
 
 
-  const handleRemoveImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
+
 
   const handleTagToggle = (tag: string) => {
     const s = (tag || '').replace(/[“”"']/g, '').trim();
@@ -683,23 +671,6 @@ export default function PublishPost() {
               </View>
             )}
 
-            <View className={styles.imagePreviewContainer}>
-              {images.map((url, index) => (
-                <View key={index} className={styles.imageWrapper}>
-                  <Image
-                    src={normalizeImageUrl(url)}
-                    className={styles.previewImage}
-                    mode='aspectFill'
-                  />
-                  <Image
-                    src={xCircleIcon}
-                    className={styles.deleteIcon}
-                    onClick={() => handleRemoveImage(index)}
-                  />
-                </View>
-              ))}
-            </View>
-
             {/* Toolbar */}
             <View className={styles.toolbar}>
               <Image src={boldIcon} className={styles.toolbarIcon} />
@@ -721,7 +692,7 @@ export default function PublishPost() {
                   {/* 文风选择下拉菜单 */}
                   {showStyleSelector && (
                     <View className={styles.styleDropdown}>
-                      {mockData.styles.map((style) => (
+                      {['正式', '轻松', '幽默', '专业'].map((style) => (
                         <View
                           key={style}
                           className={`${styles.styleOption} ${selectedStyle === style ? styles.selected : ''}`}
