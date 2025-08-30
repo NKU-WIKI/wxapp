@@ -307,7 +307,9 @@ const Profile = () => {
                 </View>
                 <View className={styles.statItem} onClick={handleNavigateToLikes}>
                   <Text className={styles.statValue}>
-                    {userPostsState?.likeCountLoading === 'pending' ? '...' : (userPostsState?.likeCount ?? userStats?.like_count ?? userInfo?.total_likes ?? 0)}
+                    {userPostsState?.likeCountLoading === 'pending' ? '...' : 
+                     (userPostsState?.likeCount !== null && userPostsState?.likeCount !== undefined) ? userPostsState.likeCount :
+                     (userStats?.like_count ?? userInfo?.total_likes ?? 0)}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>❤️</Text>

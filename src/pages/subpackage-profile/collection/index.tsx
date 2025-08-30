@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,10 +12,62 @@ import Post from '@/components/post';
 import starOutlineIcon from '@/assets/star-outline.svg';
 import styles from './index.module.scss';
 
+// 定义收藏类型
+type CollectionType = 'post' | 'note';
+
 interface FavoriteItemProps {
   favorite: FavoriteItem;
   isFollowingAuthor?: boolean; // 新增：是否关注作者
 }
+
+// 模拟笔记数据
+const mockNotes = [
+  {
+    id: 'note-1',
+    title: '学习笔记：React Hooks 最佳实践',
+    content: '今天学习了 React Hooks 的使用方法，包括 useState、useEffect、useCallback 等。这些 Hooks 让函数组件也能拥有状态和生命周期...',
+    author_info: {
+      id: 'user-1',
+      nickname: '学习达人',
+      avatar: null
+    },
+    created_at: '2024-01-15T10:30:00Z',
+    view_count: 156,
+    like_count: 23,
+    comment_count: 8,
+    tenant_id: '00000000-0000-0000-0000-000000000000'
+  },
+  {
+    id: 'note-2',
+    title: '项目总结：Taro 小程序开发经验',
+    content: '经过一个月的 Taro 小程序开发，总结了一些经验和教训。Taro 的跨端能力很强，但在某些复杂场景下还是需要平台特定的代码...',
+    author_info: {
+      id: 'user-2',
+      nickname: '技术探索者',
+      avatar: null
+    },
+    created_at: '2024-01-14T15:20:00Z',
+    view_count: 89,
+    like_count: 15,
+    comment_count: 5,
+    tenant_id: '00000000-0000-0000-0000-000000000000'
+  },
+  {
+    id: 'note-3',
+    title: '读书笔记：《深入理解计算机系统》',
+    content: '这本书从程序员的角度介绍了计算机系统的实现细节，包括程序的表示和执行、处理器结构、编译系统等。对于理解底层原理很有帮助...',
+    author_info: {
+      id: 'user-3',
+      nickname: '知识分享者',
+      avatar: null
+    },
+    created_at: '2024-01-13T09:15:00Z',
+    view_count: 234,
+    like_count: 42,
+    comment_count: 12,
+    tenant_id: '00000000-0000-0000-0000-000000000000'
+  }
+];
 
 const FavoriteItemComponent: React.FC<FavoriteItemProps> = ({ favorite, isFollowingAuthor = false }) => {
   const handleNavigateToContent = () => {
@@ -145,6 +197,67 @@ const FavoriteItemComponent: React.FC<FavoriteItemProps> = ({ favorite, isFollow
   );
 };
 
+// 笔记组件，使用与帖子相同的Post组件
+const NoteItemComponent: React.FC<{ note: any }> = ({ note }) => {
+  const postData = {
+    id: note.id,
+    title: note.title,
+    content: note.content,
+    status: 'published' as const,
+    user_id: note.author_info.id,
+    user: {
+      id: note.author_info.id,
+      tenant_id: note.tenant_id,
+      created_at: note.created_at,
+      updated_at: note.created_at,
+      nickname: note.author_info.nickname,
+      avatar: note.author_info.avatar || null,
+      bio: null,
+      birthday: null,
+      school: null,
+      college: null,
+      location: null,
+      wechat_id: null,
+      qq_id: null,
+      tel: null,
+      status: 'active' as const
+    },
+    author_info: {
+      id: note.author_info.id,
+      tenant_id: note.tenant_id,
+      created_at: note.created_at,
+      updated_at: note.created_at,
+      nickname: note.author_info.nickname,
+      avatar: note.author_info.avatar || null,
+      bio: null,
+      birthday: null,
+      school: null,
+      college: null,
+      location: null,
+      wechat_id: null,
+      qq_id: null,
+      tel: null,
+      status: 'active' as const
+    },
+    created_at: note.created_at,
+    view_count: note.view_count,
+    like_count: note.like_count,
+    comment_count: note.comment_count,
+    is_favorited: true,
+    is_following_author: false,
+    tenant_id: note.tenant_id,
+    updated_at: note.created_at
+  };
+
+  return (
+    <Post 
+      post={postData} 
+      className={styles.favoriteItem} 
+      mode='list' 
+    />
+  );
+};
+
 const CollectionPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   // 兼容持久化或热更新导致的初始状态缺失，做运行时兜底
@@ -153,6 +266,9 @@ const CollectionPage: React.FC = () => {
   const error: string | null = favoriteState?.error ?? null;
   const pagination = favoriteState?.pagination ?? { skip: 0, limit: 20, total: 0, has_more: false };
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
+
+  // 添加切换状态
+  const [activeType, setActiveType] = useState<CollectionType>('post');
 
   // 提取所有帖子作者的ID用于批量获取关注状态
   const { favorites, authorIds } = useMemo(() => {
@@ -171,6 +287,23 @@ const CollectionPage: React.FC = () => {
 
   // 获取所有作者的关注状态
   const { followStatusMap } = useMultipleFollowStatus(authorIds);
+
+  // 根据当前选中的类型过滤收藏内容
+  const filteredFavorites = useMemo(() => {
+    if (activeType === 'post') {
+      // 显示帖子：target_type为post且content.type不是note，或者没有content.type
+      return favorites.filter(favorite => 
+        favorite.target_type === 'post' && 
+        (!favorite.content?.type || favorite.content.type === 'post')
+      );
+    } else {
+      // 显示笔记：target_type为post但content.type为note
+      return favorites.filter(favorite => 
+        favorite.target_type === 'post' && 
+        favorite.content?.type === 'note'
+      );
+    }
+  }, [favorites, activeType]);
 
   // 加载收藏列表
   const loadFavorites = useCallback((refresh = false) => {
@@ -249,9 +382,14 @@ const CollectionPage: React.FC = () => {
     loadFavorites(true);
   };
 
+  // 处理类型切换
+  const handleTypeChange = (type: CollectionType) => {
+    setActiveType(type);
+  };
+
   // 渲染内容
   const renderContent = () => {
-    if (loading === 'pending' && favorites.length === 0) {
+    if (loading === 'pending' && filteredFavorites.length === 0) {
       return (
         <View className={styles.loading}>
           <Text>加载中...</Text>
@@ -270,56 +408,84 @@ const CollectionPage: React.FC = () => {
       );
     }
 
-    if (favorites.length === 0) {
+    if (activeType === 'post') {
+      if (filteredFavorites.length === 0) {
+        return (
+          <EmptyState
+            icon={starOutlineIcon}
+            text='暂无收藏帖子'
+          />
+        );
+      }
+
       return (
-        <EmptyState
-          icon={starOutlineIcon}
-          text='暂无收藏内容'
-        />
+        <View className={styles.favoritesList}>
+          {filteredFavorites.map(favorite => {
+            // 获取当前帖子作者的关注状态
+            const authorInfo = favorite.content?.author_info;
+            const isFollowingAuthor = authorInfo?.id ? followStatusMap[authorInfo.id] || false : false;
+            
+            return (
+              <FavoriteItemComponent 
+                key={favorite.id} 
+                favorite={favorite} 
+                isFollowingAuthor={isFollowingAuthor}
+              />
+            );
+          })}
+          
+          {loading === 'pending' && filteredFavorites.length > 0 && (
+            <View className={styles.loadingMore}>
+              <Text>加载更多...</Text>
+            </View>
+          )}
+          
+          {!pagination.has_more && filteredFavorites.length > 0 && (
+            <View className={styles.noMore}>
+              <Text>没有更多内容了</Text>
+            </View>
+          )}
+        </View>
+      );
+    } else {
+      // 笔记类型 - 使用与帖子相同的展示方式
+      return (
+        <View className={styles.favoritesList}>
+          {mockNotes.map(note => (
+            <NoteItemComponent key={note.id} note={note} />
+          ))}
+        </View>
       );
     }
-
-    return (
-      <View className={styles.favoritesList}>
-        {favorites.map(favorite => {
-          // 获取当前帖子作者的关注状态
-          const authorInfo = favorite.content?.author_info;
-          const isFollowingAuthor = authorInfo?.id ? followStatusMap[authorInfo.id] || false : false;
-          
-          return (
-            <FavoriteItemComponent 
-              key={favorite.id} 
-              favorite={favorite} 
-              isFollowingAuthor={isFollowingAuthor}
-            />
-          );
-        })}
-        
-        {loading === 'pending' && favorites.length > 0 && (
-          <View className={styles.loadingMore}>
-            <Text>加载更多...</Text>
-          </View>
-        )}
-        
-        {!pagination.has_more && favorites.length > 0 && (
-          <View className={styles.noMore}>
-            <Text>没有更多内容了</Text>
-          </View>
-        )}
-      </View>
-    );
   };
 
   return (
     <View className={styles.collectionPage}>
       <CustomHeader title='我的收藏' />
+      
+      {/* 切换按钮 */}
+      <View className={styles.typeSwitch}>
+        <View 
+          className={`${styles.switchButton} ${activeType === 'post' ? styles.active : ''}`}
+          onClick={() => handleTypeChange('post')}
+        >
+          <Text className={styles.switchText}>帖子</Text>
+        </View>
+        <View 
+          className={`${styles.switchButton} ${activeType === 'note' ? styles.active : ''}`}
+          onClick={() => handleTypeChange('note')}
+        >
+          <Text className={styles.switchText}>笔记</Text>
+        </View>
+      </View>
+
       <View className={styles.content}>
         <ScrollView
           scrollY
           className={styles.scrollView}
           enableBackToTop
           refresherEnabled
-          refresherTriggered={loading === 'pending' && favorites.length === 0}
+          refresherTriggered={loading === 'pending' && filteredFavorites.length === 0}
           onRefresherRefresh={() => loadFavorites(true)}
           onScrollToLower={() => {
             if (pagination.has_more && loading !== 'pending') {

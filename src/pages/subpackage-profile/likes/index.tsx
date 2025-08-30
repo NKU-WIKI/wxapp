@@ -11,6 +11,9 @@ import Post from '@/components/post';
 import heartOutlineIcon from '@/assets/heart-outline.svg';
 import styles from './index.module.scss';
 
+// 定义点赞类型
+type LikeType = 'post' | 'note';
+
 // 点赞项组件
 interface LikeItemProps {
   like: any; // 使用any暂时，待类型完善
@@ -84,6 +87,9 @@ const LikesPage: React.FC = () => {
   const userState = useSelector((state: RootState) => state.user);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // 添加切换状态
+  const [activeType, setActiveType] = useState<LikeType>('post');
+
   // 提取所有帖子作者的ID用于批量获取关注状态
   const authorIds = useMemo(() => {
     const ids: string[] = [];
@@ -100,6 +106,23 @@ const LikesPage: React.FC = () => {
 
   // 获取所有作者的关注状态
   const { followStatusMap } = useMultipleFollowStatus(authorIds);
+
+  // 根据当前选中的类型过滤点赞内容
+  const filteredLikes = useMemo(() => {
+    if (activeType === 'post') {
+      // 显示帖子：target_type为post且content.type不是note，或者没有content.type
+      return likes.filter(like => 
+        like.target_type === 'post' && 
+        (!like.content?.type || like.content.type === 'post')
+      );
+    } else {
+      // 显示笔记：target_type为post但content.type为note
+      return likes.filter(like => 
+        like.target_type === 'post' && 
+        like.content?.type === 'note'
+      );
+    }
+  }, [likes, activeType]);
 
   // 加载我的点赞 - 使用 ref 来获取最新的 pagination 状态
   const paginationRef = React.useRef(pagination);
@@ -128,6 +151,11 @@ const LikesPage: React.FC = () => {
       });
     }
   }, [dispatch]); // 只依赖 dispatch
+
+  // 处理类型切换
+  const handleTypeChange = (type: LikeType) => {
+    setActiveType(type);
+  };
 
   // 初始加载 - 避免循环依赖
   useEffect(() => {
@@ -159,60 +187,84 @@ const LikesPage: React.FC = () => {
   });
 
   // 渲染加载状态
-  if (loading === 'pending' && likes.length === 0) {
+  if (loading === 'pending' && filteredLikes.length === 0) {
     return (
       <View className={styles.container}>
         <CustomHeader title='我的点赞' />
-        <View className={styles.loadingContainer}>
-          <Text className={styles.loadingText}>加载中...</Text>
+        <View className={styles.content}>
+          <ScrollView
+            scrollY
+            className={styles.scrollView}
+            enableBackToTop
+          >
+            <View className={styles.loadingContainer}>
+              <Text className={styles.loadingText}>加载中...</Text>
+            </View>
+          </ScrollView>
         </View>
       </View>
     );
   }
 
   // 渲染错误状态
-  if (loading === 'failed' && likes.length === 0) {
+  if (loading === 'failed' && filteredLikes.length === 0) {
     return (
       <View className={styles.container}>
         <CustomHeader title='我的点赞' />
-        <View className={styles.errorContainer}>
-          <Text className={styles.errorText}>{error || '加载失败，请重试'}</Text>
-          <View 
-            className={styles.retryButton}
-            onClick={() => loadMyLikes(true)}
+        <View className={styles.content}>
+          <ScrollView
+            scrollY
+            className={styles.scrollView}
+            enableBackToTop
           >
-            <Text className={styles.retryText}>重新加载</Text>
-          </View>
+            <View className={styles.errorContainer}>
+              <Text className={styles.errorText}>{error || '加载失败，请重试'}</Text>
+              <View 
+                className={styles.retryButton}
+                onClick={() => loadMyLikes(true)}
+              >
+                <Text className={styles.retryText}>重新加载</Text>
+              </View>
+            </View>
+          </ScrollView>
         </View>
       </View>
     );
   }
 
   // 渲染空状态
-  if (likes.length === 0) {
+  if (filteredLikes.length === 0) {
     return (
       <View className={styles.container}>
         <CustomHeader title='我的点赞' />
-        <EmptyState
-          icon={heartOutlineIcon}
-          text={
-            <View>
-              <Text>还没有点赞任何内容</Text>
-              <Text>快去点赞感兴趣的内容吧</Text>
-            </View>
-          }
-        />
-        <View className={styles.actionContainer}>
-          <View 
-            className={styles.exploreButton}
-            onClick={() => {
-              Taro.switchTab({
-                url: '/pages/index/index'
-              });
-            }}
+        <View className={styles.content}>
+          <ScrollView
+            scrollY
+            className={styles.scrollView}
+            enableBackToTop
           >
-            <Text className={styles.exploreButtonText}>去发现</Text>
-          </View>
+            <EmptyState
+              icon={heartOutlineIcon}
+              text={
+                <View>
+                  <Text>还没有点赞任何{activeType === 'post' ? '帖子' : '笔记'}</Text>
+                  <Text>快去点赞感兴趣的内容吧</Text>
+                </View>
+              }
+            />
+            <View className={styles.actionContainer}>
+              <View 
+                className={styles.exploreButton}
+                onClick={() => {
+                  Taro.switchTab({
+                    url: '/pages/index/index'
+                  });
+                }}
+              >
+                <Text className={styles.exploreButtonText}>去发现</Text>
+              </View>
+            </View>
+          </ScrollView>
         </View>
       </View>
     );
@@ -222,48 +274,74 @@ const LikesPage: React.FC = () => {
     <View className={styles.container}>
       <CustomHeader title='我的点赞' />
       
-      <ScrollView
-        className={styles.scrollView}
-        scrollY
-        enhanced
-        showScrollbar={false}
-      >
-        <View className={styles.likesContainer}>
-          {likes
-            .filter(like => {
-              // 双重过滤确保只显示有效的点赞项
-              if (like.target_type === 'post') {
-                return like.content && like.content.id; // 确保帖子有内容且有ID
-              }
-              return true; // 非帖子类型的点赞直接通过
-            })
-            .map((like, index) => {
-              // 获取当前帖子作者的关注状态
-              const authorInfo = like.content?.author_info;
-              const isFollowingAuthor = authorInfo?.id ? followStatusMap[authorInfo.id] || false : false;
-              
-              return (
-                <View key={`like-${like.id}-${like.target_id}-${index}`} className={styles.likeWrapper}>
-                  <LikeItemComponent like={like} isFollowingAuthor={isFollowingAuthor} />
-                </View>
-              );
-            })}
-          
-          {/* 加载更多指示器 */}
-          {loading === 'pending' && likes.length > 0 && (
-            <View className={styles.loadMore}>
-              <Text className={styles.loadMoreText}>加载中...</Text>
-            </View>
-          )}
-          
-          {/* 没有更多数据提示 */}
-          {!pagination.has_more && likes.length > 0 && (
-            <View className={styles.noMore}>
-              <Text className={styles.noMoreText}>没有更多点赞了</Text>
-            </View>
-          )}
+      {/* 切换按钮 */}
+      <View className={styles.typeSwitch}>
+        <View 
+          className={`${styles.switchButton} ${activeType === 'post' ? styles.active : ''}`}
+          onClick={() => handleTypeChange('post')}
+        >
+          <Text className={styles.switchText}>帖子</Text>
         </View>
-      </ScrollView>
+        <View 
+          className={`${styles.switchButton} ${activeType === 'note' ? styles.active : ''}`}
+          onClick={() => handleTypeChange('note')}
+        >
+          <Text className={styles.switchText}>笔记</Text>
+        </View>
+      </View>
+
+      <View className={styles.content}>
+        <ScrollView
+          scrollY
+          className={styles.scrollView}
+          enableBackToTop
+          refresherEnabled
+          refresherTriggered={loading === 'pending' && filteredLikes.length === 0}
+          onRefresherRefresh={() => loadMyLikes(true)}
+          onScrollToLower={() => {
+            if (pagination.has_more && loading !== 'pending') {
+              loadMyLikes(false);
+            }
+          }}
+          lowerThreshold={50}
+        >
+          <View className={styles.likesList}>
+            {filteredLikes
+              .filter(like => {
+                // 双重过滤确保只显示有效的点赞项
+                if (like.target_type === 'post') {
+                  return like.content && like.content.id; // 确保帖子有内容且有ID
+                }
+                return true; // 非帖子类型的点赞直接通过
+              })
+              .map((like, index) => {
+                // 获取当前帖子作者的关注状态
+                const authorInfo = like.content?.author_info;
+                const isFollowingAuthor = authorInfo?.id ? followStatusMap[authorInfo.id] || false : false;
+                
+                return (
+                  <View key={`like-${like.id}-${like.target_id}-${index}`} className={styles.likeWrapper}>
+                    <LikeItemComponent like={like} isFollowingAuthor={isFollowingAuthor} />
+                  </View>
+                );
+              })}
+            
+            {/* 加载更多指示器 */}
+            {loading === 'pending' && filteredLikes.length > 0 && (
+              <View className={styles.loadMore}>
+                <Text className={styles.loadMoreText}>加载中...</Text>
+              </View>
+            )}
+            
+            {/* 没有更多数据提示 */}
+            {!pagination.has_more && filteredLikes.length > 0 && (
+              <View className={styles.noMore}>
+                <Text className={styles.noMoreText}>没有更多点赞了</Text>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      </View>
     </View>
   );
 };

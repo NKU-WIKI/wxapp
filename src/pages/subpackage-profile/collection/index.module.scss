@@ -17,6 +17,59 @@
   margin: 0 4px 16px;
 }
 
+// 切换按钮样式
+.typeSwitch {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px 8px;
+  background-color: $bg-card;
+  border-bottom: 1px solid $border-light;
+}
+
+.switchButton {
+  flex: 0 0 auto;
+  min-width: 60px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $bg-card;
+  border: 1px solid $border-base;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0 12px;
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &.active {
+    background-color: $theme-primary;
+    border-color: $theme-primary;
+    
+    .switchText {
+      color: $text-white;
+    }
+  }
+  
+  &:not(.active) {
+    &:hover {
+      background-color: $bg-input;
+    }
+  }
+}
+
+.switchText {
+  font-size: 12px;
+  font-weight: 500;
+  color: $text-secondary;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
 .favoritesList {
   padding: 0 18px 32px 14px;
 }
