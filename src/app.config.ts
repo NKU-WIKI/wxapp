@@ -30,6 +30,7 @@ export default {
         "user-detail/index",
         "history/index",
         "feedback/index",
+        "campus-verification/index",
         "my-posts/index",
       ]
     },

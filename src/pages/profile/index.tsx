@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchUserProfile, fetchUserLevel, fetchUserStats, fetchFollowersCount, fetchCollectionCount, logout, resetUserStats, resetUserLevel, resetFollowersCount, resetCollectionCount } from '@/store/slices/userSlice';
 import { fetchUserPostCount, fetchUserLikeCount, resetUserPostCount, resetUserLikeCount } from '@/store/slices/userPostsSlice';
+import { fetchCampusVerificationInfo } from '@/store/slices/campusVerificationSlice';
 import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import { normalizeImageUrl } from '@/utils/image';
@@ -41,6 +42,7 @@ const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
   const userState = useSelector((state: RootState) => state.user);
   const userPostsState = useSelector((state: RootState) => state.userPosts);
+  const campusVerificationState = useSelector((state: RootState) => state.campusVerification);
   const userInfo = userState?.userProfile; // Use userProfile for detailed info
   const userLevel = userState?.userLevel; // 用户等级信息
   const userStats = userState?.userStats; // 用户统计信息
@@ -72,6 +74,8 @@ const Profile = () => {
       if (userPostsState?.likeCount === null || userPostsState?.likeCount === undefined) {
         dispatch(fetchUserLikeCount({}));
       }
+      // 获取校园认证信息
+      dispatch(fetchCampusVerificationInfo());
     }
   });
 
@@ -219,6 +223,7 @@ const Profile = () => {
       drafts: '/pages/subpackage-profile/draft-box/index',
       history: '/pages/subpackage-profile/history/index',
       feedback: '/pages/subpackage-profile/feedback/index',
+      'campus-verification': '/pages/subpackage-profile/campus-verification/index',
       about: '/pages/subpackage-profile/about/index',
       settings: '/pages/subpackage-profile/settings/index',
     };
@@ -405,6 +410,17 @@ const Profile = () => {
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>✉️</Text>
                   <Text className={styles.menuText}>意见反馈</Text>
+                </View>
+                <Text className={styles.chevron}>›</Text>
+              </View>
+              
+              <View className={styles.menuItem} onClick={() => handleMenuClick('campus-verification')}>
+                <View className={styles.menuLeft}>
+                  <Text className={styles.menuIcon}>🎓</Text>
+                  <Text className={styles.menuText}>校园认证</Text>
+                  {campusVerificationState.info?.is_verified && (
+                    <Text className={styles.verifiedBadge}>已认证</Text>
+                  )}
                 </View>
                 <Text className={styles.chevron}>›</Text>
               </View>
