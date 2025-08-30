@@ -4,11 +4,11 @@ import { Pagination } from './common';
  * 通知渠道枚举
  */
 export enum NotificationChannel {
-  Email = "email",
-  InApp = "in_app", 
-  Push = "push",
-  Sms = "sms",
-  WechatMp = "wechat_mp",
+  Email = "EMAIL",
+  InApp = "IN_APP", 
+  Push = "PUSH",
+  Sms = "SMS",
+  WechatMp = "WECHAT_MINI_PROGRAM",
 }
 
 /**
