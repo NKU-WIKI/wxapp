@@ -171,7 +171,7 @@ const RatingPage = () => {
   const handleItemClick = (item: any) => {
     console.log('跳转到评分详情页:', item.id)
     Taro.navigateTo({
-      url: `/pages/subpackage-interactive/rating/detail/index?id=${item.id}&title=${encodeURIComponent(item.title)}`
+      url: `/pages/discover/rating/detail/index?id=${item.id}&title=${encodeURIComponent(item.title)}`
     })
   }
 
@@ -194,7 +194,7 @@ const RatingPage = () => {
     
     console.log('跳转到发布评分页')
     Taro.navigateTo({
-      url: '/pages/subpackage-interactive/rating/publish/index'
+      url: '/pages/discover/rating/publish/index'
     })
   }
 

@@ -5,6 +5,9 @@ export default {
     "pages/discover/index",
     "pages/discover/activity-square/index",
     "pages/discover/publish-activity/index",
+    "pages/discover/rating/index",
+    "pages/discover/rating/detail/index",
+    "pages/discover/rating/publish/index",
     "pages/profile/index",
   ],
   subPackages: [
@@ -34,9 +37,6 @@ export default {
       root: 'pages/subpackage-interactive',
       pages: [
         "notification/index",
-        "rating/index",
-        "rating/detail/index",
-        "rating/publish/index",
         "post-detail/index",
         "publish/index",
         "chat/index",

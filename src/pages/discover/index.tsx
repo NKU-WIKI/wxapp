@@ -253,7 +253,7 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                Taro.navigateTo({ url: '/pages/subpackage-interactive/rating/index' });
+                Taro.navigateTo({ url: '/pages/discover/rating/index' });
               }}
             >
               <View className={styles.moduleContentWrapper}>
