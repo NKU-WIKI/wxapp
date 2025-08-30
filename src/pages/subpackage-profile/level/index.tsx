@@ -6,6 +6,7 @@ import styles from './index.module.scss';
 import checkinIcon from '@/assets/clock.svg';
 import likeIcon from '@/assets/thumbs-up.svg';
 import commentIcon from '@/assets/message-circle.svg';
+import noteIcon from '@/assets/file-text.svg';
 import defaultAvatar from '@/assets/profile.png';
 import { fetchMyLevel, fetchTodayExperienceRecords } from '@/store/slices/levelSlice';
 import { normalizeImageUrl } from '@/utils/image';
@@ -25,6 +26,8 @@ const EXP_RULES = [
   { icon: checkinIcon, text: '每日登录', status: '未完成', value: '+2', statusColor: styles.statusBlue },
   { icon: likeIcon, text: '帖子被点赞', status: '今日已获得 +2', value: '+1', statusColor: styles.statusBlue },
   { icon: commentIcon, text: '评论他人帖子', status: '已完成', value: '+3', statusColor: styles.statusGray },
+  { icon: noteIcon, text: '笔记被点赞', status: '未完成', value: '+2', statusColor: styles.statusBlue },
+  { icon: commentIcon, text: '评论他人笔记', status: '未完成', value: '+3', statusColor: styles.statusBlue },
 ];
 
 export default function LevelPage() {
@@ -49,7 +52,7 @@ export default function LevelPage() {
   }, [level, exp]);
 
   const nickname = user?.nickname || '未设置昵称';
-  const avatarUrl = normalizeImageUrl(user?.avatar) || defaultAvatar;
+  const avatarUrl = normalizeImageUrl(user?.avatar || '') || defaultAvatar;
 
   return (
     <View className={styles.page}>
@@ -113,8 +116,10 @@ export default function LevelPage() {
         <Text className={styles.expTitle}>获取经验值</Text>
         {(() => {
           const records = Array.isArray(levelState.records) ? levelState.records : [];
-          const likeCount = records.filter(r => r.event_type === 'post_liked').length;
-          const hasComment = records.some(r => r.event_type === 'comment_others');
+          const postLikeCount = records.filter(r => r.event_type === 'post_liked').length;
+          const noteLikeCount = records.filter(r => r.event_type === 'note_liked').length;
+          const hasPostComment = records.some(r => r.event_type === 'comment_others');
+          const hasNoteComment = records.some(r => r.event_type === 'comment_note_others');
 
           const rows = [
             {
@@ -126,14 +131,26 @@ export default function LevelPage() {
             {
               icon: likeIcon,
               text: '帖子被点赞',
-              status: likeCount > 0 ? `今日已获得 +${likeCount}` : '今日已获得 +0',
+              status: postLikeCount > 0 ? `今日已获得 +${postLikeCount}` : '今日已获得 +0',
               colorClass: styles.statusBlue,
             },
             {
               icon: commentIcon,
               text: '评论他人帖子',
-              status: hasComment ? '已完成' : '未完成',
-              colorClass: hasComment ? styles.statusGray : styles.statusBlue,
+              status: hasPostComment ? '已完成' : '未完成',
+              colorClass: hasPostComment ? styles.statusGray : styles.statusBlue,
+            },
+            {
+              icon: noteIcon,
+              text: '笔记被点赞',
+              status: noteLikeCount > 0 ? `今日已获得 +${noteLikeCount}` : '今日已获得 +0',
+              colorClass: styles.statusBlue,
+            },
+            {
+              icon: commentIcon,
+              text: '评论他人笔记',
+              status: hasNoteComment ? '已完成' : '未完成',
+              colorClass: hasNoteComment ? styles.statusGray : styles.statusBlue,
             },
           ];
 
