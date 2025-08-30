@@ -1,73 +1,220 @@
 @use "../../../styles/variables.scss" as *;
 
-.pageContainer {
-  display: flex;
-  flex-direction: column;
+.notificationPage {
+  position: relative;
+  width: 100%;
   height: 100vh;
   background-color: $bg-page;
+  display: flex;
+  flex-direction: column;
 }
 
+// 标签页导航容器
 .tabsContainer {
-  padding: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: $bg-card;
+  border-bottom: 1px solid $border-light;
+  padding: 0 14px;
+}
+
+// 自定义标签页样式 - 参考设计稿的圆角按钮风格
+.customTabs {
+  display: flex;
+  background-color: $bg-input-focus;
+  border-radius: 9999px;
+  padding: 4px;
+  gap: 0;
+  height: 49px;
+  align-items: center;
+  margin: 10.5px 0;
+}
+
+.tabItem {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5.25px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: transparent;
+  min-height: 28px;
+  
+  &.active {
+    background-color: $theme-primary;
+    box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
+  }
+}
+
+.tabText {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-secondary;
+  transition: color 0.2s ease;
+  
+  .tabItem.active & {
+    color: $text-white;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: 6px;
+  min-width: 16px;
+  height: 16px;
+  background-color: $status-error;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid $text-white;
+}
+
+.badgeText {
+  font-size: 10px;
+  color: $text-white;
+  font-weight: 600;
+  line-height: 1;
+}
+
+// 内容容器
+.contentContainer {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-/* Customizing taro-ui AtTabs */
-.tabs {
-  display: flex;
-  background-color: $bg-input-focus;
-  border-radius: 8px;
-  padding: 4px;
-
-  .tab {
-    flex: 1;
-    text-align: center;
-    padding: 8px 0;
-    font-size: 14px;
-    color: $text-secondary;
-    border-radius: 6px;
-    transition: all 0.2s;
-
-    &.active {
-      background-color: $theme-primary;
-      color: $text-white;
-      font-weight: 500;
-    }
-  }
+.tabContent {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
 }
 
-.tabContent {
-  padding-top: 12px;
+// 通知列表
+.notificationList {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.emptyText {
-  text-align: center;
-  color: $text-helper-light;
-  padding: 40px 0;
+// 加载状态
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
 }
 
+.loadingText {
+  color: $text-helper;
+  font-size: 14px;
+}
+
+// 错误状态设计
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.errorText {
+  font-size: 16px;
+  color: $status-error;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.retryButton {
+  padding: 8px 20px;
+  background-color: $theme-primary;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:active {
+    transform: scale(0.95);
+    background-color: $theme-primary-dark;
+  }
+}
+
+.retryText {
+  font-size: 14px;
+  color: $text-white;
+  font-weight: 500;
+}
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.emptyText {
+  font-size: 16px;
+  color: $text-secondary;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.emptySubText {
+  font-size: 14px;
+  color: $text-helper;
+  line-height: 1.4;
+}
+
+// 更多图标
 .moreIcon {
   width: 24px;
   height: 24px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  
+  &:active {
+    opacity: 0.5;
+  }
 }
 
+// 底部操作区域
 .footer {
+  position: sticky;
+  bottom: 0;
   background-color: $bg-card;
   padding: 12px 16px;
-  border-top: 1px solid $border-gray;
+  border-top: 1px solid $border-light;
   padding-bottom: calc(12px + constant(safe-area-inset-bottom));
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
 }
 
+// 全部已读按钮 - 参考设计稿的圆角按钮
 .markAllReadButton {
   width: 100%;
-  padding: 12px;
+  padding: 12px 20px;
   background-color: $theme-primary;
   color: $text-white;
   border-radius: 9999px;
@@ -75,11 +222,24 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+  
+  &:active {
+    transform: scale(0.98);
+    background-color: $theme-primary-dark;
+  }
+}
+
+.buttonText {
   font-size: 16px;
   font-weight: 600;
+  color: $text-white;
 }
 
 .footerIcon {
   width: 20px;
   height: 20px;
-} 
+  filter: brightness(0) invert(1);
+}

@@ -1,6 +1,4 @@
-import { PageConfig } from '@tarojs/taro'
-
-export default definePageConfig({
+export default {
   navigationBarTitleText: '消息通知',
   navigationStyle: 'custom'
-}) 
+};

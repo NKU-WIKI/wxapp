@@ -4,7 +4,7 @@ import { normalizeImageUrl } from '@/utils/image'
 
 // Define a more specific type for the notification item
 interface Notification {
-    id: number;
+    id: string;
     user: string;
     action: string;
     post?: string;
@@ -28,9 +28,9 @@ const NotificationItem = ({ item }: NotificationItemProps) => {
         <Text className={styles.text}>
           <Text className={styles.username}>{item?.user || '未知用户'}</Text> {item?.action}
         </Text>
-        {item?.post ? (
-          <Text className={styles.postInfo}>在「{item.post}」这条帖子</Text>
-        ) : null}
+        {item?.post && (
+          <Text className={styles.postInfo}>「{item.post}」</Text>
+        )}
         <Text className={styles.time}>{item?.time}</Text>
       </View>
     </View>

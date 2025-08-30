@@ -10,6 +10,7 @@ import { normalizeImageUrl, normalizeImageUrls } from '@/utils/image';
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { deletePost } from '@/store/slices/postSlice';
 import { toggleAction } from '@/store/slices/actionSlice';
+import { BBSNotificationHelper } from '@/utils/notificationHelper';
 
 // 引入所有需要的图标
 import heartIcon from "@/assets/heart-outline.svg";
@@ -59,7 +60,29 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   const [authorLevel, setAuthorLevel] = useState<number | null>(null);
 
   // 提前声明currentUser相关的变量，用于useEffect
-  const userInfo = (userState as any)?.userProfile || null;
+  const userInfo = userState?.currentUser || userState?.userProfile || null; // 优先使用currentUser，其次使用userProfile
+  
+  // 获取用户ID（兼容两种类型）
+  const getCurrentUserId = () => {
+    if (!userInfo) return '';
+    // CurrentUser 使用 user_id，User 使用 id
+    return (userInfo as any).user_id || (userInfo as any).id || '';
+  };
+  
+  // 获取用户昵称（兼容两种类型）
+  const getCurrentUserNickname = () => {
+    if (!userInfo) return '用户';
+    return userInfo.nickname || (userInfo as any).name || '用户';
+  };
+  
+  // 获取用户角色（兼容两种类型）
+  const getCurrentUserRole = () => {
+    if (!userInfo) return null;
+    // CurrentUser 使用 roles 数组，User 可能有 role 字段
+    const roles = (userInfo as any).roles;
+    if (Array.isArray(roles) && roles.includes('admin')) return 'admin';
+    return (userInfo as any).role || null;
+  };
   const posts = postState?.list || [];
   const postFromList = posts.find(p => p.id === post.id);
   const displayPost = { ...(postFromList || {}), ...post } as PostData;
@@ -211,7 +234,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
     e.stopPropagation();
     if (!author) return;
     
-    if (author.id === userInfo?.id) {
+    if (author.id === getCurrentUserId()) {
       Taro.switchTab({ url: '/pages/profile/index' });
     } else {
       // 传递用户信息到用户详情页
@@ -264,8 +287,28 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       action_type: 'follow'
     })).then((result: any) => {
       if (result.payload && result.payload.is_active !== undefined) {
+        console.log('✅ [Post] 关注操作成功，当前状态:', result.payload.is_active);
+        
         // 更新本地关注状态
         setLocalFollowStatus(result.payload.is_active);
+        
+        // 如果操作成功且状态变为激活（关注），创建通知
+        if (result.payload.is_active && getCurrentUserId() !== author?.id) {
+          console.log('📢 [Post] 开始创建关注通知...');
+          
+          BBSNotificationHelper.handleFollowNotification({
+            targetUserId: author.id,
+            currentUserId: getCurrentUserId(),
+            currentUserNickname: getCurrentUserNickname(),
+            isFollowing: result.payload.is_active
+          }).then(() => {
+            console.log('✅ [Post] 关注通知创建成功');
+          }).catch((error) => {
+            console.error('❌ [Post] 关注通知创建失败:', error);
+          });
+        } else {
+          console.log('ℹ️ [Post] 跳过关注通知创建 - 状态:', result.payload.is_active, '自己:', getCurrentUserId() === author?.id);
+        }
       }
     }).catch(error => {
       console.error('关注操作失败', error);
@@ -362,16 +405,51 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       case 'like':
       case 'favorite':
         setIsActionLoading(true);
+        console.log(`🔄 [Post] 开始${actionType === 'like' ? '点赞' : '收藏'}操作，帖子ID:`, displayPost.id);
         dispatch(toggleAction({
           target_id: displayPost.id,
           target_type: 'post',
           action_type: actionType
         })).then((result: any) => {
           if (result.payload && result.payload.is_active !== undefined) {
+            console.log(`✅ [Post] ${actionType === 'like' ? '点赞' : '收藏'}操作成功，当前状态:`, result.payload.is_active);
+            
+            // 如果操作成功且状态变为激活（点赞/收藏），创建通知
+            if (result.payload.is_active && getCurrentUserId() !== author?.id && !isAnonymous) {
+              console.log(`📢 [Post] 开始创建${actionType === 'like' ? '点赞' : '收藏'}通知...`);
+              
+              if (actionType === 'like') {
+                BBSNotificationHelper.handleLikeNotification({
+                  postId: displayPost.id,
+                  postTitle: displayPost.title,
+                  postAuthorId: author?.id || '',
+                  currentUserId: getCurrentUserId(),
+                  isLiked: result.payload.is_active
+                }).then(() => {
+                  console.log('✅ [Post] 点赞通知创建成功');
+                }).catch((error) => {
+                  console.error('❌ [Post] 点赞通知创建失败:', error);
+                });
+              } else if (actionType === 'favorite') {
+                BBSNotificationHelper.handleCollectNotification({
+                  postId: displayPost.id,
+                  postTitle: displayPost.title,
+                  postAuthorId: author?.id || '',
+                  currentUserId: getCurrentUserId(),
+                  isCollected: result.payload.is_active
+                }).then(() => {
+                  console.log('✅ [Post] 收藏通知创建成功');
+                }).catch((error) => {
+                  console.error('❌ [Post] 收藏通知创建失败:', error);
+                });
+              }
+            } else {
+              console.log(`ℹ️ [Post] 跳过通知创建 - 状态:${result.payload.is_active}, 自己的帖子:${getCurrentUserId() === author?.id}, 匿名:${isAnonymous}`);
+            }
             // 移除本地状态更新，完全依赖Redux store更新
           }
         }).catch(error => {
-          console.error(`${actionType}操作失败`, error);
+          console.error(`❌ [Post] ${actionType}操作失败`, error);
           
           if (error.statusCode === 401) {
             Taro.showModal({
@@ -432,7 +510,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   };
   
   // 判断是否可以删除
-  const canDelete = userInfo?.id === author?.id || userInfo?.role === 'admin';
+  const canDelete = getCurrentUserId() === author?.id || getCurrentUserRole() === 'admin';
   
   return (
     <View className={`${styles.postContainer} ${styles[mode]} ${className}`}>
@@ -453,7 +531,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
               <View className={styles.levelBadge}>
                 <Text>Lv.{authorLevel || currentUser?.level || 1}</Text>
               </View>
-              {userInfo?.id !== author?.id && mode === 'detail' && !isAnonymous && (
+              {getCurrentUserId() !== author?.id && mode === 'detail' && !isAnonymous && (
                 <View
                   className={`${styles.followButton} ${isLoggedIn && isFollowing ? styles.followed : ''}`}
                   onClick={handleFollowClick}
@@ -472,7 +550,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
         </View>
         
         <View className={styles.headerActions}>
-          {mode === 'list' && userInfo?.id !== author?.id && !isAnonymous && (
+          {mode === 'list' && getCurrentUserId() !== author?.id && !isAnonymous && (
             <View
               className={`${styles.followButton} ${isLoggedIn && isFollowing ? styles.followed : ''}`}
               onClick={handleFollowClick}

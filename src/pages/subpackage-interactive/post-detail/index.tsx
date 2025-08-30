@@ -330,6 +330,8 @@ const PostDetailPage = () => {
       <View className={styles.fixedBottomInput}>
         <BottomInput
           postId={postId || ''}
+          postTitle={postState?.currentPost?.title}
+          postAuthorId={postState?.currentPost?.user?.id || postState?.currentPost?.author_info?.id}
           replyTo={replyTo}
           onCancelReply={() => setReplyTo(null)}
           allowComments={postState?.currentPost?.allow_comments !== false}

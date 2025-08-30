@@ -34,6 +34,9 @@ export default {
       root: 'pages/subpackage-interactive',
       pages: [
         "notification/index",
+        "rating/index",
+        "rating/detail/index",
+        "rating/publish/index",
         "post-detail/index",
         "publish/index",
         "chat/index",

@@ -87,15 +87,6 @@
 .notificationIcon {
   width: 24px;
   height: 24px;
-  background-color: $text-helper-gray;
-  mask-image: var(--icon-url);
-  mask-size: contain;
-  mask-position: center;
-  mask-repeat: no-repeat;
-  -webkit-mask-image: var(--icon-url);
-  -webkit-mask-size: contain;
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
 }
 
 .title {

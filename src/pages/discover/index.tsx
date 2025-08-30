@@ -7,6 +7,7 @@ import CustomHeader from "../../components/custom-header";
 import Section from "./components/Section";
 
 interface HotPost {
+  id?: string | number;
   post_id?: string | number;
   title?: string;
   comment_count?: number;
@@ -252,7 +253,7 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                Taro.navigateTo({ url: '/pages/rating-review/index' });
+                Taro.navigateTo({ url: '/pages/subpackage-interactive/rating/index' });
               }}
             >
               <View className={styles.moduleContentWrapper}>

@@ -1,0 +1,251 @@
+@use "../../../../styles/variables" as *;
+
+/* 发布页面样式 */
+.publishPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-page;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  margin-bottom: 80px; /* 为底部按钮留空间 */
+}
+
+/* 图片上传区域 */
+.imageSection {
+  margin-bottom: 24px;
+}
+
+.uploadArea {
+  width: 100%;
+  height: 200px;
+  background-color: $bg-input;
+  border: 2px dashed $border-base;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:active {
+    background-color: $bg-card-hover;
+    border-color: $theme-primary;
+  }
+}
+
+.uploadIcon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.uploadText {
+  font-size: 16px;
+  color: $text-helper;
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.uploadedImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageActions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.removeButton {
+  width: 28px;
+  height: 28px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+.removeIcon {
+  color: $text-white;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* 表单区域 */
+.formSection {
+  margin-bottom: 24px;
+}
+
+.label {
+  font-size: 16px;
+  font-weight: 500;
+  color: $text-primary;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.nameInput {
+  width: 100%;
+  background-color: $bg-card;
+  border: 1px solid $border-base;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 16px;
+  color: $text-primary;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: $theme-primary;
+    outline: none;
+  }
+}
+
+/* 分类选择器 */
+.categorySelector {
+  width: 100%;
+  background-color: $bg-card;
+  border: 1px solid $border-base;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  box-sizing: border-box;
+
+  &:active {
+    background-color: $bg-card-hover;
+    border-color: $theme-primary;
+  }
+}
+
+.categoryText {
+  font-size: 16px;
+  color: $text-primary;
+
+  &.placeholder {
+    color: $text-placeholder;
+  }
+}
+
+.arrow {
+  font-size: 12px;
+  color: $text-helper;
+}
+
+/* 简介输入 */
+.descriptionInput {
+  width: 100%;
+  min-height: 120px;
+  background-color: $bg-card;
+  border: 1px solid $border-base;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 16px;
+  color: $text-primary;
+  line-height: 1.5;
+  resize: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: $theme-primary;
+    outline: none;
+  }
+}
+
+.charCount {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.charCountText {
+  font-size: 12px;
+  color: $text-helper;
+}
+
+/* 底部提交区域 */
+.bottomSection {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $bg-card;
+  border-top: 1px solid $border-light;
+  padding: 16px 20px;
+  z-index: 100;
+}
+
+.submitButton {
+  width: 100%;
+  background-color: $theme-primary;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+    background-color: $theme-primary-dark;
+  }
+
+  &.loading {
+    background-color: $text-helper;
+    pointer-events: none;
+  }
+}
+
+.submitText {
+  font-size: 16px;
+  font-weight: 500;
+  color: $text-white;
+}
+
+/* 响应式适配 */
+@media (max-width: 750px) {
+  .uploadArea {
+    height: 160px;
+  }
+  
+  .uploadIcon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+  }
+  
+  .uploadText {
+    font-size: 14px;
+  }
+  
+  .imageContainer {
+    height: 160px;
+  }
+}

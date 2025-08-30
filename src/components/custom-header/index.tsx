@@ -181,10 +181,7 @@ const CustomHeader = ({
             )}
             {showNotificationIcon && (
               <View onClick={handleNotificationClick} className={styles.iconWrapper}>
-              <View
-                  className={styles.notificationIcon}
-                  style={{ '--icon-url': `url(${notificationIcon})` } as React.CSSProperties}
-                />
+                <Image src={notificationIcon} className={styles.notificationIcon} />
               </View>
             )}
           </View>

@@ -6,6 +6,7 @@ import { AppDispatch } from '@/store'
 import { fetchUserProfile } from '@/store/slices/userSlice'
 import { GetFollowersParams, FollowActionParams, FollowRelation } from '@/types/api/followers'
 import { getFollowers, followAction } from '@/services/api/followers'
+import { BBSNotificationHelper } from '@/utils/notificationHelper'
 import styles from './index.module.scss'
 import { normalizeImageUrl } from '@/utils/image'
 
@@ -14,7 +15,14 @@ type TabType = 'following' | 'followers';
 const FollowersPage = () => {
   const dispatch = useDispatch<AppDispatch>()
   
-  // 从URL参数获取初始标签页，默认为'following'
+  // 从URL参数获取目标用户ID和初始标签页
+  const [targetUserId, setTargetUserId] = useState<string>(() => {
+    const pages = Taro.getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    const options = currentPage.options;
+    return options.userId || '';
+  })
+  
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const pages = Taro.getCurrentPages();
     const currentPage = pages[pages.length - 1];
@@ -40,7 +48,8 @@ const FollowersPage = () => {
       const params: GetFollowersParams = {
         type: activeTab,
         page: isRefresh ? 1 : currentPage,
-        page_size: 20
+        page_size: 20,
+        target_user_id: targetUserId
       }
       
       const response = await getFollowers(params)
@@ -101,6 +110,8 @@ const FollowersPage = () => {
         const responseData = response.data as any;
         const isActive = responseData?.is_active;
         
+        console.log('✅ [Followers] 关注操作成功，当前状态:', isActive);
+        
         // 更新本地状态 - 不论在哪个tab都只更新关注状态，不删除用户
         setUsers(prev => prev.map(user => 
           user.id === userId 
@@ -112,6 +123,28 @@ const FollowersPage = () => {
             ? { ...user, relation: isActive ? 'following' : 'none' as FollowRelation }
             : user
         )) // 同时更新allUsers
+        
+        // 如果操作成功且状态变为激活（关注），创建通知
+        if (isActive) {
+          console.log('📢 [Followers] 开始创建关注通知...');
+          
+          // 获取当前用户信息
+          const currentUser = (window as any).g_app?.$app?.globalData?.userInfo || 
+                             JSON.parse(Taro.getStorageSync('userInfo') || '{}');
+          
+          BBSNotificationHelper.handleFollowNotification({
+            targetUserId: userId,
+            currentUserId: currentUser?.id || '',
+            currentUserNickname: currentUser?.nickname || currentUser?.name || '用户',
+            isFollowing: isActive
+          }).then(() => {
+            console.log('✅ [Followers] 关注通知创建成功');
+          }).catch((error) => {
+            console.error('❌ [Followers] 关注通知创建失败:', error);
+          });
+        } else {
+          console.log('ℹ️ [Followers] 跳过关注通知创建 - 取消关注');
+        }
         
         // 更新Redux store中的用户信息，确保主页的粉丝数量实时更新
         dispatch(fetchUserProfile())
@@ -185,7 +218,8 @@ const FollowersPage = () => {
         const params: GetFollowersParams = {
           type: activeTab,
           page: 1,
-          page_size: 20
+          page_size: 20,
+          target_user_id: targetUserId
         }
         
         const response = await getFollowers(params)

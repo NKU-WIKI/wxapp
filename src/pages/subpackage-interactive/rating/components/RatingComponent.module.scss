@@ -1,0 +1,177 @@
+/* 评分组件样式 */
+.ratingComponent {
+  background-color: white;
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 头部信息 */
+.header {
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.description {
+  font-size: 26px;
+  color: #666;
+  line-height: 1.5;
+  display: block;
+}
+
+/* 评分容器 */
+.ratingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+/* 星星容器 */
+.starsContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 单个星星 */
+.star {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  
+  &:hover {
+    background-color: rgba(255, 215, 0, 0.1);
+    transform: scale(1.1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &.readonly {
+    cursor: default;
+    
+    &:hover {
+      background-color: transparent;
+      transform: none;
+    }
+  }
+}
+
+.starIcon {
+  font-size: 48px;
+  color: #ddd;
+  transition: color 0.2s ease;
+  
+  .star.filled & {
+    color: #ffd700;
+  }
+  
+  .star:hover & {
+    color: #ffed4e;
+  }
+}
+
+/* 评分数值显示 */
+.ratingValue {
+  background-color: #f8f9fa;
+  padding: 12px 20px;
+  border-radius: 8px;
+  min-width: 120px;
+  text-align: center;
+}
+
+.ratingText {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 评分提示 */
+.ratingHint {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.hintText {
+  font-size: 24px;
+  color: #999;
+}
+
+/* 响应式适配 */
+@media (max-width: 750px) {
+  .ratingComponent {
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  
+  .title {
+    font-size: 28px;
+  }
+  
+  .description {
+    font-size: 24px;
+  }
+  
+  .ratingContainer {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+  
+  .starsContainer {
+    justify-content: center;
+  }
+  
+  .star {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .starIcon {
+    font-size: 42px;
+  }
+  
+  .ratingValue {
+    text-align: center;
+  }
+  
+  .ratingText {
+    font-size: 26px;
+  }
+  
+  .hintText {
+    font-size: 22px;
+  }
+}
+
+/* 动画效果 */
+@keyframes starPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.star.filled .starIcon {
+  animation: starPulse 0.3s ease-in-out;
+}

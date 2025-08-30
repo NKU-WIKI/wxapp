@@ -14,6 +14,8 @@ import styles from '../index.module.scss';
 
 interface BottomInputProps {
   postId: string;
+  postTitle?: string;
+  postAuthorId?: string;
   replyTo?: {
     commentId: string;
     nickname: string;
@@ -23,7 +25,7 @@ interface BottomInputProps {
   allowComments?: boolean;
 }
 
-const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelReply, allowComments = true }) => {
+const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthorId, replyTo, onCancelReply, allowComments = true }) => {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userState = useSelector((state: RootState) => state.user);
@@ -85,6 +87,9 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, replyTo, onCancelRepl
         resource_id: postId, // 保持原始postId（string UUID）
         resource_type: 'post' as const,
         content: finalContent,
+        // 新增两个字段用于通知创建
+        post_title: postTitle,
+        post_author_id: postAuthorId,
         ...(replyTo ? { 
           parent_id: replyTo.commentId,
           parent_author_nickname: replyTo.nickname

@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchUserProfile } from '../../../store/slices/userSlice';
 import { getActionStatus, getUserPostCount, getUserFollowersCount, getUserFollowingCount } from '../../../services/api/user';
 import { followAction } from '../../../services/api/followers';
+import { BBSNotificationHelper } from '../../../utils/notificationHelper';
 import CustomHeader from '../../../components/custom-header';
 import { normalizeImageUrl } from '../../../utils/image';
 import styles from './index.module.scss';
@@ -111,7 +112,30 @@ const UserDetail: React.FC = () => {
       
       if (response.code === 0 && response.data) {
         const { is_active } = response.data;
+        console.log('✅ [UserDetail] 关注操作成功，当前状态:', is_active);
         setIsFollowing(is_active);
+        
+        // 如果操作成功且状态变为激活（关注），创建通知
+        if (is_active) {
+          console.log('📢 [UserDetail] 开始创建关注通知...');
+          
+          // 获取当前用户信息
+          const currentUser = (window as any).g_app?.$app?.globalData?.userInfo || 
+                             JSON.parse(Taro.getStorageSync('userInfo') || '{}');
+          
+          BBSNotificationHelper.handleFollowNotification({
+            targetUserId: userId,
+            currentUserId: currentUser?.id || '',
+            currentUserNickname: currentUser?.nickname || currentUser?.name || '用户',
+            isFollowing: is_active
+          }).then(() => {
+            console.log('✅ [UserDetail] 关注通知创建成功');
+          }).catch((error) => {
+            console.error('❌ [UserDetail] 关注通知创建失败:', error);
+          });
+        } else {
+          console.log('ℹ️ [UserDetail] 跳过关注通知创建 - 取消关注');
+        }
         
         // 重新获取真实的粉丝数量
         try {

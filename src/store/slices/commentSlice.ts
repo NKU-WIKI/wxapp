@@ -167,6 +167,37 @@ export const createComment = createAsyncThunk(
         parent_author_nickname: parentAuthorNickname,
       } as CommentDetail;
       
+      // 创建评论通知（如果不是给自己的帖子评论）
+      if (params.resource_type === 'post' && currentUser?.currentUser?.user_id) {
+        // 需要获取帖子作者ID和标题
+        // 这里我们通过参数传递或从 store 中获取
+        const postAuthorId = (params as any).post_author_id;
+        const postTitle = (params as any).post_title;
+        
+        if (postAuthorId && postTitle && postAuthorId !== currentUser.currentUser.user_id) {
+          console.log('📢 [CommentSlice] 开始创建评论通知...');
+          
+          // 导入通知工具类
+          import('@/utils/notificationHelper').then(({ BBSNotificationHelper }) => {
+            BBSNotificationHelper.handleCommentNotification({
+              postId: params.resource_id,
+              postTitle: postTitle,
+              postAuthorId: postAuthorId,
+              currentUserId: currentUser.currentUser.user_id,
+              commentContent: params.content
+            }).then(() => {
+              console.log('✅ [CommentSlice] 评论通知创建成功');
+            }).catch((error) => {
+              console.error('❌ [CommentSlice] 评论通知创建失败:', error);
+            });
+          }).catch((error) => {
+            console.error('❌ [CommentSlice] 导入通知工具失败:', error);
+          });
+        } else {
+          console.log('ℹ️ [CommentSlice] 跳过评论通知创建 - 缺少参数或给自己评论');
+        }
+      }
+      
       return normalized;
     } catch (error: any) {
       console.error("创建评论失败:", error);
