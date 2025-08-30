@@ -1,6 +1,5 @@
 .activitySquarePage {
   position: relative;
-  height: 100vh;
   background-color: #f8fafc;
   display: flex;
   flex-direction: column;
@@ -99,9 +98,11 @@
 
 .scrollView {
   flex: 1;
-  margin-top: 220px; // 从200px增加到220px，让活动列表位置再往下一点
-  padding: 16px;
-  padding-top: 0; // 顶部不需要padding，因为有margin-top
+  position: relative;
+  overflow-y: auto; // 允许垂直滚动
+  margin-top: 130px;
+  -webkit-overflow-scrolling: touch; // 优化iOS滚动体验
+  layout_height: wrap_content; // 高度自适应内容
 }
 
 .publishSection {
@@ -138,9 +139,20 @@
   flex-direction: column;
   align-items: stretch; // 确保子元素拉伸填充宽度
   justify-content: flex-start; // 确保内容从顶部开始，不居中
-  gap: 16px; // 从32px减少到16px，减小一半
-  padding-bottom: 100px; // 为悬浮按钮预留空间
+  padding-bottom: 50px; // 为悬浮按钮预留空间
   min-height: auto; // 确保容器高度自适应内容
+
+  // 单个活动时无上边距，无间距
+  &.singleActivity {
+    margin-top: 0;
+    gap: 0; // 移除间距，让活动紧贴分类栏
+  }
+
+  // 多个活动时有上边距和间距
+  &.multipleActivities {
+    margin-top: 12px;
+    gap: 16px; // 活动之间保持间距
+  }
 }
 
 .loadingState {
@@ -308,14 +320,11 @@
   margin-left: auto; // 确保立即报名按钮始终在右边
 }
 
-.bottomSpacing {
-  height: 40px;
-}
-
 .bottomTip {
   display: flex;
   justify-content: center;
-  padding: 20px 0;
+  align-items: center;
+  padding: 0 0 50px 0;
   color: #94a3b8;
   font-size: 14px;
 }
@@ -324,8 +333,7 @@
 .floatingPublishButton {
   position: fixed;
   bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 30px; // 改为右边固定位置
   width: 60px;
   height: 60px;
   background: #4f46e5;
@@ -338,7 +346,7 @@
   transition: all 0.3s ease;
 
   &:active {
-    transform: translateX(-50%) scale(0.95);
+    transform: scale(0.95); // 移除translateX，因为不再居中
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.6);
   }
 }
@@ -347,4 +355,33 @@
   width: 24px;
   height: 24px;
   filter: brightness(0) invert(1); // 将图标变为白色
+}
+
+// 空状态样式
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.emptyText {
+  font-size: 18px;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.emptySubText {
+  font-size: 14px;
+  color: #94a3b8;
 }

@@ -6,7 +6,6 @@ import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/ap
 import searchIcon from "@/assets/search.svg";
 import styles from "./index.module.scss";
 import CustomHeader from "../../../components/custom-header";
-import { activity } from "../mock";
 
 // eslint-disable-next-line import/no-unused-modules
 export default function ActivitySquare() {
@@ -164,12 +163,18 @@ export default function ActivitySquare() {
         refresherBackground='#f8fafc'
       >
         {/* 活动列表 */}
-        <View className={styles.activitiesContainer}>
+        <View
+          className={`${styles.activitiesContainer} ${
+            (filteredActivities && filteredActivities.length > 0 ? filteredActivities.length : 0) === 1
+              ? styles.singleActivity
+              : styles.multipleActivities
+          }`}
+        >
           {activitiesLoading ? (
             <View className={styles.loadingState}>
               <Text>加载中...</Text>
             </View>
-          ) : (filteredActivities && filteredActivities.length > 0 ? (
+          ) : filteredActivities && filteredActivities.length > 0 ? (
             filteredActivities.map(act => {
               const isExpanded = expandedItems.has(act.id || '');
               return (
@@ -219,37 +224,15 @@ export default function ActivitySquare() {
               );
             })
           ) : (
-            // 显示模拟数据
-            <View className={styles.activityCard} onClick={() => handleActivityClick({} as ActivityRead)}>
-              <View className={styles.activityContent}>
-                <Text className={styles.activityTitle}>{activity.title}</Text>
-                <View className={styles.activityDetails}>
-                  <View className={styles.activityDetailItem}>
-                    <Image src={require("../../../assets/clock.svg")} className={styles.detailIcon} />
-                    <Text className={styles.activityDetail}>{activity.time}</Text>
-                  </View>
-                  <View className={styles.activityDetailItem}>
-                    <Image src={require("../../../assets/map-pin.svg")} className={styles.detailIcon} />
-                    <Text className={styles.activityDetail}>{activity.location}</Text>
-                  </View>
-                </View>
-                <View className={styles.descriptionContainer}>
-                  <Text
-                    className={`${styles.activityDescription} ${!expandedItems.has('mock') ? styles.collapsed : ''}`}
-                    numberOfLines={!expandedItems.has('mock') ? 2 : undefined}
-                  >
-                    一起来参加这个精彩的活动吧！这是一个非常有意义的活动，欢迎大家踊跃参与。
-                  </Text>
-                </View>
-                <View className={styles.activityAction}>
-                  <Text className={styles.actionButton}>立即报名</Text>
-                </View>
-              </View>
+            // 显示暂无活动
+            <View className={styles.emptyState}>
+              <Image src={require("../../../assets/empty.svg")} className={styles.emptyIcon} />
+              <Text className={styles.emptyText}>暂无活动</Text>
+              <Text className={styles.emptySubText}>快来发布第一个活动吧</Text>
             </View>
-          ))}
+          )}
         </View>
 
-        <View className={styles.bottomSpacing} />
         <View className={styles.bottomTip}>
           <Text>已经到底了</Text>
         </View>
