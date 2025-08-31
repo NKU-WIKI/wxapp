@@ -1,7 +1,6 @@
-@use "../../../../styles/variables" as *;
+@use "../../../../styles/variables.scss" as *;
 
-/* 评分详情页样式 */
-.detailPage {
+.ratingDetailPage {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -11,110 +10,150 @@
 .contentScroll {
   flex: 1;
   overflow: hidden;
+  height: 100%;
 }
 
-/* 项目信息区域 */
-.headerSection {
-  background-color: $bg-card;
-  padding: 20px;
-  margin-bottom: 12px;
-}
-
-.projectInfo {
+.loadingState,
+.errorState {
   display: flex;
-  margin-bottom: 16px;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: $text-helper-gray;
 }
 
-.projectImage {
+.errorText {
+  color: $status-error;
+}
+
+// 资源基本信息
+.resourceInfo {
+  background-color: $bg-card;
+  margin: 12px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.resourceHeader {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.resourceImage {
   width: 80px;
   height: 80px;
   border-radius: 12px;
   margin-right: 16px;
-  flex-shrink: 0;
+  background-color: $bg-input;
 }
 
-.projectDetails {
+.resourceDetails {
   flex: 1;
 }
 
-.projectTitle {
-  font-size: 20px;
+.resourceTitle {
+  font-size: 18px;
   font-weight: 600;
   color: $text-primary;
+  line-height: 1.4;
   margin-bottom: 6px;
-  line-height: 1.3;
 }
 
-.projectAuthor {
-  font-size: 14px;
+.resourceType {
+  display: inline-block;
+  background-color: $bg-input;
   color: $text-secondary;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
   margin-bottom: 8px;
 }
 
-.categoryTag {
-  background-color: $bg-input;
-  padding: 4px 8px;
-  border-radius: 12px;
-  align-self: flex-start;
-}
-
-.categoryText {
-  font-size: 12px;
-  color: $text-helper;
-}
-
-.projectDescription {
-  font-size: 15px;
+.resourceDescription {
+  font-size: 14px;
   color: $text-secondary;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
-/* 评分统计区域 */
-.ratingSection {
-  background-color: $bg-card;
-  padding: 20px;
-  margin-bottom: 12px;
-}
-
-.ratingOverview {
+.overallRating {
   display: flex;
-  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .ratingScore {
-  text-align: center;
-  min-width: 80px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .scoreNumber {
-  font-size: 48px;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 700;
   color: $theme-primary;
-  line-height: 1;
-  margin-bottom: 8px;
+}
+
+.starsContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.starContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.starIcon {
+  width: 20px;
+  height: 20px;
   display: block;
+}
+
+.starLarge {
+  width: 24px;
+  height: 24px;
 }
 
 .totalRatings {
   font-size: 14px;
-  color: $text-secondary;
+  color: $text-helper-gray;
 }
 
+// 评分分布
 .ratingDistribution {
-  flex: 1;
+  background-color: $bg-card;
+  margin: 12px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.distributionRow {
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 16px;
+}
+
+.distributionList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.distributionItem {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
   gap: 12px;
 }
 
 .starLabel {
   font-size: 14px;
   color: $text-secondary;
-  width: 32px;
+  min-width: 32px;
 }
 
 .progressBar {
@@ -131,49 +170,172 @@
   transition: width 0.3s ease;
 }
 
-.percentage {
+.percentageText {
   font-size: 12px;
-  color: $text-helper;
-  width: 40px;
+  color: $text-helper-gray;
+  min-width: 40px;
   text-align: right;
 }
 
-/* 评论区域 */
-.reviewSection {
+// 用户评分表单
+.userRatingForm {
   background-color: $bg-card;
+  margin: 12px;
+  border-radius: 12px;
   padding: 20px;
-  margin-bottom: 80px; /* 为底部输入区留空间 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.sectionTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: $text-primary;
+.ratingInput {
+  display: flex;
+  align-items: center;
   margin-bottom: 16px;
+}
+
+.ratingLabel {
+  font-size: 14px;
+  color: $text-primary;
+  margin-right: 12px;
+  min-width: 40px;
+}
+
+.ratingStars {
+  display: flex;
+  gap: 4px;
+}
+
+.clickableStarIcon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.commentInput {
+  margin-bottom: 16px;
+}
+
+.commentLabel {
+  font-size: 14px;
+  color: $text-primary;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.commentTextarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border: 1px solid $border-light;
+  border-radius: 8px;
+  font-size: 14px;
+  color: $text-primary;
+  background-color: $bg-input;
+  line-height: 1.4;
+  
+  &::placeholder {
+    color: $text-helper-gray;
+  }
+}
+
+.anonymousOption {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid $border-base;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  font-size: 12px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &.checked {
+    background-color: $theme-primary;
+    border-color: $theme-primary;
+  }
+}
+
+.anonymousText {
+  font-size: 14px;
+  color: $text-secondary;
+}
+
+.submitButton {
+  background-color: $theme-primary;
+  color: white;
+  text-align: center;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:active {
+    transform: scale(0.98);
+    background-color: darken($theme-primary, 10%);
+  }
+  
+  &.disabled {
+    background-color: $text-helper-gray;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+.submitText {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+// 评价列表
+.reviewsSection {
+  background-color: $bg-card;
+  margin: 12px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .reviewItem {
+  padding: 16px 0;
   border-bottom: 1px solid $border-light;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-
+  
   &:last-child {
     border-bottom: none;
-    margin-bottom: 0;
+    padding-bottom: 0;
   }
 }
 
 .reviewHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 12px;
 }
 
 .userAvatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
   margin-right: 12px;
+  background-color: $bg-input;
 }
 
 .userInfo {
@@ -189,157 +351,71 @@
 
 .reviewStars {
   display: flex;
-  align-items: center;
   gap: 2px;
-}
-
-.reviewContent {
-  font-size: 15px;
-  color: $text-secondary;
-  line-height: 1.5;
-  margin-bottom: 12px;
-}
-
-.reviewFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .reviewDate {
   font-size: 12px;
-  color: $text-helper;
+  color: $text-helper-gray;
 }
 
-.likeButton {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 16px;
-  transition: all 0.2s ease;
-
-  &.liked {
-    background-color: $alpha-primary-10;
-    
-    .likeIcon {
-      filter: hue-rotate(200deg);
-    }
-    
-    .likeCount {
-      color: $theme-primary;
-    }
-  }
-}
-
-.likeIcon {
-  font-size: 14px;
-}
-
-.likeCount {
-  font-size: 12px;
-  color: $text-helper;
-}
-
-/* 星级样式 */
-.star {
-  font-size: 14px;
-  
-  &.starLarge {
-    font-size: 16px;
-  }
-}
-
-.starFull {
-  color: #FFD700;
-}
-
-.starHalf {
-  color: #FFD700;
-  opacity: 0.5;
-}
-
-.starEmpty {
-  color: $border-base;
-}
-
-/* 底部评价输入区 */
-.bottomSection {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: $bg-card;
-  border-top: 1px solid $border-light;
-  padding: 16px 20px;
-  z-index: 100;
-}
-
-.ratingInput {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  gap: 12px;
-}
-
-.ratingLabel {
-  font-size: 14px;
-  color: $text-secondary;
-}
-
-.ratingStars {
-  display: flex;
-  gap: 4px;
-}
-
-.ratingStarClickable {
-  font-size: 20px;
-  color: $border-base;
-  transition: all 0.2s ease;
-
-  &.ratingStarActive {
-    color: #FFD700;
-  }
-}
-
-.commentInput {
-  display: flex;
-  gap: 12px;
-  align-items: flex-end;
-}
-
-.commentTextarea {
-  flex: 1;
-  background-color: $bg-input;
-  border: 1px solid $border-base;
-  border-radius: 20px;
-  padding: 10px 16px;
+.reviewContent {
   font-size: 14px;
   color: $text-primary;
-  min-height: 40px;
-  max-height: 80px;
-
-  &:focus {
-    border-color: $theme-primary;
-    outline: none;
-  }
+  line-height: 1.5;
+  margin-bottom: 8px;
 }
 
-.submitButton {
-  background-color: $theme-primary;
-  color: $text-white;
-  padding: 10px 20px;
-  border-radius: 20px;
-  transition: all 0.2s ease;
-
-  &:active {
-    transform: scale(0.95);
-    background-color: $theme-primary-dark;
-  }
+.reviewTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.submitText {
+.reviewTag {
+  background-color: $bg-input;
+  color: $text-secondary;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.emptyReviews {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.emptyText {
+  color: $text-helper-gray;
   font-size: 14px;
-  color: $text-white;
-  font-weight: 500;
+}
+
+// 响应式调整
+@media (max-width: 375px) {
+  .resourceInfo,
+  .ratingDistribution,
+  .userRatingForm,
+  .reviewsSection {
+    margin: 8px;
+    padding: 16px;
+  }
+  
+  .resourceImage {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .scoreNumber {
+    font-size: 28px;
+  }
+  
+  .starIcon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .starLarge {
+    width: 20px;
+    height: 20px;
+  }
 }

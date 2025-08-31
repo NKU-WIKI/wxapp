@@ -1,177 +1,117 @@
 import { View, Text, Image, ScrollView } from '@tarojs/components'
 import { useState, useEffect } from 'react'
 import Taro from '@tarojs/taro'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState, AppDispatch } from '@/store'
+import { 
+  fetchRatingItems, 
+  setCurrentCategory,
+  clearItems 
+} from '@/store/slices/ratingSlice'
+import { getResourceList } from '@/services/api/rating'
+import { RatingCategory } from '@/types/api/rating.d'
 import CustomHeader from '@/components/custom-header'
+import RatingItem from './components/RatingItem'
+// import { processTempImages } from '@/services/api/upload' // 已移除
 import styles from './index.module.scss'
 
-// 评分分类配置
-const RATING_CATEGORIES = [
-  { id: 'course', name: '课程', active: true },
-  { id: 'food', name: '美食', active: false },
-  { id: 'game', name: '游戏', active: false },
-  { id: 'entertainment', name: '娱乐', active: false },
-  { id: 'life', name: '生活', active: false },
-  { id: 'study', name: '学习', active: false },
-  { id: 'sports', name: '运动', active: false },
-  { id: 'other', name: '其他', active: false }
-]
-
-// 示例评分数据
-const SAMPLE_RATING_DATA = {
-  course: [
-    {
-      id: '1',
-      title: '高等数学A',
-      description: '张教授讲课很清楚，作业适中，考试难度合理...',
-      image: '/assets/placeholder.jpg',
-      rating: 8.9,
-      reviewCount: 142,
-      location: '数学系'
-    },
-    {
-      id: '2',
-      title: '大学英语',
-      description: '李老师人很好，课堂互动多，提升很快',
-      image: '/assets/placeholder.jpg',
-      rating: 9.2,
-      reviewCount: 86,
-      location: '外语系'
-    }
-  ],
-  food: [
-    {
-      id: '3',
-      title: '老王饺子馆',
-      description: '位于学生食堂3楼，最近新开的，老板人很好，可以喝免费的饺...',
-      image: '/assets/placeholder.jpg',
-      rating: 9.6,
-      reviewCount: 238,
-      location: '学生食堂3楼'
-    },
-    {
-      id: '4',
-      title: '兰州拉面',
-      description: '学生食堂2楼，面条劲道，汤底醇厚',
-      image: '/assets/placeholder.jpg',
-      rating: 9.2,
-      reviewCount: 186,
-      location: '学生食堂2楼'
-    }
-  ],
-  game: [
-    {
-      id: '11',
-      title: '武林群侠传',
-      description: '这是一款充满江湖气息的武侠角色扮演游戏。玩家将在广阔的武林世界中历练成长...',
-      image: '/assets/placeholder.jpg',
-      rating: 9.8,
-      reviewCount: 238,
-      location: '游戏类'
-    },
-    {
-      id: '12',
-      title: '原神',
-      description: '开放世界冒险游戏，精美画面，丰富剧情，角色收集要素丰富',
-      image: '/assets/placeholder.jpg',
-      rating: 9.1,
-      reviewCount: 456,
-      location: '游戏类'
-    }
-  ],
-  entertainment: [
-    {
-      id: '5',
-      title: '万达影城',
-      description: '音响效果好，座椅舒适，学生票有优惠',
-      image: '/assets/placeholder.jpg',
-      rating: 8.8,
-      reviewCount: 95,
-      location: '校园附近'
-    }
-  ],
-  life: [
-    {
-      id: '6',
-      title: '快递驿站',
-      description: '服务态度好，包裹保管安全，营业时间长',
-      image: '/assets/placeholder.jpg',
-      rating: 9.1,
-      reviewCount: 203,
-      location: '宿舍楼下'
-    }
-  ],
-  study: [
-    {
-      id: '7',
-      title: '图书馆自习室',
-      description: '环境安静，座位舒适，学习氛围浓厚',
-      image: '/assets/placeholder.jpg',
-      rating: 9.5,
-      reviewCount: 167,
-      location: '图书馆3层'
-    }
-  ],
-  sports: [
-    {
-      id: '8',
-      title: '校园健身房',
-      description: '器材齐全，环境整洁，价格实惠',
-      image: '/assets/placeholder.jpg',
-      rating: 8.7,
-      reviewCount: 124,
-      location: '体育馆1层'
-    }
-  ],
-  other: [
-    {
-      id: '9',
-      title: '校园医务室',
-      description: '医生专业，服务态度好，常用药品齐全',
-      image: '/assets/placeholder.jpg',
-      rating: 8.5,
-      reviewCount: 67,
-      location: '行政楼2层'
-    },
-    {
-      id: '10',
-      title: '校园银行ATM',
-      description: '位置方便，很少排队，手续费合理',
-      image: '/assets/placeholder.jpg',
-      rating: 8.9,
-      reviewCount: 89,
-      location: '学生活动中心'
-    }
-  ]
-}
-
 const RatingPage = () => {
-  const [currentCategory, setCurrentCategory] = useState('course')
-  const [categories, setCategories] = useState(RATING_CATEGORIES)
-  const [ratingData, setRatingData] = useState(SAMPLE_RATING_DATA[currentCategory] || [])
+  const dispatch = useDispatch<AppDispatch>()
+  const [currentCategory, setCurrentCategoryState] = useState<RatingCategory>(RatingCategory.Course)
+  const [resources, setResources] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   
-  // 获取用户状态
+  // 从store获取状态
   const userState = useSelector((state: RootState) => state.user)
+  
   const isLoggedIn = userState.isLoggedIn
 
-  // 切换分类
-  const handleCategoryChange = (categoryId: string) => {
-    setCurrentCategory(categoryId)
-    setCategories(prev => 
-      prev.map(cat => ({ ...cat, active: cat.id === categoryId }))
-    )
-    
-    // 加载对应分类的数据
-    setRatingData(SAMPLE_RATING_DATA[categoryId] || [])
+  // 预定义的评分类型（根据API文档）
+  const predefinedRatingTypes = [
+    { value: RatingCategory.Course, label: '学习', description: '课程、教材、学习资源评分' },
+    { value: RatingCategory.Food, label: '美食', description: '餐厅、菜品、美食推荐评分' },
+    { value: RatingCategory.Game, label: '游戏', description: '游戏、游戏攻略、游戏设备评分' },
+    { value: RatingCategory.Entertainment, label: '娱乐', description: '影视、音乐、娱乐活动评分' },
+    { value: RatingCategory.Life, label: '生活', description: '生活服务、日用品、生活技巧评分' },
+    { value: RatingCategory.Sport, label: '运动', description: '运动场所、体育用品、健身课程评分' },
+    { value: RatingCategory.Other, label: '其他', description: '不属于以上分类的内容评分' }
+  ]
+
+  // 加载资源列表
+  const loadResources = async (category: RatingCategory) => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const response = await getResourceList({
+        resource_type: category,
+        skip: 0,
+        limit: 20,
+        sort_by: 'average_score',
+        sort_order: 'desc'
+      })
+      
+      console.log('📊 API 完整响应:', response)
+      console.log('📊 API 响应的 data 字段:', response.data)
+      
+      // 尝试多种可能的数据路径
+      let resourcesData: any[] = [];
+      
+      if (response.data?.data?.resources && Array.isArray(response.data.data.resources)) {
+        // 标准 API 响应格式: { code, message, data: { resources: [] } }
+        resourcesData = response.data.data.resources;
+        console.log('✅ 标准格式 - 资源列表数据 (数量:', resourcesData.length, '):', resourcesData)
+      } else if ((response.data as any)?.resources && Array.isArray((response.data as any).resources)) {
+        // 直接格式: { resources: [], total, skip, limit }
+        resourcesData = (response.data as any).resources;
+        console.log('✅ 直接格式 - 资源列表数据 (数量:', resourcesData.length, '):', resourcesData)
+      } else if ((response as any).resources && Array.isArray((response as any).resources)) {
+        // 最简格式: { resources: [] }
+        resourcesData = (response as any).resources;
+        console.log('✅ 最简格式 - 资源列表数据 (数量:', resourcesData.length, '):', resourcesData)
+      }
+      
+      if (resourcesData.length > 0) {
+        setResources(resourcesData)
+      } else {
+        console.warn('⚠️ 未找到资源数据，完整响应结构:', {
+          response,
+          'response.data': response.data,
+          'response.data?.data': response.data?.data
+        })
+        setResources([])
+      }
+    } catch (err: any) {
+      console.error('加载资源列表失败:', err)
+      setError(err.message || '加载失败')
+      setResources([])
+    } finally {
+      setLoading(false)
+    }
   }
 
-  // 跳转到详情页
-  const handleItemClick = (item: any) => {
-    console.log('跳转到评分详情页:', item.id)
+  // 加载资源列表
+  useEffect(() => {
+    if (currentCategory) {
+      loadResources(currentCategory)
+    }
+  }, [currentCategory])
+
+  // 切换分类
+  const handleCategoryChange = (categoryId: RatingCategory) => {
+    setCurrentCategoryState(categoryId)
+    dispatch(setCurrentCategory(categoryId))
+    // 清空当前资源列表，准备加载新数据
+    setResources([])
+  }
+
+  // 跳转到资源详情页（显示该资源的所有评价）
+  const handleItemClick = (resource: any) => {
+    console.log('跳转到资源详情页:', resource.id)
+    
     Taro.navigateTo({
-      url: `/pages/discover/rating/detail/index?id=${item.id}&title=${encodeURIComponent(item.title)}`
+      url: `/pages/discover/rating/detail/index?resourceId=${resource.id}&resourceType=${resource.resource_type}&resourceName=${encodeURIComponent(resource.resource_name)}`
     })
   }
 
@@ -198,30 +138,24 @@ const RatingPage = () => {
     })
   }
 
-  // 渲染星级
-  const renderStars = (rating: number, maxRating: number = 5) => {
-    const stars: JSX.Element[] = []
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 !== 0
-    
-    for (let i = 0; i < maxRating; i++) {
-      if (i < fullStars) {
-        stars.push(
-          <Text key={i} className={styles.starFull}>★</Text>
-        )
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push(
-          <Text key={i} className={styles.starHalf}>★</Text>
-        )
-      } else {
-        stars.push(
-          <Text key={i} className={styles.starEmpty}>★</Text>
-        )
-      }
-    }
-    
-    return stars
+
+
+  // 获取分类显示名称
+  const getCategoryDisplayName = (categoryValue: string) => {
+    const category = predefinedRatingTypes.find(type => type.value === categoryValue)
+    return category ? category.label : categoryValue
   }
+
+  // 构建分类列表
+  const buildCategoryList = () => {
+    return predefinedRatingTypes.map(type => ({
+      value: type.value,
+      name: type.label,
+      active: currentCategory === type.value
+    }))
+  }
+
+  const categoryList = buildCategoryList()
 
   return (
     <View className={styles.ratingPage}>
@@ -231,11 +165,11 @@ const RatingPage = () => {
       <View className={styles.categoryContainer}>
         <ScrollView scrollX className={styles.categoryScroll}>
           <View className={styles.categoryList}>
-            {categories.map(category => (
+            {categoryList.map(category => (
               <View
-                key={category.id}
+                key={category.value}
                 className={`${styles.categoryItem} ${category.active ? styles.active : ''}`}
-                onClick={() => handleCategoryChange(category.id)}
+                onClick={() => handleCategoryChange(category.value)}
               >
                 <Text className={styles.categoryText}>{category.name}</Text>
               </View>
@@ -247,47 +181,33 @@ const RatingPage = () => {
       {/* 主内容区域 */}
       <View className={styles.contentContainer}>
         <ScrollView scrollY className={styles.contentScroll}>
+          {/* 加载状态 */}
+          {loading && (
+            <View className={styles.loadingState}>
+              <Text className={styles.loadingText}>加载中...</Text>
+            </View>
+          )}
+
+          {/* 错误状态 */}
+          {error && (
+            <View className={styles.errorState}>
+              <Text className={styles.errorText}>加载失败: {error}</Text>
+              <Text className={styles.errorSubText}>请检查网络连接或稍后重试</Text>
+            </View>
+          )}
+
+          {/* 资源列表 */}
           <View className={styles.ratingList}>
-            {ratingData.map(item => (
-              <View
-                key={item.id}
-                className={styles.ratingCard}
-                onClick={() => handleItemClick(item)}
-              >
-                <View className={styles.cardImage}>
-                  <Image 
-                    src={item.image} 
-                    className={styles.itemImage}
-                    mode="aspectFill"
-                  />
-                </View>
-                
-                <View className={styles.cardContent}>
-                  <View className={styles.cardHeader}>
-                    <Text className={styles.itemTitle}>{item.title}</Text>
-                  </View>
-                  
-                  <View className={styles.itemLocation}>
-                    <Text className={styles.locationText}>{item.location}</Text>
-                  </View>
-                  
-                  <Text className={styles.itemDescription}>{item.description}</Text>
-                  
-                  <View className={styles.ratingInfo}>
-                    <View className={styles.ratingScore}>
-                      <Text className={styles.scoreNumber}>{item.rating}</Text>
-                      <View className={styles.stars}>
-                        {renderStars(item.rating)}
-                      </View>
-                    </View>
-                    <Text className={styles.reviewCount}>{item.reviewCount}条评价</Text>
-                  </View>
-                </View>
-              </View>
+            {resources.map(resource => (
+              <RatingItem
+                key={resource.id}
+                resource={resource}
+                onItemClick={handleItemClick}
+              />
             ))}
             
             {/* 空状态 */}
-            {ratingData.length === 0 && (
+            {!loading && !error && resources.length === 0 && (
               <View className={styles.emptyState}>
                 <View className={styles.emptyIcon}>📝</View>
                 <Text className={styles.emptyText}>暂无评分数据</Text>

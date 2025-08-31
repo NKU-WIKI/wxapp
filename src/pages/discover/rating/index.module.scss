@@ -245,3 +245,28 @@
   font-weight: 300;
   line-height: 1;
 }
+
+.loadingState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.loadingText {
+  font-size: 16px;
+  color: #666;
+}
+
+.errorState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.errorText {
+  font-size: 16px;
+  color: #EF4444;
+}
