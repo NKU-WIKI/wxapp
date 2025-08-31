@@ -10,6 +10,7 @@ import styles from './index.module.scss';
 const CampusVerification = () => {
   const dispatch = useDispatch<AppDispatch>();
   const campusVerificationState = useSelector((state: RootState) => state.campusVerification);
+  const [school, setSchool] = useState('');
   const [name, setName] = useState('');
   const [studentId, setStudentId] = useState('');
   const [cardImage, setCardImage] = useState('');
@@ -66,6 +67,14 @@ const CampusVerification = () => {
 
   // 提交认证
   const handleSubmit = async () => {
+    if (!school.trim()) {
+      Taro.showToast({
+        title: '请输入学校',
+        icon: 'error'
+      });
+      return;
+    }
+
     if (!name.trim()) {
       Taro.showToast({
         title: '请输入姓名',
@@ -94,6 +103,7 @@ const CampusVerification = () => {
 
     try {
       await dispatch(submitCampusVerification({
+        school: school.trim(),
         name: name.trim(),
         student_id: studentId.trim(),
         card_image: cardImage
@@ -185,6 +195,17 @@ const CampusVerification = () => {
       <CustomHeader title="校园认证" />
       <View className={styles.content}>
         <View className={styles.formContainer}>
+          {/* 学校输入 */}
+          <View className={styles.inputGroup}>
+            <Text className={styles.label}>学校</Text>
+            <Input
+              className={styles.input}
+              placeholder="请输入所在学校"
+              value={school}
+              onInput={(e) => setSchool(e.detail.value)}
+            />
+          </View>
+
           {/* 姓名输入 */}
           <View className={styles.inputGroup}>
             <Text className={styles.label}>姓名</Text>

@@ -1,4 +1,6 @@
 export interface CampusVerificationRequest {
+  /** 学校 */
+  school: string;
   /** 真实姓名 */
   name: string;
   /** 学号 */
