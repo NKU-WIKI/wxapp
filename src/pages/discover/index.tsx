@@ -238,7 +238,7 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                Taro.navigateTo({ url: '/pages/study-materials/index' });
+                Taro.navigateTo({ url: '/pages/subpackage-discover/learning-materials/index' });
               }}
             >
               <View className={styles.moduleContentWrapper}>
