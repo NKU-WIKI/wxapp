@@ -495,4 +495,245 @@ export interface PageActivityRead {
   [property: string]: any;
 }
 
+export interface PostJoinActivityRequest {
+  /**
+   * Activity Id，活动ID
+   */
+  activity_id: string;
+  [property: string]: any;
+}
 
+/**
+ * ApiResponse[ActivityRegistrationRead]
+ */
+export interface PostJoinActivityResponse {
+  /**
+   * Code，业务码，成功为 0
+   */
+  code?: number;
+  /**
+   * 负载数据
+   */
+  data?: null | ActivityRegistrationRead;
+  /**
+   * Message，简明中文信息
+   */
+  message?: string;
+  [property: string]: any;
+}
+
+
+export interface GetMyActivityRequest {
+  /**
+   * Limit，返回数量
+   */
+  limit?: number;
+  /**
+   * Skip，跳过数量
+   */
+  skip?: number;
+  /**
+   * Status，报名状态过滤
+   */
+  status?: RegistrationStatus | null;
+  [property: string]: any;
+}
+
+/**
+ * ApiResponse[Page[ActivityRegistrationRead]]
+ */
+export interface GetMyActivityResponse {
+  /**
+   * Code，业务码，成功为 0
+   */
+  code?: number;
+  /**
+   * 负载数据
+   */
+  data?: null | PageActivityRegistrationRead;
+  /**
+   * Message，简明中文信息
+   */
+  message?: string;
+  [property: string]: any;
+}
+
+/**
+ * Page[ActivityRegistrationRead]
+ */
+export interface PageActivityRegistrationRead {
+  /**
+   * Items
+   */
+  items: ActivityRegistrationRead[];
+  /**
+   * Page
+   */
+  page: number;
+  /**
+   * Page Size
+   */
+  page_size: number;
+  /**
+   * Total
+   */
+  total: number;
+  [property: string]: any;
+}
+
+/**
+ * ActivityRegistrationRead，活动报名读取模型
+ */
+export interface ActivityRegistrationRead {
+  activity: ActivitySummary;
+  /**
+   * Activity Id
+   */
+  activity_id: string;
+  /**
+   * Cancelled Time
+   */
+  cancelled_time: Date | null;
+  /**
+   * Check In Time
+   */
+  check_in_time: Date | null;
+  /**
+   * Check Out Time
+   */
+  check_out_time: Date | null;
+  /**
+   * Confirmed Time
+   */
+  confirmed_time: Date | null;
+  /**
+   * Created At
+   */
+  created_at: Date;
+  /**
+   * Feedback
+   */
+  feedback: { [key: string]: any } | null;
+  /**
+   * Guest Count
+   */
+  guest_count: number;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Participant Info
+   */
+  participant_info: { [key: string]: any } | null;
+  /**
+   * Participation Score
+   */
+  participation_score: number | null;
+  /**
+   * Payment Amount
+   */
+  payment_amount: number | null;
+  /**
+   * Payment Status
+   */
+  payment_status: string;
+  /**
+   * Queue Entered Time
+   */
+  queue_entered_time: Date | null;
+  /**
+   * Queue Position
+   */
+  queue_position: number | null;
+  /**
+   * Registration Time
+   */
+  registration_time: Date;
+  /**
+   * Review Notes
+   */
+  review_notes: null | string;
+  /**
+   * Review Time
+   */
+  review_time: Date | null;
+  /**
+   * Reviewed By
+   */
+  reviewed_by: null | string;
+  reviewer: null | UserRead;
+  /**
+   * Special Requirements
+   */
+  special_requirements: null | string;
+  status: RegistrationStatus;
+  /**
+   * Tenant Id
+   */
+  tenant_id: string;
+  /**
+   * Updated At
+   */
+  updated_at: Date;
+  user: UserRead;
+  /**
+   * User Id
+   */
+  user_id: string;
+  [property: string]: any;
+}
+
+/**
+ * ActivitySummary，活动摘要模型
+ */
+export interface ActivitySummary {
+  activity_type: ActivityType;
+  /**
+   * Ai Recommendation Score
+   */
+  ai_recommendation_score: number | null;
+  /**
+   * Category
+   */
+  category: string;
+  /**
+   * Current Participants
+   */
+  current_participants: number;
+  /**
+   * End Time
+   */
+  end_time: Date;
+  /**
+   * Fee Amount
+   */
+  fee_amount: number | null;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Location
+   */
+  location: null | string;
+  /**
+   * Max Participants
+   */
+  max_participants: number | null;
+  organizer: UserRead;
+  /**
+   * Start Time
+   */
+  start_time: Date;
+  status: ActivityStatus;
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * View Count
+   */
+  view_count: number;
+  [property: string]: any;
+}
