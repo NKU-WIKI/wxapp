@@ -1,7 +1,9 @@
 import { HistoryItem } from '@/types/history';
-import { getStorage, setStorage } from './storage';
 import { createViewHistory } from '@/services/api/user';
 import { CreateViewHistoryRequest } from '@/types/api/user';
+
+// Relative imports
+import { getStorage, setStorage } from './storage';
 
 const HISTORY_KEY = 'browse_history';
 const MAX_HISTORY = 200;
@@ -20,7 +22,7 @@ export async function recordViewHistory(targetType: "post" | "product" | "user",
     
     await createViewHistory(requestData);
   } catch (error) {
-    console.error('❌ 记录浏览历史到服务器失败:', error);
+    
     // 不抛出错误，避免影响用户体验
   }
 }
@@ -46,9 +48,9 @@ export function addHistory(item: HistoryItem) {
  * @param targetId 目标ID（用于服务器API）
  */
 export async function addHistoryWithServerSync(
-  item: HistoryItem, 
-  targetType: "post" | "product" | "user", 
-  targetId: number
+  item: HistoryItem,
+  _targetType: "post" | "product" | "user",
+  _targetId: number
 ) {
   // 先记录到本地
   addHistory(item);

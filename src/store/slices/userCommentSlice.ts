@@ -51,7 +51,7 @@ export const fetchUserComments = createAsyncThunk<
   { rejectValue: string }
 >('userComment/fetchUserComments', async (params, { rejectWithValue }) => {
   try {
-    console.log("Fetching user comments with params:", params);
+    
     
     const { skip = 0, limit = 20 } = params;
     const paginationParams: PaginationParams = { skip, limit };
@@ -83,7 +83,7 @@ export const fetchUserComments = createAsyncThunk<
       }
     };
   } catch (error: any) {
-    console.error("Error fetching user comments:", error);
+    
     return rejectWithValue(error.message || "Failed to fetch user comments");
   }
 });

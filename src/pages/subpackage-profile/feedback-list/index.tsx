@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -25,16 +25,16 @@ export default function FeedbackListPage() {
 
   useEffect(() => {
     loadFeedbacks();
-  }, []);
+  }, [loadFeedbacks]);
 
-  const loadFeedbacks = async () => {
+  const loadFeedbacks = useCallback(async () => {
     try {
       await dispatch(getFeedbackList({ page: 1, page_size: 20 })).unwrap();
     } catch (error) {
-      console.error('获取反馈列表失败:', error);
+
       Taro.showToast({ title: '获取反馈列表失败', icon: 'none' });
     }
-  };
+  }, [dispatch]);
 
   const formatTime = (timeStr: string) => {
     const date = new Date(timeStr);
@@ -77,7 +77,7 @@ export default function FeedbackListPage() {
                   <View className={styles.imageList}>
                     {feedback.image.map((url, index) => (
                       <View key={index} className={styles.imageItem}>
-                        <Image src={url} className={styles.feedbackImage} mode="aspectFill" />
+                        <Image src={url} className={styles.feedbackImage} mode='aspectFill' />
                       </View>
                     ))}
                   </View>

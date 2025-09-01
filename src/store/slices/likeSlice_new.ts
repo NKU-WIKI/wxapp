@@ -20,7 +20,7 @@ export const fetchLikes = createAsyncThunk<
   try {
     // TODO: 当后端提供获取用户点赞列表的API时，调用相应的服务
     // 目前返回空数据，避免报错
-    console.log("Fetching likes with params:", params);
+    
     
     // 模拟API响应结构，转换page/page_size为skip/limit
     return {

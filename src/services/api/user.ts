@@ -86,7 +86,7 @@ export const getMyStats = () => {
   return http.get<any>("/persona/me/stats").then(response => {
     return response;
   }).catch(error => {
-    console.error('[getMyStats] API error:', error);
+    
     throw error;
   });
 };
@@ -193,7 +193,7 @@ export const getUserPosts = (userId: string, params?: PaginationParams) => {
   return http.get<Post[]>(`/users/${userId}/posts`, safeParams).then(response => {
     return response;
   }).catch(error => {
-    console.error('[getUserPosts] API error:', error);
+    
     throw error;
   });
 };
@@ -213,7 +213,7 @@ export const getMyPosts = (params?: PaginationParams) => {
   return http.get<Post[]>("/users/me/posts", safeParams).then(response => {
     return response;
   }).catch(error => {
-    console.error('[getMyPosts] API error:', error);
+    
     throw error;
   });
 };
@@ -237,7 +237,7 @@ export const getMyPostCount = async () => {
     }
     return 0;
   } catch (error) {
-    console.error('Error getting my post count:', error);
+    
     return 0;
   }
 };
@@ -273,7 +273,7 @@ export const getUserPostCount = async (userId: string) => {
     }
     return 0;
   } catch (error) {
-    console.error('获取用户帖子数量失败:', error);
+    
     return 0;
   }
 };
@@ -291,7 +291,7 @@ export const getUserFollowersCount = async (userId: string) => {
     }
     return 0;
   } catch (error) {
-    console.error('获取用户粉丝数量失败:', error);
+    
     return 0;
   }
 };
@@ -309,7 +309,7 @@ export const getUserFollowingCount = async (userId: string) => {
     }
     return 0;
   } catch (error) {
-    console.error('获取用户关注数量失败:', error);
+    
     return 0;
   }
 };

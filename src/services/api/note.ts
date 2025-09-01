@@ -134,7 +134,7 @@ export const getNoteFeed = async (params: { skip?: number; limit?: number } = {}
     skip: params.skip || 0,
     limit: params.limit || 20
   };
-  console.log('发送笔记推荐流请求，参数:', requestParams);
+  
   return http.get<{ code: number; message: string; data: NoteListItem[] }>('/notes/feed', requestParams);
 };
 

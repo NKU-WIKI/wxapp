@@ -1,15 +1,23 @@
 import { View, Text, Image } from '@tarojs/components';
-import Taro from '@tarojs/taro';
 import { useEffect, useMemo } from 'react';
+
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import styles from './index.module.scss';
+
+// Store imports
+import { fetchMyLevel, fetchTodayExperienceRecords } from '@/store/slices/levelSlice';
+
+// Utils imports
+import { normalizeImageUrl } from '@/utils/image';
+
+// Assets imports
 import checkinIcon from '@/assets/clock.svg';
 import likeIcon from '@/assets/thumbs-up.svg';
 import commentIcon from '@/assets/message-circle.svg';
 import noteIcon from '@/assets/file-text.svg';
 import defaultAvatar from '@/assets/profile.png';
-import { fetchMyLevel, fetchTodayExperienceRecords } from '@/store/slices/levelSlice';
-import { normalizeImageUrl } from '@/utils/image';
+
+// Relative imports
+import styles from './index.module.scss';
 
 const LEVELS = [
   { lv: 0, label: 'Lv0', range: '0经验值' },
@@ -22,13 +30,7 @@ const LEVELS = [
   { lv: 7, label: 'Lv7', range: '大于3000经验值' },
 ];
 
-const EXP_RULES = [
-  { icon: checkinIcon, text: '每日登录', status: '未完成', value: '+2', statusColor: styles.statusBlue },
-  { icon: likeIcon, text: '帖子被点赞', status: '今日已获得 +2', value: '+1', statusColor: styles.statusBlue },
-  { icon: commentIcon, text: '评论他人帖子', status: '已完成', value: '+3', statusColor: styles.statusGray },
-  { icon: noteIcon, text: '笔记被点赞', status: '未完成', value: '+2', statusColor: styles.statusBlue },
-  { icon: commentIcon, text: '评论他人笔记', status: '未完成', value: '+3', statusColor: styles.statusBlue },
-];
+
 
 export default function LevelPage() {
   const dispatch = useAppDispatch();
@@ -43,12 +45,12 @@ export default function LevelPage() {
   const level = levelState.data?.level ?? (user?.level ?? 1);
   const exp = levelState.data?.exp ?? 0;
 
-  const { maxExp, minExp, progressPct } = useMemo(() => {
+  const { maxExp, progressPct } = useMemo(() => {
     const nextLevelExpHint = level < LEVELS.length - 1 ? LEVELS[level + 1].range.match(/\d+/g)?.[0] : '3000';
     const max = level === 0 ? 50 : level === 7 ? 3000 : parseInt(nextLevelExpHint || '50', 10);
-    const min = level === 0 ? 0 : parseInt(LEVELS[level].range.match(/\d+/g)?.[0] || '0', 10);
-    const prog = Math.max(0, Math.min(1, (exp - min) / (max - min)));
-    return { maxExp: max, minExp: min, progressPct: Math.round(prog * 100) };
+    const _min = level === 0 ? 0 : parseInt(LEVELS[level].range.match(/\d+/g)?.[0] || '0', 10);
+    const prog = Math.max(0, Math.min(1, (exp - _min) / (max - _min)));
+    return { maxExp: max, progressPct: Math.round(prog * 100) };
   }, [level, exp]);
 
   const nickname = user?.nickname || '未设置昵称';

@@ -18,14 +18,10 @@ import {
   RatingItem,
   UserRating,
   RatingStatistics,
-  RatingStatus,
   GetRatingItemsRequest,
-  RatingItemsResponse,
   CreateRatingRequest,
   CreateRatingItemRequest,
   RatingItemDetailResponse,
-  RatingDetailResponse,
-  ResourceType,
   RatingTagsInfo,
   GetResourceRatingsRequest,
   ResourceRatingsResponse
@@ -91,12 +87,12 @@ export const createUserRating = createAsyncThunk(
   'rating/createRating',
   async (data: CreateRatingRequest, { rejectWithValue }) => {
     try {
-      console.log('🚀 [Redux] 开始创建评分，输入数据:', data)
+      
       const response = await createRating(data)
-      console.log('✅ [Redux] 评分创建成功，响应数据:', response)
+      
       return response.data
     } catch (error: any) {
-      console.error('❌ [Redux] 评分创建失败:', error)
+      
       return rejectWithValue(error.message || '创建评分失败')
     }
   }
@@ -431,13 +427,13 @@ const ratingSlice = createSlice({
         state.createRatingLoading = true
         state.createRatingError = null
       })
-      .addCase(createUserRating.fulfilled, (state, action) => {
+      .addCase(createUserRating.fulfilled, (state, _action) => {
         state.createRatingLoading = false
         // 可以在这里更新相关状态，比如刷新用户评分列表
       })
-      .addCase(createUserRating.rejected, (state, action) => {
+      .addCase(createUserRating.rejected, (state, _action) => {
         state.createRatingLoading = false
-        state.createRatingError = action.payload as string
+        state.createRatingError = _action.payload as string
       })
     
     // 创建评分项目
@@ -446,13 +442,13 @@ const ratingSlice = createSlice({
         state.createRatingItemLoading = true
         state.createRatingItemError = null
       })
-      .addCase(createRatingItem.fulfilled, (state, action) => {
+      .addCase(createRatingItem.fulfilled, (state, _action) => {
         state.createRatingItemLoading = false
         // 创建成功后可以刷新评分项目列表
       })
-      .addCase(createRatingItem.rejected, (state, action) => {
+      .addCase(createRatingItem.rejected, (state, _action) => {
         state.createRatingItemLoading = false
-        state.createRatingItemError = action.payload as string
+        state.createRatingItemError = _action.payload as string
       })
     
     // 获取评分详情

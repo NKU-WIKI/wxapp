@@ -17,12 +17,12 @@ interface HotPost {
   original_url?: string;
 }
 
-// 验证 UUID 格式的辅助函数
-function isValidUUID(uuid: string | number): boolean {
-  if (typeof uuid !== 'string') return false;
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(uuid);
-}
+// 验证 UUID 格式的辅助函数 (暂时未使用)
+// function isValidUUID(uuid: string | number): boolean {
+//   if (typeof uuid !== 'string') return false;
+//   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+//   return uuidRegex.test(uuid);
+// }
 
 // eslint-disable-next-line import/no-unused-modules
 export default function Discover() {
@@ -42,7 +42,7 @@ export default function Discover() {
       const response = await postApi.getHotPostList(params);
       let postsData: HotPost[] = [];
 
-      console.log(response);
+      
 
       if (response && response.data) {
         if (Array.isArray(response.data)) {
@@ -53,7 +53,7 @@ export default function Discover() {
         setHotPosts([]);
       }
     } catch (error) {
-      console.error('获取热门帖子失败:', error);
+      
       setHotPosts([]);
     } finally {
       if (showLoading) {
@@ -200,7 +200,7 @@ export default function Discover() {
 
         {/* 功能模块 */}
         <View className={styles.moduleGrid}>
-          {/* 第一行：活动广场 + 二手交易 */}
+          {/* 第一行 */}
           <View className={styles.moduleRow}>
             <View
               className={styles.moduleCard}
@@ -209,22 +209,22 @@ export default function Discover() {
               }}
             >
               <View className={styles.moduleContentWrapper}>
-                <Image src={require("../../assets/activity.png")} className={styles.moduleIcon} />
+                <Image src='/assets/activity.png' className={styles.moduleIcon} />
                 <View className={styles.moduleTextWrapper}>
                   <Text className={styles.moduleTitle}>活动广场</Text>
                   <Text className={styles.moduleSubtitle}>发现精彩活动</Text>
                 </View>
               </View>
             </View>
-
             <View
               className={styles.moduleCard}
               onClick={() => {
-                Taro.navigateTo({ url: '/pages/second-hand/index' });
+                // TODO: 待二手交易首页完成后，替换为正确的路径
+                Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/second-hand/home/index' });
               }}
             >
               <View className={styles.moduleContentWrapper}>
-                <Image src={require("../../assets/exchange.png")} className={styles.moduleIcon} />
+                <Image src='/assets/exchange.png' className={styles.moduleIcon} />
                 <View className={styles.moduleTextWrapper}>
                   <Text className={styles.moduleTitle}>二手市场</Text>
                   <Text className={styles.moduleSubtitle}>买卖闲置物品</Text>
@@ -233,23 +233,41 @@ export default function Discover() {
             </View>
           </View>
 
-          {/* 第二行：学习资料 + 评分评价 */}
+          {/* 第二行 */}
           <View className={styles.moduleRow}>
             <View
               className={styles.moduleCard}
               onClick={() => {
-                Taro.navigateTo({ url: '/pages/study-materials/index' });
+                // TODO: 待学习资料页完成后，替换为正确的路径
+                Taro.showToast({ title: '功能开发中', icon: 'none' });
               }}
             >
               <View className={styles.moduleContentWrapper}>
-                <Image src={require("../../assets/book-green.png")} className={styles.moduleIcon} />
+                <Image src='/assets/book-green.png' className={styles.moduleIcon} />
                 <View className={styles.moduleTextWrapper}>
                   <Text className={styles.moduleTitle}>学习资源</Text>
                   <Text className={styles.moduleSubtitle}>共享学习资料</Text>
                 </View>
               </View>
             </View>
-
+            <View
+              className={styles.moduleCard}
+              onClick={() => {
+                Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/errands/home/index' });
+              }}
+            >
+              <View className={styles.moduleContentWrapper}>
+                <Image src='/assets/running.svg' className={styles.moduleIcon} />
+                <View className={styles.moduleTextWrapper}>
+                  <Text className={styles.moduleTitle}>校园跑腿</Text>
+                  <Text className={styles.moduleSubtitle}>任务发布与承接</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+          
+          {/* 第三行 */}
+          <View className={styles.moduleRow}>
             <View
               className={styles.moduleCard}
               onClick={() => {
@@ -257,13 +275,15 @@ export default function Discover() {
               }}
             >
               <View className={styles.moduleContentWrapper}>
-                <Image src={require("../../assets/star-yellow.png")} className={styles.moduleIcon} />
+                <Image src='/assets/star-yellow.png' className={styles.moduleIcon} />
                 <View className={styles.moduleTextWrapper}>
                   <Text className={styles.moduleTitle}>课程评价</Text>
                   <Text className={styles.moduleSubtitle}>分享学习体验</Text>
                 </View>
               </View>
             </View>
+             {/* 可以在这里再加一个卡片，保持对称 */}
+             <View className={`${styles.moduleCard} ${styles.placeholder}`} />
           </View>
         </View>
       </View>

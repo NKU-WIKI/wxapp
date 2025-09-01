@@ -10,18 +10,18 @@ export const TAB_BAR_PAGES = [
 
 // 全局状态管理
 class TabBarSyncManager {
-  private listeners: Set<(index: number) => void> = new Set();
+  private listeners: Set<(_index: number) => void> = new Set();
   private currentSelectedIndex: number = 0;
 
   // 添加监听器
-  addListener(callback: (index: number) => void) {
+  addListener(callback: (_index: number) => void) {
     this.listeners.add(callback);
     // 立即调用一次，同步当前状态
     callback(this.getCurrentSelectedIndex());
   }
 
   // 移除监听器
-  removeListener(callback: (index: number) => void) {
+  removeListener(callback: (_index: number) => void) {
     this.listeners.delete(callback);
   }
 
@@ -32,7 +32,7 @@ class TabBarSyncManager {
       try {
         callback(index);
       } catch (error) {
-        console.error('TabBar listener error:', error);
+        // 静默处理错误
       }
     });
   }
@@ -49,7 +49,7 @@ class TabBarSyncManager {
       const index = TAB_BAR_PAGES.findIndex(path => path === currentPath);
       return index >= 0 ? index : this.currentSelectedIndex;
     } catch (error) {
-      console.error('获取当前页面索引失败:', error);
+      // 返回当前索引作为默认值
       return this.currentSelectedIndex;
     }
   }
@@ -79,7 +79,6 @@ class TabBarSyncManager {
     
     if (this.isTabBarPage(pagePath)) {
       // 如果是 tabBar 页面，使用 switchTab
-      console.log('使用 switchTab 跳转到:', pagePath);
       Taro.switchTab({ url: pagePath });
       
       // 更新选中状态
@@ -89,7 +88,6 @@ class TabBarSyncManager {
       }
     } else {
       // 如果不是 tabBar 页面，使用 navigateTo
-      console.log('使用 navigateTo 跳转到:', url);
       Taro.navigateTo({ url });
     }
   }
@@ -119,7 +117,7 @@ export const initTabBarSync = () => {
 };
 
 // 导出便捷方法
-export const useTabBarSync = (callback: (index: number) => void) => {
+export const useTabBarSync = (callback: (_index: number) => void) => {
   return {
     subscribe: () => tabBarSyncManager.addListener(callback),
     unsubscribe: () => tabBarSyncManager.removeListener(callback),

@@ -1,19 +1,16 @@
 import { View, Text, Image, ScrollView, Input } from '@tarojs/components'
 import { useState, useEffect } from 'react'
 import Taro, { useRouter } from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '@/store'
-import { 
-  createUserRating 
-} from '@/store/slices/ratingSlice'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store'
+// import { createUserRating } from '@/store/slices/ratingSlice' // 未使用
 import { getResourceRatingsList, getResourceStatistics, createRating } from '@/services/api/rating'
-import { RatingCategory } from '@/types/api/rating.d'
 import CustomHeader from '@/components/custom-header'
-import styles from './index.module.scss'
 
 // 引入星星图标
 import starFilledIcon from '@/assets/star-filled.svg'
 import starOutlineIcon from '@/assets/star-outline.svg'
+import styles from './index.module.scss'
 
 interface ResourceInfo {
   id: string
@@ -40,7 +37,7 @@ interface RatingStatistics {
 
 const RatingDetailPage = () => {
   const router = useRouter()
-  const dispatch = useDispatch<AppDispatch>()
+  // const dispatch = useDispatch<AppDispatch>() // 未使用
   
   // 状态管理
   const [loading, setLoading] = useState(true)
@@ -63,8 +60,8 @@ const RatingDetailPage = () => {
   useEffect(() => {
     const { resourceId, resourceType, resourceName } = router.params
     
-    console.log('📊 [RatingDetail] 评分详情页加载...')
-    console.log('路由参数:', { resourceId, resourceType, resourceName })
+    
+    
     
     if (!resourceId || !resourceType) {
       setError('缺少必要的参数')
@@ -92,8 +89,8 @@ const RatingDetailPage = () => {
         getResourceStatistics(resourceType, resourceId)
       ])
       
-      console.log('✅ 资源评分列表响应:', ratingsResponse)
-      console.log('✅ 资源统计响应:', statisticsResponse)
+      
+      
       
       // 处理评分列表数据
       if (ratingsResponse.data?.data?.items) {
@@ -131,7 +128,7 @@ const RatingDetailPage = () => {
       }
       
     } catch (err: any) {
-      console.error('❌ 加载详情页数据失败:', err)
+      
       setError(err.message || '加载失败')
     } finally {
       setLoading(false)
@@ -192,7 +189,7 @@ const RatingDetailPage = () => {
 
   // 渲染用户可点击的评分星级
   const renderRatingStars = () => {
-    const stars = []
+    const stars: JSX.Element[] = []
     for (let i = 1; i <= 5; i++) {
       stars.push(
         <Image
@@ -258,7 +255,7 @@ const RatingDetailPage = () => {
         evidence_urls: []
       }
 
-      console.log('🚀 提交评分:', ratingData)
+      
       
       const response = await createRating(ratingData)
       
@@ -281,7 +278,7 @@ const RatingDetailPage = () => {
       }
       
     } catch (err: any) {
-      console.error('❌ 提交评分失败:', err)
+      
       Taro.showToast({
         title: err.message || '评分提交失败',
         icon: 'error',
@@ -301,7 +298,7 @@ const RatingDetailPage = () => {
   if (loading) {
     return (
       <View className={styles.ratingDetailPage}>
-        <CustomHeader title="评分详情" />
+        <CustomHeader title='评分详情' />
         <View className={styles.loadingState}>
           <Text className={styles.loadingText}>加载中...</Text>
         </View>
@@ -312,7 +309,7 @@ const RatingDetailPage = () => {
   if (error || !resourceInfo) {
     return (
       <View className={styles.ratingDetailPage}>
-        <CustomHeader title="评分详情" />
+        <CustomHeader title='评分详情' />
         <View className={styles.errorState}>
           <Text className={styles.errorText}>加载失败: {error || '数据不存在'}</Text>
         </View>
@@ -331,7 +328,7 @@ const RatingDetailPage = () => {
             <Image 
               src={resourceInfo.image_url || '/assets/placeholder.jpg'} 
               className={styles.resourceImage}
-              mode="aspectFill"
+              mode='aspectFill'
             />
             <View className={styles.resourceDetails}>
               <Text className={styles.resourceTitle}>{resourceInfo.title}</Text>
@@ -395,7 +392,7 @@ const RatingDetailPage = () => {
               <Text className={styles.commentLabel}>评价:</Text>
               <Input
                 className={styles.commentTextarea}
-                placeholder="分享你的使用体验..."
+                placeholder='分享你的使用体验...'
                 value={newComment}
                 onInput={(e) => setNewComment(e.detail.value)}
                 maxlength={500}
@@ -435,7 +432,7 @@ const RatingDetailPage = () => {
                     <Image 
                       src={rating.rater_avatar || '/assets/user.svg'} 
                       className={styles.userAvatar}
-                      mode="aspectFill"
+                      mode='aspectFill'
                     />
                     <View className={styles.userInfo}>
                       <Text className={styles.username}>

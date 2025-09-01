@@ -1,10 +1,12 @@
-import { View, Text, Image } from '@tarojs/components'
-import { useState } from 'react'
-import styles from './RatingItem.module.scss'
+import { useState } from 'react';
+import { View, Text, Image } from '@tarojs/components';
 
-// 引入星星图标
-import starFilledIcon from '@/assets/star-filled.svg'
-import starOutlineIcon from '@/assets/star-outline.svg'
+// Assets imports
+import starFilledIcon from '@/assets/star-filled.svg';
+import starOutlineIcon from '@/assets/star-outline.svg';
+
+// Relative imports
+import styles from './RatingItem.module.scss';
 
 interface RatingItemProps {
   /**
@@ -29,7 +31,7 @@ interface RatingItemProps {
   /**
    * 点击事件
    */
-  onItemClick?: (resource: any) => void
+  onItemClick?: () => void
 }
 
 const RatingItem = ({ resource, onItemClick }: RatingItemProps) => {
@@ -37,7 +39,6 @@ const RatingItem = ({ resource, onItemClick }: RatingItemProps) => {
 
   // 数据验证
   if (!resource || !resource.id) {
-    console.warn('⚠️ RatingItem: 无效的资源数据', resource)
     return null
   }
 
@@ -117,7 +118,7 @@ const RatingItem = ({ resource, onItemClick }: RatingItemProps) => {
   }
 
   const handleClick = () => {
-    console.log('🔗 点击资源:', resource.resource_name, resource.id)
+    
     onItemClick?.(resource)
   }
 
@@ -132,7 +133,7 @@ const RatingItem = ({ resource, onItemClick }: RatingItemProps) => {
         <Image
           src={imageLoadError ? getDefaultImage() : (resource.image_url || getDefaultImage())}
           className={styles.resourceImage}
-          mode="aspectFill"
+          mode='aspectFill'
           onError={handleImageError}
         />
       </View>

@@ -10,13 +10,15 @@ import {
   deleteSession,
   renameSession
 } from '@/store/slices/chatSlice'
-import styles from './index.module.scss'
 
-// 导入本地资源
+// Components imports
+import AboutIcon from '@/components/about-icons'
+
+// Assets imports (relative imports)
 import PlusIcon from '@/assets/plus.png';
-import DeleteIcon from '@/assets/x.png';
 import CheckIcon from '@/assets/check-square.svg';
-import AboutIcon from '@/components/about-icons';
+
+import styles from './index.module.scss';
 
 interface ChatSidebarProps {
   onClose: () => void;
@@ -36,8 +38,8 @@ const ChatSidebar = ({ onClose }: ChatSidebarProps) => {
       if (systemInfo && systemInfo.statusBarHeight) {
         setSafeAreaInsetTop(systemInfo.statusBarHeight)
       }
-    } catch (e) {
-      console.error('获取系统信息失败', e)
+    } catch {
+      // 忽略错误
     }
   }, [])
 
@@ -99,7 +101,7 @@ const ChatSidebar = ({ onClose }: ChatSidebarProps) => {
         ) : sessions.length === 0 ? (
           <View className={styles.emptyState}>
             <Text className={styles.emptyText}>暂无会话记录</Text>
-            <Text className={styles.emptyTip}>点击"新对话"开始聊天</Text>
+            <Text className={styles.emptyTip}>点击&quot;新对话&quot;开始聊天</Text>
           </View>
         ) : sessions.map(session => (
           <View
@@ -125,18 +127,18 @@ const ChatSidebar = ({ onClose }: ChatSidebarProps) => {
                   src={CheckIcon} 
                   className={styles.actionIcon} 
                   onClick={(e) => handleConfirmRename(e, session.id)}
-                  mode="aspectFit"
+                  mode='aspectFit'
                 />
               ) : (
                 <AboutIcon 
-                  type="pen-tool" 
+                  type='pen-tool' 
                   size={18} 
                   onClick={(e) => handleStartRename(e, session)} 
                   className={styles.actionIcon}
                 />
               )}
               <AboutIcon 
-                type="x" 
+                type='x' 
                 size={18} 
                 onClick={(e) => handleDeleteSession(e, session.id)} 
                 className={styles.actionIcon}

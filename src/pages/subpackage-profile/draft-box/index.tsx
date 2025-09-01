@@ -1,16 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, ScrollView } from '@tarojs/components';
-import DraftItem from './components/DraftItem';
-import { getDrafts, clearDrafts } from '@/utils/draft';
-import styles from './index.module.scss';
-import { DraftPost } from '@/types/draft';
-import { Post } from '@/types/api/post.d';
-import Button from '@/components/button';
 import Taro, { usePullDownRefresh } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
+import { DraftPost } from '@/types/draft';
+import { Post } from '@/types/api/post.d';
+import { getDrafts, clearDrafts } from '@/utils/draft';
 import { fetchDrafts } from '@/store/slices/postSlice';
 import { deleteDraft as apiDeleteDraft, clearAllDrafts as apiClearAllDrafts } from '@/services/api/post';
+import Button from '@/components/button';
+
+// Relative imports
+import DraftItem from './components/DraftItem';
+import styles from './index.module.scss';
 
 const DraftBox = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -24,14 +26,14 @@ const DraftBox = () => {
   };
 
   // 封装刷新服务端草稿逻辑
-  const refreshServerDrafts = () => {
+  const refreshServerDrafts = useCallback(() => {
     dispatch(fetchDrafts());
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     refreshLocalDrafts();
     refreshServerDrafts();
-  }, [dispatch]);
+  }, [dispatch, refreshServerDrafts]);
 
   usePullDownRefresh(() => {
     refreshLocalDrafts();
@@ -168,7 +170,7 @@ const DraftBox = () => {
   .sort((a, b) => b.updatedAt - a.updatedAt);
 
   useEffect(() => {
-    console.log('[drafts] merged list length:', allDrafts.length, 'server:', serverDrafts.length, 'local:', localDrafts.length, 'loading:', draftsLoading);
+    
   }, [allDrafts.length, serverDrafts.length, localDrafts.length, draftsLoading]);
 
   return (
@@ -184,16 +186,16 @@ const DraftBox = () => {
               <View className={styles.section}>
               {allDrafts.map((draft) => (
                   <DraftItem
-                  key={draft.id}
+                    key={draft.id}
                     draft={draft}
-                  onEdit={() => {
+                    onEdit={() => {
                     if (draft.source === 'server') {
                       handleServerEdit(serverDrafts.find(p => p.id === draft.id)!);
                     } else {
                       handleLocalEdit(draft);
                     }
                   }}
-                  onDelete={() => {
+                    onDelete={() => {
                     if (draft.source === 'local') handleLocalDelete(draft.id);
                     else handleServerDelete(draft.id);
                   }}
@@ -206,7 +208,7 @@ const DraftBox = () => {
       <View className={styles.bottomBar}>
         <Button
           className={styles.clearBtn}
-          type="primary"
+          type='primary'
           onClick={handleClearAll}
         >
           放弃所有草稿

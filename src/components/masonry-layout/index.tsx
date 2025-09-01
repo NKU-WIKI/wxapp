@@ -27,8 +27,7 @@ const MasonryLayout = ({
 
   // 调试信息
   useEffect(() => {
-    console.log('MasonryLayout 收到笔记数据:', notes.length, '条');
-    console.log('MasonryLayout 状态:', { loading, hasMore, refreshing });
+    // 调试信息已移除
   }, [notes, loading, hasMore, refreshing]);
 
   // 获取屏幕信息

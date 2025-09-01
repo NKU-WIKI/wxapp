@@ -1,49 +1,49 @@
-import { Pagination } from './common';
+
 
 /**
  * 通知渠道枚举
  */
 export enum NotificationChannel {
-  Email = "EMAIL",
-  InApp = "IN_APP", 
-  Push = "PUSH",
-  Sms = "SMS",
-  WechatMp = "WECHAT_MINI_PROGRAM",
+  _Email = "EMAIL",
+  _InApp = "IN_APP",
+  _Push = "PUSH",
+  _Sms = "SMS",
+  _WechatMp = "WECHAT_MINI_PROGRAM",
 }
 
 /**
  * 通知优先级枚举
  */
 export enum NotificationPriority {
-  High = "high",
-  Low = "low",
-  Normal = "normal",
-  Urgent = "urgent",
+  _High = "high",
+  _Low = "low",
+  _Normal = "normal",
+  _Urgent = "urgent",
 }
 
 /**
  * 通知状态枚举
  */
 export enum NotificationStatus {
-  Delivered = "delivered",
-  Expired = "expired", 
-  Failed = "failed",
-  Pending = "pending",
-  Read = "read",
-  Sent = "sent",
+  _Delivered = "delivered",
+  _Expired = "expired",
+  _Failed = "failed",
+  _Pending = "pending",
+  _Read = "read",
+  _Sent = "sent",
 }
 
 /**
  * 通知类型枚举
  */
 export enum NotificationType {
-  Activity = "activity",      // 活动通知
-  Announcement = "announcement", // 公告通知
-  Mention = "mention",         // 提及通知
-  Message = "message",         // 消息通知（点赞、评论、关注等）
-  Promotion = "promotion",     // 推广通知
-  Security = "security",       // 安全通知
-  System = "system",           // 系统通知
+  _Activity = "activity",      // 活动通知
+  _Announcement = "announcement", // 公告通知
+  _Mention = "mention",         // 提及通知
+  _Message = "message",         // 消息通知（点赞、评论、关注等）
+  _Promotion = "promotion",     // 推广通知
+  _Security = "security",       // 安全通知
+  _System = "system",           // 系统通知
 }
 
 /**
@@ -254,13 +254,13 @@ export interface NotificationApiResponse {
  * 未读数量统计
  */
 export interface UnreadCountResponse {
-  [NotificationType.Activity]: number;
-  [NotificationType.Announcement]: number;
-  [NotificationType.Mention]: number;
-  [NotificationType.Message]: number;
-  [NotificationType.Promotion]: number;
-  [NotificationType.Security]: number;
-  [NotificationType.System]: number;
+  [NotificationType._Activity]: number;
+  [NotificationType._Announcement]: number;
+  [NotificationType._Mention]: number;
+  [NotificationType._Message]: number;
+  [NotificationType._Promotion]: number;
+  [NotificationType._Security]: number;
+  [NotificationType._System]: number;
   total: number;
 }
 

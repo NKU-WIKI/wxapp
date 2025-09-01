@@ -1,7 +1,7 @@
 import { AppDispatch, RootState } from "@/store";
 import { updateUser } from "@/store/slices/userSlice";
-import { User } from "@/types/api/user";
 import { UpdateUserProfileRequest } from "@/types/api/user";
+
 import { uploadApi } from "@/services/api/upload";
 import { normalizeImageUrl } from "@/utils/image";
 import CustomHeader from "@/components/custom-header";
@@ -73,7 +73,7 @@ export default function EditProfilePage() {
           setAvatar(uploadedUrl);
           Taro.showToast({ title: "头像上传成功", icon: "success" });
         } catch (error) {
-          console.error("上传头像失败:", error);
+          
           Taro.showToast({ title: "头像上传失败", icon: "none" });
           setAvatar(userInfo?.avatar || "");
         } finally {
@@ -82,7 +82,7 @@ export default function EditProfilePage() {
         }
       },
       fail: (error) => {
-        console.log("用户取消选择图片或选择失败:", error);
+        
         if (error.errMsg && !error.errMsg.includes("cancel")) {
           Taro.showToast({ title: "选择图片失败", icon: "none" });
         }
@@ -164,7 +164,7 @@ export default function EditProfilePage() {
       <View
         style={{ display: "flex", flexDirection: "column", height: "100vh" }}
       >
-        <CustomHeader title="编辑资料" />
+        <CustomHeader title='编辑资料' />
         <View style={{ flex: 1, overflow: "hidden" }}>
           <ScrollView 
             scrollY 
@@ -183,7 +183,7 @@ export default function EditProfilePage() {
 
   return (
     <View style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      <CustomHeader title="编辑资料" />
+      <CustomHeader title='编辑资料' />
       <View style={{ flex: 1, overflow: "hidden" }}>
         <ScrollView 
           scrollY 
@@ -204,7 +204,7 @@ export default function EditProfilePage() {
                     "https://ai-public.mastergo.com/ai/img_res/e5f6df9701ea8cf889b7a90a029d2d29.jpg"
                   }
                   className={styles.avatar}
-                  mode="aspectFill"
+                  mode='aspectFill'
                 />
                 {isUploading && (
                   <View className={styles.uploadingOverlay}>
@@ -224,7 +224,7 @@ export default function EditProfilePage() {
                 <Input
                   className={styles.fieldInput}
                   value={nickname}
-                  placeholder="张雨晨"
+                  placeholder='张雨晨'
                   onInput={(e) => setNickname(e.detail.value)}
                 />
               </View>
@@ -235,7 +235,7 @@ export default function EditProfilePage() {
                   className={styles.fieldInput}
                   value={bio}
                   onInput={(e) => setBio(e.detail.value)}
-                  placeholder="热爱生活，享受每一天"
+                  placeholder='热爱生活，享受每一天'
                 />
               </View>
 
@@ -307,7 +307,7 @@ export default function EditProfilePage() {
                 <Input
                   className={styles.fieldInput}
                   value={wechatId}
-                  placeholder="rainyday2023"
+                  placeholder='rainyday2023'
                   onInput={(e) => setWechatId(e.detail.value)}
                 />
               </View>
@@ -317,7 +317,7 @@ export default function EditProfilePage() {
                 <Input
                   className={styles.fieldInput}
                   value={qqId}
-                  placeholder="98765432"
+                  placeholder='98765432'
                   onInput={(e) => setQqId(e.detail.value)}
                 />
               </View>
@@ -327,8 +327,8 @@ export default function EditProfilePage() {
                 <Input
                   className={styles.fieldInput}
                   value={phone}
-                  placeholder="138****5678"
-                  type="number"
+                  placeholder='138****5678'
+                  type='number'
                   onInput={(e) => setPhone(e.detail.value)}
                 />
               </View>

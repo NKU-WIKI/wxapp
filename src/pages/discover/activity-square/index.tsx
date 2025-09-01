@@ -60,9 +60,9 @@ export default function ActivitySquare() {
         }
       }
       setActivities(list);
-      console.log('Fetched activities:', res);
+      
     } catch (err) {
-      console.warn('获取活动失败', err);
+      
       setActivities([]);
     } finally {
       if (showLoading) {
@@ -129,7 +129,9 @@ export default function ActivitySquare() {
             className={styles.searchInput}
             placeholder='搜索活动'
             placeholderClass={styles.searchPlaceholder}
-            onConfirm={(e) => console.log('搜索:', e.detail.value)}
+            onConfirm={(_e) => {
+              // 搜索活动
+            }}
           />
         </View>
 

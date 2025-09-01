@@ -20,8 +20,8 @@ type LoginMode = 'phone' | 'username' | 'register';
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
   const [loginMode, setLoginMode] = useState<LoginMode>('phone');
-  const [phone, setPhone] = useState('');
-  const [code, setCode] = useState('');
+  const [_phone, setPhone] = useState('');
+  const [_code, setCode] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,17 +30,17 @@ export default function LoginPage() {
 
   // 检查协议同意状态
   const checkAgreement = () => {
-    console.log('=== CHECKING AGREEMENT ===');
-    console.log('agreedToTerms:', agreedToTerms);
-    console.log('typeof agreedToTerms:', typeof agreedToTerms);
-    console.log('Boolean value:', Boolean(agreedToTerms));
+    
+    
+    
+    
 
     if (!agreedToTerms) {
-      console.log('❌ Agreement not checked, showing toast');
+      
       Taro.showToast({ title: '请先阅读并同意用户协议和隐私政策', icon: 'none' });
       return false;
     }
-    console.log('✅ Agreement checked, proceeding...');
+    
     return true;
   };
 
@@ -57,13 +57,13 @@ export default function LoginPage() {
   const handlePhoneLogin = () => {
     if (!checkAgreement()) return;
 
-    console.log('Phone:', phone);
-    console.log('Code:', code);
+    
+    
     Taro.showToast({ title: '手机登录功能暂未开放', icon: 'none' });
   };
 
   const handleGetCode = () => {
-    console.log('Getting verification code for:', phone);
+    
     Taro.showToast({ title: '暂不支持获取验证码', icon: 'none' });
   };
 
@@ -83,7 +83,7 @@ export default function LoginPage() {
         Taro.switchTab({ url: '/pages/home/index' });
       }, 1000);
     } catch (error) {
-      console.error('Username login failed:', error);
+      
       Taro.showToast({
         title: error as string || '登录失败',
         icon: 'none',
@@ -122,7 +122,7 @@ export default function LoginPage() {
         Taro.switchTab({ url: '/pages/home/index' });
       }, 1000);
     } catch (error) {
-      console.error('Register failed:', error);
+      
       Taro.showToast({
         title: error as string || '注册失败',
         icon: 'none',
@@ -132,35 +132,35 @@ export default function LoginPage() {
   };
 
   const handleWechatLogin = async () => {
-    console.log("WeChat login clicked, checking agreement...");
+    
     if (!checkAgreement()) {
-      console.log("Agreement check failed, returning");
+      
       return;
     }
 
     try {
-      console.log("Starting WeChat login...");
+      
       Taro.showLoading({ title: '正在登录...' });
 
       const res = await Taro.login();
-      console.log("Taro.login() result:", res);
+      
 
       if (!res.code) {
         throw new Error("获取微信登录code失败");
       }
 
-      console.log("Dispatching login with code:", res.code);
+      
       await dispatch(login(res.code)).unwrap();
 
       Taro.hideLoading();
-      console.log("Login successful, navigating to home");
+      
       Taro.showToast({ title: '登录成功', icon: 'success' });
 
       setTimeout(() => {
         Taro.switchTab({ url: '/pages/home/index' });
       }, 1500);
     } catch (error) {
-      console.error('Login failed:', error);
+      
       Taro.hideLoading();
       Taro.showToast({
         title: `登录失败: ${error}`,
@@ -325,9 +325,9 @@ export default function LoginPage() {
         <View
           className={styles.agreementRow}
           onClick={() => {
-            console.log('Agreement row clicked, current state:', agreedToTerms);
+            
             setAgreedToTerms(!agreedToTerms);
-            console.log('New state will be:', !agreedToTerms);
+            
           }}
         >
           <Checkbox

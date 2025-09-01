@@ -1,6 +1,5 @@
 import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import styles from './SettingsList.module.scss'
 
 // Import icons
 import heartIcon from '@/assets/heart-outline.svg';
@@ -14,6 +13,9 @@ import feedbackIcon from '@/assets/feedback.svg';
 import aboutIcon from '@/assets/about.svg';
 import logoutIcon from '@/assets/logout.svg';
 import arrowRightIcon from '@/assets/arrow-right.svg';
+
+// Relative imports
+import styles from './SettingsList.module.scss';
 
 const SettingsList = () => {
   const menuItems = [
@@ -37,7 +39,7 @@ const SettingsList = () => {
         success: (res) => {
           if (res.confirm) {
             // Dispatch logout action here
-            console.log('User confirmed logout');
+            
           }
         }
       });

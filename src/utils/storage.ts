@@ -9,7 +9,7 @@ export const setStorage = <T>(key: string, data: T): void => {
   try {
     Taro.setStorageSync(key, data)
   } catch (error) {
-    console.error(`存储数据失败: ${key}`, error)
+    // 静默处理存储错误
   }
 }
 
@@ -24,7 +24,7 @@ export const getStorage = <T>(key: string, defaultValue?: T): T | undefined => {
     const data = Taro.getStorageSync(key)
     return data || defaultValue
   } catch (error) {
-    console.error(`获取数据失败: ${key}`, error)
+    
     return defaultValue
   }
 }
@@ -37,7 +37,7 @@ export const removeStorage = (key: string): void => {
   try {
     Taro.removeStorageSync(key)
   } catch (error) {
-    console.error(`删除数据失败: ${key}`, error)
+    // 静默处理存储错误
   }
 }
 
@@ -48,6 +48,6 @@ export const clearStorage = (): void => {
   try {
     Taro.clearStorageSync()
   } catch (error) {
-    console.error('清除所有存储失败', error)
+    // 静默处理存储错误
   }
 }

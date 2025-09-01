@@ -302,7 +302,7 @@ const Settings: React.FC = () => {
     }
   ];
 
-  const renderToggleSwitch = (label: string, value: boolean, onChange: (value: boolean) => void, description?: string) => (
+  const renderToggleSwitch = (label: string, _value: boolean, onChange: (_value: boolean) => void, description?: string) => (
     <View className={styles.toggleItem}>
       <View className={styles.toggleContent}>
         <View className={styles.toggleLabel}>{label}</View>

@@ -7,11 +7,10 @@ import {
   THEME_COLORS, 
   STATUS_COLORS, 
   BACKGROUND_COLORS, 
-  TEXT_COLORS, 
-  BORDER_COLORS, 
+  TEXT_COLORS,
+  BORDER_COLORS,
   SHADOW_COLORS,
-  COLOR_SCHEMES,
-  type ColorKey 
+  COLOR_SCHEMES
 } from '@/constants/colors';
 
 // ==================== 快捷访问函数 ====================
@@ -119,7 +118,7 @@ export const addAlpha = (color: string, alpha: number): string => {
   
   // 如果是十六进制颜色
   if (color.startsWith('#')) {
-    const hex = color.slice(1);
+    const _hex = color.slice(1);
     const alphaHex = Math.round(normalizedAlpha * 255).toString(16).padStart(2, '0');
     return `${color}${alphaHex}`;
   }

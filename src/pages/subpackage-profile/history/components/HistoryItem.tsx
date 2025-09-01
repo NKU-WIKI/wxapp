@@ -1,9 +1,15 @@
 import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import styles from './HistoryItem.module.scss'
-import { normalizeImageUrl } from '@/utils/image'
+
+// Type imports
 import { HistoryItem as HistoryItemType } from '@/types/history'
+
+// Utils imports
+import { normalizeImageUrl } from '@/utils/image'
 import { formatRelativeTime } from '@/utils/time'
+
+// Relative imports
+import styles from './HistoryItem.module.scss'
 
 interface HistoryItemProps {
   item: HistoryItemType

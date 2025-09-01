@@ -57,14 +57,14 @@ export const fetchLikes = createAsyncThunk<
   { rejectValue: string }
 >('likes/fetchLikes', async (params, { rejectWithValue }) => {
   try {
-    console.log('Fetching likes with params:', params);
+    
     
     const { skip = 0, limit = 20 } = params;
     const paginationParams: PaginationParams = { skip, limit };
 
     // 直接获取我的点赞列表
     const likesResponse = await getMyLikes(paginationParams);
-    console.log('Likes response:', likesResponse);
+    
     
     if (likesResponse.code !== 0) {
       throw new Error(likesResponse.message || 'Failed to fetch likes');
@@ -72,7 +72,7 @@ export const fetchLikes = createAsyncThunk<
 
     const likeActions = likesResponse.data || [];
     
-    console.log('Raw likes data:', likeActions);
+    
     
     // 检查数据结构，如果有 action_type 字段就过滤，否则直接使用所有数据
     let activeLikes = likeActions;
@@ -83,7 +83,7 @@ export const fetchLikes = createAsyncThunk<
       );
     }
     
-    console.log('Active likes after filtering:', activeLikes);
+    
 
     // 获取点赞内容的详细信息
     const likeItems: LikeItem[] = [];
@@ -102,11 +102,11 @@ export const fetchLikes = createAsyncThunk<
         // 根据目标类型获取具体内容
         if (targetType === 'post') {
           const postResponse = await getPostByIdSilent(action.target_id);
-          console.log('Post response for target_id:', action.target_id, postResponse);
+          
           if (postResponse.code === 0 && postResponse.data) {
             const post = postResponse.data;
-            console.log('Post data author_info:', post.author_info);
-            console.log('Post data user:', post.user);
+            
+            
             
             // 获取作者信息，优先使用 author_info，其次使用 user
             const authorInfo = post.author_info || post.user;
@@ -153,7 +153,7 @@ export const fetchLikes = createAsyncThunk<
     
     // 如果有被过滤的项目，输出提示信息
     if (filteredCount > 0) {
-      console.log(`👍 共过滤掉 ${filteredCount} 个已删除的点赞项`);
+      
     }
     
     return {
@@ -167,7 +167,7 @@ export const fetchLikes = createAsyncThunk<
       filteredCount
     };
   } catch (error: any) {
-    console.error('Error fetching likes:', error);
+    
     
     // 根据错误类型返回不同的提示
     if (error.message?.includes('网络') || error.code === 'NETWORK_ERROR') {

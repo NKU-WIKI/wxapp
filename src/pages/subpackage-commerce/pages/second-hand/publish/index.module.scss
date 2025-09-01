@@ -1,0 +1,126 @@
+@import "@/styles/variables.scss";
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-page;
+}
+
+.customHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 15px 10px;
+  background-color: #fff;
+  .backButton {
+    font-size: 24px;
+    width: 60px;
+  }
+  .title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  .publishButton {
+    font-size: 16px;
+    color: #fff;
+    background-color: $theme-primary;
+    padding: 6px 14px;
+    border-radius: 16px;
+    width: 60px;
+    text-align: center;
+  }
+}
+
+.actionTabs {
+  display: flex;
+  padding: 15px;
+  gap: 15px;
+  .tab {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #E5E7EB; // A gray color, should be in variables
+    color: $text-secondary;
+    &.active {
+      background-color: $theme-primary;
+      color: #fff;
+      font-weight: bold;
+    }
+  }
+}
+
+.formContainer {
+  background-color: #fff;
+  padding: 15px;
+  margin: 0 15px;
+  border-radius: 8px;
+}
+
+.imageUploader {
+  margin-bottom: 15px;
+  .uploadBox {
+    border: 1px dashed $border-base;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    .cameraIcon {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 8px;
+    }
+    .uploadText {
+      font-size: 14px;
+      color: $text-helper-gray;
+    }
+  }
+}
+
+.formInput, .formRow {
+  border-bottom: 1px solid $border-light;
+  padding: 15px 0;
+  &:last-child {
+    border-bottom: none;
+  }
+  input, textarea {
+    width: 100%;
+    font-size: 16px;
+  }
+  textarea {
+    height: 80px;
+  }
+}
+
+.formRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .label {
+    font-size: 16px;
+    color: $text-primary;
+  }
+  .content {
+    display: flex;
+    align-items: center;
+    .priceInput {
+      text-align: right;
+    }
+    .pickerText {
+      color: $text-helper-gray;
+    }
+  }
+}
+
+.warmTips {
+  padding: 20px 15px;
+  font-size: 12px;
+  color: $text-helper-gray;
+  line-height: 1.6;
+  .tipTitle {
+    color: $text-secondary;
+  }
+}

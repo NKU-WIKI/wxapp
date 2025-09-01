@@ -10,7 +10,7 @@ interface ButtonProps {
   size?: ButtonSize;
   className?: string;
   children: React.ReactNode;
-  onClick?: (event: any) => void;
+  onClick?: () => void;
   // Add other props that Taro Button accepts if needed
   [key: string]: any;
 }

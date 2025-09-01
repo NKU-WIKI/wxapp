@@ -82,22 +82,15 @@ export const login = createAsyncThunk(
         }
       };
 
-      console.log("Sending login request with data:", JSON.stringify(loginData));
+      
       const response = await loginApi(loginData);
-      console.log("Login response:", response);
+      
 
       Taro.setStorageSync("token", response.data.access_token);
       // After login, immediately fetch current user info
       dispatch(fetchCurrentUser());
       return response.data;
     } catch (error: any) {
-      console.error("Login API failed:", error);
-      console.error("Error details:", {
-        statusCode: error?.statusCode,
-        data: error?.data,
-        msg: error?.msg,
-        message: error?.message
-      });
       return rejectWithValue(error?.msg || error?.message || "登录失败");
     }
   }
@@ -116,7 +109,7 @@ export const fetchAboutInfo = createAsyncThunk(
       const response = await getAboutInfo();
       return response.data;
     } catch (error: any) {
-      console.error("Fetch about info API failed:", error);
+      
       return rejectWithValue(error?.msg || error?.message || "获取租户信息失败");
     }
   }
@@ -127,13 +120,13 @@ export const fetchAboutInfo = createAsyncThunk(
  */
 const getTenantId = (aboutInfo: AboutInfo | null, tenantName: string = DEFAULT_TENANT_NAME): string => {
   if (!aboutInfo?.tenants) {
-    console.warn("About info not available, using empty tenant_id");
+    
     return "";
   }
 
   const tenantId = aboutInfo.tenants[tenantName];
   if (!tenantId) {
-    console.warn(`Tenant "${tenantName}" not found in about info`);
+    
     return "";
   }
 
@@ -165,16 +158,16 @@ export const loginWithUsername = createAsyncThunk(
         tenant_id: tenantId,
       };
 
-      console.log("Sending username/password login request");
+      
       const response = await loginApi(loginData);
-      console.log("Username login response:", response);
+      
 
       Taro.setStorageSync("token", response.data.access_token);
       // After login, immediately fetch current user info
       dispatch(fetchCurrentUser());
       return response.data;
     } catch (error: any) {
-      console.error("Username login API failed:", error);
+      
       return rejectWithValue(error?.msg || error?.message || "用户名或密码错误");
     }
   }
@@ -193,9 +186,9 @@ export const registerUser = createAsyncThunk(
         nickname: userData.nickname,
       };
 
-      console.log("Sending register request");
-      const response = await registerApi(registerData);
-      console.log("Register response:", response);
+      
+      const _response = await registerApi(registerData);
+      
 
       // 注册成功后自动登录
       const state = getState() as RootState;
@@ -224,7 +217,7 @@ export const registerUser = createAsyncThunk(
 
       return loginResponse.data;
     } catch (error: any) {
-      console.error("Register API failed:", error);
+      
       return rejectWithValue(error?.msg || error?.message || "注册失败");
     }
   }
@@ -238,7 +231,7 @@ export const fetchCurrentUser = createAsyncThunk(
       // Return only the `data` part of the response to the reducer
       return response.data;
     } catch (error: any) {
-      console.error("Fetch user API failed:", error);
+      
       if (error?.statusCode === 401) {
         Taro.removeStorageSync("token");
       }
@@ -317,7 +310,7 @@ export const updateUser = createAsyncThunk(
       await dispatch(fetchUserProfile());
       return response; // 返回的是 UserProfile
     } catch (error: any) {
-      console.error("Update profile API failed:", error);
+      
       return rejectWithValue(error?.msg || error?.message || "更新失败");
     }
   }
@@ -331,7 +324,7 @@ export const fetchUserLevel = createAsyncThunk(
       const response = await getMyLevel();
       return response.data;
     } catch (error: any) {
-      console.error("Fetch user level API failed:", error);
+      
       return rejectWithValue(
         error?.msg || error?.message || "获取用户等级失败"
       );
@@ -347,7 +340,7 @@ export const fetchUserStats = createAsyncThunk(
       const response = await getMyStats();
       return response.data;
     } catch (error: any) {
-      console.error("Fetch user stats API failed:", error);
+      
       return rejectWithValue(
         error?.msg || error?.message || "获取用户统计失败"
       );
@@ -363,7 +356,7 @@ export const fetchFollowersCount = createAsyncThunk(
       const response = await getFollowersCount();
       return response;
     } catch (error: any) {
-      console.error("Fetch followers count API failed:", error);
+      
       return rejectWithValue(
         error?.msg || error?.message || "获取关注/粉丝总数失败"
       );
@@ -379,7 +372,7 @@ export const fetchCollectionCount = createAsyncThunk(
       const response = await getCollectionCount();
       return response;
     } catch (error: any) {
-      console.error("Fetch collection count API failed:", error);
+      
       return rejectWithValue(
         error?.msg || error?.message || "获取收藏数量失败"
       );

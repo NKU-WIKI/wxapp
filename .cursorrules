@@ -3,9 +3,15 @@
 win11 powershell
 
 后端api文档参考kjxwr6px14.apifox.cn，或者cursor解析的docs @blockbondOpenapi
-或者请求http://123.56.196.155:8001/openapi.json
+或者请求https://nkuwiki.com/openapi.json
 
 禁止自己运行npm run等编译命令
+
+### 后端提供两种认证方式
+
+必须认证接口：只有登录用户可访问，有token
+
+可选认证接口，无需登录，无token，通过请求头的 x-tenant-id 指定租户
 
 ### 测试账号与令牌（仅本地开发）
 
@@ -13,11 +19,6 @@ win11 powershell
   - username: nankai_user
   - password: Test@1234
   - token (bearer): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidGVuYW50X2lkIjoiZjYzMDM4OTktYTUxYS00NjBhLTljZDgtZmUzNTYwOTE1MWViIiwibmlja25hbWUiOiJuYW5rYWlfdXNlciIsInJvbGVzIjpbInVzZXIiXSwiZXhwIjoxNzU4MDA1MTQ5fQ.NWRyI5bQRWyRwrV5oPozoI4R9lrGVk6NANFlN20HutE
-
-- default 租户（tenant_id = 00000000-0000-0000-0000-000000000000）
-  - username: testuser2
-  - password: Test@1234
-  - token (bearer): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidGVuYW50X2lkIjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAwIiwibmlja25hbWUiOiJcdTZkNGJcdThiZDVcdTc1MjhcdTYyMzcyIiwicm9sZXMiOlsidXNlciJdLCJleHAiOjE3NTUyMzk1MTZ9.Pf-zywyMzsvH9aHNc1FC6queZAIOuvsmV3Tdk8UQXdM
 
 注：以上 token 为当前运行时生成，会随时间过期，过期后请通过 `/api/v1/auth/login` 重新获取。
 
@@ -48,6 +49,13 @@ win11 powershell
 - **核心模块**: 首页、探索、发现、我的。
 
 ### 编码规范 (style-guide.mdc)
+- **代码质量 (强制)**: 所有代码必须完全符合 ESLint 和 TSLint 的所有规则要求，不得有任何 linter 错误或警告。
+  - **ESLint 规则**: 必须遵守项目配置的所有 ESLint 规则，包括但不限于代码风格、潜在错误检测、最佳实践等。
+  - **TSLint 规则**: 必须遵守项目配置的所有 TSLint 规则，包括类型检查、代码质量、命名规范等。
+  - **零容忍原则**: 任何 linter 错误或警告都必须立即修复，不得提交包含 linter 问题的代码。
+  - **提交前检查**: 使用 `npm run lint` 或 `npm run lint:fix` 命令进行全面检查，确保所有文件都通过 linter 验证。
+  - **持续集成**: CI/CD 流水线会自动运行 linter 检查，任何违反规则的代码将阻止合并。
+  - **责任划分**: 开发者负责确保自己提交的代码通过所有 linter 检查，代码审查时也需要重点关注 linter 问题。
 - **命名**: 目录和非组件文件用 `kebab-case`，React 组件用 `PascalCase`，变量和函数用 `camelCase`，常量用 `UPPER_SNAKE_CASE`。
 - **TypeScript**: 开启 `strict` 模式，明确类型定义，优先使用 `interface`。
 - **React**: 全面使用函数式组件和 Hooks，使用 `useMemo`/`useCallback` 优化性能，自定义 Hooks 以 `use` 开头。

@@ -21,9 +21,9 @@ const LoginPrompt = () => {
     <View className={styles.loginPromptContainer}>
       <View className={styles.promptCard}>
         <Image
-          src="/assets/logo.png"
+          src='/assets/logo.png'
           className={styles.logo}
-          mode="aspectFit"
+          mode='aspectFit'
         />
         <Text className={styles.mainText}>登录 nkuwiki，开启全新校园交流体验</Text>
         <Text className={styles.subText}>
@@ -106,7 +106,7 @@ const Profile = () => {
           duration: 1000
         });
       } catch (error) {
-        console.error('[Profile Page] Refresh failed:', error);
+        
         Taro.showToast({
           title: '刷新失败',
           icon: 'error',
@@ -157,8 +157,8 @@ const Profile = () => {
       url: '/pages/subpackage-profile/followers/index?tab=following'
     }).then(() => {
       // Navigation success
-    }).catch((err) => {
-      console.error('Navigation to following failed:', err);
+    }).catch((_err) => {
+      
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -172,8 +172,8 @@ const Profile = () => {
       url: '/pages/subpackage-profile/followers/index?tab=followers'
     }).then(() => {
       // Navigation success
-    }).catch((err) => {
-      console.error('Navigation to followers failed:', err);
+    }).catch((_err) => {
+      
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -185,16 +185,16 @@ const Profile = () => {
     // 导航到收藏页面
     Taro.navigateTo({
       url: '/pages/subpackage-profile/collection/index'
-    }).catch((err) => {
-      console.error('Navigation to collection failed:', err);
+    }).catch((_err) => {
+      
     });
   };
 
   const handleNavigateToPosts = () => {
     Taro.navigateTo({
       url: '/pages/subpackage-profile/my-posts/index'
-    }).catch((err) => {
-      console.error('Navigation to my posts failed:', err);
+    }).catch((_err) => {
+      
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -206,8 +206,8 @@ const Profile = () => {
     // 导航到获赞页面
     Taro.navigateTo({
       url: '/pages/subpackage-profile/received-likes/index'
-    }).catch((err) => {
-      console.error('Navigation to received likes failed:', err);
+    }).catch((_err) => {
+      
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -238,7 +238,7 @@ const Profile = () => {
   // 渲染骨架屏
   const renderSkeleton = () => (
     <View className={styles.pageContainer}>
-      <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
+      <CustomHeader title='我的' hideBack showWikiButton showNotificationIcon />
       <View className={styles.content}>
         <ScrollView scrollY className={styles.scrollView} style={scrollViewStyle}>
           <View style={{ padding: '20px' }}>
@@ -252,7 +252,7 @@ const Profile = () => {
   if (!isLoggedIn) {
     return (
       <View className={styles.pageContainer}>
-        <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
+        <CustomHeader title='我的' hideBack showWikiButton showNotificationIcon />
         <View className={styles.content}>
           <ScrollView scrollY className={styles.scrollView} style={scrollViewStyle}>
             <LoginPrompt />
@@ -270,7 +270,7 @@ const Profile = () => {
   // 已登录用户视图
   return (
     <View className={styles.pageContainer}>
-      <CustomHeader title="我的" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
+      <CustomHeader title='我的' hideBack showWikiButton showNotificationIcon />
       <View className={styles.content}>
         <ScrollView scrollY className={styles.scrollView} style={scrollViewStyle}>
           <View className={styles.userCard}>

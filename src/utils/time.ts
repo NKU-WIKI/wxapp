@@ -19,7 +19,7 @@ function simpleFormatTime(timeStr: string): string {
   
   try {
     const date = new Date(timeStr);
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return '时间未知';
     }
     

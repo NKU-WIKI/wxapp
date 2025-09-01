@@ -23,8 +23,7 @@ export const useFollowStatus = (userId: string | undefined) => {
       setLoading(true);
       const response = await getActionStatus(userId, 'user', 'follow');
       setIsFollowing(response.data.is_active);
-    } catch (error) {
-      console.error('检查关注状态失败:', error);
+    } catch {
       setIsFollowing(false);
     } finally {
       setLoading(false);
@@ -68,7 +67,7 @@ export const useMultipleFollowStatus = (userIds: string[]) => {
           const response = await getActionStatus(userId, 'user', 'follow');
           statusMap[userId] = response.data.is_active;
         } catch (error) {
-          console.error(`检查用户 ${userId} 关注状态失败:`, error);
+          
           statusMap[userId] = false;
         }
       });
@@ -76,7 +75,7 @@ export const useMultipleFollowStatus = (userIds: string[]) => {
       await Promise.all(promises);
       setFollowStatusMap(statusMap);
     } catch (error) {
-      console.error('批量检查关注状态失败:', error);
+      
       setFollowStatusMap({});
     } finally {
       setLoading(false);

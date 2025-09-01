@@ -1,10 +1,18 @@
 import { View, Image, Text } from '@tarojs/components';
-import styles from './MyPostItem.module.scss';
+import Taro from '@tarojs/taro';
+
+// Type imports
 import { Post } from '@/types/api/post.d';
-import deleteIcon from '@/assets/x-circle.svg';
+
+// Utils imports
 import { formatRelativeTime } from '@/utils/time';
 import { normalizeImageUrl } from '@/utils/image';
-import Taro from '@tarojs/taro';
+
+// Assets imports
+import deleteIcon from '@/assets/x-circle.svg';
+
+// Relative imports
+import styles from './MyPostItem.module.scss';
 
 interface Props {
   post: Post;
@@ -31,7 +39,7 @@ const MyPostItem = ({ post, onDelete }: Props) => {
         const parsed = JSON.parse(post.image);
         return Array.isArray(parsed) ? parsed : [];
       } catch (error) {
-        console.error('解析图片失败:', error);
+        
         return [];
       }
     }
@@ -53,14 +61,14 @@ const MyPostItem = ({ post, onDelete }: Props) => {
         </Text>
       </View>
       {coverImage && (
-        <Image src={normalizeImageUrl(coverImage || '')} className={styles.cover} mode="aspectFill" />
+        <Image src={normalizeImageUrl(coverImage || '')} className={styles.cover} mode='aspectFill' />
       )}
       <View className={styles.right}>
         <Image
           src={deleteIcon}
           className={styles.deleteIcon}
           onClick={e => { e.stopPropagation(); onDelete(); }}
-          style={{ '--icon-url': `url(${deleteIcon})` } as any }
+          style={{ '--icon-url': `url(${deleteIcon})` } as any}
         />
       </View>
     </View>

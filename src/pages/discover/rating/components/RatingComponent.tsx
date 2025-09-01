@@ -1,5 +1,5 @@
 import { View, Text } from '@tarojs/components'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './RatingComponent.module.scss'
 
 interface RatingComponentProps {
@@ -26,7 +26,7 @@ interface RatingComponentProps {
   /**
    * 评分变化回调
    */
-  onChange?: (rating: number) => void
+  onChange?: (_rating: number) => void
   /**
    * 自定义样式类名
    */
@@ -49,12 +49,19 @@ const RatingComponent = ({
   const [currentRating, setCurrentRating] = useState(value)
   const [hoverRating, setHoverRating] = useState(0)
 
+  // 同步外部传入的 value 值
+  useEffect(() => {
+    setCurrentRating(value)
+  }, [value])
+
   // 处理评分点击
   const handleRatingClick = (rating: number) => {
     if (readonly) return
-    
+
     setCurrentRating(rating)
-    onChange?.(rating)
+    if (onChange) {
+      onChange(rating)
+    }
   }
 
   // 处理鼠标悬停（小程序中用 touch 事件模拟）

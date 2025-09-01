@@ -52,7 +52,7 @@ export const getCollectionCount = async () => {
     
     return 0;
   } catch (error) {
-    console.error('获取收藏数量失败:', error);
+    
     throw error;
   }
 };

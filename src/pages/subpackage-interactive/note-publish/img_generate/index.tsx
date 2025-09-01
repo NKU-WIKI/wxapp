@@ -36,7 +36,7 @@ const ImgGenerate: React.FC = () => {
     <View className={styles.container}>
       {/* 自定义导航栏 */}
       <CustomHeader
-        title="写笔记"
+        title='写笔记'
         onLeftClick={handleClose}
       />
       
@@ -44,11 +44,11 @@ const ImgGenerate: React.FC = () => {
       <View className={styles.content}>
         {/* 输入卡片 */}
         <View className={styles.card}>
-          <View className={styles.quoteIcon}>"</View>
+          <View className={styles.quoteIcon}>&quot;</View>
           {!inputText && <View className={styles.title}>写笔记</View>}
           <Textarea
             className={styles.inputArea}
-            placeholder="写点什么或提个问题..."
+            placeholder='写点什么或提个问题...'
             value={inputText}
             onInput={handleInputChange}
             maxlength={500}

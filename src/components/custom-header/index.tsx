@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useEffect, useState } from 'react';
+
 import styles from "./index.module.scss";
 
 // 图标路径常量
@@ -59,8 +59,7 @@ export function useCustomHeaderHeight(defaultHeight = 88) {
       
       // 如果数据无效，使用默认值
       setHeight(defaultHeight);
-    } catch (e) {
-      console.warn('useCustomHeaderHeight error:', e);
+    } catch {
       setHeight(defaultHeight);
     }
   }, [defaultHeight]);
@@ -116,8 +115,8 @@ const CustomHeader = ({
           menuButtonRightGap,
         });
       }
-    } catch (e) {
-      console.error("Failed to get navigation bar style, using defaults.", e);
+    } catch {
+      // 导航栏初始化失败，使用默认值
     }
   }, []);
 

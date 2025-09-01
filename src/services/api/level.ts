@@ -1,5 +1,7 @@
-import http from "../request";
 import { LevelInfo, ExperienceRecordPage } from "@/types/api/level";
+
+// Relative imports
+import http from "../request";
 
 /**
  * 获取当前用户的等级信息

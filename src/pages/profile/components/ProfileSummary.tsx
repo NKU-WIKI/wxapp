@@ -1,10 +1,10 @@
-import { View, Image, Text } from '@tarojs/components'
-import Taro from '@tarojs/taro'
-import styles from './ProfileSummary.module.scss'
-import { UserInfo } from '@/types/api/user' // Assuming UserInfo is defined in user types
-import { tabBarSyncManager } from '@/utils/tabBarSync'
-import awardIcon from '@/assets/award.svg'
-import { normalizeImageUrl } from '@/utils/image'
+import { View, Image, Text } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import { UserInfo } from '@/types/api/user';
+import { tabBarSyncManager } from '@/utils/tabBarSync';
+import { normalizeImageUrl } from '@/utils/image';
+import awardIcon from '@/assets/award.svg';
+import styles from './ProfileSummary.module.scss';
 
 interface ProfileSummaryProps {
   userInfo: UserInfo;
@@ -27,14 +27,14 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
   }
 
   const handleNavigateToFollowers = () => {
-    console.log('Navigate to followers triggered'); // 调试日志
+     // 调试日志
     // 导航到关注/粉丝页面
     Taro.navigateTo({
       url: '/pages/subpackage-profile/followers/index'
     }).then(() => {
-      console.log('Navigation success');
-    }).catch((err) => {
-      console.error('Navigation failed:', err);
+      
+    }).catch((_err) => {
+      
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -100,7 +100,7 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
       <View className={styles.statsGrid}>
         {statistics.map((stat) => {
           const handleClick = () => {
-            console.log(`Stat item clicked: ${stat.label}, clickable: ${stat.clickable}`);
+            
             if (stat.clickable && stat.onClick) {
               stat.onClick();
             }

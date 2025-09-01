@@ -2,8 +2,9 @@ import { View, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { FC, useEffect, useState, useCallback, useMemo } from "react";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+import plusIcon from "@/assets/plus.svg"; // 使用新的白色+号SVG图标
+import { useTabBarSync, TAB_BAR_PAGES } from "../utils/tabBarSync";
 import styles from "./index.module.scss";
-import { useTabBarSync, tabBarSyncManager, TAB_BAR_PAGES } from "../utils/tabBarSync";
 
 // 引入本地图标 - 使用字符串路径
 const homeIcon = "/assets/home.png";
@@ -14,7 +15,7 @@ const discoverIcon = "/assets/discover.png";
 const discoverActiveIcon = "/assets/discover-active.png";
 const profileIcon = "/assets/profile.png";
 const profileActiveIcon = "/assets/profile-active.png";
-const plusIcon = require("@/assets/plus.svg"); // 使用新的白色+号SVG图标
+// plusIcon 已在顶部导入
 
 const CustomTabBar: FC = () => {
   const [selected, setSelected] = useState(0);
@@ -39,7 +40,14 @@ const CustomTabBar: FC = () => {
     }
   }, [list]);
 
-  const tabBarSync = useMemo(() => useTabBarSync(handleSync), [handleSync]);
+  const tabBarSync = useTabBarSync(handleSync);
+
+  useEffect(() => {
+    tabBarSync.subscribe();
+    return () => {
+      tabBarSync.unsubscribe();
+    };
+  }, [tabBarSync]);
 
   const switchTab = (uiIndex: number, url: string) => {
     const item = list[uiIndex];
@@ -48,10 +56,6 @@ const CustomTabBar: FC = () => {
         setShowSubMenu(true);
       }
     } else {
-      const syncIndex = TAB_BAR_PAGES.indexOf(item.pagePath);
-      if (syncIndex > -1) {
-        tabBarSyncManager.setSelectedIndex(syncIndex);
-      }
       Taro.switchTab({ url });
     }
   };

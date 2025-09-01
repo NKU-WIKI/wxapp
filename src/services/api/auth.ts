@@ -1,4 +1,3 @@
-import http from "../request";
 import {
   LoginRequest,
   UnifiedLoginRequest,
@@ -6,6 +5,9 @@ import {
   RegisterRequest,
 } from "@/types/api/auth";
 import { User } from "@/types/api/user";
+
+// Relative imports
+import http from "../request";
 
 /**
  * 用户登录（支持传统登录和微信小程序登录）

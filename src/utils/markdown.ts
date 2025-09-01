@@ -111,7 +111,7 @@ export function markdownToHtml(markdown: string): string {
       .replace(/<th>/g, '<th class="markdown-th">')
       .replace(/<td>/g, '<td class="markdown-td">');
   } catch (error) {
-    console.error('Markdown parsing error:', error);
+    
     return markdown; // 如果解析失败，返回原始文本
   }
 }
@@ -132,7 +132,7 @@ export function markdownToText(markdown: string): string {
       .replace(/\n{2,}/g, '\n') // 合并多余的换行
       .trim();
   } catch (error) {
-    console.error('Markdown to text error:', error);
+    
     return markdown;
   }
 }
@@ -141,16 +141,16 @@ export function markdownToText(markdown: string): string {
 export function testMarkdown(): void {
   const testCases = [
     '# 这是一个标题\n\n这是一个**粗体**文本和*斜体*文本。',
-    '```javascript\nconsole.log("Hello World");\n```',
+    '```javascript\n\n```',
     '> 这是一个引用块\n\n- 项目1\n- 项目2',
     '[链接文本](https://example.com)',
     '---\n\n分隔线测试\n\n***\n\n另一个分隔线\n\n___\n\n多余的\n\n\n\n换行测试',
   ];
 
-  console.log('Testing Markdown Rendering:');
-  testCases.forEach((test, index) => {
-    console.log(`Test ${index + 1}:`, JSON.stringify(test));
-    console.log('Rendered:', markdownToHtml(test));
-    console.log('---');
+  
+  testCases.forEach((_test, _index) => {
+    
+    
+    
   });
 }

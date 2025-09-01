@@ -2,18 +2,26 @@ import React, { useEffect } from 'react';
 import { View, ScrollView, Text } from '@tarojs/components';
 import { useRouter } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
-import CustomHeader from '@/components/custom-header';
-import styles from './index.module.scss';
 
-import { fetchPostDetail } from '@/store/slices/postSlice';
-import { fetchComments } from '@/store/slices/commentSlice';
+import CustomHeader from '@/components/custom-header';
+
+// Store imports
+import { fetchPostDetail , PostsState } from '@/store/slices/postSlice';
+import { fetchComments , CommentState } from '@/store/slices/commentSlice';
 import { AppDispatch, RootState } from '@/store';
+
+// Components imports
 import EmptyState from '@/components/empty-state';
-import emptyIcon from '@/assets/empty.svg';
-import { PostsState } from '@/store/slices/postSlice';
-import { CommentState } from '@/store/slices/commentSlice';
-import { addHistoryWithServerSync } from '@/utils/history';
 import Post from '@/components/post';
+
+// Utils imports
+import { addHistoryWithServerSync } from '@/utils/history';
+
+// Assets imports
+import emptyIcon from '@/assets/empty.svg';
+
+// Relative imports
+import styles from './index.module.scss';
 
 const PostDetailPage = () => {
   const router = useRouter();
@@ -55,16 +63,16 @@ const PostDetailPage = () => {
       const viewTime = new Date().toISOString();
       
       // 调试日志
-      console.log('📝 记录浏览历史 (profile):', {
-        postId: currentPost.id,
-        title: currentPost.title,
-        avatarUrl: avatarUrl,
-        createTime: createTime,
-        viewTime: viewTime,
-        postCreatedAt: currentPost.created_at,
-        postCreateTime: currentPost.create_time,
-        postData: currentPost
-      });
+      // console.log('调试日志:', {
+      //   postId: currentPost.id,
+      //   title: currentPost.title,
+      //   avatarUrl: avatarUrl,
+      //   createTime: createTime,
+      //   viewTime: viewTime,
+      //   postCreatedAt: currentPost.created_at,
+      //   postCreateTime: currentPost.create_time,
+      //   postData: currentPost
+      // });
       
       addHistoryWithServerSync(
         {
@@ -97,7 +105,7 @@ const PostDetailPage = () => {
     
     return (
       <>
-        <Post post={currentPost} mode="detail" />
+        <Post post={currentPost} mode='detail' />
         
         {commentsError ? (
           <View className={styles.errorContainer}>
@@ -123,7 +131,7 @@ const PostDetailPage = () => {
 
   return (
     <View className={styles.postDetailPage}>
-      <CustomHeader title="帖子详情" hideBack={false} background="#FFFFFF" />
+      <CustomHeader title='帖子详情' hideBack={false} background='#FFFFFF' />
       <ScrollView scrollY className={styles.scrollView}>
         <View style={{ height: 81 }} />
         <View className={styles.mainContent}>

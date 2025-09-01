@@ -29,7 +29,7 @@ interface RatingListProps {
   /**
    * 评分变化回调
    */
-  onRatingChange?: (itemId: string, rating: number) => void
+  onRatingChange?: (_itemId: string, _rating: number) => void
   /**
    * 自定义样式类名
    */
@@ -44,10 +44,10 @@ const RatingList = ({
   items = [],
   title,
   showTotal = false,
-  onRatingChange,
+  onRatingChange: _onRatingChange,
   className = ''
 }: RatingListProps) => {
-  const [ratings, setRatings] = useState<Record<string, number>>(() => {
+  const [ratings] = useState<Record<string, number>>(() => {
     const initialRatings: Record<string, number> = {}
     items.forEach(item => {
       if (item.currentRating !== undefined) {
@@ -58,12 +58,8 @@ const RatingList = ({
   })
 
   // 处理单个评分变化
-  const handleRatingChange = (itemId: string, rating: number) => {
-    setRatings(prev => ({
-      ...prev,
-      [itemId]: rating
-    }))
-    onRatingChange?.(itemId, rating)
+  const handleRatingChange = (_itemId: string, _rating: number) => {
+    // 暂时不处理评分变化
   }
 
   // 计算总分

@@ -1,8 +1,8 @@
 import { View, Image, Text } from '@tarojs/components';
-import styles from './DraftItem.module.scss';
 import { DraftPost } from '@/types/draft';
 import editIcon from '@/assets/pen-tool.svg';
 import deleteIcon from '@/assets/x.svg';
+import styles from './DraftItem.module.scss';
 
 interface Props {
   draft: DraftPost;
@@ -23,13 +23,13 @@ const DraftItem = ({ draft, onEdit, onDelete }: Props) => {
           src={editIcon}
           className={styles.editIcon}
           onClick={onEdit}
-          style={{ '--icon-url': `url(${editIcon})`, backgroundColor: '#1B82D6' } as any }
+          style={{ '--icon-url': `url(${editIcon})`, backgroundColor: '#1B82D6' } as any}
         />
         <Image
           src={deleteIcon}
           className={styles.deleteIcon}
           onClick={onDelete}
-          style={{ '--icon-url': `url(${deleteIcon})`, backgroundColor: '#D0021B' } as any }
+          style={{ '--icon-url': `url(${deleteIcon})`, backgroundColor: '#D0021B' } as any}
         />
       </View>
     </View>

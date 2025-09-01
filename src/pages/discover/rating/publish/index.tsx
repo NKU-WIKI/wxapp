@@ -1,5 +1,5 @@
 import { View, Text, Image, Input, Textarea, ScrollView } from '@tarojs/components'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Taro from '@tarojs/taro'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch } from '@/store'
@@ -42,7 +42,7 @@ const RatingPublishPage = () => {
   // UI 状态
   const [commentLength, setCommentLength] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
-  const [activeMenu, setActiveMenu] = useState<'category' | 'tags' | 'settings' | null>(null)
+  // const [activeMenu, setActiveMenu] = useState<'category' | 'tags' | 'settings' | null>(null) // 未使用
   const [showStarSelector, setShowStarSelector] = useState(false)
   
   // 获取用户状态和评分相关状态
@@ -67,7 +67,7 @@ const RatingPublishPage = () => {
         
         try {
           const uploadResult = await uploadApi.uploadImage(tempFilePath)
-          console.log('📸 [评分发布] 图片上传结果:', uploadResult)
+          
           
           // 处理上传结果，参考主发布页面的处理方式
           let imageUrl = ''
@@ -85,15 +85,15 @@ const RatingPublishPage = () => {
             throw new Error('上传结果格式错误: ' + JSON.stringify(uploadResult))
           }
         } catch (error) {
-          console.error('上传图片失败:', error)
+          
           Taro.showToast({ title: '上传失败，请重试', icon: 'none' })
         } finally {
           setIsUploading(false)
           Taro.hideLoading()
         }
       },
-      fail: (err) => {
-        console.error('选择图片失败:', err)
+      fail: (_err) => {
+        
         Taro.showToast({ title: '选择图片失败', icon: 'none' })
       }
     })
@@ -177,7 +177,7 @@ const RatingPublishPage = () => {
       evidence_urls: formData.image ? [formData.image] : []
     }
 
-    console.log('🚀 提交评分:', submitData)
+    
     
     try {
       const result = await dispatch(createUserRating(submitData))
@@ -193,7 +193,7 @@ const RatingPublishPage = () => {
         throw new Error('发布失败')
       }
     } catch (error) {
-      console.error('发布失败:', error)
+      
       Taro.showToast({ title: '发布失败', icon: 'none' })
     }
   }
@@ -225,7 +225,7 @@ const RatingPublishPage = () => {
         setShowStarSelector(false)
       }}
     >
-      <CustomHeader title="发布评分" onLeftClick={handleBack} />
+      <CustomHeader title='发布评分' onLeftClick={handleBack} />
       
       <View className={styles.contentWrapper}>
         <ScrollView 
@@ -242,7 +242,7 @@ const RatingPublishPage = () => {
                   <Image 
                     src={formData.image} 
                     className={styles.previewImage}
-                    mode="aspectFill"
+                    mode='aspectFill'
                     onClick={handlePreviewImage}
                   />
                   <View className={styles.removeButton} onClick={handleRemoveImage}>
@@ -266,7 +266,7 @@ const RatingPublishPage = () => {
               <Text className={styles.label}>资源名称 *</Text>
               <Input
                 className={styles.input}
-                placeholder="请输入资源名称"
+                placeholder='请输入资源名称'
                 value={formData.resourceName}
                 onInput={(e) => handleInputChange('resourceName', e.detail.value)}
                 maxlength={50}
@@ -279,7 +279,7 @@ const RatingPublishPage = () => {
               <Text className={styles.label}>显示标题</Text>
               <Input
                 className={styles.input}
-                placeholder="显示标题（可选，用于更好的展示）"
+                placeholder='显示标题（可选，用于更好的展示）'
                 value={formData.resourceTitle}
                 onInput={(e) => handleInputChange('resourceTitle', e.detail.value)}
                 maxlength={100}
@@ -332,7 +332,7 @@ const RatingPublishPage = () => {
               <Text className={styles.label}>评价内容 *</Text>
               <Textarea
                 className={styles.textarea}
-                placeholder="分享你的使用感受..."
+                placeholder='分享你的使用感受...'
                 value={formData.comment}
                 onInput={(e) => handleInputChange('comment', e.detail.value)}
                 maxlength={500}
@@ -371,7 +371,7 @@ const RatingPublishPage = () => {
               <Text className={styles.label}>资源描述</Text>
               <Textarea
                 className={styles.textarea}
-                placeholder="简要描述这个资源（可选）"
+                placeholder='简要描述这个资源（可选）'
                 value={formData.resourceDescription}
                 onInput={(e) => handleInputChange('resourceDescription', e.detail.value)}
                 maxlength={200}

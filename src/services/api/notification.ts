@@ -1,9 +1,6 @@
-import http from "../request";
 import {
   NotificationListRequest,
   NotificationApiResponse,
-  NotificationRead,
-  UnreadCountResponse,
   MarkReadRequest,
   NotificationType,
   NotificationCreateRequest,
@@ -11,6 +8,7 @@ import {
   NotificationChannel,
   NotificationPriority
 } from "@/types/api/notification.d";
+import http from "../request";
 
 /**
  * 获取通知列表
@@ -65,7 +63,7 @@ export const getUnreadCountByType = async (type: NotificationType): Promise<numb
     }
     return 0;
   } catch (error) {
-    console.warn(`获取 ${type} 类型未读数量失败:`, error);
+    
     return 0;
   }
 };
@@ -100,16 +98,16 @@ export const markAllAsRead = (type?: NotificationType) => {
  * @returns 创建结果
  */
 export const createNotification = (data: NotificationCreateRequest) => {
-  console.log('🚀 [API] 开始创建通知，请求数据:', data);
+  
   
   return http.post<NotificationCreateResponse>(
     "/notifications", 
     data
   ).then(response => {
-    console.log('✅ [API] 通知创建成功，响应数据:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 通知创建失败:', error);
+    
     throw error;
   });
 };
@@ -127,10 +125,10 @@ export const createBBSNotification = {
     post_id: string;
     post_title: string;
   }) => {
-    console.log('👍 [BBS-Like] 创建点赞通知:', params);
+    
     
     const notificationData = {
-      type: NotificationType.Message,
+      type: NotificationType._Message,
       business_type: 'like',
       business_id: params.post_id,
       title: '点赞通知',
@@ -142,11 +140,11 @@ export const createBBSNotification = {
         post_title: params.post_title,
         action_type: 'like'
       },
-      channels: [NotificationChannel.InApp],
-      priority: NotificationPriority.Low
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Low
     };
     
-    console.log('📦 [BBS-Like] 准备发送的通知数据:', notificationData);
+    
     
     return createNotification(notificationData);
   },
@@ -162,7 +160,7 @@ export const createBBSNotification = {
     comment_content: string;
   }) => {
     return createNotification({
-      type: NotificationType.Message,
+      type: NotificationType._Message,
       business_type: 'comment',
       business_id: params.post_id,
       title: '评论通知',
@@ -175,8 +173,8 @@ export const createBBSNotification = {
         comment_content: params.comment_content,
         action_type: 'comment'
       },
-      channels: [NotificationChannel.InApp],
-      priority: NotificationPriority.Normal
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Normal
     });
   },
 
@@ -189,7 +187,7 @@ export const createBBSNotification = {
     sender_nickname: string;
   }) => {
     return createNotification({
-      type: NotificationType.Message,
+      type: NotificationType._Message,
       business_type: 'follow',
       business_id: params.sender_id,
       title: '关注通知',
@@ -201,8 +199,8 @@ export const createBBSNotification = {
         follower_nickname: params.sender_nickname,
         action_type: 'follow'
       },
-      channels: [NotificationChannel.InApp],
-      priority: NotificationPriority.Normal
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Normal
     });
   },
 
@@ -216,7 +214,7 @@ export const createBBSNotification = {
     post_title: string;
   }) => {
     return createNotification({
-      type: NotificationType.Message,
+      type: NotificationType._Message,
       business_type: 'collect',
       business_id: params.post_id,
       title: '收藏通知',
@@ -228,8 +226,8 @@ export const createBBSNotification = {
         post_title: params.post_title,
         action_type: 'collect'
       },
-      channels: [NotificationChannel.InApp],
-      priority: NotificationPriority.Low
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Low
     });
   },
 
@@ -244,7 +242,7 @@ export const createBBSNotification = {
     sender_nickname: string;
   }) => {
     return createNotification({
-      type: NotificationType.Mention,
+      type: NotificationType._Mention,
       business_type: 'mention',
       business_id: params.post_id,
       title: '提及通知',
@@ -257,8 +255,8 @@ export const createBBSNotification = {
         sender_nickname: params.sender_nickname,
         action_type: 'mention'
       },
-      channels: [NotificationChannel.InApp],
-      priority: NotificationPriority.Normal
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Normal
     });
   }
 };

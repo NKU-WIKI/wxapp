@@ -31,7 +31,7 @@ export const fetchForumPosts = createAsyncThunk(
         try {
           await dispatch(fetchAboutInfo());
         } catch (error) {
-          console.warn("Failed to fetch about info before getting posts:", error);
+          
         }
       }
 
@@ -76,7 +76,7 @@ export const fetchFeed = createAsyncThunk(
         try {
           await dispatch(fetchAboutInfo());
         } catch (error) {
-          console.warn("Failed to fetch about info before getting feed:", error);
+          
         }
       }
 

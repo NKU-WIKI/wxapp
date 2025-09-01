@@ -341,31 +341,52 @@
 .moduleGrid {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
-  padding: 16rpx 0;
+  gap: 10px; /* 卡片之间的垂直间距 */
 }
 
 .moduleRow {
   display: flex;
-  gap: 16rpx;
-  width: 100%;
+  gap: 10px; /* 卡片之间的水平间距 */
 }
 
 .moduleCard {
   flex: 1;
-  display: flex;
-  justify-content: flex-start; /* 改为左对齐 */
-  align-items: center;
-  background: white;
-  border-radius: 16rpx;
-  padding: 32rpx 16rpx 32rpx 40rpx; /* 进一步增加左边距从32rpx到40rpx */
-  min-height: 180rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
-  &:active {
-    transform: scale(0.98);
-    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.12);
+  &.placeholder {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .moduleContentWrapper {
+    display: flex;
+    align-items: center;
+
+    .moduleIcon {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .moduleTextWrapper {
+      display: flex;
+      flex-direction: column;
+
+      .moduleTitle {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333333;
+      }
+
+      .moduleSubtitle {
+        font-size: 12px;
+        color: #999999;
+        margin-top: 2px;
+      }
+    }
   }
 }
 

@@ -1,16 +1,17 @@
 import { View, Text, Image } from "@tarojs/components";
 import classnames from "classnames";
-import styles from "./PublishSettings.module.scss";
 
 import globeIcon from "@/assets/globe.svg";
 import messageCircleIcon from "@/assets/message-circle.svg";
-import robotIcon from "@/assets/robot.svg";
+
+// Relative imports
+import styles from "./PublishSettings.module.scss";
 
 interface PublishSettingsProps {
   isPublic: boolean;
-  onPublicChange: (value: boolean) => void;
+  onPublicChange: (_value: boolean) => void;
   allowComments: boolean;
-  onAllowCommentsChange: (value: boolean) => void;
+  onAllowCommentsChange: (_value: boolean) => void;
 }
 
 const PublishSettings = (props: PublishSettingsProps) => {

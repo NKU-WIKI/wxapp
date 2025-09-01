@@ -252,13 +252,13 @@ export default function PublishActivity() {
           <View
             className={styles.counterButton}
             onClick={() => {
-              console.log('减少按钮被点击，当前值:', form.max_participants);
+              
               const newValue = Math.max(1, form.max_participants - 1);
-              console.log('新值:', newValue);
+              
               setForm(prev => {
-                console.log('更新前状态:', prev.max_participants);
+                
                 const newState = { ...prev, max_participants: newValue };
-                console.log('更新后状态:', newState.max_participants);
+                
                 return newState;
               });
             }}
@@ -272,13 +272,13 @@ export default function PublishActivity() {
           <View
             className={styles.counterButton}
             onClick={() => {
-              console.log('增加按钮被点击，当前值:', form.max_participants);
+              
               const newValue = Math.min(999, form.max_participants + 1);
-              console.log('新值:', newValue);
+              
               setForm(prev => {
-                console.log('更新前状态:', prev.max_participants);
+                
                 const newState = { ...prev, max_participants: newValue };
-                console.log('更新后状态:', newState.max_participants);
+                
                 return newState;
               });
             }}

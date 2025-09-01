@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Pagination } from './common';
 
 /**
@@ -143,6 +144,22 @@ export interface UserRating {
    * 资源ID
    */
   resourceId: string;
+  /**
+   * 资源名称（用于显示）
+   */
+  resource_name?: string;
+  /**
+   * 资源标题（可选，用于显示）
+   */
+  resource_title?: string;
+  /**
+   * 资源图片URL
+   */
+  resource_image?: string;
+  /**
+   * 资源描述
+   */
+  resource_description?: string;
   /**
    * 评分值（1-5星）
    */

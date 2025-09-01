@@ -1,0 +1,84 @@
+@import "@/styles/variables.scss";
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-page;
+}
+
+.pageContent {
+  padding: 15px;
+}
+
+.formSection {
+  background-color: $bg-card;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+
+  .sectionTitle {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+}
+
+.taskTypes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  .taskType {
+    background-color: $bg-input;
+    color: $text-primary;
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+
+    &.active {
+      background-color: $theme-primary;
+      color: #fff;
+      font-weight: bold;
+    }
+  }
+}
+
+.detailsInput {
+  width: 100%;
+  height: 120px;
+  background-color: $bg-input;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.rewardInputContainer {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid $border-light;
+  padding-bottom: 5px;
+
+  .currencySymbol {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  .rewardInput {
+    flex: 1;
+    font-size: 20px;
+  }
+}
+
+.publishButton {
+  background-color: $theme-primary;
+  color: #fff;
+  text-align: center;
+  padding: 12px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 20px;
+}

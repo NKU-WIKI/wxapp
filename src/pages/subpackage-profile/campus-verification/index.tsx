@@ -21,7 +21,7 @@ const CampusVerification = () => {
 
   // 页面显示时获取认证信息
   useDidShow(() => {
-    console.log('页面显示，开始获取认证信息');
+    
     dispatch(fetchCampusVerificationInfo());
   });
 
@@ -41,7 +41,7 @@ const CampusVerification = () => {
         dispatch(fetchCampusVerificationInfo());
       }, 1000);
     } else if (campusVerificationState.submitStatus === 'failed') {
-      console.error('提交认证失败，错误信息:', campusVerificationState.error);
+      
       
       // 检查是否是重复提交的错误
       const errorMessage = campusVerificationState.error || '';
@@ -73,8 +73,8 @@ const CampusVerification = () => {
         const tempFilePath = res.tempFilePaths[0];
         setCardImage(tempFilePath);
       },
-      fail: (err) => {
-        console.error('选择图片失败:', err);
+      fail: (_err) => {
+        
         Taro.showToast({
           title: '选择图片失败',
           icon: 'error'
@@ -130,7 +130,7 @@ const CampusVerification = () => {
         card_image: cardImage
       })).unwrap();
     } catch (error) {
-      console.error('提交认证失败:', error);
+      
     } finally {
       setIsSubmitting(false);
     }
@@ -237,7 +237,7 @@ const CampusVerification = () => {
   if (campusVerificationState.status === 'loading') {
     return (
       <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
-        <CustomHeader title="校园认证" />
+        <CustomHeader title='校园认证' />
         <View style={{ flex: 1, overflow: 'hidden' }}>
           <ScrollView scrollY style={{ height: '100%' }}>
             <View className={styles.content}>
@@ -259,7 +259,7 @@ const CampusVerification = () => {
     const statusView = renderVerificationStatus();
     return (
       <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
-        <CustomHeader title="校园认证" />
+        <CustomHeader title='校园认证' />
         <View style={{ flex: 1, overflow: 'hidden' }}>
           <ScrollView scrollY style={{ height: '100%' }}>
             <View className={styles.content}>
@@ -276,7 +276,7 @@ const CampusVerification = () => {
     const statusView = renderVerificationStatus();
     return (
       <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
-        <CustomHeader title="校园认证" />
+        <CustomHeader title='校园认证' />
         <View style={{ flex: 1, overflow: 'hidden' }}>
           <ScrollView scrollY style={{ height: '100%' }}>
             <View className={styles.content}>
@@ -291,7 +291,7 @@ const CampusVerification = () => {
   // 其他情况（包括rejected、expired、draft或没有记录）显示表单
   return (
     <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
-      <CustomHeader title="校园认证" />
+      <CustomHeader title='校园认证' />
       <View style={{ flex: 1, overflow: 'hidden' }}>
         <ScrollView scrollY style={{ height: '100%' }}>
           <View className={styles.content}>
@@ -299,11 +299,11 @@ const CampusVerification = () => {
               {/* 真实姓名输入 */}
               <View className={styles.inputGroup}>
                 <Text className={styles.label}>
-                  真实姓名<Text className="required-asterisk"> *</Text>
+                  真实姓名<Text className='required-asterisk'> *</Text>
                 </Text>
                 <Input
                   className={styles.input}
-                  placeholder="请输入真实姓名，必须与证件上的姓名一致"
+                  placeholder='请输入真实姓名，必须与证件上的姓名一致'
                   value={realName}
                   onInput={(e) => setRealName(e.detail.value)}
                 />
@@ -314,7 +314,7 @@ const CampusVerification = () => {
                 <Text className={styles.label}>身份证号</Text>
                 <Input
                   className={styles.input}
-                  placeholder="请输入18位身份证号（可选但推荐填写）"
+                  placeholder='请输入18位身份证号（可选但推荐填写）'
                   value={idNumber}
                   onInput={(e) => setIdNumber(e.detail.value)}
                 />
@@ -323,11 +323,11 @@ const CampusVerification = () => {
               {/* 学校名称输入 */}
               <View className={styles.inputGroup}>
                 <Text className={styles.label}>
-                  学校名称<Text className="required-asterisk"> *</Text>
+                  学校名称<Text className='required-asterisk'> *</Text>
                 </Text>
                 <Input
                   className={styles.input}
-                  placeholder="请输入学校名称"
+                  placeholder='请输入学校名称'
                   value={organizationName}
                   onInput={(e) => setOrganizationName(e.detail.value)}
                 />
@@ -336,11 +336,11 @@ const CampusVerification = () => {
               {/* 学号输入 */}
               <View className={styles.inputGroup}>
                 <Text className={styles.label}>
-                  学号<Text className="required-asterisk"> *</Text>
+                  学号<Text className='required-asterisk'> *</Text>
                 </Text>
                 <Input
                   className={styles.input}
-                  placeholder="请输入学号"
+                  placeholder='请输入学号'
                   value={studentId}
                   onInput={(e) => setStudentId(e.detail.value)}
                 />
@@ -351,7 +351,7 @@ const CampusVerification = () => {
                 <Text className={styles.label}>院系名称</Text>
                 <Input
                   className={styles.input}
-                  placeholder="请输入院系或部门名称（可选）"
+                  placeholder='请输入院系或部门名称（可选）'
                   value={department}
                   onInput={(e) => setDepartment(e.detail.value)}
                 />
@@ -362,7 +362,7 @@ const CampusVerification = () => {
                 <Text className={styles.label}>联系电话</Text>
                 <Input
                   className={styles.input}
-                  placeholder="请输入联系电话，用于审核过程中的联系（可选）"
+                  placeholder='请输入联系电话，用于审核过程中的联系（可选）'
                   value={contactPhone}
                   onInput={(e) => setContactPhone(e.detail.value)}
                 />
@@ -371,14 +371,14 @@ const CampusVerification = () => {
               {/* 学生证照片上传 */}
               <View className={styles.inputGroup}>
                 <Text className={styles.label}>
-                  上传学生证照片<Text className="required-asterisk"> *</Text>
+                  上传学生证照片<Text className='required-asterisk'> *</Text>
                 </Text>
                 <View className={styles.uploadArea} onClick={handleChooseImage}>
                   {cardImage ? (
-                    <Image src={cardImage} className={styles.uploadedImage} mode="aspectFit" />
+                    <Image src={cardImage} className={styles.uploadedImage} mode='aspectFit' />
                   ) : (
                     <View className={styles.uploadPlaceholder}>
-                      <Image src="/assets/camera.svg" className={styles.cameraIcon} />
+                      <Image src='/assets/camera.svg' className={styles.cameraIcon} />
                       <Text className={styles.uploadText}>点击上传学生证正面照片</Text>
                     </View>
                   )}

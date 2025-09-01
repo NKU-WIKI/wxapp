@@ -114,7 +114,7 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthor
         title: replyTo ? '回复发布失败，请重试' : '评论发布失败，请重试',
         icon: 'error'
       });
-      console.error('发布评论失败:', error);
+      
     } finally {
       setIsSubmitting(false);
     }

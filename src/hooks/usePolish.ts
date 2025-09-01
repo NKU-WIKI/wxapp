@@ -44,7 +44,6 @@ export const usePolish = () => {
       // 分析原文特征
       const originalText = text.trim();
       const textLength = originalText.length;
-      const textLines = originalText.split('\n').length;
 
       // 根据原文长度动态计算max_tokens和调整策略
       let enhancedText = originalText;
@@ -143,21 +142,21 @@ export const usePolish = () => {
         max_tokens: maxTokens
       };
 
-      console.log(`润色参数: 原文长度=${textLength}, 行数=${textLines}, max_tokens=${maxTokens}, temperature=${config.temperature}, 风格=${style}`);
-      console.log('原始文本:', originalText);
-      console.log('增强后文本:', enhancedText);
-      console.log('发送给AI的请求:', JSON.stringify(requestData, null, 2));
+      
+      
+      
+      
 
       const response = await agentApi.chatAPI(requestData);
 
-      console.log('AI响应:', JSON.stringify(response, null, 2));
+      
 
       if (response.code === 0 && (response.data as any)?.content) {
         const polishedText = (response.data as any).content.trim();
 
-        console.log('润色结果:', polishedText);
-        console.log('原始文本:', originalText);
-        console.log('选择的风格:', style);
+        
+        
+        
         setPolishSuggestion(polishedText);
         return polishedText;
       } else {
@@ -165,7 +164,7 @@ export const usePolish = () => {
         throw new Error(errorMsg);
       }
     } catch (error: any) {
-      console.error('润色失败:', error);
+      
       const errorMsg = error?.message || '润色失败，请检查网络连接';
       Taro.showToast({
         title: errorMsg,
@@ -218,7 +217,7 @@ export const usePolish = () => {
    * 采纳润色结果
    * @param callback 采纳后的回调函数
    */
-  const acceptPolish = (callback?: (text: string) => void) => {
+  const acceptPolish = (callback?: (_text: string) => void) => {
     if (polishSuggestion && callback) {
       callback(polishSuggestion);
     }

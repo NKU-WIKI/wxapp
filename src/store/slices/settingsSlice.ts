@@ -75,7 +75,7 @@ const loadSettingsFromStorage = (): Partial<SettingsState> => {
     
     return settings;
   } catch (error) {
-    console.error('Failed to load settings from storage:', error);
+    
     return {};
   }
 };
@@ -85,7 +85,7 @@ const saveSettingToStorage = (key: string, value: any) => {
   try {
     Taro.setStorageSync(key, value);
   } catch (error) {
-    console.error(`Failed to save setting ${key}:`, error);
+    
   }
 };
 
@@ -163,7 +163,7 @@ const settingsSlice = createSlice({
         try {
           Taro.removeStorageSync(key);
         } catch (error) {
-          console.error(`Failed to remove setting ${key}:`, error);
+          
         }
       });
       // 重新应用默认设置
@@ -192,7 +192,7 @@ const applyFontSize = (fontSize: 'small' | 'medium' | 'large') => {
       document.documentElement.style.setProperty('--app-font-size-large', `${parseInt(fontSizePx) + 2}px`);
     }
   } catch (error) {
-    console.error('Failed to apply font size:', error);
+    
   }
 };
 
@@ -234,7 +234,7 @@ const applyNightMode = (nightMode: 'auto' | 'light' | 'dark') => {
       }
     }
   } catch (error) {
-    console.error('Failed to apply night mode:', error);
+    
   }
 };
 

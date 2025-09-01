@@ -128,7 +128,7 @@ export default function PublishPost() {
     const { cardImage: imageParam, cardText: textParam } = router?.params || {};
     if (imageParam) {
       const decodedImagePath = decodeURIComponent(imageParam);
-      console.log('- 卡片图片参数:', decodedImagePath);
+      
       setCardImage(decodedImagePath);
       setImages([decodedImagePath]);
     }
@@ -140,7 +140,7 @@ export default function PublishPost() {
 
   // 添加调试日志，查看当前选中的标签
   useEffect(() => {
-    console.log('当前选中的标签:', selectedTags);
+    
   }, [selectedTags]);
 
   // 编辑草稿时初始化内容
@@ -379,16 +379,16 @@ export default function PublishPost() {
     const cleaned = s.startsWith('#') ? s : `#${s}`;
     if (!cleaned) return;
 
-    console.log('点击标签:', cleaned, '当前选中状态:', selectedTags.includes(cleaned));
+    
 
     if (selectedTags.includes(cleaned)) {
       const newTags = selectedTags.filter(t => t !== cleaned);
-      console.log('取消选中后的标签:', newTags);
+      
       setSelectedTags(newTags);
     } else {
       if (selectedTags.length < 3) {
         const newTags = [...selectedTags, cleaned];
-        console.log('选中后的标签:', newTags);
+        
         setSelectedTags(newTags);
       } else {
         Taro.showToast({ title: "最多选择3个话题", icon: "none" });
@@ -421,7 +421,7 @@ export default function PublishPost() {
       return;
     }
 
-    console.log('添加自定义标签:', formattedTag);
+    
     setSelectedTags([...selectedTags, formattedTag]);
     setCustomTag("");
     setIsAddingTag(false);
@@ -455,7 +455,7 @@ export default function PublishPost() {
     try {
       // 处理标签，去掉#前缀
       const processedTags = selectedTags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
-      console.log('发布笔记，处理后的标签:', processedTags);
+      
 
       await dispatch(
         createNote({
@@ -560,7 +560,7 @@ export default function PublishPost() {
               <Image 
                 src={cardImage} 
                 className={styles.cardImage}
-                mode="widthFix"
+                mode='widthFix'
               />
               <View 
                 className={styles.deleteCardImage}
@@ -624,7 +624,7 @@ export default function PublishPost() {
                       try {
                         // 使用热门搜索词作为知识建议的替代
                         const hotQueries = await searchApi.getHotQueriesSimple();
-                        console.log('发布页面-获取到热门搜索词:', hotQueries);
+                        
                         const items = hotQueries.slice(0, 6);
                         setRefSuggestions(items.map((t: string) => ({ type: 'knowledge', title: t })));
                         setShowRefPanel(true);

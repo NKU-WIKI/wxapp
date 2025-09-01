@@ -1,0 +1,31 @@
+
+> nkuwiki@0.2.0 lint
+> eslint src --ext .js,.jsx,.ts,.tsx
+
+
+/mnt/c/Users/aokimi/Code/nkuwiki/services/app/src/pages/subpackage-profile/feedback-list/index.tsx
+  28:7  warning  'loadFeedbacks' was used before it was defined  @typescript-eslint/no-use-before-define
+
+/mnt/c/Users/aokimi/Code/nkuwiki/services/app/src/pages/subpackage-profile/feedback/index.tsx
+  33:23  error    'error' is assigned a value but never used. Allowed unused vars must match /^_/u            no-unused-vars
+  33:23  warning  'error' is assigned a value but never used. Allowed unused vars must match /^Nerv|^React/u  @typescript-eslint/no-unused-vars
+
+/mnt/c/Users/aokimi/Code/nkuwiki/services/app/src/pages/subpackage-profile/followers/index.tsx
+  172:6  warning  React Hook useCallback has an unnecessary dependency: 'activeTab'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  266:6  warning  React Hook useEffect has a missing dependency: 'targetUserId'. Either include it or remove the dependency array      react-hooks/exhaustive-deps
+
+/mnt/c/Users/aokimi/Code/nkuwiki/services/app/src/pages/subpackage-profile/history/index.tsx
+  43:6  warning  React Hook useEffect has a missing dependency: 'loadHistory'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/mnt/c/Users/aokimi/Code/nkuwiki/services/app/src/pages/subpackage-profile/login/index.tsx
+  23:10  warning  '_phone' is assigned a value but never used. Allowed unused vars must match /^Nerv|^React/u  @typescript-eslint/no-unused-vars
+  24:10  warning  '_code' is assigned a value but never used. Allowed unused vars must match /^Nerv|^React/u   @typescript-eslint/no-unused-vars
+
+/mnt/c/Users/aokimi/Code/nkuwiki/services/app/src/store/slices/userSlice.ts
+  190:13  warning  '_response' is assigned a value but never used. Allowed unused vars must match /^Nerv|^React/u  @typescript-eslint/no-unused-vars
+
+/mnt/c/Users/aokimi/Code/nkuwiki/services/app/src/utils/colors.ts
+  121:11  warning  '_hex' is assigned a value but never used. Allowed unused vars must match /^Nerv|^React/u  @typescript-eslint/no-unused-vars
+
+✖ 10 problems (1 error, 9 warnings)
+

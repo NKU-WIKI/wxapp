@@ -290,13 +290,13 @@ export const fetchNoteFeed = createAsyncThunk(
     try {
       if (isLoggedIn) {
         // 已登录用户：优先尝试个性化推荐流
-        console.log('已登录用户 - 尝试获取笔记推荐流...');
+        
         const response = await noteApi.getNoteFeed(params);
-        console.log('笔记推荐流响应:', response);
+        
         return response;
       } else {
         // 未登录用户：直接使用mock数据，避免API调用失败
-        console.log('未登录用户 - 直接使用mock数据提供浏览体验');
+        
         const mockData = createMockNotes();
         const skip = params.skip || 0;
         const limit = params.limit || 20;
@@ -309,7 +309,7 @@ export const fetchNoteFeed = createAsyncThunk(
         };
       }
     } catch (error: any) {
-      console.error(isLoggedIn ? '推荐流失败，尝试普通笔记列表:' : '使用mock数据:', error);
+      
       
       // 对已登录用户：尝试fallback到普通笔记列表
       if (isLoggedIn) {
@@ -320,14 +320,14 @@ export const fetchNoteFeed = createAsyncThunk(
             sort_by: 'created_at',
             sort_order: 'desc' as const
           };
-          console.log('尝试获取普通笔记列表，参数:', fallbackParams);
+          
           
           const fallbackResponse = await noteApi.getNotes(fallbackParams);
           
-          console.log('普通笔记列表响应:', fallbackResponse);
+          
           return fallbackResponse;
         } catch (fallbackError: any) {
-          console.error('获取普通笔记列表也失败，使用mock数据:', fallbackError);
+          
         }
       }
       
@@ -337,7 +337,7 @@ export const fetchNoteFeed = createAsyncThunk(
       const limit = params.limit || 20;
       const slicedMockData = mockData.slice(skip, skip + limit);
       
-      console.log('使用mock数据:', slicedMockData);
+      
       
       return {
         code: 0,
@@ -356,12 +356,12 @@ export const createNote = createAsyncThunk<
   'note/createNote',
   async (noteData: CreateNoteRequest, { rejectWithValue }) => {
     try {
-      console.log('创建笔记，数据:', noteData);
+      
       const response = await noteApi.createNote(noteData);
-      console.log('创建笔记响应:', response);
+      
       return response;
     } catch (error: any) {
-      console.error('创建笔记失败:', error);
+      
       return rejectWithValue(error.message || '创建笔记失败');
     }
   }
@@ -377,12 +377,12 @@ export const loadMoreNotes = createAsyncThunk(
     try {
       if (isLoggedIn) {
         // 已登录用户：尝试推荐流
-        console.log('已登录用户 - 尝试加载更多笔记推荐流...');
+        
         const response = await noteApi.getNoteFeed(params);
         return response;
       } else {
         // 未登录用户：直接使用mock数据，避免API调用失败
-        console.log('未登录用户 - 直接使用mock数据提供加载更多内容');
+        
         const mockData = createMockNotes();
         const skip = params.skip || 0;
         const limit = params.limit || 20;
@@ -395,7 +395,7 @@ export const loadMoreNotes = createAsyncThunk(
         };
       }
     } catch (error: any) {
-      console.error(isLoggedIn ? '加载更多推荐流失败，尝试普通笔记列表:' : '加载更多失败，使用mock数据:', error);
+      
       
       // 对已登录用户：尝试fallback到普通笔记列表
       if (isLoggedIn) {
@@ -410,7 +410,7 @@ export const loadMoreNotes = createAsyncThunk(
           const fallbackResponse = await noteApi.getNotes(fallbackParams);
           return fallbackResponse;
         } catch (fallbackError: any) {
-          console.error('加载更多普通笔记列表也失败，使用mock数据:', fallbackError);
+          
         }
       }
       
@@ -479,7 +479,7 @@ const noteSlice = createSlice({
         state.refreshing = false;
         // action.payload 现在是完整的API响应
         const response = action.payload;
-        console.log('fetchNoteFeed fulfilled, response:', response);
+        
         if (response.code === 0 && Array.isArray(response.data)) {
           state.notes = response.data;
           state.hasMore = response.data.length >= state.pageSize;
@@ -503,7 +503,7 @@ const noteSlice = createSlice({
         state.loading = false;
         // action.payload 现在是完整的API响应
         const response = action.payload;
-        console.log('loadMoreNotes fulfilled, response:', response);
+        
         if (response.code === 0 && Array.isArray(response.data)) {
           // 去重并追加新笔记
           const existingIds = new Set(state.notes.map(note => note.id));
@@ -528,7 +528,7 @@ const noteSlice = createSlice({
       .addCase(createNote.fulfilled, (state, action) => {
         state.creating = false;
         const response = action.payload;
-        console.log('createNote fulfilled, response:', response);
+        
         if (response.code === 0 && response.data) {
           // 将新创建的笔记添加到列表顶部
           const newNote: NoteListItem = {

@@ -31,7 +31,7 @@ export const getFollowers = async (params: GetFollowersParams) => {
     
     return http.get<User[]>(endpoint, queryParams);
   } catch (error) {
-    console.error('获取关注/粉丝列表失败:', error);
+    
     throw error;
   }
 };
@@ -111,7 +111,7 @@ export const getFollowersCount = async () => {
       follower_count: followerCount
     };
   } catch (error) {
-    console.error('获取关注/粉丝总数失败:', error);
+    
     throw error;
   }
 };

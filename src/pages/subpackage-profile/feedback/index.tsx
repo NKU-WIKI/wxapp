@@ -1,16 +1,25 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Textarea, Button, Image } from '@tarojs/components';
+import { View, Text, Textarea, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { submitFeedback } from '@/store/slices/feedbackSlice';
-import styles from './index.module.scss';
+
+// Type imports
+import { CreateFeedbackParams, DeviceInfo } from '@/types/api/feedback.d';
+
+// API imports
+import { uploadImage } from '@/services/api/upload';
+
+// Assets imports
 import uploadIcon from '@/assets/feedback.svg';
 import xCircleIcon from '@/assets/x-circle.svg';
 import messageCircleIcon from '@/assets/message-circle.svg';
 import lightbulbIcon from '@/assets/lightbulb.svg';
 import moreIcon from '@/assets/more-horizontal.svg';
-import { CreateFeedbackParams, DeviceInfo } from '@/types/api/feedback.d';
-import { uploadImage } from '@/services/api/upload';
+
+// Relative imports
+import styles from './index.module.scss';
 
 const FEEDBACK_TYPES = [
   { key: 'bug', label: '功能异常', icon: xCircleIcon },
@@ -46,8 +55,8 @@ export default function FeedbackPage() {
         
         const accountInfo = await Taro.getAccountInfoSync();
         setAppVersion(accountInfo.miniProgram?.version || '1.0.0');
-      } catch (error) {
-        console.error('获取设备信息失败:', error);
+      } catch (_error) {
+        
       }
     };
     
@@ -73,8 +82,8 @@ export default function FeedbackPage() {
       
       const newFiles = res.tempFiles || res.tempFilePaths.map(path => ({ path }));
       setFiles([...files, ...newFiles]);
-    } catch (error) {
-      console.error('选择图片失败:', error);
+    } catch (_error) {
+
       Taro.showToast({ title: '选择图片失败', icon: 'none' });
     }
   };
@@ -118,11 +127,11 @@ export default function FeedbackPage() {
       
       Taro.showToast({ title: '反馈成功，感谢您的付出', icon: 'success' });
       setTimeout(() => Taro.navigateBack(), 1200);
-    } catch (error) {
-      console.error('提交反馈失败:', error);
-      Taro.showToast({ 
-        title: '反馈失败', 
-        icon: 'none' 
+    } catch (_error) {
+
+      Taro.showToast({
+        title: '反馈失败',
+        icon: 'none'
       });
     }
   };

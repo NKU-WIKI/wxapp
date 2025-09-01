@@ -1,0 +1,114 @@
+@import "@/styles/variables.scss";
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-page;
+}
+
+.filterTabs {
+  display: flex;
+  background-color: #fff;
+  border-bottom: 1px solid $border-light;
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 16px;
+    color: $text-secondary;
+    position: relative;
+    &.active {
+      color: $text-primary;
+      font-weight: bold;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 3px;
+        background-color: $theme-primary;
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+.orderList {
+  padding: 15px;
+}
+
+.orderCard {
+  background-color: $bg-card;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid $border-light;
+    .orderDate {
+      font-size: 14px;
+      color: $text-secondary;
+    }
+    .orderStatus {
+      font-size: 14px;
+      color: $text-helper-gray;
+    }
+  }
+
+  .cardBody {
+    padding-top: 15px;
+    .locationRow {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 15px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+      .tag {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        &.tagFrom {
+          background-color: #FAAD14; // Should be in variables
+        }
+        &.tagTo {
+          background-color: #52C41A; // Should be in variables
+        }
+      }
+      .locationDetails {
+        display: flex;
+        flex-direction: column;
+        .locationText {
+          font-size: 16px;
+          color: $text-primary;
+          margin-bottom: 4px;
+        }
+        .phoneText {
+          font-size: 14px;
+          color: $text-secondary;
+        }
+      }
+    }
+  }
+}
+
+.emptyState {
+    text-align: center;
+    padding: 30px 0;
+    color: $text-helper-gray;
+    font-size: 14px;
+}

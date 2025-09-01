@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 import { View, ScrollView } from '@tarojs/components';
 import Taro, { useReachBottom, usePullDownRefresh } from '@tarojs/taro';
+
 import CustomHeader from '@/components/custom-header';
-import HistoryItem from './components/HistoryItem';
 import Button from '@/components/button';
-import styles from './index.module.scss';
-import * as historyUtils from '@/utils/history';
+
+// Type imports
 import { HistoryItem as HistoryItemType } from '@/types/history';
+
+// Utils imports
+import * as historyUtils from '@/utils/history';
+
+// Relative imports
+import HistoryItem from './components/HistoryItem';
+import styles from './index.module.scss';
 
 const PAGE_SIZE = 20;
 
@@ -80,7 +87,7 @@ const HistoryPage = () => {
 
   return (
     <View className={styles.container}>
-      <CustomHeader title="浏览历史" hideBack={false} />
+      <CustomHeader title='浏览历史' hideBack={false} />
       <ScrollView scrollY className={styles.scroll}>
         {history.length === 0 ? (
           <View className={styles.empty}>暂无浏览历史</View>
@@ -97,7 +104,7 @@ const HistoryPage = () => {
       <View className={styles.bottomBar}>
         <Button
           className={styles.clearBtn}
-          type="primary"
+          type='primary'
           onClick={handleClearAll}
         >
           清空所有浏览历史

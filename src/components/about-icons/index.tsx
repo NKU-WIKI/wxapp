@@ -6,8 +6,9 @@ interface IconProps {
   type: 'globe' | 'email' | 'github' | 'arrow-right' | 'pen-tool' | 'x';
   size?: number;
   color?: string;
-  onClick?: (e: any) => void;
+  onClick?: () => void;
   className?: string;
+  e?: any; // Keep for compatibility if needed
 }
 
 const AboutIcon: React.FC<IconProps> = ({ type, size = 20, color = '#000000', onClick, className }) => {
@@ -46,7 +47,7 @@ const AboutIcon: React.FC<IconProps> = ({ type, size = 20, color = '#000000', on
           height: '100%',
           filter: color === '#5743dd' ? 'brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1352%) hue-rotate(235deg) brightness(91%) contrast(101%)' : 'none'
         }}
-        mode="aspectFit"
+        mode='aspectFit'
       />
     </View>
   );

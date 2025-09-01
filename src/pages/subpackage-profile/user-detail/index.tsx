@@ -30,7 +30,7 @@ const UserDetail: React.FC = () => {
         
         // 从路由参数中获取用户信息
         const userInfoFromParams = router.params;
-        console.log('用户信息参数:', userInfoFromParams);
+        
         
         // 使用路由参数构建用户信息
         const tempUser = {
@@ -62,7 +62,7 @@ const UserDetail: React.FC = () => {
             following_count: followingCount
           }));
         } catch (error) {
-          console.error('获取用户统计数据失败:', error);
+          
           // 如果API调用失败，保持默认值0
         }
         
@@ -72,11 +72,11 @@ const UserDetail: React.FC = () => {
             const statusResponse = await getActionStatus(userId, 'user', 'follow');
             setIsFollowing(statusResponse.data.is_active);
           } catch (error: any) {
-            console.log('获取关注状态失败，使用默认值:', error);
+            
             
             // 特别处理422错误（OpenAPI文档target_id类型定义错误）
             if (error?.statusCode === 422) {
-              console.warn('422错误：后端API文档中target_id定义为integer类型，但实际需要UUID字符串');
+              
               // 暂时使用默认值，等待后端修复OpenAPI文档
             }
             
@@ -84,7 +84,7 @@ const UserDetail: React.FC = () => {
           }
         }
       } catch (error) {
-        console.error('获取用户详情失败:', error);
+        
         Taro.showToast({
           title: '获取用户信息失败',
           icon: 'none'
@@ -112,12 +112,12 @@ const UserDetail: React.FC = () => {
       
       if (response.code === 0 && response.data) {
         const { is_active } = response.data;
-        console.log('✅ [UserDetail] 关注操作成功，当前状态:', is_active);
+        
         setIsFollowing(is_active);
         
         // 如果操作成功且状态变为激活（关注），创建通知
         if (is_active) {
-          console.log('📢 [UserDetail] 开始创建关注通知...');
+          
           
           // 获取当前用户信息
           const currentUser = (window as any).g_app?.$app?.globalData?.userInfo || 
@@ -129,12 +129,12 @@ const UserDetail: React.FC = () => {
             currentUserNickname: currentUser?.nickname || currentUser?.name || '用户',
             isFollowing: is_active
           }).then(() => {
-            console.log('✅ [UserDetail] 关注通知创建成功');
-          }).catch((error) => {
-            console.error('❌ [UserDetail] 关注通知创建失败:', error);
+            
+          }).catch((_error) => {
+            
           });
         } else {
-          console.log('ℹ️ [UserDetail] 跳过关注通知创建 - 取消关注');
+          
         }
         
         // 重新获取真实的粉丝数量
@@ -145,7 +145,7 @@ const UserDetail: React.FC = () => {
             follower_count: newFollowersCount
           }));
         } catch (error) {
-          console.error('更新粉丝数量失败:', error);
+          
           // 如果获取失败，使用简单的加减逻辑作为备选
           if (targetUser) {
             setTargetUser({
@@ -161,7 +161,7 @@ const UserDetail: React.FC = () => {
         dispatch(fetchUserProfile());
       }
     } catch (error) {
-      console.error('关注操作失败', error);
+      
       Taro.showToast({
         title: '操作失败，请重试',
         icon: 'none'
@@ -174,7 +174,7 @@ const UserDetail: React.FC = () => {
   if (loading) {
     return (
       <View className={styles.container}>
-        <CustomHeader title="用户资料" />
+        <CustomHeader title='用户资料' />
         <View className={styles.loading}>
           <Text>加载中...</Text>
         </View>
@@ -185,7 +185,7 @@ const UserDetail: React.FC = () => {
   if (!targetUser) {
     return (
       <View className={styles.container}>
-        <CustomHeader title="用户资料" />
+        <CustomHeader title='用户资料' />
         <View className={styles.error}>
           <Text>用户不存在</Text>
         </View>
@@ -195,7 +195,7 @@ const UserDetail: React.FC = () => {
 
   return (
     <View className={styles.container}>
-      <CustomHeader title="用户资料" />
+      <CustomHeader title='用户资料' />
       
       <View className={styles.content}>
         <View className={styles.userInfo}>

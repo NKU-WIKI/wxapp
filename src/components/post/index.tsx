@@ -210,7 +210,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
         const locationObj = JSON.parse(displayPost.location);
         return locationObj.name;
       } catch (error) {
-        console.error('解析位置信息失败', error);
+        
         return null;
       }
     }
@@ -287,14 +287,14 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       action_type: 'follow'
     })).then((result: any) => {
       if (result.payload && result.payload.is_active !== undefined) {
-        console.log('✅ [Post] 关注操作成功，当前状态:', result.payload.is_active);
+        
         
         // 更新本地关注状态
         setLocalFollowStatus(result.payload.is_active);
         
         // 如果操作成功且状态变为激活（关注），创建通知
         if (result.payload.is_active && getCurrentUserId() !== author?.id) {
-          console.log('📢 [Post] 开始创建关注通知...');
+          
           
           BBSNotificationHelper.handleFollowNotification({
             targetUserId: author.id,
@@ -302,16 +302,16 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
             currentUserNickname: getCurrentUserNickname(),
             isFollowing: result.payload.is_active
           }).then(() => {
-            console.log('✅ [Post] 关注通知创建成功');
-          }).catch((error) => {
-            console.error('❌ [Post] 关注通知创建失败:', error);
+            
+          }).catch((_error) => {
+            // 忽略关注操作错误
           });
         } else {
-          console.log('ℹ️ [Post] 跳过关注通知创建 - 状态:', result.payload.is_active, '自己:', getCurrentUserId() === author?.id);
+          
         }
       }
     }).catch(error => {
-      console.error('关注操作失败', error);
+      
       if (error.statusCode === 401) {
         Taro.showModal({
           title: '登录已过期',
@@ -354,8 +354,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
                 }, 1500);
               }
             })
-            .catch((error) => {
-              console.error('删除失败:', error);
+            .catch((_error) => {
               Taro.showToast({
                 title: '删除失败，请重试',
                 icon: 'none',
@@ -405,18 +404,18 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       case 'like':
       case 'favorite':
         setIsActionLoading(true);
-        console.log(`🔄 [Post] 开始${actionType === 'like' ? '点赞' : '收藏'}操作，帖子ID:`, displayPost.id);
+        
         dispatch(toggleAction({
           target_id: displayPost.id,
           target_type: 'post',
           action_type: actionType
         })).then((result: any) => {
           if (result.payload && result.payload.is_active !== undefined) {
-            console.log(`✅ [Post] ${actionType === 'like' ? '点赞' : '收藏'}操作成功，当前状态:`, result.payload.is_active);
+            
             
             // 如果操作成功且状态变为激活（点赞/收藏），创建通知
             if (result.payload.is_active && getCurrentUserId() !== author?.id && !isAnonymous) {
-              console.log(`📢 [Post] 开始创建${actionType === 'like' ? '点赞' : '收藏'}通知...`);
+              
               
               if (actionType === 'like') {
                 BBSNotificationHelper.handleLikeNotification({
@@ -426,9 +425,9 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
                   currentUserId: getCurrentUserId(),
                   isLiked: result.payload.is_active
                 }).then(() => {
-                  console.log('✅ [Post] 点赞通知创建成功');
-                }).catch((error) => {
-                  console.error('❌ [Post] 点赞通知创建失败:', error);
+                  // 点赞通知发送成功
+                }).catch((_error) => {
+                  // 忽略通知发送错误
                 });
               } else if (actionType === 'favorite') {
                 BBSNotificationHelper.handleCollectNotification({
@@ -438,18 +437,18 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
                   currentUserId: getCurrentUserId(),
                   isCollected: result.payload.is_active
                 }).then(() => {
-                  console.log('✅ [Post] 收藏通知创建成功');
-                }).catch((error) => {
-                  console.error('❌ [Post] 收藏通知创建失败:', error);
+                  // 收藏通知发送成功
+                }).catch((_error) => {
+                  // 忽略通知发送错误
                 });
               }
             } else {
-              console.log(`ℹ️ [Post] 跳过通知创建 - 状态:${result.payload.is_active}, 自己的帖子:${getCurrentUserId() === author?.id}, 匿名:${isAnonymous}`);
+              
             }
             // 移除本地状态更新，完全依赖Redux store更新
           }
         }).catch(error => {
-          console.error(`❌ [Post] ${actionType}操作失败`, error);
+          
           
           if (error.statusCode === 401) {
             Taro.showModal({

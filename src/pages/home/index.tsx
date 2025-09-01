@@ -1,15 +1,18 @@
+import { useState, useEffect, useMemo } from "react";
 import { View, ScrollView, Text, Input, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
-import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
+
 import type { Post as PostType } from "@/types/api/post.d";
+import { AppDispatch, RootState } from "@/store";
 import { fetchFeed, fetchForumPosts } from "@/store/slices/postSlice";
 import { useMultipleFollowStatus } from "@/hooks/useFollowStatus";
 import CustomHeader from "@/components/custom-header";
 import PostItemSkeleton from "@/components/post-item-skeleton";
 import EmptyState from "@/components/empty-state";
-import styles from "./index.module.scss";
+import Post from "@/components/post";
+
+// Assets imports
 import emptyIcon from "@/assets/empty.svg";
 import searchIcon from "@/assets/search.svg";
 import studyIcon from "@/assets/school.svg";
@@ -17,7 +20,9 @@ import hatIcon from "@/assets/hat.svg";
 import starIcon from "@/assets/star2.svg";
 import usersGroupIcon from "@/assets/p2p-fill.svg";
 import bagIcon from "@/assets/bag.svg";
-import Post from "@/components/post";
+
+// Relative imports
+import styles from "./index.module.scss";
 
 const mockCategories = [
   { id: 'c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f', name: '学习交流', icon: studyIcon },
@@ -28,7 +33,7 @@ const mockCategories = [
 ];
 
 export default function Home() {
-  console.log("--- HOME COMPONENT RENDER CHECK (PRODUCTION) ---");
+  
   const dispatch = useDispatch<AppDispatch>();
   const { list: posts, loading, pagination } = useSelector(
     (state: RootState) => state.post || { list: [] as PostType[], loading: 'idle', pagination: null }
@@ -64,13 +69,13 @@ export default function Home() {
 
   useDidShow(() => {
     // 每次显示首页时都刷新帖子数据和关注状态
-    console.log('首页显示，刷新数据');
+    
     
     const now = Date.now();
     
     // 防抖：如果距离上次刷新不足2秒，则跳过
     if (now - lastRefreshTime < 2000) {
-      console.log('距离上次刷新时间过短，跳过刷新');
+      
       return;
     }
     
@@ -98,7 +103,7 @@ export default function Home() {
         await dispatch(fetchFeed(params)).unwrap();
       }
     } catch (error) {
-      console.error('刷新失败:', error);
+      
     } finally {
       setIsRefreshing(false);
     }
@@ -120,7 +125,7 @@ export default function Home() {
         await dispatch(fetchFeed(params)).unwrap();
       }
     } catch (error) {
-      console.error('加载更多失败:', error);
+      
     }
   };
 
@@ -148,7 +153,7 @@ export default function Home() {
       return (
         <EmptyState
           icon={emptyIcon}
-          text="暂时没有帖子，快来发布第一条吧！"
+          text='暂时没有帖子，快来发布第一条吧！'
         />
       );
     }
@@ -170,7 +175,7 @@ export default function Home() {
             key={post.id} 
             post={postWithFollowStatus} 
             className={styles.postListItem} 
-            mode="list" 
+            mode='list' 
           />
         );
       });
@@ -187,7 +192,7 @@ export default function Home() {
     // 添加没有更多数据的提示
     if (posts.length > 0 && !isLoading && pagination && !pagination.has_more) {
       content.push(
-        <View key="no-more" className={styles.noMoreTip}>
+        <View key='no-more' className={styles.noMoreTip}>
           <Text>没有更多内容了</Text>
         </View>
       );
@@ -198,7 +203,7 @@ export default function Home() {
 
   return (
     <View className={styles.homeContainer}>
-      <CustomHeader title="首页" hideBack={true} showWikiButton={true} showNotificationIcon={true} />
+      <CustomHeader title='首页' hideBack showWikiButton showNotificationIcon />
 
       <View className={styles.fixedContainer}>
         {/* 搜索区域 - 固定 */}
@@ -213,7 +218,7 @@ export default function Home() {
         >
           <Image src={searchIcon} className={styles.searchIcon} />
           <Input
-            placeholder="搜索校园知识"
+            placeholder='搜索校园知识'
             className={styles.searchInput}
             onFocus={() => {
               try {

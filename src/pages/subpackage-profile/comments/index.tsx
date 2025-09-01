@@ -31,14 +31,14 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
             setPostInfo(response.data);
           } else if (response.code === 404) {
             // 帖子已被删除，使用友好的提示信息
-            console.log(`💬 评论对应的帖子 ${comment.resource_id} 已被删除`);
+            
             setPostInfo(null);
           } else {
-            console.warn(`获取帖子信息失败: ${response.message}`);
+            
           }
         })
-        .catch(error => {
-          console.error('获取帖子信息失败:', error);
+        .catch(_error => {
+          
         })
         .finally(() => {
           setLoading(false);
@@ -168,7 +168,7 @@ const CommentsPage: React.FC = () => {
               validComments.push(comment);
             } else if (postResponse.code === 404) {
               // 帖子已被删除，过滤掉评论
-              console.log(`💬 评论对应的帖子 ${comment.resource_id} 已被删除，该评论已隐藏`);
+              
               filteredCount++;
             } else {
               // 其他错误，保留评论但会显示"未知"信息
@@ -176,7 +176,7 @@ const CommentsPage: React.FC = () => {
             }
           } catch (validationError) {
             // 网络错误等，保留评论
-            console.warn(`Failed to validate post ${comment.resource_id}:`, validationError);
+            
             validComments.push(comment);
           }
         } else {
@@ -187,7 +187,7 @@ const CommentsPage: React.FC = () => {
       
       // 如果有被过滤的评论，输出提示信息
       if (filteredCount > 0) {
-        console.log(`💬 共过滤掉 ${filteredCount} 个已删除帖子的评论`);
+        
       }
 
       const totalFromApi = Array.isArray(raw) ? undefined : raw?.total;
@@ -211,7 +211,7 @@ const CommentsPage: React.FC = () => {
       
       setLoading('succeeded');
     } catch (err: any) {
-      console.error("Error fetching user comments:", err);
+      
       setError(err.message || "Failed to fetch user comments");
       setLoading('failed');
     }

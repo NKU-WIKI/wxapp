@@ -68,7 +68,7 @@ export default function RagResult({ data }: Props) {
       // 如果内容较长，默认折叠
       setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD);
     } catch (error) {
-      console.error('Failed to render markdown:', error);
+      
       setRenderedAnswer(data.answer); // 失败时使用原始文本
       setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD);
     }

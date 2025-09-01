@@ -95,8 +95,8 @@ export const compressImage = (
       success: (res) => {
         resolve(res.tempFilePath);
       },
-      fail: (err) => {
-        console.warn('图片压缩失败，使用原图片:', err);
+      fail: (_err) => {
+        
         // 压缩失败时返回原路径
         resolve(filePath);
       }

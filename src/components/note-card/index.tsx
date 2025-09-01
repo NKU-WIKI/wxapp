@@ -6,16 +6,15 @@ import styles from './index.module.scss';
 interface NoteCardProps {
   note: NoteListItem;
   style?: React.CSSProperties;
-  onClick?: (note: NoteListItem) => void;
+  onClick?: () => void;
 }
 
 const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
   const handleClick = () => {
     if (onClick) {
-      onClick(note);
+      onClick();
     }
     // 只提供点击效果，不进行跳转
-    console.log('点击了笔记:', note.title);
   };
 
   const authorAvatar = normalizeImageUrl(note.author_avatar) || '/assets/avatar1.png';

@@ -1,27 +1,26 @@
-import { View, ScrollView, Text, Textarea, Image } from "@tarojs/components";
 import { useState, useEffect, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { View, ScrollView, Text, Textarea, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import CustomHeader from "@/components/custom-header";
-import { ChatMessage } from "@/types/chat";
-import {
-  addMessage,
-  streamMessageFromAI,
-  initializeChat,
-} from "@/store/slices/chatSlice";
-import { RootState, AppDispatch } from "@/store";
-import styles from "./index.module.scss";
+import { useSelector, useDispatch } from "react-redux";
 
-// 导入本地资源
+import { ChatMessage } from "@/types/chat";
+import { RootState, AppDispatch } from "@/store";
+import { addMessage, streamMessageFromAI, initializeChat } from "@/store/slices/chatSlice";
+import CustomHeader from "@/components/custom-header";
+
+// Assets imports
 import RobotAvatar from "@/assets/wiki.svg";
-import DefaultUserAvatar from "@/assets/profile.svg"; // 默认用户头像
+import DefaultUserAvatar from "@/assets/profile.svg";
 import SendIcon from "@/assets/send.svg";
 import MenuIcon from "@/assets/more-horizontal.svg";
+
+// Relative imports
 import ChatSidebar from "./components/chat-sidebar/index";
+import styles from "./index.module.scss";
 
 const Chat = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { currentSession, isTyping, isLoading, error, sessions } = useSelector(
+  const { currentSession, isTyping, isLoading, error } = useSelector(
     (state: RootState) => state.chat || {
       currentSession: null,
       isTyping: false,
@@ -55,7 +54,7 @@ const Chat = () => {
         setScrollTop((prev) => prev + 10000); // 增加 scrollTop 以确保滚动到底部
       });
     }
-  }, [currentSession?.messages?.length, isTyping]);
+  }, [currentSession?.messages, isTyping]);
 
   const handleSend = async () => {
     if (inputText.trim() && currentSession?.id) {
@@ -213,7 +212,7 @@ const Chat = () => {
   return (
     <View className={styles.chatPage}>
       <CustomHeader
-        title="南开小知"
+        title='南开小知'
         leftIcon={MenuIcon}
         onLeftClick={() => setIsSidebarOpen(true)}
       />
@@ -245,13 +244,13 @@ const Chat = () => {
       <View className={styles.inputArea}>
         <Textarea
           className={styles.inputField}
-          placeholder="有关南开的问题，尽管问我..."
+          placeholder='有关南开的问题，尽管问我...'
           value={inputText}
           onInput={(e) => setInputText(e.detail.value)}
           autoHeight
           maxlength={-1}
           showConfirmBar={false}
-          confirmType="send"
+          confirmType='send'
           disabled={isTyping}
           onConfirm={handleSend}
         />

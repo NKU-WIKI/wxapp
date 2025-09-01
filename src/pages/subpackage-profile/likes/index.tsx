@@ -144,7 +144,7 @@ const LikesPage: React.FC = () => {
       
       await dispatch(fetchLikes(params)).unwrap();
     } catch (err) {
-      console.error('Failed to load likes:', err);
+      
       Taro.showToast({
         title: String(err) || '加载失败',
         icon: 'none'

@@ -1,11 +1,11 @@
-import http from "../request";
-import { 
-  CampusVerificationRequest, 
-  CampusVerificationResponse, 
-  CampusVerificationInfo,
-  VerificationDocumentLink,
+import {
+  CampusVerificationRequest,
+  CampusVerificationResponse,
   CampusVerificationApplicationsResponse
 } from "@/types/api/campus-verification";
+
+// Relative imports
+import http from "../request";
 
 /**
  * 上传文件

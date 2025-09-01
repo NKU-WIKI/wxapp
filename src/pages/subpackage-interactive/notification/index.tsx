@@ -1,44 +1,43 @@
-import { useEffect, useState } from 'react'
-import { View, Text, Image } from '@tarojs/components'
+import { useEffect, useState, useCallback } from 'react'
+import { View, Text, Image, ScrollView } from '@tarojs/components'
+import Taro from '@tarojs/taro'
 import CustomHeader from '@/components/custom-header'
-import NotificationItem from './components/NotificationItem'
-import styles from './index.module.scss'
+import {
+  NotificationRead,
+  NotificationType,
+  UnreadCountResponse
+} from '@/types/api/notification.d'
+import {
+  getNotifications,
+  markAllAsRead
+} from '@/services/api/notification'
 import moreIcon from '@/assets/more-horizontal.svg'
 import checkSquareIcon from '@/assets/check-square.svg'
-import Taro from '@tarojs/taro'
-import { 
-  getNotifications, 
-  getUnreadCount, 
-  markAllAsRead 
-} from '@/services/api/notification'
-import { 
-  NotificationRead, 
-  NotificationType, 
-  UnreadCountResponse 
-} from '@/types/api/notification.d'
+import NotificationItem from './components/NotificationItem'
+import styles from './index.module.scss'
 
 // 通知类型映射配置
 const NOTIFICATION_TABS = [
-  { 
-    key: NotificationType.Message, 
+  {
+    key: NotificationType._Message,
     title: '互动消息',
     icon: '💬',
     description: '点赞、评论、关注等互动消息'
   },
-  { 
-    key: NotificationType.Activity, 
+  {
+    key: NotificationType._Activity,
     title: '活动通知',
     icon: '🎉',
     description: '活动发布、报名等通知'
   },
-  { 
-    key: NotificationType.System, 
+  {
+    key: NotificationType._System,
     title: '系统通知',
     icon: '🔔',
     description: '系统公告、安全提醒等'
   },
-  { 
-    key: NotificationType.Announcement, 
+  {
+    key: NotificationType._Announcement,
     title: '公告通知',
     icon: '📢',
     description: '官方公告、重要通知'
@@ -48,12 +47,12 @@ const NOTIFICATION_TABS = [
 type TabKey = typeof NOTIFICATION_TABS[number]['key']
 
 const NotificationPage = () => {
-  const [currentTab, setCurrentTab] = useState<TabKey>(NotificationType.Message)
+  const [currentTab, setCurrentTab] = useState<TabKey>(NotificationType._Message)
   const [notifications, setNotifications] = useState<NotificationRead[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [unreadCounts, setUnreadCounts] = useState<UnreadCountResponse>({} as UnreadCountResponse)
-  const [refreshing, setRefreshing] = useState(false)
+
   const [initialized, setInitialized] = useState(false) // 初始化标识
 
   const renderHeaderRight = () => (
@@ -61,15 +60,15 @@ const NotificationPage = () => {
   );
 
   // 获取未读数量统计（通过分别查询各种类型的未读通知数量）
-  const fetchUnreadCounts = async () => {
-    console.log('📊 [Notification] 开始获取未读数量统计...');
+  const fetchUnreadCounts = useCallback(async () => {
+    
     try {
       // 使用现有API获取各类型的未读通知数量
       const notificationTypes = [
-        NotificationType.Message,
-        NotificationType.Activity,
-        NotificationType.System,
-        NotificationType.Announcement
+        NotificationType._Message,
+        NotificationType._Activity,
+        NotificationType._System,
+        NotificationType._Announcement
       ];
       
       const unreadCountData: Partial<UnreadCountResponse> = {};
@@ -92,8 +91,7 @@ const NotificationPage = () => {
             return count;
           }
           return 0;
-        } catch (error) {
-          console.warn(`获取 ${type} 类型未读数量失败:`, error);
+        } catch {
           return 0;
         }
       });
@@ -107,18 +105,18 @@ const NotificationPage = () => {
       } as UnreadCountResponse;
       
       setUnreadCounts(finalUnreadCounts);
-      console.log('✅ [Notification] 未读数量计算完成:', finalUnreadCounts);
+      
       
     } catch (e: any) {
-      console.error('❌ [Notification] 获取未读数量失败:', e);
+      
       // 发生错误时设置为空的统计
       setUnreadCounts({} as UnreadCountResponse);
     }
-  }
+  }, [])
 
   // 获取通知列表
-  const fetchNotifications = async (type?: NotificationType, showLoading = true) => {
-    console.log('📝 [Notification] 开始获取通知列表, type:', type || currentTab);
+  const fetchNotifications = useCallback(async (type?: NotificationType, showLoading = true) => {
+    
     try {
       if (showLoading) setLoading(true)
       setError(null)
@@ -129,29 +127,28 @@ const NotificationPage = () => {
         page_size: 50
       };
       
-      console.log('📤 [Notification] 请求参数:', requestParams);
+      
       
       const res = await getNotifications(requestParams)
       
-      console.log('📝 [Notification] 通知列表响应:', res);
+      
       
       if (res.code === 0 && res.data) {
         setNotifications(res.data.items || [])
-        console.log('✅ [Notification] 通知列表设置成功, 数量:', res.data.items?.length || 0);
+        
       } else {
         throw new Error(res.message || '获取通知失败')
       }
     } catch (e: any) {
-      console.error('❌ [Notification] 获取通知列表失败:', e);
+      
       setError(e?.message || '获取通知失败')
       if (e?.message !== '网络错误') {
         Taro.showToast({ title: e?.message || '获取通知失败', icon: 'none' })
       }
     } finally {
       if (showLoading) setLoading(false)
-      setRefreshing(false)
     }
-  }
+  }, [currentTab])
 
   // 切换标签页
   const handleTabChange = (tabKey: TabKey) => {
@@ -162,14 +159,7 @@ const NotificationPage = () => {
     }
   }
 
-  // 刷新通知
-  const handleRefresh = async () => {
-    setRefreshing(true)
-    await Promise.all([
-      fetchNotifications(currentTab, false),
-      fetchUnreadCounts()
-    ])
-  }
+
 
   // 标记全部已读
   const handleMarkAllRead = async () => {
@@ -205,7 +195,7 @@ const NotificationPage = () => {
     let postContent = ''
     
     // 根据业务类型解析动作
-    if (notification.type === NotificationType.Message) {
+    if (notification.type === NotificationType._Message) {
       switch (notification.business_type) {
         case 'like':
           action = '赞了你的帖子'
@@ -243,27 +233,26 @@ const NotificationPage = () => {
 
   useEffect(() => {
     // 初始化加载 - 同时获取通知列表和未读数量
-    console.log('🚀 [Notification] 组件初始化加载...');
+
     Promise.all([
       fetchNotifications(currentTab),  // 使用当前标签页加载
       fetchUnreadCounts()
     ]).finally(() => {
       setInitialized(true); // 标记为已初始化
     })
-  }, [])  // 只在组件挂载时执行一次
+  }, [currentTab, fetchNotifications, fetchUnreadCounts])  // 只在组件挂载时执行一次
 
   useEffect(() => {
     // 切换标签页时加载数据（只在已初始化后才执行）
     if (initialized) {
-      console.log('🔄 [Notification] 标签页变化，加载新数据:', currentTab);
       fetchNotifications(currentTab)
     }
-  }, [currentTab, initialized])
+  }, [currentTab, initialized, fetchNotifications])
 
   return (
     <View className={styles.notificationPage}>
       <CustomHeader 
-        title="消息" 
+        title='消息' 
         renderRight={renderHeaderRight()}
       />
       
@@ -296,7 +285,11 @@ const NotificationPage = () => {
 
       {/* 通知内容区域 */}
       <View className={styles.contentContainer}>
-        <View className={styles.tabContent}>
+        <ScrollView
+          scrollY
+          className={styles.scrollContainer}
+        >
+          <View className={styles.tabContent}>
           {loading ? (
             <View className={styles.loadingContainer}>
               <Text className={styles.loadingText}>加载中...</Text>
@@ -342,7 +335,8 @@ const NotificationPage = () => {
               )}
             </View>
           )}
-        </View>
+          </View>
+        </ScrollView>
       </View>
 
       {/* 底部操作按钮 */}

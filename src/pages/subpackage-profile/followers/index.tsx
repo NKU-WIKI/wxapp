@@ -2,13 +2,24 @@ import { View, Text, Button, Image, Input } from '@tarojs/components'
 import { useState, useEffect, useCallback } from 'react'
 import Taro from '@tarojs/taro'
 import { useDispatch } from 'react-redux'
+
 import { AppDispatch } from '@/store'
-import { fetchUserProfile } from '@/store/slices/userSlice'
+
+// Type imports
 import { GetFollowersParams, FollowActionParams, FollowRelation } from '@/types/api/followers'
+
+// Store imports
+import { fetchUserProfile } from '@/store/slices/userSlice'
+
+// API imports
 import { getFollowers, followAction } from '@/services/api/followers'
+
+// Utils imports
 import { BBSNotificationHelper } from '@/utils/notificationHelper'
-import styles from './index.module.scss'
 import { normalizeImageUrl } from '@/utils/image'
+
+// Relative imports
+import styles from './index.module.scss'
 
 type TabType = 'following' | 'followers';
 
@@ -16,7 +27,7 @@ const FollowersPage = () => {
   const dispatch = useDispatch<AppDispatch>()
   
   // 从URL参数获取目标用户ID和初始标签页
-  const [targetUserId, setTargetUserId] = useState<string>(() => {
+  const [targetUserId] = useState<string>(() => {
     const pages = Taro.getCurrentPages();
     const currentPage = pages[pages.length - 1];
     const options = currentPage.options;
@@ -68,7 +79,7 @@ const FollowersPage = () => {
             relation: activeTab === 'following' ? 'following' : 'none'
           }));
         } else {
-          console.warn('Unexpected API response format:', responseData);
+          
           newUsers = [];
         }
         
@@ -84,11 +95,11 @@ const FollowersPage = () => {
         
         setHasMore(newUsers.length >= 20)
       } else {
-        console.error('API Error:', response);
+        
         throw new Error((response as any).msg || (response as any).message || '获取用户列表失败')
       }
     } catch (err) {
-      console.error('Failed to fetch users:', err)
+      
       setError(err instanceof Error ? err.message : '网络错误')
     } finally {
       setLoading(false)
@@ -110,7 +121,7 @@ const FollowersPage = () => {
         const responseData = response.data as any;
         const isActive = responseData?.is_active;
         
-        console.log('✅ [Followers] 关注操作成功，当前状态:', isActive);
+        
         
         // 更新本地状态 - 不论在哪个tab都只更新关注状态，不删除用户
         setUsers(prev => prev.map(user => 
@@ -126,7 +137,7 @@ const FollowersPage = () => {
         
         // 如果操作成功且状态变为激活（关注），创建通知
         if (isActive) {
-          console.log('📢 [Followers] 开始创建关注通知...');
+          
           
           // 获取当前用户信息
           const currentUser = (window as any).g_app?.$app?.globalData?.userInfo || 
@@ -138,12 +149,12 @@ const FollowersPage = () => {
             currentUserNickname: currentUser?.nickname || currentUser?.name || '用户',
             isFollowing: isActive
           }).then(() => {
-            console.log('✅ [Followers] 关注通知创建成功');
-          }).catch((error) => {
-            console.error('❌ [Followers] 关注通知创建失败:', error);
+            
+          }).catch((_error) => {
+            
           });
         } else {
-          console.log('ℹ️ [Followers] 跳过关注通知创建 - 取消关注');
+          
         }
         
         // 更新Redux store中的用户信息，确保主页的粉丝数量实时更新
@@ -152,7 +163,7 @@ const FollowersPage = () => {
         throw new Error(response.message || '操作失败')
       }
     } catch (err) {
-      console.error('Follow action failed:', err)
+      
       Taro.showToast({
         title: err instanceof Error ? err.message : '操作失败',
         icon: 'error'
@@ -244,7 +255,7 @@ const FollowersPage = () => {
           throw new Error((response as any).msg || (response as any).message || '获取用户列表失败')
         }
       } catch (err) {
-        console.error('Failed to fetch users:', err)
+        
         setError(err instanceof Error ? err.message : '网络错误')
       } finally {
         setLoading(false)

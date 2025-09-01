@@ -271,7 +271,7 @@ export const getRecommendPosts = (params: API.RecommendParams) => {
 export const getHotPostList = (params?: GetHotPostsParams) => {
   const raw = Taro.getStorageSync('token');
   const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  console.log("Fetching hot posts with params:", params, "and token:", token ? 'present' : 'absent', token);
+  
   return http.get<Post[]>("/forums/hot-posts", params,{
     header: token ? { Authorization: `Bearer ${token}` } : {}
   });

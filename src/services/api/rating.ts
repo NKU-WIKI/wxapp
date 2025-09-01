@@ -1,10 +1,8 @@
-import http from "../request";
 import {
   RatingCategory,
   RatingItem,
   UserRating,
   RatingStatistics,
-  RatingStatus,
   GetRatingItemsRequest,
   CreateRatingItemRequest,
   SubmitRatingRequest,
@@ -22,6 +20,9 @@ import {
   GetTopRatedResourcesRequest
 } from "@/types/api/rating.d";
 
+// Relative imports
+import http from "../request";
+
 // 已移除 getRatingTypes 函数，改为使用预定义的评分类型
 
 /**
@@ -36,7 +37,7 @@ export const getResourceRatings = (
   resourceId: string, 
   params: GetResourceRatingsRequest = {}
 ) => {
-  console.log('📊 [API] 获取资源评分列表:', { resourceType, resourceId, params });
+  
   
   // 过滤掉 null 和 undefined 的参数
   const filteredParams = Object.entries({
@@ -56,10 +57,10 @@ export const getResourceRatings = (
     `/ratings/resources/${resourceType}/${resourceId}`,
     filteredParams
   ).then(response => {
-    console.log('✅ [API] 资源评分列表获取成功，响应数据:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 资源评分列表获取失败:', error);
+    
     throw error;
   });
 };
@@ -70,15 +71,15 @@ export const getResourceRatings = (
  * @returns 评分标签信息
  */
 export const getRatingTags = (resourceType: string) => {
-  console.log('🏷️ [API] 获取评分标签:', resourceType);
+  
   
   return http.get<RatingApiResponse<RatingTagsInfo>>(
     `/ratings/tags?resource_type=${resourceType}`
   ).then(response => {
-    console.log('✅ [API] 评分标签获取成功，响应数据:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 评分标签获取失败:', error);
+    
     throw error;
   });
 };
@@ -89,7 +90,7 @@ export const getRatingTags = (resourceType: string) => {
  * @returns 评分列表
  */
 export const getRatingItems = (params: GetRatingItemsRequest = {}) => {
-  console.log('📋 [API] 获取评分列表 (使用新的/ratings端点):', params);
+  
   
   // 构建查询参数，符合后端API规范
   const queryParams: any = {
@@ -137,11 +138,11 @@ export const getRatingItems = (params: GetRatingItemsRequest = {}) => {
     queryParams.sort_by = sortMapping[params.sortBy] || 'created_at';
   }
   
-  console.log('🔍 [API] 查询参数:', queryParams);
+  
   
   return http.get<RatingApiResponse<ResourceRatingsResponse>>("/ratings", queryParams)
     .then(response => {
-      console.log('✅ [API] 评分列表获取成功:', response);
+      
       
       // 直接使用API返回的原始数据结构，不进行转换
       const apiData = response.data?.data || response.data || {};
@@ -174,14 +175,14 @@ export const getRatingItems = (params: GetRatingItemsRequest = {}) => {
       };
     })
     .catch(error => {
-      console.error('❌ [API] 评分列表获取失败:', error);
-      console.error('请求URL:', `${process.env.BASE_URL || 'https://nkuwiki.com'}/api/v1/ratings`);
-      console.error('请求参数:', queryParams);
+      
+      
+      
       if (error.statusCode) {
-        console.error('HTTP状态码:', error.statusCode);
+        
       }
       if (error.data) {
-        console.error('错误响应数据:', JSON.stringify(error.data, null, 2));
+        
       }
       throw error;
     });
@@ -202,16 +203,16 @@ export const getRatingItemDetail = (itemId: string) => {
  * @returns 创建结果
  */
 export const createRatingItem = (data: CreateRatingItemRequest) => {
-  console.log('🚀 [API] 开始创建评分项目，请求数据:', data);
+  
   
   return http.post<RatingApiResponse<RatingItem>>(
     "/ratings/items",
     data
   ).then(response => {
-    console.log('✅ [API] 评分项目创建成功，响应数据:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 评分项目创建失败:', error);
+    
     throw error;
   });
 };
@@ -222,7 +223,7 @@ export const createRatingItem = (data: CreateRatingItemRequest) => {
  * @returns 创建结果
  */
 export const createRating = (data: CreateRatingRequest) => {
-  console.log('⭐ [API] 开始创建评分，请求数据:', data);
+  
   
   // 数据已经是下划线命名格式，直接使用
   const requestData = {
@@ -239,16 +240,16 @@ export const createRating = (data: CreateRatingRequest) => {
     evidence_urls: data.evidence_urls || []
   };
   
-  console.log('📤 [API] 转换后的请求数据:', requestData);
+  
   
   return http.post<RatingApiResponse<UserRating>>(
     "/ratings", 
     requestData
   ).then(response => {
-    console.log('✅ [API] 评分创建成功，响应数据:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 评分创建失败:', error);
+    
     throw error;
   });
 };
@@ -259,15 +260,15 @@ export const createRating = (data: CreateRatingRequest) => {
  * @returns 评分详情
  */
 export const getRatingDetail = (ratingId: string) => {
-  console.log('📊 [API] 获取评分详情:', ratingId);
+  
   
   return http.get<RatingApiResponse<RatingDetailResponse>>(
     `/ratings/${ratingId}`
   ).then(response => {
-    console.log('✅ [API] 评分详情获取成功，响应数据:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 评分详情获取失败:', error);
+    
     throw error;
   });
 };
@@ -278,16 +279,16 @@ export const getRatingDetail = (ratingId: string) => {
  * @returns 提交结果
  */
 export const submitRating = (data: SubmitRatingRequest) => {
-  console.log('⭐ [API] 开始提交评分，请求数据:', data);
+  
   
   return http.post<RatingApiResponse<UserRating>>(
     "/ratings",
     data
   ).then(response => {
-    console.log('✅ [API] 评分提交成功，响应数据:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 评分提交失败:', error);
+    
     throw error;
   });
 };
@@ -336,16 +337,16 @@ export const getRatingStatistics = (itemId: string) => {
  * @returns 更新结果
  */
 export const updateRatingItem = (itemId: string, data: Partial<CreateRatingItemRequest>) => {
-  console.log('🔄 [API] 开始更新评分项目:', itemId, data);
+  
   
   return http.put<RatingApiResponse<RatingItem>>(
     `/ratings/items/${itemId}`,
     data
   ).then(response => {
-    console.log('✅ [API] 评分项目更新成功，响应数据:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 评分项目更新失败:', error);
+    
     throw error;
   });
 };
@@ -356,15 +357,15 @@ export const updateRatingItem = (itemId: string, data: Partial<CreateRatingItemR
  * @returns 删除结果
  */
 export const deleteRatingItem = (itemId: string) => {
-  console.log('🗑️ [API] 开始删除评分项目:', itemId);
+  
   
   return http.delete<RatingApiResponse<{}>>(
     `/ratings/items/${itemId}`
   ).then(response => {
-    console.log('✅ [API] 评分项目删除成功');
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 评分项目删除失败:', error);
+    
     throw error;
   });
 };
@@ -403,7 +404,7 @@ export const searchRatingItems = (keyword: string, params: Omit<GetRatingItemsRe
  * @returns 资源列表
  */
 export const getResourceList = (params: GetResourceListRequest) => {
-  console.log('📋 [API] 获取资源列表:', params);
+  
   
   // 构建查询参数
   const queryParams = {
@@ -418,10 +419,10 @@ export const getResourceList = (params: GetResourceListRequest) => {
     '/ratings/resources/list',
     queryParams
   ).then(response => {
-    console.log('✅ [API] 资源列表获取成功:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 资源列表获取失败:', error);
+    
     throw error;
   });
 };
@@ -432,7 +433,7 @@ export const getResourceList = (params: GetResourceListRequest) => {
  * @returns 搜索结果
  */
 export const searchResources = (params: SearchResourcesRequest) => {
-  console.log('🔍 [API] 搜索资源:', params);
+  
   
   // 构建查询参数
   const queryParams = {
@@ -446,10 +447,10 @@ export const searchResources = (params: SearchResourcesRequest) => {
     '/ratings/resources/search',
     queryParams
   ).then(response => {
-    console.log('✅ [API] 资源搜索成功:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 资源搜索失败:', error);
+    
     throw error;
   });
 };
@@ -471,7 +472,7 @@ export const getResourceRatingsList = (
     sort_order?: string;
   } = {}
 ) => {
-  console.log('📋 [API] 获取资源评分列表:', { resourceType, resourceId, params });
+  
   
   const queryParams = {
     skip: params.skip || 0,
@@ -484,10 +485,10 @@ export const getResourceRatingsList = (
     `/ratings/resources/${resourceType}/${resourceId}`,
     queryParams
   ).then(response => {
-    console.log('✅ [API] 资源评分列表获取成功:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 资源评分列表获取失败:', error);
+    
     throw error;
   });
 };
@@ -502,15 +503,15 @@ export const getResourceStatistics = (
   resourceType: string,
   resourceId: string
 ) => {
-  console.log('📊 [API] 获取资源评分统计:', { resourceType, resourceId });
+  
   
   return http.get<RatingApiResponse<any>>(
     `/ratings/resources/${resourceType}/${resourceId}/statistics`
   ).then(response => {
-    console.log('✅ [API] 资源评分统计获取成功:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 资源评分统计获取失败:', error);
+    
     throw error;
   });
 };
@@ -521,7 +522,7 @@ export const getResourceStatistics = (
  * @returns 热门资源列表
  */
 export const getTopRatedResources = (params: GetTopRatedResourcesRequest = {}) => {
-  console.log('🔥 [API] 获取热门资源:', params);
+  
   
   // 构建查询参数
   const queryParams = {
@@ -534,10 +535,10 @@ export const getTopRatedResources = (params: GetTopRatedResourcesRequest = {}) =
     '/ratings/resources/top-rated',
     queryParams
   ).then(response => {
-    console.log('✅ [API] 热门资源获取成功:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 热门资源获取失败:', error);
+    
     throw error;
   });
 };
@@ -548,7 +549,7 @@ export const getTopRatedResources = (params: GetTopRatedResourcesRequest = {}) =
  * @returns 我的评分列表
  */
 export const getMyRatings = (params: { resource_type?: string; skip?: number; limit?: number } = {}) => {
-  console.log('👤 [API] 获取我的评分列表:', params);
+  
   
   const queryParams = {
     resource_type: params.resource_type,
@@ -560,10 +561,10 @@ export const getMyRatings = (params: { resource_type?: string; skip?: number; li
     '/ratings/me',
     queryParams
   ).then(response => {
-    console.log('✅ [API] 我的评分列表获取成功:', response);
+    
     return response;
   }).catch(error => {
-    console.error('❌ [API] 我的评分列表获取失败:', error);
+    
     throw error;
   });
 };

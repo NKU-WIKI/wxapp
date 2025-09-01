@@ -1,0 +1,126 @@
+@import "@/styles/variables.scss";
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-page;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #fff;
+  gap: 10px;
+
+  .searchBar {
+    flex: 1;
+    input {
+      background-color: $bg-input;
+      border-radius: 18px;
+      padding: 5px 15px;
+      height: 36px;
+      font-size: 14px;
+    }
+  }
+
+  .publishButton {
+    display: flex;
+    align-items: center;
+    background-color: $theme-primary;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 18px;
+    font-size: 14px;
+    .plusIcon {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+  }
+}
+
+.filterTabs {
+  display: flex;
+  padding: 0 15px 10px;
+  background-color: #fff;
+  gap: 15px;
+  border-bottom: 1px solid $border-light;
+  .tab {
+    padding: 6px 16px;
+    border-radius: 16px;
+    background-color: $bg-input;
+    color: $text-primary;
+    font-size: 14px;
+    &.active {
+      background-color: $theme-primary;
+      color: #fff;
+      font-weight: bold;
+    }
+  }
+}
+
+.taskList {
+  padding: 15px;
+}
+
+.taskCard {
+  background-color: $bg-card;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    .taskType {
+      font-size: 16px;
+      font-weight: bold;
+      color: $text-primary;
+    }
+    .taskReward {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ff4d4f; // 价格红色
+    }
+  }
+
+  .cardBody {
+    font-size: 14px;
+    color: $text-secondary;
+    padding-bottom: 10px;
+    border-bottom: 1px solid $border-light;
+    .deadline {
+      margin-top: 5px;
+    }
+  }
+
+  .cardFooter {
+    padding-top: 10px;
+    text-align: right;
+    .status {
+      font-size: 14px;
+      color: $theme-primary;
+    }
+  }
+}
+
+.customTabBar {
+    display: flex;
+    justify-content: space-around;
+    background-color: #fff;
+    padding: 10px 0;
+    border-top: 1px solid $border-light;
+    .tabItem {
+        text-align: center;
+        color: $text-secondary;
+        font-size: 14px;
+        &.active {
+            color: $theme-primary;
+            font-weight: bold;
+        }
+    }
+}

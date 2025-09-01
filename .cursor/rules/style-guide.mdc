@@ -178,7 +178,7 @@ grep -r "rgba\?\(" src/ --include="*.scss"
 - **组件设计**:
     - **按钮**: 主要按钮使用主色调填充，次要按钮使用描边或灰色样式。所有按钮均带有圆角。
     - **列表**: 列表项之间保持足够间距，增加分割线以区分。
-    - **图标**: 采用线性图标 (Line Icon)，风格统一。推荐从 [Iconify Solar](https://api.iconify.design/solar/) 下载 `SVG` 格式图标，并存储在 `src/assets/icons` 目录下。
+    - **图标**: 采用线性图标 (Line Icon)，风格统一。推荐从 [Iconify Solar](https://api.iconify.design/solar/) 下载 `SVG` 格式图标，并存储在 `src/assets/` 目录下。
 
 ### 🚨 SVG 图标尺寸问题排查指南
 
@@ -211,4 +211,56 @@ grep -r "rgba\?\(" src/ --include="*.scss"
     ```
 
 遵循以上两步，通常可以解决绝大部分的 SVG 图标尺寸问题，确保 UI 的一致性和可控性。
+
+## 项目特定规范
+
+### 图片资源管理
+
+- **图片资源引用 (强制)**: 为规避 Webpack `url-loader` 可能导致的图片资源损坏（渲染为色块）问题，所有静态图片资源（如 `.png`, `.jpg`）**严禁使用 `import` 方式引入**。所有图片必须通过**字符串路径**的方式在组件中引用。
+    - **✅ 正确做法 (字符串路径)**:
+      ```tsx
+      // 直接定义字符串路径
+      const myLogo = '/assets/logo.png';
+
+      // 在组件中使用
+      <Image src={myLogo} />
+      ```
+    - **❌ 错误做法 (模块导入)**:
+      ```tsx
+      // 严禁使用 import 引入图片
+      import myLogo from '@/assets/logo.png';
+
+      <Image src={myLogo} />
+      ```
+
+### 自定义导航栏适配
+
+- **CustomHeader 组件 (强制)**: 项目使用自定义导航栏，所有页面必须遵循统一的布局结构：
+    ```tsx
+    <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
+      {/* 1. 顶部必须是统一的自定义导航栏 */}
+      <CustomHeader />
+      {/* 2. 页面主体内容必须包裹在这个 View 和 ScrollView 中 */}
+      <View style={{ flex: 1, overflow: 'hidden' }}>
+        <ScrollView scrollY style={{ height: '100%' }}>
+          {/* 页面所有可滚动内容都放在这里 */}
+        </ScrollView>
+      </View>
+    </View>
+    ```
+    同时在 `index.config.ts` 中必须设置 `navigationStyle: 'custom'`。
+
+### 状态管理规范
+
+- **Redux Toolkit 使用**: 项目使用 RTK 进行状态管理，遵循以下模式：
+    - 每个业务模块创建独立的 `slice`
+    - 使用 `createAsyncThunk` 处理异步操作
+    - 在组件中通过 `useSelector` 和 `useDispatch` 进行状态访问和更新
+    - 关键数据通过 `redux-persist` 进行持久化存储
+
+### API 请求规范
+
+- **统一请求封装**: 所有 API 请求必须通过 `src/services/request.ts` 中的 `http` 对象
+- **参数转换**: 前端驼峰命名转换为后端蛇形命名
+- **租户支持**: 系统自动处理多租户标识，无需手动添加 `/api/v1` 前缀
 

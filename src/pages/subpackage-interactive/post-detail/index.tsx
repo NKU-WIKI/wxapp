@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { View, ScrollView } from '@tarojs/components';
-import Taro, { useRouter, usePullDownRefresh } from '@tarojs/taro';
+import Taro, { useRouter } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchPostDetail } from '@/store/slices/postSlice';
-import { fetchComments, CommentState } from '@/store/slices/commentSlice';
+import { fetchComments } from '@/store/slices/commentSlice';
 import { CommentDetail } from '@/types/api/comment';
 import CustomHeader from '@/components/custom-header';
-import CommentSection from './components/CommentSection';
-import BottomInput from './components/BottomInput';
 import Post from '@/components/post';
 import { addHistoryWithServerSync } from '@/utils/history';
 import commentApi from '@/services/api/comment';
+import CommentSection from './components/CommentSection';
+import BottomInput from './components/BottomInput';
 import styles from './index.module.scss';
 
 const PostDetailPage = () => {
@@ -72,16 +72,16 @@ const PostDetailPage = () => {
       const viewTime = new Date().toISOString();
       
       // 调试日志
-      console.log('📝 记录浏览历史:', {
-        postId: post.id,
-        title: post.title,
-        avatarUrl: avatarUrl,
-        createTime: createTime,
-        viewTime: viewTime,
-        postCreatedAt: post.created_at,
-        postCreateTime: post.create_time,
-        postData: post
-      });
+      // console.log('📝 记录浏览历史:', {
+      //   postId: post.id,
+      //   title: post.title,
+      //   avatarUrl: avatarUrl,
+      //   createTime: createTime,
+      //   viewTime: viewTime,
+      //   postCreatedAt: post.created_at,
+      //   postCreateTime: post.create_time,
+      //   postData: post
+      // });
       
       addHistoryWithServerSync(
         {
@@ -100,7 +100,7 @@ const PostDetailPage = () => {
 
   // 处理回复评论
   const handleReply = (comment: CommentDetail) => {
-    console.log('💬 回复评论:', comment);
+    
     
     // 查找顶级父评论ID的辅助函数
     const findRootCommentId = (targetComment: CommentDetail): string => {
@@ -152,12 +152,12 @@ const PostDetailPage = () => {
   };
 
   // 处理点赞状态更新
-  const handleLikeUpdate = (commentId: string, isLiked: boolean, likeCount: number) => {
-    console.log('🔥 处理点赞状态更新:', { commentId, isLiked, likeCount });
+  const handleLikeUpdate = (_commentId: string, _isLiked: boolean, _likeCount: number) => {
+    
     
     // 重新获取评论列表以同步状态
     if (postId) {
-      console.log('🔄 重新获取评论列表以同步点赞状态');
+      
       dispatch(fetchComments({
         resource_id: postId,
         resource_type: 'post',
@@ -170,7 +170,7 @@ const PostDetailPage = () => {
 
   // 处理删除评论
   const handleDeleteComment = async (commentId: string) => {
-    console.log('🗑️ 处理删除评论:', commentId);
+    
 
     try {
       // 显示确认对话框
@@ -188,7 +188,7 @@ const PostDetailPage = () => {
       });
 
       if (!res) {
-        console.log('用户取消删除');
+        
         return;
       }
 
@@ -211,7 +211,7 @@ const PostDetailPage = () => {
 
       // 重新获取评论列表
       if (postId) {
-        console.log('🔄 重新获取评论列表');
+        
         dispatch(fetchComments({
           resource_id: postId,
           resource_type: 'post',
@@ -222,7 +222,7 @@ const PostDetailPage = () => {
       }
 
     } catch (error: any) {
-      console.error('❌ 删除评论失败:', error);
+      
 
       // 隐藏加载提示
       Taro.hideLoading();
@@ -239,7 +239,7 @@ const PostDetailPage = () => {
   const handleRefresh = async () => {
     if (!postId || refreshing) return;
     
-    console.log('🔄 开始下拉刷新帖子详情');
+    
     setRefreshing(true);
     
     try {
@@ -254,9 +254,9 @@ const PostDetailPage = () => {
           limit: 20
         }))
       ]);
-      console.log('✅ 下拉刷新完成');
+      
     } catch (error) {
-      console.error('❌ 下拉刷新失败:', error);
+      
     } finally {
       setRefreshing(false);
     }
@@ -264,14 +264,14 @@ const PostDetailPage = () => {
 
   // 渲染内容
   const renderContent = () => {
-    console.log('🔍 渲染内容状态:', {
-      postState,
-      commentState,
-      postId,
-      detailLoading: postState?.detailLoading,
-      currentPost: postState?.currentPost,
-      comments: commentState?.comments
-    });
+    // console.log('🔍 渲染内容状态:', {
+    //   postState,
+    //   commentState,
+    //   postId,
+    //   detailLoading: postState?.detailLoading,
+    //   currentPost: postState?.currentPost,
+    //   comments: commentState?.comments
+    // });
 
     // 正在加载中，显示加载状态
     if (postState?.detailLoading === 'pending') {
@@ -293,7 +293,7 @@ const PostDetailPage = () => {
     if (postState?.detailLoading === 'succeeded' && postState?.currentPost) {
       return (
         <>
-          <Post post={postState.currentPost} mode="detail" />
+          <Post post={postState.currentPost} mode='detail' />
 
           <CommentSection
             comments={commentState?.comments || []}
@@ -311,7 +311,7 @@ const PostDetailPage = () => {
 
   return (
     <View className={styles.postDetailPage}>
-      <CustomHeader title="帖子详情" hideBack={false} background="#FFFFFF" />
+      <CustomHeader title='帖子详情' hideBack={false} background='#FFFFFF' />
       <View className={styles.contentWrapper}>
         <ScrollView 
           scrollY 

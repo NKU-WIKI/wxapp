@@ -316,7 +316,7 @@ const CollectionPage: React.FC = () => {
       dispatch(maybeThunk({ skip, limit, isAppend: !refresh }));
     } else {
       // API兜底方案
-      console.warn('fetchFavorites thunk not available, using API fallback');
+      
       
       // 简化的API兜底：直接返回空数据
       const nextPagination = { skip, limit, total: 0, has_more: false };
@@ -337,7 +337,7 @@ const CollectionPage: React.FC = () => {
           dispatch(setFavorites({ items, pagination: nextPagination, append: !refresh }));
         }
       }).catch(error => {
-        console.error('API fallback failed:', error);
+        
       });
       */
     }

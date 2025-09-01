@@ -1,5 +1,6 @@
 import { API } from "@/types/api/recommend";
-import { Post } from "@/types/api/post";
+
+// Relative imports
 import { getRecommendPosts } from "./post";
 
 /**
@@ -32,7 +33,7 @@ export const getRecommendations = async (params: API.RecommendParams) => {
       }
     };
   } catch (error) {
-    console.error("获取推荐内容失败:", error);
+    
     // 发生错误时返回空数据
     return {
       code: 0,

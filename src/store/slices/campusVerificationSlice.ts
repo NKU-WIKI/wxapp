@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import campusVerificationApi from '@/services/api/campus-verification';
-import { CampusVerificationInfo, CampusVerificationRequest, VerificationDocumentLink, CampusVerificationApplicationsResponse } from '@/types/api/campus-verification';
+import { CampusVerificationInfo, CampusVerificationRequest, VerificationDocumentLink } from '@/types/api/campus-verification';
 
 interface CampusVerificationState {
   info: CampusVerificationInfo | null;
@@ -23,7 +23,7 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
     const response = await campusVerificationApi.getCampusVerificationInfo();
     const rawData = response.data;
     
-    console.log('获取到的认证申请记录:', rawData);
+    
     
     let applications: any[] = [];
     
@@ -36,11 +36,11 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
       applications = rawData.applications;
     }
     
-    console.log('解析后的申请记录数组:', applications);
+    
     
     // 如果没有申请记录，返回未认证状态
     if (!applications || applications.length === 0) {
-      console.log('没有申请记录，显示表单');
+      
       return {
         is_verified: false,
         verification_status: undefined,
@@ -54,7 +54,7 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
     );
     
     const latestApplication = sortedApplications[0];
-    console.log('最新的申请状态:', latestApplication.status);
+    
     
     const verificationInfo: CampusVerificationInfo = {
       is_verified: latestApplication.status === 'approved',
@@ -79,18 +79,18 @@ export const submitCampusVerification = createAsyncThunk(
     card_image: string;
   }, { rejectWithValue }) => {
     try {
-      console.log('开始提交校园认证，数据:', data);
+      
       
       // 先上传文件
-      console.log('开始上传文件:', data.card_image);
+      
       const uploadResponse = await campusVerificationApi.uploadFile(data.card_image);
-      console.log('文件上传响应:', uploadResponse);
+      
       
       const fileUrl = (uploadResponse.data as any).url || (uploadResponse.data as any).file_url; // 兼容不同的返回格式
-      console.log('获取到的文件URL:', fileUrl);
+      
       
       if (!fileUrl) {
-        console.error('文件上传失败，未获取到文件URL');
+        
         return rejectWithValue('文件上传失败，请重试');
       }
       
@@ -114,23 +114,23 @@ export const submitCampusVerification = createAsyncThunk(
         documents: [document], // 至少需要一张证件照片
       };
 
-      console.log('提交认证请求:', verificationRequest);
+      
       const response = await campusVerificationApi.submitCampusVerification(verificationRequest);
-      console.log('认证提交响应:', response);
+      
       
       return response.data;
     } catch (error: any) {
-      console.error('提交认证过程中发生错误:', error);
-      console.error('错误详情:', {
-        message: error?.message,
-        statusCode: error?.statusCode,
-        data: error?.data,
-        msg: error?.msg
-      });
+      
+      // console.error('错误详情:', {
+      //   message: error?.message,
+      //   statusCode: error?.statusCode,
+      //   data: error?.data,
+      //   msg: error?.msg
+      // });
       
       // 优化错误信息提取 - 处理409冲突错误
       if (error?.statusCode === 409 && error?.data?.detail) {
-        console.log('检测到重复提交，显示具体错误信息:', error.data.detail);
+        
         return rejectWithValue(error.data.detail);
       }
       
@@ -170,7 +170,7 @@ const campusVerificationSlice = createSlice({
         state.submitStatus = 'loading';
         state.error = null;
       })
-      .addCase(submitCampusVerification.fulfilled, (state, action) => {
+      .addCase(submitCampusVerification.fulfilled, (state, _action) => {
         state.submitStatus = 'succeeded';
         // 提交成功后更新认证状态为自动审核中
         if (state.info) {

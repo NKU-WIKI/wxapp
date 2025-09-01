@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /**
  * ActivityCreate，创建活动请求
  */

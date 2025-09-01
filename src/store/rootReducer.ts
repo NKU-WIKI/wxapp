@@ -19,6 +19,7 @@ import searchReducer from "./slices/searchSlice"; // Search slice
 import noteReducer from "./slices/noteSlice"; // Note slice
 import campusVerificationReducer from "./slices/campusVerificationSlice"; // Campus verification slice
 import ratingReducer from "./slices/ratingSlice"; // Rating slice
+import marketplaceReducer from "./slices/marketplaceSlice"; // Marketplace slice
 
 const userPersistConfig = {
   key: 'user',
@@ -52,6 +53,7 @@ const rootReducer = combineReducers({
   note: noteReducer, // Add note reducer
   campusVerification: campusVerificationReducer, // Add campus verification reducer
   rating: ratingReducer, // Add rating reducer
+  marketplace: marketplaceReducer, // Add marketplace reducer
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

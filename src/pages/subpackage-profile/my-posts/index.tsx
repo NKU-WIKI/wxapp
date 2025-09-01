@@ -2,11 +2,16 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { AppDispatch, RootState } from '@/store';
 import { fetchUserPosts, resetUserPosts } from '@/store/slices/userPostsSlice';
 import EmptyState from '@/components/empty-state';
 import Post from '@/components/post';
+
+// Assets imports
 import penToolIcon from '@/assets/pen-tool.svg';
+
+// Relative imports
 import styles from './index.module.scss';
 
 const MyPostsPage: React.FC = () => {
@@ -36,7 +41,7 @@ const MyPostsPage: React.FC = () => {
       
       await dispatch(fetchUserPosts(params)).unwrap();
     } catch (err) {
-      console.error('Failed to load user posts:', err);
+      
       Taro.showToast({
         title: String(err) || '加载失败',
         icon: 'none'

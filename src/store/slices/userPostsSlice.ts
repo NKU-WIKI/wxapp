@@ -49,7 +49,7 @@ export const fetchUserPosts = createAsyncThunk<
     const userId = userResponse.data?.user_id || (userResponse.data as any)?.id;
     
     if (!userId) {
-      console.error('用户数据结构异常:', userResponse.data);
+      
       throw new Error('用户信息中缺少用户ID字段');
     }
 
@@ -75,7 +75,7 @@ export const fetchUserPosts = createAsyncThunk<
       }
     };
   } catch (error: any) {
-    console.error('Error fetching user posts:', error);
+    
     
     // 如果是认证相关错误，给出更具体的提示
     if (error.message?.includes('用户信息') || error.message?.includes('用户ID') || error.message?.includes('user_id')) {
@@ -118,7 +118,7 @@ export const fetchUserPostCount = createAsyncThunk<
       userId = userResponse.data?.user_id || (userResponse.data as any)?.id;
       
       if (!userId) {
-        console.error('用户数据结构异常:', userResponse.data);
+        
         throw new Error('用户信息中缺少用户ID字段');
       }
     }
@@ -134,7 +134,7 @@ export const fetchUserPostCount = createAsyncThunk<
     
     return userPosts.length;
   } catch (error: any) {
-    console.error('Error fetching user post count:', error);
+    
     
     if (error.message?.includes('用户信息') || error.message?.includes('用户ID')) {
       return rejectWithValue('用户登录状态异常，请重新登录');
@@ -175,7 +175,7 @@ export const fetchUserLikeCount = createAsyncThunk<
       userId = userResponse.data?.user_id || (userResponse.data as any)?.id;
       
       if (!userId) {
-        console.error('用户数据结构异常:', userResponse.data);
+        
         throw new Error('用户信息中缺少用户ID字段');
       }
     }
@@ -196,7 +196,7 @@ export const fetchUserLikeCount = createAsyncThunk<
     
     return totalLikes;
   } catch (error: any) {
-    console.error('Error fetching user like count:', error);
+    
     
     if (error.message?.includes('用户信息') || error.message?.includes('用户ID')) {
       return rejectWithValue('用户登录状态异常，请重新登录');

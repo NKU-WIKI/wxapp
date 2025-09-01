@@ -1,12 +1,10 @@
-import { View, Text, Image, ScrollView } from '@tarojs/components'
+import { View, Text, ScrollView } from '@tarojs/components'
 import { useState, useEffect } from 'react'
 import Taro from '@tarojs/taro'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch } from '@/store'
-import { 
-  fetchRatingItems, 
-  setCurrentCategory,
-  clearItems 
+import {
+  setCurrentCategory
 } from '@/store/slices/ratingSlice'
 import { getResourceList } from '@/services/api/rating'
 import { RatingCategory } from '@/types/api/rating.d'
@@ -52,8 +50,8 @@ const RatingPage = () => {
         sort_order: 'desc'
       })
       
-      console.log('📊 API 完整响应:', response)
-      console.log('📊 API 响应的 data 字段:', response.data)
+      
+      
       
       // 尝试多种可能的数据路径
       let resourcesData: any[] = [];
@@ -61,29 +59,25 @@ const RatingPage = () => {
       if (response.data?.data?.resources && Array.isArray(response.data.data.resources)) {
         // 标准 API 响应格式: { code, message, data: { resources: [] } }
         resourcesData = response.data.data.resources;
-        console.log('✅ 标准格式 - 资源列表数据 (数量:', resourcesData.length, '):', resourcesData)
+        
       } else if ((response.data as any)?.resources && Array.isArray((response.data as any).resources)) {
         // 直接格式: { resources: [], total, skip, limit }
         resourcesData = (response.data as any).resources;
-        console.log('✅ 直接格式 - 资源列表数据 (数量:', resourcesData.length, '):', resourcesData)
+        
       } else if ((response as any).resources && Array.isArray((response as any).resources)) {
         // 最简格式: { resources: [] }
         resourcesData = (response as any).resources;
-        console.log('✅ 最简格式 - 资源列表数据 (数量:', resourcesData.length, '):', resourcesData)
+        
       }
       
       if (resourcesData.length > 0) {
         setResources(resourcesData)
       } else {
-        console.warn('⚠️ 未找到资源数据，完整响应结构:', {
-          response,
-          'response.data': response.data,
-          'response.data?.data': response.data?.data
-        })
+        // console.warn('未找到资源数据')
         setResources([])
       }
     } catch (err: any) {
-      console.error('加载资源列表失败:', err)
+      
       setError(err.message || '加载失败')
       setResources([])
     } finally {
@@ -108,7 +102,7 @@ const RatingPage = () => {
 
   // 跳转到资源详情页（显示该资源的所有评价）
   const handleItemClick = (resource: any) => {
-    console.log('跳转到资源详情页:', resource.id)
+    
     
     Taro.navigateTo({
       url: `/pages/discover/rating/detail/index?resourceId=${resource.id}&resourceType=${resource.resource_type}&resourceName=${encodeURIComponent(resource.resource_name)}`
@@ -132,7 +126,7 @@ const RatingPage = () => {
       return
     }
     
-    console.log('跳转到发布评分页')
+    
     Taro.navigateTo({
       url: '/pages/discover/rating/publish/index'
     })
@@ -140,11 +134,11 @@ const RatingPage = () => {
 
 
 
-  // 获取分类显示名称
-  const getCategoryDisplayName = (categoryValue: string) => {
-    const category = predefinedRatingTypes.find(type => type.value === categoryValue)
-    return category ? category.label : categoryValue
-  }
+  // 获取分类显示名称 (暂时未使用)
+  // const getCategoryDisplayName = (categoryValue: string) => {
+  //   const category = predefinedRatingTypes.find(type => type.value === categoryValue)
+  //   return category ? category.label : categoryValue
+  // }
 
   // 构建分类列表
   const buildCategoryList = () => {
@@ -159,7 +153,7 @@ const RatingPage = () => {
 
   return (
     <View className={styles.ratingPage}>
-      <CustomHeader title="评分" />
+      <CustomHeader title='评分' />
       
       {/* 分类标签栏 */}
       <View className={styles.categoryContainer}>

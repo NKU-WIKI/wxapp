@@ -28,7 +28,7 @@ export const fetchLikes = createAsyncThunk<
   { rejectValue: string }
 >("like/fetchLikes", async (params, { rejectWithValue }) => {
   try {
-    console.log("Fetching likes with params:", params);
+    
     
     const { page, page_size } = params;
     const paginationParams = {
@@ -57,7 +57,7 @@ export const fetchLikes = createAsyncThunk<
         totalCount += postsData.pagination?.total || 0;
       }
     } else {
-      console.warn("Failed to fetch liked posts:", postsResponse.status === 'rejected' ? postsResponse.reason : 'Unknown error');
+      
     }
 
     // 处理笔记响应
@@ -72,7 +72,7 @@ export const fetchLikes = createAsyncThunk<
         totalCount += notesData.pagination?.total || 0;
       }
     } else {
-      console.warn("Failed to fetch liked notes:", notesResponse.status === 'rejected' ? notesResponse.reason : 'Unknown error');
+      
     }
 
     // 按创建时间倒序排列
@@ -95,7 +95,7 @@ export const fetchLikes = createAsyncThunk<
       }
     };
   } catch (error: any) {
-    console.error("Error fetching likes:", error);
+    
     return rejectWithValue(error.message || "Failed to fetch likes");
   }
 });

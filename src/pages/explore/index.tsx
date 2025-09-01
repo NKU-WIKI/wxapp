@@ -80,20 +80,20 @@ export default function ExplorePage() {
   // 初始化时获取笔记动态 - 无论是否登录都应该能看到笔记
   useEffect(() => {
     if (!isSearchActive) {
-      console.log('Explore页面 - 开始获取笔记动态, 登录状态:', isLoggedIn);
+      
       dispatch(fetchNoteFeed({ skip: 0, limit: 20 }));
     }
   }, [dispatch, isSearchActive, isLoggedIn]);
 
   // 调试信息
   useEffect(() => {
-    console.log('Explore页面状态:', { 
-      isSearchActive, 
-      isLoggedIn, 
-      notesCount: notes.length, 
-      loading, 
-      hasMore 
-    });
+    // console.log('Explore页面状态:', {
+    //   isSearchActive, 
+    //   isLoggedIn, 
+    //   notesCount: notes.length, 
+    //   loading, 
+    //   hasMore 
+    // });
   }, [isSearchActive, isLoggedIn, notes.length, loading, hasMore]);
 
   // 处理加载更多笔记
@@ -125,12 +125,12 @@ export default function ExplorePage() {
     (async () => {
       try {
         const hotQueries = await searchApi.getHotQueriesSimple();
-        console.log('获取到热门搜索词:', hotQueries);
+        
         if (hotQueries.length > 0) {
           setHotSearches(hotQueries);
         }
       } catch (e) {
-        console.error('获取热门搜索词失败:', e);
+        
       }
     })();
   }, []);

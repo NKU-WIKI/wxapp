@@ -41,11 +41,11 @@ export const uploadImage = (
     
     if (compress && isImageFile(filePath)) {
       try {
-        console.log('开始压缩图片:', filePath);
+        
         finalFilePath = await compressImage(filePath, quality);
-        console.log('图片压缩完成:', finalFilePath);
+        
       } catch (error) {
-        console.warn('图片压缩失败，使用原图片:', error);
+        
         finalFilePath = filePath;
       }
     }

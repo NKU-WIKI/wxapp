@@ -93,7 +93,7 @@ export const fetchComments = createAsyncThunk(
 
       return convertToCommentDetails(commentData);
     } catch (error: any) {
-      console.error("获取评论失败:", error);
+      
       return rejectWithValue(error.message || "Failed to fetch comments");
     }
   }
@@ -175,7 +175,7 @@ export const createComment = createAsyncThunk(
         const postTitle = (params as any).post_title;
         
         if (postAuthorId && postTitle && postAuthorId !== currentUser.currentUser.user_id) {
-          console.log('📢 [CommentSlice] 开始创建评论通知...');
+          
           
           // 导入通知工具类
           import('@/utils/notificationHelper').then(({ BBSNotificationHelper }) => {
@@ -186,21 +186,21 @@ export const createComment = createAsyncThunk(
               currentUserId: currentUser.currentUser.user_id,
               commentContent: params.content
             }).then(() => {
-              console.log('✅ [CommentSlice] 评论通知创建成功');
-            }).catch((error) => {
-              console.error('❌ [CommentSlice] 评论通知创建失败:', error);
+              
+            }).catch((_error) => {
+              
             });
-          }).catch((error) => {
-            console.error('❌ [CommentSlice] 导入通知工具失败:', error);
+          }).catch((_error) => {
+            
           });
         } else {
-          console.log('ℹ️ [CommentSlice] 跳过评论通知创建 - 缺少参数或给自己评论');
+          
         }
       }
       
       return normalized;
     } catch (error: any) {
-      console.error("创建评论失败:", error);
+      
       return rejectWithValue(error.message || "Failed to create comment");
     }
   }
@@ -312,7 +312,7 @@ const commentSlice = createSlice({
           
           // 如果没有找到父评论，说明可能是数据不一致，仍然添加到顶级列表
           if (!added) {
-            console.warn('未找到父评论，将回复添加到顶级评论列表', newComment);
+            
             state.comments.push(newComment);
           }
         } else {

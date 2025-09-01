@@ -1,3 +1,4 @@
+import Taro from "@tarojs/taro";
 import {
   ActivityCreateRequest,
   ActivityCreateResponse,
@@ -5,7 +6,6 @@ import {
   GetActivityListRequest
 } from "@/types/api/activity.d";
 import http from "../request";
-import Taro from "@tarojs/taro"; // 新增
 
 /**
  * 获取活动列表

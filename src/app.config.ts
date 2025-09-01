@@ -45,6 +45,19 @@ export default {
         "note-publish/img_type_choose/index",
         "note-publish/note_publish/index",
       ]
+    },
+    {
+      root: "pages/subpackage-commerce",
+      name: "commerce",
+      pages: [
+        "pages/second-hand/home/index",
+        "pages/second-hand/publish/index",
+        "pages/second-hand/detail/index",
+        "pages/errands/home/index",
+        "pages/errands/publish/index",
+        "pages/errands/my-orders/index",
+        "pages/errands/my/index"
+      ]
     }
   ],
   window: {

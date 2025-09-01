@@ -39,7 +39,7 @@ const ReceivedLikesPage: React.FC = () => {
       
       await dispatch(fetchUserPosts(params)).unwrap();
     } catch (err) {
-      console.error('Failed to load user posts:', err);
+      
       Taro.showToast({
         title: String(err) || '加载失败',
         icon: 'none'

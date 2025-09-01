@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { View, Text, ScrollView, Canvas } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import CustomHeader from '@/components/custom-header'
@@ -39,7 +39,7 @@ const ImgTypeChoose: React.FC = () => {
   const selectedColor = colorOptions.find(color => color.id === selectedColorId)
 
   // 绘制预览卡片
-  const drawPreviewCard = () => {
+  const drawPreviewCard = useCallback(() => {
     const ctx = Taro.createCanvasContext('previewCanvas')
     
     // 设置画布尺寸 (4:5 比例，预览尺寸)
@@ -100,7 +100,7 @@ const ImgTypeChoose: React.FC = () => {
     }
     
     ctx.draw()
-  }
+  }, [selectedColor, cardContent])
 
   // 当内容或颜色改变时重新绘制预览
   useEffect(() => {
@@ -109,7 +109,7 @@ const ImgTypeChoose: React.FC = () => {
         drawPreviewCard()
       }, 100)
     }
-  }, [cardContent, selectedColorId])
+  }, [cardContent, selectedColorId, drawPreviewCard])
 
 
 
@@ -189,7 +189,7 @@ const ImgTypeChoose: React.FC = () => {
             Taro.canvasToTempFilePath({
               canvasId: 'previewCanvas',
               success: (res) => {
-                console.log('1.1图片生成成功:', res.tempFilePath)
+                
                 
                 // 修正临时文件路径格式
                 let correctedPath = res.tempFilePath
@@ -197,7 +197,7 @@ const ImgTypeChoose: React.FC = () => {
                   correctedPath = correctedPath.replace('http://tmp/', 'http://127.0.0.1:32968/__tmp__/')
                 }
                 
-                console.log('1.2修正后的图片路径:', correctedPath)
+                
                 
                 // 跳转到发布页面并传递图片路径
                 Taro.navigateTo({
@@ -206,7 +206,7 @@ const ImgTypeChoose: React.FC = () => {
                 resolve(correctedPath)
               },
               fail: (err) => {
-                console.error('图片生成失败:', err)
+                
                 Taro.showToast({
                   title: '图片生成失败',
                   icon: 'none'
@@ -218,7 +218,7 @@ const ImgTypeChoose: React.FC = () => {
         })
       })
     } catch (error) {
-      console.error('生成图片时出错:', error)
+      
       Taro.showToast({
         title: '生成图片失败',
         icon: 'none'
@@ -237,7 +237,7 @@ const ImgTypeChoose: React.FC = () => {
       return
     }
     
-    console.log('选中的颜色:', selectedColor)
+    
     await generateCardImage()
   }
 
@@ -245,7 +245,7 @@ const ImgTypeChoose: React.FC = () => {
     <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {/* 自定义导航栏 */}
       <CustomHeader
-        title="预览"
+        title='预览'
         hideBack={false}
       />
       
@@ -255,7 +255,7 @@ const ImgTypeChoose: React.FC = () => {
           {/* 卡片预览区域 */}
           <View className={styles.previewContainer}>
             <Canvas 
-              canvasId="previewCanvas"
+              canvasId='previewCanvas'
               className={styles.cardPreview}
               style={{ 
                 width: '280px', 

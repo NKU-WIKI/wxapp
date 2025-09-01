@@ -7,7 +7,7 @@ const persistStorage = {
       const value = Taro.getStorageSync(key);
       return Promise.resolve(value || null);
     } catch (error) {
-      console.error('persistStorage getItem error:', error);
+      // 静默处理存储错误
       return Promise.resolve(null);
     }
   },
@@ -16,7 +16,7 @@ const persistStorage = {
       Taro.setStorageSync(key, value);
       return Promise.resolve();
     } catch (error) {
-      console.error('persistStorage setItem error:', error);
+      // 静默处理存储错误
       return Promise.resolve();
     }
   },
@@ -25,7 +25,7 @@ const persistStorage = {
       Taro.removeStorageSync(key);
       return Promise.resolve();
     } catch (error) {
-      console.error('persistStorage removeItem error:', error);
+      // 静默处理存储错误
       return Promise.resolve();
     }
   }
