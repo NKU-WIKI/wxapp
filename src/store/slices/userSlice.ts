@@ -186,9 +186,7 @@ export const registerUser = createAsyncThunk(
         nickname: userData.nickname,
       };
 
-      
-      const _response = await registerApi(registerData);
-      
+      await registerApi(registerData);
 
       // 注册成功后自动登录
       const state = getState() as RootState;

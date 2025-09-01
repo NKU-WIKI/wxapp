@@ -9,7 +9,6 @@ import {
   GetMyActivityRequest,
   GetMyActivityResponse
 } from "@/types/api/activity.d";
-import Taro from "@tarojs/taro";
 import http from "../request";
 
 /**

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -23,10 +23,6 @@ export default function FeedbackListPage() {
   const dispatch = useAppDispatch();
   const { feedbacks, loading } = useAppSelector((state) => state.feedback);
 
-  useEffect(() => {
-    loadFeedbacks();
-  }, [loadFeedbacks]);
-
   const loadFeedbacks = useCallback(async () => {
     try {
       await dispatch(getFeedbackList({ page: 1, page_size: 20 })).unwrap();
@@ -35,6 +31,10 @@ export default function FeedbackListPage() {
       Taro.showToast({ title: '获取反馈列表失败', icon: 'none' });
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    loadFeedbacks();
+  }, [loadFeedbacks]);
 
   const formatTime = (timeStr: string) => {
     const date = new Date(timeStr);

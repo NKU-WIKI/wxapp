@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, ScrollView } from '@tarojs/components';
 import Taro, { useReachBottom, usePullDownRefresh } from '@tarojs/taro';
 
@@ -22,7 +22,7 @@ const HistoryPage = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  const loadHistory = (reset = false) => {
+  const loadHistory = useCallback((reset = false) => {
     const nextPage = reset ? 1 : page;
     const data = historyUtils.getHistory(nextPage, PAGE_SIZE);
     
@@ -36,11 +36,11 @@ const HistoryPage = () => {
       setHistory(prev => [...prev, ...data]);
       setHasMore(data.length === PAGE_SIZE);
     }
-  };
+  }, [page]);
 
   useEffect(() => {
     loadHistory(true);
-  }, []);
+  }, [loadHistory]);
 
   usePullDownRefresh(() => {
     loadHistory(true);

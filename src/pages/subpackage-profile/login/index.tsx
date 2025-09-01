@@ -20,8 +20,6 @@ type LoginMode = 'phone' | 'username' | 'register';
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
   const [loginMode, setLoginMode] = useState<LoginMode>('phone');
-  const [_phone, setPhone] = useState('');
-  const [_code, setCode] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -204,7 +202,7 @@ export default function LoginPage() {
                 type='number'
                 placeholder='请输入手机号码'
                 className={styles.input}
-                onInput={(e) => setPhone(e.detail.value)}
+                onInput={() => {}}
               />
             </View>
             <View className={styles.inputWrapper}>
@@ -213,7 +211,7 @@ export default function LoginPage() {
                 type='number'
                 placeholder='请输入验证码'
                 className={styles.input}
-                onInput={(e) => setCode(e.detail.value)}
+                onInput={() => {}}
               />
               <Text className={styles.getCodeBtn} onClick={handleGetCode}>
                 获取验证码

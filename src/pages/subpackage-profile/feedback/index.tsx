@@ -30,7 +30,7 @@ const FEEDBACK_TYPES = [
 
 export default function FeedbackPage() {
   const dispatch = useAppDispatch();
-  const { submitting, error } = useAppSelector((state) => state.feedback);
+  const { submitting } = useAppSelector((state) => state.feedback);
   
   const [type, setType] = useState<'bug' | 'ux' | 'suggest' | 'other'>('bug');
   const [desc, setDesc] = useState('');
@@ -55,8 +55,8 @@ export default function FeedbackPage() {
         
         const accountInfo = await Taro.getAccountInfoSync();
         setAppVersion(accountInfo.miniProgram?.version || '1.0.0');
-      } catch (_error) {
-        
+      } catch (_systemError) {
+
       }
     };
     
@@ -82,7 +82,7 @@ export default function FeedbackPage() {
       
       const newFiles = res.tempFiles || res.tempFilePaths.map(path => ({ path }));
       setFiles([...files, ...newFiles]);
-    } catch (_error) {
+    } catch (_uploadError) {
 
       Taro.showToast({ title: '选择图片失败', icon: 'none' });
     }
@@ -127,7 +127,7 @@ export default function FeedbackPage() {
       
       Taro.showToast({ title: '反馈成功，感谢您的付出', icon: 'success' });
       setTimeout(() => Taro.navigateBack(), 1200);
-    } catch (_error) {
+    } catch (_submitError) {
 
       Taro.showToast({
         title: '反馈失败',

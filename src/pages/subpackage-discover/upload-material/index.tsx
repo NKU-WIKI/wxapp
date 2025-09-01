@@ -41,15 +41,15 @@ export default function UploadMaterial() {
     Taro.chooseMessageFile({
       count: 1,
       type: 'file',
-      success: (res) => {
-        console.log('选择文件成功', res);
+      success: (_res) => {
+        // console.log('选择文件成功', _res);
         Taro.showToast({
           title: '文件选择成功',
           icon: 'success'
         });
       },
-      fail: (err) => {
-        console.error('选择文件失败', err);
+      fail: (_err) => {
+        // console.error('选择文件失败', _err);
         Taro.showToast({
           title: '文件选择失败',
           icon: 'none'
@@ -91,15 +91,15 @@ export default function UploadMaterial() {
       count: 1,
       sizeType: ['original', 'compressed'],
       sourceType: ['album', 'camera'],
-      success: (res) => {
-        console.log('选择收款码成功', res);
+      success: (_res) => {
+        // console.log('选择收款码成功', _res);
         Taro.showToast({
           title: '收款码上传成功',
           icon: 'success'
         });
       },
-      fail: (err) => {
-        console.error('选择收款码失败', err);
+      fail: (_err) => {
+        // console.error('选择收款码失败', _err);
       }
     });
   };

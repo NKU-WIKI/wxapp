@@ -169,7 +169,7 @@ const FollowersPage = () => {
         icon: 'error'
       })
     }
-  }, [activeTab, dispatch])
+  }, [dispatch])
 
 
 
@@ -263,7 +263,7 @@ const FollowersPage = () => {
     }
     
     loadInitialData()
-  }, [activeTab]) // 只依赖activeTab，fetchUsers在组件内部定义
+  }, [activeTab, targetUserId]) // 只依赖activeTab，fetchUsers在组件内部定义
 
   return (
     <View className={styles.container}>

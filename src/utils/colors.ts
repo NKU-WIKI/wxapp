@@ -118,7 +118,6 @@ export const addAlpha = (color: string, alpha: number): string => {
   
   // 如果是十六进制颜色
   if (color.startsWith('#')) {
-    const _hex = color.slice(1);
     const alphaHex = Math.round(normalizedAlpha * 255).toString(16).padStart(2, '0');
     return `${color}${alphaHex}`;
   }
