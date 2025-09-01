@@ -192,6 +192,59 @@ const http = {
     request("DELETE", url, data, options).then(
       (res) => res.data as BaseResponse<T>
     ),
+  uploadFile: <T>(
+    url: string,
+    filePath: string,
+    options?: Partial<Omit<Taro.uploadFile.Option, "url" | "filePath">>
+  ) => {
+    const finalUrl = `${BASE_URL}/api/v1${url}`;
+    const token = getToken();
+    const branch = REQUEST_BRANCH;
+    const tenantId = getDefaultTenantId();
+
+    const header: Record<string, string> = {
+      [HEADER_BRANCH_KEY]: branch,
+    };
+
+    // 系统性处理租户标识：在没有token的情况下，所有请求都使用x-tenant-id头
+    if (!token) {
+      if (tenantId) {
+        header["x-tenant-id"] = tenantId;
+      }
+    } else {
+      // 如果有token，使用Authorization头
+      header.Authorization = `Bearer ${token}`;
+    }
+
+    return Taro.uploadFile({
+      url: finalUrl,
+      filePath,
+      header,
+      name: 'file', // 添加必需的name字段
+      ...options,
+    }).then((res) => {
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        Taro.showToast({
+          title: `上传失败: ${res.statusCode}`,
+          icon: "none",
+          duration: 2000,
+        });
+        return Promise.reject(res);
+      }
+
+      const responseData = JSON.parse(res.data);
+      if (responseData.code !== RESPONSE_SUCCESS_CODE) {
+        Taro.showToast({
+          title: responseData.msg || responseData.message || "上传失败",
+          icon: "none",
+          duration: 2000,
+        });
+        return Promise.reject(responseData);
+      }
+
+      return responseData as BaseResponse<T>;
+    });
+  },
 };
 
 export default http;
