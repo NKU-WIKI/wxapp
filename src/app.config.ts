@@ -35,6 +35,13 @@ export default {
       ]
     },
     {
+      root: 'pages/subpackage-discover',
+      pages: [
+        "learning-materials/index",
+        "upload-material/index",
+      ]
+    },
+    {
       root: 'pages/subpackage-interactive',
       pages: [
         "notification/index",

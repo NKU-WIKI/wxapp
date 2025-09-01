@@ -3,8 +3,13 @@ import {
   ActivityCreateRequest,
   ActivityCreateResponse,
   GetActivityListResponse,
-  GetActivityListRequest
+  GetActivityListRequest,
+  PostJoinActivityRequest,
+  PostJoinActivityResponse,
+  GetMyActivityRequest,
+  GetMyActivityResponse
 } from "@/types/api/activity.d";
+import Taro from "@tarojs/taro";
 import http from "../request";
 
 /**
@@ -31,9 +36,27 @@ export const createActivity = (data: ActivityCreateRequest) => {
   });
 }
 
+export const joinActivity = (params: PostJoinActivityRequest) =>{
+  const raw = Taro.getStorageSync('token');
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
+  return http.post<PostJoinActivityResponse>(`/activities/${params.activity_id}/registrations`, params, {
+    header: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+}
+
+export const myActivity = (params: GetMyActivityRequest) =>{
+  const raw = Taro.getStorageSync('token');
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
+  return http.get<GetMyActivityResponse>(`/activities/me/registered`, params, {
+    header: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+}
+
 const activityApi = {
   getActivityList,
-  createActivity
+  createActivity,
+  joinActivity,
+  myActivity
 }
 
 export default activityApi;

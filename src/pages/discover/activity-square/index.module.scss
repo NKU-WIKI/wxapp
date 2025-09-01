@@ -1,21 +1,13 @@
 .activitySquarePage {
-  position: relative;
-  background-color: #f8fafc;
+  background-color: #f9fafb;
   display: flex;
   flex-direction: column;
+  height: 100vh;
 }
 
 // 固定的头部区域（搜索框和分类栏）
 .fixedHeader {
-  position: fixed;
-  top: 88px; // 调整为更大的值确保不被CustomHeader遮挡
-  left: 0;
-  right: 0;
-  background-color: #f8fafc;
-  padding: 16px;
-  z-index: 100;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  background-color: #ffffff;
 }
 
 // 搜索框样式
@@ -25,7 +17,7 @@
   background-color: #f3f4f6;
   border-radius: 9999px;
   padding: 8px 12px;
-  margin-bottom: 16px;
+  margin: 16px 16px 8px 16px;
 }
 
 .searchIcon {
@@ -61,7 +53,8 @@
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 8px;
-  padding: 0 0 8px 0;
+  padding: 12px 16px;
+  margin: 0 0 8px 0; // 移除左右margin，由外层控制
   width: max-content;
 }
 
@@ -100,7 +93,6 @@
   flex: 1;
   position: relative;
   overflow-y: auto; // 允许垂直滚动
-  margin-top: 130px;
   -webkit-overflow-scrolling: touch; // 优化iOS滚动体验
   layout_height: wrap_content; // 高度自适应内容
 }
@@ -167,10 +159,12 @@
 .activityCard {
   background: #ffffff;
   border-radius: 12px;
-  margin-bottom: 8px; // 从16px减少到8px
+  margin-bottom: 2px; // 原8px减半为4px
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: transform 0.2s;
+  margin-left: 8px;
+  margin-right: 8px;
 
   &:active {
     transform: scale(0.98);

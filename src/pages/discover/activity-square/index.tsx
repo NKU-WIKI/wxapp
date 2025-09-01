@@ -2,7 +2,7 @@ import { View, ScrollView, Text, Image, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import activityApi from "@/services/api/activity";
-import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d";
+import { ActivityRead, ActivityStatus, GetActivityListRequest, ActivityRegistrationRead, RegistrationStatus } from "@/types/api/activity.d";
 import searchIcon from "@/assets/search.svg";
 import styles from "./index.module.scss";
 import CustomHeader from "../../../components/custom-header";
@@ -14,6 +14,7 @@ export default function ActivitySquare() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
+  const [myActivities, setMyActivities] = useState<ActivityRegistrationRead[]>([]);
 
   // 活动分类列表
   const categories = [
@@ -72,16 +73,181 @@ export default function ActivitySquare() {
     }
   }, []);
 
+  // 获取用户报名的活动
+  const fetchMyActivities = useCallback(async () => {
+    try {
+      const token = Taro.getStorageSync('token');
+      if (!token) {
+        setMyActivities([]);
+        return;
+      }
+
+      const res = await activityApi.myActivity();
+      console.log('Fetched my activities response:', res);
+      // 兼容后端 data?.data?.items / data?.data?.items 结构
+      let list: ActivityRegistrationRead[] = [];
+      if (res?.data) {
+        const pageData: any = res.data as any;
+        if (pageData?.items && Array.isArray(pageData.items)) {
+          list = pageData.items as ActivityRegistrationRead[];
+        } else if (Array.isArray(res.data as any)) {
+          list = res.data as unknown as ActivityRegistrationRead[];
+        }
+      }
+      setMyActivities(list);
+      console.log('Fetched my activities:', res);
+    } catch (err) {
+      console.warn('获取我的活动失败', err);
+      setMyActivities([]);
+    }
+  }, []);
+
   useEffect(() => {
     fetchActivities(true, selectedCategory);
-  }, [fetchActivities, selectedCategory]);
+    fetchMyActivities();
+  }, [fetchActivities, fetchMyActivities, selectedCategory]);
 
   const handleRefresh = async () => {
     await fetchActivities(false);
+    await fetchMyActivities();
   };
+
+  // 获取活动的报名状态
+  const getActivityRegistrationStatus = useCallback((activityId: string) => {
+    return myActivities.find(reg => reg.activity_id === activityId);
+  }, [myActivities]);
+
+  // 根据报名状态获取按钮文字
+  const getButtonText = useCallback((act: ActivityRead) => {
+    const registration = getActivityRegistrationStatus(act.id);
+
+    if (!registration) {
+      // 未报名状态
+      if (act.max_participants && act.current_participants >= act.max_participants) {
+        return '名额已满';
+      }
+      return '立即报名';
+    }
+
+    // 已报名，根据状态显示不同文字
+    switch (registration.status) {
+      case RegistrationStatus.Pending:
+        return '审核中';
+      case RegistrationStatus.Confirmed:
+        return '已报名';
+      case RegistrationStatus.Waitlist:
+        return '等待中';
+      case RegistrationStatus.Rejected:
+        return '已拒绝';
+      case RegistrationStatus.Cancelled:
+        return '已取消';
+      default:
+        return '已报名';
+    }
+  }, [getActivityRegistrationStatus]);
+
+  // 获取按钮是否可点击
+  const getButtonDisabled = useCallback((act: ActivityRead) => {
+    const registration = getActivityRegistrationStatus(act.id);
+
+    if (registration) {
+      // 已报名的情况下，只有等待中和已拒绝状态可以重新操作
+      return ![RegistrationStatus.Waitlist, RegistrationStatus.Rejected].includes(registration.status);
+    }
+
+    // 未报名的情况下，检查名额
+    return act.max_participants ? act.current_participants >= act.max_participants : false;
+  }, [getActivityRegistrationStatus]);
 
   const handleActivityClick = (act: ActivityRead) => {
     Taro.showToast({ title: `点击了活动: ${act.title}`, icon: 'none' });
+  };
+
+  const handleJoinActivity = async (act: ActivityRead, event: any) => {
+    event.stopPropagation(); // 阻止事件冒泡到活动卡片
+
+    try {
+      // 检查用户是否已登录
+      const token = Taro.getStorageSync('token');
+      if (!token) {
+        Taro.showModal({
+          title: '提示',
+          content: '请先登录后再报名活动',
+          showCancel: false,
+          confirmText: '去登录',
+          success: (res) => {
+            if (res.confirm) {
+              Taro.navigateTo({ url: '/pages/auth/login/index' });
+            }
+          }
+        });
+        return;
+      }
+
+      // 检查活动是否还有名额
+      if (act.max_participants && act.current_participants >= act.max_participants) {
+        Taro.showToast({
+          title: '活动名额已满',
+          icon: 'none'
+        });
+        return;
+      }
+
+      // 检查用户是否已经报名
+      if (act.is_registered) {
+        Taro.showToast({
+          title: '您已经报名了这个活动',
+          icon: 'none'
+        });
+        return;
+      }
+
+      // 显示确认对话框
+      const result = await Taro.showModal({
+        title: '确认报名',
+        content: `确定要报名参加"${act.title}"吗？`,
+        confirmText: '确认报名',
+        cancelText: '取消'
+      });
+
+      if (!result.confirm) {
+        return;
+      }
+
+      // 显示加载中
+      Taro.showLoading({ title: '报名中...' });
+
+      // 调用参加活动API
+      const response = await activityApi.joinActivity({
+        activity_id: act.id
+      });
+      console.log('Join activity response:', response);
+
+      Taro.hideLoading();
+
+      if (response.code === 0) {
+        Taro.showToast({
+          title: '报名成功！',
+          icon: 'success'
+        });
+
+        // 重新获取活动列表以更新状态
+        await fetchActivities(false, selectedCategory);
+        await fetchMyActivities();
+      } else {
+        Taro.showToast({
+          title: response.message || '报名失败，请重试',
+          icon: 'none'
+        });
+      }
+    } catch (error) {
+      Taro.hideLoading();
+      console.error('参加活动失败:', error);
+      Taro.showToast({
+        title: '网络错误，请重试',
+        icon: 'none'
+      });
+    }
   };
 
   const handlePublishActivity = () => {
@@ -219,7 +385,12 @@ export default function ActivitySquare() {
                           />
                         </View>
                       )}
-                      <Text className={styles.actionButton}>立即报名</Text>
+                      <Text
+                        className={styles.actionButton}
+                        onClick={(e) => handleJoinActivity(act, e)}
+                      >
+                        立即报名
+                      </Text>
                     </View>
                   </View>
                 </View>

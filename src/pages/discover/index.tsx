@@ -238,8 +238,7 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                // TODO: 待学习资料页完成后，替换为正确的路径
-                Taro.showToast({ title: '功能开发中', icon: 'none' });
+                Taro.navigateTo({ url: '/pages/subpackage-discover/learning-materials/index' });
               }}
             >
               <View className={styles.moduleContentWrapper}>
