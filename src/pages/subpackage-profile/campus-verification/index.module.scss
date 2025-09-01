@@ -1,15 +1,7 @@
 @use "../../../styles/variables.scss" as *;
 
-.pageContainer {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: $bg-page;
-}
-
 .content {
   flex: 1;
-  overflow: hidden;
   padding: 20px;
 }
 
@@ -34,6 +26,12 @@
   font-weight: 500;
   color: $text-primary;
   margin-bottom: 8px;
+
+  // 星号样式 - 标红必填字段的星号
+  :global(.required-asterisk) {
+    color: $status-error;
+    margin-left: 2px;
+  }
 }
 
 .input {
