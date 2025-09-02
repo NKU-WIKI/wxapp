@@ -42,40 +42,47 @@ const RatingItem = ({ resource, onItemClick }: RatingItemProps) => {
     return null
   }
 
-  // 渲染星级评分（支持渐变效果）
+  // 渲染星级评分（支持精确百分比）
   const renderStars = (score: number, maxRating: number = 5) => {
     const stars: JSX.Element[] = []
-    const fullStars = Math.floor(score)
-    const decimalPart = score % 1
     
     for (let i = 0; i < maxRating; i++) {
-      if (i < fullStars) {
+      const starScore = Math.max(0, Math.min(1, score - i))
+      
+      if (starScore >= 1) {
         // 完整的星星
         stars.push(
           <Image
             key={i}
             src={starFilledIcon}
             className={styles.starIcon}
-            style={{ opacity: 1 }}
+            style={{ width: '16px', height: '16px' }}
           />
         )
-      } else if (i === fullStars && decimalPart > 0) {
-        // 渐变星星（部分填充）
+      } else if (starScore > 0) {
+        // 部分填充的星星（使用百分比渐变）
+        const percentage = starScore * 100
         stars.push(
           <View key={i} className={styles.starContainer}>
+            {/* 底层空心星星 */}
             <Image
               src={starOutlineIcon}
               className={styles.starIcon}
+              style={{ width: '16px', height: '16px', opacity: 0.3 }}
             />
-            <Image
-              src={starFilledIcon}
-              className={styles.starIcon}
-              style={{ 
-                position: 'absolute',
-                clipPath: `inset(0 ${(1 - decimalPart) * 100}% 0 0)`,
-                opacity: 1
+            {/* 覆盖的实心星星，使用渐变遮罩 */}
+            <View 
+              className={styles.starFillContainer}
+              style={{
+                width: `${percentage}%`
               }}
-            />
+            >
+              <Image
+                src={starFilledIcon}
+                className={styles.starIcon}
+                style={{ width: '16px', height: '16px' }}
+              />
+            </View>
           </View>
         )
       } else {
@@ -85,7 +92,7 @@ const RatingItem = ({ resource, onItemClick }: RatingItemProps) => {
             key={i}
             src={starOutlineIcon}
             className={styles.starIcon}
-            style={{ opacity: 0.3 }}
+            style={{ width: '16px', height: '16px', opacity: 0.3 }}
           />
         )
       }
