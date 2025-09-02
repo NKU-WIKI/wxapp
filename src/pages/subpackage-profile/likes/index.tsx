@@ -232,43 +232,97 @@ const LikesPage: React.FC = () => {
     );
   }
 
-  // 渲染空状态
-  if (filteredLikes.length === 0) {
-    return (
-      <View className={styles.container}>
-        <CustomHeader title='我的点赞' />
-        <View className={styles.content}>
-          <ScrollView
-            scrollY
-            className={styles.scrollView}
-            enableBackToTop
-          >
-            <EmptyState
-              icon={heartOutlineIcon}
-              text={
-                <View>
-                  <Text>还没有点赞任何{activeType === 'post' ? '帖子' : '笔记'}</Text>
-                  <Text>快去点赞感兴趣的内容吧</Text>
-                </View>
-              }
-            />
-            <View className={styles.actionContainer}>
-              <View 
-                className={styles.exploreButton}
-                onClick={() => {
-                  Taro.switchTab({
-                    url: '/pages/index/index'
-                  });
-                }}
-              >
-                <Text className={styles.exploreButtonText}>去发现</Text>
-              </View>
-            </View>
-          </ScrollView>
+  // 渲染内容区域
+  const renderContent = () => {
+    if (loading === 'pending' && filteredLikes.length === 0) {
+      return (
+        <View className={styles.loadingContainer}>
+          <Text className={styles.loadingText}>加载中...</Text>
         </View>
-      </View>
-    );
-  }
+      );
+    }
+
+    if (error) {
+      return (
+        <View className={styles.errorContainer}>
+          <Text className={styles.errorText}>加载失败: {error}</Text>
+          <View 
+            className={styles.retryButton}
+            onClick={() => loadMyLikes(true)}
+          >
+            <Text>重试</Text>
+          </View>
+        </View>
+      );
+    }
+
+    if (activeType === 'post') {
+      if (filteredLikes.length === 0) {
+        return (
+          <EmptyState
+            icon={heartOutlineIcon}
+            text={
+              <View>
+                <Text>还没有点赞任何帖子</Text>
+                <Text>快去点赞感兴趣的内容吧</Text>
+              </View>
+            }
+          />
+        );
+      }
+
+      return (
+        <View className={styles.likesList}>
+          {filteredLikes
+            .filter(like => {
+              // 双重过滤确保只显示有效的点赞项
+              if (like.target_type === 'post') {
+                return like.content && like.content.id; // 确保帖子有内容且有ID
+              }
+              return true; // 非帖子类型的点赞直接通过
+            })
+            .map((like, index) => {
+              // 获取当前帖子作者的关注状态
+              const authorInfo = like.content?.author_info;
+              const isFollowingAuthor = authorInfo?.id ? followStatusMap[authorInfo.id] || false : false;
+              
+              return (
+                <View key={`like-${like.id}-${like.target_id}-${index}`} className={styles.likeWrapper}>
+                  <LikeItemComponent like={like} isFollowingAuthor={isFollowingAuthor} />
+                </View>
+              );
+            })}
+          
+          {/* 加载更多指示器 */}
+          {loading === 'pending' && filteredLikes.length > 0 && (
+            <View className={styles.loadMore}>
+              <Text className={styles.loadMoreText}>加载中...</Text>
+            </View>
+          )}
+          
+          {/* 没有更多数据提示 */}
+          {!pagination.has_more && filteredLikes.length > 0 && (
+            <View className={styles.noMore}>
+              <Text className={styles.noMoreText}>没有更多点赞了</Text>
+            </View>
+          )}
+        </View>
+      );
+    } else {
+      // 笔记类型 - 暂时显示空状态
+      return (
+        <EmptyState
+          icon={heartOutlineIcon}
+          text={
+            <View>
+              <Text>还没有点赞任何笔记</Text>
+              <Text>快去点赞感兴趣的内容吧</Text>
+            </View>
+          }
+        />
+      );
+    }
+  };
 
   return (
     <View className={styles.container}>
@@ -305,41 +359,7 @@ const LikesPage: React.FC = () => {
           }}
           lowerThreshold={50}
         >
-          <View className={styles.likesList}>
-            {filteredLikes
-              .filter(like => {
-                // 双重过滤确保只显示有效的点赞项
-                if (like.target_type === 'post') {
-                  return like.content && like.content.id; // 确保帖子有内容且有ID
-                }
-                return true; // 非帖子类型的点赞直接通过
-              })
-              .map((like, index) => {
-                // 获取当前帖子作者的关注状态
-                const authorInfo = like.content?.author_info;
-                const isFollowingAuthor = authorInfo?.id ? followStatusMap[authorInfo.id] || false : false;
-                
-                return (
-                  <View key={`like-${like.id}-${like.target_id}-${index}`} className={styles.likeWrapper}>
-                    <LikeItemComponent like={like} isFollowingAuthor={isFollowingAuthor} />
-                  </View>
-                );
-              })}
-            
-            {/* 加载更多指示器 */}
-            {loading === 'pending' && filteredLikes.length > 0 && (
-              <View className={styles.loadMore}>
-                <Text className={styles.loadMoreText}>加载中...</Text>
-              </View>
-            )}
-            
-            {/* 没有更多数据提示 */}
-            {!pagination.has_more && filteredLikes.length > 0 && (
-              <View className={styles.noMore}>
-                <Text className={styles.noMoreText}>没有更多点赞了</Text>
-              </View>
-            )}
-          </View>
+          {renderContent()}
         </ScrollView>
       </View>
     </View>
