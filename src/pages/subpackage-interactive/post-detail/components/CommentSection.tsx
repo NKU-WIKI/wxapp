@@ -3,7 +3,7 @@ import { View, Text, Image } from "@tarojs/components";
 import { useSelector } from "react-redux";
 import Taro from "@tarojs/taro";
 
-import { CommentDetail } from "@/types/api/_comment.d";
+import { CommentDetail } from "@/types/api/comment";
 import { formatRelativeTime } from "@/utils/time";
 import { normalizeImageUrl } from "@/utils/image";
 import { RootState } from "@/store";
@@ -89,11 +89,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
         onLikeUpdate(_comment.id, newIsLiked, newLikeCount);
       }
     } catch (error) {
-      
-      Taro.showToast({
-        title: '操作失败',
-        icon: 'error'
-      });
+      // 移除弹窗提示，静默处理错误
     } finally {
       setIsLiking(false);
     }
@@ -105,10 +101,10 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
       <View className={styles.subContent}>
         <View className={styles.subHeader}>
           <Text className={styles.subName}>{_comment.author_nickname}</Text>
-          <Text className={styles.subTime}>{formatRelativeTime(_comment.create_at || (comment as any).created_at || '')}</Text>
+          <Text className={styles.subTime}>{formatRelativeTime(_comment.create_at || (_comment as any).created_at || '')}</Text>
           {/* 子评论删除按钮 - 仅作者可见 */}
-          {isCommentAuthor && onDeleteComment ? (
-            <View className={styles.subDeleteButton} onClick={() => onDeleteComment(_comment.id)}>
+          {isCommentAuthor && _onDeleteComment ? (
+            <View className={styles.subDeleteButton} onClick={() => _onDeleteComment(_comment.id)}>
               <Image src={TrashIcon} className={styles.subDeleteIcon} />
             </View>
           ) : null}
@@ -124,7 +120,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
             />
             <Text>{_comment.like_count || 0}</Text>
           </View>
-          <View className={styles.subReplyButton} onClick={() => onReply(comment)}>
+          <View className={styles.subReplyButton} onClick={() => onReply(_comment)}>
             <Text>回复</Text>
           </View>
         </View>
@@ -221,10 +217,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
           }
         });
       } else {
-        Taro.showToast({
-          title: error.message || '操作失败，请重试',
-          icon: 'error'
-        });
+        // 移除弹窗提示，静默处理错误
       }
     } finally {
       setIsLiking(false);
@@ -245,7 +238,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
       return;
     }
     
-    onReply(comment);
+    onReply(_comment);
   };
 
   const toggleReplies = async () => {
@@ -257,7 +250,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
     
     // 如果children数据不完整，才需要获取更多数据
     if (!showReplies && hasReplies && shouldShowToggleButton) {
-      await fetchAllNestedReplies(comment);
+      await fetchAllNestedReplies(_comment);
     }
     setShowReplies(!showReplies);
   };
@@ -289,15 +282,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
       };
       
       // 通知父组件更新评论数据
-      onUpdateComment(parentComment.id, updatedComment);
+      _onUpdateComment(parentComment.id, updatedComment);
       
       
     } catch (error) {
-      
-      Taro.showToast({
-        title: '获取回复失败',
-        icon: 'error'
-      });
+      // 移除弹窗提示，静默处理错误
     }
   };
 
@@ -349,23 +338,23 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
       <Image src={normalizeImageUrl(_comment.author_avatar) || ''} className={styles.avatar} />
     <View className={styles.content}>
       <View className={styles.header}>
-        <Text className={styles.name}>{comment?.author_nickname || '匿名用户'}</Text>
-        <Text className={styles.time}>{formatRelativeTime(_comment.create_at || (comment as any).created_at || '')}</Text>
+        <Text className={styles.name}>{_comment?.author_nickname || '匿名用户'}</Text>
+        <Text className={styles.time}>{formatRelativeTime(_comment.create_at || (_comment as any).created_at || '')}</Text>
         {/* 删除按钮 - 仅作者可见 */}
-        {isCommentAuthor && onDeleteComment && (
-          <View className={styles.deleteButton} onClick={() => onDeleteComment(_comment.id)}>
+        {isCommentAuthor && _onDeleteComment && (
+          <View className={styles.deleteButton} onClick={() => _onDeleteComment(_comment.id)}>
             <Image src={TrashIcon} className={styles.deleteIcon} />
           </View>
         )}
       </View>
-        <Text className={styles.text}>{renderCommentContent(comment?.content || '')}</Text>
+        <Text className={styles.text}>{renderCommentContent(_comment?.content || '')}</Text>
       <View className={styles.actions}>
           <View className={styles.likeButton} onClick={handleLike}>
-            <Image 
-              src={_comment.has_liked ? HeartActiveIcon : HeartIcon} 
-              className={styles.icon} 
+            <Image
+              src={_comment.has_liked ? HeartActiveIcon : HeartIcon}
+              className={styles.icon}
             />
-          <Text>{comment?.like_count || 0}</Text>
+          <Text>{_comment?.like_count || 0}</Text>
           </View>
           <View className={styles.replyButton} onClick={handleReply}>
             <Text>回复</Text>
@@ -390,7 +379,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
                 comment={reply}
                 onReply={onReply}
                 onLikeUpdate={onLikeUpdate}
-                onDeleteComment={onDeleteComment}
+                onDeleteComment={_onDeleteComment}
               />
             ))}
           </View>
@@ -429,14 +418,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, on
     setLocalComments(prevComments => {
       return prevComments.map(comment => {
         // 检查是否是主评论
-        if (String(_comment.id) === String(commentId)) {
-          
+        if (String(comment.id) === String(commentId)) {
+
           return { ...comment, has_liked: isLiked, like_count: likeCount };
         }
-        
+
         // 检查子评论
-        if (_comment.children && _comment.children.length > 0) {
-          const updatedChildren = _comment.children.map(child => {
+        if (comment.children && comment.children.length > 0) {
+          const updatedChildren = comment.children.map(child => {
             if (String(child.id) === String(commentId)) {
               
               return { ...child, has_liked: isLiked, like_count: likeCount };
@@ -445,7 +434,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, on
           });
           
           // 只有当子评论确实被更新时才返回新对象
-          if (updatedChildren.some((child, index) => child !== _comment.children![index])) {
+          if (updatedChildren.some((child, index) => child !== comment.children![index])) {
             return { ...comment, children: updatedChildren };
           }
         }
@@ -466,7 +455,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, on
     
     setLocalComments(prevComments => {
       return prevComments.map(comment => {
-        if (String(_comment.id) === String(commentId)) {
+        if (String(comment.id) === String(commentId)) {
           return updatedComment;
         }
         return comment;
@@ -503,12 +492,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, on
       {sortedComments.length > 0 ? (
         sortedComments.map((comment) => (
           <CommentItem 
-            key={_comment.id} 
+            key={comment.id} 
             comment={comment} 
             onReply={onReply}
             onLikeUpdate={handleLikeUpdate}
             onUpdateComment={handleUpdateComment}
-            onDeleteComment={onDeleteComment}
+            onDeleteComment={_onDeleteComment}   
           />
         ))
       ) : (

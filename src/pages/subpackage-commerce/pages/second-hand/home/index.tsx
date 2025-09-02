@@ -8,16 +8,22 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import CustomHeader from '@/components/custom-header'
 import EmptyState from '@/components/empty-state'
 import SearchBar from '@/components/search-bar'
-import { fetchListings, searchListings, clearError } from '@/store/slices/marketplaceSlice'
+import HighlightText from '@/components/highlight-text'
+import { fetchListings, clearError } from '@/store/slices/marketplaceSlice'
 import { RootState, AppDispatch } from '@/store'
 import { ListingRead, ListingType } from '@/types/api/marketplace.d'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { useRelativeTime } from '@/hooks/useRelativeTime'
+import { useProductDetails } from '@/hooks/useProductDetails'
+import searchApi from '@/services/api/search'
+import { SearchRequest } from '@/types/api/search'
 
 // Assets imports
 import emptyIcon from '@/assets/empty.svg'
 
 import styles from './index.module.scss'
+
+
 
 // 筛选标签组件
 const FilterTabs = ({
@@ -57,44 +63,125 @@ const SecondHandHomePage = () => {
   )
 
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]) // 用于高亮的关键词列表
   const [selectedType, setSelectedType] = useState<'all' | 'sell' | 'buy'>('all')
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // 使用商品详情hook
+  const { loadProductDetails, isLoadingDetails } = useProductDetails()
 
   // 跟踪用户是否主动进行了筛选操作
   const userFilterChangedRef = useRef(false)
 
-  // 获取商品列表 - 关键词必须通过参数显式传递
-  const loadListings = useCallback(async (params: { skip?: number; refresh?: boolean; keyword: string }) => {
+
+
+  // 获取商品列表 - 支持搜索关键词
+  const loadListings = useCallback(async (params: { skip?: number; refresh?: boolean; keyword?: string }) => {
     try {
       if (params?.refresh) {
         setIsRefreshing(true)
       }
 
-      const queryParams: any = {
-        skip: params?.skip || 0,
-        limit: 20,
-      }
+      const keyword = params.keyword || ''
+      const skip = params?.skip || 0
 
-      // 只在用户主动选择类型时才添加类型参数
-      if (selectedType !== 'all') {
-        queryParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY
-      }
+      // 如果有搜索关键词，使用统一搜索接口
+      if (keyword.trim()) {
+        const searchParams: SearchRequest = {
+          q: keyword.trim(),
+          type: 'listing',
+          size: 20,
+          offset: skip,
+          sort_field: 'relevance',
+          sort_order: 'desc',
+          filters: {}
+        }
 
-      // 使用显式传递的关键词参数
-      if (params.keyword.trim()) {
-        queryParams.keyword = params.keyword.trim()
-      }
+        // 只在用户主动选择类型时才添加类型过滤器
+        if (selectedType !== 'all') {
+          searchParams.filters = {
+            listing_type: selectedType === 'sell' ? 'sell' : 'buy'
+          }
+        }
 
-      await dispatch(fetchListings(queryParams)).unwrap()
+        const response = await searchApi.search(searchParams)
+        if (response.code === 0 && response.data) {
+          // 将搜索结果转换为现有的 Redux store 格式
+          const searchResults = response.data.items.map(item => {
+            // 处理ID，提取真正的ID部分
+            let itemId = item.id || ''
+            if (itemId.includes(':')) {
+              itemId = itemId.split(':')[1]
+            }
+
+            return {
+              id: itemId,
+              title: item.title || '',
+              description: item.content || '',
+              price: item.price || null,
+              images: item.images || ['/assets/placeholder.jpg'], // 确保至少有一个图片
+              condition: item.condition || '',
+              category: item.category || '',
+              created_at: item.created_at || item.create_time || '',
+              user: {
+                id: item.user_id || '',
+                nickname: item.nickname || item.user?.nickname || '',
+                avatar: item.user?.avatar || item.avatar || ''
+              },
+              listing_type: item.listing_type || (selectedType === 'sell' ? ListingType.SELL : ListingType.BUY)
+            }
+          })
+
+          // 手动更新 Redux store
+          if (skip === 0) {
+            // 首次加载或刷新
+            dispatch({
+              type: 'marketplace/setListings',
+              payload: searchResults
+            })
+          } else {
+            // 加载更多
+            dispatch({
+              type: 'marketplace/addListings',
+              payload: searchResults
+            })
+          }
+
+          dispatch({
+            type: 'marketplace/setPagination',
+            payload: {
+              has_more: response.data.items.length === 20,
+              skip: skip,
+              limit: 20,
+              total: response.data.total
+            }
+          })
+        } else {
+          Taro.showToast({ title: '获取商品列表失败', icon: 'none' })
+        }
+      } else {
+        // 没有搜索关键词，使用原有的商品列表接口
+        const queryParams: any = {
+          skip: skip,
+          limit: 20,
+        }
+
+        // 只在用户主动选择类型时才添加类型参数
+        if (selectedType !== 'all') {
+          queryParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY
+        }
+
+        await dispatch(fetchListings(queryParams)).unwrap()
+      }
     } catch (fetchError) {
-      //
+      // console.error('获取商品列表失败:', fetchError)
       Taro.showToast({ title: '获取商品列表失败', icon: 'none' })
     } finally {
       if (params?.refresh) {
         setIsRefreshing(false)
       }
     }
-  }, [dispatch, selectedType])
+  }, [dispatch, selectedType, loadProductDetails]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 处理搜索
   const handleSearch = useCallback(async () => {
@@ -102,25 +189,84 @@ const SecondHandHomePage = () => {
 
     try {
       setIsRefreshing(true)
-      const searchParams: any = {
+
+      const searchParams: SearchRequest = {
         q: searchKeyword.trim(),
-        skip: 0,
-        limit: 20,
+        type: 'listing',
+        size: 20,
+        offset: 0,
+        sort_field: 'relevance',
+        sort_order: 'desc',
+        filters: {}
       }
 
-      // 只在用户主动选择类型时才添加类型参数
+      // 只在用户主动选择类型时才添加类型过滤器
       if (selectedType !== 'all') {
-        searchParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY
+        searchParams.filters = {
+          listing_type: selectedType === 'sell' ? 'sell' : 'buy'
+        }
       }
 
-      await dispatch(searchListings(searchParams)).unwrap()
+      const response = await searchApi.search(searchParams)
+      if (response.code === 0 && response.data) {
+        // 将搜索结果转换为现有的 Redux store 格式
+        const searchResults = response.data.items.map(item => {
+          // 处理ID，提取真正的ID部分
+          let itemId = item.id || ''
+          if (itemId.includes(':')) {
+            itemId = itemId.split(':')[1]
+          }
+
+          return {
+            id: itemId,
+            title: item.title || '',
+            description: item.content || '',
+            price: item.price || null,
+            images: item.images || ['/assets/placeholder.jpg'], // 确保至少有一个图片
+            condition: item.condition || '',
+            category: item.category || '',
+            created_at: item.created_at || item.create_time || '',
+            user: {
+              id: item.user_id || '',
+              nickname: item.nickname || item.user?.nickname || '',
+              avatar: item.user?.avatar || item.avatar || ''
+            },
+            listing_type: item.listing_type || (selectedType === 'sell' ? ListingType.SELL : ListingType.BUY)
+          }
+        })
+
+        // 手动更新 Redux store
+        dispatch({
+          type: 'marketplace/setListings',
+          payload: searchResults
+        })
+        dispatch({
+          type: 'marketplace/setPagination',
+          payload: {
+            has_more: response.data.items.length === 20,
+            skip: 0,
+            limit: 20,
+            total: response.data.total
+          }
+        })
+
+        // 设置关键词用于高亮显示
+        const keywords = searchParams.q.trim().split(/\s+/).filter(k => k.length > 0)
+        setSearchKeywords(keywords)
+
+        // 批量获取商品详情（异步执行，不阻塞UI）
+        const productIds = searchResults.map(item => item.id)
+        loadProductDetails(productIds)
+      } else {
+        Taro.showToast({ title: '搜索失败', icon: 'none' })
+      }
     } catch (searchError) {
-      //
+      // console.error('搜索失败:', searchError)
       Taro.showToast({ title: '搜索失败', icon: 'none' })
     } finally {
       setIsRefreshing(false)
     }
-  }, [dispatch, searchKeyword, selectedType])
+  }, [dispatch, searchKeyword, selectedType, setSearchKeywords, loadProductDetails]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 处理刷新
   const handleRefresh = useCallback(async () => {
@@ -177,13 +323,15 @@ const SecondHandHomePage = () => {
     }
   }, [error, dispatch])
 
-  // 处理搜索输入 - 使用 useCallback 保持函数稳定性
+  // 处理搜索输入 - 使用 useCallback 保持函数稳定性，防抖优化
   const handleSearchInput = useCallback((e: any) => {
-    setSearchKeyword(e.detail.value)
+    const value = e.detail.value
+    setSearchKeyword(value)
   }, [])
 
   const handleClearSearch = useCallback(() => {
     setSearchKeyword('')
+    setSearchKeywords([])
     // 清空后重新加载所有商品
     loadListings({ refresh: true, keyword: '' })
   }, [loadListings])
@@ -228,9 +376,12 @@ const SecondHandHomePage = () => {
             </View>
           )}
         </View>
-        <Text className={styles.productTitle} numberOfLines={2}>
-          {product.title}
-        </Text>
+        <View className={styles.productTitle}>
+          <HighlightText
+            text={product.title}
+            keywords={searchKeywords}
+          />
+        </View>
         <View className={styles.productFooter}>
           <Text className={styles.productPrice}>
             ¥{typeof product.price === 'string' ? product.price : product.price || '面议'}
@@ -257,6 +408,7 @@ const SecondHandHomePage = () => {
       {/* 搜索框和筛选标签 - 固定在顶部，不随滚动 */}
       <View className={styles.fixedHeader}>
         <SearchBar
+          key='second-hand-search'
           keyword={searchKeyword}
           placeholder='搜索二手商品'
           onInput={handleSearchInput}
@@ -282,10 +434,19 @@ const SecondHandHomePage = () => {
               <Text className={styles.loadingText}>加载中...</Text>
             </View>
           ) : listings.length > 0 ? (
-            <View className={styles.productGrid}>
-              {listings.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <View>
+              {/* 加载详情状态指示器 */}
+              {isLoadingDetails && searchKeywords.length > 0 && (
+                <View className={styles.loadingDetailsIndicator}>
+                  <Text className={styles.loadingDetailsText}>正在加载商品详情...</Text>
+                </View>
+              )}
+
+              <View className={styles.productGrid}>
+                {listings.map(product => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </View>
             </View>
           ) : (
             <EmptyState

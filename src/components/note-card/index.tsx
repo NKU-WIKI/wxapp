@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import { normalizeImageUrl } from '@/utils/image';
 import { NoteListItem } from '@/services/api/note';
@@ -10,66 +11,67 @@ interface NoteCardProps {
 }
 
 const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
+  const [avatarImageError, setAvatarImageError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const maxRetries = 3;
+
   const handleClick = () => {
     if (onClick) {
       onClick();
     }
-    // 只提供点击效果，不进行跳转
   };
 
   const authorAvatar = normalizeImageUrl(note.author_avatar) || '/assets/avatar1.png';
-  
-  // 生成随机图片作为笔记封面
-  const generateCoverImage = (noteId: string) => {
+
+  const generateCoverImage = (noteId: string, attempt: number) => {
     const imageConfigs = [
-      { width: 300, height: 200 },  // 3:2 比例
-      { width: 300, height: 250 },  // 6:5 比例
-      { width: 300, height: 180 },  // 5:3 比例
-      { width: 300, height: 320 },  // 15:16 比例 - 较高
-      { width: 300, height: 160 },  // 15:8 比例 - 较矮
-      { width: 300, height: 280 },  // 15:14 比例
-      { width: 300, height: 220 },  // 15:11 比例
-      { width: 300, height: 300 },  // 1:1 正方形
-      { width: 300, height: 240 },  // 5:4 比例
-      { width: 300, height: 190 },  // 30:19 比例
+        { width: 300, height: 200 }, { width: 300, height: 250 },
+        { width: 300, height: 180 }, { width: 300, height: 320 },
+        { width: 300, height: 160 }, { width: 300, height: 280 },
+        { width: 300, height: 220 }, { width: 300, height: 300 },
+        { width: 300, height: 240 }, { width: 300, height: 190 },
     ];
-    
-    // 根据noteId生成固定的索引，确保图片稳定
+
     const hash = noteId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const configIndex = hash % imageConfigs.length;
     const config = imageConfigs[configIndex];
-    
-    // 生成随机种子，但对同一个note保持稳定
-    const seed = hash % 1000;
-    
+    const seed = (hash + attempt) % 1000;
+
     return `https://picsum.photos/${config.width}/${config.height}?random=${seed}`;
   };
 
-  const coverImage = generateCoverImage(note.id);
+  const coverImage = retryCount >= maxRetries
+    ? '/assets/placeholder.jpg'
+    : generateCoverImage(note.id, retryCount);
+
+  const handleCoverImageError = () => {
+    if (retryCount < maxRetries) {
+      setRetryCount(prev => prev + 1);
+    }
+  };
 
   return (
     <View className={styles.noteCard} style={style} onClick={handleClick}>
-      {/* 笔记封面图片 - 占据上2/3空间 */}
       <View className={styles.imageContainer}>
         <Image
           src={coverImage}
           className={styles.coverImage}
           mode='aspectFill'
+          onError={handleCoverImageError}
         />
       </View>
 
-      {/* 下1/3部分：标题 */}
       <View className={styles.content}>
         <Text className={styles.title}>{note.title}</Text>
       </View>
 
-      {/* 最下面一行：作者和点赞数 */}
       <View className={styles.footer}>
         <View className={styles.author}>
           <Image
-            src={authorAvatar}
+            src={avatarImageError ? '/assets/avatar1.png' : authorAvatar}
             className={styles.avatar}
             mode='aspectFill'
+            onError={() => setAvatarImageError(true)}
           />
           <Text className={styles.authorName}>{note.author_name || '匿名用户'}</Text>
         </View>

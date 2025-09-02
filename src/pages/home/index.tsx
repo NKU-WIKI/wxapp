@@ -208,6 +208,7 @@ export default function Home() {
       <View className={styles.fixedContainer}>
         {/* 搜索区域 - 固定 */}
         <SearchBar
+          key='home-nav-search'
           keyword=''
           placeholder='搜索校园知识'
           readonly

@@ -504,6 +504,24 @@ const marketplaceSlice = createSlice({
     clearSimilarListings: (state) => {
       state.similarListings = [];
     },
+    setListings: (state, action) => {
+      state.listings = action.payload;
+      state.listingsLoading = "succeeded";
+    },
+    setPagination: (state, action) => {
+      state.listingsPagination = action.payload;
+    },
+    addListings: (state, action) => {
+      state.listings = [...state.listings, ...action.payload];
+    },
+    updateListingDetail: (state, action) => {
+      const { id, data } = action.payload;
+      const index = state.listings.findIndex(listing => listing.id === id);
+      if (index !== -1) {
+        // 合并原有数据和新获取的详情数据
+        state.listings[index] = { ...state.listings[index], ...data };
+      }
+    },
   },
   extraReducers: (builder) => {
     builder

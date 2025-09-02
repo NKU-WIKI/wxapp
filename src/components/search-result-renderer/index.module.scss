@@ -1,0 +1,323 @@
+@import "../../styles/variables.scss";
+
+/* 搜索结果渲染器样式 */
+.resultWrapper {
+  margin-bottom: 12px;
+}
+
+.resultCard {
+  background-color: $bg-card;
+  border-radius: 12px;
+  border: 1px solid $border-base;
+  overflow: hidden;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.resultHeader {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px; // 在图标/文本和徽章之间添加间距
+  padding: 12px 16px;
+  border-bottom: 1px solid $border-light;
+  background-color: $bg-page;
+}
+
+.resultType {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.typeIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.typeText {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-secondary;
+}
+
+.resultContent {
+  padding: 16px;
+  text-align: left; // 确保所有内容块默认左对齐
+}
+
+.resultTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  text-align: left; // 强制标题左对齐
+}
+
+.resultDescription {
+  font-size: 14px;
+  color: $text-secondary;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  text-align: left; // 强制描述左对齐
+}
+
+/* 商品特有样式 */
+.listingBadges {
+  display: flex;
+  gap: 8px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.listingTypeBadge {
+  background-color: $theme-primary;
+  color: white;
+}
+
+.conditionBadge {
+  background-color: $status-success;
+  color: white;
+}
+
+.listingDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  align-items: flex-start; /* 强制左对齐 */
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%; /* 确保占据全部宽度 */
+  justify-content: flex-start; /* 水平方向从左开始 */
+  text-align: left; /* 文本左对齐 */
+}
+
+.detailLabel {
+  font-size: 13px;
+  color: $text-helper-gray;
+  min-width: 40px;
+}
+
+.detailValue {
+  font-size: 14px;
+  color: $text-primary;
+}
+
+.priceText {
+  color: $status-error;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* 用户特有样式 */
+.userHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.userAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background-color: $bg-input;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.userId {
+  font-size: 12px;
+  color: $text-helper-gray;
+  margin-top: 4px;
+}
+
+/* 标签样式 */
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  padding: 4px 8px;
+  background-color: $bg-input;
+  border-radius: 12px;
+}
+
+.tagText {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+/* 元信息样式 */
+.resultMeta {
+  margin-bottom: 12px;
+}
+
+.metaText {
+  font-size: 12px;
+  color: $text-helper-gray;
+}
+
+/* 反馈按钮样式 */
+.feedbackButtons {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid $border-light;
+}
+
+.thumbUp,
+.thumbDown {
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background-color: $bg-input;
+  color: $text-secondary;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $theme-primary;
+    color: white;
+  }
+}
+
+.thumbUp:hover {
+  background-color: $status-success;
+}
+
+.thumbDown:hover {
+  background-color: $status-error;
+}
+
+/* 响应式设计 */
+@media (max-width: 375px) {
+  .resultContent {
+    padding: 12px;
+  }
+
+  .resultTitle {
+    font-size: 15px;
+  }
+
+  .resultDescription {
+    font-size: 13px;
+  }
+
+  .userHeader {
+    gap: 10px;
+  }
+
+  .userAvatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .avatarIcon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* 活动特有样式 */
+.participantBadge {
+  background-color: $status-warning;
+  color: white;
+}
+
+.activityDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  align-items: flex-start; /* 强制左对齐 */
+}
+
+/* 跑腿特有样式 */
+.statusPending {
+  background-color: $status-warning;
+  color: white;
+}
+
+.statusAccepted {
+  background-color: $status-success;
+  color: white;
+}
+
+.statusCompleted {
+  background-color: $theme-primary;
+  color: white;
+}
+
+.statusCancelled {
+  background-color: $status-error;
+  color: white;
+}
+
+.errandDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  align-items: flex-start; /* 强制左对齐 */
+}
+
+.rewardText {
+  color: $status-success;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* 通用详情项样式 */
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+}
+
+.detailIcon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+.detailLabel {
+  font-size: 13px;
+  color: $text-helper-gray;
+  min-width: 60px;
+}
+
+.detailValue {
+  font-size: 14px;
+  color: $text-primary;
+  flex: 1;
+}

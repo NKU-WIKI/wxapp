@@ -13,7 +13,7 @@ import http from '../request';
  * @returns 搜索结果
  */
 export const search = (params: SearchRequest) => {
-  return http.get<SearchBundleRead>('/search/', params);
+  return http.post<SearchBundleRead>('/search/', params);
 };
 
 /**

@@ -203,11 +203,7 @@ const PostDetailPage = () => {
       // 隐藏加载提示
       Taro.hideLoading();
 
-      // 显示成功提示
-      Taro.showToast({
-        title: '删除成功',
-        icon: 'success'
-      });
+      // 移除成功提示弹窗
 
       // 重新获取评论列表
       if (postId) {
@@ -227,11 +223,7 @@ const PostDetailPage = () => {
       // 隐藏加载提示
       Taro.hideLoading();
 
-      // 显示错误提示
-      Taro.showToast({
-        title: error.message || '删除失败，请重试',
-        icon: 'error'
-      });
+      // 移除错误提示弹窗
     }
   };
 
