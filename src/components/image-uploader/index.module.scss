@@ -1,0 +1,133 @@
+@import "@/styles/variables.scss";
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+.uploadedImage {
+  width: 100%;
+  height: 100%;
+}
+
+.removeButton {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.removeIcon {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.uploadButton {
+  width: 80px;
+  height: 80px;
+  border: 1px dashed $border-base;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:active {
+    background-color: #f0f0f0;
+    border-color: $theme-primary;
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    &:active {
+      background-color: #fafafa;
+      border-color: $border-base;
+    }
+  }
+}
+
+.uploadContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.cameraIcon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  opacity: 0.6;
+}
+
+.uploadText {
+  font-size: 10px;
+  color: $text-helper-gray;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.uploadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.uploadProgress {
+  font-size: 12px;
+  font-weight: bold;
+  color: $theme-primary;
+  margin-bottom: 2px;
+}
+
+.uploadingText {
+  font-size: 10px;
+  color: $text-secondary;
+}
+
+.uploadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.uploadingOverlay .uploadingText {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+}

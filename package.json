@@ -11,7 +11,7 @@
   },
   "scripts": {
     "prepare": "husky",
-    "new": "taro new",
+    "commit": "cz",
     "build:weapp": "taro build --type weapp",
     "dev:weapp": "npm run build:weapp -- --watch",
     "analyze:weapp": "cross-env ANALYZE=true npm run build:weapp",
@@ -65,7 +65,9 @@
     "@types/react": "^18.0.0",
     "@types/webpack-env": "^1.13.6",
     "babel-preset-taro": "4.1.4",
+    "commitizen": "^4.3.1",
     "cross-env": "^7.0.3",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8.57.0",
     "eslint-config-taro": "4.1.4",
     "eslint-plugin-react": "^7.34.1",

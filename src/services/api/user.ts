@@ -174,7 +174,7 @@ export const getMyComments = (params?: PaginationParams) => {
  * @returns 用户信息
  */
 export const getUserById = (userId: string) => {
-  return http.get<User>(`/users/${userId}`);
+  return http.get<User>(`/users/${userId}/detail`);
 };
 
 /**

@@ -1,10 +1,12 @@
 @import "@/styles/variables.scss";
 
-.page-container {
-  display: flex;
-  flex-direction: column;
+.pageContainer {
   height: 100vh;
   background-color: $bg-page;
+}
+
+.scrollView {
+  height: calc(100vh - 88rpx - 120rpx); // 减去 header 和底部按钮的高度
 }
 
 .customHeader {
@@ -89,9 +91,18 @@
   input, textarea {
     width: 100%;
     font-size: 16px;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    background: transparent;
+    resize: none;
   }
   textarea {
     height: 80px;
+    min-height: 80px;
+  }
+  input:focus, textarea:focus {
+    outline: none;
   }
 }
 

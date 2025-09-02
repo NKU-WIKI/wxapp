@@ -1,8 +1,321 @@
 @import "@/styles/variables.scss";
 
-.page-container {
+.pageContainer {
   display: flex;
   flex-direction: column;
   height: 100vh;
   background-color: $bg-page;
+}
+
+.contentContainer {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.scrollView {
+  height: 100%;
+  padding-bottom: 120rpx; // 为底部操作按钮留出空间
+}
+
+// 商品图片区域
+.productImages {
+  position: relative;
+  background-color: #fff;
+  margin-bottom: 12px;
+
+  .productImage {
+    width: 100%;
+    height: 375px; // 固定高度，确保图片显示一致
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// 商品信息区域
+.productInfo {
+  background-color: #fff;
+  padding: 16px;
+
+  .productHeader {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    .productHeaderMain {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .productHeaderActions {
+      padding-left: 8px;
+      display: flex;
+      align-items: center;
+    }
+
+    .moreIcon {
+      width: 20px;
+      height: 20px;
+      opacity: 0.7;
+    }
+
+    .productTitle {
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-primary;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .productPrice {
+      font-size: 20px;
+      font-weight: 700;
+      color: $status-error;
+      display: block;
+    }
+  }
+
+  .productMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .productTime {
+      font-size: 12px;
+      color: $text-helper-gray;
+    }
+
+    .productCondition {
+      font-size: 12px;
+      color: $theme-primary;
+      background-color: rgba($theme-primary, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+  }
+
+  .productLocation {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .locationIcon {
+      margin-right: 6px;
+      opacity: 0.6;
+    }
+
+    .locationText {
+      font-size: 14px;
+      color: $text-secondary;
+    }
+  }
+
+  .productCategory {
+    margin-bottom: 8px;
+
+    .categoryText {
+      font-size: 12px;
+      color: $text-helper-gray;
+    }
+  }
+
+  .productStats {
+    .statsText {
+      font-size: 12px;
+      color: $text-helper-gray;
+    }
+  }
+}
+
+// 商品描述区域
+.productDescription {
+  background-color: #fff;
+  margin-top: 12px;
+  padding: 16px;
+
+  .descriptionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .descriptionContent {
+    font-size: 14px;
+    color: $text-secondary;
+    line-height: 1.6;
+  }
+}
+
+// 标签区域
+.productTags {
+  background-color: #fff;
+  margin-top: 12px;
+  padding: 16px;
+
+  .tag {
+    display: inline-block;
+    background-color: $bg-input;
+    color: $text-secondary;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+}
+
+// 卖家信息区域
+.sellerInfo {
+  background-color: #fff;
+  margin-top: 12px;
+  padding: 16px;
+
+  .sellerHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .sellerAvatar {
+      border-radius: 50%;
+      margin-right: 12px;
+    }
+
+    .sellerDetails {
+      flex: 1;
+
+      .sellerName {
+        font-size: 16px;
+        font-weight: 600;
+        color: $text-primary;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .sellerBio {
+        font-size: 12px;
+        color: $text-helper-gray;
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      .sellerLocation {
+        font-size: 12px;
+        color: $text-helper-gray;
+        display: block;
+      }
+    }
+  }
+
+  .sellerDescription {
+    font-size: 14px;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+
+  .sellerPlaceholder {
+    text-align: center;
+    color: $text-helper-gray;
+    font-size: 14px;
+  }
+}
+
+// 操作按钮区域
+.actionButtons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-top: 1px solid $border-base;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+
+  .leftArea {
+    width: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    .iconButton {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 22px;
+      background-color: $bg-input;
+      border: none;
+
+      .icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      &.active {
+        background-color: rgba($status-error, 0.12);
+      }
+    }
+  }
+
+  .rightArea {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+
+    .secondaryButton {
+      flex: 0 0 42%;
+      height: 44px;
+      border-radius: 8px;
+      background-color: #fff;
+      border: 1px solid $border-base;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $text-primary;
+
+      .secondaryIcon {
+        margin-right: 6px;
+      }
+    }
+
+    .primaryButton {
+      flex: 0 0 42%;
+      height: 44px;
+      border-radius: 8px;
+      background-color: $theme-primary;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+// 底部留白
+.bottomSpacer {
+  height: 140rpx; // 确保内容不会被操作按钮遮挡
+}
+
+// 加载和空状态
+.loadingContainer,
+.emptyContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 88rpx);
+}
+
+.loadingText,
+.emptyText {
+  font-size: 14px;
+  color: $text-helper-gray;
 }

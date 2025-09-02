@@ -1,7 +1,7 @@
 import { View, ScrollView, Text, Input } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 
 import CustomHeader from '@/components/custom-header'
 import EmptyState from '@/components/empty-state'
@@ -24,6 +24,9 @@ const ErrandsHomePage = () => {
   const [selectedType, setSelectedType] = useState<'all' | 'express' | 'food' | 'shopping'>('all')
   const [isRefreshing, setIsRefreshing] = useState(false)
 
+  // 跟踪用户是否主动进行了筛选操作
+  const userFilterChangedRef = useRef(false)
+
   // 获取任务列表
   const loadErrands = useCallback(async (params?: { skip?: number; refresh?: boolean }) => {
     try {
@@ -31,18 +34,21 @@ const ErrandsHomePage = () => {
         setIsRefreshing(true)
       }
 
-      const queryParams = {
+      const queryParams: any = {
         skip: params?.skip || 0,
         limit: 20,
-        errand_type: selectedType === 'all' ? undefined :
-          selectedType === 'express' ? ErrandType.EXPRESS_PICKUP :
+      }
+
+      // 只在用户主动选择类型时才添加类型参数
+      if (selectedType !== 'all') {
+        queryParams.errand_type = selectedType === 'express' ? ErrandType.EXPRESS_PICKUP :
           selectedType === 'food' ? ErrandType.FOOD_DELIVERY :
-          selectedType === 'shopping' ? ErrandType.GROCERY_SHOPPING : undefined,
+          selectedType === 'shopping' ? ErrandType.GROCERY_SHOPPING : undefined
       }
 
       await dispatch(fetchErrands(queryParams)).unwrap()
     } catch (fetchError) {
-      // 
+      //
       Taro.showToast({ title: '获取任务列表失败', icon: 'none' })
     } finally {
       if (params?.refresh) {
@@ -82,9 +88,33 @@ const ErrandsHomePage = () => {
     })
   }, [checkAuth])
 
-  // 初始化数据
+  // 页面每次显示时刷新数据（包括首次进入和从其他页面返回）
+  useDidShow(() => {
+    loadErrands({ refresh: true })
+  })
+
+  // 当筛选类型发生变化时，自动重新加载数据
   useEffect(() => {
-    loadErrands()
+    // 只有当用户主动进行了筛选操作时才重新加载
+    if (userFilterChangedRef.current) {
+      loadErrands({ refresh: true })
+      userFilterChangedRef.current = false // 重置标记
+    }
+  }, [selectedType, loadErrands])
+
+  // 监听发布成功事件，刷新列表
+  useEffect(() => {
+    const handleRefreshEvent = () => {
+      loadErrands({ refresh: true })
+    }
+
+    // 监听发布成功事件
+    Taro.eventCenter.on('refreshErrandsListings', handleRefreshEvent)
+
+    // 清理事件监听
+    return () => {
+      Taro.eventCenter.off('refreshErrandsListings', handleRefreshEvent)
+    }
   }, [loadErrands])
 
   // 错误处理
@@ -112,30 +142,36 @@ const ErrandsHomePage = () => {
     </View>
   )
 
+  // 处理筛选类型变化
+  const handleTypeChange = useCallback((type: 'all' | 'express' | 'food' | 'shopping') => {
+    userFilterChangedRef.current = true
+    setSelectedType(type)
+  }, [])
+
   // 筛选标签组件
   const FilterTabs = () => (
     <View className={styles.filterTabs}>
       <Text
         className={`${styles.tab} ${selectedType === 'all' ? styles.active : ''}`}
-        onClick={() => setSelectedType('all')}
+        onClick={() => handleTypeChange('all')}
       >
         全部订单
       </Text>
       <Text
         className={`${styles.tab} ${selectedType === 'express' ? styles.active : ''}`}
-        onClick={() => setSelectedType('express')}
+        onClick={() => handleTypeChange('express')}
       >
         快递代取
       </Text>
       <Text
         className={`${styles.tab} ${selectedType === 'food' ? styles.active : ''}`}
-        onClick={() => setSelectedType('food')}
+        onClick={() => handleTypeChange('food')}
       >
         食堂打饭
       </Text>
       <Text
         className={`${styles.tab} ${selectedType === 'shopping' ? styles.active : ''}`}
-        onClick={() => setSelectedType('shopping')}
+        onClick={() => handleTypeChange('shopping')}
       >
         超市代购
       </Text>

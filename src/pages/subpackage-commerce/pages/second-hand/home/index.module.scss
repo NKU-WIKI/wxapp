@@ -16,16 +16,28 @@
   text-align: center;
 }
 
-.searchBar {
-  padding: 10px 15px;
-  background-color: #fff;
-  input {
-    background-color: $bg-input;
-    border-radius: 18px;
-    padding: 5px 15px;
-    height: 36px;
-    font-size: 14px;
-  }
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: $bg-input;
+  border-radius: 18px;
+  padding: 8px 12px;
+  margin: 16px 16px 8px 16px;
+}
+
+.searchIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  opacity: 0.6;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background-color: transparent;
+  font-size: 14px;
+  padding: 0;
 }
 
 .filterTabs {
@@ -61,10 +73,39 @@
   display: flex;
   flex-direction: column;
 
+  .imageWrapper {
+    position: relative;
+  }
+
   .productImage {
     width: 100%;
     height: 160px; // 估算高度
   }
+
+  .conditionBadge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgba($theme-primary, 0.92);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .badgeText {
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  // 可选的不同成色颜色
+  .cond_new { background-color: rgba($status-success, 0.92); }
+  .cond_like_new { background-color: rgba($theme-primary, 0.92); }
+  .cond_good { background-color: rgba($theme-primary, 0.85); }
+  .cond_acceptable { background-color: rgba($status-warning, 0.92); }
+  .cond_damaged { background-color: rgba($status-error, 0.92); }
 
   .productTitle {
     font-size: 14px;

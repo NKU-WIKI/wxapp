@@ -27,6 +27,22 @@ import type {
 import http from '../request';
 
 /**
+ * 过滤对象中的undefined值
+ */
+function filterUndefined<T extends Record<string, any>>(obj?: T): T | undefined {
+  if (!obj) return undefined;
+
+  const filtered = Object.keys(obj).reduce((acc, key) => {
+    if (obj[key] !== undefined) {
+      acc[key] = obj[key];
+    }
+    return acc;
+  }, {} as any);
+
+  return Object.keys(filtered).length > 0 ? filtered : undefined;
+}
+
+/**
  * 二手商品相关API
  */
 export const marketplaceApi = {
@@ -34,7 +50,7 @@ export const marketplaceApi = {
    * 获取二手商品列表
    */
   async listListings(params?: ListingListParams): Promise<ApiResponse_List_ListingRead__> {
-    return http.get('/marketplace/listings', { params });
+    return http.get('/marketplace/listings', filterUndefined(params));
   },
 
   /**
@@ -48,7 +64,7 @@ export const marketplaceApi = {
    * 搜索二手商品
    */
   async searchListings(params: ListingSearchParams): Promise<ApiResponse_List_ListingRead__> {
-    return http.get('/marketplace/search', { params });
+    return http.get('/marketplace/search', filterUndefined(params));
   },
 
   /**
@@ -59,45 +75,49 @@ export const marketplaceApi = {
   },
 
   /**
+   * 删除商品
+   */
+  async deleteListing(listingId: string): Promise<ApiResponse_dict_> {
+    return http.delete(`/marketplace/listings/${listingId}`);
+  },
+
+  /**
    * 获取我的发布
    */
   async getMyListings(params?: { skip?: number; limit?: number }): Promise<ApiResponse_List_ListingRead__> {
-    return http.get('/marketplace/my/listings', { params });
+    return http.get('/marketplace/my/listings', filterUndefined(params));
   },
 
   /**
    * 获取相似商品
    */
   async getSimilarListings(listingId: string, params?: { limit?: number }): Promise<ApiResponse_List_ListingRead__> {
-    return http.get(`/marketplace/listings/${listingId}/similar`, { params });
+    return http.get(`/marketplace/listings/${listingId}/similar`, params);
   },
 
   /**
-   * 收藏商品
+   * 收藏商品（使用通用收藏接口）
    */
-  async addFavorite(listingId: string): Promise<ApiResponse_dict_> {
-    return http.post(`/marketplace/listings/${listingId}/favorite`);
-  },
-
-  /**
-   * 取消收藏商品
-   */
-  async removeFavorite(listingId: string): Promise<ApiResponse_dict_> {
-    return http.delete(`/marketplace/listings/${listingId}/favorite`);
+  async toggleFavorite(listingId: string): Promise<ApiResponse_dict_> {
+    return http.post('/actions/toggle', {
+      target_id: listingId,
+      target_type: 'listing',
+      action_type: 'favorite'
+    });
   },
 
   /**
    * 获取我的收藏
    */
   async getMyFavorites(params?: { skip?: number; limit?: number }): Promise<ApiResponse_List_ListingRead__> {
-    return http.get('/marketplace/favorites', { params });
+    return http.get('/marketplace/favorites', params);
   },
 
   /**
    * 获取个性化推荐
    */
   async getRecommendations(params?: { limit?: number }): Promise<ApiResponse_List_ListingRead__> {
-    return http.get('/marketplace/recommendations', { params });
+    return http.get('/marketplace/recommendations', params);
   },
 };
 
@@ -116,16 +136,14 @@ export const bookingApi = {
    * 更新预约状态
    */
   async updateBookingStatus(bookingId: string, status: BookingStatus): Promise<ApiResponse_BookingRead_> {
-    return http.put(`/marketplace/bookings/${bookingId}/status`, undefined, {
-      params: { status },
-    });
+    return http.put(`/marketplace/bookings/${bookingId}/status?status=${status}`, undefined);
   },
 
   /**
    * 获取我的预约
    */
   async getMyBookings(params?: BookingListParams): Promise<ApiResponse_List_BookingRead__> {
-    return http.get('/marketplace/my/bookings', { params });
+    return http.get('/marketplace/my/bookings', params);
   },
 };
 
@@ -144,7 +162,7 @@ export const productApi = {
    * 获取电商商品列表
    */
   async listProducts(params?: ProductListParams): Promise<ApiResponse_List_ProductRead__> {
-    return http.get('/marketplace/products', { params });
+    return http.get('/marketplace/products', params);
   },
 
   /**
@@ -203,7 +221,7 @@ export const statsApi = {
    * 获取热门趋势分析
    */
   async getTrendingData(params?: { limit?: number }): Promise<ApiResponse_dict_> {
-    return http.get('/marketplace/trending', { params });
+    return http.get('/marketplace/trending', params);
   },
 };
 
@@ -215,7 +233,7 @@ export const errandApi = {
    * 获取跑腿任务列表
    */
   async listErrands(params?: ErrandListParams): Promise<ApiResponse_List_ListingRead__> {
-    return http.get('/marketplace/errands', { params });
+    return http.get('/marketplace/errands', filterUndefined(params));
   },
 
   /**
@@ -257,13 +275,13 @@ export const errandApi = {
    * 获取我的发布任务
    */
   async getMyPublishedErrands(params?: { skip?: number; limit?: number }): Promise<ApiResponse_List_ListingRead__> {
-    return http.get('/marketplace/my/errands/published', { params });
+    return http.get('/marketplace/my/errands/published', params);
   },
 
   /**
    * 获取我接受的任务
    */
   async getMyAcceptedErrands(params?: { skip?: number; limit?: number }): Promise<ApiResponse_List_ListingRead__> {
-    return http.get('/marketplace/my/errands/accepted', { params });
-  },
+    return http.get('/marketplace/my/errands/accepted', params);
+  }
 };

@@ -68,10 +68,23 @@ const ErrandsPublishPage = () => {
       await dispatch(createErrand(errandData)).unwrap()
 
       Taro.showToast({ title: '发布成功', icon: 'success' })
-      // 返回上一页
+
+      // 使用更短的延迟时间，避免页面跳转时的DOM冲突
       setTimeout(() => {
-        Taro.navigateBack()
-      }, 1500)
+        // 发送刷新事件通知主页
+        Taro.eventCenter.trigger('refreshErrandsListings')
+
+        // 使用更保守的导航方式
+        Taro.navigateBack({
+          delta: 1,
+          success: () => {
+            // 导航成功，无需额外处理
+          },
+          fail: (_navError) => {
+            // 导航失败，静默处理
+          }
+        })
+      }, 300)
     } catch (catchError) {
       // 
       // 错误已经在slice中处理了，这里不需要额外处理

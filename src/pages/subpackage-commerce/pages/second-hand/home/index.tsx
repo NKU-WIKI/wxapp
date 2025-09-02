@@ -1,14 +1,21 @@
-import { View, ScrollView, Text, Image, Input } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+// Third-party imports
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import { View, ScrollView, Text, Image, Input } from '@tarojs/components'
+import Taro, { useDidShow } from '@tarojs/taro'
 
+// Relative imports
 import CustomHeader from '@/components/custom-header'
 import EmptyState from '@/components/empty-state'
 import { fetchListings, searchListings, clearError } from '@/store/slices/marketplaceSlice'
 import { RootState, AppDispatch } from '@/store'
 import { ListingRead, ListingType } from '@/types/api/marketplace.d'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
+import { useRelativeTime } from '@/hooks/useRelativeTime'
+
+// Assets imports
+import searchIcon from '@/assets/search.svg'
+import emptyIcon from '@/assets/empty.svg'
 
 import styles from './index.module.scss'
 
@@ -23,6 +30,9 @@ const SecondHandHomePage = () => {
   const [selectedType, setSelectedType] = useState<'all' | 'sell' | 'buy'>('all')
   const [isRefreshing, setIsRefreshing] = useState(false)
 
+  // 跟踪用户是否主动进行了筛选操作
+  const userFilterChangedRef = useRef(false)
+
   // 获取商品列表
   const loadListings = useCallback(async (params?: { skip?: number; refresh?: boolean }) => {
     try {
@@ -30,16 +40,24 @@ const SecondHandHomePage = () => {
         setIsRefreshing(true)
       }
 
-      const queryParams = {
+      const queryParams: any = {
         skip: params?.skip || 0,
         limit: 20,
-        listing_type: selectedType === 'all' ? undefined : (selectedType === 'sell' ? ListingType.SELL : ListingType.BUY),
-        keyword: searchKeyword || undefined,
+      }
+
+      // 只在用户主动选择类型时才添加类型参数
+      if (selectedType !== 'all') {
+        queryParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY
+      }
+
+      // 只在用户主动搜索时才添加关键词参数
+      if (searchKeyword.trim()) {
+        queryParams.keyword = searchKeyword.trim()
       }
 
       await dispatch(fetchListings(queryParams)).unwrap()
     } catch (fetchError) {
-      // 
+      //
       Taro.showToast({ title: '获取商品列表失败', icon: 'none' })
     } finally {
       if (params?.refresh) {
@@ -54,16 +72,20 @@ const SecondHandHomePage = () => {
 
     try {
       setIsRefreshing(true)
-      const searchParams = {
-        q: searchKeyword,
-        listing_type: selectedType === 'all' ? undefined : (selectedType === 'sell' ? ListingType.SELL : ListingType.BUY),
+      const searchParams: any = {
+        q: searchKeyword.trim(),
         skip: 0,
         limit: 20,
       }
 
+      // 只在用户主动选择类型时才添加类型参数
+      if (selectedType !== 'all') {
+        searchParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY
+      }
+
       await dispatch(searchListings(searchParams)).unwrap()
     } catch (searchError) {
-      // 
+      //
       Taro.showToast({ title: '搜索失败', icon: 'none' })
     } finally {
       setIsRefreshing(false)
@@ -101,10 +123,19 @@ const SecondHandHomePage = () => {
     })
   }, [checkAuth])
 
-  // 初始化数据
+  // 页面每次显示时刷新数据（包括首次进入和从其他页面返回）
+  useDidShow(() => {
+    loadListings({ refresh: true })
+  })
+
+  // 当筛选类型发生变化时，自动重新加载数据
   useEffect(() => {
-    loadListings()
-  }, [loadListings])
+    // 只有当用户主动进行了筛选操作时才重新加载
+    if (userFilterChangedRef.current) {
+      loadListings({ refresh: true })
+      userFilterChangedRef.current = false // 重置标记
+    }
+  }, [selectedType, loadListings])
 
   // 错误处理
   useEffect(() => {
@@ -117,40 +148,46 @@ const SecondHandHomePage = () => {
   // 搜索框组件
   const SearchBar = () => (
     <View className={styles.searchContainer}>
-      <View className={styles.searchBar}>
-        <Input
-          placeholder='搜索二手商品'
-          value={searchKeyword}
-          onInput={(e) => setSearchKeyword(e.detail.value)}
-          onConfirm={handleSearch}
-        />
-        <Image
-          src='/assets/search.svg'
-          className={styles.searchIcon}
-          onClick={handleSearch}
-        />
-      </View>
+      <Image
+        src={searchIcon}
+        className={styles.searchIcon}
+        style={{ width: '18px', height: '18px' }}
+        onClick={handleSearch}
+      />
+      <Input
+        placeholder='搜索二手商品'
+        value={searchKeyword}
+        onInput={(e) => setSearchKeyword(e.detail.value)}
+        onConfirm={handleSearch}
+        className={styles.searchInput}
+      />
     </View>
   )
+
+  // 处理筛选类型变化
+  const handleTypeChange = useCallback((type: 'all' | 'sell' | 'buy') => {
+    userFilterChangedRef.current = true
+    setSelectedType(type)
+  }, [])
 
   // 筛选标签组件
   const FilterTabs = () => (
     <View className={styles.filterTabs}>
       <Text
         className={`${styles.tab} ${selectedType === 'all' ? styles.active : ''}`}
-        onClick={() => setSelectedType('all')}
+        onClick={() => handleTypeChange('all')}
       >
         全部
       </Text>
       <Text
         className={`${styles.tab} ${selectedType === 'sell' ? styles.active : ''}`}
-        onClick={() => setSelectedType('sell')}
+        onClick={() => handleTypeChange('sell')}
       >
         出闲置
       </Text>
       <Text
         className={`${styles.tab} ${selectedType === 'buy' ? styles.active : ''}`}
-        onClick={() => setSelectedType('buy')}
+        onClick={() => handleTypeChange('buy')}
       >
         收二手
       </Text>
@@ -158,31 +195,53 @@ const SecondHandHomePage = () => {
   )
 
   // 商品卡片组件
-  const ProductCard = ({ product }: { product: ListingRead }) => (
-    <View className={styles.productCard} onClick={() => handleProductClick(product)}>
-      <Image
-        src={product.images?.[0] || '/assets/placeholder.jpg'}
-        className={styles.productImage}
-        mode='aspectFill'
-      />
-      <Text className={styles.productTitle} numberOfLines={2}>
-        {product.title}
-      </Text>
-      <View className={styles.productFooter}>
-        <Text className={styles.productPrice}>
-          ¥{typeof product.price === 'string' ? product.price : product.price || '面议'}
-        </Text>
-        <Text className={styles.productTime}>
-          {product.created_at ? new Date(product.created_at).toLocaleDateString() : ''}
-        </Text>
-      </View>
-      {product.condition && (
-        <View className={styles.productCondition}>
-          <Text className={styles.conditionText}>{product.condition}</Text>
+  const ProductCard = ({ product }: { product: ListingRead }) => {
+    const { formattedTime } = useRelativeTime(product.created_at, {
+      autoUpdate: true,
+      updateInterval: 60000 // 每分钟更新一次
+    })
+
+    const getConditionText = (condition?: string) => {
+      switch (condition) {
+        case 'new': return '全新'
+        case 'like_new': return '九成新'
+        case 'good': return '八成新'
+        case 'acceptable': return '七成新'
+        case 'damaged': return '其他'
+        default: return ''
+      }
+    }
+
+    return (
+      <View className={styles.productCard} onClick={() => handleProductClick(product)}>
+        <View className={styles.imageWrapper}>
+          <Image
+            src={product.images?.[0] || '/assets/placeholder.jpg'}
+            className={styles.productImage}
+            mode='aspectFill'
+          />
+          {!!product.condition && (
+            <View
+              className={`${styles.conditionBadge} ${styles[`cond_${product.condition}`] || ''}`}
+            >
+              <Text className={styles.badgeText}>{getConditionText(product.condition)}</Text>
+            </View>
+          )}
         </View>
-      )}
-    </View>
-  )
+        <Text className={styles.productTitle} numberOfLines={2}>
+          {product.title}
+        </Text>
+        <View className={styles.productFooter}>
+          <Text className={styles.productPrice}>
+            ¥{typeof product.price === 'string' ? product.price : product.price || '面议'}
+          </Text>
+          <Text className={styles.productTime}>
+            {formattedTime}
+          </Text>
+        </View>
+      </View>
+    )
+  }
 
   // 悬浮发布按钮
   const FloatingActionButton = () => (
@@ -220,7 +279,7 @@ const SecondHandHomePage = () => {
             </View>
           ) : (
             <EmptyState
-              icon='/assets/empty.svg'
+              icon={emptyIcon}
               text={searchKeyword ? '没有找到相关商品' : '暂无商品'}
             />
           )}
