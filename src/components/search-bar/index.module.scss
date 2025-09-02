@@ -1,0 +1,32 @@
+@import "@/styles/variables.scss";
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: $bg-input;
+  border-radius: 18px;
+  padding: 8px 12px;
+  margin: 16px 16px 8px 16px;
+}
+
+.searchIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  opacity: 0.6;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background-color: transparent;
+  font-size: 14px;
+  padding: 0;
+}
+
+.clearIcon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.5;
+  margin-left: 8px;
+}

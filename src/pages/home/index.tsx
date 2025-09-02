@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { View, ScrollView, Text, Input, Image } from "@tarojs/components";
+import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,10 +11,10 @@ import CustomHeader from "@/components/custom-header";
 import PostItemSkeleton from "@/components/post-item-skeleton";
 import EmptyState from "@/components/empty-state";
 import Post from "@/components/post";
+import SearchBar from "@/components/search-bar";
 
 // Assets imports
 import emptyIcon from "@/assets/empty.svg";
-import searchIcon from "@/assets/search.svg";
 import studyIcon from "@/assets/school.svg";
 import hatIcon from "@/assets/hat.svg";
 import starIcon from "@/assets/star2.svg";
@@ -207,27 +207,17 @@ export default function Home() {
 
       <View className={styles.fixedContainer}>
         {/* 搜索区域 - 固定 */}
-        <View
-          className={styles.searchContainer}
+        <SearchBar
+          keyword=''
+          placeholder='搜索校园知识'
+          readonly
           onClick={() => {
             try {
               Taro.setStorageSync('explore_focus', 'true');
               Taro.switchTab({ url: '/pages/explore/index' });
             } catch {}
           }}
-        >
-          <Image src={searchIcon} className={styles.searchIcon} />
-          <Input
-            placeholder='搜索校园知识'
-            className={styles.searchInput}
-            onFocus={() => {
-              try {
-                Taro.setStorageSync('explore_focus', 'true');
-                Taro.switchTab({ url: '/pages/explore/index' });
-              } catch {}
-            }}
-          />
-        </View>
+        />
         {/* 分类区域 - 固定 */}
         <View className={styles.categoriesContainer}>
           {mockCategories.map((category) => (

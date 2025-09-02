@@ -1,12 +1,13 @@
 // Third-party imports
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { View, ScrollView, Text, Image, Input } from '@tarojs/components'
+import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 
 // Relative imports
 import CustomHeader from '@/components/custom-header'
 import EmptyState from '@/components/empty-state'
+import SearchBar from '@/components/search-bar'
 import { fetchListings, searchListings, clearError } from '@/store/slices/marketplaceSlice'
 import { RootState, AppDispatch } from '@/store'
 import { ListingRead, ListingType } from '@/types/api/marketplace.d'
@@ -14,10 +15,39 @@ import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { useRelativeTime } from '@/hooks/useRelativeTime'
 
 // Assets imports
-import searchIcon from '@/assets/search.svg'
 import emptyIcon from '@/assets/empty.svg'
 
 import styles from './index.module.scss'
+
+// 筛选标签组件
+const FilterTabs = ({
+  selectedType,
+  onTypeChange,
+}: {
+  selectedType: 'all' | 'sell' | 'buy'
+  onTypeChange: (_type: 'all' | 'sell' | 'buy') => void
+}) => (
+  <View className={styles.filterTabs}>
+    <Text
+      className={`${styles.tab} ${selectedType === 'all' ? styles.active : ''}`}
+      onClick={() => onTypeChange('all')}
+    >
+      全部
+    </Text>
+    <Text
+      className={`${styles.tab} ${selectedType === 'sell' ? styles.active : ''}`}
+      onClick={() => onTypeChange('sell')}
+    >
+      出闲置
+    </Text>
+    <Text
+      className={`${styles.tab} ${selectedType === 'buy' ? styles.active : ''}`}
+      onClick={() => onTypeChange('buy')}
+    >
+      收二手
+    </Text>
+  </View>
+)
 
 const SecondHandHomePage = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -33,8 +63,8 @@ const SecondHandHomePage = () => {
   // 跟踪用户是否主动进行了筛选操作
   const userFilterChangedRef = useRef(false)
 
-  // 获取商品列表
-  const loadListings = useCallback(async (params?: { skip?: number; refresh?: boolean }) => {
+  // 获取商品列表 - 关键词必须通过参数显式传递
+  const loadListings = useCallback(async (params: { skip?: number; refresh?: boolean; keyword: string }) => {
     try {
       if (params?.refresh) {
         setIsRefreshing(true)
@@ -50,9 +80,9 @@ const SecondHandHomePage = () => {
         queryParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY
       }
 
-      // 只在用户主动搜索时才添加关键词参数
-      if (searchKeyword.trim()) {
-        queryParams.keyword = searchKeyword.trim()
+      // 使用显式传递的关键词参数
+      if (params.keyword.trim()) {
+        queryParams.keyword = params.keyword.trim()
       }
 
       await dispatch(fetchListings(queryParams)).unwrap()
@@ -64,7 +94,7 @@ const SecondHandHomePage = () => {
         setIsRefreshing(false)
       }
     }
-  }, [dispatch, selectedType, searchKeyword])
+  }, [dispatch, selectedType])
 
   // 处理搜索
   const handleSearch = useCallback(async () => {
@@ -94,16 +124,18 @@ const SecondHandHomePage = () => {
 
   // 处理刷新
   const handleRefresh = useCallback(async () => {
-    await loadListings({ refresh: true })
-  }, [loadListings])
+    // 刷新时保持当前的搜索关键词
+    await loadListings({ refresh: true, keyword: searchKeyword })
+  }, [loadListings, searchKeyword])
 
   // 处理加载更多
   const handleLoadMore = useCallback(async () => {
     if (!listingsPagination?.has_more || listingsLoading === 'pending') return
 
     const nextSkip = (listingsPagination?.skip || 0) + (listingsPagination?.limit || 20)
-    await loadListings({ skip: nextSkip })
-  }, [listingsPagination, listingsLoading, loadListings])
+    // 传递当前搜索关键词以保持搜索状态
+    await loadListings({ skip: nextSkip, keyword: searchKeyword })
+  }, [listingsPagination, listingsLoading, loadListings, searchKeyword])
 
   // 处理商品点击
   const handleProductClick = useCallback((product: ListingRead) => {
@@ -125,17 +157,17 @@ const SecondHandHomePage = () => {
 
   // 页面每次显示时刷新数据（包括首次进入和从其他页面返回）
   useDidShow(() => {
-    loadListings({ refresh: true })
+    loadListings({ refresh: true, keyword: searchKeyword })
   })
 
   // 当筛选类型发生变化时，自动重新加载数据
   useEffect(() => {
     // 只有当用户主动进行了筛选操作时才重新加载
     if (userFilterChangedRef.current) {
-      loadListings({ refresh: true })
+      loadListings({ refresh: true, keyword: searchKeyword })
       userFilterChangedRef.current = false // 重置标记
     }
-  }, [selectedType, loadListings])
+  }, [selectedType, loadListings, searchKeyword])
 
   // 错误处理
   useEffect(() => {
@@ -145,54 +177,22 @@ const SecondHandHomePage = () => {
     }
   }, [error, dispatch])
 
-  // 搜索框组件
-  const SearchBar = () => (
-    <View className={styles.searchContainer}>
-      <Image
-        src={searchIcon}
-        className={styles.searchIcon}
-        style={{ width: '18px', height: '18px' }}
-        onClick={handleSearch}
-      />
-      <Input
-        placeholder='搜索二手商品'
-        value={searchKeyword}
-        onInput={(e) => setSearchKeyword(e.detail.value)}
-        onConfirm={handleSearch}
-        className={styles.searchInput}
-      />
-    </View>
-  )
+  // 处理搜索输入 - 使用 useCallback 保持函数稳定性
+  const handleSearchInput = useCallback((e: any) => {
+    setSearchKeyword(e.detail.value)
+  }, [])
+
+  const handleClearSearch = useCallback(() => {
+    setSearchKeyword('')
+    // 清空后重新加载所有商品
+    loadListings({ refresh: true, keyword: '' })
+  }, [loadListings])
 
   // 处理筛选类型变化
   const handleTypeChange = useCallback((type: 'all' | 'sell' | 'buy') => {
     userFilterChangedRef.current = true
     setSelectedType(type)
   }, [])
-
-  // 筛选标签组件
-  const FilterTabs = () => (
-    <View className={styles.filterTabs}>
-      <Text
-        className={`${styles.tab} ${selectedType === 'all' ? styles.active : ''}`}
-        onClick={() => handleTypeChange('all')}
-      >
-        全部
-      </Text>
-      <Text
-        className={`${styles.tab} ${selectedType === 'sell' ? styles.active : ''}`}
-        onClick={() => handleTypeChange('sell')}
-      >
-        出闲置
-      </Text>
-      <Text
-        className={`${styles.tab} ${selectedType === 'buy' ? styles.active : ''}`}
-        onClick={() => handleTypeChange('buy')}
-      >
-        收二手
-      </Text>
-    </View>
-  )
 
   // 商品卡片组件
   const ProductCard = ({ product }: { product: ListingRead }) => {
@@ -253,6 +253,19 @@ const SecondHandHomePage = () => {
   return (
     <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <CustomHeader title='二手交易' />
+
+      {/* 搜索框和筛选标签 - 固定在顶部，不随滚动 */}
+      <View className={styles.fixedHeader}>
+        <SearchBar
+          keyword={searchKeyword}
+          placeholder='搜索二手商品'
+          onInput={handleSearchInput}
+          onSearch={handleSearch}
+          onClear={handleClearSearch}
+        />
+        <FilterTabs selectedType={selectedType} onTypeChange={handleTypeChange} />
+      </View>
+
       <View style={{ flex: 1, overflow: 'hidden' }}>
         <ScrollView
           scrollY
@@ -263,9 +276,6 @@ const SecondHandHomePage = () => {
           refresherBackground='#f8fafc'
           onScrollToLower={handleLoadMore}
         >
-          <SearchBar />
-          <FilterTabs />
-
           {/* 商品列表 */}
           {listingsLoading === 'pending' && listings.length === 0 ? (
             <View className={styles.loadingContainer}>
