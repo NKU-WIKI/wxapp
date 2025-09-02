@@ -70,16 +70,17 @@
   right: 16px;
   background: $bg-card;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 99;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
   max-height: 200px;
   overflow-y: auto;
   transform: translateY(0);
   transition: all 0.3s ease;
   animation: slideUpIn 0.25s ease-out;
+  backdrop-filter: blur(10px);
   
   &:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
     transform: translateY(-2px);
   }
 }
@@ -95,8 +96,62 @@
   }
 }
 
+// 页面遮罩层，当设置弹窗显示时页面变灰
+.pageOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 .subMenu {
   padding: 20px;
+  
+  .settingItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid $border-light;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+  
+  .settingLabel {
+    font-size: 16px;
+    color: $text-primary;
+    font-weight: 500;
+  }
+  
+  .switchIcon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
 }
 
 .settingItem {
@@ -594,79 +649,6 @@
   }
 }
 
-.tagsContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding-top: 4px;
-}
-
-.tagItem {
-  background-color: $bg-input;
-  color: $text-secondary;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  user-select: none;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid $border-light;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-  &:hover {
-    background-color: $bg-input-focus;
-    border-color: $theme-primary;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  &:active {
-    transform: scale(0.98) translateY(0);
-  }
-
-  &.selected {
-    background-color: $theme-primary;
-    color: $text-white;
-    font-weight: 600;
-    border-color: $theme-primary;
-    box-shadow: 0 3px 8px rgba(79, 70, 229, 0.3);
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
-      pointer-events: none;
-    }
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
-    }
-  }
-
-  &.addTag {
-    border: 1px dashed $border-input;
-    background-color: transparent;
-    color: $theme-primary;
-    font-weight: 500;
-
-    &:hover {
-      background-color: $alpha-primary-10;
-      border-color: $theme-primary;
-    }
-
-    &:active {
-      background-color: $alpha-primary-20;
-    }
-  }
-}
 // 是否对所有人可见 样式
 .visibleAll {
   display: inline-flex;
@@ -675,47 +657,107 @@
   color: $text-secondary;
   padding: 8px 0;
   font-size: 14px;
+  font-weight: 400;
   cursor: pointer;
-  margin: 16px 0 8px 0;
-  gap: 4px;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  font-family: inherit;
   
   &:before {
     content: '';
+    display: inline-block;
     width: 16px;
     height: 16px;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>');
     background-size: contain;
     opacity: 0.6;
+    margin-right: 4px;
+    vertical-align: middle;
   }
 }
 
+.visibleAllText {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  font-family: inherit;
+  color: inherit;
+}
 
-// 新增标签输入相关样式
-.tagInputContainer {
+// 添加话题和可见性设置在同一行
+.topicAndVisibilityRow {
   display: flex;
   align-items: center;
-  background-color: $bg-card;
-  border-radius: 8px;
-  padding: 8px 12px;
-  gap: 8px;
-  border: 1px solid $border-light;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  justify-content: space-between;
+  margin: 16px 0 8px 0;
+  gap: 24px;
+  flex-wrap: nowrap;
+}
+
+// 添加话题按钮样式
+.addTopicButton {
+  display: inline-flex;
+  align-items: center;
+  background-color: transparent;
+  color: $text-secondary;
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  font-family: inherit;
   
   &:hover {
-    border-color: $theme-primary;
-    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
+    color: $theme-primary;
+  }
+  
+  &:active {
+    color: $theme-primary;
   }
 }
 
-.tagInput {
+.addTopicText {
+  color: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+// 话题输入框容器样式
+.topicInputContainer {
+  display: inline-flex;
+  align-items: center;
+  background-color: transparent;
+  padding: 8px 0;
+  min-width: 120px;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.topicInputPrefix {
+  color: $theme-primary;
+  font-weight: bold;
+  font-size: 14px;
+  margin-right: 2px;
+}
+
+.topicInput {
   flex: 1;
   font-size: 14px;
-  height: 32px;
-  min-width: 100px;
+  height: 20px;
+  min-width: 80px;
   border: none;
   background: transparent;
-  color: $text-primary;
+  color: $theme-primary;
   
   &:focus {
     outline: none;
@@ -726,23 +768,7 @@
   }
 }
 
-.addTagBtn {
-  color: $theme-primary;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: $alpha-primary-10;
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
+// 新增标签输入相关样式
 .selectedTagsContainer {
   margin: 16px 0 8px 0;
 }
@@ -936,4 +962,74 @@
   text-align: center;
   padding: 10px 0;
   border-radius: 8px;
+}
+
+// 话题标签直接显示在内容后面，内联样式
+.inlineTopics {
+  display: inline;
+  margin-top: 8px;
+}
+
+.inlineTopicWrapper {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  position: relative;
+  transition: all 0.2s ease;
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  // 长按提示
+  &::after {
+    content: '长按删除';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    z-index: 1000;
+  }
+  
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
+.inlineTopic {
+  display: inline;
+  color: $theme-primary;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+}
+
+.inlineTopicDelete {
+  display: inline;
+  color: $theme-primary;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 4px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  user-select: none;
+  
+  &:hover {
+    opacity: 1;
+  }
+  
+  &:active {
+    opacity: 0.5;
+  }
 }

@@ -441,13 +441,6 @@ const Profile = () => {
                 <Text className={styles.chevron}>›</Text>
               </View>
             </View>
-
-            <View className={styles.logoutSection}>
-              <Button className={styles.logoutButton} onClick={handleLogout}>
-                <Text className={styles.logoutIcon}>⚡</Text>
-                <Text>退出登录</Text>
-              </Button>
-            </View>
           </View>
         </ScrollView>
       </View>

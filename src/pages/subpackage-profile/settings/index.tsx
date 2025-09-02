@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, Switch } from '@tarojs/components';
+import { View, Text, Button, Switch, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/store/slices/userSlice';
@@ -188,6 +188,26 @@ const Settings: React.FC = () => {
     });
   };
 
+  // 处理退出登录
+  const handleLogout = () => {
+    Taro.showModal({
+      title: '退出登录',
+      content: '确定要退出登录吗？',
+      success: (res) => {
+        if (res.confirm) {
+          dispatch(logout());
+          Taro.showToast({
+            title: '已退出登录',
+            icon: 'success'
+          });
+          setTimeout(() => {
+            Taro.switchTab({ url: '/pages/home/index' });
+          }, 1500);
+        }
+      }
+    });
+  };
+
   // 保存设置并返回profile页面
   const handleSaveSettings = () => {
     try {
@@ -297,6 +317,11 @@ const Settings: React.FC = () => {
           label: '注销账号',
           type: 'navigation',
           action: handleDeleteAccount
+        },
+        {
+          label: '退出登录',
+          type: 'navigation',
+          action: handleLogout
         }
       ]
     }
@@ -309,7 +334,7 @@ const Settings: React.FC = () => {
         {description && <View className={styles.toggleDescription}>{description}</View>}
       </View>
       <Switch
-        checked={value}
+        checked={_value}
         onChange={(e) => onChange(e.detail.value)}
         className={styles.switch}
         color='#4F46E5'
@@ -368,11 +393,11 @@ const Settings: React.FC = () => {
 
     return (
       <View 
-        className={`${styles.settingItem} ${item.label === '注销账号' ? styles.dangerItem : ''}`}
+        className={`${styles.settingItem} ${item.label === '注销账号' || item.label === '退出登录' ? styles.dangerItem : ''}`}
         onClick={item.action}
       >
         <View className={styles.settingContent}>
-          <Text className={`${styles.settingLabel} ${item.label === '注销账号' ? styles.dangerText : ''}`}>
+          <Text className={`${styles.settingLabel} ${item.label === '注销账号' || item.label === '退出登录' ? styles.dangerText : ''}`}>
             {item.label}
           </Text>
           {item.value && (
@@ -391,7 +416,7 @@ const Settings: React.FC = () => {
 
   return (
     <View className={styles.container}>
-      <View className={styles.content}>
+      <ScrollView scrollY className={styles.content}>
         {settingsSections.map((section, sectionIndex) => (
           <View key={sectionIndex} className={styles.section}>
             <View className={styles.sectionHeader}>
@@ -407,7 +432,7 @@ const Settings: React.FC = () => {
             </View>
           </View>
         ))}
-      </View>
+      </ScrollView>
       
       <View className={styles.footer}>
         <Button className={styles.saveButton} onClick={handleSaveSettings}>
