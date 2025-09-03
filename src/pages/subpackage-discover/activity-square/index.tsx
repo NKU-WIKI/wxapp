@@ -2,8 +2,10 @@ import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback, useMemo } from "react";
 
-import activityApi from "@/services/api/activity";
+import activityApi, { myActivity, myOrganizedActivity } from "@/services/api/activity";
 import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import CustomHeader from "@/components/custom-header";
 import AuthFloatingButton from "@/components/auth-floating-button";
 import SearchBar from "@/components/search-bar";
@@ -13,11 +15,14 @@ import styles from "./index.module.scss";
 
 // eslint-disable-next-line import/no-unused-modules
 export default function ActivitySquare() {
+  const { isLoggedIn } = useSelector((state: RootState) => state.user);
+
   const [activities, setActivities] = useState<ActivityRead[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
+  const [dataSource, setDataSource] = useState<'all' | 'registered' | 'organized'>('all'); // 数据源类型
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]); // 用于高亮的关键词列表
 
@@ -25,6 +30,8 @@ export default function ActivitySquare() {
   // 活动分类列表
   const categories = [
     '全部',
+    '我报名的',
+    '我组织的',
     '运动健身',
     '创意艺术',
     '志愿公益',
@@ -41,35 +48,64 @@ export default function ActivitySquare() {
       }
       setIsRefreshing(true);
 
-      const params: GetActivityListRequest = {
-        limit: 20,
-        status: ActivityStatus.Published,
-        sort_by: 'start_time',
-        sort_order: 'desc'
-      };
-
-      // 根据选择的分类添加过滤条件
-      if (category && category !== '全部') {
-        // 假设后端API支持category参数
-        (params as any).category = category;
-      }
-
-      const res = await activityApi.getActivityList(params);
-      // 兼容后端 data?.data?.items / data?.data?.items 结构
+      let res;
       let list: ActivityRead[] = [];
-      if (res?.data) {
-        // 优先 PageActivityRead 结构
-        const pageData: any = res.data as any;
-        if (pageData?.items && Array.isArray(pageData.items)) {
-          list = pageData.items as ActivityRead[];
-        } else if (Array.isArray(res.data as any)) {
-          list = res.data as unknown as ActivityRead[];
+
+      // 根据数据源类型调用不同的API
+      if (dataSource === 'registered') {
+        // 获取我报名的活动
+        const params = {
+          limit: 20,
+          skip: 0
+        };
+        res = await myActivity(params);
+        if (res?.data?.items) {
+          // API直接返回活动对象数组
+          list = res.data.items as ActivityRead[];
+        }
+      } else if (dataSource === 'organized') {
+        // 获取我组织的活动
+        const params = {
+          limit: 20,
+          skip: 0
+        };
+        res = await myOrganizedActivity(params);
+        if (res?.data?.items) {
+          // API直接返回活动对象数组
+          list = res.data.items as ActivityRead[];
+        }
+      } else {
+        // 获取全部活动
+        const params: GetActivityListRequest = {
+          limit: 20,
+          status: ActivityStatus.Published,
+          sort_by: 'start_time',
+          sort_order: 'desc'
+        };
+
+        // 根据选择的分类添加过滤条件
+        if (category && category !== '全部' && !['我报名的', '我组织的'].includes(category)) {
+          // 假设后端API支持category参数
+          (params as any).category = category;
+        }
+
+        res = await activityApi.getActivityList(params);
+        // 兼容后端 data?.data?.items / data?.data?.items 结构
+        if (res?.data) {
+          // 优先 PageActivityRead 结构
+          const pageData: any = res.data as any;
+          if (pageData?.items && Array.isArray(pageData.items)) {
+            list = pageData.items as ActivityRead[];
+          } else if (Array.isArray(res.data as any)) {
+            list = res.data as unknown as ActivityRead[];
+          }
         }
       }
+
       setActivities(list);
-      
+
     } catch (err) {
-      
+
       setActivities([]);
     } finally {
       if (showLoading) {
@@ -77,7 +113,7 @@ export default function ActivitySquare() {
       }
       setIsRefreshing(false);
     }
-  }, []);
+  }, [dataSource]);
 
 
 
@@ -198,7 +234,7 @@ export default function ActivitySquare() {
           confirmText: '去登录',
           success: (res) => {
             if (res.confirm) {
-              Taro.navigateTo({ url: '/pages/auth/login/index' });
+              Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
             }
           }
         });
@@ -288,17 +324,43 @@ export default function ActivitySquare() {
   };
 
   const handleCategoryChange = (category: string) => {
+    // 检查用户是否登录（对于个人相关的标签）
+    if ((category === '我报名的' || category === '我组织的') && !isLoggedIn) {
+      Taro.showModal({
+        title: '提示',
+        content: '请先登录后再查看个人活动',
+        showCancel: false,
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+          }
+        }
+      });
+      return;
+    }
+
     setSelectedCategory(category);
+
+    // 根据选择的不同标签设置数据源类型
+    if (category === '我报名的') {
+      setDataSource('registered');
+    } else if (category === '我组织的') {
+      setDataSource('organized');
+    } else {
+      setDataSource('all');
+    }
+
     // 根据选择的分类重新获取活动列表
     fetchActivities(true, category);
   };
 
-  // 过滤活动列表的函数（同时支持分类和搜索过滤）
+  // 过滤活动列表的函数（同时支持数据源、分类和搜索过滤）
   const filteredActivities = useMemo(() => {
     let filtered = activities;
 
-    // 根据分类过滤
-    if (selectedCategory !== '全部') {
+    // 对于"全部"标签以外的其他分类标签进行过滤
+    if (selectedCategory !== '全部' && !['我报名的', '我组织的'].includes(selectedCategory)) {
       filtered = filtered.filter(activityItem => activityItem.category === selectedCategory);
     }
 

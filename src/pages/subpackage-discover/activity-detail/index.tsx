@@ -59,7 +59,7 @@ export default function ActivityDetail() {
           confirmText: '去登录',
           success: (res) => {
             if (res.confirm) {
-              Taro.navigateTo({ url: '/pages/auth/login/index' });
+              Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
             }
           }
         });
