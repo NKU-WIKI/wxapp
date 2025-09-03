@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Image } from '@tarojs/components';
+import Taro from '@tarojs/taro';
 import { normalizeImageUrl } from '@/utils/image';
 import { NoteListItem } from '@/services/api/note';
 import styles from './index.module.scss';
@@ -12,42 +13,38 @@ interface NoteCardProps {
 
 const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
   const [avatarImageError, setAvatarImageError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const maxRetries = 3;
+  const [coverImageError, setCoverImageError] = useState(false);
 
   const handleClick = () => {
     if (onClick) {
       onClick();
+    } else {
+      // 默认跳转到笔记详情页面
+      Taro.navigateTo({
+        url: `/pages/subpackage-interactive/note-detail/index?id=${note.id}`
+      });
     }
   };
 
   const authorAvatar = normalizeImageUrl(note.author_avatar) || '/assets/avatar1.png';
 
-  const generateCoverImage = (noteId: string, attempt: number) => {
-    const imageConfigs = [
-        { width: 300, height: 200 }, { width: 300, height: 250 },
-        { width: 300, height: 180 }, { width: 300, height: 320 },
-        { width: 300, height: 160 }, { width: 300, height: 280 },
-        { width: 300, height: 220 }, { width: 300, height: 300 },
-        { width: 300, height: 240 }, { width: 300, height: 190 },
-    ];
-
-    const hash = noteId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const configIndex = hash % imageConfigs.length;
-    const config = imageConfigs[configIndex];
-    const seed = (hash + attempt) % 1000;
-
-    return `https://picsum.photos/${config.width}/${config.height}?random=${seed}`;
+  // 获取封面图片：优先使用笔记的第一张图片，如果没有则使用默认图片
+  const getCoverImage = () => {
+    // 如果笔记有图片数组且不为空，使用第一张图片
+    // 注意：NoteListItem接口可能没有images属性，这里使用类型断言
+    const noteWithImages = note as any;
+    if (noteWithImages.images && noteWithImages.images.length > 0) {
+      return normalizeImageUrl(noteWithImages.images[0]);
+    }
+    
+    // 如果没有图片，使用默认图片
+    return '/assets/note_example.png';
   };
 
-  const coverImage = retryCount >= maxRetries
-    ? '/assets/placeholder.jpg'
-    : generateCoverImage(note.id, retryCount);
+  const coverImage = getCoverImage();
 
   const handleCoverImageError = () => {
-    if (retryCount < maxRetries) {
-      setRetryCount(prev => prev + 1);
-    }
+    setCoverImageError(true);
   };
 
   return (

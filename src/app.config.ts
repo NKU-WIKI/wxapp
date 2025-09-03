@@ -48,8 +48,7 @@ export default {
         "post-detail/index",
         "publish/index",
         "chat/index",
-
-
+        "note-detail/index",
         "note-publish/note_publish/index",
       ]
     },
