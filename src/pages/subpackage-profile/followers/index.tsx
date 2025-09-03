@@ -20,6 +20,8 @@ import { normalizeImageUrl } from '@/utils/image'
 
 // Component imports
 import AuthorInfo from '@/components/author-info'
+import SearchBar from '@/components/search-bar'
+import HighlightText from '@/components/highlight-text'
 
 // Relative imports
 import styles from './index.module.scss'
@@ -49,6 +51,7 @@ const FollowersPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [users, setUsers] = useState<any[]>([])
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]) // 用于高亮的关键词列表
   const [allUsers, setAllUsers] = useState<any[]>([]) // 存储所有用户数据用于搜索
 
   // 获取用户列表的核心函数（不使用useCallback避免循环依赖）
@@ -189,23 +192,42 @@ const FollowersPage = () => {
     }
   }
 
-  // 搜索处理
-  const handleSearch = () => {
-    if (searchKeyword.trim() === '') {
+  // 处理搜索输入
+  const handleSearchInput = useCallback((e: any) => {
+    const value = e.detail.value
+    setSearchKeyword(value)
+
+    // 实时搜索
+    if (value.trim() === '') {
       setUsers(allUsers)
+      setSearchKeywords([])
     } else {
-      const filteredUsers = allUsers.filter(user => 
-        user.nickname && user.nickname.toLowerCase().includes(searchKeyword.toLowerCase())
+      const filteredUsers = allUsers.filter(user =>
+        user.nickname && user.nickname.toLowerCase().includes(value.toLowerCase())
       )
       setUsers(filteredUsers)
+
+      // 设置关键词用于高亮
+      const keywords = value.trim().split(/\s+/).filter(k => k.length > 0)
+      setSearchKeywords(keywords)
     }
-  }
+  }, [allUsers])
+
+  // 处理搜索确认
+  const handleSearchConfirm = useCallback(() => {
+    if (!searchKeyword.trim()) return
+
+    // 这里可以添加更复杂的搜索逻辑
+    const keywords = searchKeyword.trim().split(/\s+/).filter(k => k.length > 0)
+    setSearchKeywords(keywords)
+  }, [searchKeyword])
 
   // 清空搜索
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     setSearchKeyword('')
+    setSearchKeywords([])
     setUsers(allUsers)
-  }
+  }, [allUsers])
 
   // 获取关注按钮文本和样式
   const getFollowButtonInfo = (relation: FollowRelation) => {
@@ -291,27 +313,14 @@ const FollowersPage = () => {
       <View className={styles.fixedSearchArea}>
         {/* 搜索区域 */}
         <View className={styles.searchSection}>
-          <View className={styles.searchBox}>
-            <View className={styles.searchInputContainer}>
-              <Text className={styles.searchIcon}>🔍</Text>
-              <Input
-                className={styles.searchInput}
-                value={searchKeyword}
-                onInput={(e) => setSearchKeyword(e.detail.value)}
-                placeholder={`搜索${activeTab === 'following' ? '关注' : '粉丝'}`}
-                confirmType='search'
-                onConfirm={handleSearch}
-              />
-              {searchKeyword && (
-                <Button className={styles.clearButton} onClick={handleClearSearch}>
-                  ×
-                </Button>
-              )}
-            </View>
-            <Button className={styles.searchButton} onClick={handleSearch}>
-              搜索
-            </Button>
-          </View>
+          <SearchBar
+            key={`followers-search-${activeTab}`}
+            keyword={searchKeyword}
+            placeholder={`搜索${activeTab === 'following' ? '关注' : '粉丝'}`}
+            onInput={handleSearchInput}
+            onSearch={handleSearchConfirm}
+            onClear={handleClearSearch}
+          />
         </View>
 
         {/* 统计信息 */}
@@ -362,6 +371,17 @@ const FollowersPage = () => {
                     showStats={false}
                     showLevel={true}
                   />
+                  {/* 搜索关键词高亮提示 */}
+                  {searchKeywords.length > 0 && user.nickname && (
+                    <View className={styles.searchHighlight}>
+                      <Text className={styles.highlightText}>
+                        匹配: <HighlightText
+                          text={user.nickname}
+                          keywords={searchKeywords}
+                        />
+                      </Text>
+                    </View>
+                  )}
                 </View>
               )
             })}

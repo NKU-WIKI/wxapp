@@ -5,6 +5,9 @@ import { View, Text, Image } from '@tarojs/components';
 import starFilledIcon from '@/assets/star-filled.svg';
 import starOutlineIcon from '@/assets/star-outline.svg';
 
+// Absolute imports
+import HighlightText from '@/components/highlight-text'
+
 // Relative imports
 import styles from './RatingItem.module.scss';
 
@@ -32,9 +35,13 @@ interface RatingItemProps {
    * 点击事件
    */
   onItemClick?: (_resource: any) => void
+  /**
+   * 搜索关键词（用于高亮显示）
+   */
+  keywords?: string[]
 }
 
-const RatingItem = ({ resource, onItemClick }: RatingItemProps) => {
+const RatingItem = ({ resource, onItemClick, keywords = [] }: RatingItemProps) => {
   const [imageLoadError, setImageLoadError] = useState(false)
 
   // 数据验证
@@ -148,9 +155,11 @@ const RatingItem = ({ resource, onItemClick }: RatingItemProps) => {
       {/* 资源信息 */}
       <View className={styles.contentContainer}>
         {/* 资源名称 */}
-        <Text className={styles.resourceName}>
-          {resource.title || resource.resource_name}
-        </Text>
+        <HighlightText
+          text={resource.title || resource.resource_name}
+          keywords={keywords}
+          className={styles.resourceName}
+        />
 
         {/* 资源描述/位置信息 */}
         {resource.description && (

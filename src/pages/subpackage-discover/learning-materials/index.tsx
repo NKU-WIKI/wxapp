@@ -1,7 +1,9 @@
-import { View, ScrollView, Text, Image, Input } from "@tarojs/components";
+import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useState, useEffect, useCallback } from "react";
 import AuthFloatingButton from "@/components/auth-floating-button";
+import SearchBar from "@/components/search-bar";
+import HighlightText from "@/components/highlight-text";
 import LearningMaterialService, { CATEGORY_CONFIG } from "@/services/api/learningMaterial";
 import { LearningMaterial, LearningMaterialCategory } from "@/types/api/learningMaterial";
 import styles from "./index.module.scss";
@@ -9,6 +11,7 @@ import styles from "./index.module.scss";
 // eslint-disable-next-line import/no-unused-modules
 export default function LearningMaterials() {
   const [searchValue, setSearchValue] = useState("");
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]); // 用于高亮的关键词列表
   const [activeTag, setActiveTag] = useState("全部");
   const [materials, setMaterials] = useState<LearningMaterial[]>([]);
   const [allMaterials, setAllMaterials] = useState<LearningMaterial[]>([]);
@@ -85,6 +88,36 @@ export default function LearningMaterials() {
     setCategoryStats(stats);
   };
 
+  // 处理搜索输入
+  const handleSearchInput = useCallback((e: any) => {
+    const value = e.detail.value;
+    setSearchValue(value);
+
+    // 设置关键词用于高亮
+    if (value.trim()) {
+      const keywords = value.trim().split(/\s+/).filter(k => k.length > 0);
+      setSearchKeywords(keywords);
+    } else {
+      setSearchKeywords([]);
+    }
+
+    // 触发筛选
+    setTimeout(() => filterMaterials(), 0);
+  }, [filterMaterials]);
+
+  // 处理搜索确认
+  const handleSearchConfirm = useCallback(() => {
+    // 这里可以添加更复杂的搜索逻辑
+    filterMaterials();
+  }, [filterMaterials]);
+
+  // 清空搜索
+  const handleClearSearch = useCallback(() => {
+    setSearchValue("");
+    setSearchKeywords([]);
+    filterMaterials();
+  }, [filterMaterials]);
+
   // 标签数据
   const tags = ["全部", "考研资料", "期末考试", "课程笔记", "实验报告"];
 
@@ -129,10 +162,7 @@ export default function LearningMaterials() {
     Taro.navigateBack();
   };
 
-  // 搜索输入处理
-  const handleSearchInput = (e: any) => {
-    setSearchValue(e.detail.value);
-  };
+
 
   // 标签点击处理
   const handleTagClick = (tag: string) => {
@@ -357,14 +387,14 @@ export default function LearningMaterials() {
 
       {/* 搜索框 */}
       <View className={styles.searchContainer}>
-        <Input
-          type='text'
+        <SearchBar
+          key='learning-materials-search'
+          keyword={searchValue}
           placeholder='RAG搜索资料、课程'
-          className={styles.searchInput}
-          value={searchValue}
           onInput={handleSearchInput}
+          onSearch={handleSearchConfirm}
+          onClear={handleClearSearch}
         />
-        <Image src={require("@/assets/search.svg")} className={styles.searchIcon} />
       </View>
 
       {/* 内容区域 */}
@@ -417,7 +447,11 @@ export default function LearningMaterials() {
                   {CATEGORY_CONFIG[material.category].icon}
                 </Text>
                 <View className={styles.itemInfo}>
-                  <Text className={styles.itemTitle}>{material.title}</Text>
+                  <HighlightText
+                    text={material.title}
+                    keywords={searchKeywords}
+                    highlightStyle={{ color: '#ff4d4f', fontWeight: 'bold' }}
+                  />
                   <View className={styles.itemMeta}>
                     <Text className={styles.itemSize}>
                       大小：{formatFileSize(material.fileSize)}

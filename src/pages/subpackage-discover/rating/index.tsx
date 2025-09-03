@@ -1,6 +1,6 @@
 // Third-party imports
 import { useState, useEffect, useCallback } from 'react'
-import { View, Text, ScrollView, Input } from '@tarojs/components'
+import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -11,6 +11,7 @@ import { getResourceList } from '@/services/api/rating'
 import { RatingCategory } from '@/types/api/rating.d'
 import CustomHeader from '@/components/custom-header'
 import AuthFloatingButton from '@/components/auth-floating-button'
+import SearchBar from '@/components/search-bar'
 
 // Relative imports
 import RatingItem from './components/RatingItem'
@@ -23,6 +24,7 @@ const RatingPage = () => {
   const [resources, setResources] = useState<any[]>([])
   const [filteredResources, setFilteredResources] = useState<any[]>([])
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]) // 用于高亮的关键词列表
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -95,20 +97,44 @@ const RatingPage = () => {
     }
   }, [isLoggedIn])
 
-  // 搜索功能
-  const handleSearch = (keyword: string) => {
+  // 处理搜索输入
+  const handleSearchInput = useCallback((e: any) => {
+    const keyword = e.detail.value
     setSearchKeyword(keyword)
+
+    // 实时搜索
     if (!keyword.trim()) {
       setFilteredResources(resources)
+      setSearchKeywords([])
     } else {
-      const filtered = resources.filter(resource => 
+      const filtered = resources.filter(resource =>
         resource.resource_name?.toLowerCase().includes(keyword.toLowerCase().trim()) ||
         resource.title?.toLowerCase().includes(keyword.toLowerCase().trim()) ||
         resource.name?.toLowerCase().includes(keyword.toLowerCase().trim())
       )
       setFilteredResources(filtered)
+
+      // 设置关键词用于高亮
+      const keywords = keyword.trim().split(/\s+/).filter(k => k.length > 0)
+      setSearchKeywords(keywords)
     }
-  }
+  }, [resources])
+
+  // 处理搜索确认
+  const handleSearchConfirm = useCallback(() => {
+    if (!searchKeyword.trim()) return
+
+    // 这里可以添加更复杂的搜索逻辑
+    const keywords = searchKeyword.trim().split(/\s+/).filter(k => k.length > 0)
+    setSearchKeywords(keywords)
+  }, [searchKeyword])
+
+  // 清空搜索
+  const handleClearSearch = useCallback(() => {
+    setSearchKeyword('')
+    setSearchKeywords([])
+    setFilteredResources(resources)
+  }, [resources])
 
   // 监听resources变化，同时更新filteredResources
   useEffect(() => {
@@ -173,24 +199,14 @@ const RatingPage = () => {
       
       {/* 搜索框 */}
       <View className={styles.searchContainer}>
-        <View className={styles.searchBox}>
-          <View className={styles.searchIcon}>🔍</View>
-          <Input
-            className={styles.searchInput}
-            placeholder='搜索评分内容标题...'
-            value={searchKeyword}
-            onInput={(e) => handleSearch(e.detail.value)}
-            confirmType='search'
-          />
-          {searchKeyword && (
-            <View 
-              className={styles.clearIcon}
-              onClick={() => handleSearch('')}
-            >
-              ✕
-            </View>
-          )}
-        </View>
+        <SearchBar
+          key='rating-search'
+          keyword={searchKeyword}
+          placeholder='搜索评分内容标题...'
+          onInput={handleSearchInput}
+          onSearch={handleSearchConfirm}
+          onClear={handleClearSearch}
+        />
       </View>
       
       {/* 分类标签栏 */}
@@ -253,6 +269,7 @@ const RatingPage = () => {
                 key={resource.id}
                 resource={resource}
                 onItemClick={handleItemClick}
+                keywords={searchKeywords}
               />
             ))}
             

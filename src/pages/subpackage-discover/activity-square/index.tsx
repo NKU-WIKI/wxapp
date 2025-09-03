@@ -1,4 +1,4 @@
-import { View, ScrollView, Text, Image, Input } from "@tarojs/components";
+import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback, useMemo } from "react";
 
@@ -6,7 +6,8 @@ import activityApi from "@/services/api/activity";
 import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d";
 import CustomHeader from "@/components/custom-header";
 import AuthFloatingButton from "@/components/auth-floating-button";
-import searchIcon from "@/assets/search.svg";
+import SearchBar from "@/components/search-bar";
+import HighlightText from "@/components/highlight-text";
 
 import styles from "./index.module.scss";
 
@@ -17,6 +18,8 @@ export default function ActivitySquare() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]); // 用于高亮的关键词列表
 
 
   // 活动分类列表
@@ -105,6 +108,73 @@ export default function ActivitySquare() {
   const handleRefresh = async () => {
     await fetchActivities(false);
   };
+
+  // 处理搜索输入
+  const handleSearchInput = useCallback((e: any) => {
+    const value = e.detail.value;
+    setSearchKeyword(value);
+
+    // 设置关键词用于高亮
+    if (value.trim()) {
+      const keywords = value.trim().split(/\s+/).filter(k => k.length > 0);
+      setSearchKeywords(keywords);
+    } else {
+      setSearchKeywords([]);
+    }
+  }, []);
+
+  // 处理搜索确认
+  const handleSearchConfirm = useCallback(() => {
+    // 本地搜索已经在filteredActivities中自动执行
+    // 这里可以添加一些用户反馈
+    if (searchKeyword.trim()) {
+      // 延迟执行以确保状态已更新
+      setTimeout(() => {
+        const keyword = searchKeyword.trim().toLowerCase();
+
+        // 根据搜索关键词过滤
+        const filtered = activities.filter(activityItem =>
+          activityItem.title?.toLowerCase().includes(keyword) ||
+          activityItem.description?.toLowerCase().includes(keyword) ||
+          activityItem.location?.toLowerCase().includes(keyword) ||
+          activityItem.category?.toLowerCase().includes(keyword) ||
+          activityItem.organizer?.nickname?.toLowerCase().includes(keyword)
+        );
+
+        // 如果有分类过滤，再次应用分类过滤
+        let finalFiltered = filtered;
+        if (selectedCategory !== '全部') {
+          finalFiltered = filtered.filter(activityItem => activityItem.category === selectedCategory);
+        }
+
+        if (finalFiltered.length === 0) {
+          Taro.showToast({
+            title: '未找到相关活动',
+            icon: 'none',
+            duration: 1500
+          });
+        } else {
+          Taro.showToast({
+            title: `找到 ${finalFiltered.length} 个相关活动`,
+            icon: 'success',
+            duration: 1500
+          });
+        }
+      }, 100);
+    }
+  }, [searchKeyword, activities, selectedCategory]);
+
+  // 清空搜索
+  const handleClearSearch = useCallback(() => {
+    setSearchKeyword('');
+    setSearchKeywords([]);
+    // 清空搜索后显示所有活动（根据当前分类）
+    Taro.showToast({
+      title: '已清空搜索',
+      icon: 'success',
+      duration: 1000
+    });
+  }, []);
 
 
   const handleActivityClick = (act: ActivityRead) => {
@@ -223,14 +293,29 @@ export default function ActivitySquare() {
     fetchActivities(true, category);
   };
 
-  // 过滤活动列表的函数（如果后端不支持分类过滤，则在前端进行过滤）
+  // 过滤活动列表的函数（同时支持分类和搜索过滤）
   const filteredActivities = useMemo(() => {
-    if (selectedCategory === '全部') {
-      return activities;
+    let filtered = activities;
+
+    // 根据分类过滤
+    if (selectedCategory !== '全部') {
+      filtered = filtered.filter(activityItem => activityItem.category === selectedCategory);
     }
-    // 根据活动的category字段进行过滤
-    return activities.filter(activityItem => activityItem.category === selectedCategory);
-  }, [activities, selectedCategory]);
+
+    // 根据搜索关键词过滤
+    if (searchKeyword.trim()) {
+      const keyword = searchKeyword.trim().toLowerCase();
+      filtered = filtered.filter(activityItem =>
+        activityItem.title?.toLowerCase().includes(keyword) ||
+        activityItem.description?.toLowerCase().includes(keyword) ||
+        activityItem.location?.toLowerCase().includes(keyword) ||
+        activityItem.category?.toLowerCase().includes(keyword) ||
+        activityItem.organizer?.nickname?.toLowerCase().includes(keyword)
+      );
+    }
+
+    return filtered;
+  }, [activities, selectedCategory, searchKeyword]);
 
   return (
     <View className={styles.activitySquarePage}>
@@ -240,14 +325,13 @@ export default function ActivitySquare() {
       <View className={styles.fixedHeader}>
         {/* 搜索框 */}
         <View className={styles.searchContainer}>
-          <Image src={searchIcon} className={styles.searchIcon} />
-          <Input
-            className={styles.searchInput}
+          <SearchBar
+            key='activity-square-search'
+            keyword={searchKeyword}
             placeholder='搜索活动'
-            placeholderClass={styles.searchPlaceholder}
-            onConfirm={(_e) => {
-              // 搜索活动
-            }}
+            onInput={handleSearchInput}
+            onSearch={handleSearchConfirm}
+            onClear={handleClearSearch}
           />
         </View>
 
@@ -302,7 +386,11 @@ export default function ActivitySquare() {
                   onClick={() => handleActivityClick(act)}
                 >
                   <View className={styles.activityContent}>
-                    <Text className={styles.activityTitle}>{act.title}</Text>
+                    <HighlightText
+                      text={act.title}
+                      keywords={searchKeywords}
+                      highlightStyle={{ color: '#ff4d4f', fontWeight: 'bold' }}
+                    />
                     <View className={styles.activityDetails}>
                       <View className={styles.activityDetailItem}>
                         <Image src={require("@/assets/clock.svg")} className={styles.detailIcon} />
