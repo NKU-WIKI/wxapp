@@ -392,13 +392,13 @@ const ratingSlice = createSlice({
       })
       .addCase(fetchRatingItems.fulfilled, (state, action) => {
         state.itemsLoading = false
-        const { items, pagination } = action.payload
+        const { items, page, page_size, total } = action.payload
         state.items = items
         state.pagination = {
-          page: pagination.page,
-          pageSize: pagination.pageSize,
-          total: pagination.total,
-          hasMore: pagination.page * pagination.pageSize < pagination.total
+          page: page,
+          pageSize: page_size,
+          total: total,
+          hasMore: page * page_size < total
         }
       })
       .addCase(fetchRatingItems.rejected, (state, action) => {

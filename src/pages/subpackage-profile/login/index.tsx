@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Image, Text, Input, Checkbox } from '@tarojs/components';
 import { useDispatch } from 'react-redux';
 import Taro from '@tarojs/taro';
@@ -25,6 +25,33 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState<string>('');
+
+  // 获取页面参数
+  useEffect(() => {
+    const router = Taro.getCurrentInstance().router;
+    if (router?.params?.redirect) {
+      setRedirectUrl(decodeURIComponent(router.params.redirect));
+    }
+  }, []);
+
+  // 登录成功后的跳转处理
+  const handleLoginSuccess = () => {
+    Taro.showToast({ title: '登录成功', icon: 'success' });
+    setTimeout(() => {
+      if (redirectUrl) {
+        // 如果有重定向URL，根据URL类型选择跳转方式
+        if (redirectUrl.startsWith('/pages/')) {
+          Taro.navigateTo({ url: redirectUrl });
+        } else {
+          Taro.switchTab({ url: redirectUrl });
+        }
+      } else {
+        // 默认跳转到首页
+        Taro.switchTab({ url: '/pages/home/index' });
+      }
+    }, 1000);
+  };
 
   // 检查协议同意状态
   const checkAgreement = () => {
@@ -76,10 +103,7 @@ export default function LoginPage() {
 
     try {
       await dispatch(loginWithUsername({ username: username.trim(), password })).unwrap();
-      Taro.showToast({ title: '登录成功', icon: 'success' });
-      setTimeout(() => {
-        Taro.switchTab({ url: '/pages/home/index' });
-      }, 1000);
+      handleLoginSuccess();
     } catch (error) {
       
       Taro.showToast({
@@ -117,7 +141,17 @@ export default function LoginPage() {
       })).unwrap();
       Taro.showToast({ title: '注册成功', icon: 'success' });
       setTimeout(() => {
-        Taro.switchTab({ url: '/pages/home/index' });
+        if (redirectUrl) {
+          // 如果有重定向URL，根据URL类型选择跳转方式
+          if (redirectUrl.startsWith('/pages/')) {
+            Taro.navigateTo({ url: redirectUrl });
+          } else {
+            Taro.switchTab({ url: redirectUrl });
+          }
+        } else {
+          // 默认跳转到首页
+          Taro.switchTab({ url: '/pages/home/index' });
+        }
       }, 1000);
     } catch (error) {
       
@@ -151,11 +185,21 @@ export default function LoginPage() {
       await dispatch(login(res.code)).unwrap();
 
       Taro.hideLoading();
-      
+
       Taro.showToast({ title: '登录成功', icon: 'success' });
 
       setTimeout(() => {
-        Taro.switchTab({ url: '/pages/home/index' });
+        if (redirectUrl) {
+          // 如果有重定向URL，根据URL类型选择跳转方式
+          if (redirectUrl.startsWith('/pages/')) {
+            Taro.navigateTo({ url: redirectUrl });
+          } else {
+            Taro.switchTab({ url: redirectUrl });
+          }
+        } else {
+          // 默认跳转到首页
+          Taro.switchTab({ url: '/pages/home/index' });
+        }
       }, 1500);
     } catch (error) {
       

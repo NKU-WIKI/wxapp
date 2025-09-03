@@ -43,6 +43,19 @@ export const joinActivity = (params: PostJoinActivityRequest) =>{
   });
 }
 
+/**
+ * 获取活动详情
+ * @param activityId 活动ID
+ * @returns
+ */
+export const getActivityDetail = (activityId: string) => {
+  const raw = Taro.getStorageSync('token');
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
+  return http.get<ActivityCreateResponse>(`/activities/${activityId}`, {}, {
+    header: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+}
+
 export const myActivity = (params: GetMyActivityRequest) =>{
   const raw = Taro.getStorageSync('token');
   const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
@@ -53,6 +66,7 @@ export const myActivity = (params: GetMyActivityRequest) =>{
 
 const activityApi = {
   getActivityList,
+  getActivityDetail,
   createActivity,
   joinActivity,
   myActivity

@@ -1,21 +1,24 @@
+// Third-party imports
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { View, ScrollView, Text, Input } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffect, useState, useCallback, useRef } from 'react'
 
+// Absolute imports (alphabetical order)
 import CustomHeader from '@/components/custom-header'
 import EmptyState from '@/components/empty-state'
+import AuthFloatingButton from '@/components/auth-floating-button'
 import { fetchErrands, clearError } from '@/store/slices/marketplaceSlice'
 import { RootState, AppDispatch } from '@/store'
 import { ErrandType } from '@/types/api/marketplace.d'
-import { useAuthGuard } from '@/hooks/useAuthGuard'
 
+// Relative imports
 import ErrandsTabBar from '../../../components/ErrandsTabBar'
+
 import styles from './index.module.scss'
 
 const ErrandsHomePage = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { checkAuth } = useAuthGuard()
   const { errands, errandsLoading, errandsPagination, error } = useSelector(
     (state: RootState) => state.marketplace
   )
@@ -79,15 +82,6 @@ const ErrandsHomePage = () => {
     })
   }, [])
 
-  // 处理发布按钮点击
-  const handlePublishClick = useCallback(() => {
-    if (!checkAuth()) return
-
-    Taro.navigateTo({
-      url: '/pages/subpackage-commerce/pages/errands/publish/index',
-    })
-  }, [checkAuth])
-
   // 页面每次显示时刷新数据（包括首次进入和从其他页面返回）
   useDidShow(() => {
     loadErrands({ refresh: true })
@@ -125,6 +119,7 @@ const ErrandsHomePage = () => {
     }
   }, [error, dispatch])
 
+
   // 搜索框组件
   const SearchBar = () => (
     <View className={styles.searchContainer}>
@@ -135,7 +130,7 @@ const ErrandsHomePage = () => {
           onInput={(e) => setSearchKeyword(e.detail.value)}
         />
       </View>
-      <View className={styles.publishButton} onClick={handlePublishClick}>
+      <View className={styles.publishButton} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/errands/publish/index' })}>
         <Text className={styles.plusIcon}>+</Text>
         <Text>发布需求</Text>
       </View>
@@ -253,6 +248,15 @@ const ErrandsHomePage = () => {
           )}
         </ScrollView>
       </View>
+
+      {/* 带鉴权的悬浮发布按钮 */}
+      <AuthFloatingButton
+        variant='plus'
+        onClick={() => Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/errands/publish/index' })}
+        loginPrompt='您需要登录后才能发布跑腿任务，是否立即前往登录页面？'
+        redirectUrl='/pages/subpackage-commerce/pages/errands/publish/index'
+      />
+
       <ErrandsTabBar activeTab='home' />
     </View>
   )

@@ -9,10 +9,11 @@ import CustomHeader from '@/components/custom-header'
 import EmptyState from '@/components/empty-state'
 import SearchBar from '@/components/search-bar'
 import HighlightText from '@/components/highlight-text'
+import AuthFloatingButton from '@/components/auth-floating-button'
 import { fetchListings, clearError } from '@/store/slices/marketplaceSlice'
 import { RootState, AppDispatch } from '@/store'
 import { ListingRead, ListingType } from '@/types/api/marketplace.d'
-import { useAuthGuard } from '@/hooks/useAuthGuard'
+
 import { useRelativeTime } from '@/hooks/useRelativeTime'
 import { useProductDetails } from '@/hooks/useProductDetails'
 import searchApi from '@/services/api/search'
@@ -57,7 +58,6 @@ const FilterTabs = ({
 
 const SecondHandHomePage = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { checkAuth } = useAuthGuard()
   const { listings, listingsLoading, listingsPagination, error } = useSelector(
     (state: RootState) => state.marketplace
   )
@@ -292,14 +292,6 @@ const SecondHandHomePage = () => {
     })
   }, [])
 
-  // 处理发布按钮点击
-  const handlePublishClick = useCallback(() => {
-    if (!checkAuth()) return
-
-    Taro.navigateTo({
-      url: '/pages/subpackage-commerce/pages/second-hand/publish/index',
-    })
-  }, [checkAuth])
 
   // 页面每次显示时刷新数据（包括首次进入和从其他页面返回）
   useDidShow(() => {
@@ -394,12 +386,7 @@ const SecondHandHomePage = () => {
     )
   }
 
-  // 悬浮发布按钮
-  const FloatingActionButton = () => (
-    <View className={styles.fab} onClick={handlePublishClick}>
-      <Text className={styles.fabIcon}>+</Text>
-    </View>
-  )
+
 
   return (
     <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -463,7 +450,14 @@ const SecondHandHomePage = () => {
           )}
         </ScrollView>
       </View>
-      <FloatingActionButton />
+
+      {/* 带鉴权的悬浮发布按钮 */}
+      <AuthFloatingButton
+        variant='plus'
+        onClick={() => Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/second-hand/publish/index' })}
+        loginPrompt='您需要登录后才能发布商品，是否立即前往登录页面？'
+        redirectUrl='/pages/subpackage-commerce/pages/second-hand/publish/index'
+      />
     </View>
   )
 }

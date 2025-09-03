@@ -3,11 +3,6 @@ export default {
     "pages/home/index",
     "pages/explore/index",
     "pages/discover/index",
-    "pages/discover/activity-square/index",
-    "pages/discover/publish-activity/index",
-    "pages/discover/rating/index",
-    "pages/discover/rating/detail/index",
-    "pages/discover/rating/publish/index",
     "pages/profile/index",
   ],
   subPackages: [
@@ -39,6 +34,12 @@ export default {
       pages: [
         "learning-materials/index",
         "upload-material/index",
+        "activity-square/index",
+        "activity-detail/index",
+        "publish-activity/index",
+        "rating/index",
+        "rating/detail/index",
+        "rating/publish/index",
       ]
     },
     {

@@ -94,7 +94,6 @@
   position: relative;
   overflow-y: auto; // 允许垂直滚动
   -webkit-overflow-scrolling: touch; // 优化iOS滚动体验
-  layout_height: wrap_content; // 高度自适应内容
 }
 
 .publishSection {
@@ -212,6 +211,7 @@
     opacity: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2; // 标准属性，用于现代浏览器兼容性
     -webkit-box-orient: vertical;
     text-overflow: ellipsis;
     animation: collapseText 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -223,6 +223,7 @@
     opacity: 1;
     display: block;
     -webkit-line-clamp: unset;
+    line-clamp: unset; // 标准属性
     text-overflow: unset;
     animation: expandText 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -323,33 +324,7 @@
   font-size: 14px;
 }
 
-// 圆形悬浮发布按钮样式
-.floatingPublishButton {
-  position: fixed;
-  bottom: 30px;
-  right: 30px; // 改为右边固定位置
-  width: 60px;
-  height: 60px;
-  background: #4f46e5;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
-  z-index: 1000;
-  transition: all 0.3s ease;
 
-  &:active {
-    transform: scale(0.95); // 移除translateX，因为不再居中
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.6);
-  }
-}
-
-.floatingPublishIcon {
-  width: 24px;
-  height: 24px;
-  filter: brightness(0) invert(1); // 将图标变为白色
-}
 
 // 空状态样式
 .emptyState {

@@ -7,6 +7,10 @@ import { createUserRating } from '@/store/slices/ratingSlice'
 import { RatingCategory } from '@/types/api/rating.d'
 import { uploadApi } from '@/services/api/upload'
 import CustomHeader from '@/components/custom-header'
+// 引入图标
+import cameraIcon from '@/assets/camera.svg'
+import starFilledIcon from '@/assets/star-filled.svg'
+import starOutlineIcon from '@/assets/star-outline.svg'
 import styles from './index.module.scss'
 
 // 评分类别数据
@@ -26,24 +30,18 @@ const stars = [1, 2, 3, 4, 5]
 const RatingPublishPage = () => {
   const dispatch = useDispatch<AppDispatch>()
   
-  // 表单状态
+  // 表单状态 - 简化为核心字段
   const [formData, setFormData] = useState({
     resourceName: '',
-    resourceTitle: '',
-    resourceDescription: '',
     score: 5, // 默认5星
     comment: '',
     resourceType: RatingCategory.Other,
-    image: '',
-    isAnonymous: false,
-    tags: [] as string[]
+    image: ''
   })
   
   // UI 状态
   const [commentLength, setCommentLength] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
-  // const [activeMenu, setActiveMenu] = useState<'category' | 'tags' | 'settings' | null>(null) // 未使用
-  const [showStarSelector, setShowStarSelector] = useState(false)
   
   // 获取用户状态和评分相关状态
   const userState = useSelector((state: RootState) => state.user)
@@ -126,14 +124,9 @@ const RatingPublishPage = () => {
   // 选择分类
   const handleCategorySelect = (category: RatingCategory) => {
     setFormData(prev => ({ ...prev, resourceType: category }))
-    setActiveMenu(null)
   }
 
-  // 选择星级
-  const handleStarSelect = (star: number) => {
-    setFormData(prev => ({ ...prev, score: star }))
-    setShowStarSelector(false)
-  }
+
 
   // 提交表单
   const handleSubmit = async () => {
@@ -167,13 +160,11 @@ const RatingPublishPage = () => {
     const submitData = {
       resource_type: formData.resourceType,
       resource_name: formData.resourceName.trim(),
-      resource_title: formData.resourceTitle.trim() || undefined,
-      resource_description: formData.resourceDescription.trim() || undefined,
       resource_image: formData.image || undefined,
       score: formData.score,
       comment: formData.comment.trim(),
-      is_anonymous: formData.isAnonymous,
-      tags: formData.tags,
+      is_anonymous: false,
+      tags: [],
       evidence_urls: formData.image ? [formData.image] : []
     }
 
@@ -218,20 +209,13 @@ const RatingPublishPage = () => {
   }
 
   return (
-    <View 
-      className={styles.pageContainer}
-      onClick={() => {
-        setActiveMenu(null)
-        setShowStarSelector(false)
-      }}
-    >
+    <View className={styles.pageContainer}>
       <CustomHeader title='发布评分' onLeftClick={handleBack} />
       
       <View className={styles.contentWrapper}>
         <ScrollView 
           scrollY 
           className={styles.scrollView}
-          onClick={(e) => e.stopPropagation()}
         >
           {/* 主要信息卡片 */}
           <View className={styles.publishCard}>
@@ -251,9 +235,11 @@ const RatingPublishPage = () => {
                 </View>
               ) : (
                 <View className={styles.imageUpload} onClick={handleChooseImage}>
-                  <View className={styles.cameraIcon}>
-                    <Text className={styles.iconText}>📷</Text>
-                  </View>
+                  <Image 
+                    src={cameraIcon} 
+                    className={styles.cameraIcon}
+                    style={{ width: '24px', height: '24px' }}
+                  />
                   <Text className={styles.uploadText}>
                     {isUploading ? '上传中...' : '点击添加图片（可选）'}
                   </Text>
@@ -271,60 +257,26 @@ const RatingPublishPage = () => {
                 onInput={(e) => handleInputChange('resourceName', e.detail.value)}
                 maxlength={50}
               />
-              <Text className={styles.hint}>作为资源的唯一标识，相同名称将归为同一资源</Text>
+
             </View>
 
-            {/* 资源标题（可选） */}
-            <View className={styles.formGroup}>
-              <Text className={styles.label}>显示标题</Text>
-              <Input
-                className={styles.input}
-                placeholder='显示标题（可选，用于更好的展示）'
-                value={formData.resourceTitle}
-                onInput={(e) => handleInputChange('resourceTitle', e.detail.value)}
-                maxlength={100}
-              />
-            </View>
+
 
             {/* 评分星级 */}
             <View className={styles.formGroup}>
               <Text className={styles.label}>评分 *</Text>
-              <View 
-                className={styles.starContainer} 
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowStarSelector(!showStarSelector)
-                }}
-              >
+              <View className={styles.starContainer}>
                 {stars.map(star => (
-                  <Text 
+                  <Image 
                     key={star}
-                    className={`${styles.star} ${star <= formData.score ? styles.starActive : ''}`}
-                  >
-                    ⭐
-                  </Text>
+                    src={star <= formData.score ? starFilledIcon : starOutlineIcon}
+                    className={styles.starIcon}
+                    style={{ width: '24px', height: '24px' }}
+                    onClick={() => setFormData(prev => ({ ...prev, score: star }))}
+                  />
                 ))}
                 <Text className={styles.scoreText}>{formData.score} 星</Text>
               </View>
-              
-              {/* 星级选择器 */}
-              {showStarSelector && (
-                <View className={styles.starSelector}>
-                  {stars.map(star => (
-                    <View 
-                      key={star}
-                      className={`${styles.starOption} ${star === formData.score ? styles.selected : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleStarSelect(star)
-                      }}
-                    >
-                      <Text className={styles.starText}>{'⭐'.repeat(star)}</Text>
-                      <Text className={styles.starLabel}>{star} 星</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
             </View>
 
             {/* 评价内容 */}
@@ -362,35 +314,7 @@ const RatingPublishPage = () => {
             </View>
           </View>
 
-          {/* 可选设置卡片 */}
-          <View className={styles.publishCard}>
-            <Text className={styles.sectionTitle}>其他设置</Text>
-            
-            {/* 资源描述 */}
-            <View className={styles.formGroup}>
-              <Text className={styles.label}>资源描述</Text>
-              <Textarea
-                className={styles.textarea}
-                placeholder='简要描述这个资源（可选）'
-                value={formData.resourceDescription}
-                onInput={(e) => handleInputChange('resourceDescription', e.detail.value)}
-                maxlength={200}
-                autoHeight
-                showConfirmBar={false}
-              />
-            </View>
 
-            {/* 匿名选项 */}
-            <View className={styles.settingItem}>
-              <Text className={styles.settingLabel}>匿名评分</Text>
-              <View 
-                className={`${styles.switch} ${formData.isAnonymous ? styles.switchOn : ''}`}
-                onClick={() => handleInputChange('isAnonymous', !formData.isAnonymous)}
-              >
-                <View className={styles.switchSlider}></View>
-              </View>
-            </View>
-          </View>
         </ScrollView>
       </View>
 

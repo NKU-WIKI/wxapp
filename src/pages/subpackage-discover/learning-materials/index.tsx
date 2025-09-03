@@ -1,6 +1,7 @@
 import { View, ScrollView, Text, Image, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useState } from "react";
+import AuthFloatingButton from "@/components/auth-floating-button";
 import styles from "./index.module.scss";
 
 interface CategoryCard {
@@ -111,19 +112,14 @@ export default function LearningMaterials() {
     });
   };
 
-  // 上传按钮点击处理
-  const handleUploadClick = () => {
-    Taro.navigateTo({
-      url: '/pages/subpackage-discover/upload-material/index'
-    });
-  };
+
 
   return (
     <View className={styles.learningMaterialsPage}>
       {/* 导航栏 */}
       <View className={styles.navbar}>
         <View className={styles.backButton} onClick={handleBack}>
-          <Image src={require("../../../assets/arrow-left.svg")} className={styles.backIcon} />
+          <Image src={require("@/assets/arrow-left.svg")} className={styles.backIcon} />
         </View>
                 <Text className={styles.title}>学习资料</Text>
       </View>
@@ -137,7 +133,7 @@ export default function LearningMaterials() {
           value={searchValue}
           onInput={handleSearchInput}
         />
-        <Image src={require("../../../assets/search.svg")} className={styles.searchIcon} />
+        <Image src={require("@/assets/search.svg")} className={styles.searchIcon} />
       </View>
 
       {/* 内容区域 */}
@@ -194,10 +190,13 @@ export default function LearningMaterials() {
         </View>
       </ScrollView>
 
-      {/* 浮动加号按钮 */}
-      <View className={styles.floatingActionButton} onClick={handleUploadClick}>
-        <Text className={styles.plusIcon}>+</Text>
-      </View>
+      {/* 带鉴权的悬浮发布按钮 */}
+      <AuthFloatingButton
+        variant='plus'
+        onClick={() => Taro.navigateTo({ url: '/pages/subpackage-discover/upload-material/index' })}
+        loginPrompt='您需要登录后才能上传学习资料，是否立即前往登录页面？'
+        redirectUrl='/pages/subpackage-discover/upload-material/index'
+      />
     </View>
   );
 }

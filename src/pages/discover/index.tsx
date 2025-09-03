@@ -205,7 +205,7 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                Taro.navigateTo({ url: '/pages/discover/activity-square/index' });
+                Taro.navigateTo({ url: '/pages/subpackage-discover/activity-square/index' });
               }}
             >
               <View className={styles.moduleContentWrapper}>
@@ -219,7 +219,6 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                // TODO: 待二手交易首页完成后，替换为正确的路径
                 Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/second-hand/home/index' });
               }}
             >
@@ -270,7 +269,7 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                Taro.navigateTo({ url: '/pages/discover/rating/index' });
+                Taro.navigateTo({ url: '/pages/subpackage-discover/rating/index' });
               }}
             >
               <View className={styles.moduleContentWrapper}>

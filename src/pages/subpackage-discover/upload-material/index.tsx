@@ -147,7 +147,7 @@ export default function UploadMaterial() {
       {/* 顶部导航栏 */}
       <View className={styles.navbar}>
         <View className={styles.backButton} onClick={handleBack}>
-          <Image src={require("../../../assets/arrow-left.svg")} className={styles.backIcon} />
+          <Image src={require("@/assets/arrow-left.svg")} className={styles.backIcon} />
         </View>
         <Text className={styles.pageTitle}>上传资料</Text>
       </View>

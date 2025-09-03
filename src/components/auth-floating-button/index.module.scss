@@ -1,0 +1,50 @@
+// 鉴权悬浮按钮样式
+.floatingButton {
+  position: fixed;
+  bottom: 120rpx; // 调整位置，避免与底部导航栏重叠
+  right: 30rpx;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.5);
+  }
+}
+
+.floatingIcon {
+  width: 28px;
+  height: 28px;
+  filter: brightness(0) invert(1); // 白色图标
+}
+
+// Plus 图标样式（用于 variant='plus' 时）
+.plusIcon {
+  font-size: 32px;
+  color: #fff;
+  font-weight: 300;
+  line-height: 1;
+}
+
+// 响应式适配
+@media screen and (min-width: 768px) {
+  .floatingButton {
+    bottom: 60rpx;
+    right: 60rpx;
+    width: 80rpx;
+    height: 80rpx;
+
+    .floatingIcon {
+      width: 32rpx;
+      height: 32rpx;
+    }
+  }
+}

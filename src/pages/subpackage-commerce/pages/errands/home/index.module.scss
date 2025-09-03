@@ -24,20 +24,6 @@
       font-size: 14px;
     }
   }
-
-  .publishButton {
-    display: flex;
-    align-items: center;
-    background-color: $theme-primary;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 18px;
-    font-size: 14px;
-    .plusIcon {
-      font-size: 16px;
-      margin-right: 4px;
-    }
-  }
 }
 
 .filterTabs {

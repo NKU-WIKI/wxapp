@@ -89,7 +89,9 @@
 
 .starContainer {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 16px;
   height: 16px;
 }
@@ -98,6 +100,14 @@
   width: 16px;
   height: 16px;
   display: block;
+}
+
+.starFillContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .ratingDetails {
