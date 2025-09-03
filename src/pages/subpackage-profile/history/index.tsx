@@ -1,15 +1,15 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, ScrollView } from '@tarojs/components';
+import { View, ScrollView, Text } from '@tarojs/components';
 import Taro, { useReachBottom, usePullDownRefresh } from '@tarojs/taro';
 
 import CustomHeader from '@/components/custom-header';
 import Button from '@/components/button';
 
-// Type imports
-import { HistoryItem as HistoryItemType } from '@/types/history';
+// API imports
+import searchApi from '@/services/api/search';
 
-// Utils imports
-import * as historyUtils from '@/utils/history';
+// Type imports
+import { ViewHistoryRead } from '@/types/history';
 
 // Relative imports
 import HistoryItem from './components/HistoryItem';
@@ -18,42 +18,53 @@ import styles from './index.module.scss';
 const PAGE_SIZE = 20;
 
 const HistoryPage = () => {
-  const [history, setHistory] = useState<HistoryItemType[]>([]);
-  const [page, setPage] = useState(1);
+  const [history, setHistory] = useState<ViewHistoryRead[]>([]);
+  const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [skip, setSkip] = useState(0);
 
-  const loadHistory = useCallback((reset = false) => {
-    const nextPage = reset ? 1 : page;
-    const data = historyUtils.getHistory(nextPage, PAGE_SIZE);
+  const loadHistory = useCallback(async (reset = false) => {
+    if (loading) return;
     
-
-    
-    if (reset) {
-      setHistory(data);
-      setPage(1);
+    try {
+      setLoading(true);
+      const currentSkip = reset ? 0 : skip;
+      
+      const response = await searchApi.getMyViewHistory(currentSkip, PAGE_SIZE);
+      const data = response.data || [];
+      
+      if (reset) {
+        setHistory(data);
+        setSkip(PAGE_SIZE);
+      } else {
+        setHistory(prev => [...prev, ...data]);
+        setSkip(currentSkip + PAGE_SIZE);
+      }
+      
       setHasMore(data.length === PAGE_SIZE);
-    } else {
-      setHistory(prev => [...prev, ...data]);
-      setHasMore(data.length === PAGE_SIZE);
+    } catch (error) {
+      Taro.showToast({
+        title: '加载失败',
+        icon: 'none'
+      });
+    } finally {
+      setLoading(false);
     }
-  }, [page]);
+  }, [skip, loading]);
 
   useEffect(() => {
     loadHistory(true);
-  }, [loadHistory]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  usePullDownRefresh(() => {
-    loadHistory(true);
+  usePullDownRefresh(async () => {
+    await loadHistory(true);
     Taro.stopPullDownRefresh();
   });
 
   useReachBottom(() => {
-    if (hasMore) {
-      const nextPage = page + 1;
-      const data = historyUtils.getHistory(nextPage, PAGE_SIZE);
-      setHistory(prev => [...prev, ...data]);
-      setPage(nextPage);
-      setHasMore(data.length === PAGE_SIZE);
+    if (hasMore && !loading) {
+      loadHistory(false);
     }
   });
 
@@ -63,8 +74,12 @@ const HistoryPage = () => {
       content: '确定要删除该条浏览历史吗？',
       success: (res) => {
         if (res.confirm) {
-          historyUtils.removeHistory(id);
-          setHistory(historyUtils.getHistory(1, page * PAGE_SIZE));
+          // TODO: 实现删除API调用
+          setHistory(prev => prev.filter(item => item.id !== id));
+          Taro.showToast({
+            title: '删除成功',
+            icon: 'success'
+          });
         }
       },
     });
@@ -76,10 +91,14 @@ const HistoryPage = () => {
       content: '确定要清空所有浏览历史吗？',
       success: (res) => {
         if (res.confirm) {
-          historyUtils.clearHistory();
+          // TODO: 实现清空API调用
           setHistory([]);
-          setPage(1);
+          setSkip(0);
           setHasMore(false);
+          Taro.showToast({
+            title: '清空成功',
+            icon: 'success'
+          });
         }
       },
     });
@@ -89,16 +108,24 @@ const HistoryPage = () => {
     <View className={styles.container}>
       <CustomHeader title='浏览历史' hideBack={false} />
       <ScrollView scrollY className={styles.scroll}>
-        {history.length === 0 ? (
+        {history.length === 0 && !loading ? (
           <View className={styles.empty}>暂无浏览历史</View>
         ) : (
-          history.map((item) => (
-            <HistoryItem
-              key={item.id}
-              item={item}
-              onDelete={() => handleDelete(item.id)}
-            />
-          ))
+          <>
+            {history.map((item) => (
+              <HistoryItem
+                key={item.id}
+                item={item}
+                onDelete={() => handleDelete(item.id)}
+              />
+            ))}
+            {loading && (
+              <Text className={styles.loading}>加载中...</Text>
+            )}
+            {!hasMore && history.length > 0 && (
+              <Text className={styles.noMore}>没有更多了</Text>
+            )}
+          </>
         )}
       </ScrollView>
       <View className={styles.bottomBar}>
