@@ -3,7 +3,7 @@ import Taro from '@tarojs/taro';
 import { useState, useCallback } from 'react';
 import activityApi from '@/services/api/activity';
 import { ActivityCreateRequest, ActivityType, ActivityVisibility } from '@/types/api/activity.d';
-import CustomHeader from '../../../components/custom-header';
+import CustomHeader from '@/components/custom-header';
 import styles from './index.module.scss';
 
 interface FormState {

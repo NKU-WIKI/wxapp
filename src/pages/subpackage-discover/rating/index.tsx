@@ -99,7 +99,7 @@ const RatingPage = () => {
   const handleItemClick = (resource: any) => {
     
     Taro.navigateTo({
-      url: `/pages/discover/rating/detail/index?resourceId=${resource.id}&resourceType=${resource.resource_type}&resourceName=${encodeURIComponent(resource.resource_name)}`
+      url: `/pages/subpackage-discover/rating/detail/index?resourceId=${resource.id}&resourceType=${resource.resource_type}&resourceName=${encodeURIComponent(resource.resource_name)}`
     })
   }
 
@@ -184,9 +184,9 @@ const RatingPage = () => {
       {/* 带鉴权的悬浮发布按钮 */}
       <AuthFloatingButton
         variant='plus'
-        onClick={() => Taro.navigateTo({ url: '/pages/discover/rating/publish/index' })}
+        onClick={() => Taro.navigateTo({ url: '/pages/subpackage-discover/rating/publish/index' })}
         loginPrompt='您需要登录后才能发布评分，是否立即前往登录页面？'
-        redirectUrl='/pages/discover/rating/publish/index'
+        redirectUrl='/pages/subpackage-discover/rating/publish/index'
       />
     </View>
   )

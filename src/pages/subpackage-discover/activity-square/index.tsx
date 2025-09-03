@@ -1,12 +1,14 @@
 import { View, ScrollView, Text, Image, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback, useMemo } from "react";
+
 import activityApi from "@/services/api/activity";
 import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d";
+import CustomHeader from "@/components/custom-header";
+import AuthFloatingButton from "@/components/auth-floating-button";
 import searchIcon from "@/assets/search.svg";
+
 import styles from "./index.module.scss";
-import CustomHeader from "../../../components/custom-header";
-import AuthFloatingButton from "../../../components/auth-floating-button";
 
 // eslint-disable-next-line import/no-unused-modules
 export default function ActivitySquare() {
@@ -80,13 +82,36 @@ export default function ActivitySquare() {
     fetchActivities(true, selectedCategory);
   }, [fetchActivities, selectedCategory]);
 
+  // 页面显示时刷新活动列表（每次进入页面都会触发）
+  useEffect(() => {
+    const refreshActivities = () => {
+      fetchActivities(false, selectedCategory);
+    };
+
+    // 使用 Taro 的事件监听
+    const handleShow = () => {
+      refreshActivities();
+    };
+
+    // 添加页面显示监听
+    Taro.eventCenter.on('__taro_page_show', handleShow);
+
+    // 清理函数
+    return () => {
+      Taro.eventCenter.off('__taro_page_show', handleShow);
+    };
+  }, [fetchActivities, selectedCategory]);
+
   const handleRefresh = async () => {
     await fetchActivities(false);
   };
 
 
   const handleActivityClick = (act: ActivityRead) => {
-    Taro.showToast({ title: `点击了活动: ${act.title}`, icon: 'none' });
+    // 跳转到活动详情页面
+    Taro.navigateTo({
+      url: `/pages/subpackage-discover/activity-detail/index?id=${act.id}`
+    });
   };
 
   const handleJoinActivity = async (act: ActivityRead, event: any) => {
@@ -176,7 +201,7 @@ export default function ActivitySquare() {
   };
 
   const handlePublishActivity = () => {
-    Taro.navigateTo({ url: '/pages/discover/publish-activity/index' });
+    Taro.navigateTo({ url: '/pages/subpackage-discover/publish-activity/index' });
   };
 
   const toggleExpanded = (activityId: string, event: any) => {
@@ -280,13 +305,13 @@ export default function ActivitySquare() {
                     <Text className={styles.activityTitle}>{act.title}</Text>
                     <View className={styles.activityDetails}>
                       <View className={styles.activityDetailItem}>
-                        <Image src={require("../../../assets/clock.svg")} className={styles.detailIcon} />
+                        <Image src={require("@/assets/clock.svg")} className={styles.detailIcon} />
                         <Text className={styles.activityDetail}>
                           {act.start_time ? new Date(act.start_time).toLocaleString() : '待定'}
                         </Text>
                       </View>
                       <View className={styles.activityDetailItem}>
-                        <Image src={require("../../../assets/map-pin.svg")} className={styles.detailIcon} />
+                        <Image src={require("@/assets/map-pin.svg")} className={styles.detailIcon} />
                         <Text className={styles.activityDetail}>{act.location || '待定'}</Text>
                       </View>
                     </View>
@@ -305,7 +330,7 @@ export default function ActivitySquare() {
                           onClick={(e) => toggleExpanded(act.id || '', e)}
                         >
                           <Image
-                            src={require("../../../assets/chevron-down.svg")}
+                            src={require("@/assets/chevron-down.svg")}
                             className={`${styles.expandIcon} ${isExpanded ? styles.expanded : ''}`}
                           />
                         </View>
@@ -324,7 +349,7 @@ export default function ActivitySquare() {
           ) : (
             // 显示暂无活动
             <View className={styles.emptyState}>
-              <Image src={require("../../../assets/empty.svg")} className={styles.emptyIcon} />
+              <Image src={require("@/assets/empty.svg")} className={styles.emptyIcon} />
               <Text className={styles.emptyText}>暂无活动</Text>
               <Text className={styles.emptySubText}>快来发布第一个活动吧</Text>
             </View>

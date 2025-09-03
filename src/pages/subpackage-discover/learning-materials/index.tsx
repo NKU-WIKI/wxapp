@@ -119,7 +119,7 @@ export default function LearningMaterials() {
       {/* 导航栏 */}
       <View className={styles.navbar}>
         <View className={styles.backButton} onClick={handleBack}>
-          <Image src={require("../../../assets/arrow-left.svg")} className={styles.backIcon} />
+          <Image src={require("@/assets/arrow-left.svg")} className={styles.backIcon} />
         </View>
                 <Text className={styles.title}>学习资料</Text>
       </View>
@@ -133,7 +133,7 @@ export default function LearningMaterials() {
           value={searchValue}
           onInput={handleSearchInput}
         />
-        <Image src={require("../../../assets/search.svg")} className={styles.searchIcon} />
+        <Image src={require("@/assets/search.svg")} className={styles.searchIcon} />
       </View>
 
       {/* 内容区域 */}
