@@ -117,7 +117,15 @@ export default function Discover() {
     <View className={styles.discoverPage}>
       <CustomHeader title='探索' hideBack showWikiButton showNotificationIcon />
 
-      <View className={styles.contentContainer}>
+      <ScrollView
+        scrollY
+        className={styles.pageScrollView}
+        enhanced
+        bounces={false}
+        scrollWithAnimation
+        enableFlex
+      >
+        <View className={styles.contentContainer}>
         {/* 热门帖子 */}
         <Section
           title='热榜 TOP5'
@@ -284,7 +292,8 @@ export default function Discover() {
              <View className={`${styles.moduleCard} ${styles.placeholder}`} />
           </View>
         </View>
-      </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }

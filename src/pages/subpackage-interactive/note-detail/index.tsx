@@ -4,7 +4,9 @@ import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { getNoteDetail } from '@/services/api/note';
-import { NoteDetail } from '@/services/api/note';
+import { NoteDetail } from '@/types/api/note';
+import { normalizeImageUrl } from '@/utils/image';
+import { formatRelativeTime } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
 import AuthorInfo from '@/components/author-info';
 import ActionBar from '@/components/action-bar';
@@ -32,8 +34,17 @@ export default function NoteDetailPage() {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   
-  // 获取笔记ID
+  // 获取笔记ID和用户ID
   const noteId = router?.params?.id;
+  const userId = router?.params?.userId; // 新增：从URL参数获取用户ID
+  
+  // 调试日志：检查路由参数
+  console.log('🔍 笔记详情页面路由参数:', {
+    noteId,
+    userId,
+    hasUserId: !!userId,
+    allParams: router?.params
+  });
   
   // 加载笔记详情
   const loadNoteDetail = useCallback(async () => {
@@ -47,14 +58,47 @@ export default function NoteDetailPage() {
       setLoading(true);
       setError(null);
       
-      // 暂时先使用原来的API路径，等后端修复后再调整
-      // TODO: 修复后使用正确的API路径: /users/{userId}/notes/{noteId}
-      const response = await getNoteDetail(noteId);
-      if (response.code === 200 && response.data) {
-        setNote(response.data);
+      // 获取笔记详情，使用正确的API路径
+      console.log('🔍 开始调用getNoteDetail API:', {
+        noteId,
+        userId,
+        hasUserId: !!userId,
+        apiPath: userId ? `/users/${userId}/notes` : `/notes/${noteId}`
+      });
+      
+      const response = await getNoteDetail(noteId, userId);
+      
+      console.log('🔍 getNoteDetail API响应:', {
+        responseCode: response.code,
+        responseMessage: response.message,
+        hasData: !!response.data,
+        responseData: response.data
+      });
+      
+      if (response.code === 0 && response.data) {
+        let noteData: any;
+        
+        if (userId) {
+          // 如果使用userId，从用户笔记列表中筛选出特定笔记
+          const userNotes = response.data as unknown as any[];
+          noteData = userNotes.find(note => note.id === noteId);
+          
+          if (!noteData) {
+            setError('笔记不存在或已被删除');
+            setLoading(false);
+            return;
+          }
+          
+          console.log('🔍 从用户笔记列表中筛选出的笔记:', noteData);
+        } else {
+          // 直接使用返回的数据
+          noteData = response.data;
+        }
+        
+        setNote(noteData);
         // 检查是否已点赞和收藏
-        setIsLiked(response.data.is_liked || false);
-        setIsBookmarked(response.data.is_favorited || false);
+        setIsLiked(noteData.is_liked || false);
+        setIsBookmarked(noteData.is_favorited || false);
       } else {
         setError(response.message || '加载失败');
       }
@@ -64,7 +108,7 @@ export default function NoteDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [noteId]);
+  }, [noteId, userId]);
   
   // 页面显示时加载数据
   useDidShow(() => {
@@ -169,9 +213,9 @@ export default function NoteDetailPage() {
     );
   }
   
-  // 获取图片数组（NoteDetail接口没有images属性，这里暂时使用空数组）
-  const images: string[] = [];
-  const hasImages = false;
+  // 获取图片数组
+  const images: string[] = note.images || [];
+  const hasImages = images.length > 0;
   
   return (
     <View className={styles.container}>
@@ -187,23 +231,39 @@ export default function NoteDetailPage() {
           <View className={styles.noteHeader}>
             <Text className={styles.noteTitle}>{note.title}</Text>
             
-            <AuthorInfo
-              userId={note.author?.id || ''}
-              mode='compact'
-              showBio={true}
-              showFollowButton={true}
-              showStats={false}
-              showLevel={true}
-              createTime={note.created_at || ''}
-            />
+            {/* 自定义作者信息布局 */}
+            {note.user && (
+              <View className={styles.authorSection}>
+                <View className={styles.customAuthorInfo}>
+                  <Image
+                    src={note.user.avatar ? normalizeImageUrl(note.user.avatar) : '/assets/avatar1.png'}
+                    className={styles.authorAvatar}
+                    mode='aspectFill'
+                  />
+                  <View className={styles.authorDetails}>
+                    <Text className={styles.authorName}>{note.user.nickname || '匿名用户'}</Text>
+                    <Text className={styles.authorLevel}>Lv.1</Text>
+                  </View>
+                  <View className={styles.authorActions}>
+                    <View className={styles.followButton}>
+                      <Text className={styles.followText}>关注</Text>
+                    </View>
+                    <Text className={styles.publicationTime}>
+                      {note.created_at ? formatRelativeTime(note.created_at) : '刚刚'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
             
             {/* 标签 */}
             {note.tags && note.tags.length > 0 && (
               <View className={styles.tagsContainer}>
                 {note.tags.map((tag, index) => (
-                  <Text key={index} className={styles.tag}>
-                    {tag}
-                  </Text>
+                  <View key={index} className={styles.tag}>
+                    <Image className={styles.tagIcon} src='/assets/check-square.svg' />
+                    <Text className={styles.tagText}>{tag}</Text>
+                  </View>
                 ))}
               </View>
             )}

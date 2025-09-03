@@ -115,6 +115,12 @@ const interceptor = (chain) => {
     }
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
+      // 特殊处理413错误（文件过大），不显示通用错误提示
+      // 让业务层自己处理这种错误
+      if (res.statusCode === 413) {
+        return Promise.reject(res);
+      }
+      
       Taro.showToast({
         title: `服务器错误: ${res.statusCode}`,
         icon: "none",
@@ -151,6 +157,17 @@ const request = (
   options?: Omit<Taro.request.Option, "url" | "data" | "method">
 ): Promise<Taro.request.SuccessCallbackResult<BaseResponse<any>>> => {
   const finalUrl = `${BASE_URL}/api/v1${url}`;
+  
+  // 调试日志：显示实际发送的请求
+  console.log('🔍 HTTP请求调试信息:', {
+    method,
+    originalUrl: url,
+    baseUrl: BASE_URL,
+    finalUrl,
+    data,
+    options
+  });
+  
   return Taro.request({
     url: finalUrl,
     data,
@@ -224,6 +241,12 @@ const http = {
       ...options,
     }).then((res) => {
       if (res.statusCode < 200 || res.statusCode >= 300) {
+        // 特殊处理413错误（文件过大），不显示通用错误提示
+        // 让业务层自己处理这种错误
+        if (res.statusCode === 413) {
+          return Promise.reject(res);
+        }
+        
         Taro.showToast({
           title: `上传失败: ${res.statusCode}`,
           icon: "none",
