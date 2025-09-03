@@ -2,15 +2,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { View, Text, ScrollView, Input } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 // Absolute imports (alphabetical order)
-import { AppDispatch, RootState } from '@/store'
+import { AppDispatch } from '@/store'
 import { setCurrentCategory } from '@/store/slices/ratingSlice'
 import { getResourceList } from '@/services/api/rating'
 import { RatingCategory } from '@/types/api/rating.d'
 import CustomHeader from '@/components/custom-header'
-import AuthFloatingButton from '@/components/auth-floating-button'
 
 // Relative imports
 import RatingItem from './components/RatingItem'
@@ -18,7 +17,6 @@ import styles from './index.module.scss'
 
 const RatingPage = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { isLoggedIn } = useSelector((state: RootState) => state.user)
   const [currentCategory, setCurrentCategoryState] = useState<RatingCategory>(RatingCategory.Course)
   const [resources, setResources] = useState<any[]>([])
   const [filteredResources, setFilteredResources] = useState<any[]>([])
@@ -39,15 +37,6 @@ const RatingPage = () => {
 
   // 加载资源列表
   const loadResources = useCallback(async (category: RatingCategory) => {
-    // 检查登录状态
-    if (!isLoggedIn) {
-      setError('请先登录后查看评分内容')
-      setResources([])
-      setFilteredResources([])
-      setLoading(false)
-      return
-    }
-
     try {
       setLoading(true)
       setError(null)
@@ -93,7 +82,7 @@ const RatingPage = () => {
     } finally {
       setLoading(false)
     }
-  }, [isLoggedIn])
+  }, [])
 
   // 搜索功能
   const handleSearch = (keyword: string) => {
@@ -129,7 +118,7 @@ const RatingPage = () => {
     if (currentCategory) {
       loadResources(currentCategory)
     }
-  }, [currentCategory, isLoggedIn, loadResources])
+  }, [currentCategory, loadResources])
 
   // 切换分类
   const handleCategoryChange = (categoryId: RatingCategory) => {
@@ -220,29 +209,13 @@ const RatingPage = () => {
             </View>
           )}
 
-          {/* 错误状态或登录提示 */}
+          {/* 错误状态 */}
           {error && (
             <View className={styles.errorState}>
-              {error === '请先登录后查看评分内容' ? (
-                <View className={styles.loginPrompt}>
-                  <Text className={styles.loginPromptIcon}>🔒</Text>
-                  <Text className={styles.loginPromptTitle}>请先登录</Text>
-                  <Text className={styles.loginPromptDesc}>登录后可查看和发布评分内容</Text>
-                  <View 
-                    className={styles.loginPromptButton}
-                    onClick={() => {
-                      Taro.switchTab({ url: '/pages/profile/index' });
-                    }}
-                  >
-                    <Text className={styles.loginPromptButtonText}>立即登录</Text>
-                  </View>
-                </View>
-              ) : (
-                <View>
-                  <Text className={styles.errorText}>加载失败: {error}</Text>
-                  <Text className={styles.errorSubText}>请检查网络连接或稍后重试</Text>
-                </View>
-              )}
+              <View>
+                <Text className={styles.errorText}>加载失败: {error}</Text>
+                <Text className={styles.errorSubText}>请检查网络连接或稍后重试</Text>
+              </View>
             </View>
           )}
 
@@ -277,13 +250,13 @@ const RatingPage = () => {
         </ScrollView>
       </View>
 
-      {/* 带鉴权的悬浮发布按钮 */}
-      <AuthFloatingButton
-        variant='plus'
+      {/* 悬浮发布按钮 */}
+      <View 
+        className={styles.floatingButton}
         onClick={() => Taro.navigateTo({ url: '/pages/subpackage-discover/rating/publish/index' })}
-        loginPrompt='您需要登录后才能发布评分，是否立即前往登录页面？'
-        redirectUrl='/pages/subpackage-discover/rating/publish/index'
-      />
+      >
+        <Text className={styles.floatingButtonText}>+</Text>
+      </View>
     </View>
   )
 }

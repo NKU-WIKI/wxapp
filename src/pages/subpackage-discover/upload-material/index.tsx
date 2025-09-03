@@ -78,9 +78,14 @@ export default function UploadMaterial() {
   const validateFile = (fileSize: number, fileName: string): boolean => {
     // 检查文件大小 (100MB)
     if (fileSize > MAX_FILE_SIZE) {
-      Taro.showToast({
-        title: `文件大小不能超过${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB`,
-        icon: 'none'
+      const fileSizeMB = Math.round(fileSize / 1024 / 1024 * 100) / 100; // 保留两位小数
+      const maxSizeMB = Math.round(MAX_FILE_SIZE / 1024 / 1024);
+      
+      Taro.showModal({
+        title: '文件过大',
+        content: `当前文件大小：${fileSizeMB}MB\n最大支持：${maxSizeMB}MB\n\n请选择更小的文件或压缩后重试`,
+        showCancel: false,
+        confirmText: '确定'
       });
       return false;
     }
@@ -99,25 +104,6 @@ export default function UploadMaterial() {
 
   // 选择文件
   const handleSelectFile = () => {
-    // 检查登录状态
-    const token = Taro.getStorageSync("token");
-    if (!token) {
-      Taro.showModal({
-        title: '需要登录',
-        content: '文件上传功能需要先登录，是否前往登录？',
-        confirmText: '去登录',
-        cancelText: '取消',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({
-              url: '/pages/login/index'
-            });
-          }
-        }
-      });
-      return;
-    }
-
     Taro.chooseMessageFile({
       count: 1,
       type: 'file',
@@ -209,6 +195,26 @@ export default function UploadMaterial() {
 
   // 确认上传
   const handleConfirmUpload = async () => {
+    // 检查登录状态
+    const token = Taro.getStorageSync("token");
+    if (!token) {
+      Taro.showModal({
+        title: '登录已过期',
+        content: '登录状态已过期，请重新登录后再试',
+        confirmText: '去登录',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            // 将当前页面路径作为重定向参数传递给登录页面
+            Taro.navigateTo({
+              url: `/pages/subpackage-profile/login/index?redirect=${encodeURIComponent('/pages/subpackage-discover/upload-material/index')}`
+            });
+          }
+        }
+      });
+      return;
+    }
+
     // 验证必填字段
     if (!selectedFile && !netdiskLink.trim()) {
       Taro.showToast({
@@ -295,9 +301,37 @@ export default function UploadMaterial() {
         icon: 'success'
       });
 
-      // 延迟返回上一页
+      // 延迟返回学习资料页面
       setTimeout(() => {
-        Taro.navigateBack();
+        // 获取当前页面栈
+        const pages = Taro.getCurrentPages();
+        
+        // 检查是否有登录页面需要清理
+        let hasLoginPage = false;
+        for (let i = 0; i < pages.length; i++) {
+          if (pages[i].route?.includes('login')) {
+            hasLoginPage = true;
+            break;
+          }
+        }
+        
+        if (hasLoginPage) {
+          // 如果有登录页面，使用 reLaunch 清理页面栈，但重建正确的导航结构
+          // 先跳转到发现页面，再跳转到学习资料页面
+          Taro.reLaunch({
+            url: '/pages/discover/index'
+          });
+          
+          // 延迟跳转到学习资料页面，确保发现页面在栈底
+          setTimeout(() => {
+            Taro.navigateTo({
+              url: '/pages/subpackage-discover/learning-materials/index'
+            });
+          }, 100);
+        } else {
+          // 没有登录页面，直接返回到学习资料页面
+          Taro.navigateBack();
+        }
       }, 1500);
       
     } catch (error: any) {
@@ -308,16 +342,31 @@ export default function UploadMaterial() {
         // 忽略 hideLoading 的错误
       }
       
-      // 详细的错误信息
+      // 根据错误类型提供不同的提示信息
       let errorMessage = '上传失败';
-      if (error?.message) {
+      let errorTitle = '上传失败';
+      
+      // 检查是否是413错误（文件过大）- 多种格式检测
+      const is413Error = 
+        error?.statusCode === 413 ||
+        (error?.errMsg && error.errMsg.includes('413')) ||
+        (error?.message && error.message.includes('413')) ||
+        (error?.message && error.message.includes('文件大小超过限制')) ||
+        (error?.data?.message && error.data.message.includes('413')) ||
+        (error?.data?.status === 413) ||
+        (error?.status === 413);
+      
+      if (is413Error) {
+        errorTitle = '文件过大';
+        errorMessage = `文件大小超过服务器限制，请选择小于${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB的文件`;
+      } else if (error?.message) {
         errorMessage = error.message;
       } else if (error?.data?.message) {
         errorMessage = error.data.message;
       }
       
       Taro.showModal({
-        title: '上传失败',
+        title: errorTitle,
         content: errorMessage,
         showCancel: false,
         confirmText: '确定'

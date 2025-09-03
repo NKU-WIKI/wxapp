@@ -74,7 +74,12 @@ export const uploadImage = (
             reject(new Error("解析服务器响应失败"));
           }
         } else {
-          reject(new Error(`上传失败，状态码：${res.statusCode}`));
+          // 特殊处理413错误（文件过大），提供更具体的错误信息
+          if (res.statusCode === 413) {
+            reject(new Error("文件大小超过限制"));
+          } else {
+            reject(new Error(`上传失败，状态码：${res.statusCode}`));
+          }
         }
       },
       fail: (err) => {
