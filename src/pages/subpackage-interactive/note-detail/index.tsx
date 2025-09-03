@@ -44,6 +44,8 @@ export default function NoteDetailPage() {
       setLoading(true);
       setError(null);
       
+      // 暂时先使用原来的API路径，等后端修复后再调整
+      // TODO: 修复后使用正确的API路径: /users/{userId}/notes/{noteId}
       const response = await getNoteDetail(noteId);
       if (response.code === 200 && response.data) {
         setNote(response.data);

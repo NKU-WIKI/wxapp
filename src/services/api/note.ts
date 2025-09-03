@@ -121,7 +121,12 @@ export const getNotes = async (params?: GetNotesParams) => {
 /**
  * 获取笔记详情
  */
-export const getNoteDetail = async (noteId: string) => {
+export const getNoteDetail = async (noteId: string, userId?: string) => {
+  // 如果提供了userId，使用正确的API路径
+  if (userId) {
+    return http.get<{ code: number; message: string; data: NoteDetail }>(`/users/${userId}/notes/${noteId}`);
+  }
+  // 否则使用原来的路径（向后兼容）
   return http.get<{ code: number; message: string; data: NoteDetail }>(`/notes/${noteId}`);
 };
 

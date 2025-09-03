@@ -37,8 +37,8 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
       return normalizeImageUrl(noteWithImages.images[0]);
     }
     
-    // 如果没有图片，使用默认图片
-    return '/assets/note_example.png';
+    // 如果没有图片，使用占位图片URL
+    return 'https://via.placeholder.com/300x200/4F46E5/FFFFFF?text=笔记封面';
   };
 
   const coverImage = getCoverImage();

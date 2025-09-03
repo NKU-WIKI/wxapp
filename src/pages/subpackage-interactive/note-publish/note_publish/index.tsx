@@ -23,8 +23,8 @@ import penToolIcon from "@/assets/pen-tool.svg";
 // Relative imports
 import styles from "./index.module.scss";
 
-// 默认图片
-const defaultImage = '/assets/note_example.png';
+// 默认图片URL（从后端获取，或者使用一个通用的占位图片URL）
+const defaultImageUrl = 'https://via.placeholder.com/300x200/4F46E5/FFFFFF?text=笔记封面';
 
 export default function PublishNote() {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,9 +36,9 @@ export default function PublishNote() {
   const [selectedCategory, setSelectedCategory] = useState<string>("c1a7e7e4-a5b6-4c1c-8d8e-9e9f9f9f9f9f"); // 默认选择学习交流分类
   const [showImageOverview, setShowImageOverview] = useState(false); // 图片总览弹窗状态
   
-  // 检查是否为默认图片
+  // 检查是否为默认图片（在线占位图片）
   const isDefaultImage = (imagePath: string) => {
-    return imagePath === defaultImage;
+    return imagePath === defaultImageUrl || imagePath.includes('placeholder.com');
   };
 
   // 获取可删除的图片数量（非默认图片）
@@ -46,10 +46,15 @@ export default function PublishNote() {
     return images.filter(img => !isDefaultImage(img)).length;
   };
 
+  // 检查是否至少有一张用户上传的图片
+  const hasUserImages = () => {
+    return images.some(img => !isDefaultImage(img));
+  };
+
   // 初始化默认图片和预填内容
   useEffect(() => {
     if (images.length === 0) {
-      setImages([defaultImage]);
+      setImages([defaultImageUrl]);
     }
     
     // 处理预填内容
@@ -132,7 +137,18 @@ export default function PublishNote() {
           return prev; // 返回原数组，不进行删除
         }
       } else {
-        // 如果不是默认图片，直接删除
+        // 如果不是默认图片，检查删除后是否还有图片
+        const remainingImages = newImages.filter((_, i) => i !== index);
+        if (remainingImages.length === 0) {
+          // 如果删除后没有图片了，不允许删除
+          Taro.showToast({
+            title: '至少需要保留一张图片',
+            icon: 'none',
+            duration: 2000,
+          });
+          return prev; // 返回原数组，不进行删除
+        }
+        // 可以删除
         newImages.splice(index, 1);
       }
       
