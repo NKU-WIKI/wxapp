@@ -151,6 +151,17 @@ const request = (
   options?: Omit<Taro.request.Option, "url" | "data" | "method">
 ): Promise<Taro.request.SuccessCallbackResult<BaseResponse<any>>> => {
   const finalUrl = `${BASE_URL}/api/v1${url}`;
+  
+  // 调试日志：显示实际发送的请求
+  console.log('🔍 HTTP请求调试信息:', {
+    method,
+    originalUrl: url,
+    baseUrl: BASE_URL,
+    finalUrl,
+    data,
+    options
+  });
+  
   return Taro.request({
     url: finalUrl,
     data,

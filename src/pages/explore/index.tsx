@@ -84,14 +84,22 @@ export default function ExplorePage() {
 
   // 调试信息
   useEffect(() => {
-    // console.log('Explore页面状态:', {
-    //   isSearchActive, 
-    //   isLoggedIn, 
-    //   notesCount: notes.length, 
-    //   loading, 
-    //   hasMore 
-    // });
-  }, [isSearchActive, isLoggedIn, notes.length, loading, hasMore]);
+    console.log('🔍 Explore页面状态:', {
+      isSearchActive, 
+      isLoggedIn, 
+      notesCount: notes.length, 
+      loading, 
+      hasMore,
+      notesWithUserId: notes.filter(note => note.user_id).length,
+      notesWithoutUserId: notes.filter(note => !note.user_id).length,
+      sampleNote: notes[0] ? {
+        id: notes[0].id,
+        title: notes[0].title,
+        hasUserId: !!notes[0].user_id,
+        userId: notes[0].user_id
+      } : null
+    });
+  }, [isSearchActive, isLoggedIn, notes.length, loading, hasMore, notes]);
 
   // 处理加载更多笔记
   const handleLoadMore = () => {

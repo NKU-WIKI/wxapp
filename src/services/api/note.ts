@@ -21,46 +21,7 @@ export interface NoteListItem {
   comment_count: number;
   author_name?: string;
   author_avatar?: string;
-}
-
-// 笔记详情接口
-export interface NoteDetail {
-  id: string;
-  tenant_id: string;
-  created_at: string;
-  updated_at: string;
-  title: string;
-  content?: string;
-  summary?: string;
-  excerpt?: string;
-  category_id?: string;
-  tags?: string[];
-  user_id: string;
-  link_info_id?: string;
-  status: 'draft' | 'published' | 'archived' | 'deleted';
-  visibility: 'PUBLIC' | 'FRIENDS' | 'PRIVATE'; // 可见性设置
-  view_count: number;
-  like_count: number;
-  favorite_count: number;
-  comment_count: number;
-  share_count: number;
-  ai_generated_title?: string;
-  ai_generated_tags?: string[];
-  ai_content_score?: number;
-  word_count: number;
-  reading_time_minutes: number;
-  last_read_at?: string;
-  published_at?: string;
-  is_featured: boolean;
-  featured_weight: number;
-  version: number;
-  parent_note_id?: string;
-  user?: any;
-  category?: any;
-  link_info?: any;
-  author?: { name?: string; avatar?: string }; // 作者信息
-  is_liked: boolean;
-  is_favorited: boolean;
+  user_id?: string; // 新增：用户ID，用于调用正确的API
 }
 
 // 笔记统计信息接口
@@ -91,8 +52,8 @@ export interface GetNotesParams {
 
 // 创建笔记请求接口
 export interface CreateNoteRequest {
-  title: string; // 笔记标题(必填)
-  content?: string; // 笔记内容(可选)
+  title: string; // 笔记标题
+  content: string; // 笔记内容
   summary?: string; // 内容摘要
   excerpt?: string; // 摘录
   category_id?: string; // 分类ID
@@ -122,12 +83,31 @@ export const getNotes = async (params?: GetNotesParams) => {
  * 获取笔记详情
  */
 export const getNoteDetail = async (noteId: string, userId?: string) => {
-  // 如果提供了userId，使用正确的API路径
+  // 调试日志
+  console.log('🔍 getNoteDetail函数调用:', {
+    noteId,
+    userId,
+    hasUserId: !!userId
+  });
+  
+  // 如果提供了userId，使用用户笔记列表接口
   if (userId) {
-    return http.get<{ code: number; message: string; data: NoteDetail }>(`/users/${userId}/notes/${noteId}`);
+    const apiPath = `/users/${userId}/notes`;
+    console.log('🔍 使用用户笔记列表API路径:', apiPath);
+    return http.get<{ code: number; message: string; data: any[] }>(apiPath);
   }
+  
   // 否则使用原来的路径（向后兼容）
-  return http.get<{ code: number; message: string; data: NoteDetail }>(`/notes/${noteId}`);
+  const apiPath = `/notes/${noteId}`;
+  console.log('🔍 使用普通笔记API路径:', apiPath);
+  return http.get<{ code: number; message: string; data: any }>(apiPath);
+};
+
+/**
+ * 获取用户笔记列表
+ */
+export const getUserNotes = async (userId: string, params?: GetNotesParams) => {
+  return http.get<{ code: number; message: string; data: NoteListItem[] }>(`/users/${userId}/notes`, params);
 };
 
 /**
@@ -140,7 +120,7 @@ export const getNoteFeed = async (params: { skip?: number; limit?: number } = {}
     limit: params.limit || 20
   };
   
-  return http.get<{ code: number; message: string; data: NoteListItem[] }>('/notes/feed', requestParams);
+  return http.get<{ code: number; message: string; data: any }>('/notes/feed', requestParams);
 };
 
 /**
@@ -161,12 +141,13 @@ export const getNoteAnalytics = async (noteId: string, days: number = 30) => {
  * 创建笔记
  */
 export const createNote = async (noteData: CreateNoteRequest) => {
-  return http.post<NoteDetail>('/notes', noteData);
+  return http.post<any>('/notes', noteData);
 };
 
 export default {
   getNotes,
   getNoteDetail,
+  getUserNotes, // 新增：获取用户笔记列表
   getNoteFeed,
   getNoteStats,
   getNoteAnalytics,

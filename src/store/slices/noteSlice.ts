@@ -18,7 +18,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 23,
       comment_count: 8,
       author_name: '张同学',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhang'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhang',
+      user_id: 'user-001' // 新增：用户ID
     },
     {
       id: 'mock-2', 
@@ -33,7 +34,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 15,
       comment_count: 5,
       author_name: '李小红',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li',
+      user_id: 'user-002' // 新增：用户ID
     },
     {
       id: 'mock-3',
@@ -48,7 +50,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 45,
       comment_count: 12,
       author_name: '王程序员',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang',
+      user_id: 'user-003' // 新增：用户ID
     },
     {
       id: 'mock-4',
@@ -63,7 +66,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 18,
       comment_count: 6,
       author_name: '美食家小陈',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chen'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chen',
+      user_id: 'user-004' // 新增：用户ID
     },
     {
       id: 'mock-5',
@@ -78,7 +82,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 67,
       comment_count: 23,
       author_name: '算法小能手',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=algo'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=algo',
+      user_id: 'user-005' // 新增：用户ID
     },
     {
       id: 'mock-6',
@@ -93,7 +98,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 29,
       comment_count: 11,
       author_name: '摄影师小明',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=photo'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=photo',
+      user_id: 'user-006' // 新增：用户ID
     },
     {
       id: 'mock-7',
@@ -108,7 +114,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 16,
       comment_count: 4,
       author_name: 'TS大师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ts'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ts',
+      user_id: 'user-007' // 新增：用户ID
     },
     {
       id: 'mock-8',
@@ -123,7 +130,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 42,
       comment_count: 18,
       author_name: '数学小王子',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=math'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=math',
+      user_id: 'user-008' // 新增：用户ID
     },
     {
       id: 'mock-9',
@@ -138,7 +146,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 34,
       comment_count: 9,
       author_name: '健身达人',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fitness'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fitness',
+      user_id: 'user-009' // 新增：用户ID
     },
     {
       id: 'mock-10',
@@ -153,7 +162,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 52,
       comment_count: 15,
       author_name: 'Python老师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=python'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=python',
+      user_id: 'user-010' // 新增：用户ID
     },
     {
       id: 'mock-11',
@@ -168,7 +178,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 28,
       comment_count: 7,
       author_name: '旅行摄影师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=travel'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=travel',
+      user_id: 'user-011' // 新增：用户ID
     },
     {
       id: 'mock-12',
@@ -183,7 +194,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 78,
       comment_count: 25,
       author_name: '前端工程师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=frontend'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=frontend',
+      user_id: 'user-012' // 新增：用户ID
     },
     {
       id: 'mock-13',
@@ -198,7 +210,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 21,
       comment_count: 6,
       author_name: '咖啡爱好者',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=coffee'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=coffee',
+      user_id: 'user-013' // 新增：用户ID
     },
     {
       id: 'mock-14',
@@ -213,7 +226,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 36,
       comment_count: 12,
       author_name: '英语老师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=english'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=english',
+      user_id: 'user-014' // 新增：用户ID
     },
     {
       id: 'mock-15',
@@ -228,7 +242,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 19,
       comment_count: 4,
       author_name: '手工达人',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=craft'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=craft',
+      user_id: 'user-015' // 新增：用户ID
     },
     {
       id: 'mock-16',
@@ -243,7 +258,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 48,
       comment_count: 16,
       author_name: '理财顾问',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=finance'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=finance',
+      user_id: 'user-016' // 新增：用户ID
     },
     {
       id: 'mock-17',
@@ -258,7 +274,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 33,
       comment_count: 8,
       author_name: '极简主义者',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=minimal'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=minimal',
+      user_id: 'user-017' // 新增：用户ID
     },
     {
       id: 'mock-18',
@@ -273,7 +290,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 41,
       comment_count: 13,
       author_name: '美食博主',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=cooking'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=cooking',
+      user_id: 'user-018' // 新增：用户ID
     }
   ];
   
@@ -290,8 +308,49 @@ export const fetchNoteFeed = createAsyncThunk(
     try {
       if (isLoggedIn) {
         // 已登录用户：优先尝试个性化推荐流
+        console.log('🔍 已登录用户，调用真实API getNoteFeed');
         
         const response = await noteApi.getNoteFeed(params);
+        
+        console.log('🔍 真实API getNoteFeed响应:', {
+          responseCode: response.code,
+          responseMessage: response.message,
+          hasData: !!response.data,
+          dataLength: response.data ? response.data.length : 0,
+          sampleNote: response.data && response.data[0] ? {
+            id: response.data[0].id,
+            title: response.data[0].title,
+            hasUserId: !!response.data[0].user_id,
+            userId: response.data[0].user_id,
+            allFields: Object.keys(response.data[0])
+          } : null
+        });
+        
+        // 详细检查可能的用户ID字段
+        if (response.data && response.data.length > 0) {
+          const firstNote = response.data[0];
+          console.log('🔍 详细检查用户相关字段:', {
+            user_id: firstNote.user_id,
+            author_id: firstNote.author_id,
+            creator_id: firstNote.creator_id,
+            owner_id: firstNote.owner_id,
+            user: firstNote.user,
+            author: firstNote.author,
+            creator: firstNote.creator,
+            owner: firstNote.owner
+          });
+          
+          // 检查整个笔记对象的结构
+          console.log('🔍 完整笔记对象:', firstNote);
+          
+          // 检查后端数据是否完整（是否有用户信息）
+          const hasUserInfo = firstNote.user_id || firstNote.author_id || firstNote.creator_id || 
+                             firstNote.user || firstNote.author || firstNote.creator;
+          
+          if (!hasUserInfo) {
+            console.warn('⚠️ 后端API数据不完整：缺少用户信息，建议使用mock数据');
+          }
+        }
         
         return response;
       } else {

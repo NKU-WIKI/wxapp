@@ -68,7 +68,7 @@ export default function PublishNote() {
         if (decodedContent.length > 20) {
           const autoTitle = decodedContent.substring(0, 20) + '...';
           setTitle(autoTitle);
-        }
+          }
       } catch (error) {
         console.error('解析预填内容失败:', error);
       }
@@ -77,7 +77,7 @@ export default function PublishNote() {
 
   // 处理图片上传
   const handleImageUpload = async () => {
-    try {
+          try {
       setIsUploading(true);
       
       const res = await Taro.chooseImage({
@@ -195,7 +195,7 @@ export default function PublishNote() {
     try {
       // 过滤掉默认图片，只保留用户上传的图片
       const userImages = images.filter(img => !isDefaultImage(img));
-      
+
       await dispatch(
         createNote({
           title,
@@ -233,10 +233,10 @@ export default function PublishNote() {
   return (
     <View className={styles.pageContainer}>
       <CustomHeader title="发布笔记" />
-      
+
       <View className={styles.contentWrapper}>
-        <ScrollView
-          scrollY
+        <ScrollView 
+          scrollY 
           className={styles.scrollView}
           enableBackToTop
         >
@@ -246,7 +246,7 @@ export default function PublishNote() {
               {/* 显示当前图片 */}
               {currentDisplayImage && (
                 <View className={styles.imageItem}>
-                  <Image
+              <Image 
                     src={currentDisplayImage}
                     className={styles.image}
                     mode="aspectFill"
@@ -260,14 +260,14 @@ export default function PublishNote() {
                   
                   {/* 移除图片按钮 - 右上角 */}
                   {(!isCurrentImageDefault || images.length > 1) && (
-                    <View 
+              <View 
                       className={styles.removeButton}
                       onClick={() => handleRemoveImage(0)}
-                    >
+              >
                       <Text className={styles.removeIcon}>×</Text>
-                    </View>
-                  )}
-                  
+            </View>
+          )}
+
                   {/* 添加图片按钮 - 右下角 */}
                   {images.length < 9 && (
                     <View 
@@ -292,26 +292,26 @@ export default function PublishNote() {
               onInput={(e) => setTitle(e.detail.value)}
               maxlength={100}
             />
-          </View>
+                    </View>
 
           {/* 内容输入 */}
           <View className={styles.inputSection}>
             <Text className={styles.inputLabel}>笔记内容</Text>
-            <Textarea
-              className={styles.contentInput}
+              <Textarea
+                className={styles.contentInput}
               placeholder="详细介绍资源内容、适用人群、学习建议..."
-              value={content}
+                value={content}
               onInput={(e) => setContent(e.detail.value)}
-              maxlength={2000}
+                maxlength={2000}
               autoHeight
             />
-          </View>
+                  </View>
 
           {/* 资源链接区域 - 预留位置 */}
           <View className={styles.resourceSection}>
             <Text className={styles.sectionTitle}>资源链接</Text>
             <Text className={styles.comingSoon}>功能开发中，敬请期待...</Text>
-          </View>
+                </View>
 
           {/* 发布按钮 */}
           <View className={styles.publishSection}>
@@ -333,9 +333,9 @@ export default function PublishNote() {
               <Text className={styles.imageOverviewTitle}>图片总览 ({images.length}/9)</Text>
               <View className={styles.imageOverviewClose} onClick={handleCloseImageOverview}>
                 <Text style={{ fontSize: '20px', color: '#666' }}>×</Text>
-              </View>
             </View>
-            
+            </View>
+
             <View className={styles.imageOverviewGrid}>
               {images.map((image, index) => (
                 <View key={index} className={styles.imageOverviewItem}>
@@ -346,7 +346,7 @@ export default function PublishNote() {
                   />
                   {/* 删除按钮 - 只有非默认图片才显示，或者有多张图片时默认图片也可以删除 */}
                   {(!isDefaultImage(image) || images.length > 1) && (
-                    <View 
+                      <View
                       className={styles.imageOverviewDelete}
                       onClick={() => {
                         handleRemoveImage(index);
@@ -357,10 +357,10 @@ export default function PublishNote() {
                       }}
                     >
                       <Text className={styles.imageOverviewDeleteIcon}>×</Text>
-                    </View>
-                  )}
+            </View>
+          )}
                 </View>
-              ))}
+                ))}
             </View>
           </View>
         </View>
