@@ -4,10 +4,12 @@ import { useSelector } from "react-redux";
 import Taro from "@tarojs/taro";
 
 import { CommentDetail } from "@/types/api/comment";
-import { formatRelativeTime } from "@/utils/time";
-import { normalizeImageUrl } from "@/utils/image";
 import { RootState } from "@/store";
 import actionApi from "@/services/api/action";
+import AuthorInfo from "@/components/author-info";
+import { ActionButtonProps } from '@/components/action-button';
+import ActionBar from '@/components/action-bar';
+
 import ChevronDownIcon from "@/assets/chevron-down.svg";
 import ChevronRightIcon from "@/assets/chevron-right.svg";
 import HeartIcon from "@/assets/heart-outline.svg";
@@ -95,35 +97,45 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
     }
   };
 
+  const actionBarButtons: ActionButtonProps[] = [
+    {
+      icon: HeartIcon,
+      activeIcon: HeartActiveIcon,
+      text: _comment.like_count || 0,
+      isActive: _comment.has_liked,
+      onClick: handleLike,
+      iconClassName: styles.subIcon, // Keep specific icon style
+      textClassName: _comment.has_liked ? styles.activeText : '',
+    },
+    {
+      icon: '/assets/message-circle.svg',
+      text: _comment.reply_count || 0,
+      onClick: () => onReply(_comment),
+      iconClassName: styles.subIcon,
+    }
+  ];
+
   return (
     <View className={styles.subCommentItem}>
-      <Image className={styles.subAvatar} src={normalizeImageUrl(_comment.author_avatar) || ''} />
-      <View className={styles.subContent}>
-        <View className={styles.subHeader}>
-          <Text className={styles.subName}>{_comment.author_nickname}</Text>
-          <Text className={styles.subTime}>{formatRelativeTime(_comment.create_at || (_comment as any).created_at || '')}</Text>
-          {/* 子评论删除按钮 - 仅作者可见 */}
-          {isCommentAuthor && _onDeleteComment ? (
+      <AuthorInfo
+        userId={_comment.user_id}
+        mode='compact'
+        showFollowButton={false}
+        showStats={false}
+        showLevel
+        showTime
+        createTime={_comment.create_at || (_comment as any).created_at || ''}
+        extraNode={
+          isCommentAuthor && _onDeleteComment ? (
             <View className={styles.subDeleteButton} onClick={() => _onDeleteComment(_comment.id)}>
               <Image src={TrashIcon} className={styles.subDeleteIcon} />
             </View>
-          ) : null}
-        </View>
-        <Text className={styles.subText}>
-          {renderCommentContent(_comment.content)}
-        </Text>
-        <View className={styles.subActions}>
-          <View className={styles.subLikeButton} onClick={handleLike}>
-            <Image 
-              className={styles.subIcon} 
-              src={_comment.has_liked ? HeartActiveIcon : HeartIcon} 
-            />
-            <Text>{_comment.like_count || 0}</Text>
-          </View>
-          <View className={styles.subReplyButton} onClick={() => onReply(_comment)}>
-            <Text>回复</Text>
-          </View>
-        </View>
+          ) : null
+        }
+      />
+      <View className={styles.subContent}>
+        <Text className={styles.subText}>{renderCommentContent(_comment.content)}</Text>
+        <ActionBar buttons={actionBarButtons} className={styles.subActions} />
       </View>
     </View>
   );
@@ -177,13 +189,6 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
       return;
     }
     
-    // console.log('🔥 开始评论点赞操作:', {
-    //   commentId: _comment.id,
-    //   commentContent: _comment.content?.substring(0, 20) + '...',
-    //   currentLikeCount: _comment.like_count || 0,
-    //   currentIsLiked: _comment.has_liked
-    // });
-    
     try {
       setIsLiking(true);
       const response = await actionApi.toggleAction({
@@ -191,8 +196,6 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
         target_id: _comment.id,
         action_type: 'like'
       });
-      
-      
       
       // 更新本地状态
       if (onLikeUpdate) {
@@ -240,6 +243,24 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
     
     onReply(_comment);
   };
+
+  const actionBarButtons: ActionButtonProps[] = [
+    {
+      icon: HeartIcon,
+      activeIcon: HeartActiveIcon,
+      text: _comment?.like_count || 0,
+      isActive: _comment.has_liked,
+      onClick: handleLike,
+      iconClassName: styles.icon,
+      textClassName: _comment.has_liked ? styles.activeText : '',
+    },
+    {
+      icon: '/assets/message-circle.svg',
+      text: _comment.children?.length || 0,
+      onClick: handleReply,
+      iconClassName: styles.icon,
+    }
+  ];
 
   const toggleReplies = async () => {
     // 对于已经有完整children数据的情况，直接切换显示状态
@@ -333,32 +354,30 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
   // 检查当前用户是否为评论作者
   const isCommentAuthor = userState?.currentUser?.user_id === _comment.user_id;
 
+
+
   return (
   <View className={styles.commentItem}>
-      <Image src={normalizeImageUrl(_comment.author_avatar) || ''} className={styles.avatar} />
-    <View className={styles.content}>
-      <View className={styles.header}>
-        <Text className={styles.name}>{_comment?.author_nickname || '匿名用户'}</Text>
-        <Text className={styles.time}>{formatRelativeTime(_comment.create_at || (_comment as any).created_at || '')}</Text>
-        {/* 删除按钮 - 仅作者可见 */}
-        {isCommentAuthor && _onDeleteComment && (
+    <AuthorInfo
+      userId={_comment.user_id}
+      mode='compact'
+      showFollowButton={false}
+      showStats={false}
+      showLevel
+      showTime
+      createTime={_comment.create_at || (_comment as any).created_at || ''}
+      extraNode={
+        isCommentAuthor && _onDeleteComment ? (
           <View className={styles.deleteButton} onClick={() => _onDeleteComment(_comment.id)}>
             <Image src={TrashIcon} className={styles.deleteIcon} />
           </View>
-        )}
-      </View>
+        ) : null
+      }
+    />
+    <View className={styles.content}>
         <Text className={styles.text}>{renderCommentContent(_comment?.content || '')}</Text>
       <View className={styles.actions}>
-          <View className={styles.likeButton} onClick={handleLike}>
-            <Image
-              src={_comment.has_liked ? HeartActiveIcon : HeartIcon}
-              className={styles.icon}
-            />
-          <Text>{_comment?.like_count || 0}</Text>
-          </View>
-          <View className={styles.replyButton} onClick={handleReply}>
-            <Text>回复</Text>
-          </View>
+          <ActionBar buttons={actionBarButtons} />
           {shouldShowToggleButton && (
             <View className={styles.toggleRepliesButton} onClick={toggleReplies}>
               <Image 

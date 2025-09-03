@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import { normalizeImageUrl } from '@/utils/image';
 import { NoteListItem } from '@/services/api/note';
+import AuthorInfo from '@/components/author-info';
+import ActionBar from '@/components/action-bar';
+import { ActionButtonProps } from '@/components/action-button';
 import styles from './index.module.scss';
 
 interface NoteCardProps {

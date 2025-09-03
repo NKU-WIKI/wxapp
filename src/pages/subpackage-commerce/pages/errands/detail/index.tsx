@@ -350,18 +350,11 @@ const ErrandsDetailPage = () => {
 
           <AuthorInfo
             userId={currentErrand.user_id}
+            mode='expanded'
             showFollowButton
             showStats
             showLevel
             showLocation
-            onClick={() => {
-              // 可以跳转到用户详情页
-              Taro.navigateTo({
-                url: `/pages/subpackage-profile/user-detail/index?id=${currentErrand.user_id}`
-              }).catch(() => {
-                Taro.showToast({ title: '用户详情页开发中', icon: 'none' })
-              })
-            }}
           />
 
           {/* 底部留白，确保内容不会被操作按钮遮挡 */}

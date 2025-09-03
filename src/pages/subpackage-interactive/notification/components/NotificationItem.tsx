@@ -1,5 +1,6 @@
 import { View, Image, Text } from '@tarojs/components'
 import { normalizeImageUrl } from '@/utils/image'
+import AuthorInfo from '@/components/author-info'
 
 // Relative imports
 import styles from './NotificationItem.module.scss'

@@ -530,6 +530,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
               <View className={styles.levelBadge}>
                 <Text>Lv.{authorLevel || currentUser?.level || 1}</Text>
               </View>
+              {/* 详情页显示关注按钮 */}
               {getCurrentUserId() !== author?.id && mode === 'detail' && !isAnonymous && (
                 <View
                   className={`${styles.followButton} ${isLoggedIn && isFollowing ? styles.followed : ''}`}
@@ -539,7 +540,11 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
                 </View>
               )}
             </View>
-            {mode === 'list' && !isAnonymous && <Text className={styles.authorBio}>{currentUser?.bio || ''}</Text>}
+            {/* 列表页显示用户简介 */}
+            {mode === 'list' && !isAnonymous && currentUser?.bio && (
+              <Text className={styles.authorBio}>{currentUser.bio}</Text>
+            )}
+            {/* 详情页显示发布时间 */}
             {mode === 'detail' && (
               <Text className={styles.meta}>
                 {formatRelativeTime((displayPost as any).created_at || displayPost.create_time)}
@@ -547,8 +552,10 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
             )}
           </View>
         </View>
-        
+
+        {/* 头部操作区域 */}
         <View className={styles.headerActions}>
+          {/* 列表页显示关注按钮 */}
           {mode === 'list' && getCurrentUserId() !== author?.id && !isAnonymous && (
             <View
               className={`${styles.followButton} ${isLoggedIn && isFollowing ? styles.followed : ''}`}
@@ -557,11 +564,13 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
               <Text>{isLoggedIn && isFollowing ? '已关注' : '关注'}</Text>
             </View>
           )}
+          {/* 列表页显示发布时间 */}
           {mode === 'list' && (
             <Text className={styles.postTime}>
               {formatRelativeTime((displayPost as any).created_at || displayPost.create_time)}
             </Text>
           )}
+          {/* 删除按钮 */}
           {canDelete && (
             <View className={styles.moreButton} onClick={(e: ITouchEvent) => handleActionClick(e, 'delete')}>
               <Image src={moreIcon} className={styles.moreIcon} />
