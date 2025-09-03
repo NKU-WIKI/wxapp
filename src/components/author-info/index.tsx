@@ -106,7 +106,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
   onMoreClick
 }) => {
   const currentUserId = useSelector((state: RootState) => (
-    state.user.currentUser?.user_id || (state.user.userProfile as any)?.id || ''
+    state.user.currentUser?.id || (state.user.userProfile as any)?.id || ''
   ))
 
   const {

@@ -53,24 +53,16 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   const lastActionTimeRef = useRef<number>(0);
   const userState = useSelector((state: RootState) => state.user);
   const postState = useSelector((state: RootState) => state.post);
-  // 提前声明currentUser相关的变量，用于useEffect
-  const userInfo = userState?.currentUser || userState?.userProfile || null; // 优先使用currentUser，其次使用userProfile
+  const userInfo = userState?.user || null;
   
-  // 获取用户ID（兼容两种类型）
   const getCurrentUserId = () => {
     if (!userInfo) return '';
-    // CurrentUser 使用 user_id，User 使用 id
-    return (userInfo as any).user_id || (userInfo as any).id || '';
+    return (userInfo as any).id || '';
   };
   
-
-  
-  // 获取用户角色（兼容两种类型）
+  // 获取用户角色
   const getCurrentUserRole = () => {
     if (!userInfo) return null;
-    // CurrentUser 使用 roles 数组，User 可能有 role 字段
-    const roles = (userInfo as any).roles;
-    if (Array.isArray(roles) && roles.includes('admin')) return 'admin';
     return (userInfo as any).role || null;
   };
   const posts = postState?.list || [];
@@ -96,30 +88,9 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   
   // 解析图片
   const getImages = () => {
-    // 优先使用新版字段 images: string[]
     if (Array.isArray((displayPost as any).images)) {
       return normalizeImageUrls((displayPost as any).images as string[]);
-    }
-    // 其次兼容 image_urls: string[]
-    if (Array.isArray((displayPost as any).image_urls)) {
-      return normalizeImageUrls((displayPost as any).image_urls as string[]);
-    }
-    // 兼容旧版 image: string | string[] | json-string
-    const legacy = (displayPost as any).image;
-    if (legacy) {
-      if (typeof legacy === 'string') {
-        try {
-          const parsed = JSON.parse(legacy);
-          return Array.isArray(parsed) ? normalizeImageUrls(parsed) : [];
-        } catch {
-          return [];
-        }
-      }
-      if (Array.isArray(legacy)) {
-        return normalizeImageUrls(legacy);
-      }
-    }
-    return [];
+    }else return [];
   };
   
   const images = getImages();
@@ -133,29 +104,11 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       return s;
     };
 
-    // 新版字段 tags: string[] | TagRead[]
     const tagsAny = (displayPost as any).tags;
     if (Array.isArray(tagsAny)) {
       const out = tagsAny.map(normalize).filter((t) => t.length > 0);
       return out;
-    }
-
-    // 兼容旧版字段 tag: string | string[] | json-string
-    const legacy = (displayPost as any).tag;
-    if (Array.isArray(legacy)) {
-      return legacy.map(normalize).filter((t: string) => t.length > 0);
-    }
-    if (legacy && typeof legacy === 'string') {
-      try {
-        const parsed = JSON.parse(legacy);
-        return Array.isArray(parsed)
-          ? parsed.map(normalize).filter((t: string) => t.length > 0)
-          : [];
-      } catch {
-        return [];
-      }
-    }
-    return [];
+    }else return [];
   };
   
   const tags = getTags();
@@ -375,7 +328,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           showBio={mode === 'list' && !isAnonymous}
           showFollowButton={getCurrentUserId() !== author?.id && !isAnonymous}
           showStats={false}
-          showLevel={true}
+          showLevel
           showTime={mode === 'list'}
           createTime={mode === 'list' ? ((displayPost as any).created_at || displayPost.create_time) : undefined}
           showMoreButton={canDelete}

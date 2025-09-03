@@ -5,27 +5,22 @@ import { getAboutInfo } from "@/services/api/about";
 import {
   getMe,
   updateMeProfile,
-  getMeProfile,
-  getMyLevel,
   getMyStats,
 } from "@/services/api/user";
 import { getFollowersCount } from "@/services/api/followers";
 import { getCollectionCount } from "@/services/api/collection";
 import { UnifiedLoginRequest, LoginRequest, RegisterRequest } from "@/types/api/auth";
-import { User, UpdateUserProfileRequest, CurrentUser, LevelInfo, UserStats } from "@/types/api/user";
+import { User, UpdateUserProfileRequest, UserStats } from "@/types/api/user";
 import { AboutInfo } from "@/types/about";
 import { RootState } from "@/store";
 import { DEFAULT_TENANT_NAME } from "@/constants";
 
 interface UserState {
-  currentUser: CurrentUser | null;
-  userProfile: User | null; // For full user details
-  userLevel: LevelInfo | null; // 用户等级信息
+  user: User | null;
   userStats: UserStats | null; // 用户统计信息
   token: string | null;
   isLoggedIn: boolean;
   status: "idle" | "loading" | "succeeded" | "failed";
-  levelStatus: "idle" | "loading" | "succeeded" | "failed";
   statsStatus: "idle" | "loading" | "succeeded" | "failed";
   followersCount: { following_count: number; follower_count: number } | null; // 关注/粉丝总数
   followersCountStatus: "idle" | "loading" | "succeeded" | "failed";
@@ -37,14 +32,11 @@ interface UserState {
 }
 
 const initialState: UserState = {
-  currentUser: null,
-  userProfile: null,
-  userLevel: null,
+  user: null,
   userStats: null,
   token: Taro.getStorageSync("token") || null, // 从本地存储获取token
   isLoggedIn: false, // Default to false, rely on API check
   status: "idle",
-  levelStatus: "idle",
   statsStatus: "idle",
   followersCount: null,
   followersCountStatus: "idle",
@@ -240,62 +232,7 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 );
 
-export const fetchUserProfile = createAsyncThunk(
-  "user/fetchUserProfile",
-  async (_, { getState, rejectWithValue }) => {
-    try {
-      // This thunk should fetch the detailed profile and merge it
-      // with the basic info from currentUser.
-      const response = await getMeProfile();
-      const state = getState() as RootState;
-      const currentUser = state.user.currentUser;
 
-      // 根据OpenAPI文档，响应格式是 ApiResponse<UserProfileDetail>
-      const profileData = response.data;
-      
-      // Combine basic user info with profile details
-      const combinedProfile = {
-        id: profileData?.user_id || currentUser?.user_id || '',
-        tenant_id: '', // 如果需要，可以从其他地方获取
-        created_at: profileData?.create_time || '',
-        updated_at: '',
-        nickname: profileData?.nickname || currentUser?.nickname || '',
-        avatar: profileData?.avatar || null,
-        bio: profileData?.bio || null,
-        birthday: null,
-        school: null,
-        college: null,
-        location: null,
-        wechat_id: profileData?.wechat_id || null,
-        qq_id: profileData?.qq_id || null,
-        tel: profileData?.phone || null,
-        status: 'active' as const,
-        // 扩展字段
-        level: profileData?.level || undefined,
-        post_count: profileData?.post_count || undefined,
-        total_likes: profileData?.total_likes || undefined,
-        following_count: profileData?.following_count || undefined,
-        follower_count: profileData?.follower_count || undefined,
-        total_favorites: profileData?.total_favorites || undefined,
-        points: profileData?.points || undefined,
-        // 保留原有的profile数据
-        assets: profileData?.assets || {},
-        interest_tags: profileData?.interest_tags || [],
-        tokens: profileData?.tokens || 0,
-        user_id: profileData?.user_id || '',
-        role: profileData?.role,
-        gender: profileData?.gender,
-        create_time: profileData?.create_time,
-      };
-      
-      return combinedProfile;
-    } catch (error: any) {
-      return rejectWithValue(
-        error?.msg || error?.message || "获取用户资料失败"
-      );
-    }
-  }
-);
 
 export const updateUser = createAsyncThunk(
   "user/updateUser",
@@ -304,8 +241,8 @@ export const updateUser = createAsyncThunk(
       // 注意：这里我们调用 updateMeProfile，但返回的是 UserProfile
       // 我们只用它来更新部分用户信息，或者需要后端返回更新后的 User 对象
       const response = await updateMeProfile(data);
-      // 更新成功后，重新获取用户资料以确保数据同步
-      await dispatch(fetchUserProfile());
+      // 更新成功后，重新获取用户信息以确保数据同步
+      await dispatch(fetchCurrentUser());
       return response; // 返回的是 UserProfile
     } catch (error: any) {
       
@@ -314,21 +251,6 @@ export const updateUser = createAsyncThunk(
   }
 );
 
-// 获取用户等级信息
-export const fetchUserLevel = createAsyncThunk(
-  "user/fetchUserLevel",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await getMyLevel();
-      return response.data;
-    } catch (error: any) {
-      
-      return rejectWithValue(
-        error?.msg || error?.message || "获取用户等级失败"
-      );
-    }
-  }
-);
 
 // 获取用户统计信息
 export const fetchUserStats = createAsyncThunk(
@@ -384,13 +306,10 @@ const userSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.isLoggedIn = false;
-      state.currentUser = null;
-      state.userProfile = null;
-      state.userLevel = null;
+      state.user = null;
       state.userStats = null;
       state.token = null;
       state.status = "idle";
-      state.levelStatus = "idle";
       state.statsStatus = "idle";
       state.aboutInfo = null; // 清除应用信息
       state.aboutStatus = "idle";
@@ -400,10 +319,6 @@ const userSlice = createSlice({
     resetUserStats: (state) => {
       state.userStats = null;
       state.statsStatus = "idle";
-    },
-    resetUserLevel: (state) => {
-      state.userLevel = null;
-      state.levelStatus = "idle";
     },
     resetFollowersCount: (state) => {
       state.followersCount = null;
@@ -468,12 +383,12 @@ const userSlice = createSlice({
         // 通过 token 判断登录状态：有 token 且获取用户信息成功即视为已登录
         if (state.token) {
           // 有有效 token 且获取到用户信息，视为已登录
-          state.currentUser = action.payload;
+          state.user = action.payload;
           state.isLoggedIn = true;
         } else {
           // 无 token，视为未登录
           state.isLoggedIn = false;
-          state.currentUser = null;
+          state.user = null;
         }
         state.error = null;
       })
@@ -482,21 +397,9 @@ const userSlice = createSlice({
         state.error = action.payload as string;
         // 当获取用户信息失败时，清除 token 并设为未登录状态
         state.isLoggedIn = false;
-        state.currentUser = null;
+        state.user = null;
         state.token = null;
         Taro.removeStorageSync("token");
-      })
-      // Fetch User Profile
-      .addCase(fetchUserProfile.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(fetchUserProfile.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.userProfile = action.payload; // This should be a User object
-      })
-      .addCase(fetchUserProfile.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string;
       })
       // Update User (Profile)
       .addCase(updateUser.pending, (state) => {
@@ -509,18 +412,6 @@ const userSlice = createSlice({
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload as string;
-      })
-      // Fetch User Level
-      .addCase(fetchUserLevel.pending, (state) => {
-        state.levelStatus = "loading";
-      })
-      .addCase(fetchUserLevel.fulfilled, (state, action) => {
-        state.levelStatus = "succeeded";
-        state.userLevel = action.payload;
-      })
-      .addCase(fetchUserLevel.rejected, (state, action) => {
-        state.levelStatus = "failed";
         state.error = action.payload as string;
       })
       // Fetch User Stats
@@ -576,6 +467,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { logout, resetUserStats, resetUserLevel, resetFollowersCount, resetCollectionCount, resetAboutInfo } = userSlice.actions;
+export const { logout, resetUserStats, resetFollowersCount, resetCollectionCount, resetAboutInfo } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -1,5 +1,5 @@
 import { PaginationParams } from "@/types/api/common";
-import { User, CurrentUser } from "@/types/api/user";
+import { User } from "@/types/api/user";
 import { GetFollowersParams, FollowActionParams } from "@/types/api/followers";
 import http from "../request";
 
