@@ -6,6 +6,9 @@ import { AppDispatch, RootState } from '@/store';
 import { getNoteDetail } from '@/services/api/note';
 import { NoteDetail } from '@/services/api/note';
 import CustomHeader from '@/components/custom-header';
+import AuthorInfo from '@/components/author-info';
+import ActionBar from '@/components/action-bar';
+import { ActionButtonProps } from '@/components/action-button';
 import heartIcon from '@/assets/heart.svg';
 import heartFilledIcon from '@/assets/heart-bold.svg';
 import bookmarkIcon from '@/assets/star-outline.svg';
@@ -184,38 +187,15 @@ export default function NoteDetailPage() {
           <View className={styles.noteHeader}>
             <Text className={styles.noteTitle}>{note.title}</Text>
             
-            <View className={styles.authorSection}>
-              <View className={styles.authorInfo}>
-                <Image 
-                  className={styles.authorAvatar}
-                  src={note.author?.avatar || '/assets/avatar1.png'}
-                  mode='aspectFill'
-                />
-                <View className={styles.authorDetails}>
-                  <Text className={styles.authorName}>
-                    {note.author?.name || '未知用户'}
-                  </Text>
-                  <Text className={styles.authorLevel}>
-                    wiki Lv.1
-                  </Text>
-                  <Text className={styles.authorMotto}>
-                    知识·与你分享
-                  </Text>
-                </View>
-              </View>
-              
-              <View className={styles.authorActions}>
-                <View 
-                  className={isLiked ? styles.followedButton : styles.followButton}
-                  onClick={handleLike}
-                >
-                  {isLiked ? '已关注' : '关注'}
-                </View>
-                <Text className={styles.publishTime}>
-                  {note.created_at ? '8分钟前' : ''}
-                </Text>
-              </View>
-            </View>
+            <AuthorInfo
+              userId={note.author?.id || ''}
+              mode='compact'
+              showBio={true}
+              showFollowButton={true}
+              showStats={false}
+              showLevel={true}
+              createTime={note.created_at || ''}
+            />
             
             {/* 标签 */}
             {note.tags && note.tags.length > 0 && (
@@ -389,38 +369,28 @@ export default function NoteDetailPage() {
       
       {/* 底部操作栏 */}
       <View className={styles.bottomBar}>
-        <View className={styles.actionButton} onClick={handleLike}>
-          <Image 
-            className={styles.actionIcon} 
-            src={isLiked ? heartFilledIcon : heartIcon} 
-          />
-          <Text className={`${styles.actionText} ${isLiked ? styles.liked : ''}`}>
-            {isLiked ? '已点赞' : '点赞'}
-          </Text>
-          <Text className={styles.actionCount}>128</Text>
-        </View>
-        
-        <View className={styles.actionButton} onClick={handleBookmark}>
-          <Image 
-            className={styles.actionIcon} 
-            src={isBookmarked ? bookmarkFilledIcon : bookmarkIcon} 
-          />
-          <Text className={styles.actionText}>
-            {isBookmarked ? '已收藏' : '收藏'}
-          </Text>
-          <Text className={styles.actionCount}>56</Text>
-        </View>
-        
-        <View className={styles.actionButton}>
-          <Image className={styles.actionIcon} src={commentIcon} />
-          <Text className={styles.actionText}>评论</Text>
-          <Text className={styles.actionCount}>32</Text>
-        </View>
-        
-        <View className={styles.actionButton} onClick={handleShare}>
-          <Image className={styles.actionIcon} src={shareIcon} />
-          <Text className={styles.actionText}>分享</Text>
-        </View>
+        <ActionBar buttons={[
+          {
+            icon: isLiked ? heartFilledIcon : heartIcon,
+            text: '128',
+            onClick: handleLike,
+            className: isLiked ? styles.liked : '',
+          },
+          {
+            icon: isBookmarked ? bookmarkFilledIcon : bookmarkIcon,
+            text: '56',
+            onClick: handleBookmark,
+          },
+          {
+            icon: commentIcon,
+            text: '32',
+          },
+          {
+            icon: shareIcon,
+            text: '分享',
+            onClick: handleShare,
+          }
+        ]} />
       </View>
     </View>
   );

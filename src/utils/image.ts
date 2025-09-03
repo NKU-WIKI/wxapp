@@ -25,7 +25,8 @@ export const normalizeImageUrl = (url?: string): string => {
 
   // 如果已经是完整的HTTP URL，统一升级为 https（排除 http(s)://tmp/ 已在上方处理）
   if (/^http:\/\//i.test(trimmed)) {
-    return trimmed.replace(/^http:\/\//i, 'https://');
+    const httpsUrl = trimmed.replace(/^http:\/\//i, 'https://');
+    return httpsUrl;
   }
 
   // 如果已经是HTTPS URL，直接返回
@@ -45,7 +46,8 @@ export const normalizeImageUrl = (url?: string): string => {
     if (base && !base.startsWith('https://')) {
       base = base.replace(/^http:\/\//i, 'https://');
     }
-    return `${base}${trimmed}`;
+    const fullUrl = `${base}${trimmed}`;
+    return fullUrl;
   }
 
   // 其他情况，直接返回原URL

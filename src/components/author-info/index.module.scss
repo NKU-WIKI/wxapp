@@ -227,14 +227,15 @@
 .compactUserInfo {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  width: 100%; // Ensure it takes full width to allow spacing
 }
 
 .compactUserInfoLeft {
   display: flex;
   align-items: center;
   min-width: 0;
-  flex: 1;
+  margin-right: 12px; /* Add a small gutter between info and actions */
+  flex-shrink: 0; /* Prevent the user info from shrinking */
 }
 
 .compactAvatar {
@@ -248,7 +249,6 @@
 .compactUserDetails {
   flex: 1;
   min-width: 0;
-  margin-left: 10px;
 }
 
 .compactUserNameRow {
@@ -315,9 +315,22 @@
 .compactActions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-left: 12px;
+  flex: 1; /* Take up ALL available space */
+  justify-content: space-between; /* Push children to opposite ends */
+}
+
+// 关注按钮容器
+.compactFollowContainer {
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
+}
+
+// 时间和更多按钮的容器
+.compactTimeActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 // 简洁模式关注按钮
@@ -337,6 +350,28 @@
     background: #f5f5f5;
     color: #666;
   }
+}
+
+// 简洁模式更多按钮
+.moreButton {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.moreIcon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.6;
 }
 
 /* ========== Profile 模式样式 ========== */

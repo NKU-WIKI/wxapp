@@ -6,11 +6,10 @@ import { useSelector } from 'react-redux'
 import { useAuthorInfo } from '@/hooks/useAuthorInfo'
 import { RootState } from '@/store'
 import { formatRelativeTime } from '@/utils/time'
+import { normalizeImageUrl } from '@/utils/image'
 // 导入图标资源
 import defaultAvatar from '@/assets/avatar1.png'
-import levelIcon from '@/assets/star.svg'
 import locationIcon from '@/assets/map-pin.svg'
-import postIcon from '@/assets/file-text.svg'
 import userIcon from '@/assets/user.svg'
 import heartIcon from '@/assets/heart-outline.svg'
 import starIcon from '@/assets/star.svg'
@@ -21,8 +20,14 @@ import feedbackIcon from '@/assets/feedback.svg'
 import campusIcon from '@/assets/school.svg'
 import infoIcon from '@/assets/about.svg'
 import settingsIcon from '@/assets/settings.svg'
+import moreIcon from '@/assets/more-horizontal.svg'
 
 import styles from './index.module.scss'
+
+const levelIcon = starIcon
+const postIcon = draftIcon
+
+
 
 export type AuthorInfoMode = 'compact' | 'expanded' | 'profile'
 
@@ -58,11 +63,15 @@ export interface AuthorInfoProps {
   /** Profile模式专用：编辑按钮点击回调 */
   onEdit?: () => void
   /** Profile模式专用：菜单项点击回调 */
-  onMenuClick?: (type: string) => void
+  onMenuClick?: (_type: string) => void
   /** Profile模式专用：校园认证状态 */
   isCampusVerified?: boolean
   /** Profile模式专用：积分值 */
   points?: number
+  /** 是否显示删除/更多按钮 */
+  showMoreButton?: boolean
+  /** 删除/更多按钮点击回调 */
+  onMoreClick?: () => void
 }
 
 /**
@@ -92,7 +101,9 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
   onEdit,
   onMenuClick,
   isCampusVerified = false,
-  points = 0
+  points = 0,
+  showMoreButton = false,
+  onMoreClick
 }) => {
   const currentUserId = useSelector((state: RootState) => (
     state.user.currentUser?.user_id || (state.user.userProfile as any)?.id || ''
@@ -155,7 +166,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
     )
   }
 
-  if (error || !user) {
+  if (error && !user) {
     return (
       <View className={containerClasses}>
         <Text className={styles.errorText}>
@@ -172,14 +183,14 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
         <View className={styles.compactUserInfo}>
           <View className={styles.compactUserInfoLeft} onClick={handleUserClick}>
             <Image
-              src={user.avatar || defaultAvatar}
+              src={normalizeImageUrl(user?.avatar || undefined) || defaultAvatar}
               className={styles.compactAvatar}
               mode='aspectFill'
             />
             <View className={styles.compactUserDetails}>
               <View className={styles.compactUserNameRow}>
                 <Text className={styles.compactUserName}>
-                  {user.nickname || '匿名用户'}
+                  {user?.nickname || '匿名用户'}
                 </Text>
                 {showLevel && levelInfo && (
                   <View className={styles.compactLevelBadge}>
@@ -189,12 +200,12 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                   </View>
                 )}
               </View>
-              {showBio && user.bio && (
+              {showBio && user?.bio && (
                 <Text className={styles.compactBio} numberOfLines={1}>
-                  {user.bio}
+                  {user?.bio}
                 </Text>
               )}
-              {showLocation && user.location && (
+              {showLocation && user?.location && (
                 <View className={styles.compactUserLocation}>
                   <Image
                     src={locationIcon}
@@ -202,7 +213,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                     style={{ width: '10px', height: '10px' }}
                   />
                   <Text className={styles.compactLocationText}>
-                    {user.location}
+                    {user?.location}
                   </Text>
                 </View>
               )}
@@ -210,22 +221,34 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           </View>
 
           <View className={styles.compactActions}>
-            {showTime && createTime && (
-              <Text className={styles.compactTime}>
-                {formatRelativeTime(createTime)}
-              </Text>
-            )}
             {extraNode}
-            {showFollowButton && !isCurrentUser && (
-              <View
-                className={classnames(styles.compactFollowButton, {
-                  [styles.following]: isFollowing
-                })}
-                onClick={handleFollowToggle}
-              >
-                <Text>{isFollowing ? '已关注' : '关注'}</Text>
-              </View>
-            )}
+            <View className={styles.compactFollowContainer}>
+              {showFollowButton && !isCurrentUser && (
+                <View
+                  className={classnames(styles.compactFollowButton, {
+                    [styles.following]: isFollowing
+                  })}
+                  onClick={handleFollowToggle}
+                >
+                  <Text>{isFollowing ? '已关注' : '关注'}</Text>
+                </View>
+              )}
+            </View>
+            <View className={styles.compactTimeActions}>
+              {showTime && createTime && (
+                <Text className={styles.compactTime}>
+                  {formatRelativeTime(createTime)}
+                </Text>
+              )}
+              {showMoreButton && onMoreClick && (
+                <View
+                  className={styles.moreButton}
+                  onClick={onMoreClick}
+                >
+                  <Image src={moreIcon} className={styles.moreIcon} />
+                </View>
+              )}
+            </View>
           </View>
         </View>
       </View>
@@ -239,7 +262,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
       {/* 用户头像和基本信息 */}
       <View className={styles.userHeader}>
         <Image
-          src={user.avatar || defaultAvatar}
+          src={normalizeImageUrl(user?.avatar || undefined) || defaultAvatar}
           className={styles.avatar}
           mode='aspectFill'
         />
@@ -247,7 +270,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
         <View className={styles.userInfo}>
           <View className={styles.userNameRow}>
             <Text className={styles.userName}>
-              {user.nickname || '匿名用户'}
+              {user?.nickname || '匿名用户'}
             </Text>
 
             {/* 等级信息 */}
@@ -266,14 +289,14 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           </View>
 
           {/* 学校信息 */}
-          {(user.school || user.college) && (
+          {(user?.school || user?.college) && (
             <Text className={styles.userSchool}>
-              {user.school || ''}{user.college ? ` ${user.college}` : ''}
+              {user?.school || ''}{user?.college ? ` ${user.college}` : ''}
             </Text>
           )}
 
           {/* 位置信息 */}
-          {showLocation && user.location && (
+          {showLocation && user?.location && (
             <View className={styles.userLocation}>
               <Image
                 src={locationIcon}
@@ -281,7 +304,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                 style={{ width: '12px', height: '12px' }}
               />
               <Text className={styles.locationText}>
-                {user.location}
+                {user?.location}
               </Text>
             </View>
           )}
@@ -308,9 +331,9 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
       </View>
 
       {/* 用户简介 */}
-      {user.bio && (
+      {user?.bio && (
         <Text className={styles.userBio}>
-          {user.bio}
+          {user?.bio}
         </Text>
       )}
 
@@ -378,7 +401,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
         <View className={styles.profileAvatarContainer}>
           <View className={styles.profileAvatarWrapper}>
             <Image
-              src={user.avatar || defaultAvatar}
+              src={normalizeImageUrl(user?.avatar || undefined) || defaultAvatar}
               className={styles.profileAvatar}
               mode='aspectFill'
             />
@@ -387,10 +410,10 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
 
         <View className={styles.profileUserDetails}>
           <Text className={styles.profileNickname}>
-            {user.nickname || '未设置昵称'}
+            {user?.nickname || '未设置昵称'}
           </Text>
           <Text className={styles.profileBio}>
-            {user.bio || '这个人很懒，还没有设置个性签名~'}
+            {user?.bio || '这个人很懒，还没有设置个性签名~'}
           </Text>
         </View>
 

@@ -18,6 +18,9 @@ import { getFollowers, followAction } from '@/services/api/followers'
 import { BBSNotificationHelper } from '@/utils/notificationHelper'
 import { normalizeImageUrl } from '@/utils/image'
 
+// Component imports
+import AuthorInfo from '@/components/author-info'
+
 // Relative imports
 import styles from './index.module.scss'
 
@@ -349,29 +352,16 @@ const FollowersPage = () => {
         ) : (
           <View className={styles.userList}>
             {users.map((user, index) => {
-              const buttonInfo = getFollowButtonInfo(user.relation || 'none')
               return (
                 <View key={user.id || index} className={styles.userItem}>
-                  <View className={styles.userInfo}>
-                    <View className={styles.userAvatar}>
-                      <Image src={normalizeImageUrl(user.avatar) || ''} mode='aspectFill' />
-                    </View>
-                    <View className={styles.userDetails}>
-                      <Text className={styles.userName}>{user.nickname || ''}</Text>
-                      <Text className={styles.userBio}>
-                        {user.bio || '这个人很懒，什么都没留下'}
-                      </Text>
-                    </View>
-                  </View>
-                  {/* 只在关注页面或粉丝页面中未关注的用户显示按钮 */}
-                  {(activeTab === 'following' || user.relation === 'none') && (
-                    <Button 
-                      className={`${styles.followButton} ${buttonInfo.className}`}
-                      onClick={() => handleFollowAction(user.id, user.relation || 'none')}
-                    >
-                      {buttonInfo.text}
-                    </Button>
-                  )}
+                  <AuthorInfo
+                    userId={user.id}
+                    mode='compact'
+                    showBio={true}
+                    showFollowButton={activeTab === 'following' || user.relation === 'none'}
+                    showStats={false}
+                    showLevel={true}
+                  />
                 </View>
               )
             })}
