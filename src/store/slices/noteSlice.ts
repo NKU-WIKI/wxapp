@@ -308,40 +308,18 @@ export const fetchNoteFeed = createAsyncThunk(
     try {
       if (isLoggedIn) {
         // 已登录用户：优先尝试个性化推荐流
-        console.log('🔍 已登录用户，调用真实API getNoteFeed');
+
         
         const response = await noteApi.getNoteFeed(params);
         
-        console.log('🔍 真实API getNoteFeed响应:', {
-          responseCode: response.code,
-          responseMessage: response.message,
-          hasData: !!response.data,
-          dataLength: response.data ? response.data.length : 0,
-          sampleNote: response.data && response.data[0] ? {
-            id: response.data[0].id,
-            title: response.data[0].title,
-            hasUserId: !!response.data[0].user_id,
-            userId: response.data[0].user_id,
-            allFields: Object.keys(response.data[0])
-          } : null
-        });
+
         
         // 详细检查可能的用户ID字段
         if (response.data && response.data.length > 0) {
           const firstNote = response.data[0];
-          console.log('🔍 详细检查用户相关字段:', {
-            user_id: firstNote.user_id,
-            author_id: firstNote.author_id,
-            creator_id: firstNote.creator_id,
-            owner_id: firstNote.owner_id,
-            user: firstNote.user,
-            author: firstNote.author,
-            creator: firstNote.creator,
-            owner: firstNote.owner
-          });
+
           
           // 检查整个笔记对象的结构
-          console.log('🔍 完整笔记对象:', firstNote);
           
           // 检查后端数据是否完整（是否有用户信息）
           const hasUserInfo = firstNote.user_id || firstNote.author_id || firstNote.creator_id || 

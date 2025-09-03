@@ -58,18 +58,18 @@ export const getResourceRatings = (
     filteredParams
   ).then(response => {
     // 调试日志：查看原始响应数据
-    console.log('🔍 [getResourceRatings] 原始响应:', JSON.stringify(response, null, 2));
+
     
     // 处理分页参数格式转换
     if (response.data?.data) {
       const data = response.data.data;
-      console.log('🔍 [getResourceRatings] 响应中的data字段:', JSON.stringify(data, null, 2));
+  
       
       // 将 skip/limit 格式转换为 page/page_size 格式
       if (data.skip !== undefined && data.limit !== undefined) {
         data.page = Math.floor(data.skip / data.limit) + 1;
         data.page_size = data.limit;
-        console.log('🔍 [getResourceRatings] 转换后的分页信息:', { page: data.page, page_size: data.page_size });
+    
       }
     }
     return response;
@@ -498,19 +498,18 @@ export const getResourceRatingsList = (
     queryParams
   ).then(response => {
     // 调试日志：查看原始响应数据
-    console.log('🔍 [getResourceRatingsList] 原始响应:', JSON.stringify(response, null, 2));
-    console.log('🔍 [getResourceRatingsList] 请求参数:', JSON.stringify(queryParams, null, 2));
+
     
     // 处理分页参数格式转换
     if (response.data?.data) {
       const data = response.data.data;
-      console.log('🔍 [getResourceRatingsList] 响应中的data字段:', JSON.stringify(data, null, 2));
+  
       
       // 将 skip/limit 格式转换为 page/page_size 格式
       if (data.skip !== undefined && data.limit !== undefined) {
         data.page = Math.floor(data.skip / data.limit) + 1;
         data.page_size = data.limit;
-        console.log('🔍 [getResourceRatingsList] 转换后的分页信息:', { page: data.page, page_size: data.page_size });
+    
       }
     }
     return response;

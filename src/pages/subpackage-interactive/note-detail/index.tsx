@@ -38,13 +38,7 @@ export default function NoteDetailPage() {
   const noteId = router?.params?.id;
   const userId = router?.params?.userId; // 新增：从URL参数获取用户ID
   
-  // 调试日志：检查路由参数
-  console.log('🔍 笔记详情页面路由参数:', {
-    noteId,
-    userId,
-    hasUserId: !!userId,
-    allParams: router?.params
-  });
+
   
   // 加载笔记详情
   const loadNoteDetail = useCallback(async () => {
@@ -58,22 +52,11 @@ export default function NoteDetailPage() {
       setLoading(true);
       setError(null);
       
-      // 获取笔记详情，使用正确的API路径
-      console.log('🔍 开始调用getNoteDetail API:', {
-        noteId,
-        userId,
-        hasUserId: !!userId,
-        apiPath: userId ? `/users/${userId}/notes` : `/notes/${noteId}`
-      });
+
       
       const response = await getNoteDetail(noteId, userId);
       
-      console.log('🔍 getNoteDetail API响应:', {
-        responseCode: response.code,
-        responseMessage: response.message,
-        hasData: !!response.data,
-        responseData: response.data
-      });
+
       
       if (response.code === 0 && response.data) {
         let noteData: any;
@@ -89,7 +72,7 @@ export default function NoteDetailPage() {
             return;
           }
           
-          console.log('🔍 从用户笔记列表中筛选出的笔记:', noteData);
+
         } else {
           // 直接使用返回的数据
           noteData = response.data;

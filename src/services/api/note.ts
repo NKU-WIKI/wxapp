@@ -83,23 +83,18 @@ export const getNotes = async (params?: GetNotesParams) => {
  * 获取笔记详情
  */
 export const getNoteDetail = async (noteId: string, userId?: string) => {
-  // 调试日志
-  console.log('🔍 getNoteDetail函数调用:', {
-    noteId,
-    userId,
-    hasUserId: !!userId
-  });
+
   
   // 如果提供了userId，使用用户笔记列表接口
   if (userId) {
     const apiPath = `/users/${userId}/notes`;
-    console.log('🔍 使用用户笔记列表API路径:', apiPath);
+
     return http.get<{ code: number; message: string; data: any[] }>(apiPath);
   }
   
   // 否则使用原来的路径（向后兼容）
   const apiPath = `/notes/${noteId}`;
-  console.log('🔍 使用普通笔记API路径:', apiPath);
+  
   return http.get<{ code: number; message: string; data: any }>(apiPath);
 };
 

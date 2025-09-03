@@ -257,14 +257,7 @@ const PostDetailPage = () => {
 
   // 渲染内容
   const renderContent = () => {
-    // console.log('🔍 渲染内容状态:', {
-    //   postState,
-    //   commentState,
-    //   postId,
-    //   detailLoading: postState?.detailLoading,
-    //   currentPost: postState?.currentPost,
-    //   comments: commentState?.comments
-    // });
+
 
     // 正在加载中，显示加载状态
     if (postState?.detailLoading === 'pending') {

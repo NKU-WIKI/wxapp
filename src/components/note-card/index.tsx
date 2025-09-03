@@ -25,13 +25,7 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
         ? `/pages/subpackage-interactive/note-detail/index?id=${note.id}&userId=${userId}`
         : `/pages/subpackage-interactive/note-detail/index?id=${note.id}`;
       
-      console.log('🔍 NoteCard点击调试信息:', {
-        noteId: note.id,
-        userId: note.user?.id,
-        hasUserId: !!note.user?.id,
-        finalUrl: url,
-        noteData: note
-      });
+
       Taro.navigateTo({ url });
     }
   };
