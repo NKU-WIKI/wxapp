@@ -223,3 +223,18 @@
   font-size: 14px;
   color: #666;
 }
+
+/* 空状态 */
+.emptyState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: 16px;
+  color: #999;
+  line-height: 1.5;
+}

@@ -49,8 +49,7 @@ export default {
         "post-detail/index",
         "publish/index",
         "chat/index",
-        "note-publish/img_generate/index",
-        "note-publish/img_type_choose/index",
+        "note-detail/index",
         "note-publish/note_publish/index",
       ]
     },

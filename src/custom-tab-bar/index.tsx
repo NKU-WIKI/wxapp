@@ -66,7 +66,7 @@ const CustomTabBar: FC = () => {
       Taro.navigateTo({ url: '/pages/subpackage-interactive/publish/index' });
     } else if (type === 'note') {
       // 发布笔记功能
-      Taro.navigateTo({ url: '/pages/subpackage-interactive/note-publish/img_generate/index' });
+      Taro.navigateTo({ url: '/pages/subpackage-interactive/note-publish/note_publish/index' });
     }
   };
 
