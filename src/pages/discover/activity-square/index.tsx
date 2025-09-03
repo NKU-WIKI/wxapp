@@ -6,6 +6,7 @@ import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/ap
 import searchIcon from "@/assets/search.svg";
 import styles from "./index.module.scss";
 import CustomHeader from "../../../components/custom-header";
+import AuthFloatingButton from "../../../components/auth-floating-button";
 
 // eslint-disable-next-line import/no-unused-modules
 export default function ActivitySquare() {
@@ -335,10 +336,13 @@ export default function ActivitySquare() {
         </View>
       </ScrollView>
 
-      {/* 圆形悬浮发布活动按钮 */}
-      <View className={styles.floatingPublishButton} onClick={handlePublishActivity}>
-        <Image src={require("../../../assets/plus.svg")} className={styles.floatingPublishIcon} />
-      </View>
+      {/* 带鉴权的悬浮发布活动按钮 */}
+      <AuthFloatingButton
+        variant='plus'
+        onClick={handlePublishActivity}
+        loginPrompt='您需要登录后才能发布活动，是否立即前往登录页面？'
+        redirectUrl='/pages/discover/publish-activity/index'
+      />
     </View>
   );
 }

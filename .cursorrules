@@ -9,6 +9,8 @@ win11 powershell or wsl ubuntu22.04
 
 禁止自己运行npm run等命令
 
+taro组件文档参考docs/TARO_COMPONENTS_GUIDE.md
+
 ### 后端提供两种认证方式
 
 必须认证接口：只有登录用户可访问，有token

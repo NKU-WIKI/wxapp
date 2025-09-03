@@ -1,6 +1,6 @@
-import { View, Text, Input, Textarea } from '@tarojs/components';
+import { View, Text, Input, Textarea, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import activityApi from '@/services/api/activity';
 import { ActivityCreateRequest, ActivityType, ActivityVisibility } from '@/types/api/activity.d';
 import CustomHeader from '../../../components/custom-header';
@@ -43,9 +43,9 @@ export default function PublishActivity() {
      (form.activity_type === ActivityType.Online && form.online_url) ||
      (form.activity_type === ActivityType.Hybrid));
 
-  const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+  const update = useCallback(<K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
-  };
+  }, []);
 
   const parseDate = (value: string) => {
     // 支持 "YYYY-MM-DD HH:mm" 简易解析
@@ -53,6 +53,14 @@ export default function PublishActivity() {
     const ts = Date.parse(replaced.replace(/-/g, '/')); // iOS 兼容
     return Number.isNaN(ts) ? null : new Date(ts);
   };
+
+  const decreaseParticipants = useCallback(() => {
+    setForm(prev => ({ ...prev, max_participants: Math.max(1, prev.max_participants - 1) }));
+  }, []);
+
+  const increaseParticipants = useCallback(() => {
+    setForm(prev => ({ ...prev, max_participants: Math.min(999, prev.max_participants + 1) }));
+  }, []);
 
   const handleSubmit = async () => {
     if (!requiredFilled) {
@@ -173,49 +181,93 @@ export default function PublishActivity() {
         <View className={styles.timeRow}>
           <View className={styles.timeItem}>
             <Text className={styles.timeLabel}>开始时间</Text>
-            <Input
-              className={styles.input}
-              value={form.start_time}
-              placeholder='2025-09-01 14:00'
-              onInput={e => update('start_time', e.detail.value)}
-            />
+            <View className={styles.pickerGroup}>
+              <Picker
+                mode='date'
+                value={form.start_time.split(' ')[0]}
+                start={format(new Date())}
+                end={format(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000))}
+                onChange={(e) => {
+                  const newDate = e.detail.value;
+                  const oldTime = form.start_time.split(' ')[1] || '00:00';
+                  update('start_time', `${newDate} ${oldTime}`);
+                }}
+              >
+                <View className={styles.datetimePicker}>
+                  <Text className={styles.value}>{form.start_time.split(' ')[0]}</Text>
+                </View>
+              </Picker>
+              <Picker
+                mode='time'
+                value={form.start_time.split(' ')[1]}
+                onChange={(e) => {
+                  const newTime = e.detail.value;
+                  const oldDate = form.start_time.split(' ')[0];
+                  update('start_time', `${oldDate} ${newTime}`);
+                }}
+              >
+                <View className={styles.datetimePicker}>
+                  <Text className={styles.value}>{form.start_time.split(' ')[1]}</Text>
+                </View>
+              </Picker>
+            </View>
           </View>
           <View className={styles.timeItem}>
             <Text className={styles.timeLabel}>结束时间</Text>
-            <Input
-              className={styles.input}
-              value={form.end_time}
-              placeholder='2025-09-01 16:00'
-              onInput={e => update('end_time', e.detail.value)}
-            />
+            <View className={styles.pickerGroup}>
+              <Picker
+                mode='date'
+                value={form.end_time.split(' ')[0]}
+                start={form.start_time.split(' ')[0]}
+                end={format(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000))}
+                onChange={(e) => {
+                  const newDate = e.detail.value;
+                  const oldTime = form.end_time.split(' ')[1] || '00:00';
+                  update('end_time', `${newDate} ${oldTime}`);
+                }}
+              >
+                <View className={styles.datetimePicker}>
+                  <Text className={styles.value}>{form.end_time.split(' ')[0]}</Text>
+                </View>
+              </Picker>
+              <Picker
+                mode='time'
+                value={form.end_time.split(' ')[1]}
+                onChange={(e) => {
+                  const newTime = e.detail.value;
+                  const oldDate = form.end_time.split(' ')[0];
+                  update('end_time', `${oldDate} ${newTime}`);
+                }}
+              >
+                <View className={styles.datetimePicker}>
+                  <Text className={styles.value}>{form.end_time.split(' ')[1]}</Text>
+                </View>
+              </Picker>
+            </View>
           </View>
         </View>
       </View>
 
-      {/* 动态显示地点或链接输入框 */}
-      {form.activity_type === ActivityType.Offline && (
-        <View className={styles.formItem}>
-          <Text className={styles.label}>地点 *</Text>
-          <Input
-            className={styles.input}
-            value={form.location}
-            placeholder='请填写活动地点，例如：图书馆201会议室'
-            onInput={e => update('location', e.detail.value)}
-          />
-        </View>
-      )}
+      {/* 预渲染所有输入框，通过样式控制显示/隐藏，避免条件渲染导致的闪烁 */}
+      <View className={`${styles.formItem} ${form.activity_type !== ActivityType.Offline ? styles.hidden : ''}`}>
+        <Text className={styles.label}>地点 {form.activity_type === ActivityType.Offline ? '*' : ''}</Text>
+        <Input
+          className={styles.input}
+          value={form.location}
+          placeholder='请填写活动地点，例如：图书馆201会议室'
+          onInput={e => update('location', e.detail.value)}
+        />
+      </View>
 
-      {form.activity_type === ActivityType.Online && (
-        <View className={styles.formItem}>
-          <Text className={styles.label}>线上链接 *</Text>
-          <Input
-            className={styles.input}
-            value={form.online_url}
-            placeholder='请填写线上活动链接，例如：腾讯会议链接'
-            onInput={e => update('online_url', e.detail.value)}
-          />
-        </View>
-      )}
+      <View className={`${styles.formItem} ${form.activity_type !== ActivityType.Online ? styles.hidden : ''}`}>
+        <Text className={styles.label}>线上链接 {form.activity_type === ActivityType.Online ? '*' : ''}</Text>
+        <Input
+          className={styles.input}
+          value={form.online_url}
+          placeholder='请填写线上活动链接，例如：腾讯会议链接'
+          onInput={e => update('online_url', e.detail.value)}
+        />
+      </View>
 
       {form.activity_type === ActivityType.Hybrid && (
         <>
@@ -251,17 +303,7 @@ export default function PublishActivity() {
         <View className={styles.participantCounterWrapper}>
           <View
             className={styles.counterButton}
-            onClick={() => {
-              
-              const newValue = Math.max(1, form.max_participants - 1);
-              
-              setForm(prev => {
-                
-                const newState = { ...prev, max_participants: newValue };
-                
-                return newState;
-              });
-            }}
+            onClick={decreaseParticipants}
           >
             <Text className={styles.counterButtonText}>-</Text>
           </View>
@@ -271,17 +313,7 @@ export default function PublishActivity() {
           </View>
           <View
             className={styles.counterButton}
-            onClick={() => {
-              
-              const newValue = Math.min(999, form.max_participants + 1);
-              
-              setForm(prev => {
-                
-                const newState = { ...prev, max_participants: newValue };
-                
-                return newState;
-              });
-            }}
+            onClick={increaseParticipants}
           >
             <Text className={styles.counterButtonText}>+</Text>
           </View>

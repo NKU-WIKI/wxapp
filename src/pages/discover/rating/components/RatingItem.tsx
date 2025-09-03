@@ -31,7 +31,7 @@ interface RatingItemProps {
   /**
    * 点击事件
    */
-  onItemClick?: () => void
+  onItemClick?: (_resource: any) => void
 }
 
 const RatingItem = ({ resource, onItemClick }: RatingItemProps) => {

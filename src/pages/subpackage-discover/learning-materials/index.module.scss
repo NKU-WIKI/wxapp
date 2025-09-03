@@ -223,33 +223,3 @@
   font-size: 14px;
   color: #666;
 }
-
-/* 浮动加号按钮 */
-.floatingActionButton {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 60px; /* 稍微增大 */
-  height: 60px;
-  background: #4F46E5; /* 使用项目主紫色 */
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4); /* 调整阴影颜色 */
-  cursor: pointer;
-  z-index: 999;
-  transition: all 0.3s ease;
-}
-
-.floatingActionButton:active {
-  transform: scale(0.95);
-  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.5);
-}
-
-.plusIcon {
-  font-size: 30px; /* 稍微增大 */
-  color: #fff;
-  font-weight: 300;
-  line-height: 1;
-}

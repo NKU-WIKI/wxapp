@@ -65,7 +65,8 @@ $text-secondary: #64748b;
   min-height: 76rpx;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color .25s, box-shadow .25s, background-color .25s;
+  // 移除过渡动画以避免闪烁
+  // transition: border-color .25s, box-shadow .25s, background-color .25s;
   box-shadow: inset 0 0 0 0 transparent;
   &:focus {
     border-color: #6366f1;
@@ -297,9 +298,63 @@ $text-secondary: #64748b;
   pointer-events: none;
 }
 
+// 日期时间选择器样式
+.datetimePicker {
+  background: #ffffff;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 14rpx;
+  padding: 20rpx 18rpx;
+  font-size: 28rpx;
+  line-height: 1.4;
+  min-height: 76rpx;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color .25s, box-shadow .25s, background-color .25s;
+  box-shadow: inset 0 0 0 0 transparent;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative; // 确保点击事件能正确传递
+
+  &:active {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 6rpx rgba(99,102,241,0.15), 0 2rpx 6rpx rgba(30,41,59,0.06);
+    background: #ffffff;
+  }
+
+  // 确保文字不会影响点击事件
+  & > * {
+    pointer-events: none;
+  }
+}
+
+.value {
+  color: #333333;
+  flex: 1;
+}
+
+.placeholder {
+  color: #94a3b8;
+  flex: 1;
+}
+
+// picker group style
+.pickerGroup {
+  display: flex;
+  gap: 8rpx;
+  .datetimePicker {
+    flex: 1;
+  }
+}
+
 // 轻量全局微调（限当前页面作用域）
 .publishActivityPage {
   .formItem:last-of-type { margin-bottom: 4rpx; }
+}
+
+// 隐藏样式类 - 用于控制条件渲染的元素显示/隐藏
+.hidden {
+  display: none !important;
 }
 
 // 响应式（大屏宽度兼容）

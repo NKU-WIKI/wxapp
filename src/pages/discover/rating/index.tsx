@@ -1,16 +1,19 @@
-import { View, Text, ScrollView } from '@tarojs/components'
+// Third-party imports
 import { useState, useEffect } from 'react'
+import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '@/store'
-import {
-  setCurrentCategory
-} from '@/store/slices/ratingSlice'
+import { useDispatch } from 'react-redux'
+
+// Absolute imports (alphabetical order)
+import { AppDispatch } from '@/store'
+import { setCurrentCategory } from '@/store/slices/ratingSlice'
 import { getResourceList } from '@/services/api/rating'
 import { RatingCategory } from '@/types/api/rating.d'
 import CustomHeader from '@/components/custom-header'
+import AuthFloatingButton from '@/components/auth-floating-button'
+
+// Relative imports
 import RatingItem from './components/RatingItem'
-// import { processTempImages } from '@/services/api/upload' // 已移除
 import styles from './index.module.scss'
 
 const RatingPage = () => {
@@ -20,11 +23,6 @@ const RatingPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
-  // 从store获取状态
-  const userState = useSelector((state: RootState) => state.user)
-  
-  const isLoggedIn = userState.isLoggedIn
-
   // 预定义的评分类型（根据API文档）
   const predefinedRatingTypes = [
     { value: RatingCategory.Course, label: '学习', description: '课程、教材、学习资源评分' },
@@ -49,9 +47,6 @@ const RatingPage = () => {
         sort_by: 'average_score',
         sort_order: 'desc'
       })
-      
-      
-      
       
       // 尝试多种可能的数据路径
       let resourcesData: any[] = [];
@@ -103,36 +98,10 @@ const RatingPage = () => {
   // 跳转到资源详情页（显示该资源的所有评价）
   const handleItemClick = (resource: any) => {
     
-    
     Taro.navigateTo({
       url: `/pages/discover/rating/detail/index?resourceId=${resource.id}&resourceType=${resource.resource_type}&resourceName=${encodeURIComponent(resource.resource_name)}`
     })
   }
-
-  // 跳转到发布页
-  const handlePublishClick = () => {
-    if (!isLoggedIn) {
-      Taro.showModal({
-        title: '需要登录',
-        content: '请先登录后发布评分',
-        confirmText: '去登录',
-        cancelText: '取消',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' })
-          }
-        }
-      })
-      return
-    }
-    
-    
-    Taro.navigateTo({
-      url: '/pages/discover/rating/publish/index'
-    })
-  }
-
-
 
   // 获取分类显示名称 (暂时未使用)
   // const getCategoryDisplayName = (categoryValue: string) => {
@@ -212,10 +181,13 @@ const RatingPage = () => {
         </ScrollView>
       </View>
 
-      {/* 浮动发布按钮 */}
-      <View className={styles.floatingButton} onClick={handlePublishClick}>
-        <Text className={styles.plusIcon}>+</Text>
-      </View>
+      {/* 带鉴权的悬浮发布按钮 */}
+      <AuthFloatingButton
+        variant='plus'
+        onClick={() => Taro.navigateTo({ url: '/pages/discover/rating/publish/index' })}
+        loginPrompt='您需要登录后才能发布评分，是否立即前往登录页面？'
+        redirectUrl='/pages/discover/rating/publish/index'
+      />
     </View>
   )
 }

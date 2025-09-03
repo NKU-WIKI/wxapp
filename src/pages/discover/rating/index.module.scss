@@ -217,34 +217,7 @@
   color: $text-helper;
 }
 
-/* 浮动发布按钮 */
-.floatingButton {
-  position: fixed;
-  bottom: 90px;
-  right: 16px;
-  width: 52px;
-  height: 52px;
-  background-color: $theme-primary;
-  border-radius: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px $shadow-medium;
-  transition: all 0.2s ease;
-  z-index: 100;
 
-  &:active {
-    transform: scale(0.95);
-    box-shadow: 0 2px 8px $shadow-base;
-  }
-}
-
-.plusIcon {
-  color: $text-white;
-  font-size: 22px;
-  font-weight: 300;
-  line-height: 1;
-}
 
 .loadingState {
   display: flex;
