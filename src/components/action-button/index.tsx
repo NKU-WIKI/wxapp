@@ -1,25 +1,25 @@
-import React from 'react';
-import { View, Text, Image, ITouchEvent } from "@tarojs/components";
-import classnames from "classnames";
-import styles from './index.module.scss';
+import React from 'react'
+import { View, Text, Image, ITouchEvent, Button } from '@tarojs/components'
+import classnames from 'classnames'
+import styles from './index.module.scss'
 
 export interface ActionButtonProps {
-  icon: string;
-  activeIcon?: string;
-  text?: string | number;
-  onClick?: (_e: ITouchEvent) => void;
-  isActive?: boolean;
-  className?: string;
-  iconClassName?: string;
-  textClassName?: string;
+  icon: string
+  activeIcon?: string
+  text?: string | number
+  onClick?: (_e: ITouchEvent) => void
+  isActive?: boolean
+  className?: string
+  iconClassName?: string
+  textClassName?: string
   /**
-   * 操作类型（用于自动处理action/toggle）
+   * 开放能力类型，同小程序 Button 组件的 open-type
    */
-  actionType?: 'like' | 'favorite' | 'follow';
+  openType?: 'share' | 'getPhoneNumber' | 'getUserInfo' | 'launchApp' | 'openSetting' | 'feedback'
   /**
-   * 自定义点击处理函数（优先级高于自动处理）
+   * 是否禁用
    */
-  onActionClick?: (actionType: string, targetId: string, currentActive: boolean) => Promise<{ isActive: boolean; count?: number }>;
+  disabled?: boolean
 }
 
 /**
@@ -36,31 +36,50 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   className = '',
   iconClassName = '',
   textClassName = '',
+  openType,
   disabled = false
 }) => {
-  const iconSrc = isActive && activeIcon ? activeIcon : icon;
-  
+  const iconSrc = isActive && activeIcon ? activeIcon : icon
+
   const handleClick = (e: ITouchEvent) => {
-    if (disabled || !onClick) return;
-    onClick(e);
-  };
-  
+    if (disabled || !onClick) return
+    e.stopPropagation() // 防止事件冒泡
+    onClick(e)
+  }
+
   return (
-    <View 
+    <Button
       className={classnames(
-        styles.actionButton, 
+        styles.actionButton,
         className,
         { [styles.disabled]: disabled }
-      )} 
+      )}
       onClick={handleClick}
+      openType={openType}
+      disabled={disabled}
+      // 重置小程序按钮的默认样式
+      plain
+      style={{
+        border: 'none',
+        padding: 0,
+        margin: 0,
+        lineHeight: 'initial',
+        backgroundColor: 'transparent',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 0,
+        outline: 'none',
+      }}
     >
       <Image src={iconSrc} className={classnames(styles.icon, iconClassName)} />
       {/* 只有在 text prop 被提供时才渲染 Text 组件 */}
       {text !== undefined && text !== null && (
         <Text className={classnames(styles.text, textClassName)}>{text}</Text>
       )}
-    </View>
-  );
-};
+    </Button>
+  )
+}
 
-export default ActionButton;
+export default ActionButton

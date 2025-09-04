@@ -3,6 +3,7 @@ import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 import activityApi from "@/services/api/activity";
 import { ActivityRead, ActivityType } from "@/types/api/activity.d";
+import { useSharing } from "@/hooks/useSharing";
 import CustomHeader from "@/components/custom-header";
 import styles from "./index.module.scss";
 
@@ -10,6 +11,13 @@ export default function ActivityDetail() {
   const [activity, setActivity] = useState<ActivityRead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activityId, setActivityId] = useState<string>("");
+
+  // 使用分享 Hook
+  useSharing({
+    title: activity?.title || '分享活动',
+    path: `/pages/subpackage-discover/activity-detail/index?id=${activityId}`,
+    imageUrl: activity?.cover_image, // 使用活动的封面图片
+  });
 
   useEffect(() => {
     // 获取页面参数中的活动ID

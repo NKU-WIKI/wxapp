@@ -1,15 +1,16 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, Image, Swiper, SwiperItem, Textarea } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import { useSelector } from 'react-redux';
 
 import { RootState } from '@/store';
-import { getNoteDetail, toggleAction, shareNote } from '@/services/api/note';
+import { getNoteDetail } from '@/services/api/note';
 import { NoteDetail, NoteRead } from '@/types/api/note';
 import { normalizeImageUrl } from '@/utils/image';
 import { formatRelativeTime } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
 import ActionBar from '@/components/action-bar';
+import { useSharing } from '@/hooks/useSharing';
 import heartIcon from '@/assets/heart.svg';
 import heartFilledIcon from '@/assets/heart-bold.svg';
 import bookmarkIcon from '@/assets/star-outline.svg';
@@ -38,14 +39,16 @@ export default function NoteDetailPage() {
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [shareCount, setShareCount] = useState(0);
   
-  // 加载状态
-  const [isLikeLoading, setIsLikeLoading] = useState(false);
-  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
-  const [isShareLoading, setIsShareLoading] = useState(false);
-  
   // 获取笔记ID和用户ID
   const noteId = router?.params?.id;
   const userId = router?.params?.userId; // 发帖人的ID
+
+  // 使用分享 Hook
+  useSharing({
+    title: note?.title || '分享笔记',
+    path: `/pages/subpackage-interactive/note-detail/index?id=${noteId}${userId ? `&userId=${userId}` : ''}`,
+    imageUrl: note?.images?.[0] ? normalizeImageUrl(note.images[0]) : undefined,
+  });
 
   // 加载笔记详情
   const loadNoteDetail = useCallback(async () => {
@@ -61,41 +64,25 @@ export default function NoteDetailPage() {
 
       if (userId) {
         // 如果有userId，使用用户笔记列表接口获取该用户的笔记列表
-        console.log('🔍 开始加载笔记，userId:', userId, 'noteId:', noteId);
         const response = await getNoteDetail(noteId, userId);
-        console.log('🔍 API响应:', response);
 
         if (response.code === 0 && response.data) {
           // 从用户笔记列表中筛选出特定笔记
           const userNotes = response.data as NoteRead[];
-          console.log('🔍 用户笔记列表:', userNotes);
-          
+
           if (!Array.isArray(userNotes)) {
-            console.error('❌ API返回数据格式错误，不是数组:', typeof userNotes);
             setError('API返回数据格式错误');
             setLoading(false);
             return;
           }
-          
+
           const noteData = userNotes.find((noteItem: NoteRead) => noteItem.id === noteId);
-          console.log('🔍 找到的笔记数据:', noteData);
 
           if (!noteData) {
-            console.error('❌ 未找到笔记，noteId:', noteId);
             setError('笔记不存在或已被删除');
             setLoading(false);
             return;
           }
-
-          console.log('🔍 笔记原始数据:', {
-            id: noteData.id,
-            title: noteData.title,
-            is_liked: noteData.is_liked,
-            is_favorited: noteData.is_favorited,
-            like_count: noteData.like_count,
-            favorite_count: noteData.favorite_count,
-            share_count: noteData.share_count
-          });
 
           // 将NoteRead转换为NoteDetail格式
           const noteDetailData: NoteDetail = {
@@ -146,34 +133,20 @@ export default function NoteDetailPage() {
 
           setNote(noteDetailData);
           // 设置交互状态和计数
-          const isLikedState = Boolean(noteData.is_liked);
-          const isBookmarkedState = Boolean(noteData.is_favorited);
-          
-          setIsLiked(isLikedState);
-          setIsBookmarked(isBookmarkedState);
+          setIsLiked(Boolean(noteData.is_liked));
+          setIsBookmarked(Boolean(noteData.is_favorited));
           setLikeCount(noteData.like_count || 0);
           setFavoriteCount(noteData.favorite_count || 0);
           setShareCount(noteData.share_count || 0);
-          
-          console.log('🔍 状态设置完成:', {
-            isLiked: isLikedState,
-            isBookmarked: isBookmarkedState,
-            likeCount: noteData.like_count || 0,
-            favoriteCount: noteData.favorite_count || 0,
-            shareCount: noteData.share_count || 0
-          });
         } else {
           setError(response.message || '加载失败');
         }
       } else {
         // 如果没有userId，直接使用noteId获取笔记详情（向后兼容）
-        console.log('🔍 没有userId，直接获取笔记详情，noteId:', noteId);
         const response = await getNoteDetail(noteId);
-        console.log('🔍 直接获取笔记API响应:', response);
 
         if (response.code === 0 && response.data) {
           const noteData = response.data as unknown as NoteDetail;
-          console.log('🔍 直接获取的笔记数据:', noteData);
 
           setNote(noteData);
           // 检查是否已点赞和收藏
@@ -183,16 +156,7 @@ export default function NoteDetailPage() {
           setLikeCount(noteData.like_count || 0);
           setFavoriteCount(noteData.favorite_count || 0);
           setShareCount(noteData.share_count || 0);
-          
-          console.log('🔍 直接获取笔记状态设置完成:', {
-            isLiked: noteData.is_liked || false,
-            isBookmarked: noteData.is_favorited || false,
-            likeCount: noteData.like_count || 0,
-            favoriteCount: noteData.favorite_count || 0,
-            shareCount: noteData.share_count || 0
-          });
         } else {
-          console.error('❌ 直接获取笔记失败:', response);
           setError(response.message || '加载失败');
         }
       }
@@ -209,158 +173,10 @@ export default function NoteDetailPage() {
       loadNoteDetail();
     }
   });
-
-
   
   // 处理图片轮播变化
   const handleImageChange = (e: any) => {
     setCurrentImageIndex(e.detail.current);
-  };
-
-  // 处理点赞/取消点赞
-  const handleLike = async () => {
-    if (!isLoggedIn) {
-      Taro.showToast({
-        title: '请先登录',
-        icon: 'none'
-      });
-      return;
-    }
-    
-    if (!noteId) return;
-
-    try {
-      setIsLikeLoading(true);
-      
-      // 先乐观更新UI
-      const newIsLiked = !isLiked;
-      setIsLiked(newIsLiked);
-      setLikeCount(prev => newIsLiked ? prev + 1 : Math.max(0, prev - 1));
-      
-      // 使用新的toggle接口
-      const response = await toggleAction({
-        targetId: noteId,
-        targetType: 'note',
-        actionType: 'like'
-      });
-
-      if (response.code === 0 && response.data) {
-        const { is_active, count } = response.data;
-        
-        // 如果API返回的状态与我们的乐观更新不一致，则使用API的数据
-        if (is_active !== newIsLiked) {
-          setIsLiked(is_active);
-          setLikeCount(count);
-        }
-        
-        Taro.showToast({
-          title: is_active ? '点赞成功' : '取消点赞',
-          icon: 'success'
-        });
-      } else {
-        // API调用失败，回滚乐观更新
-        setIsLiked(!newIsLiked);
-        setLikeCount(prev => !newIsLiked ? prev + 1 : Math.max(0, prev - 1));
-        throw new Error(response.message || '操作失败');
-      }
-    } catch (likeError: any) {
-      Taro.showToast({
-        title: likeError.message || '操作失败，请重试',
-        icon: 'none',
-        duration: 3000
-      });
-    } finally {
-      setIsLikeLoading(false);
-    }
-  };
-
-  // 处理收藏/取消收藏
-  const handleBookmark = async () => {
-    if (!isLoggedIn) {
-      Taro.showToast({
-        title: '请先登录',
-        icon: 'none'
-      });
-      return;
-    }
-    
-    if (!noteId) return;
-
-    try {
-      setIsFavoriteLoading(true);
-      
-      // 先乐观更新UI
-      const newIsBookmarked = !isBookmarked;
-      setIsBookmarked(newIsBookmarked);
-      setFavoriteCount(prev => newIsBookmarked ? prev + 1 : Math.max(0, prev - 1));
-      
-      // 使用新的toggle接口
-      const response = await toggleAction({
-        targetId: noteId,
-        targetType: 'note',
-        actionType: 'favorite'
-      });
-
-      if (response.code === 0 && response.data) {
-        const { is_active, count } = response.data;
-        
-        // 如果API返回的状态与我们的乐观更新不一致，则使用API的数据
-        if (is_active !== newIsBookmarked) {
-          setIsBookmarked(is_active);
-          setFavoriteCount(count);
-        }
-        
-        Taro.showToast({
-          title: is_active ? '收藏成功' : '取消收藏',
-          icon: 'success'
-        });
-      } else {
-        // API调用失败，回滚乐观更新
-        setIsBookmarked(!newIsBookmarked);
-        setFavoriteCount(prev => !newIsBookmarked ? prev + 1 : Math.max(0, prev - 1));
-        throw new Error(response.message || '操作失败');
-      }
-    } catch (favoriteError: any) {
-      Taro.showToast({
-        title: favoriteError.message || '操作失败，请重试',
-        icon: 'none',
-        duration: 3000
-      });
-    } finally {
-      setIsFavoriteLoading(false);
-    }
-  };
-
-  // 处理分享
-  const handleShare = async () => {
-    if (!noteId || !note) return;
-
-    try {
-      setIsShareLoading(true);
-
-      // 调用分享API，传递必需的share_type参数
-      await shareNote(noteId, 'link'); // 使用link类型，适合小程序分享
-      setShareCount(prev => prev + 1);
-
-      // 显示微信分享菜单
-      Taro.showShareMenu({
-        withShareTicket: true,
-        success: () => {
-          Taro.showToast({
-            title: '分享成功',
-            icon: 'success'
-          });
-        }
-      });
-    } catch (shareError: any) {
-      Taro.showToast({
-        title: shareError.message || '分享失败，请重试',
-        icon: 'none',
-        duration: 3000
-      });
-    } finally {
-      setIsShareLoading(false);
-    }
   };
 
   // 处理评论提交
@@ -640,31 +456,50 @@ export default function NoteDetailPage() {
       {/* 底部操作栏 */}
       <View className={styles.bottomBar}>
         <ActionBar
+          targetId={noteId || ''}
+          targetType='note'
+          initialStates={{
+            'like-0': { isActive: isLiked, count: likeCount },
+            'favorite-1': { isActive: isBookmarked, count: favoriteCount },
+            'comment-2': { isActive: false, count: note.comment_count || 0 },
+            'share-3': { isActive: false, count: shareCount }
+          }}
           buttons={[
             {
-              icon: isLiked ? heartFilledIcon : heartIcon,
-              text: likeCount.toString(),
-              onClick: handleLike,
-              className: isLiked ? styles.liked : '',
-              disabled: isLikeLoading,
+              type: 'like',
+              icon: heartIcon,
+              activeIcon: heartFilledIcon,
             },
             {
-              icon: isBookmarked ? bookmarkFilledIcon : bookmarkIcon,
-              text: favoriteCount.toString(),
-              onClick: handleBookmark,
-              disabled: isFavoriteLoading,
+              type: 'favorite',
+              icon: bookmarkIcon,
+              activeIcon: bookmarkFilledIcon,
             },
             {
+              type: 'comment',
               icon: commentIcon,
-              text: (note.comment_count || 0).toString(),
             },
             {
+              type: 'share',
               icon: shareIcon,
-              text: shareCount.toString(),
-              onClick: handleShare,
-              disabled: isShareLoading,
             }
           ]}
+          onStateChange={(type, isActive, count) => {
+            // ActionBar 已经处理了操作，这里可以添加额外的业务逻辑
+            if (type === 'like') {
+              setIsLiked(isActive);
+              setLikeCount(count);
+            } else if (type === 'favorite') {
+              setIsBookmarked(isActive);
+              setFavoriteCount(count);
+            } else if (type === 'comment') {
+              // 评论按钮被点击，聚焦到评论输入框
+              // 这里可以实现滚动到评论区域并聚焦输入框的逻辑
+            } else if (type === 'share') {
+              // 分享操作完成后，增加分享计数
+              setShareCount(prev => prev + 1);
+            }
+          }}
         />
       </View>
     </View>

@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image } from "@tarojs/components";
-import { useSelector } from "react-redux";
 import Taro from "@tarojs/taro";
+import { useSelector } from "react-redux";
 
 import { CommentDetail } from "@/types/api/comment";
 import { RootState } from "@/store";
-import actionApi from "@/services/api/action";
 import AuthorInfo from "@/components/author-info";
-import { ActionButtonProps } from '@/components/action-button';
-import ActionBar from '@/components/action-bar';
+import ActionBar, { ActionButtonConfig } from '@/components/action-bar';
 
 import ChevronDownIcon from "@/assets/chevron-down.svg";
 import ChevronRightIcon from "@/assets/chevron-right.svg";
@@ -65,52 +63,18 @@ interface SubCommentItemProps {
 }
 
 const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onDeleteComment: _onDeleteComment }) => {
-  const [isLiking, setIsLiking] = useState(false);
   const userState = useSelector((state: RootState) => state.user);
   const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
-  const handleLike = async () => {
-    if (isLiking) return;
-    
-    setIsLiking(true);
-    try {
-      const response = await actionApi.toggleAction({
-        target_type: 'comment',
-        target_id: _comment.id,
-        action_type: 'like'
-      });
-      
-      
-      
-      if (response.data) {
-        const newIsLiked = response.data.is_active;
-        // 根据新状态计算点赞数量，确保不会出现负数
-        const currentLikeCount = _comment.like_count || 0;
-        const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
-        onLikeUpdate(_comment.id, newIsLiked, newLikeCount);
-      }
-    } catch (error) {
-      // 移除弹窗提示，静默处理错误
-    } finally {
-      setIsLiking(false);
-    }
-  };
-
-  const actionBarButtons: ActionButtonProps[] = [
+  const actionBarButtons: ActionButtonConfig[] = [
     {
+      type: 'like',
       icon: HeartIcon,
       activeIcon: HeartActiveIcon,
-      text: _comment.like_count || 0,
-      isActive: _comment.has_liked,
-      onClick: handleLike,
-      iconClassName: styles.subIcon, // Keep specific icon style
-      textClassName: _comment.has_liked ? styles.activeText : '',
     },
     {
+      type: 'comment',
       icon: '/assets/message-circle.svg',
-      text: _comment.reply_count || 0,
-      onClick: () => onReply(_comment),
-      iconClassName: styles.subIcon,
     }
   ];
 
@@ -143,7 +107,23 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
       />
       <View className={styles.subContent}>
         <Text className={styles.subText}>{renderCommentContent(_comment.content)}</Text>
-        <ActionBar buttons={actionBarButtons} className={styles.subActions} />
+        <ActionBar
+          targetId={_comment.id}
+          targetType='comment'
+          buttons={actionBarButtons}
+          className={styles.subActions}
+          initialStates={{
+            'like-0': { isActive: _comment.has_liked || false, count: _comment.like_count || 0 },
+            'comment-1': { isActive: false, count: _comment.reply_count || 0 }
+          }}
+          onStateChange={(type, isActive, count) => {
+            if (type === 'like') {
+              onLikeUpdate(_comment.id, isActive, count);
+            } else if (type === 'comment') {
+              onReply(_comment);
+            }
+          }}
+        />
       </View>
     </View>
   );
@@ -159,9 +139,6 @@ interface CommentItemProps {
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onUpdateComment: _onUpdateComment, onDeleteComment: _onDeleteComment }) => {
   const userState = useSelector((state: RootState) => state.user);
-  const isLoggedIn = userState?.isLoggedIn || false;
-  const token = userState?.token || null;
-  const [isLiking, setIsLiking] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
   
   const hasReplies = _comment.children && _comment.children.length > 0;
@@ -178,95 +155,15 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
         ? _comment.children || [] 
         : (_comment.children || []).slice(0, 2)); // 默认显示前2条
 
-  const handleLike = async () => {
-    if (!isLoggedIn || !token) {
-      Taro.showModal({
-        title: '提示',
-        content: '您尚未登录，是否前往登录？',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-          }
-        }
-      });
-      return;
-    }
-    
-    if (isLiking) {
-      
-      return;
-    }
-    
-    try {
-      setIsLiking(true);
-      const response = await actionApi.toggleAction({
-        target_type: 'comment',
-        target_id: _comment.id,
-        action_type: 'like'
-      });
-      
-      // 更新本地状态
-      if (onLikeUpdate) {
-        const newIsLiked = response.data.is_active;
-        // 根据新状态计算点赞数量，确保不会出现负数
-        const currentLikeCount = _comment.like_count || 0;
-        const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
-        onLikeUpdate(_comment.id, newIsLiked, newLikeCount);
-      }
-    } catch (error: any) {
-      
-      
-      // 根据错误类型显示不同的提示
-      if (error.statusCode === 401) {
-        Taro.showModal({
-          title: '登录已过期',
-          content: '请重新登录后重试',
-          success: (res) => {
-            if (res.confirm) {
-              Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-            }
-          }
-        });
-      } else {
-        // 移除弹窗提示，静默处理错误
-      }
-    } finally {
-      setIsLiking(false);
-    }
-  };
-
-  const handleReply = () => {
-    if (!isLoggedIn || !token) {
-      Taro.showModal({
-        title: '提示',
-        content: '您尚未登录，是否前往登录？',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-          }
-        }
-      });
-      return;
-    }
-    
-    onReply(_comment);
-  };
-
-  const actionBarButtons: ActionButtonProps[] = [
+  const actionBarButtons: ActionButtonConfig[] = [
     {
+      type: 'like',
       icon: HeartIcon,
       activeIcon: HeartActiveIcon,
-      text: _comment?.like_count || 0,
-      isActive: _comment.has_liked,
-      onClick: handleLike,
-      iconClassName: styles.icon,
-      textClassName: _comment.has_liked ? styles.activeText : '',
     },
     {
+      type: 'comment',
       icon: '/assets/message-circle.svg',
-      text: _comment.children?.length || 0,
-      onClick: handleReply,
-      iconClassName: styles.icon,
     }
   ];
 
@@ -392,7 +289,22 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
     <View className={styles.content}>
         <Text className={styles.text}>{renderCommentContent(_comment?.content || '')}</Text>
       <View className={styles.actions}>
-          <ActionBar buttons={actionBarButtons} />
+          <ActionBar
+            targetId={_comment.id}
+            targetType='comment'
+            buttons={actionBarButtons}
+            initialStates={{
+              'like-0': { isActive: _comment.has_liked || false, count: _comment.like_count || 0 },
+              'comment-1': { isActive: false, count: _comment.children?.length || 0 }
+            }}
+            onStateChange={(type, isActive, count) => {
+              if (type === 'like') {
+                onLikeUpdate(_comment.id, isActive, count);
+              } else if (type === 'comment') {
+                onReply(_comment);
+              }
+            }}
+          />
           {shouldShowToggleButton && (
             <View className={styles.toggleRepliesButton} onClick={toggleReplies}>
               <Image

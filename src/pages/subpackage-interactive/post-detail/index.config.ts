@@ -1,3 +1,5 @@
 export default definePageConfig({
-  navigationStyle: 'custom'
+  navigationStyle: 'custom',
+  enableShareTimeline: true,
+  enableShareAppMessage: true
 }) 

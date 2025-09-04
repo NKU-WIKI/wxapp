@@ -1,4 +1,6 @@
 export default {
   navigationBarTitleText: '登录',
-  navigationStyle: 'custom'
+  navigationStyle: 'custom',
+  enableShareTimeline: true,
+  enableShareAppMessage: true
 } 

@@ -1,4 +1,6 @@
-export default definePageConfig({
-    navigationBarTitleText: '笔记详情',
-    navigationStyle: 'custom',
-  }); 
+export default {
+  navigationBarTitleText: '笔记详情',
+  navigationStyle: 'custom',
+  enableShareTimeline: true,
+  enableShareAppMessage: true,
+} 

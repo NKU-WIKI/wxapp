@@ -1,4 +1,6 @@
 export default {
+  navigationBarTitleText: '商品详情',
   navigationStyle: 'custom',
-  navigationBarTitleText: '商品详情'
+  enableShareTimeline: true,
+  enableShareAppMessage: true,
 }
