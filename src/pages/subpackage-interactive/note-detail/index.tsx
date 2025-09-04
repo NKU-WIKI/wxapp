@@ -437,8 +437,6 @@ export default function NoteDetailPage() {
         >
           {/* 笔记头部信息 */}
           <View className={styles.noteHeader}>
-            <Text className={styles.noteTitle}>{note.title}</Text>
-            
             {/* 自定义作者信息布局 */}
             {note.user && (
               <View className={styles.authorSection}>
@@ -453,9 +451,12 @@ export default function NoteDetailPage() {
                     <Text className={styles.authorLevel}>Lv.{note.author?.level || 1}</Text>
                   </View>
                   <View className={styles.authorActions}>
-                    <View className={styles.followButton}>
-                      <Text className={styles.followText}>关注</Text>
-                    </View>
+                    {/* 只有当前用户不是笔记作者时才显示关注按钮 */}
+                    {note.user && note.user.id !== userId && (
+                      <View className={styles.followButton}>
+                        <Text className={styles.followText}>关注</Text>
+                      </View>
+                    )}
                     <Text className={styles.publicationTime}>
                       {note.created_at ? formatRelativeTime(note.created_at) : '刚刚'}
                     </Text>
@@ -516,6 +517,7 @@ export default function NoteDetailPage() {
           
           {/* 笔记内容 */}
           <View className={styles.noteContent}>
+            <Text className={styles.noteTitle}>{note.title}</Text>
             <Text className={styles.contentText}>{note.content}</Text>
           </View>
           
