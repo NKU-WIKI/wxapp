@@ -59,7 +59,7 @@ export interface UserProfile {
 }
 
 /**
- * @description 更新用户个人资料的请求体 (基于 UserProfileUpdate)
+ * @description 更新用户资料的请求结构
  */
 export interface UpdateUserProfileRequest {
   assets?: Record<string, any> | null;
