@@ -83,8 +83,6 @@ export const getNotes = async (params?: GetNotesParams) => {
  * 获取笔记详情
  */
 export const getNoteDetail = async (noteId: string, userId?: string) => {
-
-  
   // 如果提供了userId，使用用户笔记列表接口
   if (userId) {
     const apiPath = `/users/${userId}/notes`;
@@ -139,6 +137,42 @@ export const createNote = async (noteData: CreateNoteRequest) => {
   return http.post<any>('/notes', noteData);
 };
 
+/**
+ * 点赞笔记
+ */
+export const likeNote = async (noteId: string) => {
+  return http.post<any>(`/notes/${noteId}/like`);
+};
+
+/**
+ * 取消点赞笔记
+ */
+export const unlikeNote = async (noteId: string) => {
+  return http.delete<any>(`/notes/${noteId}/like`);
+};
+
+/**
+ * 收藏笔记
+ */
+export const favoriteNote = async (noteId: string) => {
+  return http.post<any>(`/notes/${noteId}/favorite`);
+};
+
+/**
+ * 取消收藏笔记
+ */
+export const unfavoriteNote = async (noteId: string) => {
+  return http.delete<any>(`/notes/${noteId}/favorite`);
+};
+
+/**
+ * 分享笔记
+ */
+export const shareNote = async (noteId: string, shareType: 'link' | 'poster' | 'text' = 'link') => {
+  // 根据API文档，share_type是必需的查询参数
+  return http.post<any>(`/notes/${noteId}/share?share_type=${shareType}`);
+};
+
 export default {
   getNotes,
   getNoteDetail,
@@ -147,4 +181,9 @@ export default {
   getNoteStats,
   getNoteAnalytics,
   createNote,
+  likeNote,
+  unlikeNote,
+  favoriteNote,
+  unfavoriteNote,
+  shareNote,
 };

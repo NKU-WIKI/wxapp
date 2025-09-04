@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, Image, Swiper, SwiperItem, Textarea } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { getNoteDetail } from '@/services/api/note';
-import { NoteDetail } from '@/types/api/note';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { getNoteDetail, likeNote, unlikeNote, favoriteNote, unfavoriteNote, shareNote } from '@/services/api/note';
+import { NoteDetail, NoteListItem } from '@/types/api/note';
 import { normalizeImageUrl } from '@/utils/image';
 import { formatRelativeTime } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
-import AuthorInfo from '@/components/author-info';
 import ActionBar from '@/components/action-bar';
-import { ActionButtonProps } from '@/components/action-button';
 import heartIcon from '@/assets/heart.svg';
 import heartFilledIcon from '@/assets/heart-bold.svg';
 import bookmarkIcon from '@/assets/star-outline.svg';
@@ -21,7 +19,6 @@ import sendIcon from '@/assets/send.svg';
 import styles from './index.module.scss';
 
 export default function NoteDetailPage() {
-  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
   
@@ -33,12 +30,16 @@ export default function NoteDetailPage() {
   const [commentText, setCommentText] = useState('');
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [shareCount, setShareCount] = useState(0);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  const [isShareLoading, setIsShareLoading] = useState(false);
   
   // 获取笔记ID和用户ID
   const noteId = router?.params?.id;
-  const userId = router?.params?.userId; // 新增：从URL参数获取用户ID
-  
-
+  const userId = router?.params?.userId; // 发帖人的ID
   
   // 加载笔记详情
   const loadNoteDetail = useCallback(async () => {
@@ -52,19 +53,21 @@ export default function NoteDetailPage() {
       setLoading(true);
       setError(null);
       
-
-      
-      const response = await getNoteDetail(noteId, userId);
-      
-
-      
-      if (response.code === 0 && response.data) {
-        let noteData: any;
+      if (userId) {
+        // 如果有userId，使用用户笔记列表接口获取该用户的笔记列表
+        const response = await getNoteDetail(noteId, userId);
         
-        if (userId) {
-          // 如果使用userId，从用户笔记列表中筛选出特定笔记
-          const userNotes = response.data as unknown as any[];
-          noteData = userNotes.find(note => note.id === noteId);
+        if (response.code === 0 && response.data) {
+          // 从用户笔记列表中筛选出特定笔记
+          const userNotes = response.data as unknown as NoteListItem[];
+          
+          if (!Array.isArray(userNotes)) {
+            setError('API返回数据格式错误');
+            setLoading(false);
+            return;
+          }
+          
+          const noteData = userNotes.find((noteItem: NoteListItem) => noteItem.id === noteId);
           
           if (!noteData) {
             setError('笔记不存在或已被删除');
@@ -72,21 +75,65 @@ export default function NoteDetailPage() {
             return;
           }
           
-
+          // 将NoteListItem转换为NoteDetail格式
+          const noteDetailData: NoteDetail = {
+            id: noteData.id,
+            title: noteData.title,
+            content: noteData.content || '',
+            images: noteData.images || [],
+            tags: noteData.tags || [],
+            location: noteData.location || null,
+            visibility: noteData.visibility || 'PUBLIC',
+            allow_comment: noteData.allow_comment || true,
+            allow_share: noteData.allow_share || true,
+            status: noteData.status || 'published',
+            created_at: noteData.created_at instanceof Date ? noteData.created_at.toISOString() : new Date().toISOString(),
+            updated_at: noteData.updated_at instanceof Date ? noteData.updated_at.toISOString() : new Date().toISOString(),
+            published_at: noteData.published_at instanceof Date ? noteData.published_at.toISOString() : null,
+            view_count: noteData.view_count || 0,
+            like_count: noteData.like_count || 0,
+            comment_count: noteData.comment_count || 0,
+            share_count: noteData.share_count || 0,
+            user: noteData.user || undefined,
+            author: noteData.user ? {
+              id: noteData.user.id,
+              nickname: noteData.user.nickname,
+              avatar: noteData.user.avatar,
+              level: 1,
+              bio: noteData.user.bio
+            } : undefined,
+            is_liked: false, // 默认值，后续可以通过API获取
+            is_favorited: false // 默认值，后续可以通过API获取
+          };
+          
+          setNote(noteDetailData);
+          // 设置计数
+          setLikeCount(noteDetailData.like_count || 0);
+          setFavoriteCount(noteDetailData.favorite_count || 0);
+          setShareCount(noteDetailData.share_count || 0);
         } else {
-          // 直接使用返回的数据
-          noteData = response.data;
+          setError(response.message || '加载失败');
         }
-        
-        setNote(noteData);
-        // 检查是否已点赞和收藏
-        setIsLiked(noteData.is_liked || false);
-        setIsBookmarked(noteData.is_favorited || false);
       } else {
-        setError(response.message || '加载失败');
+        // 如果没有userId，直接使用noteId获取笔记详情（向后兼容）
+        const response = await getNoteDetail(noteId);
+        
+        if (response.code === 0 && response.data) {
+          const noteData = response.data as unknown as NoteDetail;
+          
+          setNote(noteData);
+          // 检查是否已点赞和收藏
+          setIsLiked(noteData.is_liked || false);
+          setIsBookmarked(noteData.is_favorited || false);
+          // 设置计数
+          setLikeCount(noteData.like_count || 0);
+          setFavoriteCount(noteData.favorite_count || 0);
+          setShareCount(noteData.share_count || 0);
+        } else {
+          setError(response.message || '加载失败');
+        }
       }
     } catch (err) {
-      console.error('加载笔记详情失败:', err);
       setError('网络错误，请重试');
     } finally {
       setLoading(false);
@@ -106,7 +153,7 @@ export default function NoteDetailPage() {
   };
   
   // 处理点赞
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!isLoggedIn) {
       Taro.showToast({
         title: '请先登录',
@@ -114,12 +161,44 @@ export default function NoteDetailPage() {
       });
       return;
     }
-    setIsLiked(!isLiked);
-    // TODO: 调用点赞API
+    
+    if (!noteId) return;
+    
+    try {
+      setIsLikeLoading(true);
+      
+      if (isLiked) {
+        // 取消点赞
+        await unlikeNote(noteId);
+        setIsLiked(false);
+        setLikeCount(prev => Math.max(0, prev - 1));
+        Taro.showToast({
+          title: '已取消点赞',
+          icon: 'success'
+        });
+      } else {
+        // 点赞
+        await likeNote(noteId);
+        setIsLiked(true);
+        setLikeCount(prev => prev + 1);
+        Taro.showToast({
+          title: '点赞成功',
+          icon: 'success'
+        });
+      }
+    } catch (likeError: any) {
+      // console.error('点赞操作失败:', likeError);
+      Taro.showToast({
+        title: likeError.message || '操作失败，请重试',
+        icon: 'none'
+      });
+    } finally {
+      setIsLikeLoading(false);
+    }
   };
   
   // 处理收藏
-  const handleBookmark = () => {
+  const handleBookmark = async () => {
     if (!isLoggedIn) {
       Taro.showToast({
         title: '请先登录',
@@ -127,8 +206,40 @@ export default function NoteDetailPage() {
       });
       return;
     }
-    setIsBookmarked(!isBookmarked);
-    // TODO: 调用收藏API
+    
+    if (!noteId) return;
+    
+    try {
+      setIsFavoriteLoading(true);
+      
+      if (isBookmarked) {
+        // 取消收藏
+        await unfavoriteNote(noteId);
+        setIsBookmarked(false);
+        setFavoriteCount(prev => Math.max(0, prev - 1));
+        Taro.showToast({
+          title: '已取消收藏',
+          icon: 'success'
+        });
+      } else {
+        // 收藏
+        await favoriteNote(noteId);
+        setIsBookmarked(true);
+        setFavoriteCount(prev => prev + 1);
+        Taro.showToast({
+          title: '收藏成功',
+          icon: 'success'
+        });
+      }
+    } catch (favoriteError: any) {
+      // console.error('收藏操作失败:', favoriteError);
+      Taro.showToast({
+        title: favoriteError.message || '操作失败，请重试',
+        icon: 'none'
+      });
+    } finally {
+      setIsFavoriteLoading(false);
+    }
   };
   
   // 处理评论提交
@@ -150,7 +261,7 @@ export default function NoteDetailPage() {
     }
     
     // TODO: 调用评论API
-    console.log('提交评论:', commentText);
+    // console.log('提交评论:', commentText);
     setCommentText('');
     Taro.showToast({
       title: '评论成功',
@@ -159,10 +270,47 @@ export default function NoteDetailPage() {
   };
   
   // 处理分享
-  const handleShare = () => {
-    Taro.showShareMenu({
-      withShareTicket: true
-    });
+  const handleShare = async () => {
+    if (!noteId || !note) return;
+    
+    try {
+      setIsShareLoading(true);
+      
+      // 调用分享API，传递必需的share_type参数
+      await shareNote(noteId, 'link'); // 使用link类型，适合小程序分享
+      setShareCount(prev => prev + 1);
+      
+      // 显示微信分享菜单
+      Taro.showShareMenu({
+        withShareTicket: true,
+        success: () => {
+          Taro.showToast({
+            title: '分享成功',
+            icon: 'success'
+          });
+        }
+      });
+    } catch (shareError: any) {
+      console.error('分享失败详情:', shareError); // 临时添加调试信息
+      
+      // 显示详细的错误信息
+      let errorMessage = '分享失败，请重试';
+      if (shareError.code === 422) {
+        errorMessage = `参数错误 (422): ${shareError.message || shareError.msg || '请检查请求参数'}`;
+      } else if (shareError.message) {
+        errorMessage = shareError.message;
+      } else if (shareError.msg) {
+        errorMessage = shareError.msg;
+      }
+      
+      Taro.showToast({
+        title: errorMessage,
+        icon: 'none',
+        duration: 3000
+      });
+    } finally {
+      setIsShareLoading(false);
+    }
   };
   
   // 渲染加载状态
@@ -348,7 +496,7 @@ export default function NoteDetailPage() {
           {/* 评论区域 */}
           <View className={styles.commentSection}>
             <View className={styles.commentHeader}>
-              <Text className={styles.commentCount}>评论 32</Text>
+              <Text className={styles.commentCount}>评论 {note.comment_count || 0}</Text>
             </View>
             
             <View className={styles.commentList}>
@@ -412,28 +560,33 @@ export default function NoteDetailPage() {
       
       {/* 底部操作栏 */}
       <View className={styles.bottomBar}>
-        <ActionBar buttons={[
-          {
-            icon: isLiked ? heartFilledIcon : heartIcon,
-            text: '128',
-            onClick: handleLike,
-            className: isLiked ? styles.liked : '',
-          },
-          {
-            icon: isBookmarked ? bookmarkFilledIcon : bookmarkIcon,
-            text: '56',
-            onClick: handleBookmark,
-          },
-          {
-            icon: commentIcon,
-            text: '32',
-          },
-          {
-            icon: shareIcon,
-            text: '分享',
-            onClick: handleShare,
-          }
-        ]} />
+        <ActionBar
+          buttons={[
+            {
+              icon: isLiked ? heartFilledIcon : heartIcon,
+              text: likeCount.toString(),
+              onClick: handleLike,
+              className: isLiked ? styles.liked : '',
+              disabled: isLikeLoading,
+            },
+            {
+              icon: isBookmarked ? bookmarkFilledIcon : bookmarkIcon,
+              text: favoriteCount.toString(),
+              onClick: handleBookmark,
+              disabled: isFavoriteLoading,
+            },
+            {
+              icon: commentIcon,
+              text: (note.comment_count || 0).toString(),
+            },
+            {
+              icon: shareIcon,
+              text: shareCount.toString(),
+              onClick: handleShare,
+              disabled: isShareLoading,
+            }
+          ]}
+        />
       </View>
     </View>
   );
