@@ -269,29 +269,6 @@ export default function PublishActivity() {
         />
       </View>
 
-      {form.activity_type === ActivityType.Hybrid && (
-        <>
-          <View className={styles.formItem}>
-            <Text className={styles.label}>地点</Text>
-            <Input
-              className={styles.input}
-              value={form.location}
-              placeholder='请填写线下活动地点'
-              onInput={e => update('location', e.detail.value)}
-            />
-          </View>
-          <View className={styles.formItem}>
-            <Text className={styles.label}>线上链接</Text>
-            <Input
-              className={styles.input}
-              value={form.online_url}
-              placeholder='请填写线上参与链接'
-              onInput={e => update('online_url', e.detail.value)}
-            />
-          </View>
-        </>
-      )}
-
       <View className={styles.formItem}>
         <Text className={styles.label}>标签</Text>
         <Input className={`${styles.input} ${styles.tagsInput}`} value={form.tags} placeholder='多个用逗号或空格分隔' onInput={e => update('tags', e.detail.value)} />
