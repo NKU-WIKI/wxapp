@@ -217,6 +217,20 @@ export default function NoteDetailPage() {
     setCurrentImageIndex(e.detail.current);
   };
 
+  // 处理图片预览
+  const handleImagePreview = (imageUrl: string, index: number) => {
+    Taro.previewImage({
+      urls: images, // 传入所有图片URL数组
+      current: index, // 当前图片索引
+      success: () => {
+        console.log('图片预览成功');
+      },
+      fail: (err) => {
+        console.error('图片预览失败:', err);
+      }
+    });
+  };
+
   // 处理点赞/取消点赞
   const handleLike = async () => {
     if (!isLoggedIn) {
@@ -485,7 +499,8 @@ export default function NoteDetailPage() {
                     <Image 
                       className={styles.image}
                       src={image}
-                      mode='aspectFill'
+                      mode='aspectFit'
+                      onClick={() => handleImagePreview(image, index)}
                     />
                   </SwiperItem>
                 ))}
