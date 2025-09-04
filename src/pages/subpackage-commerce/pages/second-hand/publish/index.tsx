@@ -64,24 +64,26 @@ const FormInput: FC<FormInputProps> = React.memo(({ placeholder: _placeholder, v
 
   return (
     <View className={styles.formInput}>
-      {isTextarea ? (
-        <Textarea
-          placeholder={_placeholder}
-          value={_value}
-          onInput={handleInput}
-          adjustPosition={false}
-          holdKeyboard
-        />
-      ) : (
-        <Input
-          type={_type as any}
-          placeholder={_placeholder}
-          value={_value}
-          onInput={handleInput}
-          adjustPosition={false}
-          holdKeyboard
-        />
-      )}
+      <View className={styles.formInputWrapper}>
+        {isTextarea ? (
+          <Textarea
+            placeholder={_placeholder}
+            value={_value}
+            onInput={handleInput}
+            adjustPosition={false}
+            holdKeyboard
+          />
+        ) : (
+          <Input
+            type={_type as any}
+            placeholder={_placeholder}
+            value={_value}
+            onInput={handleInput}
+            adjustPosition={false}
+            holdKeyboard
+          />
+        )}
+      </View>
     </View>
   )
 })
@@ -141,13 +143,79 @@ const TagList: FC<TagListProps> = React.memo(({ tags: _tags, tagInput: _tagInput
   )
 })
 
+interface ContactInputsProps {
+  wechatId: string
+  qqNumber: string
+  phoneNumber: string
+  onWechatChange: (_value: string) => void
+  onQqChange: (_value: string) => void
+  onPhoneChange: (_value: string) => void
+}
+const ContactInputs: FC<ContactInputsProps> = React.memo(({
+  wechatId: _wechatId,
+  qqNumber: _qqNumber,
+  phoneNumber: _phoneNumber,
+  onWechatChange,
+  onQqChange,
+  onPhoneChange
+}) => {
+  // 使用参数以避免lint警告
+  void _wechatId
+  void _qqNumber
+  void _phoneNumber
+  void onWechatChange
+  void onQqChange
+  void onPhoneChange
+
+  return (
+    <View className={styles.contactInputs}>
+      <FormRow label='微信号' onClick={() => {}}>
+        <View className={styles.contactInputWrapper}>
+          <Input
+            type='text'
+            placeholder='请输入微信号 (选填)'
+            value={_wechatId}
+            onInput={(e) => onWechatChange(e.detail.value)}
+            adjustPosition={false}
+            holdKeyboard
+          />
+        </View>
+      </FormRow>
+      <FormRow label='QQ号' onClick={() => {}}>
+        <View className={styles.contactInputWrapper}>
+          <Input
+            type='number'
+            placeholder='请输入QQ号 (选填)'
+            value={_qqNumber}
+            onInput={(e) => onQqChange(e.detail.value)}
+            adjustPosition={false}
+            holdKeyboard
+          />
+        </View>
+      </FormRow>
+      <FormRow label='手机号' onClick={() => {}}>
+        <View className={styles.contactInputWrapper}>
+          <Input
+            type='number'
+            placeholder='请输入手机号 (选填)'
+            value={_phoneNumber}
+            onInput={(e) => onPhoneChange(e.detail.value)}
+            adjustPosition={false}
+            holdKeyboard
+          />
+        </View>
+      </FormRow>
+    </View>
+  )
+})
+
 const WarmTips: FC = React.memo(() => (
   <View className={styles.warmTips}>
     <Text className={styles.tipTitle}>温馨提示：</Text>
-    <Text>1. 请确保发布的商品信息真实有效</Text>
-    <Text>2. 严禁发布违禁物品</Text>
-    <Text>3. 如有违规将被平台处理</Text>
-    <Text>4. 建议上传清晰的商品照片</Text>
+    <Text className={styles.tipItem}>请确保发布的商品信息真实有效</Text>
+    <Text className={styles.tipItem}>严禁发布违禁物品</Text>
+    <Text className={styles.tipItem}>如有违规将被平台处理</Text>
+    <Text className={styles.tipItem}>建议上传清晰的商品照片</Text>
   </View>
 ))
 
@@ -184,7 +252,9 @@ const SecondHandPublishPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<CategoryRead | null>(null)
   const [tags, setTags] = useState<string[]>([])
   const [images, setImages] = useState<string[]>([])
-  const [contactInfo, setContactInfo] = useState('')
+  const [wechatId, setWechatId] = useState('')
+  const [qqNumber, setQqNumber] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [isPublicContact, setIsPublicContact] = useState(false)
   const [tagInput, setTagInput] = useState('')
   const [isPublishing, setIsPublishing] = useState(false) // 添加发布状态控制
@@ -324,6 +394,13 @@ const SecondHandPublishPage = () => {
     setIsPublishing(true) // 设置发布状态，防止重复点击
 
     try {
+      // 合并联系方式信息
+      const contactParts: string[] = []
+      if (wechatId.trim()) contactParts.push(`微信: ${wechatId.trim()}`)
+      if (qqNumber.trim()) contactParts.push(`QQ: ${qqNumber.trim()}`)
+      if (phoneNumber.trim()) contactParts.push(`手机: ${phoneNumber.trim()}`)
+      const contactInfo = contactParts.length > 0 ? contactParts.join(', ') : undefined
+
       const listingData = {
         title: title.trim(),
         content: content.trim(),
@@ -334,6 +411,7 @@ const SecondHandPublishPage = () => {
         location: location.trim() || undefined,
         tags: tags.length > 0 ? tags : undefined,
         images: images.length > 0 ? images : undefined,
+        contact_info: contactInfo,
       }
 
       await dispatch(marketplaceSlice.createListing(listingData)).unwrap()
@@ -360,7 +438,7 @@ const SecondHandPublishPage = () => {
       // 错误已在 slice 中统一处理
       setIsPublishing(false) // 发生错误时恢复状态
     }
-  }, [checkAuth, validateForm, isPublishing, title, content, selectedCategory, listingType, price, condition, location, tags, images, dispatch])
+  }, [checkAuth, validateForm, isPublishing, title, content, selectedCategory, listingType, price, condition, location, tags, images, wechatId, qqNumber, phoneNumber, dispatch])
 
   const handleContactSwitch = (e: any) => {
     setIsPublicContact(e.detail.value)
@@ -455,15 +533,22 @@ const SecondHandPublishPage = () => {
             />
           </FormRow>
 
-          <FormInput placeholder='联系方式 (选填，如微信号、手机号)' value={contactInfo} onChange={setContactInfo} type='text' />
+          <ContactInputs
+            wechatId={wechatId}
+            qqNumber={qqNumber}
+            phoneNumber={phoneNumber}
+            onWechatChange={setWechatId}
+            onQqChange={setQqNumber}
+            onPhoneChange={setPhoneNumber}
+          />
 
           <FormRow label='公开联系方式' onClick={() => {}}>
             <Switch color='#4F46E5' checked={isPublicContact} onChange={handleContactSwitch} />
           </FormRow>
         </View>
         <WarmTips />
-        <PublishButton isLoading={isPublishing || createLoading === 'pending'} onClick={handlePublish} />
       </ScrollView>
+      <PublishButton isLoading={isPublishing || createLoading === 'pending'} onClick={handlePublish} />
     </View>
   )
 }

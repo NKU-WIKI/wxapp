@@ -30,7 +30,7 @@ const ErrandsDetailPage = () => {
 
   const { currentErrand, errandDetailLoading: detailLoading, error } = useSelector((state: RootState) => state.marketplace)
   const userState = useSelector((state: RootState) => state.user)
-  const currentUserId = useSelector((state: RootState) => state.user.currentUser?.user_id || (state.user.userProfile as any)?.id)
+  const currentUserId = useSelector((state: RootState) => state.user.user?.id)
 
   // 获取任务详情
   const loadErrandDetail = useCallback(async (id: string) => {
@@ -105,12 +105,12 @@ const ErrandsDetailPage = () => {
     }
   }, [router.params, loadErrandDetail])
 
-  // 若已持有 token 但还未初始化 currentUser，则主动获取当前用户信息，避免作者判断失效
+  // 若已持有 token 但还未初始化 user，则主动获取当前用户信息，避免作者判断失效
   useEffect(() => {
-    if (userState?.token && !userState?.currentUser) {
+    if (userState?.token && !userState?.user) {
       dispatch(fetchCurrentUser())
     }
-  }, [userState?.token, userState?.currentUser, dispatch])
+  }, [userState?.token, userState?.user, dispatch])
 
   // 错误处理
   useEffect(() => {

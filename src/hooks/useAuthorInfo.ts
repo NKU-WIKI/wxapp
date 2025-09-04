@@ -45,7 +45,7 @@ export const useAuthorInfo = (
   } = options
 
   const { checkAuth } = useAuthGuard()
-  const currentUserId = useSelector((state: RootState) => state.user.currentUser?.user_id)
+  const currentUserId = useSelector((state: RootState) => state.user.user?.id)
 
   const [user, setUser] = useState<User | null>(null)
   const [levelInfo, setLevelInfo] = useState<LevelInfo | undefined>()

@@ -134,7 +134,7 @@ export default function PublishPost() {
   const router = useRouter();
   const draftId = router?.params?.draftId;
   const postId = router?.params?.postId;
-  const userInfo = useSelector((state: RootState) => state.user?.currentUser || state.user?.userProfile);
+  const userInfo = useSelector((state: RootState) => state.user?.user);
 
   // 添加调试日志，查看当前选中的标签
   useEffect(() => {

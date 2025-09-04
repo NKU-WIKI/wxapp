@@ -137,7 +137,7 @@ export const createComment = createAsyncThunk(
       }
       
       // 如果是当前用户，直接使用当前用户信息
-      if (currentUser?.currentUser?.user_id === payload?.user_id) {
+      if (currentUser?.user?.id === payload?.user_id) {
         const normalized = {
           ...payload,
           // 统一字段
@@ -145,8 +145,8 @@ export const createComment = createAsyncThunk(
           create_at: payload?.create_at || payload?.created_at || payload?.update_time || payload?.create_time || new Date().toISOString(),
           like_count: payload?.like_count ?? payload?.likes_count ?? 0,
           has_liked: payload?.is_liked ?? payload?.has_liked ?? false,
-          author_nickname: currentUser?.currentUser?.nickname || currentUser?.userProfile?.nickname || '我',
-          author_avatar: currentUser?.userProfile?.avatar || '',
+          author_nickname: currentUser?.user?.nickname || '我',
+          author_avatar: currentUser?.user?.avatar || '',
           parent_author_nickname: parentAuthorNickname,
         } as CommentDetail;
         return normalized;
@@ -168,13 +168,13 @@ export const createComment = createAsyncThunk(
       } as CommentDetail;
       
       // 创建评论通知（如果不是给自己的帖子评论）
-      if (params.resource_type === 'post' && currentUser?.currentUser?.user_id) {
+      if (params.resource_type === 'post' && currentUser?.user?.id) {
         // 需要获取帖子作者ID和标题
         // 这里我们通过参数传递或从 store 中获取
         const postAuthorId = (params as any).post_author_id;
         const postTitle = (params as any).post_title;
-        
-        if (postAuthorId && postTitle && postAuthorId !== currentUser.currentUser.user_id) {
+
+        if (postAuthorId && postTitle && postAuthorId !== currentUser.user.id) {
           
           
           // 导入通知工具类
@@ -183,7 +183,7 @@ export const createComment = createAsyncThunk(
               postId: params.resource_id,
               postTitle: postTitle,
               postAuthorId: postAuthorId,
-              currentUserId: currentUser.currentUser.user_id,
+              currentUserId: currentUser.user.id,
               commentContent: params.content
             }).then(() => {
               
