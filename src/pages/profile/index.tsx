@@ -204,14 +204,20 @@ const Profile = () => {
     }
   };
 
-  const scrollViewStyle = { height: '100%', paddingTop: `${headerHeight}px` } as any;
+  const scrollViewStyle = { height: '100%' } as any;
 
   // 渲染骨架屏
   const renderSkeleton = () => (
     <View className={styles.pageContainer}>
       <CustomHeader title='我的' hideBack showWikiButton showNotificationIcon />
       <View className={styles.content}>
-        <ScrollView scrollY className={styles.scrollView} style={scrollViewStyle}>
+        <ScrollView 
+          scrollY 
+          className={styles.scrollView} 
+          style={scrollViewStyle}
+          enableBackToTop
+          showScrollbar={false}
+        >
           <View style={{ padding: '20px' }}>
             <PostItemSkeleton />
           </View>
@@ -243,7 +249,13 @@ const Profile = () => {
     <View className={styles.pageContainer}>
       <CustomHeader title='我的' hideBack showWikiButton showNotificationIcon />
       <View className={styles.content}>
-        <ScrollView scrollY className={styles.scrollView} style={scrollViewStyle}>
+        <ScrollView 
+          scrollY 
+          className={styles.scrollView} 
+          style={scrollViewStyle}
+          enableBackToTop
+          showScrollbar={false}
+        >
           <View className={styles.userCard}>
             <View className={styles.userInfoRow}>
               <View className={styles.avatarContainer}>
