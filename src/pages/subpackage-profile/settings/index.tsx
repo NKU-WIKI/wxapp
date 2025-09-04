@@ -129,6 +129,9 @@ const Settings: React.FC = () => {
           title: `${title}已设置为: ${selectedValue}`,
           icon: 'success'
         });
+      },
+      fail: () => {
+        // 用户取消选择，不做任何操作
       }
     });
   };

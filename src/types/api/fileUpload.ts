@@ -73,9 +73,9 @@ export const SUPPORTED_IMAGE_TYPES = [
 ];
 
 /**
- * 文件大小限制 (100MB)
+ * 文件大小限制 (10MB)
  */
-export const MAX_FILE_SIZE = 100 * 1024 * 1024;
+export const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 /**
  * 获取文件类型的显示名称

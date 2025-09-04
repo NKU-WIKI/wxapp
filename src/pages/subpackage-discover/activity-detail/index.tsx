@@ -5,7 +5,6 @@ import activityApi from "@/services/api/activity";
 import { ActivityRead, ActivityType } from "@/types/api/activity.d";
 import { useSharing } from "@/hooks/useSharing";
 import CustomHeader from "@/components/custom-header";
-import ActionBar from "@/components/action-bar";
 import styles from "./index.module.scss";
 
 export default function ActivityDetail() {
@@ -203,6 +202,16 @@ export default function ActivityDetail() {
               </View>
             </View>
 
+            {/* 截止时间 */}
+            {activity.registration_deadline && (
+              <View className={styles.infoItem}>
+                <Image src={require("@/assets/clock-red.png")} className={styles.infoDateIcon} />
+                <View className={styles.infoContent}>
+                  <Text className={styles.deadlineValue}>报名截止: {formatDateTime(activity.registration_deadline)}</Text>
+                </View>
+              </View>
+            )}
+
             {/* 地点或链接 */}
             {activity.activity_type !== ActivityType.Online && activity.location && (
               <View className={styles.infoItem}>
@@ -227,7 +236,8 @@ export default function ActivityDetail() {
             <View className={styles.infoItem}>
               <Image src={require("@/assets/people.png")} className={styles.infoPeopleIcon} />
               <View className={styles.infoContent}>
-                <Text className={styles.infoValue}>
+                <Text className={styles.participantsValue}>
+                  已报名
                   {activity.current_participants}
                   {activity.max_participants ? `/${activity.max_participants}` : ''}
                 </Text>
@@ -237,7 +247,7 @@ export default function ActivityDetail() {
 
           {/* 活动描述 */}
           <View className={styles.activityDescription}>
-            <Text className={styles.descriptionTitle}>活动详情</Text>
+            <Text className={styles.descriptionTitle}>活动介绍 </Text>
             <Text className={styles.descriptionContent}>{activity.description}</Text>
           </View>
 
@@ -254,54 +264,42 @@ export default function ActivityDetail() {
               </View>
             </View>
           )}
-
-        {/* 活动统计 */}
-        <View className={styles.activityStats}>
-          <ActionBar
-            targetId={activity.id}
-            targetType='activity'
-            buttons={[
-              {
-                type: 'custom',
-                icon: '/assets/eye.svg',
-                text: activity.view_count?.toString() || '0',
-              },
-              {
-                type: 'like',
-                icon: '/assets/heart-outline.svg',
-              },
-              {
-                type: 'share',
-                icon: '/assets/share.svg',
-              }
-            ]}
-            className={styles.statsBar}
-            initialStates={{
-              'custom-0': { isActive: false, count: activity.view_count || 0 },
-              'like-1': { isActive: activity.is_liked || false, count: activity.favorite_count || 0 },
-              'share-2': { isActive: false, count: activity.share_count || 0 }
-            }}
-          />
-        </View>
-
-          {/* 报名按钮 - 放在主卡片内 */}
-          <View className={styles.actionContainer}>
-            <View
-              className={`${styles.joinButton} ${
-                activity.is_registered ? styles.joinedButton :
-                (activity.max_participants && activity.current_participants >= activity.max_participants) ? styles.fullButton : ''
-              }`}
-              onClick={handleJoinActivity}
-            >
-              <Text className={styles.joinButtonText}>
-                {activity.is_registered ? '已报名' :
-                 (activity.max_participants && activity.current_participants >= activity.max_participants) ? '名额已满' :
-                 '立即报名'}
-              </Text>
-            </View>
-          </View>
         </View>
       </ScrollView>
+
+      {/* 固定底部操作栏 */}
+      <View className={styles.fixedBottomBar}>
+        {/* 左侧统计信息 */}
+        <View className={styles.statsContainer}>
+          <View className={styles.statItem}>
+            <Image src={require("@/assets/eye.png")} className={styles.statIconEye} />
+            <Text className={styles.statText}>{activity.view_count}</Text>
+          </View>
+          <View className={styles.statItem}>
+            <Image src={require("@/assets/heart-outline.svg")} className={styles.statIcon} />
+            <Text className={styles.statText}>{activity.favorite_count}</Text>
+          </View>
+          <View className={styles.statItem}>
+            <Image src={require("@/assets/share.svg")} className={styles.statIcon} />
+            <Text className={styles.statText}>{activity.share_count}</Text>
+          </View>
+        </View>
+
+        {/* 右侧报名按钮 */}
+        <View
+          className={`${styles.fixedJoinButton} ${
+            activity.is_registered ? styles.joinedButton :
+            (activity.max_participants && activity.current_participants >= activity.max_participants) ? styles.fullButton : ''
+          }`}
+          onClick={handleJoinActivity}
+        >
+          <Text className={styles.joinButtonText}>
+            {activity.is_registered ? '已报名' :
+             (activity.max_participants && activity.current_participants >= activity.max_participants) ? '名额已满' :
+             '立即报名'}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }

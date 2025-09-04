@@ -32,25 +32,143 @@ export default function UploadMaterial() {
     };
   }, [isUploading]);
 
+  // 学院和专业数据
+  const collegesAndMajors: Record<string, { name: string; majors: string[] }> = {
+    literature: {
+      name: "文学院",
+      majors: ["汉语言文学", "编辑出版学", "广播电视学", "艺术设计学", "绘画", "中国画", "视觉传达设计", "环境设计"]
+    },
+    history: {
+      name: "历史学院", 
+      majors: ["历史学", "世界史", "考古学", "文物与博物馆学"]
+    },
+    philosophy: {
+      name: "哲学院",
+      majors: ["哲学", "逻辑学", "宗教学"]
+    },
+    foreignLanguage: {
+      name: "外国语学院",
+      majors: ["英语", "日语", "俄语", "法语", "德语", "翻译", "西班牙语", "葡萄牙语", "意大利语", "阿拉伯语"]
+    },
+    law: {
+      name: "法学院",
+      majors: ["法学"]
+    },
+    government: {
+      name: "周恩来政府管理学院",
+      majors: ["政治学与行政学", "国际政治", "行政管理", "社会学", "社会工作", "应用心理学"]
+    },
+    marxism: {
+      name: "马克思主义学院",
+      majors: ["马克思主义理论", "思想政治教育", "科学社会主义", "中国共产党历史"]
+    },
+    chineseLanguage: {
+      name: "汉语言文化学院",
+      majors: ["汉语言", "汉语国际教育"]
+    },
+    economics: {
+      name: "经济学院",
+      majors: ["经济学", "国际经济与贸易", "财政学", "金融学", "保险学", "金融工程"]
+    },
+    business: {
+      name: "商学院",
+      majors: ["工商管理", "会计学", "国际会计", "旅游管理", "市场营销", "财务管理", "人力资源管理", "信息管理与信息系统", "电子商务", "图书馆学", "档案学"]
+    },
+    tourism: {
+      name: "旅游与服务学院",
+      majors: ["旅游管理", "会展经济与管理"]
+    },
+    finance: {
+      name: "金融学院",
+      majors: ["金融学", "金融工程", "投资学", "保险学"]
+    },
+    math: {
+      name: "数学科学学院",
+      majors: ["数学与应用数学", "信息与计算科学", "统计学", "数据科学与大数据技术"]
+    },
+    physics: {
+      name: "物理科学学院",
+      majors: ["物理学", "应用物理学", "光电信息科学与工程", "生物物理"]
+    },
+    chemistry: {
+      name: "化学学院",
+      majors: ["化学", "应用化学", "化学生物学", "分子科学与工程"]
+    },
+    lifescience: {
+      name: "生命科学学院",
+      majors: ["生物科学", "生物技术", "生物信息学"]
+    },
+    environment: {
+      name: "环境科学与工程学院",
+      majors: ["环境科学", "环境工程", "资源循环科学与工程", "生态学"]
+    },
+    medicine: {
+      name: "医学院",
+      majors: ["临床医学", "口腔医学", "眼视光医学", "智能医学工程"]
+    },
+    pharmacy: {
+      name: "药学院",
+      majors: ["药学", "药物化学", "药剂学", "生药学"]
+    },
+    electronic: {
+      name: "电子信息与光学工程学院",
+      majors: ["电子信息工程", "电子科学与技术", "通信工程", "微电子科学与工程", "光电信息科学与工程"]
+    },
+    materials: {
+      name: "材料科学与工程学院",
+      majors: ["材料物理", "材料化学", "材料科学与工程", "新能源材料与器件"]
+    },
+    computer: {
+      name: "计算机学院",
+      majors: ["计算机科学与技术"]
+    },
+    cybersecurity: {
+      name: "网络空间安全学院",
+      majors: ["网络空间安全", "信息安全","物联网工程"]
+    },
+    ai: {
+      name: "人工智能学院",
+      majors: ["智能科学与技术", "自动化", "机器人工程"]
+    },
+    software: {
+      name: "软件学院",
+      majors: ["软件工程"]
+    },
+    statistics: {
+      name: "统计与数据科学学院",
+      majors: ["统计学", "应用统计学", "数据科学与大数据技术"]
+    },
+    journalism: {
+      name: "新闻与传播学院",
+      majors: ["新闻学", "传播学", "广告学", "网络与新媒体"]
+    },
+    sociology: {
+      name: "社会学院",
+      majors: ["社会学", "社会工作", "人类学"]
+    }
+  };
+
   // 学院选项
   const colleges = [
     { value: "", name: "请选择学院" },
-    { value: "computer", name: "计算机学院" },
-    { value: "math", name: "数学学院" },
-    { value: "physics", name: "物理学院" },
-    { value: "chemistry", name: "化学学院" },
-    { value: "business", name: "商学院" }
+    ...Object.entries(collegesAndMajors).map(([value, info]) => ({
+      value,
+      name: info.name
+    }))
   ];
 
-  // 学科选项
-  const subjects = [
-    { value: "", name: "请选择学科" },
-    { value: "cs", name: "计算机科学" },
-    { value: "math", name: "数学" },
-    { value: "physics", name: "物理" },
-    { value: "chemistry", name: "化学" },
-    { value: "economics", name: "经济学" }
-  ];
+  // 根据选择的学院获取专业选项
+  const getSubjectsForCollege = (collegeValue: string) => {
+    if (!collegeValue || !collegesAndMajors[collegeValue]) {
+      return [{ value: "", name: "请先选择学院" }];
+    }
+    
+    const majors = collegesAndMajors[collegeValue].majors;
+    return [
+      { value: "", name: "请选择专业" },
+      ...majors.map(major => ({ value: major, name: major }))
+    ];
+  };
 
   // 格式化文件名显示
   const formatFileName = (fileName: string): string => {
@@ -76,7 +194,7 @@ export default function UploadMaterial() {
 
   // 检查文件大小
   const validateFile = (fileSize: number, fileName: string): boolean => {
-    // 检查文件大小 (100MB)
+    // 检查文件大小 (10MB)
     if (fileSize > MAX_FILE_SIZE) {
       const fileSizeMB = Math.round(fileSize / 1024 / 1024 * 100) / 100; // 保留两位小数
       const maxSizeMB = Math.round(MAX_FILE_SIZE / 1024 / 1024);
@@ -146,12 +264,17 @@ export default function UploadMaterial() {
   // 学院选择
   const handleCollegeChange = (e: any) => {
     const index = e.detail.value;
-    setSelectedCollege(colleges[index].value);
+    const selectedCollegeValue = colleges[index].value;
+    setSelectedCollege(selectedCollegeValue);
+    
+    // 当学院改变时，清空已选择的学科
+    setSelectedSubject("");
   };
 
   // 学科选择
   const handleSubjectChange = (e: any) => {
     const index = e.detail.value;
+    const subjects = getSubjectsForCollege(selectedCollege);
     setSelectedSubject(subjects[index].value);
   };
 
@@ -421,7 +544,7 @@ export default function UploadMaterial() {
             <View className={styles.uploadEmptyState}>
               <Text className={styles.uploadCloudIcon}>☁️</Text>
               <Text className={styles.uploadTip}>点击选择文件</Text>
-              <Text className={styles.formatTip}>支持 PDF、Word、PPT 等格式，单个文件不超过 100MB</Text>
+              <Text className={styles.formatTip}>支持 PDF、Word、PPT 等格式，单个文件不超过 10MB</Text>
               <Button 
                 className={styles.selectFileBtn} 
                 onClick={(e) => {
@@ -481,13 +604,13 @@ export default function UploadMaterial() {
         <Text className={styles.formLabel}>学科分类</Text>
         <Picker
           mode='selector'
-          range={subjects}
+          range={getSubjectsForCollege(selectedCollege)}
           rangeKey='name'
           onChange={handleSubjectChange}
         >
           <View className={styles.subjectSelect}>
             <Text className={styles.selectText}>
-              {selectedSubject ? subjects.find(s => s.value === selectedSubject)?.name : '请选择学科'}
+              {selectedSubject ? getSubjectsForCollege(selectedCollege).find(s => s.value === selectedSubject)?.name : '请选择学科'}
             </Text>
             <Text className={styles.selectArrow}>▼</Text>
           </View>
