@@ -1,4 +1,6 @@
 export default {
   navigationBarTitleText: "上传资料",
-  navigationStyle: "custom"
+  navigationStyle: "custom",
+  enableShareTimeline: true,
+  enableShareAppMessage: true
 };
