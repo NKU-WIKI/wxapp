@@ -286,6 +286,10 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
         <ActionBar
           targetId={post.id}
           targetType='post'
+          postInfo={{
+            title: post.title,
+            authorId: author?.id || ''
+          }}
           initialStates={{
             'like-0': { isActive: isLiked, count: likeCount },
             'comment-1': { isActive: false, count: commentCount },

@@ -102,7 +102,18 @@
 .notificationList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  padding: 8px;
+  background-color: $bg-page;
+  min-height: 100%;
+  
+  // 为通知项添加统一的间距
+  & > * {
+    margin-bottom: 0; // 重置margin，使用padding控制间距
+  }
+  
+  & > *:not(:last-child) {
+    margin-bottom: 6px;
+  }
 }
 
 // 加载状态

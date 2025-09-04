@@ -6,7 +6,7 @@ import { AppDispatch, RootState } from '@/store';
 import { fetchPostDetail } from '@/store/slices/postSlice';
 import { fetchComments } from '@/store/slices/commentSlice';
 import { CommentDetail } from '@/types/api/comment';
-import { usePermissions } from '@/hooks/usePermissions';
+import { usePrivacyCheck } from '@/utils/privacyCheck';
 import CustomHeader from '@/components/custom-header';
 import Post from '@/components/post';
 import { addHistoryWithServerSync } from '@/utils/history';
@@ -21,7 +21,7 @@ const PostDetailPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const postState = useSelector((state: RootState) => state.post);
   const commentState = useSelector((state: RootState) => state.comment);
-  const permissions = usePermissions();
+  const permissions = usePrivacyCheck();
 
   // 从路由参数中获取帖子ID（UUID格式）
   const postId = router.params.id as string;
@@ -68,7 +68,7 @@ const PostDetailPage = () => {
       
       // 获取头像：优先使用 user.avatar，兼容 author_info.avatar
       const author = post.user || post.author_info;
-      const avatarUrl = normalizeImageUrl(author?.avatar) || '';
+      const avatarUrl = normalizeImageUrl(author?.avatar || undefined) || '';
       
       // 获取时间：优先使用 created_at，兼容 create_time，如果没有则使用当前时间
       const createTime = post.created_at || post.create_time || new Date().toISOString();
@@ -322,8 +322,7 @@ const PostDetailPage = () => {
           postAuthorId={postState?.currentPost?.user?.id || postState?.currentPost?.author_info?.id}
           replyTo={replyTo}
           onCancelReply={() => setReplyTo(null)}
-          allowComments={postState?.currentPost?.allow_comments !== false && 
-            (postState?.currentPost?.user ? permissions.canComment(postState.currentPost.user) : true)}
+          allowComments={postState?.currentPost?.allow_comments !== false}
         />
       </View>
     </View>

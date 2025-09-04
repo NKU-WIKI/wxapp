@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import ActionButton, { ActionButtonProps } from '@/components/action-button';
 import { toggleAction } from '@/services/api/action';
 import { marketplaceApi } from '@/services/api/marketplace';
+import { BBSNotificationHelper } from '@/utils/notificationHelper';
 import { RootState } from '@/store';
 import Taro from '@tarojs/taro';
 import classnames from "classnames";
@@ -57,6 +58,13 @@ export interface ActionBarProps {
    * 状态变化回调
    */
   onStateChange?: (_type: string, _isActive: boolean, _count: number) => void;
+  /**
+   * 帖子信息（用于创建通知，仅targetType为'post'时需要）
+   */
+  postInfo?: {
+    title: string;
+    authorId: string;
+  };
 }
 
 /**
@@ -70,11 +78,13 @@ const ActionBar: React.FC<ActionBarProps> = ({
   targetId,
   targetType,
   initialStates = {},
-  onStateChange
+  onStateChange,
+  postInfo
 }) => {
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const [localStates, setLocalStates] = useState<Record<string, { isActive: boolean; count: number }>>(initialStates);
   const isLoggedIn = useSelector((state: RootState) => !!(state.user.user && state.user.token));
+  const currentUser = useSelector((state: RootState) => state.user.user);
 
   // 初始化本地状态（如果还没有初始化）
   useEffect(() => {
@@ -195,11 +205,39 @@ const ActionBar: React.FC<ActionBarProps> = ({
       const isActive = response?.data?.is_active ?? !localStates[key]?.isActive;
       const count = response?.data?.count ?? localStates[key]?.count ?? 0;
 
-
       setLocalStates(prev => ({
         ...prev,
         [key]: { isActive, count }
       }));
+
+      // 创建通知（仅针对帖子的点赞和收藏操作）
+      if (targetType === 'post' && postInfo && (button.type === 'like' || button.type === 'favorite')) {
+        try {
+          if (currentUser?.id) {
+            if (button.type === 'like') {
+              // 创建点赞通知
+              BBSNotificationHelper.handleLikeNotification({
+                postId: targetId,
+                postTitle: postInfo.title,
+                postAuthorId: postInfo.authorId,
+                currentUserId: currentUser.id,
+                isLiked: isActive
+              });
+            } else if (button.type === 'favorite') {
+              // 创建收藏通知
+              BBSNotificationHelper.handleCollectNotification({
+                postId: targetId,
+                postTitle: postInfo.title,
+                postAuthorId: postInfo.authorId,
+                currentUserId: currentUser.id,
+                isCollected: isActive
+              });
+            }
+          }
+        } catch (notificationError) {
+          // 静默处理通知创建错误，不影响主要功能
+        }
+      }
 
       // 调用外部回调
       onStateChange?.(button.type, isActive, count);

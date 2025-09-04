@@ -1,12 +1,11 @@
 @use "../../../../styles/variables.scss" as *;
 
 .notificationItem {
+  position: relative;
   background-color: $bg-card;
   border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid $border-light;
   transition: all 0.2s ease;
@@ -14,117 +13,100 @@
   
   &:active {
     transform: scale(0.98);
-    background-color: $bg-card-hover;
+    background-color: $bg-input;
   }
 }
 
-.avatarContainer {
-  position: relative;
-  flex-shrink: 0;
-}
+// 清理旧的不需要的样式类
 
-.avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid $border-light;
-}
-
-.userInfo {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.authorInfo {
-  // AuthorInfo 组件的自定义样式
-  :global(.compact) {
-    padding: 0;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-
-    .compactUserInfo {
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    .compactAvatar {
-      width: 44px;
-      height: 44px;
-    }
-
-    .compactUserDetails {
-      flex: 1;
-    }
-
-    .compactUserNameRow {
-      margin-bottom: 4px;
-    }
-
-    .compactUserName {
-      font-size: 15px;
-      font-weight: 600;
-      color: $text-primary;
-      margin-right: 8px;
-    }
-
-    .compactLevelText {
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .compactTime {
-      font-size: 12px;
-      color: $text-helper;
-      margin-top: 2px;
-    }
-  }
-}
-
+// 未读标识
 .unreadDot {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 12px;
-  height: 12px;
+  top: 12px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background-color: $status-error;
-  border: 2px solid $bg-card;
-  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.3);
-  z-index: 1;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
+  z-index: 2;
 }
 
-.content {
-  flex: 1;
+// 第一行：头像、昵称、时间
+.userRow {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.userLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
   min-width: 0;
 }
 
-.text {
-  font-size: 15px;
-  color: $text-secondary;
-  line-height: 1.4;
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid $border-light;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.userActionContainer {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
 .username {
+  font-size: 15px;
   font-weight: 600;
-  color: $text-primary-dark;
+  color: $text-primary;
+  flex-shrink: 0;
 }
 
-.postInfo {
-  font-size: 13px;
-  color: $text-helper-light;
-  background-color: $bg-input-focus;
-  padding: 6px 10px;
-  border-radius: 8px;
-  margin-top: 2px;
-  border-left: 3px solid $theme-primary;
+.actionText {
+  font-size: 14px;
+  color: $text-secondary;
+  line-height: 1.4;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .time {
   font-size: 12px;
-  color: $text-helper;
-  margin-top: 2px;
+  color: $text-helper-gray;
+  flex-shrink: 0;
+  margin-left: 8px;
 }
+
+// 移除第二行，动作描述已移至第一行
+
+// 第二行：帖子内容
+.postRow {
+  margin-left: 46px; // 对齐头像右侧 (36px头像 + 10px间距)
+}
+
+.postContent {
+  font-size: 13px;
+  color: $text-helper-gray;
+  background-color: $bg-input;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border-left: 3px solid $theme-primary;
+  line-height: 1.4;
+  display: block;
+  word-break: break-all;
+}
+
+// 移除旧的样式类，使用上面的新样式
