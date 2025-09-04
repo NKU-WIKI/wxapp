@@ -738,3 +738,34 @@ export interface ActivitySummary {
   view_count: number;
   [property: string]: any;
 }
+
+export interface GetMyOrganizedActivityRequest {
+  /**
+   * Limit，返回数量
+   */
+  limit?: number;
+  /**
+   * Skip，跳过数量
+   */
+  skip?: number;
+  [property: string]: any;
+}
+
+/**
+ * ApiResponse[Page[ActivityRead]]
+ */
+export interface GetMyOrganizedActivityResponse {
+  /**
+   * Code，业务码，成功为 0
+   */
+  code?: number;
+  /**
+   * 负载数据
+   */
+  data?: null | PageActivityRead;
+  /**
+   * Message，简明中文信息
+   */
+  message?: string;
+  [property: string]: any;
+}

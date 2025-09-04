@@ -187,17 +187,37 @@
 /* 网盘链接输入框 */
 .netdiskInput {
   width: 100%;
-  padding: 8px 12px;
+  padding: 0 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 44px; /* 与height相等，确保单行文字垂直居中 */
   box-sizing: border-box;
   color: #1f2937;
   background-color: #ffffff;
-  height: 40px;
-  display: flex;
-  align-items: center;
+  height: 44px;
+  
+  /* 微信小程序兼容性 */
+  text-align: left;
+  vertical-align: middle;
+  
+  /* 确保占位符文字垂直居中 */
+  &::-webkit-input-placeholder {
+    color: #9ca3af;
+    line-height: 44px;
+    vertical-align: middle;
+  }
+  
+  &::-moz-placeholder {
+    color: #9ca3af;
+    line-height: 44px;
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
+    line-height: 44px;
+    vertical-align: middle;
+  }
 }
 
 /* 资料说明文本域 */
