@@ -41,7 +41,7 @@
 /* 标题区域 - 占据下1/3空间 */
 .content {
   flex: 1;
-  padding: 12px 16px 8px;
+  padding: 12px 8px 8px; // 减少左右padding从16px到8px
   display: flex;
   align-items: center;
 }
@@ -67,7 +67,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px 12px;
+  padding: 8px 2px 12px 8px; // 减少右边距，让点赞按钮更靠右
   border-top: 1px solid #f5f5f5;
 }
 
@@ -98,17 +98,39 @@
 .likeInfo {
   display: flex;
   align-items: center;
-  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto; // 让点赞按钮靠右
+}
+
+.likeButton {
+  // 使用ActionButton组件的默认样式，这里可以添加自定义样式
+  // 如果需要调整大小或间距，可以在这里添加
+}
+
+// explore页面专用的小头像样式
+.exploreAvatar {
+  // 这个样式类会被传递给AuthorInfo组件，用于应用小头像样式
+}
+
+// 为explore页面创建专门的小头像样式
+.exploreAvatarSmall {
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  margin-right: 6px;
   flex-shrink: 0;
 }
 
-.likeCount {
-  font-size: 12px;
-  color: #666;
-  font-weight: 500;
+// 作者信息包装器样式
+.authorInfoWrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
 }
 
-.likeIcon {
-  font-size: 14px;
-  color: #ff6b6b;
+// 作者详情样式
+.authorDetails {
+  flex: 1;
+  min-width: 0;
 }

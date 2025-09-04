@@ -239,10 +239,27 @@
 }
 
 .compactAvatar {
-  width: 36px;
+  width: 36px; // 恢复原始尺寸
   height: 36px;
   border-radius: 18px;
   margin-right: 10px;
+  flex-shrink: 0;
+  
+  // 当传入exploreAvatar样式类时，应用小头像样式
+  &.exploreAvatar {
+    width: 24px; // explore页面专用的小头像尺寸
+    height: 24px;
+    border-radius: 12px;
+    margin-right: 6px; // 相应减少右边距
+  }
+}
+
+// 为explore页面专门的小头像样式
+.compactAvatarSmall {
+  width: 24px; // explore页面专用的小头像尺寸
+  height: 24px;
+  border-radius: 12px;
+  margin-right: 6px; // 相应减少右边距
   flex-shrink: 0;
 }
 

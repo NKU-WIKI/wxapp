@@ -7,7 +7,7 @@ import { RootState } from '@/store';
 import { getNoteDetail, toggleAction, shareNote } from '@/services/api/note';
 import { NoteDetail, NoteRead } from '@/types/api/note';
 import { normalizeImageUrl } from '@/utils/image';
-import { formatRelativeTime } from '@/utils/time';
+import { formatRelativeTime, formatPostDate } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
 import ActionBar from '@/components/action-bar';
 import heartIcon from '@/assets/heart.svg';
@@ -435,8 +435,13 @@ export default function NoteDetailPage() {
                     mode='aspectFill'
                   />
                   <View className={styles.authorDetails}>
-                    <Text className={styles.authorName}>{note.user.nickname || '匿名用户'}</Text>
-                    <Text className={styles.authorLevel}>Lv.{note.author?.level || 1}</Text>
+                    <View className={styles.nameAndLevel}>
+                      <Text className={styles.authorName}>{note.user.nickname || '匿名用户'}</Text>
+                      <Text className={styles.authorLevel}>Lv.{note.author?.level || 1}</Text>
+                    </View>
+                    {note.user.bio && (
+                      <Text className={styles.authorBio}>{note.user.bio}</Text>
+                    )}
                   </View>
                   <View className={styles.authorActions}>
                     {/* 只有当前用户不是笔记作者时才显示关注按钮 */}
@@ -446,7 +451,7 @@ export default function NoteDetailPage() {
                       </View>
                     )}
                     <Text className={styles.publicationTime}>
-                      {note.created_at ? formatRelativeTime(note.created_at) : '刚刚'}
+                      {note.created_at ? formatPostDate(note.created_at) : '时间未知'}
                     </Text>
                   </View>
                 </View>
