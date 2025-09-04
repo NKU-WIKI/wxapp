@@ -6,19 +6,16 @@ import { useEffect, useCallback } from 'react'
 
 // Relative imports
 import CustomHeader from '@/components/custom-header'
-import { fetchErrandDetail, toggleFavorite, clearError } from '@/store/slices/marketplaceSlice'
+import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
+import { fetchErrandDetail, clearError } from '@/store/slices/marketplaceSlice'
 import { RootState, AppDispatch } from '@/store'
 import { ListingRead, ErrandType } from '@/types/api/marketplace.d'
-import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { useRelativeTime } from '@/hooks/useRelativeTime'
 import AuthorInfo from '@/components/author-info'
 import { fetchCurrentUser } from '@/store/slices/userSlice'
 import moreIcon from '@/assets/more-horizontal.svg'
 
 // Assets imports
-import favoriteIcon from '@/assets/heart-outline.svg'
-import favoriteActiveIcon from '@/assets/heart-bold.svg'
-import messageIcon from '@/assets/message-circle.svg'
 import locationIcon from '@/assets/map-pin.svg'
 
 import styles from './index.module.scss'
@@ -26,7 +23,6 @@ import styles from './index.module.scss'
 const ErrandsDetailPage = () => {
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
-  const { checkAuth } = useAuthGuard()
 
   const { currentErrand, errandDetailLoading: detailLoading, error } = useSelector((state: RootState) => state.marketplace)
   const userState = useSelector((state: RootState) => state.user)
@@ -42,60 +38,6 @@ const ErrandsDetailPage = () => {
     }
   }, [dispatch])
 
-  // 处理收藏（使用通用收藏接口）
-  const handleFavorite = useCallback(async () => {
-    if (!checkAuth()) return
-    if (!currentErrand) return
-
-    try {
-      // 使用通用收藏接口，自动处理收藏/取消收藏切换
-      await dispatch(toggleFavorite(currentErrand.id)).unwrap()
-
-      // 根据当前收藏状态显示不同的提示信息
-      const isCurrentlyFavorited = (currentErrand.favorite_count || 0) > 0
-      if (isCurrentlyFavorited) {
-        Taro.showToast({ title: '已取消收藏', icon: 'success' })
-      } else {
-        Taro.showToast({ title: '已收藏', icon: 'success' })
-      }
-    } catch (favoriteError) {
-      Taro.showToast({ title: '收藏操作失败', icon: 'none' })
-    }
-  }, [checkAuth, currentErrand, dispatch])
-
-  // 处理联系发布者
-  const handleContact = useCallback(() => {
-    if (!currentErrand?.user) return
-
-    Taro.showActionSheet({
-      itemList: ['复制微信号', '复制QQ号', '复制手机号'],
-      success: (res) => {
-        let content = ''
-        switch (res.tapIndex) {
-          case 0:
-            content = currentErrand.user.wechat_id || '暂无微信号'
-            break
-          case 1:
-            content = currentErrand.user.qq_id || '暂无QQ号'
-            break
-          case 2:
-            content = currentErrand.user.tel || '暂无手机号'
-            break
-        }
-
-        if (content && content !== '暂无微信号' && content !== '暂无QQ号' && content !== '暂无手机号') {
-          Taro.setClipboardData({
-            data: content,
-            success: () => {
-              Taro.showToast({ title: '已复制到剪贴板', icon: 'success' })
-            }
-          })
-        } else {
-          Taro.showToast({ title: '暂无联系方式', icon: 'none' })
-        }
-      }
-    })
-  }, [currentErrand])
 
   // 初始化
   useEffect(() => {
@@ -251,38 +193,79 @@ const ErrandsDetailPage = () => {
 
   // 操作按钮组件
   const ActionButtons = ({ errand }: { errand: ListingRead }) => {
-    const isFavorited = (errand.favorite_count || 0) > 0
     const errandData = errand as any
     const taskStatus = errandData.status || errand.status
+
+    const actionBarButtons: ActionButtonConfig[] = [
+      {
+        type: 'favorite',
+        icon: '/assets/heart-outline.svg',
+        activeIcon: '/assets/heart-bold.svg',
+      },
+      {
+        type: 'custom',
+        icon: '/assets/message-circle.svg',
+        text: '联系发布者',
+        onClick: () => {
+          if (!errand?.user) return
+
+          Taro.showActionSheet({
+            itemList: ['复制微信号', '复制QQ号', '复制手机号'],
+            success: (res) => {
+              let content = ''
+              switch (res.tapIndex) {
+                case 0:
+                  content = errand.user.wechat_id || '暂无微信号'
+                  break
+                case 1:
+                  content = errand.user.qq_id || '暂无QQ号'
+                  break
+                case 2:
+                  content = errand.user.tel || '暂无手机号'
+                  break
+              }
+
+              if (content && content !== '暂无微信号' && content !== '暂无QQ号' && content !== '暂无手机号') {
+                Taro.setClipboardData({
+                  data: content,
+                  success: () => {
+                    Taro.showToast({ title: '已复制到剪贴板', icon: 'success' })
+                  }
+                })
+              } else {
+                Taro.showToast({ title: '暂无联系方式', icon: 'none' })
+              }
+            }
+          })
+        }
+      }
+    ]
 
     // 统一的底部按钮布局，所有用户都使用相同的按钮
     // 编辑和删除功能通过头部的"更多"按钮提供（仅任务发布者可见）
     return (
       <View className={styles.actionButtons}>
         <View className={styles.leftArea}>
-          <Button
-            className={`${styles.iconButton} ${isFavorited ? styles.active : ''}`}
-            onClick={handleFavorite}
-          >
-            <Image
-              src={isFavorited ? favoriteActiveIcon : favoriteIcon}
-              className={styles.icon}
-              style={{ width: '22px', height: '22px' }}
-            />
-          </Button>
+          <ActionBar
+            targetId={errand.id}
+            targetType='errand'
+            buttons={actionBarButtons}
+            initialStates={{
+              'favorite-0': { isActive: (errand.favorite_count || 0) > 0, count: errand.favorite_count || 0 }
+            }}
+            onStateChange={(type, isActive, _count) => {
+              if (type === 'favorite') {
+                // 根据当前收藏状态显示不同的提示信息
+                if (isActive) {
+                  Taro.showToast({ title: '已收藏', icon: 'success' })
+                } else {
+                  Taro.showToast({ title: '已取消收藏', icon: 'success' })
+                }
+              }
+            }}
+          />
         </View>
         <View className={styles.rightArea}>
-          <Button
-            className={styles.secondaryButton}
-            onClick={handleContact}
-          >
-            <Image
-              src={messageIcon}
-              className={styles.secondaryIcon}
-              style={{ width: '18px', height: '18px' }}
-            />
-            <Text>联系发布者</Text>
-          </Button>
           <Button
             className={styles.primaryButton}
             onClick={() => {

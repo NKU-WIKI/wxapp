@@ -3,6 +3,7 @@ import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 import activityApi from "@/services/api/activity";
 import { ActivityRead, ActivityType } from "@/types/api/activity.d";
+import { useSharing } from "@/hooks/useSharing";
 import CustomHeader from "@/components/custom-header";
 import ActionBar from "@/components/action-bar";
 import styles from "./index.module.scss";
@@ -11,6 +12,13 @@ export default function ActivityDetail() {
   const [activity, setActivity] = useState<ActivityRead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activityId, setActivityId] = useState<string>("");
+
+  // 使用分享 Hook
+  useSharing({
+    title: activity?.title || '分享活动',
+    path: `/pages/subpackage-discover/activity-detail/index?id=${activityId}`,
+    imageUrl: activity?.cover_image, // 使用活动的封面图片
+  });
 
   useEffect(() => {
     // 获取页面参数中的活动ID
@@ -249,24 +257,30 @@ export default function ActivityDetail() {
 
         {/* 活动统计 */}
         <View className={styles.activityStats}>
-          <ActionBar buttons={[
-            {
-              icon: '/assets/eye.svg',
-              text: activity.view_count,
-              className: styles.statItem,
-            },
-            {
-              icon: '/assets/heart-outline.svg',
-              text: activity.favorite_count,
-              className: styles.statItem,
-            },
-            {
-              icon: '/assets/share.svg',
-              text: activity.share_count,
-              className: styles.statItem,
-            }
-          ]}
+          <ActionBar
+            targetId={activity.id}
+            targetType='activity'
+            buttons={[
+              {
+                type: 'custom',
+                icon: '/assets/eye.svg',
+                text: activity.view_count?.toString() || '0',
+              },
+              {
+                type: 'like',
+                icon: '/assets/heart-outline.svg',
+              },
+              {
+                type: 'share',
+                icon: '/assets/share.svg',
+              }
+            ]}
             className={styles.statsBar}
+            initialStates={{
+              'custom-0': { isActive: false, count: activity.view_count || 0 },
+              'like-1': { isActive: activity.is_liked || false, count: activity.favorite_count || 0 },
+              'share-2': { isActive: false, count: activity.share_count || 0 }
+            }}
           />
         </View>
 

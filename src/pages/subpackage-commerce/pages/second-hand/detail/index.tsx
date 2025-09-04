@@ -11,6 +11,7 @@ import { RootState, AppDispatch } from '@/store'
 import { ListingRead } from '@/types/api/marketplace.d'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { useRelativeTime } from '@/hooks/useRelativeTime'
+import { useSharing } from '@/hooks/useSharing'
 import AuthorInfo from '@/components/author-info'
 import CommentSection from '@/components/comment-section'
 import { fetchCurrentUser } from '@/store/slices/userSlice'
@@ -38,6 +39,13 @@ const SecondHandDetailPage = () => {
   const { comments } = useSelector((state: RootState) => state.comment)
   const userState = useSelector((state: RootState) => state.user)
   const currentUserId = useSelector((state: RootState) => state.user.user?.id)
+
+  // 使用分享 Hook
+  useSharing({
+    title: currentListing?.title || '分享商品',
+    path: `/pages/subpackage-commerce/pages/second-hand/detail/index?id=${router.params?.id || ''}`,
+    imageUrl: currentListing?.images?.[0],
+  })
 
   // 获取商品详情和评论
   const loadListingDetail = useCallback(async (id: string) => {

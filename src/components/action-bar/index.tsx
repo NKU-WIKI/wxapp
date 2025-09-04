@@ -48,7 +48,7 @@ export interface ActionBarProps {
   /**
    * 目标对象类型（用于action/toggle操作）
    */
-  targetType: 'post' | 'comment' | 'user' | 'listing' | 'note';
+  targetType: 'post' | 'comment' | 'user' | 'listing' | 'note' | 'activity' | 'errand';
   /**
    * 初始状态配置（可选，用于初始化按钮状态）
    */
@@ -125,45 +125,6 @@ const ActionBar: React.FC<ActionBarProps> = ({
     });
   }, [isLoggedIn]);
 
-  // 处理分享功能
-  const handleShare = useCallback((buttonIndex: number) => {
-    const key = `share-${buttonIndex}`;
-    const currentState = localStates[key];
-    const currentCount = currentState?.count ?? 0;
-
-    try {
-      // 调用微信小程序分享接口
-      Taro.showShareMenu({
-        withShareTicket: true
-      }).then(() => {
-        Taro.showToast({
-          title: '分享菜单已打开',
-          icon: 'none',
-          duration: 1500
-        });
-        // 分享成功后更新本地状态和通知外部
-        const newCount = currentCount + 1;
-        setLocalStates(prev => ({
-          ...prev,
-          [key]: { isActive: false, count: newCount }
-        }));
-        onStateChange?.('share', false, newCount);
-      }).catch(() => {
-        // 如果分享菜单已经打开，显示提示让用户使用右上角分享
-        Taro.showToast({
-          title: '请点击右上角分享',
-          icon: 'none',
-          duration: 2000
-        });
-      });
-    } catch (error) {
-      Taro.showToast({
-        title: '分享功能暂不可用',
-        icon: 'none'
-      });
-    }
-  }, [localStates, onStateChange]);
-
   // 处理评论功能
   const handleComment = useCallback((buttonIndex: number) => {
     const key = `comment-${buttonIndex}`;
@@ -193,15 +154,9 @@ const ActionBar: React.FC<ActionBarProps> = ({
       return;
     }
 
-    if (button.type === 'custom') {
-      // 自定义按钮，直接调用外部处理函数
+    if (button.type === 'custom' || button.type === 'share') {
+      // 自定义按钮和分享按钮，直接调用外部处理函数（分享按钮通过 openType 实现，此处可用于附加逻辑）
       button.onClick?.();
-      return;
-    }
-
-    if (button.type === 'share') {
-      // 分享按钮，调用微信分享接口
-      handleShare(index);
       return;
     }
 
@@ -253,7 +208,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
     } finally {
       setLoadingStates(prev => ({ ...prev, [key]: false }));
     }
-  }, [targetId, targetType, localStates, loadingStates, onStateChange, handleShare, handleComment, checkLogin]);
+  }, [targetId, targetType, localStates, loadingStates, onStateChange, handleComment, checkLogin]);
 
   if (!buttons || buttons.length === 0) {
     return null;
@@ -283,7 +238,8 @@ const ActionBar: React.FC<ActionBarProps> = ({
           text: currentText,
           isActive: currentIsActive,
           onClick: () => handleButtonClick(button, index),
-          className: isLoading ? 'loading' : undefined
+          className: isLoading ? 'loading' : undefined,
+          openType: button.type === 'share' ? 'share' : undefined
         };
 
         return (

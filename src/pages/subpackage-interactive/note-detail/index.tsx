@@ -10,6 +10,7 @@ import { normalizeImageUrl } from '@/utils/image';
 import { formatRelativeTime } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
 import ActionBar from '@/components/action-bar';
+import { useSharing } from '@/hooks/useSharing';
 import heartIcon from '@/assets/heart.svg';
 import heartFilledIcon from '@/assets/heart-bold.svg';
 import bookmarkIcon from '@/assets/star-outline.svg';
@@ -41,6 +42,13 @@ export default function NoteDetailPage() {
   // 获取笔记ID和用户ID
   const noteId = router?.params?.id;
   const userId = router?.params?.userId; // 发帖人的ID
+
+  // 使用分享 Hook
+  useSharing({
+    title: note?.title || '分享笔记',
+    path: `/pages/subpackage-interactive/note-detail/index?id=${noteId}${userId ? `&userId=${userId}` : ''}`,
+    imageUrl: note?.images?.[0] ? normalizeImageUrl(note.images[0]) : undefined,
+  });
 
   // 加载笔记详情
   const loadNoteDetail = useCallback(async () => {
