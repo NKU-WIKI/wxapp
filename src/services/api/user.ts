@@ -26,7 +26,7 @@ export const getMe = () => {
  * @param actionType 操作类型
  * @returns
  */
-export const getActionStatus = (targetId: string, targetType: 'user' | 'post' | 'comment' | 'knowledge', actionType: 'like' | 'favorite' | 'follow') => {
+export const getActionStatus = (targetId: string, targetType: 'user' | 'post' | 'comment' | 'knowledge' | 'note', actionType: 'like' | 'favorite' | 'follow') => {
   return http.get<{ is_active: boolean; count: number }>("/actions/status", {
     target_id: targetId,
     target_type: targetType,

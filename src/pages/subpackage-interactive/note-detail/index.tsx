@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 
 import { RootState } from '@/store';
 import { getNoteDetail } from '@/services/api/note';
+import { getActionStatus } from '@/services/api/user';
 import { NoteDetail, NoteRead } from '@/types/api/note';
 import { normalizeImageUrl } from '@/utils/image';
 import { formatPostDate } from '@/utils/time';
@@ -15,10 +16,8 @@ import heartIcon from '@/assets/heart.svg';
 import heartFilledIcon from '@/assets/heart-bold.svg';
 import bookmarkIcon from '@/assets/star-outline.svg';
 import bookmarkFilledIcon from '@/assets/star-filled.svg';
-import commentIcon from '@/assets/message-circle.svg';
 import shareIcon from '@/assets/share.svg';
-import sendIcon from '@/assets/send.svg';
-
+import commentIcon from '@/assets/message-circle.svg';
 import styles from './index.module.scss';
 
 export default function NoteDetailPage() {
@@ -160,12 +159,39 @@ export default function NoteDetailPage() {
           setError(response.message || '加载失败');
         }
       }
+
+      // 如果用户已登录，主动查询用户的点赞收藏状态
+      if (isLoggedIn && noteId) {
+        try {
+          // 查询点赞状态
+          const likeResponse = await getActionStatus(noteId, 'note', 'like');
+          
+          if (likeResponse.code === 0 && likeResponse.data) {
+            setIsLiked(likeResponse.data.is_active);
+            setLikeCount(likeResponse.data.count || 0);
+          }
+        } catch (_error) {
+          // 如果查询失败，保持原有状态
+        }
+
+        try {
+          // 查询收藏状态
+          const favoriteResponse = await getActionStatus(noteId, 'note', 'favorite');
+          
+          if (favoriteResponse.code === 0 && favoriteResponse.data) {
+            setIsBookmarked(favoriteResponse.data.is_active);
+            setFavoriteCount(favoriteResponse.data.count || 0);
+          }
+        } catch (_error) {
+          // 如果查询失败，保持原有状态
+        }
+      }
     } catch (err) {
       setError('网络错误，请重试');
     } finally {
       setLoading(false);
     }
-  }, [noteId, userId]);
+  }, [noteId, userId, isLoggedIn]);
   
   // 页面显示时加载数据
   useDidShow(() => {
@@ -467,7 +493,7 @@ export default function NoteDetailPage() {
                 autoHeight
               />
               <View className={styles.sendButton} onClick={handleCommentSubmit}>
-                <Image className={styles.sendIcon} src={sendIcon} />
+                <Image className={styles.sendIcon} src={commentIcon} />
               </View>
             </View>
           </View>
