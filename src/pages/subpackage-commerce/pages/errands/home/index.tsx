@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import CustomHeader from '@/components/custom-header'
 import EmptyState from '@/components/empty-state'
 import AuthFloatingButton from '@/components/auth-floating-button'
+import SearchBar from '@/components/search-bar'
+import HighlightText from '@/components/highlight-text'
 import { fetchErrands, clearError } from '@/store/slices/marketplaceSlice'
 import { RootState, AppDispatch } from '@/store'
 import { ErrandType } from '@/types/api/marketplace.d'
@@ -24,6 +26,7 @@ const ErrandsHomePage = () => {
   )
 
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]) // 用于高亮的关键词列表
   const [selectedType, setSelectedType] = useState<'all' | 'express' | 'food' | 'shopping'>('all')
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -120,22 +123,30 @@ const ErrandsHomePage = () => {
   }, [error, dispatch])
 
 
-  // 搜索框组件
-  const SearchBar = () => (
-    <View className={styles.searchContainer}>
-      <View className={styles.searchBar}>
-        <Input
-          placeholder='搜索跑腿订单'
-          value={searchKeyword}
-          onInput={(e) => setSearchKeyword(e.detail.value)}
-        />
-      </View>
-      <View className={styles.publishButton} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/errands/publish/index' })}>
-        <Text className={styles.plusIcon}>+</Text>
-        <Text>发布需求</Text>
-      </View>
-    </View>
-  )
+  // 处理搜索
+  const handleSearch = useCallback(async () => {
+    if (!searchKeyword.trim()) return
+
+    try {
+      // 这里可以添加搜索逻辑，如果需要的话
+      const keywords = searchKeyword.trim().split(/\s+/).filter(k => k.length > 0)
+      setSearchKeywords(keywords)
+    } catch (searchError) {
+      // console.error('搜索失败:', searchError)
+      Taro.showToast({ title: '搜索失败', icon: 'none' })
+    }
+  }, [searchKeyword])
+
+  // 处理搜索输入
+  const handleSearchInput = useCallback((e: any) => {
+    setSearchKeyword(e.detail.value)
+  }, [])
+
+  // 处理清空搜索
+  const handleClearSearch = useCallback(() => {
+    setSearchKeyword('')
+    setSearchKeywords([])
+  }, [])
 
   // 处理筛选类型变化
   const handleTypeChange = useCallback((type: 'all' | 'express' | 'food' | 'shopping') => {
@@ -174,37 +185,57 @@ const ErrandsHomePage = () => {
   )
 
   // 任务卡片组件
-  const TaskCard = ({ task }: { task: any }) => (
-    <View className={styles.taskCard} onClick={() => handleTaskClick(task)}>
-      <View className={styles.cardHeader}>
-        <Text className={styles.taskType}>
-          {task.errand_type === 'express_pickup' && '快递代取'}
-          {task.errand_type === 'food_delivery' && '食堂打饭'}
-          {task.errand_type === 'grocery_shopping' && '超市代购'}
-          {task.errand_type === 'other' && '其他'}
-          {!task.errand_type && task.title}
-        </Text>
-        <Text className={styles.taskReward}>¥{task.reward}</Text>
+  const TaskCard = ({ task }: { task: any }) => {
+    const getTaskTypeDisplay = (task: any) => {
+      if (task.errand_type === 'express_pickup') return '快递代取'
+      if (task.errand_type === 'food_delivery') return '食堂打饭'
+      if (task.errand_type === 'grocery_shopping') return '超市代购'
+      if (task.errand_type === 'other') return '其他'
+      return task.title || '其他'
+    }
+
+    const getTaskRouteDisplay = (task: any) => {
+      const from = task.location_from || '起始地点'
+      const to = task.location_to || '目的地点'
+      return `${from} → ${to}`
+    }
+
+    const getTaskStatusDisplay = (status?: string) => {
+      switch (status) {
+        case 'pending': return '待接单'
+        case 'accepted': return '进行中'
+        case 'completed': return '已完成'
+        case 'cancelled': return '已取消'
+        default: return '待接单'
+      }
+    }
+
+    return (
+      <View className={styles.taskCard} onClick={() => handleTaskClick(task)}>
+        <View className={styles.cardHeader}>
+          <HighlightText
+            text={getTaskTypeDisplay(task)}
+            keywords={searchKeywords}
+          />
+          <Text className={styles.taskReward}>¥{task.reward}</Text>
+        </View>
+        <View className={styles.cardBody}>
+          <HighlightText
+            text={getTaskRouteDisplay(task)}
+            keywords={searchKeywords}
+          />
+          <Text className={styles.deadline}>
+            期望送达：{task.deadline ? new Date(task.deadline).toLocaleString() : '尽快'}
+          </Text>
+        </View>
+        <View className={styles.cardFooter}>
+          <Text className={styles.status}>
+            {getTaskStatusDisplay(task.status)}
+          </Text>
+        </View>
       </View>
-      <View className={styles.cardBody}>
-        <Text className={styles.route}>
-          {task.location_from || '起始地点'} → {task.location_to || '目的地点'}
-        </Text>
-        <Text className={styles.deadline}>
-          期望送达：{task.deadline ? new Date(task.deadline).toLocaleString() : '尽快'}
-        </Text>
-      </View>
-      <View className={styles.cardFooter}>
-        <Text className={styles.status}>
-          {task.status === 'pending' && '待接单'}
-          {task.status === 'accepted' && '进行中'}
-          {task.status === 'completed' && '已完成'}
-          {task.status === 'cancelled' && '已取消'}
-          {!task.status && '待接单'}
-        </Text>
-      </View>
-    </View>
-  )
+    )
+  }
 
   return (
     <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -219,7 +250,23 @@ const ErrandsHomePage = () => {
           refresherBackground='#f8fafc'
           onScrollToLower={handleLoadMore}
         >
-          <SearchBar />
+          {/* 搜索栏和发布按钮 */}
+          <View className={styles.searchContainer}>
+            <View className={styles.searchBarWrapper}>
+              <SearchBar
+                key='errands-search'
+                keyword={searchKeyword}
+                placeholder='搜索跑腿订单'
+                onInput={handleSearchInput}
+                onSearch={handleSearch}
+                onClear={handleClearSearch}
+              />
+            </View>
+            <View className={styles.publishButton} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/errands/publish/index' })}>
+              <Text className={styles.plusIcon}>+</Text>
+              <Text>发布需求</Text>
+            </View>
+          </View>
           <FilterTabs />
 
           {/* 任务列表 */}

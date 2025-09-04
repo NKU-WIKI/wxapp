@@ -82,16 +82,7 @@ export default function ExplorePage() {
     }
   }, [dispatch, isSearchActive, isLoggedIn]);
 
-  // 调试信息
-  useEffect(() => {
-    // console.log('Explore页面状态:', {
-    //   isSearchActive, 
-    //   isLoggedIn, 
-    //   notesCount: notes.length, 
-    //   loading, 
-    //   hasMore 
-    // });
-  }, [isSearchActive, isLoggedIn, notes.length, loading, hasMore]);
+
 
   // 处理加载更多笔记
   const handleLoadMore = () => {

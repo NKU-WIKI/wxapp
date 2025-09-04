@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import activityApi from "@/services/api/activity";
 import { ActivityRead, ActivityType } from "@/types/api/activity.d";
 import CustomHeader from "@/components/custom-header";
+import ActionBar from "@/components/action-bar";
 import styles from "./index.module.scss";
 
 export default function ActivityDetail() {
@@ -58,7 +59,7 @@ export default function ActivityDetail() {
           confirmText: '去登录',
           success: (res) => {
             if (res.confirm) {
-              Taro.navigateTo({ url: '/pages/auth/login/index' });
+              Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
             }
           }
         });
@@ -246,21 +247,28 @@ export default function ActivityDetail() {
             </View>
           )}
 
-          {/* 活动统计 */}
-          <View className={styles.activityStats}>
-            <View className={styles.statItem}>
-              <Text className={styles.statValue}>{activity.view_count}</Text>
-              <Text className={styles.statLabel}>浏览</Text>
-            </View>
-            <View className={styles.statItem}>
-              <Text className={styles.statValue}>{activity.favorite_count}</Text>
-              <Text className={styles.statLabel}>收藏</Text>
-            </View>
-            <View className={styles.statItem}>
-              <Text className={styles.statValue}>{activity.share_count}</Text>
-              <Text className={styles.statLabel}>分享</Text>
-            </View>
-          </View>
+        {/* 活动统计 */}
+        <View className={styles.activityStats}>
+          <ActionBar buttons={[
+            {
+              icon: '/assets/eye.svg',
+              text: activity.view_count,
+              className: styles.statItem,
+            },
+            {
+              icon: '/assets/heart-outline.svg',
+              text: activity.favorite_count,
+              className: styles.statItem,
+            },
+            {
+              icon: '/assets/share.svg',
+              text: activity.share_count,
+              className: styles.statItem,
+            }
+          ]}
+            className={styles.statsBar}
+          />
+        </View>
 
           {/* 报名按钮 - 放在主卡片内 */}
           <View className={styles.actionContainer}>

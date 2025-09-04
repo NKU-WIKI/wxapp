@@ -108,8 +108,8 @@ const RatingDetailPage = () => {
         setRatings(ratingsData)
         
         // 检查当前用户是否已经评过分
-        if (isLoggedIn && userState.currentUser?.user_id) {
-          const existingRating = ratingsData.find(rating => rating.rater_id === userState.currentUser?.user_id);
+        if (isLoggedIn && userState.currentUser?.id) {
+          const existingRating = ratingsData.find(rating => rating.rater_id === userState.currentUser?.id);
           if (existingRating) {
             console.log('👤 [loadData] 发现用户已有评分:', existingRating.score, '分');
             setUserExistingRating(existingRating);
@@ -255,21 +255,6 @@ const RatingDetailPage = () => {
 
   // 提交评分
   const handleSubmitRating = async () => {
-    if (!isLoggedIn) {
-      Taro.showModal({
-        title: '需要登录',
-        content: '请先登录后发布评分',
-        confirmText: '去登录',
-        cancelText: '取消',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' })
-          }
-        }
-      })
-      return
-    }
-
     if (userRating === 0) {
       Taro.showToast({
         title: '请选择评分',
@@ -440,14 +425,13 @@ const RatingDetailPage = () => {
         )}
 
         {/* 用户评分表单 */}
-        {isLoggedIn && (
-          <View className={styles.userRatingForm}>
-            <Text className={styles.sectionTitle}>
-              {userExistingRating ? '更新评价' : '写评价'}
-            </Text>
-            {userExistingRating && (
-              <Text className={styles.updateHint}>您已评过分，可以更新您的评价</Text>
-            )}
+        <View className={styles.userRatingForm}>
+          <Text className={styles.sectionTitle}>
+            {userExistingRating ? '更新评价' : '写评价'}
+          </Text>
+          {userExistingRating && (
+            <Text className={styles.updateHint}>您已评过分，可以更新您的评价</Text>
+          )}
             
             <View className={styles.ratingInput}>
               <Text className={styles.ratingLabel}>评分:</Text>
@@ -491,7 +475,6 @@ const RatingDetailPage = () => {
               </Text>
             </View>
           </View>
-        )}
 
         {/* 评价列表 */}
         <View className={styles.reviewsSection}>

@@ -190,10 +190,11 @@ const NotificationPage = () => {
   const parseNotificationDisplay = (notification: NotificationRead) => {
     const senderName = notification.sender?.nickname || notification.sender?.name || '系统'
     const senderAvatar = notification.sender?.avatar || '/assets/profile.png'
-    
+    const senderId = notification.sender_id || undefined
+
     let action = ''
     let postContent = ''
-    
+
     // 根据业务类型解析动作
     if (notification.type === NotificationType._Message) {
       switch (notification.business_type) {
@@ -212,7 +213,7 @@ const NotificationPage = () => {
         default:
           action = '给你发来了消息'
       }
-      
+
       // 对于非关注类型，显示相关内容
       if (notification.business_type !== 'follow' && notification.data?.post_title) {
         postContent = notification.data.post_title
@@ -220,9 +221,10 @@ const NotificationPage = () => {
     } else {
       action = notification.title
     }
-    
+
     return {
       user: senderName,
+      user_id: senderId,
       avatar: senderAvatar,
       action,
       post: postContent,

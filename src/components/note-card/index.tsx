@@ -3,6 +3,7 @@ import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { normalizeImageUrl } from '@/utils/image';
 import { NoteListItem } from '@/services/api/note';
+import AuthorInfo from '@/components/author-info';
 import styles from './index.module.scss';
 
 interface NoteCardProps {
@@ -19,10 +20,13 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
     if (onClick) {
       onClick();
     } else {
-      // 默认跳转到笔记详情页面
-      Taro.navigateTo({
-        url: `/pages/subpackage-interactive/note-detail/index?id=${note.id}`
-      });
+      const userId = note.user?.id;
+      const url = userId 
+        ? `/pages/subpackage-interactive/note-detail/index?id=${note.id}&userId=${userId}`
+        : `/pages/subpackage-interactive/note-detail/index?id=${note.id}`;
+      
+
+      Taro.navigateTo({ url });
     }
   };
 
@@ -63,15 +67,29 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
       </View>
 
       <View className={styles.footer}>
-        <View className={styles.author}>
-          <Image
-            src={avatarImageError ? '/assets/avatar1.png' : authorAvatar}
-            className={styles.avatar}
-            mode='aspectFill'
-            onError={() => setAvatarImageError(true)}
+        {/* 使用AuthorInfo组件获取完整的用户信息 */}
+        {note.user ? (
+          <AuthorInfo 
+            userId={note.user.id}
+            mode="compact"
+            showBio={false}
+            showFollowButton={false}
+            showStats={false}
+            showLevel={false}
+            showLocation={false}
+            showTime={false}
           />
-          <Text className={styles.authorName}>{note.author_name || '匿名用户'}</Text>
-        </View>
+        ) : (
+          <View className={styles.author}>
+            <Image
+              src={avatarImageError ? '/assets/avatar1.png' : authorAvatar}
+              className={styles.avatar}
+              mode='aspectFill'
+              onError={() => setAvatarImageError(true)}
+            />
+            <Text className={styles.authorName}>{note.author_name || '匿名用户'}</Text>
+          </View>
+        )}
         <View className={styles.likeInfo}>
           <Text className={styles.likeCount}>{note.like_count}</Text>
           <Text className={styles.likeIcon}>♥</Text>

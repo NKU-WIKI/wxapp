@@ -10,8 +10,8 @@
   align-items: center;
   background-color: $bg-input;
   border-radius: 18px;
-  padding: 8px 12px;
-  margin: 16px 16px 8px 16px;
+  padding: 6px 12px; // 从 8px 减少到 6px
+  margin: 12px 16px 6px 16px; // 减少上下边距
 }
 
 .searchIcon {

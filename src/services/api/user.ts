@@ -4,7 +4,6 @@ import {
   CreateViewHistoryRequest,
   HistoryList,
   GetHistoryParams,
-  CurrentUser,
   User,
 } from "@/types/api/user";
 import { Post } from "@/types/api/post.d";
@@ -17,7 +16,7 @@ import http from "../request";
  * @returns
  */
 export const getMe = () => {
-  return http.get<CurrentUser>("/users/me");
+  return http.get<User>("/users/me");
 };
 
 /**

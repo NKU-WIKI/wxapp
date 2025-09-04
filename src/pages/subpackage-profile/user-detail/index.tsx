@@ -7,7 +7,9 @@ import { getActionStatus, getUserPostCount, getUserFollowersCount, getUserFollow
 import { followAction } from '../../../services/api/followers';
 import { BBSNotificationHelper } from '../../../utils/notificationHelper';
 import CustomHeader from '../../../components/custom-header';
-import { normalizeImageUrl } from '../../../utils/image';
+import AuthorInfo from '../../../components/author-info';
+import ActionBar from '../../../components/action-bar';
+import { ActionButtonProps } from '../../../components/action-button';
 import styles from './index.module.scss';
 
 const UserDetail: React.FC = () => {
@@ -198,21 +200,14 @@ const UserDetail: React.FC = () => {
       <CustomHeader title='用户资料' />
       
       <View className={styles.content}>
-        <View className={styles.userInfo}>
-          <Image 
-            src={normalizeImageUrl(targetUser.avatar) || '/assets/placeholder.jpg'} 
-            className={styles.avatar}
-          />
-          <View className={styles.userDetails}>
-            <Text className={styles.nickname}>{targetUser.nickname}</Text>
-            <View className={styles.levelBadge}>
-              <Text>Lv.{targetUser.level || 1}</Text>
-            </View>
-            {targetUser.bio && (
-              <Text className={styles.bio}>{targetUser.bio}</Text>
-            )}
-          </View>
-        </View>
+        <AuthorInfo
+          userId={targetUser.id}
+          mode='expanded'
+          showStats={true}
+          showFollowButton={true}
+          showBio={true}
+          showLevel={true}
+        />
 
         <View className={styles.stats}>
           <View className={styles.statItem}>
@@ -229,16 +224,16 @@ const UserDetail: React.FC = () => {
           </View>
         </View>
 
-        <View className={styles.actions}>
-          <Button 
-            className={`${styles.followButton} ${isFollowing ? styles.following : ''}`}
-            onClick={handleFollow}
-            loading={followLoading}
-            disabled={followLoading}
-          >
-            {isFollowing ? '已关注' : '关注'}
-          </Button>
-        </View>
+        {/* 保留原有的关注逻辑，但使用 ActionBar 统一样式 */}
+        <ActionBar buttons={[
+          {
+            icon: isFollowing ? '/assets/user-check.svg' : '/assets/user-plus.svg',
+            text: isFollowing ? '已关注' : '关注',
+            onClick: handleFollow,
+            className: `${styles.followAction} ${isFollowing ? styles.following : ''}`,
+            isActive: isFollowing,
+          }
+        ]} className={styles.actions} />
       </View>
     </View>
   );

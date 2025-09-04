@@ -42,7 +42,8 @@ export default function LoginPage() {
       if (redirectUrl) {
         // 如果有重定向URL，根据URL类型选择跳转方式
         if (redirectUrl.startsWith('/pages/')) {
-          Taro.navigateTo({ url: redirectUrl });
+          // 使用 redirectTo 替换当前登录页面，避免页面栈问题
+          Taro.redirectTo({ url: redirectUrl });
         } else {
           Taro.switchTab({ url: redirectUrl });
         }

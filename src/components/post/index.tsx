@@ -1,16 +1,19 @@
 import { View, Text, Image, ITouchEvent } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { showToast } from '@/utils/ui';
 import { Post as PostData } from "@/types/api/post.d";
-import { formatRelativeTime } from "@/utils/time";
-import { normalizeImageUrl, normalizeImageUrls } from '@/utils/image';
+
+import { normalizeImageUrls } from '@/utils/image';
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { deletePost } from '@/store/slices/postSlice';
 import { toggleAction } from '@/store/slices/actionSlice';
 import { BBSNotificationHelper } from '@/utils/notificationHelper';
+import AuthorInfo from '@/components/author-info';
+import ActionBar from '@/components/action-bar';
+import { ActionButtonProps } from '@/components/action-button';
 
 // 引入所有需要的图标
 import heartIcon from "@/assets/heart-outline.svg";
@@ -20,9 +23,9 @@ import starIcon from "@/assets/star-outline.svg";
 import starActiveIcon from "@/assets/star-filled.svg";
 import sendIcon from "@/assets/send.svg";
 import shareIcon from "@/assets/share.svg";
-import moreIcon from "@/assets/more-horizontal.svg";
+
 import locationIcon from "@/assets/map-pin.svg";
-import profileIcon from "@/assets/profile.svg"; // 匿名用户头像
+
 
 import styles from "./index.module.scss";
 
@@ -50,37 +53,16 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   const lastActionTimeRef = useRef<number>(0);
   const userState = useSelector((state: RootState) => state.user);
   const postState = useSelector((state: RootState) => state.post);
-  const [localFollowStatus, setLocalFollowStatus] = useState<boolean | null>(null);
+  const userInfo = userState?.user || null;
   
-  // 获取登录状态
-  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
-
-  // 提前声明avatar相关的状态，避免条件调用
-  const [avatarSrc, setAvatarSrc] = useState<string>('');
-  const [authorLevel, setAuthorLevel] = useState<number | null>(null);
-
-  // 提前声明currentUser相关的变量，用于useEffect
-  const userInfo = userState?.currentUser || userState?.userProfile || null; // 优先使用currentUser，其次使用userProfile
-  
-  // 获取用户ID（兼容两种类型）
   const getCurrentUserId = () => {
     if (!userInfo) return '';
-    // CurrentUser 使用 user_id，User 使用 id
-    return (userInfo as any).user_id || (userInfo as any).id || '';
+    return (userInfo as any).id || '';
   };
   
-  // 获取用户昵称（兼容两种类型）
-  const getCurrentUserNickname = () => {
-    if (!userInfo) return '用户';
-    return userInfo.nickname || (userInfo as any).name || '用户';
-  };
-  
-  // 获取用户角色（兼容两种类型）
+  // 获取用户角色
   const getCurrentUserRole = () => {
     if (!userInfo) return null;
-    // CurrentUser 使用 roles 数组，User 可能有 role 字段
-    const roles = (userInfo as any).roles;
-    if (Array.isArray(roles) && roles.includes('admin')) return 'admin';
     return (userInfo as any).role || null;
   };
   const posts = postState?.list || [];
@@ -88,49 +70,16 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   const displayPost = { ...(postFromList || {}), ...post } as PostData;
   const author = displayPost.user || displayPost.author_info;
   const isAnonymous = displayPost.is_public === false;
-  const anonymousUser = {
-    nickname: '匿名用户',
-    avatar: profileIcon,
-    bio: '',
-    level: displayPost.user?.level || 0
-  };
-  const currentUser = isAnonymous ? anonymousUser : author;
-
-  useEffect(() => {
-    if (post) {
-      setAvatarSrc(normalizeImageUrl(currentUser?.avatar || '') || DEFAULT_AVATAR);
-    }
-  }, [currentUser?.avatar, setAvatarSrc, post]);
-
-  // 获取发帖人的等级信息
-  useEffect(() => {
-    // 由于后端没有提供获取其他用户详细信息的API，我们使用帖子数据中的用户信息
-    // 如果帖子数据中没有等级信息，使用默认等级1
-    if (!isAnonymous && author) {
-      setAuthorLevel(author.level || 1);
-    } else {
-      // 匿名用户使用默认等级
-      setAuthorLevel(1);
-    }
-  }, [author, isAnonymous]);
 
   if (!post) {
     return null;
   }
 
-    const DEBOUNCE_DELAY = 500;
-  const DEFAULT_AVATAR = '/assets/avatar1.png';
-
-  // 初始化avatar状态
-  if (avatarSrc === '') {
-    setAvatarSrc(normalizeImageUrl(currentUser?.avatar || '') || DEFAULT_AVATAR);
-  }
-  
+  const DEBOUNCE_DELAY = 500;
   // 直接从 displayPost 获取状态，不使用本地状态管理
   const isLiked = displayPost.is_liked === true;
   const isFavorited = displayPost.is_favorited === true;
-  // 关注状态：优先使用本地状态，其次使用传入的状态
-  const isFollowing = localFollowStatus !== null ? localFollowStatus : (displayPost.is_following_author === true);
+
   
   // 直接从 displayPost 获取计数，不使用本地状态管理
   const likeCount = Math.max(0, displayPost.like_count || 0);
@@ -139,30 +88,9 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   
   // 解析图片
   const getImages = () => {
-    // 优先使用新版字段 images: string[]
     if (Array.isArray((displayPost as any).images)) {
       return normalizeImageUrls((displayPost as any).images as string[]);
-    }
-    // 其次兼容 image_urls: string[]
-    if (Array.isArray((displayPost as any).image_urls)) {
-      return normalizeImageUrls((displayPost as any).image_urls as string[]);
-    }
-    // 兼容旧版 image: string | string[] | json-string
-    const legacy = (displayPost as any).image;
-    if (legacy) {
-      if (typeof legacy === 'string') {
-        try {
-          const parsed = JSON.parse(legacy);
-          return Array.isArray(parsed) ? normalizeImageUrls(parsed) : [];
-        } catch {
-          return [];
-        }
-      }
-      if (Array.isArray(legacy)) {
-        return normalizeImageUrls(legacy);
-      }
-    }
-    return [];
+    }else return [];
   };
   
   const images = getImages();
@@ -176,29 +104,11 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       return s;
     };
 
-    // 新版字段 tags: string[] | TagRead[]
     const tagsAny = (displayPost as any).tags;
     if (Array.isArray(tagsAny)) {
       const out = tagsAny.map(normalize).filter((t) => t.length > 0);
       return out;
-    }
-
-    // 兼容旧版字段 tag: string | string[] | json-string
-    const legacy = (displayPost as any).tag;
-    if (Array.isArray(legacy)) {
-      return legacy.map(normalize).filter((t: string) => t.length > 0);
-    }
-    if (legacy && typeof legacy === 'string') {
-      try {
-        const parsed = JSON.parse(legacy);
-        return Array.isArray(parsed)
-          ? parsed.map(normalize).filter((t: string) => t.length > 0)
-          : [];
-      } catch {
-        return [];
-      }
-    }
-    return [];
+    }else return [];
   };
   
   const tags = getTags();
@@ -227,108 +137,6 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
     if (enableNavigation && mode === 'list') {
       Taro.navigateTo({ url: `/pages/subpackage-interactive/post-detail/index?id=${displayPost.id}` });
     }
-  };
-  
-  // 跳转到用户资料页
-  const navigateToProfile = (e) => {
-    e.stopPropagation();
-    if (!author) return;
-    
-    if (author.id === getCurrentUserId()) {
-      Taro.switchTab({ url: '/pages/profile/index' });
-    } else {
-      // 传递用户信息到用户详情页
-      const userParams = {
-        userId: author.id,
-        nickname: encodeURIComponent(author.nickname || '未知用户'),
-        avatar: author.avatar || '',
-        bio: encodeURIComponent(author.bio || ''),
-        level: author.level || 1,
-        follower_count: author.follower_count || 0,
-        following_count: author.following_count || 0,
-        post_count: author.post_count || 0,
-      };
-      
-      const queryString = Object.entries(userParams)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('&');
-        
-      Taro.navigateTo({ 
-        url: `/pages/subpackage-profile/user-detail/index?${queryString}` 
-      });
-    }
-  };
-  
-  // 处理关注按钮点击
-  const handleFollowClick = (e: any) => {
-    e.stopPropagation();
-    
-    // 如果未登录，弹出登录提示
-    if (!isLoggedIn) {
-      Taro.showModal({
-        title: '需要登录',
-        content: '请先登录后再关注用户',
-        confirmText: '去登录',
-        cancelText: '返回',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-          }
-        }
-      });
-      return;
-    }
-    
-    if (!checkAuth() || !author) return;
-    
-    dispatch(toggleAction({
-      target_id: author.id,
-      target_type: 'user',
-      action_type: 'follow'
-    })).then((result: any) => {
-      if (result.payload && result.payload.is_active !== undefined) {
-        
-        
-        // 更新本地关注状态
-        setLocalFollowStatus(result.payload.is_active);
-        
-        // 如果操作成功且状态变为激活（关注），创建通知
-        if (result.payload.is_active && getCurrentUserId() !== author?.id) {
-          
-          
-          BBSNotificationHelper.handleFollowNotification({
-            targetUserId: author.id,
-            currentUserId: getCurrentUserId(),
-            currentUserNickname: getCurrentUserNickname(),
-            isFollowing: result.payload.is_active
-          }).then(() => {
-            
-          }).catch((_error) => {
-            // 忽略关注操作错误
-          });
-        } else {
-          
-        }
-      }
-    }).catch(error => {
-      
-      if (error.statusCode === 401) {
-        Taro.showModal({
-          title: '登录已过期',
-          content: '请重新登录后重试',
-          success: (res) => {
-            if (res.confirm) {
-              Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-            }
-          }
-        });
-      } else {
-        Taro.showToast({
-          title: '操作失败，请重试',
-          icon: 'none'
-        });
-      }
-    });
   };
   
   // 删除帖子逻辑
@@ -367,12 +175,12 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   };
   
   // 处理点赞、收藏、关注等动作
-  const handleActionClick = (e, actionType: 'like' | 'favorite' | 'follow' | 'share' | 'delete' | 'comment') => {
+  const handleActionClick = (e, actionType: 'like' | 'favorite' | 'share' | 'comment') => {
     e.stopPropagation();
     
     // 防抖动机制
     const currentTime = Date.now();
-    if (actionType === 'like' || actionType === 'favorite' || actionType === 'follow') {
+    if (actionType === 'like' || actionType === 'favorite') {
       if (isActionLoading) {
         Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
         return;
@@ -470,36 +278,9 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           setIsActionLoading(false);
         });
         break;
-      case 'follow':
-        // 使用独立的 handleFollowClick 处理关注逻辑，避免重复代码
-        handleFollowClick(e);
-        break;
-      case 'delete':
-        handleDeletePost();
-        break;
     }
   };
-  
-  // 渲染动作按钮
-  const ActionButton = ({ icon, activeIcon, count, isActive, action, showText = false }) => {
-    let iconSrc = icon;
-    if (isActive && activeIcon) {
-      iconSrc = activeIcon;
-    }
-    
-    return (
-      <View className={styles.actionButton} onClick={(e) => handleActionClick(e, action)}>
-        <Image
-          src={iconSrc}
-          className={`${styles.actionIcon} ${isActive ? styles.activeIcon : ''}`}
-        />
-        <Text className={`${styles.actionCount} ${isActive ? styles.active : ''}`}>
-          {showText && action === 'share' ? '分享' : count}
-        </Text>
-      </View>
-    );
-  };
-  
+
   // 预览图片
   const previewImage = (currentImage: string) => {
     Taro.previewImage({
@@ -510,64 +291,49 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   
   // 判断是否可以删除
   const canDelete = getCurrentUserId() === author?.id || getCurrentUserRole() === 'admin';
-  
+
+  const actionBarButtons: ActionButtonProps[] = [
+    {
+      icon: heartIcon,
+      activeIcon: heartActiveIcon,
+      text: likeCount,
+      isActive: isLiked,
+      onClick: (e) => handleActionClick(e, 'like'),
+      className: isLiked ? styles.active : '',
+    },
+    {
+      icon: commentIcon,
+      text: commentCount,
+      onClick: (e) => handleActionClick(e, 'comment'),
+    },
+    {
+      icon: starIcon,
+      activeIcon: starActiveIcon,
+      text: favoriteCount,
+      isActive: isFavorited,
+      onClick: (e) => handleActionClick(e, 'favorite'),
+      className: isFavorited ? styles.active : '',
+    },
+  ];
+
   return (
     <View className={`${styles.postContainer} ${styles[mode]} ${className}`}>
 
-      
+
       {/* 用户信息区域 */}
       <View className={styles.userInfo}>
-        <View className={styles.authorInfo} onClick={isAnonymous ? undefined : navigateToProfile}>
-          <Image
-            src={avatarSrc}
-            className={styles.avatar}
-            mode='aspectFill'
-            onError={() => setAvatarSrc(DEFAULT_AVATAR)}
-          />
-          <View className={styles.authorDetails}>
-            <View className={styles.authorMainRow}>
-              <Text className={styles.authorName}>{currentUser?.nickname || '匿名'}</Text>
-              <View className={styles.levelBadge}>
-                <Text>Lv.{authorLevel || currentUser?.level || 1}</Text>
-              </View>
-              {getCurrentUserId() !== author?.id && mode === 'detail' && !isAnonymous && (
-                <View
-                  className={`${styles.followButton} ${isLoggedIn && isFollowing ? styles.followed : ''}`}
-                  onClick={handleFollowClick}
-                >
-                  <Text>{isLoggedIn && isFollowing ? '已关注' : '+关注'}</Text>
-                </View>
-              )}
-            </View>
-            {mode === 'list' && !isAnonymous && <Text className={styles.authorBio}>{currentUser?.bio || ''}</Text>}
-            {mode === 'detail' && (
-              <Text className={styles.meta}>
-                {formatRelativeTime((displayPost as any).created_at || displayPost.create_time)}
-              </Text>
-            )}
-          </View>
-        </View>
-        
-        <View className={styles.headerActions}>
-          {mode === 'list' && getCurrentUserId() !== author?.id && !isAnonymous && (
-            <View
-              className={`${styles.followButton} ${isLoggedIn && isFollowing ? styles.followed : ''}`}
-              onClick={handleFollowClick}
-            >
-              <Text>{isLoggedIn && isFollowing ? '已关注' : '关注'}</Text>
-            </View>
-          )}
-          {mode === 'list' && (
-            <Text className={styles.postTime}>
-              {formatRelativeTime((displayPost as any).created_at || displayPost.create_time)}
-            </Text>
-          )}
-          {canDelete && (
-            <View className={styles.moreButton} onClick={(e: ITouchEvent) => handleActionClick(e, 'delete')}>
-              <Image src={moreIcon} className={styles.moreIcon} />
-            </View>
-          )}
-        </View>
+        <AuthorInfo
+          userId={author?.id || ''}
+          mode='compact'
+          showBio={mode === 'list' && !isAnonymous}
+          showFollowButton={getCurrentUserId() !== author?.id && !isAnonymous}
+          showStats={false}
+          showLevel
+          showTime={mode === 'list'}
+          createTime={mode === 'list' ? ((displayPost as any).created_at || displayPost.create_time) : undefined}
+          showMoreButton={canDelete}
+          onMoreClick={handleDeletePost}
+        />
       </View>
 
       {/* 标题部分 - 仅详情态显示 */}
@@ -635,29 +401,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       
       {/* 底部操作栏 */}
       <View className={styles.footer}>
-        <View className={styles.actions}>
-          <ActionButton
-            icon={heartIcon}
-            activeIcon={heartActiveIcon}
-            count={likeCount}
-            isActive={isLiked}
-            action='like'
-          />
-          <ActionButton
-            icon={commentIcon}
-            activeIcon={commentIcon}
-            count={commentCount}
-            isActive={false}
-            action='comment'
-          />
-          <ActionButton
-            icon={starIcon}
-            activeIcon={starActiveIcon}
-            count={favoriteCount}
-            isActive={isFavorited}
-            action='favorite'
-          />
-        </View>
+        <ActionBar buttons={actionBarButtons} className={styles.actions} />
         <View
           className={styles.shareIcon}
           onClick={(e) => handleActionClick(e, "share")}

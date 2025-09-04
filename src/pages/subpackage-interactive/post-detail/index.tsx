@@ -9,6 +9,7 @@ import { CommentDetail } from '@/types/api/comment';
 import CustomHeader from '@/components/custom-header';
 import Post from '@/components/post';
 import { addHistoryWithServerSync } from '@/utils/history';
+import { normalizeImageUrl } from '@/utils/image';
 import commentApi from '@/services/api/comment';
 import CommentSection from './components/CommentSection';
 import BottomInput from './components/BottomInput';
@@ -65,7 +66,7 @@ const PostDetailPage = () => {
       
       // 获取头像：优先使用 user.avatar，兼容 author_info.avatar
       const author = post.user || post.author_info;
-      const avatarUrl = author?.avatar || '';
+      const avatarUrl = normalizeImageUrl(author?.avatar) || '';
       
       // 获取时间：优先使用 created_at，兼容 create_time，如果没有则使用当前时间
       const createTime = post.created_at || post.create_time || new Date().toISOString();
@@ -256,14 +257,7 @@ const PostDetailPage = () => {
 
   // 渲染内容
   const renderContent = () => {
-    // console.log('🔍 渲染内容状态:', {
-    //   postState,
-    //   commentState,
-    //   postId,
-    //   detailLoading: postState?.detailLoading,
-    //   currentPost: postState?.currentPost,
-    //   comments: commentState?.comments
-    // });
+
 
     // 正在加载中，显示加载状态
     if (postState?.detailLoading === 'pending') {

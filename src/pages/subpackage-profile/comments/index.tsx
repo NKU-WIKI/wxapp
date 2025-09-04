@@ -5,10 +5,10 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { getMyComments } from '@/services/api/user';
 import { getPostByIdSilent } from '@/services/api/post';
-import { formatRelativeTime } from '@/utils/time';
 import { CommentRead } from '@/types/api/comment.d';
 import { Post } from '@/types/api/post.d';
 import EmptyState from '@/components/empty-state';
+import AuthorInfo from '@/components/author-info';
 import messageSquareIcon from '@/assets/message-square.svg';
 import arrowLeftIcon from '@/assets/arrow-left.svg';
 import styles from './index.module.scss';
@@ -79,12 +79,24 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
 
   return (
     <View className={styles.commentItem} onClick={handleNavigateToContent}>
+      {/* 评论用户信息 */}
+      <AuthorInfo
+        userId={comment.user_id}
+        mode='compact'
+        showBio={false}
+        showFollowButton={false}
+        showStats={false}
+        showLevel={true}
+        showLocation={false}
+        showTime={true}
+        createTime={comment.created_at}
+      />
+
       <View className={styles.commentContent}>
         <Text className={styles.contentText}>{comment.content}</Text>
       </View>
-      
+
       <View className={styles.commentMeta}>
-        <Text className={styles.metaTime}>{formatRelativeTime(comment.created_at)}</Text>
         <Text className={styles.metaLikes}>{comment.likes_count || 0} 赞</Text>
         {comment.replies_count_immediate > 0 && (
           <Text className={styles.metaReplies}>{comment.replies_count_immediate} 回复</Text>
@@ -100,7 +112,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
             {getResourceAuthor()}
           </Text>
         </View>
-        
+
         <Text className={styles.resourceTitle}>
           评论于 {comment.resource_type === 'post' ? '帖子' : '笔记'}: {getResourceTitle()}
         </Text>

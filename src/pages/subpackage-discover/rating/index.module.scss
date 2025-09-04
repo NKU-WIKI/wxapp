@@ -340,3 +340,33 @@
   font-size: 14px;
   font-weight: 500;
 }
+
+/* 悬浮发布按钮 */
+.floatingButton {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  background-color: $theme-primary;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 100;
+
+  &:active {
+    background-color: $theme-primary-dark;
+    transform: scale(0.95);
+  }
+}
+
+.floatingButtonText {
+  color: white;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1;
+}

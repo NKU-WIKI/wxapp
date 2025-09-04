@@ -1,0 +1,27 @@
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Use gap for spacing between icon and text, same as post component */
+  color: #666;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  /* Provide a subtle feedback on press */
+  &:hover, &:active {
+    background-color: #F3F4F6;
+  }
+}
+
+.icon {
+  /* A default size, can be overridden by iconClassName */
+  width: 20px;
+  height: 20px;
+  vertical-align: middle; /* Ensure proper alignment with text */
+}
+
+.text {
+  /* A default size, can be overridden by textClassName */
+  font-size: 13px;
+  line-height: 1; /* Prevent extra vertical space */
+}

@@ -1,16 +1,17 @@
 // Third-party imports
 import { useState, useEffect, useCallback } from 'react'
-import { View, Text, ScrollView, Input } from '@tarojs/components'
+import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 // Absolute imports (alphabetical order)
-import { AppDispatch, RootState } from '@/store'
+import { AppDispatch } from '@/store'
 import { setCurrentCategory } from '@/store/slices/ratingSlice'
 import { getResourceList } from '@/services/api/rating'
 import { RatingCategory } from '@/types/api/rating.d'
 import CustomHeader from '@/components/custom-header'
 import AuthFloatingButton from '@/components/auth-floating-button'
+import SearchBar from '@/components/search-bar'
 
 // Relative imports
 import RatingItem from './components/RatingItem'
@@ -18,11 +19,11 @@ import styles from './index.module.scss'
 
 const RatingPage = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { isLoggedIn } = useSelector((state: RootState) => state.user)
   const [currentCategory, setCurrentCategoryState] = useState<RatingCategory>(RatingCategory.Course)
   const [resources, setResources] = useState<any[]>([])
   const [filteredResources, setFilteredResources] = useState<any[]>([])
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]) // 用于高亮的关键词列表
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -39,15 +40,6 @@ const RatingPage = () => {
 
   // 加载资源列表
   const loadResources = useCallback(async (category: RatingCategory) => {
-    // 检查登录状态
-    if (!isLoggedIn) {
-      setError('请先登录后查看评分内容')
-      setResources([])
-      setFilteredResources([])
-      setLoading(false)
-      return
-    }
-
     try {
       setLoading(true)
       setError(null)
@@ -93,22 +85,46 @@ const RatingPage = () => {
     } finally {
       setLoading(false)
     }
-  }, [isLoggedIn])
+  }, [])
 
-  // 搜索功能
-  const handleSearch = (keyword: string) => {
+  // 处理搜索输入
+  const handleSearchInput = useCallback((e: any) => {
+    const keyword = e.detail.value
     setSearchKeyword(keyword)
+
+    // 实时搜索
     if (!keyword.trim()) {
       setFilteredResources(resources)
+      setSearchKeywords([])
     } else {
-      const filtered = resources.filter(resource => 
+      const filtered = resources.filter(resource =>
         resource.resource_name?.toLowerCase().includes(keyword.toLowerCase().trim()) ||
         resource.title?.toLowerCase().includes(keyword.toLowerCase().trim()) ||
         resource.name?.toLowerCase().includes(keyword.toLowerCase().trim())
       )
       setFilteredResources(filtered)
+
+      // 设置关键词用于高亮
+      const keywords = keyword.trim().split(/\s+/).filter(k => k.length > 0)
+      setSearchKeywords(keywords)
     }
-  }
+  }, [resources])
+
+  // 处理搜索确认
+  const handleSearchConfirm = useCallback(() => {
+    if (!searchKeyword.trim()) return
+
+    // 这里可以添加更复杂的搜索逻辑
+    const keywords = searchKeyword.trim().split(/\s+/).filter(k => k.length > 0)
+    setSearchKeywords(keywords)
+  }, [searchKeyword])
+
+  // 清空搜索
+  const handleClearSearch = useCallback(() => {
+    setSearchKeyword('')
+    setSearchKeywords([])
+    setFilteredResources(resources)
+  }, [resources])
 
   // 监听resources变化，同时更新filteredResources
   useEffect(() => {
@@ -129,7 +145,7 @@ const RatingPage = () => {
     if (currentCategory) {
       loadResources(currentCategory)
     }
-  }, [currentCategory, isLoggedIn, loadResources])
+  }, [currentCategory, loadResources])
 
   // 切换分类
   const handleCategoryChange = (categoryId: RatingCategory) => {
@@ -173,24 +189,14 @@ const RatingPage = () => {
       
       {/* 搜索框 */}
       <View className={styles.searchContainer}>
-        <View className={styles.searchBox}>
-          <View className={styles.searchIcon}>🔍</View>
-          <Input
-            className={styles.searchInput}
-            placeholder='搜索评分内容标题...'
-            value={searchKeyword}
-            onInput={(e) => handleSearch(e.detail.value)}
-            confirmType='search'
-          />
-          {searchKeyword && (
-            <View 
-              className={styles.clearIcon}
-              onClick={() => handleSearch('')}
-            >
-              ✕
-            </View>
-          )}
-        </View>
+        <SearchBar
+          key='rating-search'
+          keyword={searchKeyword}
+          placeholder='搜索评分内容标题...'
+          onInput={handleSearchInput}
+          onSearch={handleSearchConfirm}
+          onClear={handleClearSearch}
+        />
       </View>
       
       {/* 分类标签栏 */}
@@ -220,29 +226,13 @@ const RatingPage = () => {
             </View>
           )}
 
-          {/* 错误状态或登录提示 */}
+          {/* 错误状态 */}
           {error && (
             <View className={styles.errorState}>
-              {error === '请先登录后查看评分内容' ? (
-                <View className={styles.loginPrompt}>
-                  <Text className={styles.loginPromptIcon}>🔒</Text>
-                  <Text className={styles.loginPromptTitle}>请先登录</Text>
-                  <Text className={styles.loginPromptDesc}>登录后可查看和发布评分内容</Text>
-                  <View 
-                    className={styles.loginPromptButton}
-                    onClick={() => {
-                      Taro.switchTab({ url: '/pages/profile/index' });
-                    }}
-                  >
-                    <Text className={styles.loginPromptButtonText}>立即登录</Text>
-                  </View>
-                </View>
-              ) : (
-                <View>
-                  <Text className={styles.errorText}>加载失败: {error}</Text>
-                  <Text className={styles.errorSubText}>请检查网络连接或稍后重试</Text>
-                </View>
-              )}
+              <View>
+                <Text className={styles.errorText}>加载失败: {error}</Text>
+                <Text className={styles.errorSubText}>请检查网络连接或稍后重试</Text>
+              </View>
             </View>
           )}
 
@@ -253,6 +243,7 @@ const RatingPage = () => {
                 key={resource.id}
                 resource={resource}
                 onItemClick={handleItemClick}
+                keywords={searchKeywords}
               />
             ))}
             
@@ -277,13 +268,13 @@ const RatingPage = () => {
         </ScrollView>
       </View>
 
-      {/* 带鉴权的悬浮发布按钮 */}
-      <AuthFloatingButton
-        variant='plus'
+      {/* 悬浮发布按钮 */}
+      <View 
+        className={styles.floatingButton}
         onClick={() => Taro.navigateTo({ url: '/pages/subpackage-discover/rating/publish/index' })}
-        loginPrompt='您需要登录后才能发布评分，是否立即前往登录页面？'
-        redirectUrl='/pages/subpackage-discover/rating/publish/index'
-      />
+      >
+        <Text className={styles.floatingButtonText}>+</Text>
+      </View>
     </View>
   )
 }

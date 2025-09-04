@@ -1,22 +1,29 @@
-import { View, ScrollView, Text, Image, Input } from "@tarojs/components";
+import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback, useMemo } from "react";
 
-import activityApi from "@/services/api/activity";
+import activityApi, { myActivity, myOrganizedActivity } from "@/services/api/activity";
 import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import CustomHeader from "@/components/custom-header";
 import AuthFloatingButton from "@/components/auth-floating-button";
-import searchIcon from "@/assets/search.svg";
+import SearchBar from "@/components/search-bar";
+import HighlightText from "@/components/highlight-text";
 
 import styles from "./index.module.scss";
 
 // eslint-disable-next-line import/no-unused-modules
 export default function ActivitySquare() {
+  const { isLoggedIn } = useSelector((state: RootState) => state.user);
+
   const [activities, setActivities] = useState<ActivityRead[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]); // 用于高亮的关键词列表
   const [selectedFilter, setSelectedFilter] = useState<string>('全部');
 
 
@@ -54,11 +61,11 @@ export default function ActivitySquare() {
         skip: 0
       };
 
-      // 根据选择的分类添加过滤条件
-      if (category && category !== '全部') {
-        // 假设后端API支持category参数
-        (params as any).category = category;
-      }
+        // 根据选择的分类添加过滤条件
+        if (category && category !== '全部' && !['我报名的', '我组织的'].includes(category)) {
+          // 假设后端API支持category参数
+          (params as any).category = category;
+        }
 
       // 根据筛选类型调用不同的API
       let res;
@@ -72,7 +79,7 @@ export default function ActivitySquare() {
         });
       } else if (currentFilter === '我发布的') {
         // 调用获取我发布的活动API
-        res = await activityApi.getMyOrganizeActivity({
+        res = await activityApi.myOrganizedActivity({
           limit: params.limit,
           skip: params.skip
         });
@@ -97,6 +104,7 @@ export default function ActivitySquare() {
           list = res.data as unknown as ActivityRead[];
         }
       }
+
       setActivities(list);
 
     } catch (err) {
@@ -108,6 +116,8 @@ export default function ActivitySquare() {
       setIsRefreshing(false);
     }
   }, [selectedFilter]);
+
+
 
   useEffect(() => {
     fetchActivities(true, selectedCategory, selectedFilter);
@@ -137,6 +147,73 @@ export default function ActivitySquare() {
     await fetchActivities(false);
   };
 
+  // 处理搜索输入
+  const handleSearchInput = useCallback((e: any) => {
+    const value = e.detail.value;
+    setSearchKeyword(value);
+
+    // 设置关键词用于高亮
+    if (value.trim()) {
+      const keywords = value.trim().split(/\s+/).filter(k => k.length > 0);
+      setSearchKeywords(keywords);
+    } else {
+      setSearchKeywords([]);
+    }
+  }, []);
+
+  // 处理搜索确认
+  const handleSearchConfirm = useCallback(() => {
+    // 本地搜索已经在filteredActivities中自动执行
+    // 这里可以添加一些用户反馈
+    if (searchKeyword.trim()) {
+      // 延迟执行以确保状态已更新
+      setTimeout(() => {
+        const keyword = searchKeyword.trim().toLowerCase();
+
+        // 根据搜索关键词过滤
+        const filtered = activities.filter(activityItem =>
+          activityItem.title?.toLowerCase().includes(keyword) ||
+          activityItem.description?.toLowerCase().includes(keyword) ||
+          activityItem.location?.toLowerCase().includes(keyword) ||
+          activityItem.category?.toLowerCase().includes(keyword) ||
+          activityItem.organizer?.nickname?.toLowerCase().includes(keyword)
+        );
+
+        // 如果有分类过滤，再次应用分类过滤
+        let finalFiltered = filtered;
+        if (selectedCategory !== '全部') {
+          finalFiltered = filtered.filter(activityItem => activityItem.category === selectedCategory);
+        }
+
+        if (finalFiltered.length === 0) {
+          Taro.showToast({
+            title: '未找到相关活动',
+            icon: 'none',
+            duration: 1500
+          });
+        } else {
+          Taro.showToast({
+            title: `找到 ${finalFiltered.length} 个相关活动`,
+            icon: 'success',
+            duration: 1500
+          });
+        }
+      }, 100);
+    }
+  }, [searchKeyword, activities, selectedCategory]);
+
+  // 清空搜索
+  const handleClearSearch = useCallback(() => {
+    setSearchKeyword('');
+    setSearchKeywords([]);
+    // 清空搜索后显示所有活动（根据当前分类）
+    Taro.showToast({
+      title: '已清空搜索',
+      icon: 'success',
+      duration: 1000
+    });
+  }, []);
+
 
   const handleActivityClick = (act: ActivityRead) => {
     // 跳转到活动详情页面
@@ -159,7 +236,7 @@ export default function ActivitySquare() {
           confirmText: '去登录',
           success: (res) => {
             if (res.confirm) {
-              Taro.navigateTo({ url: '/pages/auth/login/index' });
+              Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
             }
           }
         });
@@ -248,7 +325,25 @@ export default function ActivitySquare() {
   };
 
   const handleCategoryChange = (category: string) => {
+    // 检查用户是否登录（对于个人相关的标签）
+    if ((category === '我报名的' || category === '我组织的') && !isLoggedIn) {
+      Taro.showModal({
+        title: '提示',
+        content: '请先登录后再查看个人活动',
+        showCancel: false,
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+          }
+        }
+      });
+      return;
+    }
+
     setSelectedCategory(category);
+
+
     // 根据选择的分类重新获取活动列表
     fetchActivities(true, category, selectedFilter);
   };
@@ -259,14 +354,29 @@ export default function ActivitySquare() {
     fetchActivities(true, selectedCategory, filter);
   };
 
-  // 过滤活动列表的函数（如果后端不支持分类过滤，则在前端进行过滤）
+  // 过滤活动列表的函数（同时支持数据源、分类和搜索过滤）
   const filteredActivities = useMemo(() => {
-    if (selectedCategory === '全部') {
-      return activities;
+    let filtered = activities;
+
+    // 对于"全部"标签以外的其他分类标签进行过滤
+    if (selectedCategory !== '全部' && !['我报名的', '我组织的'].includes(selectedCategory)) {
+      filtered = filtered.filter(activityItem => activityItem.category === selectedCategory);
     }
-    // 根据活动的category字段进行过滤
-    return activities.filter(activityItem => activityItem.category === selectedCategory);
-  }, [activities, selectedCategory]);
+
+    // 根据搜索关键词过滤
+    if (searchKeyword.trim()) {
+      const keyword = searchKeyword.trim().toLowerCase();
+      filtered = filtered.filter(activityItem =>
+        activityItem.title?.toLowerCase().includes(keyword) ||
+        activityItem.description?.toLowerCase().includes(keyword) ||
+        activityItem.location?.toLowerCase().includes(keyword) ||
+        activityItem.category?.toLowerCase().includes(keyword) ||
+        activityItem.organizer?.nickname?.toLowerCase().includes(keyword)
+      );
+    }
+
+    return filtered;
+  }, [activities, selectedCategory, searchKeyword]);
 
   return (
     <View className={styles.activitySquarePage}>
@@ -276,14 +386,13 @@ export default function ActivitySquare() {
       <View className={styles.fixedHeader}>
         {/* 搜索框 */}
         <View className={styles.searchContainer}>
-          <Image src={searchIcon} className={styles.searchIcon} />
-          <Input
-            className={styles.searchInput}
+          <SearchBar
+            key='activity-square-search'
+            keyword={searchKeyword}
             placeholder='搜索活动'
-            placeholderClass={styles.searchPlaceholder}
-            onConfirm={(_e) => {
-              // 搜索活动
-            }}
+            onInput={handleSearchInput}
+            onSearch={handleSearchConfirm}
+            onClear={handleClearSearch}
           />
         </View>
 
@@ -357,7 +466,11 @@ export default function ActivitySquare() {
                   onClick={() => handleActivityClick(act)}
                 >
                   <View className={styles.activityContent}>
-                    <Text className={styles.activityTitle}>{act.title}</Text>
+                    <HighlightText
+                      text={act.title}
+                      keywords={searchKeywords}
+                      highlightStyle={{ color: '#ff4d4f', fontWeight: 'bold' }}
+                    />
                     <View className={styles.activityDetails}>
                       <View className={styles.activityDetailItem}>
                         <Image src={require("@/assets/clock.svg")} className={styles.detailIcon} />

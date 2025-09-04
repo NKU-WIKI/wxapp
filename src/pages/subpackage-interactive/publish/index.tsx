@@ -18,8 +18,8 @@ import searchApi from "@/services/api/search";
 import { uploadApi } from "@/services/api/upload";
 import { getPostDetail, getMyDrafts, deleteDraft } from "@/services/api/post";
 import { createPost } from "@/store/slices/postSlice";
-import { DraftPost } from "@/types/draft";
 import { normalizeImageUrl } from "@/utils/image";
+import { DraftPost } from "@/types/draft";
 import { saveDraft, getDrafts } from "@/utils/draft";
 import type { Post } from "@/types/api/post.d";
 

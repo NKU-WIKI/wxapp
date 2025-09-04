@@ -44,10 +44,7 @@ const RatingPublishPage = () => {
   const [isUploading, setIsUploading] = useState(false)
   
   // 获取用户状态和评分相关状态
-  const userState = useSelector((state: RootState) => state.user)
   const { createRatingLoading } = useSelector((state: RootState) => state.rating)
-  
-  const isLoggedIn = userState.isLoggedIn
 
   // 选择图片
   const handleChooseImage = () => {
@@ -73,7 +70,7 @@ const RatingPublishPage = () => {
             imageUrl = uploadResult
           } else if (uploadResult && typeof uploadResult === 'object') {
             // 处理各种可能的响应格式
-            imageUrl = uploadResult.url || uploadResult.data?.url || uploadResult.data || ''
+            imageUrl = (uploadResult as any).url || (uploadResult as any).data?.url || (uploadResult as any).data || ''
           }
           
           if (imageUrl) {
@@ -130,21 +127,6 @@ const RatingPublishPage = () => {
 
   // 提交表单
   const handleSubmit = async () => {
-    if (!isLoggedIn) {
-      Taro.showModal({
-        title: '需要登录',
-        content: '请先登录后发布评分',
-        confirmText: '去登录',
-        cancelText: '取消',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' })
-          }
-        }
-      })
-      return
-    }
-
     // 表单验证
     if (!formData.resourceName.trim()) {
       Taro.showToast({ title: '请输入资源名称', icon: 'none' })

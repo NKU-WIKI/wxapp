@@ -7,9 +7,7 @@ import {
   PostJoinActivityRequest,
   PostJoinActivityResponse,
   GetMyActivityRequest,
-  GetMyActivityResponse,
-  GetMyOrganizedActivityRequest,
-  GetMyOrganizedActivityResponse
+  GetMyActivityResponse
 } from "@/types/api/activity.d";
 import http from "../request";
 
@@ -66,10 +64,15 @@ export const myActivity = (params: GetMyActivityRequest) =>{
   });
 }
 
-export const getMyOrganizeActivity = (params: GetMyOrganizedActivityRequest) =>{
+/**
+ * 获取我组织的活动
+ * @param params 查询参数
+ * @returns
+ */
+export const myOrganizedActivity = (params: GetMyActivityRequest) =>{
   const raw = Taro.getStorageSync('token');
   const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  return http.get<GetMyOrganizedActivityResponse>(`/activities/me/organized`, params, {
+  return http.get<GetMyActivityResponse>(`/activities/me/organized`, params, {
     header: token ? { Authorization: `Bearer ${token}` } : {}
   });
 }
@@ -80,7 +83,7 @@ const activityApi = {
   createActivity,
   joinActivity,
   myActivity,
-  getMyOrganizeActivity
+  myOrganizedActivity
 }
 
 export default activityApi;
