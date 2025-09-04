@@ -7,6 +7,7 @@ import type { Post as PostType } from "@/types/api/post.d";
 import { AppDispatch, RootState } from "@/store";
 import { fetchFeed, fetchForumPosts } from "@/store/slices/postSlice";
 import { useMultipleFollowStatus } from "@/hooks/useFollowStatus";
+import { getRecommendedContent, collectUserInteraction } from "@/utils/contentRecommendation";
 import CustomHeader from "@/components/custom-header";
 import PostItemSkeleton from "@/components/post-item-skeleton";
 import EmptyState from "@/components/empty-state";
@@ -158,7 +159,19 @@ export default function Home() {
       );
     }
 
-    const content = posts
+    // 根据用户设置决定帖子排序方式
+    const sortedPosts = getRecommendedContent(
+      // 默认按时间排序的帖子
+      [...posts].sort((a, b) => {
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return timeB - timeA;
+      }),
+      // 个性化推荐排序的帖子（这里简化为按点赞数排序作为示例）
+      [...posts].sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
+    );
+
+    const content = sortedPosts
       .filter((post) => post && post.id && post.user) // Changed from author_info to user
       .map((post) => {
         // 从关注状态映射中获取该作者的关注状态
@@ -170,12 +183,15 @@ export default function Home() {
           is_following_author: isFollowingAuthor
         };
         
+        // 收集用户查看行为数据
+        collectUserInteraction('view', post.id, 'post');
+        
         return (
           <Post 
             key={post.id} 
             post={postWithFollowStatus} 
             className={styles.postListItem} 
-            mode='list' 
+            mode='list'
           />
         );
       });

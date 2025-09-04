@@ -29,8 +29,6 @@
   padding: 20px;
   border-bottom: 1px solid #F0F0F0;
   background-color: $bg-card;
-  position: relative;
-  z-index: 21;
 }
 
 .icon {
@@ -142,25 +140,15 @@
   padding: 20px;
   min-height: 54px;
   background-color: $bg-card;
-  z-index: 30;
+  transition: background-color 0.2s ease;
   
-  // 确保背景完全覆盖
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: $bg-card;
-    z-index: -1;
+  &:active {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 }
 
 .toggleContent {
   flex: 1;
-  position: relative;
-  z-index: 31;
 }
 
 .toggleLabel {
@@ -177,30 +165,13 @@
 }
 
 .switch {
-  position: relative;
   transform: scale(0.8);
-  z-index: 50;
-  background-color: transparent;
 }
 
 // 字体大小选择器样式
 .fontSizeSelector {
-  position: relative;
   padding: 20px;
   background-color: $bg-card;
-  z-index: 25;
-  
-  // 确保背景完全覆盖
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: $bg-card;
-    z-index: -1;
-  }
 }
 
 .fontSizeLabel {
