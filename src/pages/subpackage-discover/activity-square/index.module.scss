@@ -16,8 +16,8 @@
   align-items: center;
   background-color: #f3f4f6;
   border-radius: 9999px;
-  padding: 8px 12px;
-  margin: 16px 16px 8px 16px; // 减少底部margin，让categories更靠近search
+  padding: 8px 12px; // 恢复为与home页面相同的8px
+  margin: 16px 16px 8px 16px; // 恢复为与home页面相同的边距
 }
 
 .searchIcon {

@@ -384,8 +384,6 @@ export default function ActivitySquare() {
 
       {/* 固定的搜索框和分类栏 */}
       <View className={styles.fixedHeader}>
-        {/* 搜索框 */}
-        <View className={styles.searchContainer}>
           <SearchBar
             key='activity-square-search'
             keyword={searchKeyword}
@@ -394,7 +392,6 @@ export default function ActivitySquare() {
             onSearch={handleSearchConfirm}
             onClear={handleClearSearch}
           />
-        </View>
 
         {/* 活动筛选选项 */}
         <ScrollView
