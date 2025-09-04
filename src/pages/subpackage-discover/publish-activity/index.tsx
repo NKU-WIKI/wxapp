@@ -40,8 +40,8 @@ export default function PublishActivity() {
 
   const requiredFilled = form.title && form.category && form.description && form.start_time && form.end_time &&
     ((form.activity_type === ActivityType.Offline && form.location) ||
-     (form.activity_type === ActivityType.Online && form.online_url) ||
-     (form.activity_type === ActivityType.Hybrid));
+      (form.activity_type === ActivityType.Online && form.online_url) ||
+      (form.activity_type === ActivityType.Hybrid));
 
   const update = useCallback(<K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -137,17 +137,17 @@ export default function PublishActivity() {
       <CustomHeader title='发布活动' hideBack={false} />
 
       <View className={styles.formItem}>
-        <Text className={styles.label}>活动标题 *</Text>
+        <Text className={styles.label}>活动标题<Text className={styles.required}>*</Text></Text>
         <Input className={styles.input} value={form.title} placeholder='例如：校园技术交流会' onInput={e => update('title', e.detail.value)} />
       </View>
 
       <View className={styles.formItem}>
-        <Text className={styles.label}>活动内容 *</Text>
+        <Text className={styles.label}>活动内容<Text className={styles.required}>*</Text></Text>
         <Textarea className={styles.textarea} value={form.description} placeholder='介绍活动目的、流程、参与要求等...' onInput={e => update('description', e.detail.value)} />
       </View>
 
       <View className={styles.formItem}>
-        <Text className={styles.label}>分类 *</Text>
+        <Text className={styles.label}>分类<Text className={styles.required}>*</Text></Text>
         <View className={styles.categorySelector}>
           {activityCategories.map(category => (
             <View
@@ -162,7 +162,7 @@ export default function PublishActivity() {
       </View>
 
       <View className={styles.formItem}>
-        <Text className={styles.label}>活动类型 *</Text>
+        <Text className={styles.label}>活动类型<Text className={styles.required}>*</Text></Text>
         <View className={styles.typeSelector}>
           {activityTypes.map(t => (
             <View
@@ -177,7 +177,7 @@ export default function PublishActivity() {
       </View>
 
       <View className={styles.formItem}>
-        <Text className={styles.label}>活动时间 *</Text>
+        <Text className={styles.label}>活动时间<Text className={styles.required}>*</Text></Text>
         <View className={styles.timeRow}>
           <View className={styles.timeItem}>
             <Text className={styles.timeLabel}>开始时间</Text>
@@ -249,8 +249,8 @@ export default function PublishActivity() {
       </View>
 
       {/* 预渲染所有输入框，通过样式控制显示/隐藏，避免条件渲染导致的闪烁 */}
-      <View className={`${styles.formItem} ${form.activity_type !== ActivityType.Offline ? styles.hidden : ''}`}>
-        <Text className={styles.label}>地点 {form.activity_type === ActivityType.Offline ? '*' : ''}</Text>
+      <View className={`${styles.formItem} ${form.activity_type === ActivityType.Online ? styles.hidden : ''}`}>
+        <Text className={styles.label}>地点{form.activity_type === ActivityType.Offline ? <Text className={styles.required}>*</Text> : ''}</Text>
         <Input
           className={styles.input}
           value={form.location}
@@ -259,8 +259,8 @@ export default function PublishActivity() {
         />
       </View>
 
-      <View className={`${styles.formItem} ${form.activity_type !== ActivityType.Online ? styles.hidden : ''}`}>
-        <Text className={styles.label}>线上链接 {form.activity_type === ActivityType.Online ? '*' : ''}</Text>
+      <View className={`${styles.formItem} ${form.activity_type === ActivityType.Offline ? styles.hidden : ''}`}>
+        <Text className={styles.label}>线上链接{form.activity_type === ActivityType.Online ? <Text className={styles.required}>*</Text> : ''}</Text>
         <Input
           className={styles.input}
           value={form.online_url}

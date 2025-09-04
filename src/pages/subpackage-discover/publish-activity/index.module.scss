@@ -22,16 +22,7 @@ $text-secondary: #64748b;
   border-radius: $card-radius;
   position: relative;
   overflow: hidden;
-  // 细微渐变装饰
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(145deg,rgba(99,102,241,0.07),rgba(79,70,229,0));
-    opacity: 0;
-    transition: opacity .35s;
-  }
-  &:hover::before { opacity: 1; }
+  // 移除所有渐变装饰和过渡动画以避免闪烁
 }
 
 .label {
@@ -44,15 +35,13 @@ $text-secondary: #64748b;
   align-items: center;
   gap: 8rpx;
   position: relative;
-  // 左侧色条
-  &::before {
-    content: '';
-    width: 8rpx;
-    height: 28rpx;
-    border-radius: 4rpx;
-    background: $primary-grad;
-    display: inline-block;
-  }
+  // 移除左侧蓝色竖线
+}
+
+// 必填项星号样式
+.required {
+  color: #ff4757;
+  margin-left: 4rpx;
 }
 
 .input, .textarea, .picker, .selector {
@@ -65,13 +54,14 @@ $text-secondary: #64748b;
   min-height: 76rpx;
   width: 100%;
   box-sizing: border-box;
-  // 移除过渡动画以避免闪烁
-  // transition: border-color .25s, box-shadow .25s, background-color .25s;
-  box-shadow: inset 0 0 0 0 transparent;
+  // 移除过渡动画和焦点效果以避免闪烁
+  box-shadow: none;
   &:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 6rpx rgba(99,102,241,0.15), 0 2rpx 6rpx rgba(30,41,59,0.06);
+    // 移除焦点时的蓝色效果
+    border-color: #e2e8f0;
+    box-shadow: none;
     background: #ffffff;
+    outline: none;
   }
   &::placeholder {
     color: #94a3b8;
@@ -107,22 +97,16 @@ $text-secondary: #64748b;
   background: rgba(255, 255, 255, 0.6);
   position: relative;
   overflow: hidden;
-  transition: color .25s, border-color .25s, background .25s, box-shadow .25s;
+  // 移除所有过渡动画和悬停效果以避免闪烁
   box-shadow: 0 2rpx 4rpx rgba(15,23,42,0.04);
   flex-grow: 1;
   text-align: center;
   min-width: 30%;
   max-width: 32%;
-  &:active { transform: scale(.97); }
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg,rgba(99,102,241,0.12),rgba(79,70,229,0));
-    opacity: 0;
-    transition: opacity .35s;
+  &:active {
+    // 移除缩放效果
+    transform: none;
   }
-  &:hover::after { opacity: 1; }
 }
 
 .categoryOptionActive {
@@ -130,7 +114,6 @@ $text-secondary: #64748b;
   color: #fff;
   border-color: transparent;
   box-shadow: 0 4rpx 10rpx rgba(79,70,229,0.35),0 2rpx 4rpx rgba(79,70,229,0.25);
-  &::after { display: none; }
 }
 
 .typeSelector {
@@ -140,6 +123,7 @@ $text-secondary: #64748b;
   justify-content: space-between;
   width: 100%;
 }
+
 .typeOption {
   padding: 10rpx 24rpx;
   border: 2rpx solid #cbd5e1;
@@ -149,28 +133,22 @@ $text-secondary: #64748b;
   background: rgba(255, 255, 255, 0.6);
   position: relative;
   overflow: hidden;
-  transition: color .25s, border-color .25s, background .25s, box-shadow .25s;
+  // 移除所有过渡动画和悬停效果以避免闪烁
   box-shadow: 0 2rpx 4rpx rgba(15,23,42,0.04);
   flex: 1;
   text-align: center;
   max-width: 28%;
-  &:active { transform: scale(.97); }
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg,rgba(99,102,241,0.12),rgba(79,70,229,0));
-    opacity: 0;
-    transition: opacity .35s;
+  &:active {
+    // 移除缩放效果
+    transform: none;
   }
-  &:hover::after { opacity: 1; }
 }
+
 .typeOptionActive {
   background: $primary-grad;
   color: #fff;
   border-color: transparent;
   box-shadow: 0 4rpx 10rpx rgba(79,70,229,0.35),0 2rpx 4rpx rgba(79,70,229,0.25);
-  &::after { display: none; }
 }
 
 .submitBtn {
@@ -186,7 +164,7 @@ $text-secondary: #64748b;
   box-shadow: 0 8rpx 18rpx -4rpx rgba(79,70,229,0.55),0 4rpx 10rpx -2rpx rgba(79,70,229,0.35);
   position: relative;
   overflow: hidden;
-  transition: transform .25s, box-shadow .3s, filter .25s;
+  // 移除过渡动画以避免闪烁
   &::before {
     content: '';
     position: absolute;
@@ -194,8 +172,12 @@ $text-secondary: #64748b;
     background: linear-gradient(90deg,rgba(255,255,255,0.15),rgba(255,255,255,0));
     mix-blend-mode: overlay;
   }
-  &:active { transform: translateY(4rpx); }
+  &:active {
+    // 移除移动效果
+    transform: none;
+  }
 }
+
 .disabledBtn {
   opacity: .45;
   filter: grayscale(.15);
@@ -240,19 +222,21 @@ $text-secondary: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
+  // 移除所有过渡动画和悬停效果以避免闪烁
   cursor: pointer;
   pointer-events: auto;
   position: relative;
 
   &:active {
-    transform: scale(0.95);
-    border-color: #6366f1;
+    // 移除激活时的效果
+    transform: none;
+    border-color: #cbd5e1;
   }
 
   &:hover {
-    border-color: #6366f1;
-    background: rgba(99, 102, 241, 0.05);
+    // 移除悬停时的效果
+    border-color: #cbd5e1;
+    background: transparent;
   }
 }
 
@@ -264,7 +248,8 @@ $text-secondary: #64748b;
   pointer-events: none;
 
   .counterButton:hover & {
-    color: #6366f1;
+    // 移除悬停时的文字效果
+    color: #64748b;
   }
 }
 
@@ -309,16 +294,17 @@ $text-secondary: #64748b;
   min-height: 76rpx;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color .25s, box-shadow .25s, background-color .25s;
-  box-shadow: inset 0 0 0 0 transparent;
+  // 移除过渡动画和激活效果以避免闪烁
+  box-shadow: none;
   display: flex;
   align-items: center;
   cursor: pointer;
   position: relative; // 确保点击事件能正确传递
 
   &:active {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 6rpx rgba(99,102,241,0.15), 0 2rpx 6rpx rgba(30,41,59,0.06);
+    // 移除激活时的效果
+    border-color: #e2e8f0;
+    box-shadow: none;
     background: #ffffff;
   }
 
