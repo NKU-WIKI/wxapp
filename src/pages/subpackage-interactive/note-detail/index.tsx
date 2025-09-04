@@ -232,12 +232,7 @@ export default function NoteDetailPage() {
     try {
       setIsLikeLoading(true);
       
-      // 先乐观更新UI
-      const newIsLiked = !isLiked;
-      setIsLiked(newIsLiked);
-      setLikeCount(prev => newIsLiked ? prev + 1 : Math.max(0, prev - 1));
-      
-      // 使用新的toggle接口
+      // 调用toggle接口
       const response = await toggleAction({
         targetId: noteId,
         targetType: 'note',
@@ -247,20 +242,18 @@ export default function NoteDetailPage() {
       if (response.code === 0 && response.data) {
         const { is_active, count } = response.data;
         
-        // 如果API返回的状态与我们的乐观更新不一致，则使用API的数据
-        if (is_active !== newIsLiked) {
-          setIsLiked(is_active);
-          setLikeCount(count);
-        }
+        // 更新状态
+        setIsLiked(is_active);
+        setLikeCount(count);
         
         Taro.showToast({
           title: is_active ? '点赞成功' : '取消点赞',
           icon: 'success'
         });
+        
+        // 重新获取笔记详情以同步所有数据
+        await loadNoteDetail();
       } else {
-        // API调用失败，回滚乐观更新
-        setIsLiked(!newIsLiked);
-        setLikeCount(prev => !newIsLiked ? prev + 1 : Math.max(0, prev - 1));
         throw new Error(response.message || '操作失败');
       }
     } catch (likeError: any) {
@@ -289,12 +282,7 @@ export default function NoteDetailPage() {
     try {
       setIsFavoriteLoading(true);
       
-      // 先乐观更新UI
-      const newIsBookmarked = !isBookmarked;
-      setIsBookmarked(newIsBookmarked);
-      setFavoriteCount(prev => newIsBookmarked ? prev + 1 : Math.max(0, prev - 1));
-      
-      // 使用新的toggle接口
+      // 调用toggle接口
       const response = await toggleAction({
         targetId: noteId,
         targetType: 'note',
@@ -304,20 +292,18 @@ export default function NoteDetailPage() {
       if (response.code === 0 && response.data) {
         const { is_active, count } = response.data;
         
-        // 如果API返回的状态与我们的乐观更新不一致，则使用API的数据
-        if (is_active !== newIsBookmarked) {
-          setIsBookmarked(is_active);
-          setFavoriteCount(count);
-        }
+        // 更新状态
+        setIsBookmarked(is_active);
+        setFavoriteCount(count);
         
         Taro.showToast({
           title: is_active ? '收藏成功' : '取消收藏',
           icon: 'success'
         });
+        
+        // 重新获取笔记详情以同步所有数据
+        await loadNoteDetail();
       } else {
-        // API调用失败，回滚乐观更新
-        setIsBookmarked(!newIsBookmarked);
-        setFavoriteCount(prev => !newIsBookmarked ? prev + 1 : Math.max(0, prev - 1));
         throw new Error(response.message || '操作失败');
       }
     } catch (favoriteError: any) {
@@ -340,7 +326,6 @@ export default function NoteDetailPage() {
 
       // 调用分享API，传递必需的share_type参数
       await shareNote(noteId, 'link'); // 使用link类型，适合小程序分享
-      setShareCount(prev => prev + 1);
 
       // 显示微信分享菜单
       Taro.showShareMenu({
@@ -350,6 +335,9 @@ export default function NoteDetailPage() {
             title: '分享成功',
             icon: 'success'
           });
+          
+          // 重新获取笔记详情以同步分享计数
+          loadNoteDetail();
         }
       });
     } catch (shareError: any) {
@@ -642,17 +630,23 @@ export default function NoteDetailPage() {
         <ActionBar
           buttons={[
             {
-              icon: isLiked ? heartFilledIcon : heartIcon,
+              icon: heartIcon,
+              activeIcon: heartFilledIcon,
               text: likeCount.toString(),
               onClick: handleLike,
               className: isLiked ? styles.liked : '',
               disabled: isLikeLoading,
+              actionType: 'like',
+              isActive: isLiked,
             },
             {
-              icon: isBookmarked ? bookmarkFilledIcon : bookmarkIcon,
+              icon: bookmarkIcon,
+              activeIcon: bookmarkFilledIcon,
               text: favoriteCount.toString(),
               onClick: handleBookmark,
               disabled: isFavoriteLoading,
+              actionType: 'favorite',
+              isActive: isBookmarked,
             },
             {
               icon: commentIcon,

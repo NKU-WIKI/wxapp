@@ -12,6 +12,7 @@ export interface ActionButtonProps {
   className?: string;
   iconClassName?: string;
   textClassName?: string;
+  disabled?: boolean;
   /**
    * 操作类型（用于自动处理action/toggle）
    */
@@ -36,13 +37,31 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   className = '',
   iconClassName = '',
   textClassName = '',
-  disabled = false
+  disabled = false,
+  actionType
 }) => {
+  // 根据激活状态选择图标
   const iconSrc = isActive && activeIcon ? activeIcon : icon;
   
   const handleClick = (e: ITouchEvent) => {
     if (disabled || !onClick) return;
     onClick(e);
+  };
+
+  // 根据actionType和isActive状态生成CSS类
+  const getActionClass = () => {
+    if (!isActive) return '';
+    
+    switch (actionType) {
+      case 'like':
+        return styles.liked;
+      case 'favorite':
+        return styles.favorited;
+      case 'follow':
+        return styles.active;
+      default:
+        return styles.active;
+    }
   };
   
   return (
@@ -50,11 +69,19 @@ const ActionButton: React.FC<ActionButtonProps> = ({
       className={classnames(
         styles.actionButton, 
         className,
-        { [styles.disabled]: disabled }
+        { [styles.disabled]: disabled },
+        getActionClass()
       )} 
       onClick={handleClick}
     >
-      <Image src={iconSrc} className={classnames(styles.icon, iconClassName)} />
+      <Image 
+        src={iconSrc} 
+        className={classnames(styles.icon, iconClassName)} 
+        style={{ 
+          // 如果使用activeIcon，则不需要CSS滤镜
+          filter: isActive && activeIcon ? 'none' : undefined 
+        }}
+      />
       {/* 只有在 text prop 被提供时才渲染 Text 组件 */}
       {text !== undefined && text !== null && (
         <Text className={classnames(styles.text, textClassName)}>{text}</Text>
