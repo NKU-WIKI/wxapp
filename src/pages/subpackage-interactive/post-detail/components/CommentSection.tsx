@@ -14,7 +14,6 @@ import ChevronDownIcon from "@/assets/chevron-down.svg";
 import ChevronRightIcon from "@/assets/chevron-right.svg";
 import HeartIcon from "@/assets/heart-outline.svg";
 import HeartActiveIcon from "@/assets/heart-bold.svg";
-import TrashIcon from "@/assets/trash.svg";
 
 import styles from "../index.module.scss";
 
@@ -115,6 +114,20 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
     }
   ];
 
+  const handleMoreClick = () => {
+    if (isCommentAuthor && _onDeleteComment) {
+      Taro.showModal({
+        title: '删除评论',
+        content: '确定要删除这条评论吗？删除后无法恢复。',
+        success: (res) => {
+          if (res.confirm) {
+            _onDeleteComment(_comment.id);
+          }
+        }
+      });
+    }
+  };
+
   return (
     <View className={styles.subCommentItem}>
       <AuthorInfo
@@ -125,13 +138,8 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
         showLevel
         showTime
         createTime={_comment.create_at || (_comment as any).created_at || ''}
-        extraNode={
-          isCommentAuthor && _onDeleteComment ? (
-            <View className={styles.subDeleteButton} onClick={() => _onDeleteComment(_comment.id)}>
-              <Image src={TrashIcon} className={styles.subDeleteIcon} />
-            </View>
-          ) : null
-        }
+        showMoreButton={isCommentAuthor && _onDeleteComment ? true : false}
+        onMoreClick={handleMoreClick}
       />
       <View className={styles.subContent}>
         <Text className={styles.subText}>{renderCommentContent(_comment.content)}</Text>
@@ -354,7 +362,19 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
   // 检查当前用户是否为评论作者
   const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
-
+  const handleMoreClick = () => {
+    if (isCommentAuthor && _onDeleteComment) {
+      Taro.showModal({
+        title: '删除评论',
+        content: '确定要删除这条评论吗？删除后无法恢复。',
+        success: (res) => {
+          if (res.confirm) {
+            _onDeleteComment(_comment.id);
+          }
+        }
+      });
+    }
+  };
 
   return (
   <View className={styles.commentItem}>
@@ -366,13 +386,8 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
       showLevel
       showTime
       createTime={_comment.create_at || (_comment as any).created_at || ''}
-      extraNode={
-        isCommentAuthor && _onDeleteComment ? (
-          <View className={styles.deleteButton} onClick={() => _onDeleteComment(_comment.id)}>
-            <Image src={TrashIcon} className={styles.deleteIcon} />
-          </View>
-        ) : null
-      }
+      showMoreButton={isCommentAuthor && _onDeleteComment ? true : false}
+      onMoreClick={handleMoreClick}
     />
     <View className={styles.content}>
         <Text className={styles.text}>{renderCommentContent(_comment?.content || '')}</Text>
@@ -380,15 +395,15 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
           <ActionBar buttons={actionBarButtons} />
           {shouldShowToggleButton && (
             <View className={styles.toggleRepliesButton} onClick={toggleReplies}>
-              <Image 
-                src={showReplies ? ChevronDownIcon : ChevronRightIcon} 
-                className={styles.toggleIcon} 
+              <Image
+                src={showReplies ? ChevronDownIcon : ChevronRightIcon}
+                className={styles.toggleIcon}
               />
               <Text>{showReplies ? '收起' : `查看剩余${replyCount - 2}条回复`}</Text>
             </View>
           )}
         </View>
-        
+
         {/* 子评论区域 */}
         {hasReplies && (shouldAutoShow || shouldShowToggleButton) && (
           <View className={styles.repliesContainer}>

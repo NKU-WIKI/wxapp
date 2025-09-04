@@ -6,6 +6,7 @@ import {
   getMe,
   updateMeProfile,
   getMyStats,
+  getUserById,
 } from "@/services/api/user";
 import { getFollowersCount } from "@/services/api/followers";
 import { getCollectionCount } from "@/services/api/collection";
@@ -221,12 +222,30 @@ export const fetchCurrentUser = createAsyncThunk(
       // Return only the `data` part of the response to the reducer
       return response.data;
     } catch (error: any) {
-      
+
       if (error?.statusCode === 401) {
         Taro.removeStorageSync("token");
       }
       return rejectWithValue(
         error?.msg || error?.message || "获取用户信息失败"
+      );
+    }
+  }
+);
+
+/**
+ * 获取指定用户的详细信息
+ */
+export const fetchUserProfile = createAsyncThunk(
+  "user/fetchUserProfile",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const response = await getUserById(userId);
+      return response.data;
+    } catch (error: any) {
+
+      return rejectWithValue(
+        error?.msg || error?.message || "获取用户资料失败"
       );
     }
   }

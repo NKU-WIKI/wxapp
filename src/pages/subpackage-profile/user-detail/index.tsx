@@ -105,11 +105,11 @@ const UserDetail: React.FC = () => {
       // 重新获取用户信息
       // console.log('重新获取用户信息', userId)
       if (currentUserId && userId === currentUserId) {
-        // dispatch(fetchUserProfile());
+        // 查看自己的资料，使用当前用户信息
         dispatch(fetchCurrentUser());
       } else {
-        // dispatch(fetchUserProfile(userId));
-        dispatch(fetchCurrentUser());
+        // 查看其他用户的资料，获取指定用户信息
+        dispatch(fetchUserProfile(userId));
       }
     }
   }, [userId, currentUserId, dispatch]);
@@ -175,7 +175,9 @@ const UserDetail: React.FC = () => {
         }
         
         // 更新用户信息以确保主页的粉丝数量实时更新
-        dispatch(fetchUserProfile());
+        if (userId) {
+          dispatch(fetchUserProfile(userId));
+        }
       }
     } catch (error) {
       
