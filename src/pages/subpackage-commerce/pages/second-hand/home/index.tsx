@@ -367,6 +367,12 @@ const SecondHandHomePage = () => {
               <Text className={styles.badgeText}>{getConditionText(product.condition)}</Text>
             </View>
           )}
+          {/* 状态标签 - 出/收 */}
+          <View className={`${styles.statusBadge} ${styles[`status_${product.listing_type}`]}`}>
+            <Text className={styles.badgeText}>
+              {product.listing_type === 'sell' ? '出' : '收'}
+            </Text>
+          </View>
         </View>
         <View className={styles.productTitle}>
           <HighlightText

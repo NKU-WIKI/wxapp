@@ -12,6 +12,14 @@ export interface ActionButtonProps {
   className?: string;
   iconClassName?: string;
   textClassName?: string;
+  /**
+   * 操作类型（用于自动处理action/toggle）
+   */
+  actionType?: 'like' | 'favorite' | 'follow';
+  /**
+   * 自定义点击处理函数（优先级高于自动处理）
+   */
+  onActionClick?: (actionType: string, targetId: string, currentActive: boolean) => Promise<{ isActive: boolean; count?: number }>;
 }
 
 /**

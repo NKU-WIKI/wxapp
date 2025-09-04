@@ -273,8 +273,9 @@ const SecondHandPublishPage = () => {
       Taro.showToast({ title: '请选择商品分类', icon: 'none' })
       return false
     }
-    if (listingType === ListingType.SELL && !price.trim()) {
-      Taro.showToast({ title: '请输入商品价格', icon: 'none' })
+    if (!price.trim()) {
+      const message = listingType === ListingType.SELL ? '请输入商品价格' : '请输入您的预算'
+      Taro.showToast({ title: message, icon: 'none' })
       return false
     }
     return true
@@ -406,7 +407,7 @@ const SecondHandPublishPage = () => {
         content: content.trim(),
         category_id: selectedCategory!.id,
         listing_type: listingType,
-        price: listingType === ListingType.SELL ? parseFloat(price) : undefined,
+        price: parseFloat(price) || undefined,
         condition,
         location: location.trim() || undefined,
         tags: tags.length > 0 ? tags : undefined,
@@ -472,30 +473,30 @@ const SecondHandPublishPage = () => {
   return (
     <View className={styles.pageContainer}>
       <CustomHeader title='发布商品' />
-      <ScrollView scrollY className={styles.scrollView}>
-        <ActionTabs listingType={listingType} onTabClick={setListingType} />
-        <View className={styles.formContainer}>
-          <ImageUploader
-            initialImages={images}
-            maxCount={9}
-            onChange={setImages}
-            uploadButtonText='上传图片'
-          />
+      <View className={styles.scrollWrapper}>
+        <ScrollView scrollY className={styles.scrollView}>
+          <ActionTabs listingType={listingType} onTabClick={setListingType} />
+          <View className={styles.formContainer}>
+            <ImageUploader
+              initialImages={images}
+              maxCount={9}
+              onChange={setImages}
+              uploadButtonText='上传图片'
+            />
 
-          <FormInput placeholder='请输入商品标题 (必填)' value={title} onChange={setTitle} type='text' />
+            <FormInput placeholder='请输入商品标题 (必填)' value={title} onChange={setTitle} type='text' />
 
-          <FormInput
-            placeholder='请详细描述一下商品的成色、规格等信息... (必填)'
-            value={content}
-            onChange={setContent}
-            isTextarea
-          />
+            <FormInput
+              placeholder='请详细描述一下商品的成色、规格等信息... (必填)'
+              value={content}
+              onChange={setContent}
+              isTextarea
+            />
 
-          {listingType === ListingType.SELL && (
             <FormRow label='¥' onClick={() => {}}>
               <Input
                 type='number'
-                placeholder='设置价格'
+                placeholder={listingType === ListingType.SELL ? '设置价格' : '设置预算'}
                 value={price}
                 onInput={handlePriceInput}
                 className={styles.priceInput}
@@ -503,51 +504,52 @@ const SecondHandPublishPage = () => {
                 holdKeyboard
               />
             </FormRow>
-          )}
 
-          <FormRow label='商品分类' onClick={handleCategorySelect}>
-            <Text className={styles.pickerText}>{selectedCategory ? selectedCategory.name : '请选择分类'}</Text>
-            <Text className={styles.arrow}> &gt;</Text>
-          </FormRow>
+            <FormRow label='商品分类' onClick={handleCategorySelect}>
+              <Text className={styles.pickerText}>{selectedCategory ? selectedCategory.name : '请选择分类'}</Text>
+              <Text className={styles.arrow}> &gt;</Text>
+            </FormRow>
 
-          <FormRow label='商品成色' onClick={handleConditionSelect}>
-            <Text className={styles.pickerText}>
-              {condition === ListingCondition.NEW && '全新'}
-              {condition === ListingCondition.LIKE_NEW && '九成新'}
-              {condition === ListingCondition.GOOD && '八成新'}
-              {condition === ListingCondition.ACCEPTABLE && '七成新'}
-              {condition === ListingCondition.DAMAGED && '其他'}
-            </Text>
-            <Text className={styles.arrow}> &gt;</Text>
-          </FormRow>
+            <FormRow label='商品成色' onClick={handleConditionSelect}>
+              <Text className={styles.pickerText}>
+                {condition === ListingCondition.NEW && '全新'}
+                {condition === ListingCondition.LIKE_NEW && '九成新'}
+                {condition === ListingCondition.GOOD && '八成新'}
+                {condition === ListingCondition.ACCEPTABLE && '七成新'}
+                {condition === ListingCondition.DAMAGED && '其他'}
+              </Text>
+              <Text className={styles.arrow}> &gt;</Text>
+            </FormRow>
 
-          <FormInput placeholder='交易地点 (选填)' value={location} onChange={setLocation} type='text' />
+            <FormInput placeholder='交易地点 (选填)' value={location} onChange={setLocation} type='text' />
 
-          <FormRow label='标签' onClick={() => {}}>
-            <TagList
-              tags={tags}
-              tagInput={tagInput}
-              onTagInputChange={setTagInput}
-              onAddTag={handleAddTag}
-              onRemoveTag={handleRemoveTag}
+            <FormRow label='标签' onClick={() => {}}>
+              <TagList
+                tags={tags}
+                tagInput={tagInput}
+                onTagInputChange={setTagInput}
+                onAddTag={handleAddTag}
+                onRemoveTag={handleRemoveTag}
+              />
+            </FormRow>
+
+            <ContactInputs
+              wechatId={wechatId}
+              qqNumber={qqNumber}
+              phoneNumber={phoneNumber}
+              onWechatChange={setWechatId}
+              onQqChange={setQqNumber}
+              onPhoneChange={setPhoneNumber}
             />
-          </FormRow>
 
-          <ContactInputs
-            wechatId={wechatId}
-            qqNumber={qqNumber}
-            phoneNumber={phoneNumber}
-            onWechatChange={setWechatId}
-            onQqChange={setQqNumber}
-            onPhoneChange={setPhoneNumber}
-          />
-
-          <FormRow label='公开联系方式' onClick={() => {}}>
-            <Switch color='#4F46E5' checked={isPublicContact} onChange={handleContactSwitch} />
-          </FormRow>
-        </View>
-        <WarmTips />
-      </ScrollView>
+            <FormRow label='公开联系方式' onClick={() => {}}>
+              <Switch color='#4F46E5' checked={isPublicContact} onChange={handleContactSwitch} />
+            </FormRow>
+          </View>
+          <WarmTips />
+          <View className={styles.safeAreaSpacer} />
+        </ScrollView>
+      </View>
       <PublishButton isLoading={isPublishing || createLoading === 'pending'} onClick={handlePublish} />
     </View>
   )

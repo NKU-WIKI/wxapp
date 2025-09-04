@@ -1,15 +1,16 @@
 import { View, Text, Button, Image, Input } from '@tarojs/components'
 import { useState, useEffect, useCallback } from 'react'
-import Taro from '@tarojs/taro'
-import { useDispatch } from 'react-redux'
+import Taro, { useRouter, useDidShow } from '@tarojs/taro'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { AppDispatch } from '@/store'
+import { AppDispatch, RootState } from '@/store'
 
 // Type imports
 import { GetFollowersParams, FollowActionParams, FollowRelation } from '@/types/api/followers'
 
 // Store imports
-import { fetchUserProfile } from '@/store/slices/userSlice'
+import { fetchFollowers } from '@/store/slices/followersSlice';
+import { fetchCurrentUser } from '@/store/slices/userSlice'
 
 // API imports
 import { getFollowers, followAction } from '@/services/api/followers'
@@ -164,7 +165,7 @@ const FollowersPage = () => {
         }
         
         // 更新Redux store中的用户信息，确保主页的粉丝数量实时更新
-        dispatch(fetchUserProfile())
+        dispatch(fetchCurrentUser())
       } else {
         throw new Error(response.message || '操作失败')
       }

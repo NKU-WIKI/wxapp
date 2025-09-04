@@ -100,6 +100,19 @@
     justify-content: center;
   }
 
+  // 状态标签 - 出闲置/收二手
+  .statusBadge {
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .badgeText {
     font-size: 12px;
     line-height: 1;
@@ -111,6 +124,10 @@
   .cond_good { background-color: rgba($theme-primary, 0.85); }
   .cond_acceptable { background-color: rgba($status-warning, 0.92); }
   .cond_damaged { background-color: rgba($status-error, 0.92); }
+
+  // 状态标签颜色 - 橙色表示出，蓝色表示收
+  .status_sell { background-color: rgba($status-warning, 0.92); }
+  .status_buy { background-color: rgba($status-info, 0.92); }
 
   .productTitle {
     font-size: 14px;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Button } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { fetchUserProfile } from '../../../store/slices/userSlice';
+import { fetchUserProfile, fetchCurrentUser } from '../../../store/slices/userSlice';
 import { getActionStatus, getUserPostCount, getUserFollowersCount, getUserFollowingCount } from '../../../services/api/user';
 import { followAction } from '../../../services/api/followers';
 import { BBSNotificationHelper } from '../../../utils/notificationHelper';
@@ -22,6 +22,7 @@ const UserDetail: React.FC = () => {
   const [followLoading, setFollowLoading] = useState(false);
 
   const userId = router.params.userId || '';
+  const currentUserId = useAppSelector(state => state.user.userInfo?.id);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,6 +99,20 @@ const UserDetail: React.FC = () => {
     
     fetchData();
   }, [userId, router.params, isLoggedIn]);
+
+  useEffect(() => {
+    if (userId) {
+      // 重新获取用户信息
+      // console.log('重新获取用户信息', userId)
+      if (currentUserId && userId === currentUserId) {
+        // dispatch(fetchUserProfile());
+        dispatch(fetchCurrentUser());
+      } else {
+        // dispatch(fetchUserProfile(userId));
+        dispatch(fetchCurrentUser());
+      }
+    }
+  }, [userId, currentUserId, dispatch]);
 
   const handleFollow = async () => {
     if (!isLoggedIn || !userId) {

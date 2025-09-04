@@ -91,19 +91,17 @@
 .userInfo {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 12px;
   padding-top: 10px;
   padding-left: 8px;
   padding-right: 16px;
   height: 48px;
-  width: 343px;
   position: relative;
   
   .authorInfo {
     display: flex;
     align-items: center;
-    width: 237.81px;
+    width: 100%; /* Occupy full width */
     height: 48px;
   }
   
@@ -697,33 +695,6 @@
     font-size: 14px;
     color: #6B7280;
     line-height: 1.5;
-  }
-}
-
-/* 评论用户信息样式 */
-.commentUserInfo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  padding-left: 8px;
-  padding-right: 16px;
-
-  .commentDeleteButton {
-    margin-left: 8px;
-    padding: 4px;
-    border-radius: 4px;
-    background: #FEE2E2;
-    transition: background-color 0.2s ease;
-
-    &:active {
-      background: #FECACA;
-    }
-
-    .commentDeleteIcon {
-      width: 12px;
-      height: 12px;
-    }
   }
 }
 

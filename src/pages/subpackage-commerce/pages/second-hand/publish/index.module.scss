@@ -7,9 +7,13 @@
   background-color: $bg-page;
 }
 
-.scrollView {
+.scrollWrapper {
   flex: 1;
-  height: calc(100vh - 88rpx - 120rpx); // 减去 header 和底部按钮的高度
+  overflow: hidden;
+}
+
+.scrollView {
+  height: 100%;
 }
 
 .customHeader {
@@ -143,14 +147,23 @@
     flex: 1;
     justify-content: flex-end;
     .priceInput {
-      text-align: right;
+      text-align: right; // 保持输入文字右对齐
       background-color: #F8F9FA;
       border: 1px solid #E9ECEF;
       border-radius: 8px;
-      padding: 8px 12px;
+      padding: 12px 16px;
       font-size: 16px;
       color: $text-primary;
-      min-width: 120px;
+      min-width: 140px;
+      height: 48px;
+      line-height: 24px;
+      box-sizing: border-box;
+
+      // placeholder文字居中显示
+      &::placeholder {
+        text-align: center;
+        color: $text-helper-gray;
+      }
     }
     .pickerText {
       color: $text-helper-gray;
@@ -194,25 +207,25 @@
   background-color: $bg-card;
   border-radius: 8px;
   margin: 15px;
-  margin-bottom: 30px;
-  .tipTitle {
-    color: $text-secondary;
+}
+
+.tipTitle {
+  color: $text-secondary;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+.tipItem {
+  display: block;
+  margin-bottom: 6px;
+  padding-left: 8px;
+  position: relative;
+  &:before {
+    content: "•";
+    color: $theme-primary;
     font-weight: bold;
-    display: block;
-    margin-bottom: 8px;
-  }
-  .tipItem {
-    display: block;
-    margin-bottom: 6px;
-    padding-left: 8px;
-    position: relative;
-    &:before {
-      content: "•";
-      color: $theme-primary;
-      font-weight: bold;
-      position: absolute;
-      left: 0;
-    }
+    position: absolute;
+    left: 0;
   }
 }
 
@@ -247,4 +260,8 @@
       transform: scale(0.98);
     }
   }
+}
+
+.safeAreaSpacer {
+  height: 180rpx;
 }

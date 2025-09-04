@@ -1,26 +1,28 @@
 // Third-party imports
-import { View, ScrollView, Text, Image, Button } from '@tarojs/components'
+import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useCallback } from 'react'
 
 // Relative imports
 import CustomHeader from '@/components/custom-header'
-import { fetchListingDetail, toggleFavorite, createBooking, deleteListing, clearError } from '@/store/slices/marketplaceSlice'
+import { fetchListingDetail, deleteListing, clearError } from '@/store/slices/marketplaceSlice'
 import { RootState, AppDispatch } from '@/store'
 import { ListingRead } from '@/types/api/marketplace.d'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { useRelativeTime } from '@/hooks/useRelativeTime'
 import AuthorInfo from '@/components/author-info'
+import CommentSection from '@/components/comment-section'
 import { fetchCurrentUser } from '@/store/slices/userSlice'
-import moreIcon from '@/assets/more-horizontal.svg'
+import { fetchComments } from '@/store/slices/commentSlice'
+import ActionBar from '@/components/action-bar'
 
 // Assets imports
-import favoriteIcon from '@/assets/heart-outline.svg'
-import favoriteActiveIcon from '@/assets/heart-bold.svg'
-import messageIcon from '@/assets/message-circle.svg'
+import moreIcon from '@/assets/more-horizontal.svg'
 import locationIcon from '@/assets/map-pin.svg'
 import placeholderImage from '@/assets/placeholder.jpg'
+import messageIcon from '@/assets/message-square.svg'
+
 
 import styles from './index.module.scss'
 
@@ -30,60 +32,29 @@ const SecondHandDetailPage = () => {
   const { checkAuth } = useAuthGuard()
 
   const { currentListing, detailLoading, error } = useSelector((state: RootState) => state.marketplace)
+  const { comments } = useSelector((state: RootState) => state.comment)
   const userState = useSelector((state: RootState) => state.user)
   const currentUserId = useSelector((state: RootState) => state.user.user?.id)
 
-  // 获取商品详情
+  // 获取商品详情和评论
   const loadListingDetail = useCallback(async (id: string) => {
     try {
       await dispatch(fetchListingDetail(id)).unwrap()
+
+      // 获取评论
+      await dispatch(fetchComments({
+        resource_id: id,
+        resource_type: 'listing',
+        skip: 0,
+        limit: 20,
+        max_depth: 3,
+        limit_per_level: 5
+      })).unwrap()
     } catch (detailError) {
-      // 
+      //
       Taro.showToast({ title: '获取商品详情失败', icon: 'none' })
     }
   }, [dispatch])
-
-  // 处理收藏（使用通用收藏接口）
-  const handleFavorite = useCallback(async () => {
-    if (!checkAuth()) return
-    if (!currentListing) return
-
-    try {
-      // 使用通用收藏接口，自动处理收藏/取消收藏切换
-      await dispatch(toggleFavorite(currentListing.id)).unwrap()
-
-      // 根据当前收藏状态显示不同的提示信息
-      const isCurrentlyFavorited = (currentListing.favorite_count || 0) > 0
-      if (isCurrentlyFavorited) {
-        Taro.showToast({ title: '已取消收藏', icon: 'success' })
-      } else {
-        Taro.showToast({ title: '已收藏', icon: 'success' })
-      }
-    } catch (favoriteError) {
-      Taro.showToast({ title: '收藏操作失败', icon: 'none' })
-    }
-  }, [checkAuth, currentListing, dispatch])
-
-  // 处理预约
-  const handleBooking = useCallback(async () => {
-    if (!checkAuth()) return
-    if (!currentListing) return
-
-    try {
-      await dispatch(createBooking({
-        listingId: currentListing.id,
-        data: {
-          time_slot: '随时', // 简化处理，后续可以添加时间选择
-          message: '我想预约这个商品',
-          contact_info: '请通过微信联系'
-        }
-      })).unwrap()
-
-      Taro.showToast({ title: '预约成功', icon: 'success' })
-    } catch (bookingError) {
-      // 
-    }
-  }, [checkAuth, currentListing, dispatch])
 
   // 处理删除商品
   const handleDelete = useCallback(async () => {
@@ -123,40 +94,6 @@ const SecondHandDetailPage = () => {
     })
   }, [checkAuth, currentListing])
 
-  // 处理联系卖家
-  const handleContact = useCallback(() => {
-    if (!currentListing?.user) return
-
-    Taro.showActionSheet({
-      itemList: ['复制微信号', '复制QQ号', '复制手机号'],
-      success: (res) => {
-        let content = ''
-        switch (res.tapIndex) {
-          case 0:
-            content = currentListing.user.wechat_id || '暂无微信号'
-            break
-          case 1:
-            content = currentListing.user.qq_id || '暂无QQ号'
-            break
-          case 2:
-            content = currentListing.user.tel || '暂无手机号'
-            break
-        }
-
-        if (content && content !== '暂无微信号' && content !== '暂无QQ号' && content !== '暂无手机号') {
-          Taro.setClipboardData({
-            data: content,
-            success: () => {
-              Taro.showToast({ title: '已复制到剪贴板', icon: 'success' })
-            }
-          })
-        } else {
-          Taro.showToast({ title: '暂无联系方式', icon: 'none' })
-        }
-      }
-    })
-  }, [currentListing])
-
   // 初始化
   useEffect(() => {
     const id = router.params?.id
@@ -165,7 +102,6 @@ const SecondHandDetailPage = () => {
     }
   }, [router.params, loadListingDetail])
 
-  // 若已持有 token 但还未初始化 user，则主动获取当前用户信息，避免作者判断失效
   useEffect(() => {
     if (userState?.token && !userState?.user) {
       dispatch(fetchCurrentUser())
@@ -218,7 +154,15 @@ const SecondHandDetailPage = () => {
       <View className={styles.productInfo}>
         <View className={styles.productHeader}>
           <View className={styles.productHeaderMain}>
-            <Text className={styles.productTitle}>{listing.title}</Text>
+            <View className={styles.titleRow}>
+              <Text className={styles.productTitle}>{listing.title}</Text>
+              {/* 状态标签 - 出/收 */}
+              <View className={`${styles.statusBadge} ${styles[`status_${listing.listing_type}`]}`}>
+                <Text className={styles.statusBadgeText}>
+                  {listing.listing_type === 'sell' ? '出' : '收'}
+                </Text>
+              </View>
+            </View>
             <Text className={styles.productPrice}>
               ¥{typeof listing.price === 'string' ? listing.price : listing.price || '面议'}
             </Text>
@@ -258,13 +202,6 @@ const SecondHandDetailPage = () => {
             </Text>
           </View>
         )}
-
-        {/* 商品统计信息 */}
-        <View className={styles.productStats}>
-          <Text className={styles.statsText}>
-            {listing.view_count || 0} 次浏览 · {listing.favorite_count || 0} 人收藏 · {listing.booking_count || 0} 人预约
-          </Text>
-        </View>
       </View>
     )
   }
@@ -315,58 +252,22 @@ const SecondHandDetailPage = () => {
     </View>
   )
 
-
-
   // 标签组件
-  const ProductTags = ({ tags }: { tags?: string[] }) => (
-    <View className={styles.productTags}>
-      {tags && tags.map((tag, index) => (
-        <Text key={index} className={styles.tag}>
-          {tag}
-        </Text>
-      ))}
-    </View>
-  )
-
-  // 操作按钮组件（底部）
-  const ActionButtons = ({ listing }: { listing: ListingRead }) => {
-    const isFavorited = (listing.favorite_count || 0) > 0
+  const ProductTags = ({ tags }: { tags?: string[] }) => {
+    // 如果没有标签或标签数组为空，不渲染任何内容
+    if (!tags || tags.length === 0) {
+      return null;
+    }
 
     return (
-      <View className={styles.actionButtons}>
-        <View className={styles.leftArea}>
-          <Button
-            className={`${styles.iconButton} ${isFavorited ? styles.active : ''}`}
-            onClick={handleFavorite}
-          >
-            <Image
-              src={isFavorited ? favoriteActiveIcon : favoriteIcon}
-              className={styles.icon}
-              style={{ width: '22px', height: '22px' }}
-            />
-          </Button>
-        </View>
-        <View className={styles.rightArea}>
-          <Button
-            className={styles.secondaryButton}
-            onClick={handleContact}
-          >
-            <Image
-              src={messageIcon}
-              className={styles.secondaryIcon}
-              style={{ width: '18px', height: '18px' }}
-            />
-            <Text>联系卖家</Text>
-          </Button>
-          <Button
-            className={styles.primaryButton}
-            onClick={handleBooking}
-          >
-            <Text>立即预约</Text>
-          </Button>
-        </View>
+      <View className={styles.productTags}>
+        {tags.map((tag, index) => (
+          <Text key={index} className={styles.tag}>
+            {tag}
+          </Text>
+        ))}
       </View>
-    )
+    );
   }
 
   // 加载状态
@@ -411,16 +312,45 @@ const SecondHandDetailPage = () => {
           <AuthorInfo
             userId={currentListing.user_id}
             mode='expanded'
+            showBio
             showFollowButton
             showStats
             showLevel
             showLocation
           />
-          {/* 底部留白，确保内容不会被操作按钮遮挡 */}
-          <View className={styles.bottomSpacer} />
+
+          {/* 评论系统 */}
+          <CommentSection
+            postId={currentListing.id}
+            postTitle={currentListing.title}
+            postAuthorId={currentListing.user_id}
+            comments={comments}
+            allowComments // 默认允许
+            autoHandle // 启用自动处理模式，内部自动处理所有评论操作
+          />
         </ScrollView>
       </View>
-      <ActionButtons listing={currentListing} />
+      <View className={styles.bottomActionBarContainer}>
+        <ActionBar
+          targetId={currentListing.id}
+          targetType='listing'
+          autoHandle
+          buttons={[
+            {
+              icon: '/assets/favorite.png',
+              activeIcon: '/assets/favorite.png',
+              text: currentListing.favorite_count || 0, // 显示收藏数量
+              isActive: false, // 初始状态为未收藏，ActionBar 内部会管理状态
+              actionType: 'favorite' // ActionBar 会自动处理收藏操作
+            },
+            {
+              icon: messageIcon,
+              text: `${currentListing.view_count || 0}人联系了${currentListing.listing_type === 'sell' ? '卖家' : currentListing.listing_type === 'buy' ? '买家' : '卖家'}`, // 根据商品类型显示卖家或买家
+              onClick: () => Taro.showToast({ title: '联系功能开发中', icon: 'none' })
+            }
+          ]}
+        />
+      </View>
     </View>
   )
 }

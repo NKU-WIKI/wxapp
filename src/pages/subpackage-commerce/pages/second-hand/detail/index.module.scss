@@ -10,12 +10,14 @@
 .contentContainer {
   flex: 1;
   overflow: hidden;
-  position: relative;
+  background-color: #f8f8f8;
+  padding-bottom: 0; /* 移除为旧输入框留出的空间 */
 }
 
 .scrollView {
   height: 100%;
   padding-bottom: 120rpx; // 为底部操作按钮留出空间
+  background-color: #f8f8f8;
 }
 
 // 商品图片区域
@@ -60,14 +62,43 @@
       opacity: 0.7;
     }
 
+    .titleRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
     .productTitle {
       font-size: 18px;
       font-weight: 600;
       color: $text-primary;
       line-height: 1.4;
-      margin-bottom: 8px;
-      display: block;
+      flex: 1;
+      min-width: 0;
     }
+
+    // 状态标签 - 出闲置/收二手
+    .statusBadge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .statusBadgeText {
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 500;
+    }
+
+    // 状态标签颜色 - 橙色表示出，蓝色表示收
+    .status_sell { background-color: rgba($status-warning, 0.9); }
+    .status_buy { background-color: rgba($status-info, 0.9); }
 
     .productPrice {
       font-size: 20px;
@@ -133,7 +164,7 @@
 // 商品描述区域
 .productDescription {
   background-color: #fff;
-  margin-top: 12px;
+  margin-top: 8px; // 与上一个组件保持一致的间隙
   padding: 16px;
 
   .descriptionTitle {
@@ -154,7 +185,7 @@
 // 标签区域
 .productTags {
   background-color: #fff;
-  margin-top: 12px;
+  margin-top: 8px; // 减少与商品信息的间隙
   padding: 16px;
 
   .tag {
@@ -224,85 +255,106 @@
   }
 }
 
-// 操作按钮区域
-.actionButtons {
+// ActionBar 样式
+.actionBar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background-color: #fff;
-  border-top: 1px solid $border-base;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  border-top: 1px solid $border-light;
+  padding: 12px 16px;
   z-index: 100;
+}
 
-  .leftArea {
-    width: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-
-    .iconButton {
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 22px;
-      background-color: $bg-input;
-      border: none;
-
-      .icon {
-        width: 20px;
-        height: 20px;
-      }
-
-      &.active {
-        background-color: rgba($status-error, 0.12);
-      }
-    }
+.favoriteButton {
+  .icon {
+    width: 24px;
+    height: 24px;
   }
+}
 
-  .rightArea {
-    flex: 1;
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-
-    .secondaryButton {
-      flex: 0 0 42%;
-      height: 44px;
-      border-radius: 8px;
-      background-color: #fff;
-      border: 1px solid $border-base;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: $text-primary;
-
-      .secondaryIcon {
-        margin-right: 6px;
-      }
-    }
-
-    .primaryButton {
-      flex: 0 0 42%;
-      height: 44px;
-      border-radius: 8px;
-      background-color: $theme-primary;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+.commentButton {
+  .icon {
+    width: 24px;
+    height: 24px;
   }
+}
+
+.contactButton {
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// 评论系统样式
+.commentSystem {
+  margin-top: 16px;
+  padding: 0 16px;
+}
+
+.fixedBottomInput {
+  /* This class is no longer needed as the input is part of the new CommentSection component */
+  display: none;
 }
 
 // 底部留白
 .bottomSpacer {
   height: 140rpx; // 确保内容不会被操作按钮遮挡
+}
+
+.bottomActionBarContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + constant(safe-area-inset-bottom));
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid $border-light;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  :global(.action-button_action-button__-L5_V) {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 0;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+
+    &:first-child {
+      flex: 0 1 auto;
+      min-width: 100px;
+    }
+
+    &:last-child {
+      background-color: $theme-primary;
+      color: #fff;
+
+      // 使用 :global 覆盖子组件的样式
+      :global(.action-button_text__3l_uS) {
+        color: #fff;
+        font-weight: 500;
+        font-size: 16px;
+      }
+
+       :global(.action-button_icon__1-s_m) {
+        // 在这里应用 filter
+        filter: brightness(0) invert(1);
+      }
+    }
+
+    &:active {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+     &:last-child:active {
+      background-color: darken($theme-primary, 5%);
+    }
+  }
 }
 
 // 加载和空状态
