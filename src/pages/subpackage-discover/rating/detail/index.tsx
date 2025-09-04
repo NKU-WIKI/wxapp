@@ -108,8 +108,8 @@ const RatingDetailPage = () => {
         setRatings(ratingsData)
         
         // 检查当前用户是否已经评过分
-        if (isLoggedIn && userState.currentUser?.id) {
-          const existingRating = ratingsData.find(rating => rating.rater_id === userState.currentUser?.id);
+        if (isLoggedIn && userState.user?.id) {
+          const existingRating = ratingsData.find(rating => rating.rater_id === userState.user?.id);
           if (existingRating) {
             console.log('👤 [loadData] 发现用户已有评分:', existingRating.score, '分');
             setUserExistingRating(existingRating);

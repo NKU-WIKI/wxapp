@@ -68,7 +68,7 @@ interface SubCommentItemProps {
 const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onDeleteComment: _onDeleteComment }) => {
   const [isLiking, setIsLiking] = useState(false);
   const userState = useSelector((state: RootState) => state.user);
-  const isCommentAuthor = userState?.currentUser?.user_id === _comment.user_id;
+  const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -352,7 +352,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
   };
   
   // 检查当前用户是否为评论作者
-  const isCommentAuthor = userState?.currentUser?.user_id === _comment.user_id;
+  const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
 
 

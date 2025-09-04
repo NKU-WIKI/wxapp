@@ -34,7 +34,7 @@ const LEVELS = [
 
 export default function LevelPage() {
   const dispatch = useAppDispatch();
-  const user = useAppSelector((s) => s.user.userProfile);
+  const user = useAppSelector((s) => s.user.user);
   const levelState = useAppSelector((s) => s.level);
 
   useEffect(() => {

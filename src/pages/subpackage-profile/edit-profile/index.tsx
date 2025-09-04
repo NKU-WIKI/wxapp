@@ -21,7 +21,7 @@ import styles from "./index.module.scss";
 export default function EditProfilePage() {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user);
-  const userInfo = user?.userProfile || null;
+  const userInfo = user?.user || null;
 
   const [avatar, setAvatar] = useState("");
   const [nickname, setNickname] = useState("");

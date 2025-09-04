@@ -1,6 +1,6 @@
 // Third-party imports
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { View, ScrollView, Text, Input } from '@tarojs/components'
+import { View, ScrollView, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -186,17 +186,17 @@ const ErrandsHomePage = () => {
 
   // 任务卡片组件
   const TaskCard = ({ task }: { task: any }) => {
-    const getTaskTypeDisplay = (task: any) => {
-      if (task.errand_type === 'express_pickup') return '快递代取'
-      if (task.errand_type === 'food_delivery') return '食堂打饭'
-      if (task.errand_type === 'grocery_shopping') return '超市代购'
-      if (task.errand_type === 'other') return '其他'
-      return task.title || '其他'
+    const getTaskTypeDisplay = (taskItem: any) => {
+      if (taskItem.errand_type === 'express_pickup') return '快递代取'
+      if (taskItem.errand_type === 'food_delivery') return '食堂打饭'
+      if (taskItem.errand_type === 'grocery_shopping') return '超市代购'
+      if (taskItem.errand_type === 'other') return '其他'
+      return taskItem.title || '其他'
     }
 
-    const getTaskRouteDisplay = (task: any) => {
-      const from = task.location_from || '起始地点'
-      const to = task.location_to || '目的地点'
+    const getTaskRouteDisplay = (taskItem: any) => {
+      const from = taskItem.location_from || '起始地点'
+      const to = taskItem.location_to || '目的地点'
       return `${from} → ${to}`
     }
 
