@@ -80,20 +80,31 @@ export const getNotes = async (params?: GetNotesParams) => {
 };
 
 /**
+ * 切换用户交互状态（点赞、收藏、关注等）
+ */
+export const toggleAction = async (params: {
+  targetId: string;
+  targetType: 'post' | 'comment' | 'user' | 'note' | 'listing';
+  actionType: 'like' | 'favorite' | 'follow';
+}) => {
+  return http.post<any>('/actions/toggle', {
+    target_id: params.targetId,
+    target_type: params.targetType,
+    action_type: params.actionType
+  });
+};
+
+/**
  * 获取笔记详情
  */
 export const getNoteDetail = async (noteId: string, userId?: string) => {
-  // 如果提供了userId，使用用户笔记列表接口
   if (userId) {
-    const apiPath = `/users/${userId}/notes`;
-
-    return http.get<{ code: number; message: string; data: any[] }>(apiPath);
+    // 如果有用户ID，获取该用户的笔记列表
+    return http.get<any>(`/users/${userId}/notes`);
+  } else {
+    // 否则直接获取笔记详情
+    return http.get<any>(`/notes/${noteId}`);
   }
-  
-  // 否则使用原来的路径（向后兼容）
-  const apiPath = `/notes/${noteId}`;
-  
-  return http.get<{ code: number; message: string; data: any }>(apiPath);
 };
 
 /**
@@ -138,34 +149,6 @@ export const createNote = async (noteData: CreateNoteRequest) => {
 };
 
 /**
- * 点赞笔记
- */
-export const likeNote = async (noteId: string) => {
-  return http.post<any>(`/notes/${noteId}/like`);
-};
-
-/**
- * 取消点赞笔记
- */
-export const unlikeNote = async (noteId: string) => {
-  return http.delete<any>(`/notes/${noteId}/like`);
-};
-
-/**
- * 收藏笔记
- */
-export const favoriteNote = async (noteId: string) => {
-  return http.post<any>(`/notes/${noteId}/favorite`);
-};
-
-/**
- * 取消收藏笔记
- */
-export const unfavoriteNote = async (noteId: string) => {
-  return http.delete<any>(`/notes/${noteId}/favorite`);
-};
-
-/**
  * 分享笔记
  */
 export const shareNote = async (noteId: string, shareType: 'link' | 'poster' | 'text' = 'link') => {
@@ -181,9 +164,6 @@ export default {
   getNoteStats,
   getNoteAnalytics,
   createNote,
-  likeNote,
-  unlikeNote,
-  favoriteNote,
-  unfavoriteNote,
+  toggleAction,
   shareNote,
 };
