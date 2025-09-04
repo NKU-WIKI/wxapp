@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, Image, ITouchEvent, Button } from '@tarojs/components'
+import { Text, Image, ITouchEvent, Button } from '@tarojs/components'
 import classnames from 'classnames'
 import styles from './index.module.scss'
 
@@ -73,7 +73,14 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         outline: 'none',
       }}
     >
-      <Image src={iconSrc} className={classnames(styles.icon, iconClassName)} />
+      <Image 
+        src={iconSrc} 
+        className={classnames(styles.icon, iconClassName)} 
+        style={{ 
+          // 如果使用activeIcon，则不需要CSS滤镜
+          filter: isActive && activeIcon ? 'none' : undefined 
+        }}
+      />
       {/* 只有在 text prop 被提供时才渲染 Text 组件 */}
       {text !== undefined && text !== null && (
         <Text className={classnames(styles.text, textClassName)}>{text}</Text>

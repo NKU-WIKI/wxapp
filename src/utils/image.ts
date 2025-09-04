@@ -107,6 +107,126 @@ export const compressImage = (
 };
 
 /**
+ * 智能压缩图片
+ * 根据图片大小自动决定是否需要压缩
+ * @param filePath 图片文件路径
+ * @param maxSizeKB 最大文件大小（KB），超过此大小才会压缩，默认1024KB（1MB）
+ * @param quality 压缩质量 (0-1，默认0.85)
+ * @returns Promise<string> 压缩后的临时文件路径
+ */
+export const smartCompressImage = async (
+  filePath: string,
+  maxSizeKB: number = 1024,
+  quality: number = 0.85
+): Promise<string> => {
+  try {
+    // 检查是否为图片格式
+    if (!isImageFile(filePath)) {
+      return filePath;
+    }
+
+    // 获取文件信息
+    const fileInfo = await Taro.getFileInfo({
+      filePath: filePath
+    });
+
+    // 检查是否成功获取文件信息
+    if ('size' in fileInfo) {
+      const fileSizeKB = fileInfo.size / 1024; // 转换为KB
+      
+      // 如果文件大小小于阈值，不需要压缩
+      if (fileSizeKB <= maxSizeKB) {
+        return filePath;
+      }
+      
+      // 如果文件大小超过阈值，进行压缩
+      
+      // 根据文件大小动态调整压缩质量，但保持较高的质量
+      let compressionQuality = quality;
+      
+      // 根据文件大小与阈值的比例，智能预估初始压缩质量
+      const sizeRatio = fileSizeKB / maxSizeKB;
+      
+      if (sizeRatio > 3) {
+        // 文件大小超过阈值的3倍，使用较低质量
+        compressionQuality = Math.max(0.75, quality - 0.1);
+      } else if (sizeRatio > 2) {
+        // 文件大小超过阈值的2倍，使用适中质量
+        compressionQuality = Math.max(0.8, quality - 0.05);
+      } else if (sizeRatio > 1.5) {
+        // 文件大小超过阈值的1.5倍，轻微调整质量
+        compressionQuality = Math.max(0.82, quality - 0.03);
+      } else {
+        // 文件大小接近阈值，保持高质量
+        compressionQuality = quality;
+      }
+      
+      // 尝试多次压缩，逐步调整质量直到达到目标大小
+      let finalPath = filePath;
+      let attempts = 0;
+      const maxAttempts = 5; // 增加尝试次数，更精细地控制
+      
+      while (attempts < maxAttempts) {
+        attempts++;
+        
+        finalPath = await compressImage(filePath, compressionQuality);
+        
+        // 检查压缩后的文件大小
+        try {
+          const compressedInfo = await Taro.getFileInfo({
+            filePath: finalPath
+          });
+          
+          if ('size' in compressedInfo) {
+            const compressedSizeKB = compressedInfo.size / 1024;
+            
+            // 目标：压缩到接近maxSizeKB，允许±20%的误差
+            const targetMin = maxSizeKB * 0.8;  // 最低目标：2.4MB
+            const targetMax = maxSizeKB * 1.2;  // 最高目标：3.6MB
+            
+            if (compressedSizeKB >= targetMin && compressedSizeKB <= targetMax) {
+              return finalPath;
+            }
+            
+            // 如果压缩过度（文件太小），提高质量重新压缩
+            if (compressedSizeKB < targetMin) {
+              compressionQuality = Math.min(0.95, compressionQuality + 0.05); // 提高质量
+              continue;
+            }
+            
+            // 如果文件仍然过大，降低质量
+            if (compressedSizeKB > targetMax) {
+              if (compressedSizeKB > maxSizeKB * 2) {
+                // 文件仍然很大，适度降低质量
+                compressionQuality = Math.max(0.7, compressionQuality - 0.08);
+              } else {
+                // 文件接近目标，轻微降低质量
+                compressionQuality = Math.max(0.75, compressionQuality - 0.03);
+              }
+            }
+          } else {
+            return finalPath;
+          }
+        } catch (error) {
+          // 无法获取压缩后文件信息，返回当前压缩结果
+          return finalPath;
+        }
+      }
+      
+      // 如果多次尝试后仍未达到目标，返回最后一次压缩结果
+      return finalPath;
+    } else {
+      // 无法获取文件大小信息，跳过压缩
+      return filePath;
+    }
+    
+  } catch (error) {
+    // 智能压缩失败，返回原路径
+    return filePath;
+  }
+};
+
+/**
  * 检查文件是否为图片格式
  * @param filePath 文件路径
  * @returns boolean

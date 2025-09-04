@@ -4,6 +4,9 @@ import Taro from '@tarojs/taro';
 import { normalizeImageUrl } from '@/utils/image';
 import { NoteListItem } from '@/services/api/note';
 import AuthorInfo from '@/components/author-info';
+import ActionButton from '@/components/action-button';
+import heartIcon from '@/assets/heart.svg';
+import heartFilledIcon from '@/assets/heart-bold.svg';
 import styles from './index.module.scss';
 
 interface NoteCardProps {
@@ -69,16 +72,16 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
       <View className={styles.footer}>
         {/* 使用AuthorInfo组件获取完整的用户信息 */}
         {note.user ? (
-          <AuthorInfo 
-            userId={note.user.id}
-            mode="compact"
-            showBio={false}
-            showFollowButton={false}
-            showStats={false}
-            showLevel={false}
-            showLocation={false}
-            showTime={false}
-          />
+          <View className={styles.authorInfoWrapper}>
+            <Image
+              src={normalizeImageUrl(note.user.avatar) || '/assets/avatar1.png'}
+              className={styles.exploreAvatarSmall} // 使用note-card自己的小头像样式
+              mode='aspectFill'
+            />
+            <View className={styles.authorDetails}>
+              <Text className={styles.authorName}>{note.user.nickname || '匿名用户'}</Text>
+            </View>
+          </View>
         ) : (
           <View className={styles.author}>
             <Image
@@ -91,8 +94,14 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
           </View>
         )}
         <View className={styles.likeInfo}>
-          <Text className={styles.likeCount}>{note.like_count}</Text>
-          <Text className={styles.likeIcon}>♥</Text>
+          <ActionButton
+            icon={heartIcon}
+            activeIcon={heartFilledIcon}
+            text={note.like_count?.toString() || '0'}
+            isActive={false}
+            actionType="like"
+            className={styles.likeButton}
+          />
         </View>
       </View>
     </View>

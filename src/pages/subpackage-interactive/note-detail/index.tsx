@@ -7,7 +7,7 @@ import { RootState } from '@/store';
 import { getNoteDetail } from '@/services/api/note';
 import { NoteDetail, NoteRead } from '@/types/api/note';
 import { normalizeImageUrl } from '@/utils/image';
-import { formatRelativeTime } from '@/utils/time';
+import { formatPostDate } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
 import ActionBar from '@/components/action-bar';
 import { useSharing } from '@/hooks/useSharing';
@@ -179,6 +179,21 @@ export default function NoteDetailPage() {
     setCurrentImageIndex(e.detail.current);
   };
 
+  // 处理图片预览
+  const handleImagePreview = (imageUrl: string, index: number) => {
+    const images = note?.images || [];
+    Taro.previewImage({
+      urls: images, // 传入所有图片URL数组
+      current: index, // 当前图片索引
+      success: () => {
+        // console.log('图片预览成功');
+      },
+      fail: (_err) => {
+        // console.error('图片预览失败:', _err);
+      }
+    });
+  };
+
   // 处理评论提交
   const handleCommentSubmit = () => {
     if (!commentText.trim()) {
@@ -263,8 +278,13 @@ export default function NoteDetailPage() {
                     mode='aspectFill'
                   />
                   <View className={styles.authorDetails}>
-                    <Text className={styles.authorName}>{note.user.nickname || '匿名用户'}</Text>
-                    <Text className={styles.authorLevel}>Lv.{note.author?.level || 1}</Text>
+                    <View className={styles.nameAndLevel}>
+                      <Text className={styles.authorName}>{note.user.nickname || '匿名用户'}</Text>
+                      <Text className={styles.authorLevel}>Lv.{note.author?.level || 1}</Text>
+                    </View>
+                    {note.user.bio && (
+                      <Text className={styles.authorBio}>{note.user.bio}</Text>
+                    )}
                   </View>
                   <View className={styles.authorActions}>
                     {/* 只有当前用户不是笔记作者时才显示关注按钮 */}
@@ -274,7 +294,7 @@ export default function NoteDetailPage() {
                       </View>
                     )}
                     <Text className={styles.publicationTime}>
-                      {note.created_at ? formatRelativeTime(note.created_at) : '刚刚'}
+                      {note.created_at ? formatPostDate(note.created_at) : '时间未知'}
                     </Text>
                   </View>
                 </View>
@@ -308,7 +328,8 @@ export default function NoteDetailPage() {
                     <Image 
                       className={styles.image}
                       src={image}
-                      mode='aspectFill'
+                      mode='aspectFit'
+                      onClick={() => handleImagePreview(image, index)}
                     />
                   </SwiperItem>
                 ))}

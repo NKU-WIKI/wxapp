@@ -184,7 +184,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           <View className={styles.compactUserInfoLeft} onClick={handleUserClick}>
             <Image
               src={normalizeImageUrl(user?.avatar || undefined) || defaultAvatar}
-              className={styles.compactAvatar}
+              className={classnames(styles.compactAvatar, className)}
               mode='aspectFill'
             />
             <View className={styles.compactUserDetails}>
