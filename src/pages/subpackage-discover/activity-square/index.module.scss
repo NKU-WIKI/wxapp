@@ -39,6 +39,56 @@
   color: #9ca3af;
 }
 
+// 筛选选项滚动容器样式
+.filterScrollContainer {
+  width: 100%;
+  height: auto;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+// 筛选选项容器样式
+.filterContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 8px 16px;
+  margin: 0;
+  width: max-content;
+}
+
+.filterItem {
+  padding: 6px 16px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.activeFilter {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+
+    .filterText {
+      color: #ffffff;
+    }
+  }
+}
+
+.filterText {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
 // 分类滚动容器样式
 .categoryScrollContainer {
   width: 100%;
@@ -313,6 +363,35 @@
   font-size: 14px;
   font-weight: 500;
   margin-left: auto; // 确保立即报名按钮始终在右边
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  // 已报名状态样式
+  &.registered {
+    background: #a5b4fc;
+    color: #ffffff;
+
+    &:active {
+      background: #a5b4fc;
+      transform: scale(0.98);
+    }
+  }
+
+  // 禁用状态样式（名额已满等）
+  &.disabled {
+    background: #9ca3af;
+    color: #ffffff;
+    opacity: 0.7;
+    cursor: not-allowed;
+
+    &:active {
+      transform: none;
+    }
+  }
 }
 
 .bottomTip {
@@ -323,7 +402,6 @@
   color: #94a3b8;
   font-size: 14px;
 }
-
 
 
 // 空状态样式

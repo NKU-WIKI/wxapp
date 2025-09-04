@@ -134,7 +134,8 @@ export default function ActivityDetail() {
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: false  // 使用24小时制
     });
   };
 
@@ -165,120 +166,117 @@ export default function ActivityDetail() {
       <CustomHeader title='活动详情' />
 
       <ScrollView scrollY className={styles.scrollView}>
-        {/* 活动标题 */}
-        <View className={styles.activityHeader}>
-          <Text className={styles.activityTitle}>{activity.title}</Text>
-          <View className={styles.activityMeta}>
-            <Text className={styles.activityCategory}>{activity.category}</Text>
-            <Text className={styles.activityType}>
-              {activity.activity_type === ActivityType.Offline ? '线下活动' :
-               activity.activity_type === ActivityType.Online ? '线上活动' : '混合活动'}
-            </Text>
-          </View>
-        </View>
-
-        {/* 活动时间 */}
-        <View className={styles.activityInfo}>
-          <View className={styles.infoItem}>
-            <Image src={require("@/assets/clock.svg")} className={styles.infoIcon} />
-            <View className={styles.infoContent}>
-              <Text className={styles.infoLabel}>开始时间</Text>
-              <Text className={styles.infoValue}>{formatDateTime(activity.start_time)}</Text>
-            </View>
-          </View>
-
-          <View className={styles.infoItem}>
-            <Image src={require("@/assets/clock.svg")} className={styles.infoIcon} />
-            <View className={styles.infoContent}>
-              <Text className={styles.infoLabel}>结束时间</Text>
-              <Text className={styles.infoValue}>{formatDateTime(activity.end_time)}</Text>
-            </View>
-          </View>
-
-          {/* 地点或链接 */}
-          {activity.activity_type !== ActivityType.Online && activity.location && (
-            <View className={styles.infoItem}>
-              <Image src={require("@/assets/map-pin.svg")} className={styles.infoIcon} />
-              <View className={styles.infoContent}>
-                <Text className={styles.infoLabel}>活动地点</Text>
-                <Text className={styles.infoValue}>{activity.location}</Text>
-              </View>
-            </View>
-          )}
-
-          {activity.activity_type !== ActivityType.Offline && activity.online_url && (
-            <View className={styles.infoItem}>
-              <Image src={require("@/assets/globe.svg")} className={styles.infoIcon} />
-              <View className={styles.infoContent}>
-                <Text className={styles.infoLabel}>活动链接</Text>
-                <Text className={styles.infoValue}>{activity.online_url}</Text>
-              </View>
-            </View>
-          )}
-
-          {/* 参与人数 */}
-          <View className={styles.infoItem}>
-            <Image src={require("@/assets/user.svg")} className={styles.infoIcon} />
-            <View className={styles.infoContent}>
-              <Text className={styles.infoLabel}>参与人数</Text>
-              <Text className={styles.infoValue}>
-                {activity.current_participants}
-                {activity.max_participants ? `/${activity.max_participants}` : ''}
+        {/* 主活动卡片 */}
+        <View className={styles.mainCard}>
+          {/* 活动标题 */}
+          <View className={styles.activityHeader}>
+            <Text className={styles.activityTitle}>{activity.title}</Text>
+            <View className={styles.activityMeta}>
+              <Text className={styles.activityCategory}>{activity.category}</Text>
+              <Text className={styles.activityType}>
+                {activity.activity_type === ActivityType.Offline ? '线下活动' :
+                 activity.activity_type === ActivityType.Online ? '线上活动' : '混合活动'}
               </Text>
             </View>
           </View>
-        </View>
 
-        {/* 活动描述 */}
-        <View className={styles.activityDescription}>
-          <Text className={styles.descriptionTitle}>活动详情</Text>
-          <Text className={styles.descriptionContent}>{activity.description}</Text>
-        </View>
-
-        {/* 活动标签 */}
-        {activity.tags && activity.tags.length > 0 && (
-          <View className={styles.activityTags}>
-            <Text className={styles.tagsTitle}>活动标签</Text>
-            <View className={styles.tagsContainer}>
-              {activity.tags.map((tag, index) => (
-                <View key={index} className={styles.tag}>
-                  <Text className={styles.tagText}>{tag}</Text>
+          {/* 活动时间 */}
+          <View className={styles.activityInfo}>
+            {/* 时间信息 - 开始时间和结束时间在一行 */}
+            <View className={styles.infoItem}>
+              <Image src={require("@/assets/date.png")} className={styles.infoDateIcon} />
+              <View className={styles.infoContent}>
+                <View className={styles.timeRow}>
+                  <Text className={styles.timeValue}>{formatDateTime(activity.start_time)}</Text>
+                  <Text className={styles.timeSeparator}>-</Text>
+                  <Text className={styles.timeValue}>{formatDateTime(activity.end_time)}</Text>
                 </View>
-              ))}
+              </View>
+            </View>
+
+            {/* 地点或链接 */}
+            {activity.activity_type !== ActivityType.Online && activity.location && (
+              <View className={styles.infoItem}>
+                <Image src={require("@/assets/location-green.png")} className={styles.infoLocationIcon} />
+                <View className={styles.infoContent}>
+                  <Text className={styles.infoLocation}>{activity.location}</Text>
+                </View>
+              </View>
+            )}
+
+            {activity.activity_type !== ActivityType.Offline && activity.online_url && (
+              <View className={styles.infoItem}>
+                <Image src={require("@/assets/globe.svg")} className={styles.infoDateIcon} />
+                <View className={styles.infoContent}>
+                  <Text className={styles.infoLabel}>活动链接</Text>
+                  <Text className={styles.infoValue}>{activity.online_url}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* 参与人数 */}
+            <View className={styles.infoItem}>
+              <Image src={require("@/assets/people.png")} className={styles.infoPeopleIcon} />
+              <View className={styles.infoContent}>
+                <Text className={styles.infoValue}>
+                  {activity.current_participants}
+                  {activity.max_participants ? `/${activity.max_participants}` : ''}
+                </Text>
+              </View>
             </View>
           </View>
-        )}
 
-        {/* 活动统计 */}
-        <View className={styles.activityStats}>
-          <View className={styles.statItem}>
-            <Text className={styles.statValue}>{activity.view_count}</Text>
-            <Text className={styles.statLabel}>浏览</Text>
+          {/* 活动描述 */}
+          <View className={styles.activityDescription}>
+            <Text className={styles.descriptionTitle}>活动详情</Text>
+            <Text className={styles.descriptionContent}>{activity.description}</Text>
           </View>
-          <View className={styles.statItem}>
-            <Text className={styles.statValue}>{activity.favorite_count}</Text>
-            <Text className={styles.statLabel}>收藏</Text>
-          </View>
-          <View className={styles.statItem}>
-            <Text className={styles.statValue}>{activity.share_count}</Text>
-            <Text className={styles.statLabel}>分享</Text>
-          </View>
-        </View>
 
-        {/* 报名按钮 */}
-        <View className={styles.actionContainer}>
-          <View
-            className={`${styles.joinButton} ${
-              activity.is_registered ? styles.joinedButton :
-              (activity.max_participants && activity.current_participants >= activity.max_participants) ? styles.fullButton : ''
-            }`}
-            onClick={handleJoinActivity}
-          >
-            <Text className={styles.joinButtonText}>
-              {activity.is_registered ? '已报名' :
-               (activity.max_participants && activity.current_participants >= activity.max_participants) ? '名额已满' :
-               '立即报名'}
-            </Text>
+          {/* 活动标签 */}
+          {activity.tags && activity.tags.length > 0 && (
+            <View className={styles.activityTags}>
+              <Text className={styles.tagsTitle}>活动标签</Text>
+              <View className={styles.tagsContainer}>
+                {activity.tags.map((tag, index) => (
+                  <View key={index} className={styles.tag}>
+                    <Text className={styles.tagText}>{tag}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* 活动统计 */}
+          <View className={styles.activityStats}>
+            <View className={styles.statItem}>
+              <Text className={styles.statValue}>{activity.view_count}</Text>
+              <Text className={styles.statLabel}>浏览</Text>
+            </View>
+            <View className={styles.statItem}>
+              <Text className={styles.statValue}>{activity.favorite_count}</Text>
+              <Text className={styles.statLabel}>收藏</Text>
+            </View>
+            <View className={styles.statItem}>
+              <Text className={styles.statValue}>{activity.share_count}</Text>
+              <Text className={styles.statLabel}>分享</Text>
+            </View>
+          </View>
+
+          {/* 报名按钮 - 放在主卡片内 */}
+          <View className={styles.actionContainer}>
+            <View
+              className={`${styles.joinButton} ${
+                activity.is_registered ? styles.joinedButton :
+                (activity.max_participants && activity.current_participants >= activity.max_participants) ? styles.fullButton : ''
+              }`}
+              onClick={handleJoinActivity}
+            >
+              <Text className={styles.joinButtonText}>
+                {activity.is_registered ? '已报名' :
+                 (activity.max_participants && activity.current_participants >= activity.max_participants) ? '名额已满' :
+                 '立即报名'}
+              </Text>
+            </View>
           </View>
         </View>
       </ScrollView>

@@ -17,6 +17,7 @@ export default function ActivitySquare() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
+  const [selectedFilter, setSelectedFilter] = useState<string>('全部');
 
 
   // 活动分类列表
@@ -30,8 +31,15 @@ export default function ActivitySquare() {
     '其他活动'
   ];
 
+  // 活动筛选选项
+  const filterOptions = [
+    '全部',
+    '我报名的',
+    '我发布的'
+  ];
+
   // 获取活动列表
-  const fetchActivities = useCallback(async (showLoading = true, category?: string) => {
+  const fetchActivities = useCallback(async (showLoading = true, category?: string, filter?: string) => {
     try {
       if (showLoading) {
         setActivitiesLoading(true);
@@ -42,7 +50,8 @@ export default function ActivitySquare() {
         limit: 20,
         status: ActivityStatus.Published,
         sort_by: 'start_time',
-        sort_order: 'desc'
+        sort_order: 'desc',
+        skip: 0
       };
 
       // 根据选择的分类添加过滤条件
@@ -51,22 +60,46 @@ export default function ActivitySquare() {
         (params as any).category = category;
       }
 
-      const res = await activityApi.getActivityList(params);
+      // 根据筛选类型调用不同的API
+      let res;
+      const currentFilter = filter || selectedFilter;
+
+      if (currentFilter === '我报名的') {
+        // 调用获取我报名的活动API
+        res = await activityApi.myActivity({
+          limit: params.limit,
+          skip: params.skip
+        });
+      } else if (currentFilter === '我发布的') {
+        // 调用获取我发布的活动API
+        res = await activityApi.getMyOrganizeActivity({
+          limit: params.limit,
+          skip: params.skip
+        });
+      } else {
+        // 全部活动
+        res = await activityApi.getActivityList(params);
+      }
+
       // 兼容后端 data?.data?.items / data?.data?.items 结构
       let list: ActivityRead[] = [];
       if (res?.data) {
         // 优先 PageActivityRead 结构
         const pageData: any = res.data as any;
         if (pageData?.items && Array.isArray(pageData.items)) {
-          list = pageData.items as ActivityRead[];
+          if (currentFilter === '我报名的') {
+            // 如果是我报名的活动，需要提取activity字段
+            list = pageData.items.map((item: any) => item.activity || item) as ActivityRead[];
+          } else {
+            list = pageData.items as ActivityRead[];
+          }
         } else if (Array.isArray(res.data as any)) {
           list = res.data as unknown as ActivityRead[];
         }
       }
       setActivities(list);
-      
+
     } catch (err) {
-      
       setActivities([]);
     } finally {
       if (showLoading) {
@@ -74,13 +107,11 @@ export default function ActivitySquare() {
       }
       setIsRefreshing(false);
     }
-  }, []);
-
-
+  }, [selectedFilter]);
 
   useEffect(() => {
-    fetchActivities(true, selectedCategory);
-  }, [fetchActivities, selectedCategory]);
+    fetchActivities(true, selectedCategory, selectedFilter);
+  }, [fetchActivities, selectedCategory, selectedFilter]);
 
   // 页面显示时刷新活动列表（每次进入页面都会触发）
   useEffect(() => {
@@ -172,7 +203,6 @@ export default function ActivitySquare() {
       const response = await activityApi.joinActivity({
         activity_id: act.id
       });
-      // console.log('Join activity response:', response);
 
       Taro.hideLoading();
 
@@ -220,7 +250,13 @@ export default function ActivitySquare() {
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     // 根据选择的分类重新获取活动列表
-    fetchActivities(true, category);
+    fetchActivities(true, category, selectedFilter);
+  };
+
+  const handleFilterChange = (filter: string) => {
+    setSelectedFilter(filter);
+    // 根据选择的筛选类型重新获取活动列表
+    fetchActivities(true, selectedCategory, filter);
   };
 
   // 过滤活动列表的函数（如果后端不支持分类过滤，则在前端进行过滤）
@@ -250,6 +286,25 @@ export default function ActivitySquare() {
             }}
           />
         </View>
+
+        {/* 活动筛选选项 */}
+        <ScrollView
+          scrollX
+          className={styles.filterScrollContainer}
+          showScrollbar={false}
+        >
+          <View className={styles.filterContainer}>
+            {filterOptions.map(filter => (
+              <View
+                key={filter}
+                className={`${styles.filterItem} ${selectedFilter === filter ? styles.activeFilter : ''}`}
+                onClick={() => handleFilterChange(filter)}
+              >
+                <Text className={styles.filterText}>{filter}</Text>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
 
         {/* 活动分类 */}
         <ScrollView
@@ -336,10 +391,21 @@ export default function ActivitySquare() {
                         </View>
                       )}
                       <Text
-                        className={styles.actionButton}
+                        className={`${styles.actionButton} ${
+                          act.is_registered
+                            ? styles.registered
+                            : (act.max_participants && act.current_participants >= act.max_participants)
+                              ? styles.disabled
+                              : ''
+                        }`}
                         onClick={(e) => handleJoinActivity(act, e)}
                       >
-                        立即报名
+                        {act.is_registered
+                          ? '已报名'
+                          : (act.max_participants && act.current_participants >= act.max_participants)
+                            ? '名额已满'
+                            : '立即报名'
+                        }
                       </Text>
                     </View>
                   </View>
