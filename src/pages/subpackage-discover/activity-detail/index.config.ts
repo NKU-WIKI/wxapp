@@ -1,4 +1,6 @@
-export default definePageConfig({
+export default {
   navigationBarTitleText: '活动详情',
-  navigationStyle: 'custom'
-});
+  navigationStyle: 'custom',
+  enableShareTimeline: true,
+  enableShareAppMessage: true
+};

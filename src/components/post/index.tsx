@@ -1,19 +1,13 @@
 import { View, Text, Image, ITouchEvent } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useState, useRef } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { showToast } from '@/utils/ui';
 import { Post as PostData } from "@/types/api/post.d";
 
 import { normalizeImageUrls } from '@/utils/image';
-import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { deletePost } from '@/store/slices/postSlice';
-import { toggleAction } from '@/store/slices/actionSlice';
-import { BBSNotificationHelper } from '@/utils/notificationHelper';
 import AuthorInfo from '@/components/author-info';
-import ActionBar from '@/components/action-bar';
-import { ActionButtonProps } from '@/components/action-button';
+import ActionBar, { ActionButtonConfig } from '@/components/action-bar';
 
 // 引入所有需要的图标
 import heartIcon from "@/assets/heart-outline.svg";
@@ -21,7 +15,6 @@ import heartActiveIcon from "@/assets/heart-bold.svg";
 import commentIcon from "@/assets/message-circle.svg";
 import starIcon from "@/assets/star-outline.svg";
 import starActiveIcon from "@/assets/star-filled.svg";
-import sendIcon from "@/assets/send.svg";
 import shareIcon from "@/assets/share.svg";
 
 import locationIcon from "@/assets/map-pin.svg";
@@ -48,9 +41,6 @@ interface PostProps {
  */
 const Post = ({ post, className = "", mode = "list", enableNavigation = true }: PostProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { checkAuth } = useAuthGuard();
-  const [isActionLoading, setIsActionLoading] = useState(false);
-  const lastActionTimeRef = useRef<number>(0);
   const userState = useSelector((state: RootState) => state.user);
   const postState = useSelector((state: RootState) => state.post);
   const userInfo = userState?.user || null;
@@ -75,7 +65,6 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
     return null;
   }
 
-  const DEBOUNCE_DELAY = 500;
   // 直接从 displayPost 获取状态，不使用本地状态管理
   const isLiked = displayPost.is_liked === true;
   const isFavorited = displayPost.is_favorited === true;
@@ -131,7 +120,8 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   
   // 跳转到详情页
   const navigateToDetail = (e?: ITouchEvent | null) => {
-    if (e) {
+    // 安全检查：确保事件对象存在 stopPropagation 方法
+    if (e && typeof e.stopPropagation === 'function') {
       e.stopPropagation();
     }
     if (enableNavigation && mode === 'list') {
@@ -174,112 +164,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
     });
   };
   
-  // 处理点赞、收藏、关注等动作
-  const handleActionClick = (e, actionType: 'like' | 'favorite' | 'share' | 'comment') => {
-    e.stopPropagation();
-    
-    // 防抖动机制
-    const currentTime = Date.now();
-    if (actionType === 'like' || actionType === 'favorite') {
-      if (isActionLoading) {
-        Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
-        return;
-      }
-      
-      if (currentTime - lastActionTimeRef.current < DEBOUNCE_DELAY) {
-        Taro.showToast({ title: '操作太快了，请稍等', icon: 'none' });
-        return;
-      }
-      
-      lastActionTimeRef.current = currentTime;
-    }
-    
-    if (actionType === 'share') {
-      showToast('分享功能需要在页面中实现', { type: 'info' });
-      return;
-    }
-    
-    if (actionType === 'comment') {
-      if (mode === 'list') {
-        navigateToDetail(e);
-      }
-      return;
-    }
-    
-    if (!checkAuth()) return;
-    
-    switch (actionType) {
-      case 'like':
-      case 'favorite':
-        setIsActionLoading(true);
-        
-        dispatch(toggleAction({
-          target_id: displayPost.id,
-          target_type: 'post',
-          action_type: actionType
-        })).then((result: any) => {
-          if (result.payload && result.payload.is_active !== undefined) {
-            
-            
-            // 如果操作成功且状态变为激活（点赞/收藏），创建通知
-            if (result.payload.is_active && getCurrentUserId() !== author?.id && !isAnonymous) {
-              
-              
-              if (actionType === 'like') {
-                BBSNotificationHelper.handleLikeNotification({
-                  postId: displayPost.id,
-                  postTitle: displayPost.title,
-                  postAuthorId: author?.id || '',
-                  currentUserId: getCurrentUserId(),
-                  isLiked: result.payload.is_active
-                }).then(() => {
-                  // 点赞通知发送成功
-                }).catch((_error) => {
-                  // 忽略通知发送错误
-                });
-              } else if (actionType === 'favorite') {
-                BBSNotificationHelper.handleCollectNotification({
-                  postId: displayPost.id,
-                  postTitle: displayPost.title,
-                  postAuthorId: author?.id || '',
-                  currentUserId: getCurrentUserId(),
-                  isCollected: result.payload.is_active
-                }).then(() => {
-                  // 收藏通知发送成功
-                }).catch((_error) => {
-                  // 忽略通知发送错误
-                });
-              }
-            } else {
-              
-            }
-            // 移除本地状态更新，完全依赖Redux store更新
-          }
-        }).catch(error => {
-          
-          
-          if (error.statusCode === 401) {
-            Taro.showModal({
-              title: '登录已过期',
-              content: '请重新登录后重试',
-              success: (res) => {
-                if (res.confirm) {
-                  Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-                }
-              }
-            });
-          } else {
-            Taro.showToast({
-              title: '操作失败，请重试',
-              icon: 'none'
-            });
-          }
-        }).finally(() => {
-          setIsActionLoading(false);
-        });
-        break;
-    }
-  };
+  // ActionBar 已经完全处理了点赞、收藏、评论、分享等操作
 
   // 预览图片
   const previewImage = (currentImage: string) => {
@@ -292,27 +177,24 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   // 判断是否可以删除
   const canDelete = getCurrentUserId() === author?.id || getCurrentUserRole() === 'admin';
 
-  const actionBarButtons: ActionButtonProps[] = [
+  const actionBarButtons: ActionButtonConfig[] = [
     {
+      type: 'like',
       icon: heartIcon,
       activeIcon: heartActiveIcon,
-      text: likeCount,
-      isActive: isLiked,
-      onClick: (e) => handleActionClick(e, 'like'),
-      className: isLiked ? styles.active : '',
     },
     {
+      type: 'comment',
       icon: commentIcon,
-      text: commentCount,
-      onClick: (e) => handleActionClick(e, 'comment'),
     },
     {
+      type: 'favorite',
       icon: starIcon,
       activeIcon: starActiveIcon,
-      text: favoriteCount,
-      isActive: isFavorited,
-      onClick: (e) => handleActionClick(e, 'favorite'),
-      className: isFavorited ? styles.active : '',
+    },
+    {
+      type: 'share',
+      icon: shareIcon,
     },
   ];
 
@@ -401,13 +283,22 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
       
       {/* 底部操作栏 */}
       <View className={styles.footer}>
-        <ActionBar buttons={actionBarButtons} className={styles.actions} />
-        <View
-          className={styles.shareIcon}
-          onClick={(e) => handleActionClick(e, "share")}
-        >
-          <Image src={mode === 'detail' ? shareIcon : sendIcon} style={{ width: '100%', height: '100%' }} />
-        </View>
+        <ActionBar
+          targetId={post.id}
+          targetType='post'
+          initialStates={{
+            'like-0': { isActive: isLiked, count: likeCount },
+            'comment-1': { isActive: false, count: commentCount },
+            'favorite-2': { isActive: isFavorited, count: favoriteCount },
+            'share-3': { isActive: false, count: post.share_count || 0 }
+          }}
+          buttons={actionBarButtons}
+          className={styles.actions}
+          onStateChange={(_type, _isActive, _count) => {
+            // ActionBar 已经处理了操作，这里可以添加额外的逻辑
+            // 例如：更新本地状态、发送统计数据等
+          }}
+        />
       </View>
     </View>
   );

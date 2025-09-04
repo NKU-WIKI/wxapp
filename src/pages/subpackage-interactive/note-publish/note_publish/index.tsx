@@ -149,8 +149,6 @@ export default function PublishNote() {
               let compressed = false;
               
               if (originalSize > 1024 * 1024) { // 超过1MB
-                console.log(`🔄 本地压缩图片: ${(originalSize / 1024 / 1024).toFixed(2)}MB`);
-                
                 // 使用智能压缩到1MB以下
                 const { smartCompressImage } = await import('@/utils/image');
                 finalPath = await smartCompressImage(tempPath, 1024, 0.85);
@@ -163,7 +161,6 @@ export default function PublishNote() {
                   compressedSize = compressedInfo.size;
                 }
                 
-                console.log(`✅ 本地压缩完成: ${(originalSize / 1024 / 1024).toFixed(2)}MB → ${(compressedSize / 1024 / 1024).toFixed(2)}MB`);
                 compressed = true;
               }
               

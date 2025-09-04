@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Button } from '@tarojs/components';
+import { View, Text } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchUserProfile, fetchCurrentUser } from '../../../store/slices/userSlice';
 import { getActionStatus, getUserPostCount, getUserFollowersCount, getUserFollowingCount } from '../../../services/api/user';
 import { followAction } from '../../../services/api/followers';
 import { BBSNotificationHelper } from '../../../utils/notificationHelper';
+import { useSharing } from '../../../hooks/useSharing';
 import CustomHeader from '../../../components/custom-header';
 import AuthorInfo from '../../../components/author-info';
 import ActionBar from '../../../components/action-bar';
-import { ActionButtonProps } from '../../../components/action-button';
 import styles from './index.module.scss';
 
 const UserDetail: React.FC = () => {
@@ -19,10 +19,16 @@ const UserDetail: React.FC = () => {
   const [targetUser, setTargetUser] = useState<any>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [followLoading, setFollowLoading] = useState(false);
 
   const userId = router.params.userId || '';
-  const currentUserId = useAppSelector(state => state.user.userInfo?.id);
+  const currentUserId = useAppSelector(state => state.user.user?.id);
+
+  // 使用分享 Hook
+  useSharing({
+    title: targetUser?.nickname ? `${targetUser.nickname}的个人主页` : '分享用户',
+    path: `/pages/subpackage-profile/user-detail/index?userId=${userId}`,
+    imageUrl: targetUser?.avatar,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -121,7 +127,6 @@ const UserDetail: React.FC = () => {
     }
 
     try {
-      setFollowLoading(true);
       // 调用关注API
       const response = await followAction({
         target_user_id: userId,
@@ -180,13 +185,10 @@ const UserDetail: React.FC = () => {
         }
       }
     } catch (error) {
-      
       Taro.showToast({
         title: '操作失败，请重试',
         icon: 'none'
       });
-    } finally {
-      setFollowLoading(false);
     }
   };
 
@@ -220,10 +222,10 @@ const UserDetail: React.FC = () => {
         <AuthorInfo
           userId={targetUser.id}
           mode='expanded'
-          showStats={true}
-          showFollowButton={true}
-          showBio={true}
-          showLevel={true}
+          showStats
+          showFollowButton
+          showBio
+          showLevel
         />
 
         <View className={styles.stats}>
@@ -242,15 +244,27 @@ const UserDetail: React.FC = () => {
         </View>
 
         {/* 保留原有的关注逻辑，但使用 ActionBar 统一样式 */}
-        <ActionBar buttons={[
-          {
-            icon: isFollowing ? '/assets/user-check.svg' : '/assets/user-plus.svg',
-            text: isFollowing ? '已关注' : '关注',
-            onClick: handleFollow,
-            className: `${styles.followAction} ${isFollowing ? styles.following : ''}`,
-            isActive: isFollowing,
-          }
-        ]} className={styles.actions} />
+        <ActionBar
+          targetId={userId}
+          targetType='user'
+          buttons={[
+            {
+              type: 'custom',
+              icon: isFollowing ? '/assets/user-check.svg' : '/assets/user-plus.svg',
+              text: isFollowing ? '已关注' : '关注',
+              onClick: handleFollow,
+            },
+            {
+              type: 'share',
+              icon: '/assets/share.svg',
+            }
+          ]}
+          className={styles.actions}
+          initialStates={{
+            'custom-0': { isActive: isFollowing, count: 0 },
+            'share-1': { isActive: false, count: 0 }
+          }}
+        />
       </View>
     </View>
   );
