@@ -477,25 +477,17 @@ export default function PublishNote() {
             />
                   </View>
 
-          {/* 资源链接区域 - 预留位置 */}
-          <View className={styles.resourceSection}>
-            <Text className={styles.sectionTitle}>资源链接</Text>
-            <Text className={styles.comingSoon}>功能开发中，敬请期待...</Text>
-                </View>
+
 
           {/* 发布按钮 */}
           <View className={styles.publishSection}>
-            <View 
-              className={styles.publishButton}
+            <Button 
+              className={styles.publishBtn}
+              onClick={handlePublish}
+              disabled={isPublishing || !title.trim() || !content.trim()}
             >
-              <Button 
-                className={styles.publishBtn}
-                onClick={handlePublish}
-                disabled={isPublishing || !title.trim() || !content.trim()}
-              >
-                {isPublishing ? '发布中...' : '发布笔记'}
-              </Button>
-            </View>
+              {isPublishing ? '发布中...' : '发布笔记'}
+            </Button>
           </View>
         </ScrollView>
       </View>

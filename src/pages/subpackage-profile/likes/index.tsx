@@ -8,6 +8,7 @@ import { useMultipleFollowStatus } from '@/hooks/useFollowStatus';
 import CustomHeader from '@/components/custom-header';
 import EmptyState from '@/components/empty-state';
 import Post from '@/components/post';
+import NoteCard from '@/components/note-card';
 import heartOutlineIcon from '@/assets/heart-outline.svg';
 import styles from './index.module.scss';
 
@@ -309,17 +310,104 @@ const LikesPage: React.FC = () => {
         </View>
       );
     } else {
-      // 笔记类型 - 暂时显示空状态
+      // 笔记类型 - 显示笔记内容
+      if (filteredLikes.length === 0) {
+        return (
+          <EmptyState
+            icon={heartOutlineIcon}
+            text={
+              <View>
+                <Text>还没有点赞任何笔记</Text>
+                <Text>快去点赞感兴趣的内容吧</Text>
+              </View>
+            }
+          />
+        );
+      }
+
       return (
-        <EmptyState
-          icon={heartOutlineIcon}
-          text={
-            <View>
-              <Text>还没有点赞任何笔记</Text>
-              <Text>快去点赞感兴趣的内容吧</Text>
-            </View>
+        <View className={styles.likesList}>
+          {filteredLikes
+            .filter(like => {
+              // 确保笔记有内容且有ID
+              if (like.target_type === 'post' && like.content?.type === 'note') {
+                return like.content && like.content.id;
+              }
+              return false;
+            })
+            .map((like, index) => {
+              // 确保like.content存在
+              if (!like.content) {
+                return null;
+              }
+
+              // 将点赞数据转换为NoteCard需要的格式
+              const noteData = {
+                id: like.content.id,
+                title: like.content.title || '无标题笔记',
+                content: like.content.content || '',
+                status: 'published' as const,
+                user_id: (like.content as any)?.user_id || like.content.author_info?.id || '',
+                user: like.content.author_info || (like.content as any)?.user || {
+                  id: '',
+                  nickname: '未知用户',
+                  avatar: '',
+                  created_at: '',
+                  updated_at: '',
+                  tenant_id: '',
+                  status: 'active' as const
+                },
+                author_name: like.content.author_info?.nickname || (like.content as any)?.user?.nickname || '未知用户',
+                author_avatar: like.content.author_info?.avatar || (like.content as any)?.user?.avatar || '',
+                like_count: like.content.like_count || 0,
+                comment_count: like.content.comment_count || 0,
+                view_count: like.content.view_count || 0,
+                created_at: like.content.created_at || like.created_at,
+                updated_at: (like.content as any)?.updated_at || like.updated_at,
+                // 添加图片支持
+                images: (like.content as any)?.images || [],
+                // 添加类型标识
+                type: 'note' as const,
+                // 添加必需的属性
+                is_public: true,
+                category_id: undefined,
+                tags: []
+              };
+
+              return (
+                <View key={`note-like-${like.id}-${like.target_id}-${index}`} className={styles.likeWrapper}>
+                  <NoteCard 
+                    note={noteData}
+                    onClick={() => {
+                      // 导航到笔记详情页
+                      const userId = noteData.user?.id;
+                      const url = userId 
+                        ? `/pages/subpackage-interactive/note-detail/index?id=${noteData.id}&userId=${userId}`
+                        : `/pages/subpackage-interactive/note-detail/index?id=${noteData.id}`;
+                      
+                      Taro.navigateTo({ url });
+                    }}
+                  />
+                </View>
+              );
+            })
+            .filter(Boolean) // 过滤掉null值
           }
-        />
+          
+          {/* 加载更多指示器 */}
+          {loading === 'pending' && filteredLikes.length > 0 && (
+            <View className={styles.loadMore}>
+              <Text className={styles.loadMoreText}>加载中...</Text>
+            </View>
+          )}
+          
+          {/* 没有更多数据提示 */}
+          {!pagination.has_more && filteredLikes.length > 0 && (
+            <View className={styles.noMore}>
+              <Text className={styles.noMoreText}>没有更多点赞了</Text>
+            </View>
+          )}
+        </View>
       );
     }
   };
@@ -366,4 +454,4 @@ const LikesPage: React.FC = () => {
   );
 };
 
-export default LikesPage;
+export default LikesPage; 
