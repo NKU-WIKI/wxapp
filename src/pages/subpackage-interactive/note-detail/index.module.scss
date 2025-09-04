@@ -16,8 +16,14 @@
   
   .noteHeader {
     background-color: #ffffff;
-    padding: 20px 16px 16px;
-    margin-bottom: 8px;
+    padding: 16px 16px 12px; // 减少上下padding
+    margin-bottom: 4px; // 减少底部margin
+  }
+  
+  .noteContent {
+    background-color: #ffffff;
+    padding: 16px 16px; // 减少上下padding
+    margin-bottom: 4px; // 减少底部margin
   }
   
   .noteTitle {
@@ -25,21 +31,21 @@
     font-weight: 700;
     color: #000000;
     line-height: 1.4;
-    margin-bottom: 16px;
+    margin-bottom: 16px; // 标题和内容之间的间距
     display: block;
     margin-left: 8px;
     font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
   }
   
   .authorSection {
-    margin-bottom: 16px;
+    margin-bottom: 12px; // 减少作者区域底部margin
   }
   
   .customAuthorInfo {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 0;
+    padding: 8px 0; // 减少上下padding
   }
   
   .authorAvatar {
@@ -51,10 +57,10 @@
   }
   
   .authorDetails {
-    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex-shrink: 0;
   }
   
   .authorName {
@@ -66,13 +72,17 @@
   }
   
   .authorLevel {
-    background-color: #4a90e2;
-    color: #ffffff;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4F46E5;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
     font-weight: 500;
-    align-self: flex-start;
+    height: 18px;
+    width: fit-content;
   }
   
   .authorActions {
@@ -107,7 +117,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 12px; // 减少标签顶部margin
   }
   
   .tag {
@@ -116,7 +126,7 @@
     gap: 6px;
     background-color: #f0f8ff;
     color: #4a90e2;
-    padding: 8px 12px;
+    padding: 6px 10px; // 减少标签内padding
     border-radius: 20px;
     font-size: 12px;
     border: 1px solid #e1f0ff;
@@ -134,13 +144,13 @@
   
   .imageSection {
     background-color: #ffffff;
-    margin-bottom: 8px;
+    margin-bottom: 4px; // 减少图片区域底部margin
     position: relative;
   }
   
   .imageContainer {
     width: 100%;
-    height: 240px;
+    height: 220px; // 稍微减少图片高度
   }
   
   .image {
@@ -182,12 +192,6 @@
     background-color: #ffffff;
   }
   
-  .noteContent {
-    background-color: #ffffff;
-    padding: 20px 16px;
-    margin-bottom: 8px;
-  }
-  
   .contentText {
     font-size: 16px;
     line-height: 1.6;
@@ -197,8 +201,8 @@
   
   .resourceSection {
     background-color: #ffffff;
-    padding: 20px 16px;
-    margin-bottom: 8px;
+    padding: 16px 16px; // 减少上下padding
+    margin-bottom: 4px; // 减少底部margin
   }
   
   .sectionTitle {
@@ -268,12 +272,12 @@
   
   .commentSection {
     background-color: #ffffff;
-    padding: 20px 16px;
-    margin-bottom: 8px;
+    padding: 16px 16px; // 减少上下padding
+    margin-bottom: 4px; // 减少底部margin
   }
   
   .commentHeader {
-    margin-bottom: 16px;
+    margin-bottom: 12px; // 减少评论头部底部margin
   }
   
   .commentCount {
@@ -285,8 +289,8 @@
   .commentList {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 12px; // 减少评论项之间的间距
+    margin-bottom: 16px; // 减少评论列表底部margin
   }
   
   .commentItem {

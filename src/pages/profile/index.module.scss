@@ -3,16 +3,26 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  height: 110vh;
+  height: 114vh;
   background-color: $bg-page-gray;
 }
 
 /* 页面整体布局 */
 .profile-page {
-  min-height: 100vh;
+  height: 100vh;
   background-color: $bg-page-gray;
   display: flex;
   flex-direction: column;
+}
+
+/* 内容区域 */
+.content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.scrollView {
+  height: 100%;
 }
 
 /* 头部样式 */
@@ -33,7 +43,7 @@
 .userCard {
   background-color: white;
   padding: 24px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 0;
 }
 
 .userInfoRow {
@@ -134,6 +144,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 16px;
+  margin-top: 16px;
 }
 
 .statsRow {
@@ -189,10 +202,10 @@
 /* 菜单卡片 */
 .menuCard {
   background-color: white;
-  border-radius: 16px;
-  margin: 24px 16px 16px 16px;
-  padding: 16px;
-  height:580px;
+  border-radius: 0;
+  margin: 0;
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .menuList {

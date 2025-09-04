@@ -11,6 +11,16 @@
   &:hover, &:active {
     background-color: #F3F4F6;
   }
+  
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    
+    &:hover, &:active {
+      background-color: transparent;
+    }
+  }
 }
 
 .icon {

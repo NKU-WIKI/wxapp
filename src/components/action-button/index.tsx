@@ -35,12 +35,25 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   isActive = false,
   className = '',
   iconClassName = '',
-  textClassName = ''
+  textClassName = '',
+  disabled = false
 }) => {
   const iconSrc = isActive && activeIcon ? activeIcon : icon;
   
+  const handleClick = (e: ITouchEvent) => {
+    if (disabled || !onClick) return;
+    onClick(e);
+  };
+  
   return (
-    <View className={classnames(styles.actionButton, className)} onClick={onClick}>
+    <View 
+      className={classnames(
+        styles.actionButton, 
+        className,
+        { [styles.disabled]: disabled }
+      )} 
+      onClick={handleClick}
+    >
       <Image src={iconSrc} className={classnames(styles.icon, iconClassName)} />
       {/* 只有在 text prop 被提供时才渲染 Text 组件 */}
       {text !== undefined && text !== null && (
