@@ -3,7 +3,7 @@ import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback, useMemo } from "react";
 
 import activityApi, { myActivity, myOrganizedActivity } from "@/services/api/activity";
-import { ActivityRead, ActivityStatus, GetActivityListRequest } from "@/types/api/activity.d";
+import { ActivityRead, ActivityStatus, ActivityType, GetActivityListRequest } from "@/types/api/activity.d";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import CustomHeader from "@/components/custom-header";
@@ -463,11 +463,11 @@ export default function ActivitySquare() {
                   onClick={() => handleActivityClick(act)}
                 >
                   <View className={styles.activityContent}>
-                    <HighlightText
-                      text={act.title}
-                      keywords={searchKeywords}
-                      highlightStyle={{ color: '#ff4d4f', fontWeight: 'bold' }}
-                    />
+                    <View>
+                      <Text className={styles.activityTitle}>
+                        <HighlightText text={act.title || '无标题'} keywords={searchKeywords} />
+                      </Text>
+                    </View>
                     <View className={styles.activityDetails}>
                       <View className={styles.activityDetailItem}>
                         <Image src={require("@/assets/clock.svg")} className={styles.detailIcon} />
@@ -476,9 +476,34 @@ export default function ActivitySquare() {
                         </Text>
                       </View>
                       <View className={styles.activityDetailItem}>
-                        <Image src={require("@/assets/map-pin.svg")} className={styles.detailIcon} />
-                        <Text className={styles.activityDetail}>{act.location || '待定'}</Text>
+                        {/* 根据活动类型显示不同的图标和信息 */}
+                        {act.activity_type === ActivityType.Online ? (
+                          // 线上活动显示链接
+                          <>
+                            <Image src={require("@/assets/globe.svg")} className={styles.detailIcon} />
+                            <Text className={styles.activityDetail}>{act.online_url || '线上活动'}</Text>
+                          </>
+                        ) : act.activity_type === ActivityType.Offline ? (
+                          // 线下活动显示地点
+                          <>
+                            <Image src={require("@/assets/map-pin.svg")} className={styles.detailIcon} />
+                            <Text className={styles.activityDetail}>{act.location || '待定'}</Text>
+                          </>
+                        ) : (
+                          // 混合活动显示地点
+                          <>
+                            <Image src={require("@/assets/map-pin.svg")} className={styles.detailIcon} />
+                            <Text className={styles.activityDetail}>{act.location || '待定'}</Text>
+                          </>
+                        )}
                       </View>
+                      {/* 混合活动额外显示线上链接 */}
+                      {act.activity_type === ActivityType.Hybrid && act.online_url && (
+                        <View className={styles.activityDetailItem}>
+                          <Image src={require("@/assets/globe.svg")} className={styles.detailIcon} />
+                          <Text className={styles.activityDetail}>{act.online_url}</Text>
+                        </View>
+                      )}
                     </View>
                     <View className={styles.descriptionContainer}>
                       <Text
