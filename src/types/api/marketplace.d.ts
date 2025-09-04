@@ -103,6 +103,9 @@ export interface ListingRead {
   view_count?: number;
   favorite_count?: number;
   booking_count?: number;
+  comment_count?: number;
+  share_count?: number;
+  is_favorited?: boolean;
   category?: CategoryRead;
   similar_listings?: ListingRead[];
 }

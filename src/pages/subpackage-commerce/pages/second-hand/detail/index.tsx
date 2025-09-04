@@ -6,7 +6,7 @@ import { useEffect, useCallback } from 'react'
 
 // Relative imports
 import CustomHeader from '@/components/custom-header'
-import { fetchListingDetail, deleteListing, clearError } from '@/store/slices/marketplaceSlice'
+import { fetchListingDetail, deleteListing, clearError, updateListingState } from '@/store/slices/marketplaceSlice'
 import { RootState, AppDispatch } from '@/store'
 import { ListingRead } from '@/types/api/marketplace.d'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
@@ -22,6 +22,9 @@ import moreIcon from '@/assets/more-horizontal.svg'
 import locationIcon from '@/assets/map-pin.svg'
 import placeholderImage from '@/assets/placeholder.jpg'
 import messageIcon from '@/assets/message-square.svg'
+import favoriteIcon from '@/assets/star-outline.svg'
+import favoriteActiveIcon from '@/assets/star-filled.svg'
+import shareIcon from '@/assets/share.svg'
 
 
 import styles from './index.module.scss'
@@ -334,21 +337,52 @@ const SecondHandDetailPage = () => {
         <ActionBar
           targetId={currentListing.id}
           targetType='listing'
-          autoHandle
+          initialStates={{
+            'favorite-0': {
+              isActive: currentListing.is_favorited || false,
+              count: currentListing.favorite_count || 0
+            },
+            'comment-1': {
+              isActive: false,
+              count: currentListing.comment_count || 0 // 使用商品的评论计数
+            },
+            'share-2': {
+              isActive: false,
+              count: currentListing.share_count || 0
+            }
+          }}
           buttons={[
             {
-              icon: '/assets/favorite.png',
-              activeIcon: '/assets/favorite.png',
-              text: currentListing.favorite_count || 0, // 显示收藏数量
-              isActive: false, // 初始状态为未收藏，ActionBar 内部会管理状态
-              actionType: 'favorite' // ActionBar 会自动处理收藏操作
+              type: 'favorite',
+              icon: favoriteIcon,
+              activeIcon: favoriteActiveIcon
             },
             {
+              type: 'comment',
               icon: messageIcon,
-              text: `${currentListing.view_count || 0}人联系了${currentListing.listing_type === 'sell' ? '卖家' : currentListing.listing_type === 'buy' ? '买家' : '卖家'}`, // 根据商品类型显示卖家或买家
-              onClick: () => Taro.showToast({ title: '联系功能开发中', icon: 'none' })
+            },
+            {
+              type: 'share',
+              icon: shareIcon
             }
           ]}
+          onStateChange={(type, isActive, count) => {
+            // ActionBar 已经完全处理了操作，这里可以添加额外的业务逻辑
+            if (type === 'favorite') {
+              // 同步更新 Redux store 中的状态
+              dispatch(updateListingState({
+                id: currentListing.id,
+                data: {
+                  is_favorited: isActive,
+                  favorite_count: count
+                }
+              }));
+            } else if (type === 'comment') {
+              // 评论按钮被点击，聚焦到评论区域
+              // 这里可以实现滚动到 CommentSection 的逻辑
+            }
+            // 分享计数由 ActionBar 内部处理，无需额外逻辑
+          }}
         />
       </View>
     </View>

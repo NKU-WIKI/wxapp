@@ -139,8 +139,13 @@ export const toggleFavorite = createAsyncThunk(
   "marketplace/toggleFavorite",
   async (listingId: string, { rejectWithValue }) => {
     try {
-      await marketplaceApi.toggleFavorite(listingId);
-      return listingId;
+      const response = await marketplaceApi.toggleFavorite(listingId);
+      // 返回包含状态和计数的完整信息
+      return {
+        listingId,
+        isActive: response.data?.is_active ?? false,
+        count: response.data?.count ?? 0
+      };
     } catch (error: any) {
       return rejectWithValue(error.message || "收藏操作失败");
     }
@@ -522,6 +527,20 @@ const marketplaceSlice = createSlice({
         state.listings[index] = { ...state.listings[index], ...data };
       }
     },
+    updateListingState: (state, action) => {
+      const { id, data } = action.payload;
+
+      // 更新列表中的商品状态
+      const listingIndex = state.listings.findIndex(listing => listing.id === id);
+      if (listingIndex !== -1) {
+        state.listings[listingIndex] = { ...state.listings[listingIndex], ...data };
+      }
+
+      // 更新当前详情页的商品状态
+      if (state.currentListing?.id === id) {
+        state.currentListing = { ...state.currentListing, ...data };
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -637,23 +656,19 @@ const marketplaceSlice = createSlice({
 
       // 收藏/取消收藏商品（通用接口）
       .addCase(toggleFavorite.fulfilled, (state, action) => {
-        const listing = state.listings.find(l => l.id === action.payload);
+        const { listingId, isActive, count } = action.payload;
+
+        // 更新列表中的商品状态
+        const listing = state.listings.find(l => l.id === listingId);
         if (listing) {
-          // 如果当前收藏数为0，表示执行收藏操作，计数+1
-          // 如果当前收藏数>0，表示执行取消收藏操作，计数-1
-          if (listing.favorite_count === 0) {
-            listing.favorite_count = 1;
-          } else {
-            listing.favorite_count = 0;
-          }
+          listing.favorite_count = count;
+          listing.is_favorited = isActive;
         }
-        if (state.currentListing?.id === action.payload) {
-          // 同样的逻辑应用于当前详情页的商品
-          if (state.currentListing.favorite_count === 0) {
-            state.currentListing.favorite_count = 1;
-          } else {
-            state.currentListing.favorite_count = 0;
-          }
+
+        // 更新当前详情页的商品状态
+        if (state.currentListing?.id === listingId) {
+          state.currentListing.favorite_count = count;
+          state.currentListing.is_favorited = isActive;
         }
       })
 
@@ -840,5 +855,5 @@ const marketplaceSlice = createSlice({
   },
 });
 
-export const { clearError, clearCurrentListing, clearSimilarListings } = marketplaceSlice.actions;
+export const { clearError, clearCurrentListing, clearSimilarListings, updateListingState } = marketplaceSlice.actions;
 export default marketplaceSlice.reducer;

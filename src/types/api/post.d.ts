@@ -17,6 +17,7 @@ export interface Post {
   like_count?: number;
   favorite_count?: number; // Added
   comment_count?: number;
+  share_count?: number;
   create_time?: string;
   created_at?: string; // 后端返回的创建时间字段
   image?: string | string[]; // 图片数据，可能是字符串或数组
