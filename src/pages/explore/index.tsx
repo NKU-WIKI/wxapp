@@ -48,11 +48,11 @@ const contentSources = [
 export default function ExplorePage() {
   const dispatch = useDispatch<AppDispatch>();
   const headerHeight = useCustomHeaderHeight();
-  
+
   // Redux state
   const { notes, loading, refreshing, hasMore } = useSelector((state: RootState) => state.note);
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
-  
+
   // Local state for search functionality
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [keyword, setKeyword] = useState('');
@@ -77,7 +77,7 @@ export default function ExplorePage() {
   // 初始化时获取笔记动态 - 无论是否登录都应该能看到笔记
   useEffect(() => {
     if (!isSearchActive) {
-      
+
       dispatch(fetchNoteFeed({ skip: 0, limit: 20 }));
     }
   }, [dispatch, isSearchActive, isLoggedIn]);
@@ -175,7 +175,7 @@ export default function ExplorePage() {
     else if (trimmed.startsWith('@wiki-chat')) setSearchMode('wiki');
     else if (trimmed.startsWith('@wiki')) setSearchMode('wiki');
   };
-  
+
   const handleSuggestionClick = (suggestion: typeof searchSkills[0]) => {
     const mode = suggestion.title.substring(1) as SearchMode;
     const newValue = `${suggestion.title} `;
@@ -347,9 +347,9 @@ export default function ExplorePage() {
   };
 
 
-  
 
-  
+
+
 
 
   const renderGeneralResults = () => {
@@ -381,11 +381,25 @@ export default function ExplorePage() {
       }
     };
 
+    // 对搜索结果进行去重处理
+    const uniqueResults = generalResults.filter((result, index, array) => {
+      // 如果有ID，则根据ID去重
+      if (result.id) {
+        return array.findIndex(item => item.id === result.id) === index;
+      }
+      // 如果没有ID，则根据title和content组合去重
+      const key = `${result.title || ''}-${result.content || ''}`;
+      return array.findIndex(item => {
+        const itemKey = `${item.title || ''}-${item.content || ''}`;
+        return itemKey === key;
+      }) === index;
+    });
+
     return (
       <View className={styles.resultsContainer}>
-        {generalResults.map((result: SearchResultItem, idx: number) => (
+        {uniqueResults.map((result: SearchResultItem, idx: number) => (
           <SearchResultRenderer
-            key={result?.id || idx}
+            key={result?.id ? `${result.id}-${result.resource_type || 'unknown'}` : `result-${idx}-${result.title?.slice(0, 10) || 'untitled'}`}
             result={result}
             onThumbUp={handleThumbUp}
             onThumbDown={handleThumbDown}
@@ -417,7 +431,7 @@ export default function ExplorePage() {
   );
 
   const renderDefaultView = () => (
-    <View>      
+    <View>
       {/* 瀑布流笔记展示 - 登录和未登录用户都能看到 */}
       <MasonryLayout
         notes={notes}
@@ -427,12 +441,12 @@ export default function ExplorePage() {
         onRefresh={handleRefresh}
         refreshing={refreshing}
       />
-      
+
       {/* 未登录用户显示登录提示（浮动） */}
       {!isLoggedIn && (
         <View className={styles.loginHint}>
           <Text className={styles.loginHintText}>登录后解锁更多个性化推荐</Text>
-          <View 
+          <View
             className={styles.loginHintButton}
             onClick={() => {
               Taro.switchTab({ url: '/pages/profile/index' });
@@ -468,7 +482,7 @@ export default function ExplorePage() {
         />
       );
     }
-    
+
     // 优先级 3: 显示错误信息
     if (errorMsg) return <View className={styles.errorState}>{errorMsg}</View>;
 
@@ -527,10 +541,10 @@ export default function ExplorePage() {
       </View>
 
       {/* 内容滚动区域 */}
-      <View 
-        className={styles.contentScrollContainer} 
-        style={{ 
-          paddingTop: isSearchActive 
+      <View
+        className={styles.contentScrollContainer}
+        style={{
+          paddingTop: isSearchActive
             ? `${headerHeight + 48}px`  // 搜索状态：header + 搜索框
             : `${headerHeight + 48 + 28}px`  // 默认状态：header + 搜索框 + sourceNav(减少间距)
         }}
