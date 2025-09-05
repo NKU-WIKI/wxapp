@@ -74,6 +74,7 @@ export interface CreateNoteRequest {
 
 /**
  * 获取笔记列表
+ * 支持可选认证：未登录用户可通过x-tenant-id头访问
  */
 export const getNotes = async (params?: GetNotesParams) => {
   return http.get<{ code: number; message: string; data: NoteListItem[] }>('/notes', params);
@@ -127,14 +128,14 @@ export const getUserNotes = async (userId: string, params?: GetNotesParams) => {
 
 /**
  * 获取笔记推荐流
+ * 支持可选认证：未登录用户可通过x-tenant-id头访问
  */
 export const getNoteFeed = async (params: { skip?: number; limit?: number } = {}) => {
-  // 根据API文档，这个接口需要认证，让我们确保参数格式正确
   const requestParams = {
     skip: params.skip || 0,
     limit: params.limit || 20
   };
-  
+
   return http.get<{ code: number; message: string; data: any }>('/notes/feed', requestParams);
 };
 

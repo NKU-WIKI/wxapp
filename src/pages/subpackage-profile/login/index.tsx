@@ -11,7 +11,6 @@ const logo = '/assets/wiki-lc-green.png';
 const phoneIcon = '/assets/phone-login.svg';
 const shieldIcon = '/assets/shield-login.svg';
 const wechatIcon = '/assets/wechat.svg';
-const qqIcon = '/assets/qq.svg';
 const userIcon = '/assets/user.svg';
 const lockIcon = '/assets/lock.svg';
 
@@ -102,16 +101,47 @@ export default function LoginPage() {
       return;
     }
 
+    if (password.length < 6) {
+      Taro.showToast({ title: '密码长度至少6位', icon: 'none' });
+      return;
+    }
+
     try {
       await dispatch(loginWithUsername({ username: username.trim(), password })).unwrap();
       handleLoginSuccess();
-    } catch (error) {
-      
-      Taro.showToast({
-        title: error as string || '登录失败',
-        icon: 'none',
-        duration: 3000
-      });
+    } catch (error: any) {
+      // 检查是否是401错误（用户不存在），如果是则自动注册
+      const isUserNotFound = error?.statusCode === 401 || error?.code === 401 ||
+                            (typeof error === 'string' && error.includes('401'));
+
+      if (isUserNotFound) {
+        // 用户不存在，自动注册
+        try {
+          await dispatch(registerUser({
+            username: username.trim(),
+            password,
+            nickname: username.trim() // 使用用户名作为昵称
+          })).unwrap();
+
+          // 注册成功后再次尝试登录
+          await dispatch(loginWithUsername({ username: username.trim(), password })).unwrap();
+          handleLoginSuccess();
+        } catch (registerError) {
+          // 注册失败才显示错误提示
+          Taro.showToast({
+            title: '注册失败，请稍后重试',
+            icon: 'none',
+            duration: 3000
+          });
+        }
+      } else {
+        // 其他错误（如网络错误等）才显示错误提示
+        Taro.showToast({
+          title: '登录失败，请检查网络连接',
+          icon: 'none',
+          duration: 3000
+        });
+      }
     }
   };
 
@@ -281,7 +311,7 @@ export default function LoginPage() {
               />
             </View>
             <View className={styles.inputWrapper}>
-              <Image src={lockIcon} className={styles.inputIcon} />
+              <Image src={shieldIcon} className={styles.inputIcon} />
               <Input
                 type='text'
                 password
@@ -290,13 +320,8 @@ export default function LoginPage() {
                 onInput={(e) => setPassword(e.detail.value)}
               />
             </View>
-            <View className={styles.buttonGroup}>
-              <View className={styles.loginButton} onClick={handleUsernameLogin}>
-                <Text>登录</Text>
-              </View>
-              <View className={styles.registerButton} onClick={() => setLoginMode('register')}>
-                <Text>注册</Text>
-              </View>
+            <View className={styles.loginButton} onClick={handleUsernameLogin}>
+              <Text>登录/注册</Text>
             </View>
           </>
         )}
@@ -354,12 +379,9 @@ export default function LoginPage() {
       </View>
 
       <View className={styles.quickLogin}>
-        <View className={styles.divider}>
-          <Text className={styles.dividerText}>快速登录</Text>
-        </View>
-        <View className={styles.socialIcons}>
+        <View className={styles.wechatLoginContainer}>
           <Image src={wechatIcon} className={styles.socialIcon} onClick={handleWechatLogin} />
-          <Image src={qqIcon} className={styles.socialIcon} />
+          <Text className={styles.wechatLoginText}>微信一键登录</Text>
         </View>
       </View>
 

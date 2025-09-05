@@ -2,15 +2,11 @@ import React from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/card';
 import { SearchResultItem as ApiSearchResultItem } from '@/types/api/search';
+import AuthorInfo from '@/components/author-info';
+import Post from '@/components/post';
+import { Post as PostData } from '@/types/api/post.d';
 
-// 图标导入
-import marketIcon from '@/assets/market.png';
-import userIcon from '@/assets/user.svg';
-import bookOpenIcon from '@/assets/book-open.svg';
-import messageCircleIcon from '@/assets/message-circle.svg';
-import robotIcon from '@/assets/robot.svg';
-import calendarIcon from '@/assets/calendar.svg';
-import mapPinIcon from '@/assets/map-pin.svg';
+// 图片资源使用字符串路径引用
 
 import styles from './index.module.scss';
 
@@ -21,15 +17,17 @@ interface SearchResultRendererProps {
   result: SearchResultItem;
   onThumbUp?: (_result: SearchResultItem) => void;
   onThumbDown?: (_result: SearchResultItem) => void;
+  feedbackState?: 'up' | 'down' | null;
 }
 
 /**
  * 商品搜索结果组件
  */
-const ListingResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown'>> = ({
+const ListingResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown' | 'feedbackState'>> = ({
   result,
   onThumbUp,
-  onThumbDown
+  onThumbDown,
+  feedbackState
 }) => {
   const getConditionText = (condition?: string) => {
     const conditionMap: Record<string, string> = {
@@ -55,7 +53,7 @@ const ListingResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRe
     <Card className={styles.resultCard}>
       <CardHeader className={styles.resultHeader}>
         <View className={styles.resultType}>
-          <Image src={marketIcon} className={styles.typeIcon} />
+          <Image src='/assets/market.png' className={styles.typeIcon} />
           <Text className={styles.typeText}>商品</Text>
         </View>
         <View className={styles.listingBadges}>
@@ -114,13 +112,13 @@ const ListingResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRe
 
         <View className={styles.feedbackButtons}>
           <Text
-            className={styles.thumbUp}
+            className={`${styles.thumbUp} ${feedbackState === 'up' ? styles.active : ''}`}
             onClick={() => onThumbUp?.(result)}
           >
             👍 有用
           </Text>
           <Text
-            className={styles.thumbDown}
+            className={`${styles.thumbDown} ${feedbackState === 'down' ? styles.active : ''}`}
             onClick={() => onThumbDown?.(result)}
           >
             👎 不相关
@@ -134,41 +132,49 @@ const ListingResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRe
 /**
  * 用户搜索结果组件
  */
-const UserResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown'>> = ({
+const UserResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown' | 'feedbackState'>> = ({
   result,
   onThumbUp,
-  onThumbDown
+  onThumbDown,
+  feedbackState
 }) => {
+  // 获取用户ID
+  const userId = result.user_id || result.resource_id;
+
+  if (!userId) {
+    return (
+      <Card className={styles.resultCard}>
+        <CardContent className={styles.resultContent}>
+          <Text className={styles.errorText}>用户信息不完整</Text>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className={styles.resultCard}>
       <CardContent className={styles.resultContent}>
-        <View className={styles.userHeader}>
-          <View className={styles.userAvatar}>
-            <Image src={userIcon} className={styles.avatarIcon} />
-          </View>
-          <View className={styles.userInfo}>
-            <CardTitle className={styles.resultTitle}>
-              {result.nickname || result.title || '匿名用户'}
-            </CardTitle>
-            <Text className={styles.userId}>ID: {result.user_id || result.resource_id}</Text>
-          </View>
-        </View>
-
-        {result.bio && (
-          <CardDescription className={styles.resultDescription}>
-            {result.bio}
-          </CardDescription>
-        )}
+        {/* 使用AuthorInfo组件渲染用户信息 */}
+        <AuthorInfo
+          userId={userId}
+          mode='expanded'
+          showBio
+          showFollowButton
+          showStats
+          showLevel
+          showLocation
+          showTime={false}
+        />
 
         <View className={styles.feedbackButtons}>
           <Text
-            className={styles.thumbUp}
+            className={`${styles.thumbUp} ${feedbackState === 'up' ? styles.active : ''}`}
             onClick={() => onThumbUp?.(result)}
           >
             👍 有用
           </Text>
           <Text
-            className={styles.thumbDown}
+            className={`${styles.thumbDown} ${feedbackState === 'down' ? styles.active : ''}`}
             onClick={() => onThumbDown?.(result)}
           >
             👎 不相关
@@ -182,16 +188,17 @@ const UserResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRende
 /**
  * 笔记搜索结果组件
  */
-const NoteResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown'>> = ({
+const NoteResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown' | 'feedbackState'>> = ({
   result,
   onThumbUp,
-  onThumbDown
+  onThumbDown,
+  feedbackState
 }) => {
   return (
     <Card className={styles.resultCard}>
       <CardHeader className={styles.resultHeader}>
         <View className={styles.resultType}>
-          <Image src={bookOpenIcon} className={styles.typeIcon} />
+          <Image src='/assets/book-open.svg' className={styles.typeIcon} />
           <Text className={styles.typeText}>笔记</Text>
         </View>
       </CardHeader>
@@ -223,13 +230,13 @@ const NoteResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRende
 
         <View className={styles.feedbackButtons}>
           <Text
-            className={styles.thumbUp}
+            className={`${styles.thumbUp} ${feedbackState === 'up' ? styles.active : ''}`}
             onClick={() => onThumbUp?.(result)}
           >
             👍 有用
           </Text>
           <Text
-            className={styles.thumbDown}
+            className={`${styles.thumbDown} ${feedbackState === 'down' ? styles.active : ''}`}
             onClick={() => onThumbDown?.(result)}
           >
             👎 不相关
@@ -243,18 +250,118 @@ const NoteResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRende
 /**
  * 帖子搜索结果组件
  */
-const PostResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown'>> = ({
+const PostResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown' | 'feedbackState'>> = ({
   result,
   onThumbUp,
-  onThumbDown
+  onThumbDown,
+  feedbackState
 }) => {
+  // 将SearchResultItem转换为Post组件期望的格式
+  const convertToPostData = (searchResult: SearchResultItem): PostData => {
+    return {
+      id: searchResult.resource_id || searchResult.id || '',
+      title: searchResult.title || '无标题',
+      content: searchResult.content || '',
+      status: 'published',
+      user_id: searchResult.user_id || '',
+      user: {
+        id: searchResult.user_id || '',
+        nickname: searchResult.nickname || '匿名用户',
+        avatar: undefined, // 搜索结果中可能没有头像信息
+        bio: searchResult.bio || '',
+        status: 'active',
+        tenant_id: searchResult.tenant_id || '',
+        created_at: searchResult.created_at || new Date().toISOString(),
+        updated_at: searchResult.created_at || new Date().toISOString()
+      },
+      created_at: searchResult.created_at,
+      view_count: 0,
+      like_count: 0,
+      favorite_count: 0,
+      comment_count: 0,
+      share_count: 0,
+      images: [], // 搜索结果中可能没有图片信息
+      tags: Array.isArray(searchResult.tags) ? searchResult.tags : [],
+      is_public: true,
+      allow_comments: true
+    };
+  };
+
+  const postData = convertToPostData(result);
+
+  return (
+    <View className={styles.postResultWrapper}>
+      {/* 使用Post组件渲染帖子 */}
+      <Post
+        post={postData}
+        mode='list'
+        enableNavigation
+        className={styles.searchPost}
+      />
+
+      {/* 添加反馈按钮 */}
+      <View className={styles.feedbackButtons}>
+        <Text
+          className={`${styles.thumbUp} ${feedbackState === 'up' ? styles.active : ''}`}
+          onClick={() => onThumbUp?.(result)}
+        >
+          👍 有用
+        </Text>
+        <Text
+          className={`${styles.thumbDown} ${feedbackState === 'down' ? styles.active : ''}`}
+          onClick={() => onThumbDown?.(result)}
+        >
+          👎 不相关
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+/**
+ * Web搜索结果组件
+ */
+const WebResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown' | 'feedbackState'>> = ({
+  result,
+  onThumbUp,
+  onThumbDown,
+  feedbackState
+}) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    try {
+      return new Date(dateString).toLocaleDateString('zh-CN');
+    } catch {
+      return dateString;
+    }
+  };
+
+  const getPlatformText = (platform?: string) => {
+    const platformMap: Record<string, string> = {
+      'wechat': '微信公众号',
+      'weibo': '微博',
+      'zhihu': '知乎',
+      'bilibili': '哔哩哔哩',
+      'douyin': '抖音',
+      'website': '网站'
+    };
+    return platformMap[platform || ''] || platform || '网页';
+  };
+
   return (
     <Card className={styles.resultCard}>
       <CardHeader className={styles.resultHeader}>
         <View className={styles.resultType}>
-          <Image src={messageCircleIcon} className={styles.typeIcon} />
-          <Text className={styles.typeText}>帖子</Text>
+          <Image src='/assets/globe.svg' className={styles.typeIcon} />
+          <Text className={styles.typeText}>网页</Text>
         </View>
+        {result.platform && (
+          <View className={`${styles.badge} ${styles.platformBadge}`}>
+            <Text className={styles.badgeText}>
+              {getPlatformText(result.platform)}
+            </Text>
+          </View>
+        )}
       </CardHeader>
 
       <CardContent className={styles.resultContent}>
@@ -266,15 +373,32 @@ const PostResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRende
           {result.content || '暂无内容'}
         </CardDescription>
 
-        {result.tags && result.tags.length > 0 && (
-          <View className={styles.tagsContainer}>
-            {result.tags.slice(0, 3).map((tag, index) => (
-              <View key={index} className={styles.tag}>
-                <Text className={styles.tagText}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-        )}
+        <View className={styles.webDetails}>
+          {result.author && (
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>作者：</Text>
+              <Text className={styles.detailValue}>{result.author}</Text>
+            </View>
+          )}
+
+          {result.publish_time && (
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>发布时间：</Text>
+              <Text className={styles.detailValue}>
+                {formatDate(result.publish_time)}
+              </Text>
+            </View>
+          )}
+
+          {result.url && (
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>来源：</Text>
+              <Text className={`${styles.detailValue} ${styles.urlText}`}>
+                {result.url.length > 50 ? `${result.url.substring(0, 50)}...` : result.url}
+              </Text>
+            </View>
+          )}
+        </View>
 
         <View className={styles.resultMeta}>
           <Text className={styles.metaText}>
@@ -284,13 +408,13 @@ const PostResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRende
 
         <View className={styles.feedbackButtons}>
           <Text
-            className={styles.thumbUp}
+            className={`${styles.thumbUp} ${feedbackState === 'up' ? styles.active : ''}`}
             onClick={() => onThumbUp?.(result)}
           >
             👍 有用
           </Text>
           <Text
-            className={styles.thumbDown}
+            className={`${styles.thumbDown} ${feedbackState === 'down' ? styles.active : ''}`}
             onClick={() => onThumbDown?.(result)}
           >
             👎 不相关
@@ -304,16 +428,17 @@ const PostResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRende
 /**
  * 默认搜索结果组件（用于其他类型）
  */
-const DefaultResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown'>> = ({
+const DefaultResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown' | 'feedbackState'>> = ({
   result,
   onThumbUp,
-  onThumbDown
+  onThumbDown,
+  feedbackState
 }) => {
   return (
     <Card className={styles.resultCard}>
       <CardHeader className={styles.resultHeader}>
         <View className={styles.resultType}>
-          <Image src={robotIcon} className={styles.typeIcon} />
+          <Image src='/assets/robot.svg' className={styles.typeIcon} />
           <Text className={styles.typeText}>{result.resource_type || '未知'}</Text>
         </View>
       </CardHeader>
@@ -329,13 +454,13 @@ const DefaultResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRe
 
         <View className={styles.feedbackButtons}>
           <Text
-            className={styles.thumbUp}
+            className={`${styles.thumbUp} ${feedbackState === 'up' ? styles.active : ''}`}
             onClick={() => onThumbUp?.(result)}
           >
             👍 有用
           </Text>
           <Text
-            className={styles.thumbDown}
+            className={`${styles.thumbDown} ${feedbackState === 'down' ? styles.active : ''}`}
             onClick={() => onThumbDown?.(result)}
           >
             👎 不相关
@@ -349,10 +474,11 @@ const DefaultResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRe
 /**
  * 活动搜索结果组件
  */
-const ActivityResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown'>> = ({
+const ActivityResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown' | 'feedbackState'>> = ({
   result,
   onThumbUp,
-  onThumbDown
+  onThumbDown,
+  feedbackState
 }) => {
   const formatDateTime = (dateString?: string) => {
     if (!dateString) return '';
@@ -373,7 +499,7 @@ const ActivityResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultR
     <Card className={styles.resultCard}>
       <CardHeader className={styles.resultHeader}>
         <View className={styles.resultType}>
-          <Image src={calendarIcon} className={styles.typeIcon} />
+          <Image src='/assets/calendar.svg' className={styles.typeIcon} />
           <Text className={styles.typeText}>活动</Text>
         </View>
         {result.participant_count && result.max_participants && (
@@ -415,7 +541,7 @@ const ActivityResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultR
 
           {result.location && (
             <View className={styles.detailItem}>
-              <Image src={mapPinIcon} className={styles.detailIcon} />
+              <Image src='/assets/map-pin.svg' className={styles.detailIcon} />
               <Text className={styles.detailValue}>{result.location}</Text>
             </View>
           )}
@@ -429,13 +555,13 @@ const ActivityResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultR
 
         <View className={styles.feedbackButtons}>
           <Text
-            className={styles.thumbUp}
+            className={`${styles.thumbUp} ${feedbackState === 'up' ? styles.active : ''}`}
             onClick={() => onThumbUp?.(result)}
           >
             👍 有用
           </Text>
           <Text
-            className={styles.thumbDown}
+            className={`${styles.thumbDown} ${feedbackState === 'down' ? styles.active : ''}`}
             onClick={() => onThumbDown?.(result)}
           >
             👎 不相关
@@ -449,10 +575,11 @@ const ActivityResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultR
 /**
  * 跑腿搜索结果组件
  */
-const ErrandResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown'>> = ({
+const ErrandResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRendererProps, 'onThumbUp' | 'onThumbDown' | 'feedbackState'>> = ({
   result,
   onThumbUp,
-  onThumbDown
+  onThumbDown,
+  feedbackState
 }) => {
   const getErrandStatusText = (status?: string) => {
     const statusMap: Record<string, string> = {
@@ -478,7 +605,7 @@ const ErrandResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRen
     <Card className={styles.resultCard}>
       <CardHeader className={styles.resultHeader}>
         <View className={styles.resultType}>
-          <Image src={mapPinIcon} className={styles.typeIcon} />
+          <Image src='/assets/map-pin.svg' className={styles.typeIcon} />
           <Text className={styles.typeText}>跑腿</Text>
         </View>
         {result.errand_status && (
@@ -502,7 +629,7 @@ const ErrandResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRen
         <View className={styles.errandDetails}>
           {result.location && (
             <View className={styles.detailItem}>
-              <Image src={mapPinIcon} className={styles.detailIcon} />
+              <Image src='/assets/map-pin.svg' className={styles.detailIcon} />
               <Text className={styles.detailValue}>{result.location}</Text>
             </View>
           )}
@@ -528,13 +655,13 @@ const ErrandResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRen
 
         <View className={styles.feedbackButtons}>
           <Text
-            className={styles.thumbUp}
+            className={`${styles.thumbUp} ${feedbackState === 'up' ? styles.active : ''}`}
             onClick={() => onThumbUp?.(result)}
           >
             👍 有用
           </Text>
           <Text
-            className={styles.thumbDown}
+            className={`${styles.thumbDown} ${feedbackState === 'down' ? styles.active : ''}`}
             onClick={() => onThumbDown?.(result)}
           >
             👎 不相关
@@ -552,7 +679,8 @@ const ErrandResult: React.FC<{ result: SearchResultItem } & Pick<SearchResultRen
 const SearchResultRenderer: React.FC<SearchResultRendererProps> = ({
   result,
   onThumbUp,
-  onThumbDown
+  onThumbDown,
+  feedbackState
 }) => {
   const renderResult = () => {
     switch (result.resource_type) {
@@ -562,6 +690,7 @@ const SearchResultRenderer: React.FC<SearchResultRendererProps> = ({
             result={result}
             onThumbUp={onThumbUp}
             onThumbDown={onThumbDown}
+            feedbackState={feedbackState}
           />
         );
 
@@ -571,6 +700,7 @@ const SearchResultRenderer: React.FC<SearchResultRendererProps> = ({
             result={result}
             onThumbUp={onThumbUp}
             onThumbDown={onThumbDown}
+            feedbackState={feedbackState}
           />
         );
 
@@ -580,6 +710,7 @@ const SearchResultRenderer: React.FC<SearchResultRendererProps> = ({
             result={result}
             onThumbUp={onThumbUp}
             onThumbDown={onThumbDown}
+            feedbackState={feedbackState}
           />
         );
 
@@ -589,6 +720,17 @@ const SearchResultRenderer: React.FC<SearchResultRendererProps> = ({
             result={result}
             onThumbUp={onThumbUp}
             onThumbDown={onThumbDown}
+            feedbackState={feedbackState}
+          />
+        );
+
+      case 'web':
+        return (
+          <WebResult
+            result={result}
+            onThumbUp={onThumbUp}
+            onThumbDown={onThumbDown}
+            feedbackState={feedbackState}
           />
         );
 
@@ -598,6 +740,7 @@ const SearchResultRenderer: React.FC<SearchResultRendererProps> = ({
             result={result}
             onThumbUp={onThumbUp}
             onThumbDown={onThumbDown}
+            feedbackState={feedbackState}
           />
         );
 
@@ -607,6 +750,7 @@ const SearchResultRenderer: React.FC<SearchResultRendererProps> = ({
             result={result}
             onThumbUp={onThumbUp}
             onThumbDown={onThumbDown}
+            feedbackState={feedbackState}
           />
         );
 
@@ -616,6 +760,7 @@ const SearchResultRenderer: React.FC<SearchResultRendererProps> = ({
             result={result}
             onThumbUp={onThumbUp}
             onThumbDown={onThumbDown}
+            feedbackState={feedbackState}
           />
         );
     }

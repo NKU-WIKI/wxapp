@@ -11,7 +11,7 @@
   background-color: $bg-input;
   border-radius: 18px;
   padding: 8px 12px; // 恢复为与home页面相同的8px
-  margin: 16px 16px 8px 16px; // 恢复为与home页面相同的边距
+  margin: 0; /* 组件自身不带外边距 */
 }
 
 .searchIcon {

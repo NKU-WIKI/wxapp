@@ -41,9 +41,8 @@
 }
 
 .searchBarWrapper {
-  padding: 8px 16px;
+  padding: 8px 16px 0; /* 上8，左右16，下0，移除底部间隙 */
   /* 移除背景色，继承父容器的背景 */
-  border-bottom: 1px solid $border-light;
   backdrop-filter: blur(10px);
 }
 
@@ -123,7 +122,7 @@
 /* Fallback views */
 .searchSkillsContainer {
   flex: 1;
-  padding: 0px 16px 16px 16px; // 移除上边距
+  padding: 16px 16px 16px 16px; // 添加上边距，避免被搜索框遮挡
   background-color: $bg-card;
   height: 100%;
 }
@@ -232,7 +231,7 @@
 }
 
 .masonryWrapper {
-  padding: 12px;
+  padding: 0px 12px 12px 12px; /* 移除上边距，只保留左右下边距 */
 }
 
 .masonryContainer {
@@ -335,4 +334,9 @@
 .loginHintButtonText {
   color: white;
   font-size: 12px;
+}
+
+/* 底部占位元素，防止内容被tab bar遮挡 */
+.bottomSpacer {
+  height: 80px; /* 为底部tab bar预留足够空间 */
 }

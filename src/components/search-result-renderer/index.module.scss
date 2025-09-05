@@ -208,14 +208,24 @@
     background-color: $theme-primary;
     color: white;
   }
+
+  &.active {
+    background-color: $theme-primary;
+    color: white;
+    font-weight: 600;
+  }
 }
 
-.thumbUp:hover {
+.thumbUp:hover,
+.thumbUp.active {
   background-color: $status-success;
+  color: white;
 }
 
-.thumbDown:hover {
+.thumbDown:hover,
+.thumbDown.active {
   background-color: $status-error;
+  color: white;
 }
 
 /* 响应式设计 */
@@ -296,6 +306,26 @@
   font-size: 15px;
 }
 
+/* Web特有样式 */
+.platformBadge {
+  background-color: $theme-primary;
+  color: white;
+}
+
+.webDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  align-items: flex-start;
+}
+
+.urlText {
+  color: $theme-primary;
+  font-size: 13px;
+  word-break: break-all;
+}
+
 /* 通用详情项样式 */
 .detailItem {
   display: flex;
@@ -320,4 +350,23 @@
   font-size: 14px;
   color: $text-primary;
   flex: 1;
+}
+
+/* 帖子搜索结果特有样式 */
+.postResultWrapper {
+  background-color: $bg-card;
+  border-radius: 12px;
+  border: 1px solid $border-base;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.searchPost {
+  // Post组件在搜索结果中的样式调整
+  .postContainer {
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    box-shadow: none;
+  }
 }

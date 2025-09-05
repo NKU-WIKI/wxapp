@@ -1,8 +1,7 @@
 import { View, Image, Input, Text } from '@tarojs/components'
 import { useState, memo, useCallback } from 'react'
 
-import searchIcon from '@/assets/search.svg'
-import xIcon from '@/assets/x.svg'
+// 图片资源使用字符串路径引用
 
 import styles from './index.module.scss'
 
@@ -212,7 +211,7 @@ const SearchBar = ({
     <View className={styles.searchWrapper}>
       <View className={styles.searchContainer} onClick={handleContainerClick}>
         <Image
-          src={searchIcon}
+          src='/assets/search.svg'
           className={styles.searchIcon}
           style={{ width: '18px', height: '18px' }}
           onClick={onSearch}
@@ -233,7 +232,7 @@ const SearchBar = ({
           />
         </View>
         {keyword && !readonly && (
-          <Image src={xIcon} className={styles.clearIcon} onClick={onClear} />
+          <Image src='/assets/x.svg' className={styles.clearIcon} onClick={onClear} />
         )}
       </View>
 

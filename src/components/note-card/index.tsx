@@ -4,8 +4,7 @@ import Taro from '@tarojs/taro';
 import { normalizeImageUrl } from '@/utils/image';
 import { NoteListItem } from '@/types/api/note';
 import ActionButton from '@/components/action-button';
-import heartIcon from '@/assets/heart-outline.svg';
-import heartFilledIcon from '@/assets/heart-bold.svg';
+// 图片资源使用字符串路径引用
 import styles from './index.module.scss';
 
 // 扩展的笔记类型，包含交互状态
@@ -43,7 +42,15 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
     }
   };
 
-  const authorAvatar = normalizeImageUrl(note.author_avatar || undefined) || '/assets/avatar1.png';
+  const getAuthorAvatar = () => {
+    const avatar = note.author_avatar || (note.user?.avatar);
+    if (avatar && avatar.includes('127.0.0.1:32968/__tmp__/')) {
+      return '/assets/avatar1.png';
+    }
+    return normalizeImageUrl(avatar || undefined) || '/assets/avatar1.png';
+  };
+
+  const authorAvatar = getAuthorAvatar();
 
   // 获取封面图片：优先使用笔记的第一张图片，如果没有则使用默认图片
 
@@ -51,11 +58,18 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
     // 如果笔记有图片数组且不为空，使用第一张图片
     const noteWithImages = note as any;
     if (noteWithImages.images && noteWithImages.images.length > 0) {
-      return normalizeImageUrl(noteWithImages.images[0]);
+      const firstImage = noteWithImages.images[0];
+
+      // 检查是否是本地开发服务器路径，如果是则使用占位图
+      if (firstImage && firstImage.includes('127.0.0.1:32968/__tmp__/')) {
+        return '/assets/placeholder-note.svg';
+      }
+
+      return normalizeImageUrl(firstImage);
     }
-    
-    // 如果没有图片，使用占位图片URL（使用较小的高度比例）
-    return 'https://via.placeholder.com/300x180/4F46E5/FFFFFF?text=笔记封面';
+
+    // 如果没有图片，使用本地占位图片
+    return '/assets/placeholder-note.svg';
   };
 
   const coverImage = getCoverImage();
@@ -109,8 +123,8 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
         )}
         <View className={styles.likeInfo}>
           <ActionButton
-            icon={heartIcon}
-            activeIcon={heartFilledIcon}
+            icon='/assets/heart-outline.svg'
+            activeIcon='/assets/heart-bold.svg'
             text={note.like_count?.toString() || '0'}
             isActive={note.is_liked || false}
             disabled={note.interaction_loading || false}

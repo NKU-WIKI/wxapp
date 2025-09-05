@@ -31,22 +31,25 @@
 
 - **核心框架**: [Taro 4.1.4](https://docs.taro.zone/docs) (插件化架构)
 - **UI 语言**: [React 18.0.0](https://reactjs.org/) (Hooks-first)
-- **UI 组件库**: 优先使用微信原生组件库，其次使用 [Taro UI 3.3.0](https://taro-ui.jd.com/)
+- **UI 组件库**: 优先使用微信原生组件库，其次使用 Taro UI
 - **状态管理**: [Redux Toolkit 2.8.2](https://redux-toolkit.js.org/) + [Redux Persist 6.0.0](https://github.com/rt2zz/redux-persist)
-- **开发语言**: [TypeScript 5.4.5](https://www.typescriptlang.org/)
-- **CSS 预处理器**: [SCSS](https://sass-lang.com/) (使用 `.module.scss`)
+- **开发语言**: [TypeScript](https://www.typescriptlang.org/) (严格模式)
+- **CSS 预处理器**: [SCSS](https://sass-lang.com/) (强制使用 `.module.scss`)
 - **网络请求**: [Axios 1.10.0](https://axios-http.com/) + 自定义请求封装
 - **时间处理**: [Day.js 1.11.13](https://day.js.org/)
 - **Markdown 解析**: [Marked 16.2.0](https://marked.js.org/)
 - **工具库**: [Classnames 2.5.1](https://github.com/JedWatson/classnames)
+- **其他依赖**: Node Fetch 2.7.0, Taro Skeleton 2.0.4
 - **主要目标平台**: 微信小程序 (`weapp`)
 
 ### 开发工具链
 
 - **代码检查**: ESLint 8.57.0, Stylelint 16.4.0
-- **代码格式化**: Prettier (通过 ESLint 集成)
+- **代码格式化**: ESLint 集成格式化
 - **Git 工作流**: Husky 9.1.7, lint-staged 16.1.2, Commitlint 19.8.1
 - **构建工具**: Webpack 5.99.9, Terser 5.3.14
+- **图片优化**: Image Minimizer Webpack Plugin, Sharp 0.34.3
+- **其他工具**: Commitizen 4.3.1, Cross Env 7.0.3
 
 ## 📊 API 接口文档
 
@@ -138,8 +141,11 @@
 │   │   ├── empty-state/     # 空状态组件
 │   │   └── ...
 │   ├── constants/           # 全局常量定义
+│   │   ├── categories.ts    # 分类常量
 │   │   ├── colors.ts        # 颜色常量
-│   │   └── index.ts         # 常量导出
+│   │   ├── index.ts         # 常量导出
+│   │   ├── publish.ts       # 发布相关常量
+│   │   └── colorMigrationGuide.md # 颜色迁移指南
 │   ├── hooks/               # 自定义 Hooks
 │   │   ├── useAuthGuard.ts  # 认证守卫
 │   │   ├── useFollowStatus.ts # 关注状态
@@ -149,6 +155,8 @@
 │   │   ├── explore/         # 探索页
 │   │   ├── discover/        # 发现页
 │   │   ├── profile/         # 个人中心页
+│   │   ├── subpackage-commerce/ # 商业功能分包
+│   │   ├── subpackage-discover/ # 发现功能分包
 │   │   ├── subpackage-interactive/ # 交互分包
 │   │   │   ├── chat/        # 聊天页面
 │   │   │   ├── notification/ # 消息通知
@@ -167,7 +175,6 @@
 │   │   │   ├── post.ts      # 帖子相关
 │   │   │   ├── user.ts      # 用户相关
 │   │   │   └── ...
-│   │   ├── mock.ts          # 模拟数据
 │   │   └── request.ts       # 请求封装
 │   ├── store/               # Redux 状态管理
 │   │   ├── slices/          # Redux Toolkit Slices
@@ -189,6 +196,22 @@
 │   │   ├── chat.d.ts        # 聊天类型
 │   │   └── draft.d.ts       # 草稿类型
 │   └── utils/               # 工具函数
+│       ├── cacheManager.ts  # 缓存管理
+│       ├── colors.ts        # 颜色工具
+│       ├── contentRecommendation.ts # 内容推荐
+│       ├── draft.ts         # 草稿管理
+│       ├── history.ts       # 历史记录
+│       ├── image.ts         # 图片处理
+│       ├── imageSaveControl.ts # 图片保存控制
+│       ├── markdown.ts      # Markdown 解析
+│       ├── notificationHelper.ts # 通知助手
+│       ├── persistStorage.ts # 持久化存储
+│       ├── privacyCheck.ts  # 隐私检查
+│       ├── storage.ts       # 存储工具
+│       ├── tabBarSync.ts    # 底部导航同步
+│       ├── time.ts          # 时间处理
+│       ├── ui.ts            # UI 工具
+│       └── uuid.ts          # UUID 生成
 ├── types/                   # TypeScript 类型定义 (全局)
 │   └── global.d.ts          # 全局类型声明
 ├── docs/                    # 文档目录

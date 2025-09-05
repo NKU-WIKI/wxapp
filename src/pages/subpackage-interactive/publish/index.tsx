@@ -1,17 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import Taro, { useRouter, useUnload } from "@tarojs/taro";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  View,
-  Text,
-  Input,
-  Textarea,
-  Image,
-  ScrollView,
-} from "@tarojs/components";
-
+import { View, Text, Input, Textarea, Image, ScrollView } from "@tarojs/components";
 // Absolute imports (alphabetical order)
 import { AppDispatch, RootState } from "@/store";
+import { Categories } from "@/constants/categories";
+import { WRITING_STYLES } from "@/constants/publish";
 import CustomHeader from "@/components/custom-header";
 import { usePolish } from "@/hooks/usePolish";
 import searchApi from "@/services/api/search";
@@ -21,21 +15,17 @@ import { createPost } from "@/store/slices/postSlice";
 import { normalizeImageUrl } from "@/utils/image";
 import { DraftPost } from "@/types/draft";
 import { saveDraft, getDrafts } from "@/utils/draft";
+import { generateUUID } from "@/utils/uuid";
 import type { Post } from "@/types/api/post.d";
 
 // Asset imports
 import atSignIcon from "@/assets/at-sign.svg";
-import bagIcon from "@/assets/bag.svg";
 import boldIcon from "@/assets/bold.svg";
 import defaultAvatar from "@/assets/profile.png";
-import hatIcon from "@/assets/hat.svg";
 import imageIcon from "@/assets/image.svg";
 import italicIcon from "@/assets/italic.svg";
 
 import penToolIcon from "@/assets/pen-tool.svg";
-import studyIcon from "@/assets/school.svg";
-import starIcon from "@/assets/star2.svg";
-import usersGroupIcon from "@/assets/p2p-fill.svg";
 import xCircleIcon from "@/assets/x-circle.svg";
 
 import settingIcon from "@/assets/cog.svg";
@@ -45,26 +35,7 @@ import switchOnIcon from "@/assets/switch-on.svg";
 // Relative imports
 import styles from "./index.module.scss";
 
-const mockData = {
-  styles: ["正式", "轻松", "幽默", "专业"],
-};
 
-// 分类数据，与首页保持一致
-const categories = [
-  { id: "c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f", name: "学习交流", icon: studyIcon },
-  { id: "c2b8f8f5-b6b7-4c2c-9d9e-1f1f1f1f1f1f", name: "校园生活", icon: hatIcon },
-  { id: "c3c9a9a6-c7c8-4d3d-aeaf-2a2b2c2d2e2f", name: "就业创业", icon: starIcon },
-  { id: "d4d1a1a7-d8d9-4e4e-bfbf-3a3b3c3d3e3f", name: "社团活动", icon: usersGroupIcon },
-  { id: "e5e2b2b8-e9ea-4f5f-cfdf-4a4b4c4d4e4f", name: "失物招领", icon: bagIcon },
-];
-
-// 简单 uuid 生成
-function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
 
 export default function PublishPost() {
   const [title, setTitle] = useState("");
@@ -281,7 +252,7 @@ export default function PublishPost() {
               }
             }
 
-            const id = draftId || uuid();
+            const id = draftId || generateUUID();
             const processedTags = formatTagsForPayload(selectedTags);
             saveDraft({
               id,
@@ -348,7 +319,7 @@ export default function PublishPost() {
           }
 
           // 如果服务器保存失败或不满足条件，则保存到本地
-          const id = uuid();
+          const id = generateUUID();
           const processedTags = formatTagsForPayload(selectedTags);
           saveDraft({
             id,
@@ -554,7 +525,6 @@ export default function PublishPost() {
       cancelText: '取消',
       success: async (res) => {
         if (res.confirm) {
-          const cleanedTag = tag.startsWith('#') ? tag.substring(1) : tag;
           const newTags = selectedTags.filter(t => t !== tag);
           setSelectedTags(newTags);
           Taro.showToast({ title: '话题已删除', icon: 'success' });
@@ -755,7 +725,7 @@ export default function PublishPost() {
                   {/* 文风选择下拉菜单 */}
                   {showStyleSelector && (
                     <View className={styles.styleDropdown}>
-                      {mockData.styles.map((style) => (
+                      {WRITING_STYLES.map((style) => (
                         <View
                           key={style}
                           className={`${styles.styleOption} ${selectedStyle === style ? styles.selected : ''}`}
@@ -834,7 +804,7 @@ export default function PublishPost() {
           <View className={styles.publishCard}>
             <Text className={styles.sectionTitle}>选择分类</Text>
             <View className={styles.categoriesContainer}>
-              {categories.map((category) => (
+              {Categories.map((category) => (
                 <View
                   key={category.id}
                   className={`${styles.categoryItem} ${

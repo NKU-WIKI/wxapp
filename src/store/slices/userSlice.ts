@@ -10,7 +10,7 @@ import {
 } from "@/services/api/user";
 import { getFollowersCount } from "@/services/api/followers";
 import { getCollectionCount } from "@/services/api/collection";
-import { UnifiedLoginRequest, LoginRequest, RegisterRequest } from "@/types/api/auth";
+import { UnifiedLoginRequest, RegisterRequest } from "@/types/api/auth";
 import { User, UpdateUserProfileRequest, UserStats } from "@/types/api/user";
 import { AboutInfo } from "@/types/about";
 import { RootState } from "@/store";
@@ -145,10 +145,13 @@ export const loginWithUsername = createAsyncThunk(
         return rejectWithValue("无法获取租户信息，请重试");
       }
 
-      const loginData: LoginRequest = {
-        username: credentials.username,
-        password: credentials.password,
-        tenant_id: tenantId,
+      const loginData: UnifiedLoginRequest = {
+        mode: 'local',
+        local: {
+          username: credentials.username,
+          password: credentials.password,
+          tenant_id: tenantId,
+        }
       };
 
       
@@ -196,10 +199,13 @@ export const registerUser = createAsyncThunk(
         return rejectWithValue("无法获取租户信息，请重试");
       }
 
-      const loginData: LoginRequest = {
-        username: userData.username,
-        password: userData.password,
-        tenant_id: tenantId,
+      const loginData: UnifiedLoginRequest = {
+        mode: 'local',
+        local: {
+          username: userData.username,
+          password: userData.password,
+          tenant_id: tenantId,
+        }
       };
 
       const loginResponse = await loginApi(loginData);

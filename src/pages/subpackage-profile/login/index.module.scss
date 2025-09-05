@@ -174,16 +174,31 @@
   color: $text-secondary;
 }
 
-.socialIcons {
+.wechatLoginContainer {
   display: flex;
-  gap: 30px;
+  align-items: center;
+  gap: 12px;
   margin-top: 20px;
+  cursor: pointer;
+  padding: 12px 20px;
+  border-radius: 25px;
+  background-color: #07C160;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #06AD56;
+  }
 }
 
 .socialIcon {
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+
+.wechatLoginText {
+  font-size: 16px;
+  color: white;
+  font-weight: 500;
 }
 
 // 协议同意区域

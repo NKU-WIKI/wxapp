@@ -16,11 +16,6 @@ export const NO_ERROR_TOAST_CODES = [10001, 10002];
 export const HEADER_BRANCH_KEY = 'X-Branch';
 
 /**
- * 当前请求环境（dev/main）
- */
-export const REQUEST_BRANCH = 'dev';
-
-/**
  * 默认租户名称（用于获取对应的 tenant_id）
  */
 export const DEFAULT_TENANT_NAME = "南开大学";

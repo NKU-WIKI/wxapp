@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import noteApi, { NoteListItem, CreateNoteRequest, NoteDetail } from '@/services/api/note';
+import noteApi, { NoteListItem, CreateNoteRequest } from '@/services/api/note';
 import { getActionStatus } from '@/services/api/user';
 import { BaseResponse } from '@/types/api/common';
+import type { NoteDetail } from '@/types/api/note';
 
 // Mock数据，用于展示功能
 const createMockNotes = (): NoteListItem[] => {
@@ -302,86 +303,54 @@ const createMockNotes = (): NoteListItem[] => {
 // 异步thunk - 获取笔记动态
 export const fetchNoteFeed = createAsyncThunk(
   'note/fetchNoteFeed',
-  async (params: { skip?: number; limit?: number } = {}, { getState }) => {
-    const state = getState() as any;
-    const isLoggedIn = state.user?.isLoggedIn || false;
+  async (params: { skip?: number; limit?: number } = {}) => {
+    // 不再需要检查登录状态，因为API支持可选认证
     
     try {
-      if (isLoggedIn) {
-        // 已登录用户：优先尝试个性化推荐流
+      // 无论是否登录都尝试调用笔记推荐流接口（可选认证）
+      const response = await noteApi.getNoteFeed(params);
 
-        
-        const response = await noteApi.getNoteFeed(params);
-        
+      // 详细检查可能的用户ID字段
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+        const firstNote = response.data[0];
 
-        
-        // 详细检查可能的用户ID字段
-        if (response.data && response.data.length > 0) {
-          const firstNote = response.data[0];
+        // 检查整个笔记对象的结构
 
-          
-          // 检查整个笔记对象的结构
-          
-          // 检查后端数据是否完整（是否有用户信息）
-          const hasUserInfo = firstNote.user_id || firstNote.author_id || firstNote.creator_id || 
-                             firstNote.user || firstNote.author || firstNote.creator;
-          
-          if (!hasUserInfo) {
-            console.warn('⚠️ 后端API数据不完整：缺少用户信息，建议使用mock数据');
-          }
+        // 检查后端数据是否完整（是否有用户信息）
+        const hasUserInfo = firstNote.user_id || firstNote.author_id || firstNote.creator_id ||
+                           firstNote.user || firstNote.author || firstNote.creator;
+
+        if (!hasUserInfo) {
+          // console.warn('⚠️ 后端API数据不完整：缺少用户信息');
         }
-        
-        return response;
-      } else {
-        // 未登录用户：直接使用mock数据，避免API调用失败
-        
+      }
+
+      return response;
+    } catch (error: any) {
+      // Fallback到普通笔记列表接口
+      try {
+        const fallbackParams = {
+          skip: params.skip || 0,
+          limit: params.limit || 20,
+          sort_by: 'created_at',
+          sort_order: 'desc' as const
+        };
+
+        const fallbackResponse = await noteApi.getNotes(fallbackParams);
+        return fallbackResponse;
+      } catch (fallbackError: any) {
+        // 如果所有API都失败，使用模拟数据作为最后的后备方案
         const mockData = createMockNotes();
         const skip = params.skip || 0;
         const limit = params.limit || 20;
         const slicedMockData = mockData.slice(skip, skip + limit);
-        
+
         return {
           code: 0,
           message: 'success',
           data: slicedMockData
         };
       }
-    } catch (error: any) {
-      
-      
-      // 对已登录用户：尝试fallback到普通笔记列表
-      if (isLoggedIn) {
-        try {
-          const fallbackParams = {
-            skip: params.skip || 0,
-            limit: params.limit || 20,
-            sort_by: 'created_at',
-            sort_order: 'desc' as const
-          };
-          
-          
-          const fallbackResponse = await noteApi.getNotes(fallbackParams);
-          
-          
-          return fallbackResponse;
-        } catch (fallbackError: any) {
-          
-        }
-      }
-      
-      // 最终回退：使用mock数据
-      const mockData = createMockNotes();
-      const skip = params.skip || 0;
-      const limit = params.limit || 20;
-      const slicedMockData = mockData.slice(skip, skip + limit);
-      
-      
-      
-      return {
-        code: 0,
-        message: 'success',
-        data: slicedMockData
-      };
     }
   }
 );
@@ -408,61 +377,40 @@ export const createNote = createAsyncThunk<
 // 异步thunk - 加载更多笔记
 export const loadMoreNotes = createAsyncThunk(
   'note/loadMoreNotes',
-  async (params: { skip?: number; limit?: number } = {}, { getState }) => {
-    const state = getState() as any;
-    const isLoggedIn = state.user?.isLoggedIn || false;
+  async (params: { skip?: number; limit?: number } = {}) => {
+    // 不再需要检查登录状态，因为API支持可选认证
     
     try {
-      if (isLoggedIn) {
-        // 已登录用户：尝试推荐流
-        
-        const response = await noteApi.getNoteFeed(params);
-        return response;
-      } else {
-        // 未登录用户：直接使用mock数据，避免API调用失败
-        
+      // 无论是否登录都尝试调用笔记推荐流接口（可选认证）
+      const response = await noteApi.getNoteFeed(params);
+      return response;
+    } catch (error: any) {
+
+      // Fallback到普通笔记列表接口
+      try {
+        const fallbackParams = {
+          skip: params.skip || 0,
+          limit: params.limit || 20,
+          sort_by: 'created_at',
+          sort_order: 'desc' as const
+        };
+
+        const fallbackResponse = await noteApi.getNotes(fallbackParams);
+        return fallbackResponse;
+      } catch (fallbackError: any) {
+
+        // 如果所有API都失败，使用模拟数据作为最后的后备方案
         const mockData = createMockNotes();
         const skip = params.skip || 0;
         const limit = params.limit || 20;
         const slicedMockData = mockData.slice(skip, skip + limit);
-        
+
         return {
           code: 0,
           message: 'success',
           data: slicedMockData
         };
       }
-    } catch (error: any) {
-      
-      
-      // 对已登录用户：尝试fallback到普通笔记列表
-      if (isLoggedIn) {
-        try {
-          const fallbackParams = {
-            skip: params.skip || 0,
-            limit: params.limit || 20,
-            sort_by: 'created_at',
-            sort_order: 'desc' as const
-          };
-          
-          const fallbackResponse = await noteApi.getNotes(fallbackParams);
-          return fallbackResponse;
-        } catch (fallbackError: any) {
-          
-        }
-      }
-      
-      // 最终回退：使用mock数据
-      const mockData = createMockNotes();
-      const skip = params.skip || 0;
-      const limit = params.limit || 20;
-      const slicedMockData = mockData.slice(skip, skip + limit);
-      
-      return {
-        code: 0,
-        message: 'success',
-        data: slicedMockData
-      };
     }
   }
 );
@@ -520,7 +468,6 @@ export const fetchNotesInteractionStatus = createAsyncThunk(
 
       return statusMap;
     } catch (error) {
-      console.warn('批量查询交互状态失败:', error);
       return {};
     }
   }
@@ -647,7 +594,7 @@ const noteSlice = createSlice({
             view_count: 0,
             like_count: 0,
             comment_count: 0,
-            author_name: response.data.author?.name || '我',
+            author_name: response.data.author?.nickname || '我',
             author_avatar: response.data.author?.avatar || ''
           };
           state.notes = [newNote, ...state.notes];
@@ -672,15 +619,15 @@ const noteSlice = createSlice({
           interaction_loading: false
         }));
       })
-      .addCase(fetchNotesInteractionStatus.pending, (state, action) => {
+      .addCase(fetchNotesInteractionStatus.pending, (state, _action) => {
         // 标记正在查询交互状态的笔记
-        const noteIds = action.meta.arg;
+        const noteIds = _action.meta.arg;
         state.notes = state.notes.map(note => ({
           ...note,
           interaction_loading: noteIds.includes(note.id) ? true : note.interaction_loading
         }));
       })
-      .addCase(fetchNotesInteractionStatus.rejected, (state, action) => {
+      .addCase(fetchNotesInteractionStatus.rejected, (state, _action) => {
         // 清除加载状态
         state.notes = state.notes.map(note => ({
           ...note,

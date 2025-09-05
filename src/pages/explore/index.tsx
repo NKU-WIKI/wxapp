@@ -11,7 +11,6 @@ import MasonryLayout from '@/components/masonry-layout';
 import SearchBar, { SearchSuggestion } from '@/components/search-bar';
 import searchApi from '@/services/api/search';
 import agentApi from '@/services/api/agent';
-import feedbackApi from '@/services/api/feedback';
 import GeminiReadingAnimation from '@/components/gemini-reading-animation';
 import SearchResultRenderer from '@/components/search-result-renderer';
 import { SearchResultItem, SearchMode } from '@/types/api/search';
@@ -21,10 +20,6 @@ import messageCircleIcon from '@/assets/message-circle.svg';
 import userIcon from '@/assets/user.svg';
 import fileTextIcon from '@/assets/file-text.svg';
 import bookOpenIcon from '@/assets/book-open.svg';
-import websiteIcon from '@/assets/website.png';
-import wechatIcon from '@/assets/wechat.png';
-import marketIcon from '@/assets/market.png';
-import douyinIcon from '@/assets/douyin.png';
 
 import RagResult from './components/RagResult';
 import styles from './index.module.scss';
@@ -36,13 +31,6 @@ const searchSkills: SearchSuggestion[] = [
   { icon: userIcon, title: '@user', desc: '查看和关注感兴趣的人' },
   { icon: fileTextIcon, title: '@post', desc: '查找帖子，发现校园热点内容' },
   { icon: bookOpenIcon, title: '@note', desc: '搜索笔记，获取学习资料' }
-];
-
-const contentSources = [
-  { icon: websiteIcon, name: '网站' },
-  { icon: wechatIcon, name: '微信' },
-  { icon: marketIcon, name: '集市' },
-  { icon: douyinIcon, name: '抖音' }
 ];
 
 export default function ExplorePage() {
@@ -90,7 +78,7 @@ export default function ExplorePage() {
         }
       });
     }
-  }, [dispatch, isSearchActive, isLoggedIn]);
+  }, [dispatch, isSearchActive]);
 
 
 
@@ -363,6 +351,10 @@ export default function ExplorePage() {
     setShowSuggestions(false);
     setSearchSources([]);
     setIsReading(false);
+    setRagData(null);
+    setGeneralResults([]);
+    setErrorMsg(null);
+    setRagResponseReady(false);
     dispatch(clearSearchResults());
     setIsSearchActive(false);
   };
@@ -373,32 +365,35 @@ export default function ExplorePage() {
 
 
 
+  // 前端状态管理反馈按钮的激活状态
+  const [feedbackStates, setFeedbackStates] = useState<Record<string, 'up' | 'down' | null>>({});
+
   const renderGeneralResults = () => {
-    const handleThumbUp = async (result: SearchResultItem) => {
-      try {
-        await feedbackApi.sendThumbFeedback({
-          scope: 'search_result',
-          action: 'up',
-          title: result.title,
-          extra: { id: result.id, resource_type: result.resource_type }
-        });
-        Taro.showToast({ title: '已反馈', icon: 'success' });
-      } catch (error) {
-        // console.error('Thumb up feedback failed:', error);
+    const handleThumbUp = (result: SearchResultItem) => {
+      const resultId = result.id || `${result.resource_type}-${result.resource_id}`;
+      const currentState = feedbackStates[resultId];
+
+      if (currentState === 'up') {
+        // 如果已经点赞，取消点赞
+        setFeedbackStates(prev => ({ ...prev, [resultId]: null }));
+      } else {
+        // 设置为点赞状态
+        setFeedbackStates(prev => ({ ...prev, [resultId]: 'up' }));
+        Taro.showToast({ title: '已点赞', icon: 'success' });
       }
     };
 
-    const handleThumbDown = async (result: SearchResultItem) => {
-      try {
-        await feedbackApi.sendThumbFeedback({
-          scope: 'search_result',
-          action: 'down',
-          title: result.title,
-          extra: { id: result.id, resource_type: result.resource_type }
-        });
-        Taro.showToast({ title: '已反馈', icon: 'success' });
-      } catch (error) {
-        // console.error('Thumb down feedback failed:', error);
+    const handleThumbDown = (result: SearchResultItem) => {
+      const resultId = result.id || `${result.resource_type}-${result.resource_id}`;
+      const currentState = feedbackStates[resultId];
+
+      if (currentState === 'down') {
+        // 如果已经踩，取消踩
+        setFeedbackStates(prev => ({ ...prev, [resultId]: null }));
+      } else {
+        // 设置为踩状态
+        setFeedbackStates(prev => ({ ...prev, [resultId]: 'down' }));
+        Taro.showToast({ title: '已踩', icon: 'success' });
       }
     };
 
@@ -418,14 +413,20 @@ export default function ExplorePage() {
 
     return (
       <View className={styles.resultsContainer}>
-        {uniqueResults.map((result: SearchResultItem, idx: number) => (
-          <SearchResultRenderer
-            key={result?.id ? `${result.id}-${result.resource_type || 'unknown'}` : `result-${idx}-${result.title?.slice(0, 10) || 'untitled'}`}
-            result={result}
-            onThumbUp={handleThumbUp}
-            onThumbDown={handleThumbDown}
-          />
-        ))}
+        {uniqueResults.map((result: SearchResultItem, idx: number) => {
+          const resultId = result.id || `${result.resource_type}-${result.resource_id}`;
+          const currentFeedbackState = feedbackStates[resultId] || null;
+
+          return (
+            <SearchResultRenderer
+              key={result?.id ? `${result.id}-${result.resource_type || 'unknown'}` : `result-${idx}-${result.title?.slice(0, 10) || 'untitled'}`}
+              result={result}
+              onThumbUp={handleThumbUp}
+              onThumbDown={handleThumbDown}
+              feedbackState={currentFeedbackState}
+            />
+          );
+        })}
       </View>
     );
   };
@@ -546,33 +547,20 @@ export default function ExplorePage() {
           />
         </View>
 
-        {/* 内容源导航栏 - 仅在非搜索状态下显示 */}
-        {!isSearchActive && (
-          <View className={styles.sourceNav}>
-            <View className={styles.sourceGrid}>
-              {contentSources.map((source) => (
-                <View key={source.name} className={styles.sourceItem}>
-                  <Image src={source.icon} className={styles.sourceIcon} />
-                  <Text className={styles.sourceName}>{source.name}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
       </View>
 
       {/* 内容滚动区域 */}
-      <View 
-        className={styles.contentScrollContainer} 
-        style={{ 
-          paddingTop: isSearchActive 
-            ? `${headerHeight + 40}px`  // 搜索状态：header + 搜索框
-            : `${headerHeight + 40 + 24}px`  // 默认状态：header + 搜索框 + sourceNav(减少间距)
+      <View
+        className={styles.contentScrollContainer}
+        style={{
+          paddingTop: `40px`  // header + search bar area height
         }}
       >
         <ScrollView scrollY className={styles.contentScrollView} enableFlex>
           <View className={styles.contentArea}>
             {renderBody()}
+            {/* 底部占位元素，防止内容被tab bar遮挡 */}
+            <View className={styles.bottomSpacer} />
           </View>
         </ScrollView>
       </View>

@@ -1,15 +1,13 @@
 import { defineConfig, type UserConfigExport } from "@tarojs/cli";
 import dotenv from 'dotenv';
-
-dotenv.config();
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import path from "path";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
-import ImageMinimizerPlugin from "image-minimizer-webpack-plugin";
 import devConfig from "./dev";
 import prodConfig from "./prod";
+import packageJson from '../package.json';
 
-const packageJson = require('../package.json');
+dotenv.config();
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<"webpack5">(async (merge) => {
@@ -66,36 +64,6 @@ export default defineConfig<"webpack5">(async (merge) => {
       },
       webpackChain(chain) {
         chain.resolve.plugin("tsconfig-paths").use(TsconfigPathsPlugin);
-        
-        // 处理普通图片文件（排除SVG）
-        // chain.module
-        //   .rule('images')
-        //   .test(/\.(png|jpe?g|gif)(\?.*)?$/)
-        //   .use('url-loader')
-        //   .loader('url-loader')
-        //   .options({
-        //     limit: 1, // 1 byte - 几乎禁用 url-loader 的 base64 功能
-        //     name: 'static/images/[name].[hash:8].[ext]'
-        //   });
-
-        // if (process.env.NODE_ENV === 'production') {
-        //   chain.optimization.minimizer('image-minimizer').use(
-        //     new ImageMinimizerPlugin({
-        //       minimizer: {
-        //         implementation: ImageMinimizerPlugin.sharpMinify,
-        //         options: {
-        //           encodeOptions: {
-        //             jpeg: { quality: 80 },
-        //             png: {
-        //               quality: 80,
-        //             },
-        //           },
-        //         },
-        //       },
-        //     })
-        //   );
-        // }
-
         if (process.env.ANALYZE === 'true') {
           chain
             .plugin('bundle-analyzer')
