@@ -2,7 +2,8 @@ import { View, Text, Input, Textarea, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useState, useCallback } from 'react';
 import activityApi from '@/services/api/activity';
-import { ActivityCreateRequest, ActivityType, ActivityVisibility } from '@/types/api/activity.d';
+import { ActivityCreateRequest, ActivityType, ActivityVisibility, ActivityRead } from '@/types/api/activity.d';
+import { ActivityNotificationHelper } from '@/utils/notificationHelper';
 import CustomHeader from '@/components/custom-header';
 import styles from './index.module.scss';
 
@@ -103,11 +104,62 @@ export default function PublishActivity() {
         max_participants: form.max_participants > 0 ? form.max_participants : null,
         visibility: ActivityVisibility.Public
       } as ActivityCreateRequest;
+      console.log('🚀 [PublishActivity] 开始创建活动', payload);
       const res: any = await activityApi.createActivity(payload);
+      
+      console.log('📝 [PublishActivity] 活动创建API响应', {
+        code: res?.code,
+        hasData: !!res?.data,
+        activityId: res?.data?.id
+      });
+
       if (res && res.code === 0) {
+        // 获取创建的活动数据
+        const createdActivity = res.data as ActivityRead;
+        
+        console.log('✅ [PublishActivity] 活动创建成功', {
+          activityId: createdActivity?.id,
+          activityTitle: createdActivity?.title,
+          category: createdActivity?.category
+        });
+        
+        // 获取当前用户信息
+        const currentUser = (window as any).g_app?.$app?.globalData?.userInfo || 
+                           JSON.parse(Taro.getStorageSync('userInfo') || '{}');
+        
+        console.log('👤 [PublishActivity] 获取到当前用户信息', {
+          hasUser: !!currentUser,
+          userId: currentUser?.id,
+          nickname: currentUser?.nickname || currentUser?.name
+        });
+        
+        // 发送活动发布通知
+        if (createdActivity && currentUser?.id) {
+          console.log('🔔 [PublishActivity] 开始发送活动发布通知');
+          ActivityNotificationHelper.handleActivityPublishedNotification({
+            activity: createdActivity,
+            organizerId: currentUser.id,
+            organizerNickname: currentUser.nickname || currentUser.name || '用户'
+          }).catch(error => {
+            // 通知发送失败不影响主流程
+            console.error('❌ [PublishActivity] 发送活动发布通知失败:', error);
+          });
+        } else {
+          console.warn('⚠️ [PublishActivity] 缺少必要信息，跳过发送通知', {
+            hasActivity: !!createdActivity,
+            hasUserId: !!currentUser?.id
+          });
+        }
+        
         Taro.showToast({ title: '发布成功', icon: 'success' });
+        console.log('🎉 [PublishActivity] 活动发布流程完成，准备返回上一页');
         // 重新启用自动跳转，发布成功后返回上一页
         setTimeout(() => { Taro.navigateBack(); }, 1000);
+      } else {
+        console.error('❌ [PublishActivity] 活动创建失败', {
+          code: res?.code,
+          message: res?.message
+        });
       }
     } catch (e) {
       // 错误已由拦截器处理

@@ -1,11 +1,14 @@
 import { useState, useCallback } from 'react';
-import { View, Text, ScrollView, Image, Swiper, SwiperItem, Textarea } from '@tarojs/components';
+import { View, Text, ScrollView, Image, Swiper, SwiperItem, Textarea, Input } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import { useSelector } from 'react-redux';
 
 import { RootState } from '@/store';
 import { getNoteDetail } from '@/services/api/note';
+import { getActionStatus } from '@/services/api/user';
+import { getComments, createComment } from '@/services/api/comment';
 import { NoteDetail, NoteRead } from '@/types/api/note';
+import { CommentTreeRead, CreateCommentRequest } from '@/types/api/comment';
 import { normalizeImageUrl } from '@/utils/image';
 import { formatPostDate } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
@@ -15,10 +18,9 @@ import heartIcon from '@/assets/heart.svg';
 import heartFilledIcon from '@/assets/heart-bold.svg';
 import bookmarkIcon from '@/assets/star-outline.svg';
 import bookmarkFilledIcon from '@/assets/star-filled.svg';
-import commentIcon from '@/assets/message-circle.svg';
 import shareIcon from '@/assets/share.svg';
-import sendIcon from '@/assets/send.svg';
-
+import commentIcon from '@/assets/message-circle.svg';
+import sendIcon from '@/assets/sendcomment.svg';
 import styles from './index.module.scss';
 
 export default function NoteDetailPage() {
@@ -31,6 +33,11 @@ export default function NoteDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [commentText, setCommentText] = useState('');
+  
+  // 评论相关状态
+  const [comments, setComments] = useState<CommentTreeRead[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [submittingComment, setSubmittingComment] = useState(false);
   
   // 交互状态
   const [isLiked, setIsLiked] = useState(false);
@@ -49,6 +56,44 @@ export default function NoteDetailPage() {
     path: `/pages/subpackage-interactive/note-detail/index?id=${noteId}${userId ? `&userId=${userId}` : ''}`,
     imageUrl: note?.images?.[0] ? normalizeImageUrl(note.images[0]) : undefined,
   });
+
+  // 加载评论列表
+  const loadComments = useCallback(async () => {
+    if (!noteId) return;
+    
+    try {
+      setCommentsLoading(true);
+      const response = await getComments({
+        resource_id: noteId,
+        resource_type: 'note',
+        skip: 0,
+        limit: 50,
+        sort_by: 'created_at',
+        sort_desc: true
+      });
+      
+      if (response.code === 0 && Array.isArray(response.data)) {
+        // 将 Comment[] 转换为 CommentTreeRead[] 格式
+        const commentTreeData = response.data.map(comment => ({
+          ...comment,
+          tenant_id: comment.tenant_id || '',
+          updated_at: comment.updated_at || comment.created_at,
+          path: comment.path || '',
+          depth: comment.depth || 0,
+          children: comment.children || [],
+          total_children_count: comment.children?.length || 0,
+          tree_depth: comment.depth || 0,
+          has_more_children: false,
+          is_expanded: false
+        })) as CommentTreeRead[];
+        setComments(commentTreeData);
+      }
+    } catch (error) {
+      console.error('加载评论失败:', error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  }, [noteId]);
 
   // 加载笔记详情
   const loadNoteDetail = useCallback(async () => {
@@ -160,12 +205,42 @@ export default function NoteDetailPage() {
           setError(response.message || '加载失败');
         }
       }
+
+      // 加载评论列表
+      await loadComments();
+      
+      // 如果用户已登录，主动查询用户的点赞收藏状态
+      if (isLoggedIn && noteId) {
+        try {
+          // 查询点赞状态
+          const likeResponse = await getActionStatus(noteId, 'note', 'like');
+          
+          if (likeResponse.code === 0 && likeResponse.data) {
+            setIsLiked(likeResponse.data.is_active);
+            setLikeCount(likeResponse.data.count || 0);
+          }
+        } catch (_error) {
+          // 如果查询失败，保持原有状态
+        }
+
+        try {
+          // 查询收藏状态
+          const favoriteResponse = await getActionStatus(noteId, 'note', 'favorite');
+          
+          if (favoriteResponse.code === 0 && favoriteResponse.data) {
+            setIsBookmarked(favoriteResponse.data.is_active);
+            setFavoriteCount(favoriteResponse.data.count || 0);
+          }
+        } catch (_error) {
+          // 如果查询失败，保持原有状态
+        }
+      }
     } catch (err) {
       setError('网络错误，请重试');
     } finally {
       setLoading(false);
     }
-  }, [noteId, userId]);
+  }, [noteId, userId, isLoggedIn]);
   
   // 页面显示时加载数据
   useDidShow(() => {
@@ -195,7 +270,7 @@ export default function NoteDetailPage() {
   };
 
   // 处理评论提交
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = async () => {
     if (!commentText.trim()) {
       Taro.showToast({
         title: '请输入评论内容',
@@ -212,13 +287,45 @@ export default function NoteDetailPage() {
       return;
     }
     
-    // TODO: 调用评论API
-    // console.log('提交评论:', commentText);
-    setCommentText('');
-    Taro.showToast({
-      title: '评论成功',
-      icon: 'success'
-    });
+    if (!noteId) {
+      Taro.showToast({
+        title: '笔记ID不存在',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    try {
+      setSubmittingComment(true);
+      
+      const commentData: CreateCommentRequest = {
+        content: commentText.trim(),
+        resource_id: noteId,
+        resource_type: 'note'
+      };
+      
+      const response = await createComment(commentData);
+      
+      if (response.code === 0) {
+        Taro.showToast({
+          title: '评论成功',
+          icon: 'success'
+        });
+        setCommentText('');
+        // 重新加载评论列表
+        await loadComments();
+      } else {
+        throw new Error(response.message || '评论失败');
+      }
+    } catch (error: any) {
+      console.error('评论失败:', error);
+      Taro.showToast({
+        title: error.message || '评论失败，请重试',
+        icon: 'none'
+      });
+    } finally {
+      setSubmittingComment(false);
+    }
   };
 
   // 渲染加载状态
@@ -358,116 +465,65 @@ export default function NoteDetailPage() {
             <Text className={styles.contentText}>{note.content}</Text>
           </View>
           
-          {/* 资源清单 */}
-          <View className={styles.resourceSection}>
-            <View className={styles.sectionTitle}>
-              <Image className={styles.sectionIcon} src='/assets/book.svg' />
-              <Text>资源清单</Text>
-            </View>
-            <View className={styles.resourceList}>
-              <View className={styles.resourceItem}>
-                <Image className={styles.resourceIcon} src='/assets/check-square.svg' />
-                <View className={styles.resourceInfo}>
-                  <Text className={styles.resourceName}>教材精讲笔记与重难点解析</Text>
-                  <Text className={styles.resourceMeta}>包含核心知识点和重点难点</Text>
-                </View>
-              </View>
-              <View className={styles.resourceItem}>
-                <Image className={styles.resourceIcon} src='/assets/check-square.svg' />
-                <View className={styles.resourceInfo}>
-                  <Text className={styles.resourceName}>典型例题与习题详解</Text>
-                  <Text className={styles.resourceMeta}>300+精选例题与详细解析</Text>
-                </View>
-              </View>
-              <View className={styles.resourceItem}>
-                <Image className={styles.resourceIcon} src='/assets/check-square.svg' />
-                <View className={styles.resourceInfo}>
-                  <Text className={styles.resourceName}>历年期中期末真题解析</Text>
-                  <Text className={styles.resourceMeta}>20套历年真题配套答案</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          
-          {/* 下载地址 */}
-          <View className={styles.resourceSection}>
-            <View className={styles.sectionTitle}>
-              <Image className={styles.sectionIcon} src='/assets/folder.svg' />
-              <Text>下载地址</Text>
-            </View>
-            <View className={styles.resourceList}>
-              <View className={styles.resourceItem}>
-                <Image className={styles.resourceIcon} src='/assets/download.svg' />
-                <View className={styles.resourceInfo}>
-                  <Text className={styles.resourceName}>站内精简版</Text>
-                  <Text className={styles.resourceMeta}>完备度 95% · 2025秋季版</Text>
-                </View>
-                <View className={styles.downloadButton}>
-                  <Text>立即下载</Text>
-                </View>
-              </View>
-            </View>
-          </View>
+
           
           {/* 评论区域 */}
           <View className={styles.commentSection}>
             <View className={styles.commentHeader}>
-              <Text className={styles.commentCount}>评论 {note.comment_count || 0}</Text>
+              <Text className={styles.commentCount}>评论 {comments.length}</Text>
             </View>
             
-            <View className={styles.commentList}>
-              <View className={styles.commentItem}>
-                <Image 
-                  className={styles.commentAvatar}
-                  src='/assets/avatar1.png'
-                  mode='aspectFill'
-                />
-                <View className={styles.commentContent}>
-                  <Text className={styles.commentAuthor}>Sarah Chen</Text>
-                  <Text className={styles.commentText}>习题解析很详细，感谢分享！</Text>
-                  <Text className={styles.commentTime}>4分钟前</Text>
-                </View>
+            {/* 评论列表 */}
+            {commentsLoading ? (
+              <View className={styles.commentLoading}>
+                <Text className={styles.loadingText}>加载评论中...</Text>
               </View>
-              
-              <View className={styles.commentItem}>
-                <Image 
-                  className={styles.commentAvatar}
-                  src='/assets/avatar2.png'
-                  mode='aspectFill'
-                />
-                <View className={styles.commentContent}>
-                  <Text className={styles.commentAuthor}>David Wang</Text>
-                  <Text className={styles.commentText}>整理得很系统，建议积分部分多些例题</Text>
-                  <Text className={styles.commentTime}>16分钟前</Text>
-                </View>
+            ) : comments.length > 0 ? (
+              <View className={styles.commentList}>
+                {comments.map((comment) => (
+                  <View key={comment.id} className={styles.commentItem}>
+                    <Image 
+                      className={styles.commentAvatar}
+                      src={comment.user?.avatar ? normalizeImageUrl(comment.user.avatar) : '/assets/avatar1.png'}
+                      mode='aspectFill'
+                    />
+                    <View className={styles.commentContent}>
+                      <Text className={styles.commentAuthor}>
+                        {comment.user?.nickname || '匿名用户'}
+                      </Text>
+                      <Text className={styles.commentText}>{comment.content}</Text>
+                      <Text className={styles.commentTime}>
+                        {comment.created_at ? formatPostDate(comment.created_at) : '时间未知'}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
               </View>
-              
-              <View className={styles.commentItem}>
-                <Image 
-                  className={styles.commentAvatar}
-                  src='/assets/avatar1.png'
-                  mode='aspectFill'
-                />
-                <View className={styles.commentContent}>
-                  <Text className={styles.commentAuthor}>Emma Liu</Text>
-                  <Text className={styles.commentText}>助教推荐，建议按学习路径使用</Text>
-                  <Text className={styles.commentTime}>45分钟前</Text>
-                </View>
+            ) : (
+              <View className={styles.emptyComments}>
+                <Text className={styles.emptyText}>暂无评论，快来发表第一条评论吧！</Text>
               </View>
-            </View>
+            )}
             
             {/* 评论输入框 */}
             <View className={styles.commentInput}>
-              <Textarea
+              <Input
                 className={styles.inputField}
                 value={commentText}
                 onInput={(e) => setCommentText(e.detail.value)}
                 placeholder='写下你的评论...'
                 maxlength={500}
-                autoHeight
+                disabled={submittingComment}
               />
-              <View className={styles.sendButton} onClick={handleCommentSubmit}>
-                <Image className={styles.sendIcon} src={sendIcon} />
+              <View 
+                className={`${styles.sendButton} ${submittingComment ? styles.sending : ''}`} 
+                onClick={handleCommentSubmit}
+              >
+                {submittingComment ? (
+                  <Text className={styles.sendingText}>发送中...</Text>
+                ) : (
+                  <Image className={styles.sendIcon} src={sendIcon} />
+                )}
               </View>
             </View>
           </View>

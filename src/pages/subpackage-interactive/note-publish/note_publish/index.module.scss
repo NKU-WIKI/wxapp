@@ -347,40 +347,22 @@
   }
 }
 
-// 资源链接区域
-.resourceSection {
-  margin-bottom: 24px;
-  padding: 20px;
-  background-color: $bg-card;
-  border-radius: 12px;
-  border: 1px solid $border-light;
-}
 
-.sectionTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: $text-primary;
-  margin-bottom: 12px;
-  display: block;
-}
-
-.comingSoon {
-  font-size: 14px;
-  color: $text-helper-gray;
-  text-align: center;
-  display: block;
-}
 
 // 发布按钮
 .publishSection {
   margin-bottom: 32px;
 }
 
-.publishButton {
+.publishBtn {
   width: 100%;
-  padding: 16px;
+  height: 56px;
   background-color: $theme-primary;
+  border: none;
   border-radius: 12px;
+  color: #ffffff !important;
+  font-size: 16px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -395,10 +377,11 @@
   &:active {
     transform: translateY(0);
   }
-}
 
-.publishText {
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
+  &:disabled {
+    background-color: $text-helper-gray;
+    cursor: not-allowed;
+    transform: none;
+    color: #ffffff !important;
+  }
 }

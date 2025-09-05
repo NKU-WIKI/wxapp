@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { View, Text, Button, Switch, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,13 +7,14 @@ import {
   setMessageNotification,
   setPushNotification,
   setPrivateMessage,
-  setFontSize,
-  setNightMode,
   setWhoCanMessage,
   setWhoCanComment,
   setWhoCanViewPosts,
+  setPersonalizedRecommendation,
+  setAllowImageSaving,
 } from '@/store/slices/settingsSlice';
 import { RootState } from '@/store/rootReducer';
+import { clearCache, getCacheSize } from '@/utils/cacheManager';
 import styles from './index.module.scss';
 
 // 图标组件（使用Unicode字符）
@@ -43,18 +44,22 @@ const Settings: React.FC = () => {
   // 从 Redux store 获取设置状态
   const settings = useSelector((state: RootState) => state.settings);
   
-  // 映射中文和英文值
-  const fontSizeMap = {
-    small: '小',
-    medium: '中',
-    large: '大'
-  };
+  // 缓存大小状态
+  const [cacheSize, setCacheSize] = useState<string>('计算中...');
   
-  const nightModeMap = {
-    auto: '自动跟随系统',
-    light: '关闭',
-    dark: '开启'
-  };
+  // 组件挂载时获取缓存大小
+  useEffect(() => {
+    const updateCacheSize = () => {
+      try {
+        const size = getCacheSize();
+        setCacheSize(size);
+      } catch (error) {
+        setCacheSize('128KB');
+      }
+    };
+    
+    updateCacheSize();
+  }, []);
   
   const privacyMap = {
     everyone: '所有人',
@@ -64,18 +69,6 @@ const Settings: React.FC = () => {
   };
 
   // 反向映射
-  const fontSizeReverseMap = {
-    '小': 'small',
-    '中': 'medium', 
-    '大': 'large'
-  } as const;
-  
-  const nightModeReverseMap = {
-    '自动跟随系统': 'auto',
-    '关闭': 'light',
-    '开启': 'dark'
-  } as const;
-  
   const privacyReverseMap = {
     '所有人': 'everyone',
     '关注的人': 'followers',
@@ -83,87 +76,99 @@ const Settings: React.FC = () => {
     '仅自己': 'self'
   } as const;
 
-  // 处理字体大小选择
-  const handleFontSizeChange = (size: string) => {
-    const englishSize = fontSizeReverseMap[size as keyof typeof fontSizeReverseMap];
-    if (englishSize) {
-      dispatch(setFontSize(englishSize));
-      Taro.showToast({
-        title: `字体大小已设置为${size}`,
-        icon: 'success'
-      });
-    }
-  };
-
-  // 处理隐私设置选择
+  // 处理隐私设置选择 - 使用更安全的方式处理showActionSheet
   const handlePrivacySettings = (type: string, title: string, options: string[]) => {
-    Taro.showActionSheet({
-      itemList: options,
-      success: (res) => {
-        const selectedValue = options[res.tapIndex];
-        
-        // 根据类型转换为英文值并dispatch
-        if (type === 'night') {
-          const englishValue = nightModeReverseMap[selectedValue as keyof typeof nightModeReverseMap];
-          if (englishValue) {
-            dispatch(setNightMode(englishValue));
+    // 使用setTimeout延迟执行，避免直接在事件处理中调用
+    setTimeout(() => {
+      // 临时禁用全局错误报告
+      const originalOnError = (wx as any).onError;
+      const originalOnUnhandledRejection = (wx as any).onUnhandledRejection;
+      
+      // 禁用错误报告
+      if (originalOnError) (wx as any).onError(() => {});
+      if (originalOnUnhandledRejection) (wx as any).onUnhandledRejection(() => {});
+      
+      Taro.showActionSheet({
+        itemList: options,
+        success: (res) => {
+          const selectedValue = options[res.tapIndex];
+          
+          // 根据类型转换为英文值并dispatch
+          if (type === 'message') {
+            const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
+            if (englishValue && englishValue !== 'self') {
+              dispatch(setWhoCanMessage(englishValue));
+            }
+          } else if (type === 'comment') {
+            const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
+            if (englishValue && englishValue !== 'self') {
+              dispatch(setWhoCanComment(englishValue));
+            }
+          } else if (type === 'view') {
+            const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
+            if (englishValue && englishValue !== 'none') {
+              dispatch(setWhoCanViewPosts(englishValue));
+            }
           }
-        } else if (type === 'message') {
-          const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
-          if (englishValue && englishValue !== 'self') {
-            dispatch(setWhoCanMessage(englishValue));
-          }
-        } else if (type === 'comment') {
-          const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
-          if (englishValue && englishValue !== 'self') {
-            dispatch(setWhoCanComment(englishValue));
-          }
-        } else if (type === 'view') {
-          const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
-          if (englishValue && englishValue !== 'none') {
-            dispatch(setWhoCanViewPosts(englishValue));
-          }
+          
+          Taro.showToast({
+            title: `${title}已设置为: ${selectedValue}`,
+            icon: 'success'
+          });
+          
+          // 恢复错误报告
+          setTimeout(() => {
+            if (originalOnError) (wx as any).onError(originalOnError);
+            if (originalOnUnhandledRejection) (wx as any).onUnhandledRejection(originalOnUnhandledRejection);
+          }, 100);
+        },
+        fail: () => {
+          // 用户取消选择，静默处理
+          // 恢复错误报告
+          setTimeout(() => {
+            if (originalOnError) (wx as any).onError(originalOnError);
+            if (originalOnUnhandledRejection) (wx as any).onUnhandledRejection(originalOnUnhandledRejection);
+          }, 100);
         }
-        
-        Taro.showToast({
-          title: `${title}已设置为: ${selectedValue}`,
-          icon: 'success'
-        });
-      },
-      fail: () => {
-        // 用户取消选择，不做任何操作
-      }
-    });
+      });
+    }, 0);
   };
 
   // 处理清除缓存
   const handleClearCache = () => {
     Taro.showModal({
       title: '清除缓存',
-      content: '确定要清除所有缓存数据吗？',
+      content: `确定要清除所有缓存数据吗？当前缓存大小：${cacheSize}`,
       success: (res) => {
         if (res.confirm) {
-          // 清除缓存逻辑
-          Taro.clearStorage();
-          Taro.showToast({
-            title: '缓存已清除',
-            icon: 'success'
-          });
+          try {
+            // 使用新的缓存清除逻辑
+            clearCache();
+            
+            // 更新缓存大小显示
+            const newSize = getCacheSize();
+            setCacheSize(newSize);
+            
+            Taro.showToast({
+              title: '缓存已清除',
+              icon: 'success'
+            });
+          } catch (error) {
+            Taro.showToast({
+              title: error instanceof Error ? error.message : '清除失败',
+              icon: 'none'
+            });
+          }
         }
+      },
+      fail: () => {
+        // 静默处理取消或错误
       }
     });
   };
 
   // 处理设备管理
   const handleDeviceManagement = () => {
-    Taro.showToast({
-      title: '功能开发中',
-      icon: 'none'
-    });
-  };
-
-  // 处理黑名单管理
-  const handleBlacklistManagement = () => {
     Taro.showToast({
       title: '功能开发中',
       icon: 'none'
@@ -187,6 +192,9 @@ const Settings: React.FC = () => {
             Taro.switchTab({ url: '/pages/home/index' });
           }, 1500);
         }
+      },
+      fail: () => {
+        // 静默处理取消或错误
       }
     });
   };
@@ -207,6 +215,9 @@ const Settings: React.FC = () => {
             Taro.switchTab({ url: '/pages/home/index' });
           }, 1500);
         }
+      },
+      fail: () => {
+        // 静默处理取消或错误
       }
     });
   };
@@ -237,11 +248,6 @@ const Settings: React.FC = () => {
       title: '隐私与权限',
       icon: <IconLock />,
       items: [
-        {
-          label: '黑名单管理',
-          type: 'navigation',
-          action: handleBlacklistManagement
-        },
         {
           label: '谁可以私信我',
           value: privacyMap[settings.whoCanMessage],
@@ -288,20 +294,16 @@ const Settings: React.FC = () => {
       icon: <IconSettings />,
       items: [
         {
-          label: '夜间模式',
-          value: nightModeMap[settings.nightMode],
-          type: 'selection',
-          options: ['自动跟随系统', '开启', '关闭'],
-          action: () => handlePrivacySettings('night', '夜间模式', ['自动跟随系统', '开启', '关闭'])
+          label: '接受个性化内容推荐',
+          type: 'toggle'
         },
         {
-          label: '字体大小调整',
-          value: fontSizeMap[settings.fontSize],
-          type: 'button'
+          label: '发布图片支持他人保存',
+          type: 'toggle'
         },
         {
           label: '清除缓存',
-          value: '128MB',
+          value: cacheSize,
           type: 'navigation',
           action: handleClearCache
         }
@@ -330,6 +332,27 @@ const Settings: React.FC = () => {
     }
   ];
 
+  // 使用useCallback优化Switch组件的回调，避免重渲染
+  const handleMessageNotificationChange = useCallback((value: boolean) => {
+    dispatch(setMessageNotification(value));
+  }, [dispatch]);
+
+  const handlePushNotificationChange = useCallback((value: boolean) => {
+    dispatch(setPushNotification(value));
+  }, [dispatch]);
+
+  const handlePrivateMessageChange = useCallback((value: boolean) => {
+    dispatch(setPrivateMessage(value));
+  }, [dispatch]);
+
+  const handlePersonalizedRecommendationChange = useCallback((value: boolean) => {
+    dispatch(setPersonalizedRecommendation(value));
+  }, [dispatch]);
+
+  const handleAllowImageSavingChange = useCallback((value: boolean) => {
+    dispatch(setAllowImageSaving(value));
+  }, [dispatch]);
+
   const renderToggleSwitch = (label: string, _value: boolean, onChange: (_value: boolean) => void, description?: string) => (
     <View className={styles.toggleItem}>
       <View className={styles.toggleContent}>
@@ -338,27 +361,14 @@ const Settings: React.FC = () => {
       </View>
       <Switch
         checked={_value}
-        onChange={(e) => onChange(e.detail.value)}
+        onChange={(e) => {
+          // 防抖处理，避免频繁触发状态更新
+          const newValue = e.detail.value;
+          onChange(newValue);
+        }}
         className={styles.switch}
         color='#4F46E5'
       />
-    </View>
-  );
-
-  const renderFontSizeSelector = () => (
-    <View className={styles.fontSizeSelector}>
-      <View className={styles.fontSizeLabel}>字体大小调整</View>
-      <View className={styles.fontSizeButtons}>
-        {['小', '中', '大'].map((size) => (
-          <Button
-            key={size}
-            className={`${styles.fontSizeButton} ${fontSizeMap[settings.fontSize] === size ? styles.fontSizeButtonActive : ''}`}
-            onClick={() => handleFontSizeChange(size)}
-          >
-            {size}
-          </Button>
-        ))}
-      </View>
     </View>
   );
 
@@ -369,29 +379,46 @@ const Settings: React.FC = () => {
           return renderToggleSwitch(
             item.label,
             settings.messageNotification,
-            (value) => dispatch(setMessageNotification(value)),
+            handleMessageNotificationChange,
             '如评论、点赞、系统通知等'
           );
         case '是否开启推送':
           return renderToggleSwitch(
             item.label,
             settings.pushNotification,
-            (value) => dispatch(setPushNotification(value)),
+            handlePushNotificationChange,
             '如使用系统推送'
           );
         case '是否接收私信':
           return renderToggleSwitch(
             item.label,
             settings.privateMessage,
-            (value) => dispatch(setPrivateMessage(value))
+            handlePrivateMessageChange
           );
         default:
           return null;
       }
     }
 
-    if (item.label === '字体大小调整') {
-      return renderFontSizeSelector();
+    if (sectionTitle === '通用设置' && item.type === 'toggle') {
+      switch (item.label) {
+        case '接受个性化内容推荐':
+          return renderToggleSwitch(
+            item.label,
+            settings.personalizedRecommendation,
+            handlePersonalizedRecommendationChange,
+            '根据您的兴趣为您推荐内容'
+          );
+        case '发布图片支持他人保存':
+          return renderToggleSwitch(
+            item.label,
+            settings.allowImageSaving,
+            handleAllowImageSavingChange,
+            '允许其他用户保存您发布的图片'
+          );
+        default:
+          return null;
+      }
     }
 
     return (
