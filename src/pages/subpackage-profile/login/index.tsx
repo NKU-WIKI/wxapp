@@ -28,11 +28,11 @@ export default function LoginPage() {
   const checkAgreement = () => {
 
     if (!agreedToTerms) {
-      
+
       Taro.showToast({ title: '请先阅读并同意用户协议和隐私政策', icon: 'none' });
       return false;
     }
-    
+
     return true;
   };
 
@@ -98,8 +98,8 @@ export default function LoginPage() {
 
 
       <View className={styles.quickLogin}>
-        <View className={styles.wechatLoginContainer}>
-          <Image src={wechatIcon} className={styles.socialIcon} onClick={handleWechatLogin} />
+        <View className={styles.wechatLoginContainer} onClick={handleWechatLogin}>
+          <Image src={wechatIcon} className={styles.socialIcon} />
           <Text className={styles.wechatLoginText}>微信一键登录</Text>
         </View>
       </View>
