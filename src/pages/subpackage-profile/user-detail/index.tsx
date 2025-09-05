@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchUserProfile, fetchCurrentUser } from '../../../store/slices/userSlice';
 import { getActionStatus, getUserPostCount, getUserFollowersCount, getUserFollowingCount } from '../../../services/api/user';
 import { followAction } from '../../../services/api/followers';
-import { BBSNotificationHelper } from '../../../utils/notificationHelper';
+import { BBSNotificationHelper } from '@/utils/notificationHelper';
 import { useSharing } from '../../../hooks/useSharing';
 import CustomHeader from '../../../components/custom-header';
 import AuthorInfo from '../../../components/author-info';

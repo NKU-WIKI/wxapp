@@ -3,7 +3,7 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 130vh;
   background-color: $bg-page-gray;
 }
 
@@ -379,4 +379,10 @@
   &:hover {
     background-color: darken($theme-primary, 5%);
   }
+}
+
+/* 底部空间 */
+.bottomSpacer {
+  height: 50px;
+  background-color: transparent;
 }

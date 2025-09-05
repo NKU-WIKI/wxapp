@@ -41,65 +41,22 @@ const MasonryLayout = ({
     });
   }, []);
 
-  // 智能分配笔记到列
+  // 简单的轮换分配策略 - 让真实的图片高度决定瀑布流效果
   const redistributeNotes = useCallback((noteList: NoteListItem[]) => {
     const newColumns: NoteListItem[][] = [[], []];
-    const newHeights = [0, 0];
 
-    noteList.forEach((note) => {
-      // 计算笔记卡片的预估高度
-      const estimatedHeight = calculateNoteHeight(note);
-      
-      // 选择高度较小的列
-      const shortestColumnIndex = newHeights[0] <= newHeights[1] ? 0 : 1;
-      
-      newColumns[shortestColumnIndex].push(note);
-      newHeights[shortestColumnIndex] += estimatedHeight;
+    // 使用简单的轮换分配，而不是基于预估高度
+    // 这样可以让图片的真实高度产生自然的瀑布流效果
+    noteList.forEach((note, index) => {
+      const columnIndex = index % 2; // 简单轮换：奇数索引放右列，偶数索引放左列
+      newColumns[columnIndex].push(note);
     });
 
     setColumns(newColumns);
   }, []);
 
-  // 计算笔记卡片的预估高度
-  const calculateNoteHeight = (note: NoteListItem): number => {
-    // 根据noteId计算图片高度（与NoteCard中的逻辑保持一致）
-    const imageConfigs = [
-      { width: 300, height: 200 },  // 3:2 比例
-      { width: 300, height: 250 },  // 6:5 比例
-      { width: 300, height: 180 },  // 5:3 比例
-      { width: 300, height: 320 },  // 15:16 比例 - 较高
-      { width: 300, height: 160 },  // 15:8 比例 - 较矮
-      { width: 300, height: 280 },  // 15:14 比例
-      { width: 300, height: 220 },  // 15:11 比例
-      { width: 300, height: 300 },  // 1:1 正方形
-      { width: 300, height: 240 },  // 5:4 比例
-      { width: 300, height: 190 },  // 30:19 比例
-    ];
-    
-    const hash = note.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const configIndex = hash % imageConfigs.length;
-    const config = imageConfigs[configIndex];
-    
-    // 按比例缩放图片高度到卡片宽度
-    const cardWidth = 160; // 大约的卡片宽度
-    const imageHeight = (config.height / config.width) * cardWidth;
-    
-    // 标题区域高度（下1/3部分）
-    const titleHeight = 60; // 预估标题区域高度，包含padding
-    
-    // 底部作者信息栏高度
-    const footerHeight = 40; // 作者头像、姓名、点赞数
-    
-    // 基础高度
-    let height = imageHeight + titleHeight + footerHeight;
-    
-    // 根据标题长度微调高度
-    if (note.title && note.title.length > 15) {
-      height += 20; // 标题较长时增加高度
-    }
-
-    return Math.round(height);
-  };
+  // 由于使用 widthFix 模式，图片高度由实际图片决定
+  // 不再需要预估高度，让真实的图片渲染产生瀑布流效果
 
   // 当notes变化时重新分布
   useEffect(() => {

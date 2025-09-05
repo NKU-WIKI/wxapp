@@ -6,7 +6,7 @@ import { AppDispatch, RootState } from '@/store';
 import { fetchUserStats, fetchFollowersCount, fetchCollectionCount, resetUserStats, resetFollowersCount, resetCollectionCount } from '@/store/slices/userSlice';
 import { fetchUserPostCount, fetchUserLikeCount, resetUserPostCount, resetUserLikeCount } from '@/store/slices/userPostsSlice';
 import { fetchCampusVerificationInfo } from '@/store/slices/campusVerificationSlice';
-import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
+import CustomHeader from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import { normalizeImageUrl } from '@/utils/image';
 import styles from './index.module.scss';
@@ -53,7 +53,6 @@ const Profile = () => {
   const statsStatus = userState?.statsStatus;
   const followersCountStatus = userState?.followersCountStatus;
   const collectionCountStatus = userState?.collectionCountStatus;
-  const headerHeight = useCustomHeaderHeight();
   
   // 页面显示时刷新数字数据（仅在数据不存在时）
   useDidShow(() => {
@@ -431,6 +430,9 @@ const Profile = () => {
                 <Text className={styles.chevron}>›</Text>
               </View>
             </View>
+            
+            {/* 底部空间，增加下滑范围 */}
+            <View className={styles.bottomSpacer}></View>
           </View>
         </ScrollView>
       </View>

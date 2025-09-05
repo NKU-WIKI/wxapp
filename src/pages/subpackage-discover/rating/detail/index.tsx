@@ -79,7 +79,6 @@ const RatingDetailPage = () => {
       setLoading(true)
       setError(null)
       
-      console.log('🚀 [loadData] 开始加载数据:', { resourceType, resourceId, resourceName });
       
       // 并行加载资源评分列表和统计信息
       const [ratingsResponse, statisticsResponse] = await Promise.all([
@@ -104,14 +103,12 @@ const RatingDetailPage = () => {
       }
       
       if (ratingsData && Array.isArray(ratingsData)) {
-        console.log('✅ [loadData] 找到评分数据，数量:', ratingsData.length);
         setRatings(ratingsData)
         
         // 检查当前用户是否已经评过分
         if (isLoggedIn && userState.user?.id) {
           const existingRating = ratingsData.find(rating => rating.rater_id === userState.user?.id);
           if (existingRating) {
-            console.log('👤 [loadData] 发现用户已有评分:', existingRating.score, '分');
             setUserExistingRating(existingRating);
             // 预填充表单
             setUserRating(existingRating.score);
@@ -134,7 +131,6 @@ const RatingDetailPage = () => {
             average_score: statisticsResponse.data?.data?.average_score || (statisticsResponse.data as any)?.average_score || 0,
             rating_count: statisticsResponse.data?.data?.total_ratings || (statisticsResponse.data as any)?.total_ratings || 0
           };
-          console.log('🏗️ [loadData] 构建的资源信息:', resourceInfo.title, `评分:${resourceInfo.average_score}`, `数量:${resourceInfo.rating_count}`);
           setResourceInfo(resourceInfo);
         } else {
           // 如果没有评分数据，创建基础资源信息
@@ -146,33 +142,18 @@ const RatingDetailPage = () => {
             average_score: 0,
             rating_count: 0
           };
-          console.log('🏗️ [loadData] 创建基础资源信息:', JSON.stringify(basicResourceInfo, null, 2));
           setResourceInfo(basicResourceInfo);
         }
-      } else {
-        console.log('⚠️ [loadData] 未找到评分数据，响应结构:', {
-          hasData: !!ratingsResponse.data,
-          hasDataData: !!ratingsResponse.data?.data,
-          hasDataItems: !!ratingsResponse.data?.data?.items,
-          hasDirectItems: !!(ratingsResponse.data as any)?.items,
-          hasRootItems: !!(ratingsResponse as any)?.items,
-          fullResponse: ratingsResponse
-        });
       }
       
       // 处理统计数据
       if (statisticsResponse.data?.data) {
-        console.log('📊 [loadData] 设置统计数据 (嵌套结构)');
         setStatistics(statisticsResponse.data.data)
       } else if (statisticsResponse.data) {
-        console.log('📊 [loadData] 设置统计数据 (直接结构)');
         setStatistics(statisticsResponse.data as any)
-      } else {
-        console.log('⚠️ [loadData] 未找到统计数据');
       }
       
     } catch (err: any) {
-      console.log('❌ [loadData] 数据加载失败:', err);
       setError(err.message || '加载失败')
     } finally {
       setLoading(false)
@@ -316,7 +297,6 @@ const RatingDetailPage = () => {
       }
       
     } catch (err: any) {
-      console.log('❌ [handleSubmitRating] 评分提交失败:', err);
       
       // 处理409冲突错误（已评分）
       if (err.statusCode === 409 || err.code === 409) {

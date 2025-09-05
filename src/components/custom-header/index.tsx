@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 import styles from "./index.module.scss";
 
@@ -133,6 +135,9 @@ const CustomHeader = ({
   const handleNotificationClick = () => {
     Taro.navigateTo({ url: "/pages/subpackage-interactive/notification/index" });
   };
+  
+  // 获取未读消息总数
+  const unreadTotal = useSelector((state: RootState) => state.notification.unreadCounts.total || 0);
 
   // 整体容器，负责占位
   const placeholderStyle: React.CSSProperties = {
@@ -179,8 +184,15 @@ const CustomHeader = ({
               </View>
             )}
             {showNotificationIcon && (
-              <View onClick={handleNotificationClick} className={styles.iconWrapper}>
+              <View onClick={handleNotificationClick} className={styles.notificationIconWrapper}>
                 <Image src={notificationIcon} className={styles.notificationIcon} />
+                {unreadTotal > 0 && (
+                  <View className={styles.notificationBadge}>
+                    <Text className={styles.badgeText}>
+                      {unreadTotal > 99 ? '99+' : unreadTotal}
+                    </Text>
+                  </View>
+                )}
               </View>
             )}
           </View>
