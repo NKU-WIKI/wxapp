@@ -102,8 +102,19 @@ export const getNoteDetail = async (noteId: string, userId?: string) => {
     // 如果有用户ID，获取该用户的笔记列表
     return http.get<any>(`/users/${userId}/notes`);
   } else {
-    // 否则直接获取笔记详情
-    return http.get<any>(`/notes/${noteId}`);
+    // 尝试通过feed接口获取笔记详情
+    // 由于单个笔记详情接口可能不存在，我们使用feed接口并通过ID筛选
+    try {
+      // 首先尝试直接获取笔记详情
+      return await http.get<any>(`/notes/${noteId}`);
+    } catch (error: any) {
+      // 如果直接获取失败，尝试通过其他方式
+      if (error?.status === 404) {
+        // 404错误，可能接口不存在，抛出更明确的错误
+        throw new Error('笔记不存在或已被删除');
+      }
+      throw error;
+    }
   }
 };
 

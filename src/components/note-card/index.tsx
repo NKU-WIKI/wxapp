@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { normalizeImageUrl } from '@/utils/image';
-import { NoteListItem } from '@/services/api/note';
+import { NoteListItem } from '@/types/api/note';
 import ActionButton from '@/components/action-button';
 import heartIcon from '@/assets/heart.svg';
 import heartFilledIcon from '@/assets/heart-bold.svg';
@@ -22,15 +22,21 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
     if (onClick) {
       onClick();
     } else {
-      // 使用笔记ID作为导航参数，不需要userId
-      const url = `/pages/subpackage-interactive/note-detail/index?id=${note.id}`;
+      // 构建导航URL，如果有用户信息则传递userId
+      let url = `/pages/subpackage-interactive/note-detail/index?id=${note.id}`;
       
+      // 如果有用户信息，添加userId参数
+      if (note.user?.id) {
+        url += `&userId=${note.user.id}`;
+      } else if ((note as any).user_id) {
+        url += `&userId=${(note as any).user_id}`;
+      }
 
       Taro.navigateTo({ url });
     }
   };
 
-  const authorAvatar = normalizeImageUrl(note.author_avatar) || '/assets/avatar1.png';
+  const authorAvatar = normalizeImageUrl(note.author_avatar || undefined) || '/assets/avatar1.png';
 
   // 获取封面图片：优先使用笔记的第一张图片，如果没有则使用默认图片
 
@@ -70,15 +76,30 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
       </View>
 
       <View className={styles.footer}>
-        <View className={styles.author}>
-          <Image
-            src={avatarImageError ? '/assets/avatar1.png' : authorAvatar}
-            className={styles.avatar}
-            mode='aspectFill'
-            onError={() => setAvatarImageError(true)}
-          />
-          <Text className={styles.authorName}>{note.author_name || '匿名用户'}</Text>
-        </View>
+        {/* 使用AuthorInfo组件获取完整的用户信息 */}
+        {note.user ? (
+          <View className={styles.authorInfoWrapper}>
+            <Image
+              src={avatarImageError ? '/assets/avatar1.png' : normalizeImageUrl(note.user.avatar) || '/assets/avatar1.png'}
+              className={styles.exploreAvatarSmall} // 使用note-card自己的小头像样式
+              mode='aspectFill'
+              onError={() => setAvatarImageError(true)}
+            />
+            <View className={styles.authorDetails}>
+              <Text className={styles.authorName}>{note.user.nickname || '匿名用户'}</Text>
+            </View>
+          </View>
+        ) : (
+          <View className={styles.author}>
+            <Image
+              src={avatarImageError ? '/assets/avatar1.png' : authorAvatar}
+              className={styles.avatar}
+              mode='aspectFill'
+              onError={() => setAvatarImageError(true)}
+            />
+            <Text className={styles.authorName}>{note.author_name || '匿名用户'}</Text>
+          </View>
+        )}
         <View className={styles.likeInfo}>
           <ActionButton
             icon={heartIcon}

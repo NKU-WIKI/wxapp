@@ -95,6 +95,27 @@
   min-width: 0;
 }
 
+.authorInfoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.authorDetails {
+  min-width: 0;
+  flex: 1;
+}
+
+.exploreAvatarSmall {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  flex-shrink: 0;
+}
+
 .avatar {
   width: 20px;
   height: 20px;
