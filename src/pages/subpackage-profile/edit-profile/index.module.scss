@@ -57,10 +57,19 @@
 }
 
 // 卡片样式
+// 卡片外的标题
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4F46E5;
+  margin-bottom: 12px;  // 缩短与卡片的距离
+  margin-top: 20px;     // 缩短与上方内容的距离
+}
+
 .card {
   background-color: white;
   border-radius: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 16px; // 缩短卡片之间的距离
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
@@ -71,6 +80,7 @@
   color: #6366f1;
   padding: 16px 16px 0 16px;
   margin-bottom: 16px;
+  display: none; // 隐藏卡片内的标题
 }
 
 // 字段行样式
@@ -102,6 +112,46 @@
   outline: none;
 
   &::placeholder {
+    color: #999;
+  }
+}
+
+// 灰色提示文字样式的输入框（用于生日、学校、学院）
+.fieldInputGray {
+  flex: 1;
+  text-align: right;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #999; // 灰色文字
+  outline: none;
+
+  &::placeholder {
+    color: #ccc;
+  }
+  
+  &:focus {
+    color: #333; // 聚焦时变为正常颜色
+  }
+}
+
+// 选择器样式
+.fieldSelect {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: pointer;
+
+  .fieldText {
+    font-size: 16px;
+    color: #999;
+    margin-right: 8px;
+    text-align: right;
+  }
+
+  .selectArrow {
+    font-size: 12px;
     color: #999;
   }
 }
@@ -144,7 +194,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 0 16px 16px 16px;
+  padding: 20px 16px 24px 16px;  // 增加上下内边距
 }
 
 .interestTag {
@@ -172,8 +222,8 @@
 
 // 保存按钮容器
 .saveButtonContainer {
-  padding: 24px 16px;
-  margin-bottom: 32px;
+  padding: 16px 16px; // 缩短上方间距
+  margin-bottom: 20px; // 缩短底部间距
 }
 
 .saveButton {

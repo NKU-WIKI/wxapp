@@ -5,11 +5,13 @@ import CustomHeader from '@/components/custom-header'
 import {
   NotificationRead,
   NotificationType,
+  NotificationStatus,
   UnreadCountResponse
 } from '@/types/api/notification.d'
 import {
   getNotifications,
-  markAllAsRead
+  markAllAsRead,
+  markNotificationAsRead
 } from '@/services/api/notification'
 import moreIcon from '@/assets/more-horizontal.svg'
 import checkSquareIcon from '@/assets/check-square.svg'
@@ -46,6 +48,15 @@ const NOTIFICATION_TABS = [
 
 type TabKey = typeof NOTIFICATION_TABS[number]['key']
 
+// 安全的状态比较和设置函数
+const isNotificationRead = (status: any): boolean => {
+  return status === 'read';
+};
+
+const getReadStatus = (): NotificationStatus => {
+  return NotificationStatus._Read;
+};
+
 const NotificationPage = () => {
   const [currentTab, setCurrentTab] = useState<TabKey>(NotificationType._Message)
   const [notifications, setNotifications] = useState<NotificationRead[]>([])
@@ -61,7 +72,6 @@ const NotificationPage = () => {
 
   // 获取未读数量统计（通过分别查询各种类型的未读通知数量）
   const fetchUnreadCounts = useCallback(async () => {
-    
     try {
       // 使用现有API获取各类型的未读通知数量
       const notificationTypes = [
@@ -79,19 +89,22 @@ const NotificationPage = () => {
         try {
           const res = await getNotifications({
             type,
-            is_read: false,  // 只获取未读的
             page: 1,
-            page_size: 1    // 只需要总数，不需要具体数据
+            page_size: 50    // 获取足够数量进行前端过滤
           });
           
           if (res.code === 0 && res.data?.pagination) {
-            const count = res.data.pagination.total || 0;
-            unreadCountData[type] = count;
-            totalUnread += count;
-            return count;
+            // 后端过滤不可靠，在前端过滤只保留未读通知
+            const actualUnreadItems = (res.data.items || []).filter(item => !isNotificationRead(item.status));
+            const actualUnreadCount = actualUnreadItems.length;
+            
+            unreadCountData[type] = actualUnreadCount;
+            totalUnread += actualUnreadCount;
+            
+            return actualUnreadCount;
           }
           return 0;
-        } catch {
+        } catch (_error) {
           return 0;
         }
       });
@@ -106,9 +119,7 @@ const NotificationPage = () => {
       
       setUnreadCounts(finalUnreadCounts);
       
-      
-    } catch (e: any) {
-      
+    } catch (_e) {
       // 发生错误时设置为空的统计
       setUnreadCounts({} as UnreadCountResponse);
     }
@@ -116,31 +127,68 @@ const NotificationPage = () => {
 
   // 获取通知列表
   const fetchNotifications = useCallback(async (type?: NotificationType, showLoading = true) => {
-    
+    const targetType = type || currentTab;
+    console.log('📋 [通知页面调试] 开始获取通知列表', {
+      targetType,
+      showLoading,
+      currentTab,
+      请求类型: targetType
+    });
+
     try {
       if (showLoading) setLoading(true)
       setError(null)
       
       const requestParams: any = {
-        type: type || currentTab,
+        type: targetType,
         page: 1,
         page_size: 50
       };
       
-      
+      console.log('📋 [通知页面调试] 请求参数', requestParams);
       
       const res = await getNotifications(requestParams)
       
-      
+      console.log('📋 [通知页面调试] API响应', {
+        code: res.code,
+        message: res.message,
+        totalItems: res.data?.items?.length || 0,
+        pagination: res.data?.pagination,
+        items: res.data?.items?.map(item => ({
+          id: item.id,
+          type: item.type,
+          business_type: item.business_type,
+          status: item.status,
+          title: item.title,
+          created_at: item.created_at
+        })) || []
+      });
       
       if (res.code === 0 && res.data) {
-        setNotifications(res.data.items || [])
-        
+        const items = res.data.items || [];
+        console.log('📋 [通知页面调试] 设置通知列表', {
+          设置的通知数量: items.length,
+          通知类型分布: items.reduce((acc, item) => {
+            acc[item.business_type || 'unknown'] = (acc[item.business_type || 'unknown'] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>),
+          状态分布: items.reduce((acc, item) => {
+            acc[item.status || 'unknown'] = (acc[item.status || 'unknown'] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>)
+        });
+
+        setNotifications(items);
       } else {
         throw new Error(res.message || '获取通知失败')
       }
     } catch (e: any) {
-      
+      console.error('❌ [通知页面调试] 获取通知失败', {
+        error: e,
+        errorMessage: e?.message,
+        targetType,
+        currentTab
+      });
       setError(e?.message || '获取通知失败')
       if (e?.message !== '网络错误') {
         Taro.showToast({ title: e?.message || '获取通知失败', icon: 'none' })
@@ -152,19 +200,127 @@ const NotificationPage = () => {
 
   // 切换标签页
   const handleTabChange = (tabKey: TabKey) => {
+    console.log('📋 [通知页面调试] 切换标签页', {
+      从: currentTab,
+      到: tabKey,
+      是否需要切换: tabKey !== currentTab
+    });
+
     if (tabKey !== currentTab) {
       setCurrentTab(tabKey)
       setNotifications([])
+      console.log('📋 [通知页面调试] 开始加载新标签页数据', { newTab: tabKey });
       fetchNotifications(tabKey)
+    } else {
+      console.log('📋 [通知页面调试] 点击相同标签，无需切换');
     }
   }
 
 
 
+  // 处理通知项点击事件
+  const handleNotificationClick = async (_item: any, originalNotification?: NotificationRead) => {
+    try {
+      if (!originalNotification) {
+        return;
+      }
+
+      // 如果是未读通知，先标记为已读
+      const isUnread = !isNotificationRead(originalNotification.status);
+
+      if (isUnread) {
+        await markNotificationAsRead(originalNotification.id);
+        
+        // 更新本地状态
+        setNotifications(prev => 
+          prev.map(n => 
+            n.id === originalNotification.id 
+              ? { ...n, status: getReadStatus() } 
+              : n
+          )
+        );
+        
+        // 刷新未读数量统计
+        fetchUnreadCounts();
+      }
+
+      // 根据通知类型和业务类型进行页面跳转
+      await handleNotificationNavigation(originalNotification);
+    } catch (error: any) {
+      Taro.showToast({ 
+        title: error?.message || '操作失败', 
+        icon: 'none' 
+      });
+    }
+  };
+
+  // 处理通知跳转逻辑
+  const handleNotificationNavigation = async (notification: NotificationRead) => {
+    const { type, business_type, business_id, data, sender_id } = notification;
+
+    try {
+      // 互动消息类通知
+      if (type === NotificationType._Message) {
+        switch (business_type) {
+          case 'like':
+          case 'comment':
+          case 'mention':
+          case 'collect':
+            // 跳转到帖子详情页
+            const postId = business_id || data?.post_id;
+            if (postId) {
+              await Taro.navigateTo({
+                url: `/pages/subpackage-interactive/post-detail/index?id=${postId}`
+              });
+            } else {
+              Taro.showToast({ title: '帖子信息不完整', icon: 'none' });
+            }
+            break;
+          
+          case 'follow':
+            // 跳转到用户主页
+            const userId = sender_id || data?.follower_id;
+            if (userId) {
+              await Taro.navigateTo({
+                url: `/pages/profile/index?userId=${userId}`
+              });
+            } else {
+              Taro.showToast({ title: '用户信息不完整', icon: 'none' });
+            }
+            break;
+          
+          default:
+            break;
+        }
+      } 
+      // 提及通知
+      else if (type === NotificationType._Mention) {
+        const postId = business_id || data?.post_id;
+        if (postId) {
+          await Taro.navigateTo({
+            url: `/pages/subpackage-interactive/post-detail/index?id=${postId}`
+          });
+        }
+      }
+      // 活动通知
+      else if (type === NotificationType._Activity) {
+        if (business_id) {
+          Taro.showToast({ title: '活动详情页面开发中', icon: 'none' });
+        }
+      }
+      // 系统通知和公告通知暂时不跳转
+    } catch (_navError) {
+      Taro.showToast({ 
+        title: '页面跳转失败', 
+        icon: 'none' 
+      });
+    }
+  };
+
   // 标记全部已读
   const handleMarkAllRead = async () => {
     try {
-      const unreadNotifications = notifications.filter(n => n.status !== 'read')
+      const unreadNotifications = notifications.filter(n => !isNotificationRead(n.status))
       if (unreadNotifications.length === 0) {
         Taro.showToast({ title: '当前已无未读通知', icon: 'none' })
         return
@@ -190,10 +346,11 @@ const NotificationPage = () => {
   const parseNotificationDisplay = (notification: NotificationRead) => {
     const senderName = notification.sender?.nickname || notification.sender?.name || '系统'
     const senderAvatar = notification.sender?.avatar || '/assets/profile.png'
-    
+    const senderId = notification.sender_id || undefined
+
     let action = ''
     let postContent = ''
-    
+
     // 根据业务类型解析动作
     if (notification.type === NotificationType._Message) {
       switch (notification.business_type) {
@@ -212,7 +369,7 @@ const NotificationPage = () => {
         default:
           action = '给你发来了消息'
       }
-      
+
       // 对于非关注类型，显示相关内容
       if (notification.business_type !== 'follow' && notification.data?.post_title) {
         postContent = notification.data.post_title
@@ -220,25 +377,35 @@ const NotificationPage = () => {
     } else {
       action = notification.title
     }
-    
+
     return {
       user: senderName,
+      user_id: senderId,
       avatar: senderAvatar,
       action,
       post: postContent,
       time: new Date(notification.created_at).toISOString(),
-      unread: notification.status !== 'read'
+      unread: !isNotificationRead(notification.status)
     }
   }
 
   useEffect(() => {
     // 初始化加载 - 同时获取通知列表和未读数量
+    console.log('🚀 [通知页面调试] 页面初始化开始', {
+      currentTab,
+      initialized
+    });
 
     Promise.all([
       fetchNotifications(currentTab),  // 使用当前标签页加载
       fetchUnreadCounts()
-    ]).finally(() => {
+    ]).then(() => {
+      console.log('✅ [通知页面调试] 页面初始化数据加载完成');
+    }).catch((error) => {
+      console.error('❌ [通知页面调试] 页面初始化失败', error);
+    }).finally(() => {
       setInitialized(true); // 标记为已初始化
+      console.log('🏁 [通知页面调试] 页面初始化完成');
     })
   }, [currentTab, fetchNotifications, fetchUnreadCounts])  // 只在组件挂载时执行一次
 
@@ -307,20 +474,76 @@ const NotificationPage = () => {
             </View>
           ) : (
             <View className={styles.notificationList}>
-              {notifications.length > 0 ? (
-                notifications.map(notification => {
-                  const displayData = parseNotificationDisplay(notification)
-                  return (
-                    <NotificationItem
-                      key={notification.id}
-                      item={{
-                        id: notification.id,
-                        ...displayData
-                      }}
-                    />
-                  )
-                })
-              ) : (
+              {(() => {
+                console.log('🎨 [通知页面调试] 开始渲染通知列表', {
+                  总通知数: notifications.length,
+                  当前标签: currentTab,
+                  所有通知状态: notifications.map(n => ({ id: n.id, status: n.status, type: n.type, business_type: n.business_type }))
+                });
+
+                const unreadNotifications = notifications.filter(notification => {
+                  const isRead = isNotificationRead(notification.status);
+                  console.log('🔍 [通知页面调试] 通知过滤检查', {
+                    notificationId: notification.id,
+                    status: notification.status,
+                    isRead: isRead,
+                    willShow: !isRead,
+                    business_type: notification.business_type,
+                    title: notification.title,
+                    是否收藏通知: notification.business_type === 'collect'
+                  });
+                  
+                  // 专门针对收藏通知的调试
+                  if (notification.business_type === 'collect') {
+                    console.log('⭐ [收藏通知专项调试] 发现收藏通知', {
+                      通知ID: notification.id,
+                      标题: notification.title,
+                      内容: notification.content,
+                      状态: notification.status,
+                      业务ID: notification.business_id,
+                      发送者: notification.sender_id,
+                      接收者: notification.recipient_id,
+                      数据: notification.data,
+                      创建时间: notification.created_at,
+                      是否会显示: !isRead
+                    });
+                  }
+                  return !isRead;
+                });
+
+                console.log('📊 [通知页面调试] 过滤结果', {
+                  原始通知数: notifications.length,
+                  过滤后未读数: unreadNotifications.length,
+                  未读通知详情: unreadNotifications.map(n => ({
+                    id: n.id,
+                    type: n.type,
+                    business_type: n.business_type,
+                    status: n.status,
+                    title: n.title
+                  }))
+                });
+
+                return unreadNotifications.length > 0 ? (
+                  unreadNotifications.map(notification => {
+                    const displayData = parseNotificationDisplay(notification)
+                    console.log('🎨 [通知页面调试] 渲染通知项', {
+                      notificationId: notification.id,
+                      displayData,
+                      originalStatus: notification.status
+                    });
+                    return (
+                      <NotificationItem
+                        key={notification.id}
+                        item={{
+                          id: notification.id,
+                          ...displayData,
+                          originalNotification: notification
+                        }}
+                        onItemClick={handleNotificationClick}
+                      />
+                    )
+                  })
+                ) : (
                 <View className={styles.emptyState}>
                   <View className={styles.emptyIcon}>
                     {NOTIFICATION_TABS.find(tab => tab.key === currentTab)?.icon || '💬'}
@@ -332,7 +555,8 @@ const NotificationPage = () => {
                     {NOTIFICATION_TABS.find(tab => tab.key === currentTab)?.description || '当有新通知时，会在这里显示'}
                   </Text>
                 </View>
-              )}
+                );
+              })()}
             </View>
           )}
           </View>
@@ -340,7 +564,7 @@ const NotificationPage = () => {
       </View>
 
       {/* 底部操作按钮 */}
-      {notifications.filter(n => n.status !== 'read').length > 0 && (
+      {notifications.filter(n => !isNotificationRead(n.status)).length > 0 && (
         <View className={styles.footer}>
           <View
             className={styles.markAllReadButton}

@@ -12,6 +12,42 @@ dayjs.extend(timezone);
 dayjs.locale('zh-cn');
 
 /**
+ * 格式化发帖时间，显示为简洁的日期格式
+ * 今年：显示为 "8-27" 格式
+ * 非今年：显示为 "8-27-2022" 格式
+ * @param time - 时间字符串
+ * @returns 格式化后的日期字符串
+ */
+export function formatPostDate(time: string): string {
+  if (!time) {
+    return '时间未知';
+  }
+  
+  try {
+    const date = new Date(time);
+    if (Number.isNaN(date.getTime())) {
+      return '时间未知';
+    }
+    
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const postYear = date.getFullYear();
+    const month = date.getMonth() + 1; // getMonth() 返回 0-11
+    const day = date.getDate();
+    
+    if (postYear === currentYear) {
+      // 今年：只显示月-日
+      return `${month}-${day}`;
+    } else {
+      // 非今年：显示年-月-日
+      return `${month}-${day}-${postYear}`;
+    }
+  } catch (error) {
+    return '时间未知';
+  }
+}
+
+/**
  * 临时的简化时间格式化函数，用于测试
  */
 function simpleFormatTime(timeStr: string): string {

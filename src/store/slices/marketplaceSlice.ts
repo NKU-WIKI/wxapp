@@ -87,6 +87,19 @@ export const createListing = createAsyncThunk(
   }
 );
 
+// 删除商品的 Thunk
+export const deleteListing = createAsyncThunk(
+  "marketplace/deleteListing",
+  async (listingId: string, { rejectWithValue }) => {
+    try {
+      await marketplaceApi.deleteListing(listingId);
+      return listingId;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "删除商品失败");
+    }
+  }
+);
+
 // 获取我的发布的 Thunk
 export const fetchMyListings = createAsyncThunk(
   "marketplace/fetchMyListings",
@@ -121,31 +134,25 @@ export const fetchSimilarListings = createAsyncThunk(
   }
 );
 
-// 收藏商品的 Thunk
-export const addFavorite = createAsyncThunk(
-  "marketplace/addFavorite",
+// 收藏/取消收藏商品的 Thunk（使用通用接口）
+export const toggleFavorite = createAsyncThunk(
+  "marketplace/toggleFavorite",
   async (listingId: string, { rejectWithValue }) => {
     try {
-      await marketplaceApi.addFavorite(listingId);
-      return listingId;
+      const response = await marketplaceApi.toggleFavorite(listingId);
+      // 返回包含状态和计数的完整信息
+      return {
+        listingId,
+        isActive: response.data?.is_active ?? false,
+        count: response.data?.count ?? 0
+      };
     } catch (error: any) {
-      return rejectWithValue(error.message || "收藏商品失败");
+      return rejectWithValue(error.message || "收藏操作失败");
     }
   }
 );
 
-// 取消收藏商品的 Thunk
-export const removeFavorite = createAsyncThunk(
-  "marketplace/removeFavorite",
-  async (listingId: string, { rejectWithValue }) => {
-    try {
-      await marketplaceApi.removeFavorite(listingId);
-      return listingId;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "取消收藏失败");
-    }
-  }
-);
+
 
 // 获取我的收藏的 Thunk
 export const fetchMyFavorites = createAsyncThunk(
@@ -502,6 +509,38 @@ const marketplaceSlice = createSlice({
     clearSimilarListings: (state) => {
       state.similarListings = [];
     },
+    setListings: (state, action) => {
+      state.listings = action.payload;
+      state.listingsLoading = "succeeded";
+    },
+    setPagination: (state, action) => {
+      state.listingsPagination = action.payload;
+    },
+    addListings: (state, action) => {
+      state.listings = [...state.listings, ...action.payload];
+    },
+    updateListingDetail: (state, action) => {
+      const { id, data } = action.payload;
+      const index = state.listings.findIndex(listing => listing.id === id);
+      if (index !== -1) {
+        // 合并原有数据和新获取的详情数据
+        state.listings[index] = { ...state.listings[index], ...data };
+      }
+    },
+    updateListingState: (state, action) => {
+      const { id, data } = action.payload;
+
+      // 更新列表中的商品状态
+      const listingIndex = state.listings.findIndex(listing => listing.id === id);
+      if (listingIndex !== -1) {
+        state.listings[listingIndex] = { ...state.listings[listingIndex], ...data };
+      }
+
+      // 更新当前详情页的商品状态
+      if (state.currentListing?.id === id) {
+        state.currentListing = { ...state.currentListing, ...data };
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -576,6 +615,25 @@ const marketplaceSlice = createSlice({
         state.error = action.payload as string;
       })
 
+      // 删除商品
+      .addCase(deleteListing.pending, (state) => {
+        state.detailLoading = "pending";
+        state.error = null;
+      })
+      .addCase(deleteListing.fulfilled, (state, action) => {
+        state.detailLoading = "succeeded";
+        // 从商品列表中移除删除的商品
+        state.listings = state.listings.filter(l => l.id !== action.payload);
+        // 清除当前商品详情
+        if (state.currentListing?.id === action.payload) {
+          state.currentListing = null;
+        }
+      })
+      .addCase(deleteListing.rejected, (state, action) => {
+        state.detailLoading = "failed";
+        state.error = action.payload as string;
+      })
+
       // 获取我的发布
       .addCase(fetchMyListings.pending, (state) => {
         state.listingsLoading = "pending";
@@ -596,27 +654,25 @@ const marketplaceSlice = createSlice({
         state.similarListings = action.payload;
       })
 
-      // 收藏商品
-      .addCase(addFavorite.fulfilled, (state, action) => {
-        const listing = state.listings.find(l => l.id === action.payload);
+      // 收藏/取消收藏商品（通用接口）
+      .addCase(toggleFavorite.fulfilled, (state, action) => {
+        const { listingId, isActive, count } = action.payload;
+
+        // 更新列表中的商品状态
+        const listing = state.listings.find(l => l.id === listingId);
         if (listing) {
-          listing.favorite_count = (listing.favorite_count || 0) + 1;
+          listing.favorite_count = count;
+          listing.is_favorited = isActive;
         }
-        if (state.currentListing?.id === action.payload) {
-          state.currentListing.favorite_count = (state.currentListing.favorite_count || 0) + 1;
+
+        // 更新当前详情页的商品状态
+        if (state.currentListing?.id === listingId) {
+          state.currentListing.favorite_count = count;
+          state.currentListing.is_favorited = isActive;
         }
       })
 
-      // 取消收藏
-      .addCase(removeFavorite.fulfilled, (state, action) => {
-        const listing = state.listings.find(l => l.id === action.payload);
-        if (listing && listing.favorite_count && listing.favorite_count > 0) {
-          listing.favorite_count -= 1;
-        }
-        if (state.currentListing?.id === action.payload && state.currentListing.favorite_count && state.currentListing.favorite_count > 0) {
-          state.currentListing.favorite_count -= 1;
-        }
-      })
+
 
       // 获取我的收藏
       .addCase(fetchMyFavorites.pending, (state) => {
@@ -799,5 +855,5 @@ const marketplaceSlice = createSlice({
   },
 });
 
-export const { clearError, clearCurrentListing, clearSimilarListings } = marketplaceSlice.actions;
+export const { clearError, clearCurrentListing, clearSimilarListings, updateListingState } = marketplaceSlice.actions;
 export default marketplaceSlice.reducer;

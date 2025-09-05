@@ -16,16 +16,33 @@
   text-align: center;
 }
 
-.searchBar {
-  padding: 10px 15px;
+.fixedHeader {
   background-color: #fff;
-  input {
-    background-color: $bg-input;
-    border-radius: 18px;
-    padding: 5px 15px;
-    height: 36px;
-    font-size: 14px;
-  }
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: $bg-input;
+  border-radius: 18px;
+  padding: 8px 12px;
+  margin: 16px 16px 8px 16px;
+}
+
+.searchIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  opacity: 0.6;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background-color: transparent;
+  font-size: 14px;
+  padding: 0;
 }
 
 .filterTabs {
@@ -61,19 +78,67 @@
   display: flex;
   flex-direction: column;
 
+  .imageWrapper {
+    position: relative;
+  }
+
   .productImage {
     width: 100%;
     height: 160px; // 估算高度
   }
 
+  .conditionBadge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgba($theme-primary, 0.92);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // 状态标签 - 出闲置/收二手
+  .statusBadge {
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .badgeText {
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  // 可选的不同成色颜色
+  .cond_new { background-color: rgba($status-success, 0.92); }
+  .cond_like_new { background-color: rgba($theme-primary, 0.92); }
+  .cond_good { background-color: rgba($theme-primary, 0.85); }
+  .cond_acceptable { background-color: rgba($status-warning, 0.92); }
+  .cond_damaged { background-color: rgba($status-error, 0.92); }
+
+  // 状态标签颜色 - 橙色表示出，蓝色表示收
+  .status_sell { background-color: rgba($status-warning, 0.92); }
+  .status_buy { background-color: rgba($status-info, 0.92); }
+
   .productTitle {
     font-size: 14px;
     color: $text-primary;
     padding: 8px;
-    // 省略号
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-clamp: 2;
+    line-height: 1.4;
   }
 
   .productFooter {
@@ -95,22 +160,21 @@
   }
 }
 
-.fab {
-  position: fixed;
-  bottom: 100px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 25px;
-  background-color: $theme-primary;
+// 加载详情状态指示器
+.loadingDetailsIndicator {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  .fabIcon {
-    color: #fff;
-    font-size: 30px;
-    line-height: 1;
-    font-weight: 300;
-  }
+  padding: 8px 16px;
+  margin: 8px 16px;
+  background-color: rgba($theme-primary, 0.1);
+  border-radius: 6px;
 }
+
+.loadingDetailsText {
+  font-size: 12px;
+  color: $theme-primary;
+  text-align: center;
+}
+
+

@@ -1,0 +1,349 @@
+.publishActivityPage {
+  padding: 16rpx 16rpx 24rpx;
+  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 60%, #ffffff 100%);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+// 统一阴影 & 动画变量
+$card-radius: 20rpx;
+$card-shadow: 0 4rpx 14rpx rgba(15,23,42,0.06), 0 2rpx 4rpx rgba(15,23,42,0.04);
+$primary: #4f46e5;
+$primary-grad: linear-gradient(135deg,#6366f1 0%,#4f46e5 55%,#4338ca 100%);
+$text-dark: #1e293b;
+$text-secondary: #64748b;
+
+.formItem {
+  margin-bottom: 12rpx;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  padding: 12rpx 12rpx 14rpx;
+  border-radius: $card-radius;
+  position: relative;
+  overflow: hidden;
+  // 移除所有渐变装饰和过渡动画以避免闪烁
+}
+
+.label {
+  font-size: 30rpx;
+  color: $text-dark;
+  margin-bottom: 6rpx;
+  font-weight: 600;
+  letter-spacing: .5rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  position: relative;
+  // 移除左侧蓝色竖线
+}
+
+// 必填项星号样式
+.required {
+  color: #ff4757;
+  margin-left: 4rpx;
+}
+
+.input, .textarea, .picker, .selector {
+  background: #ffffff;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 14rpx;
+  padding: 20rpx 18rpx;
+  font-size: 28rpx;
+  line-height: 1.4;
+  min-height: 76rpx;
+  width: 100%;
+  box-sizing: border-box;
+  // 移除过渡动画和焦点效果以避免闪烁
+  box-shadow: none;
+  &:focus {
+    // 移除焦点时的蓝色效果
+    border-color: #e2e8f0;
+    box-shadow: none;
+    background: #ffffff;
+    outline: none;
+  }
+  &::placeholder {
+    color: #94a3b8;
+  }
+}
+
+.textarea {
+  min-height: 200rpx;
+  resize: none;
+  line-height: 1.6;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// 标签输入微调
+.tagsInput { font-size: 26rpx; letter-spacing: .5rpx; }
+.helper { font-size: 22rpx; color: #94a3b8; margin-top: 6rpx; }
+
+// 活动分类选择器样式
+.categorySelector {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.categoryOption {
+  padding: 12rpx 20rpx;
+  border: 2rpx solid #cbd5e1;
+  border-radius: 40rpx;
+  font-size: 24rpx;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.6);
+  position: relative;
+  overflow: hidden;
+  // 移除所有过渡动画和悬停效果以避免闪烁
+  box-shadow: 0 2rpx 4rpx rgba(15,23,42,0.04);
+  flex-grow: 1;
+  text-align: center;
+  min-width: 30%;
+  max-width: 32%;
+  &:active {
+    // 移除缩放效果
+    transform: none;
+  }
+}
+
+.categoryOptionActive {
+  background: $primary-grad;
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4rpx 10rpx rgba(79,70,229,0.35),0 2rpx 4rpx rgba(79,70,229,0.25);
+}
+
+.typeSelector {
+  display: flex;
+  gap: 24rpx;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.typeOption {
+  padding: 10rpx 24rpx;
+  border: 2rpx solid #cbd5e1;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.6);
+  position: relative;
+  overflow: hidden;
+  // 移除所有过渡动画和悬停效果以避免闪烁
+  box-shadow: 0 2rpx 4rpx rgba(15,23,42,0.04);
+  flex: 1;
+  text-align: center;
+  max-width: 28%;
+  &:active {
+    // 移除缩放效果
+    transform: none;
+  }
+}
+
+.typeOptionActive {
+  background: $primary-grad;
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4rpx 10rpx rgba(79,70,229,0.35),0 2rpx 4rpx rgba(79,70,229,0.25);
+}
+
+.submitBtn {
+  margin-top: 20rpx;
+  background: $primary-grad;
+  color: #fff;
+  padding: 28rpx 0;
+  text-align: center;
+  border-radius: 18rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  box-shadow: 0 8rpx 18rpx -4rpx rgba(79,70,229,0.55),0 4rpx 10rpx -2rpx rgba(79,70,229,0.35);
+  position: relative;
+  overflow: hidden;
+  // 移除过渡动画以避免闪烁
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,rgba(255,255,255,0.15),rgba(255,255,255,0));
+    mix-blend-mode: overlay;
+  }
+  &:active {
+    // 移除移动效果
+    transform: none;
+  }
+}
+
+.disabledBtn {
+  opacity: .45;
+  filter: grayscale(.15);
+  box-shadow: none;
+  pointer-events: none;
+}
+
+// 时间行布局
+.timeRow {
+  display: flex;
+  gap: 16rpx;
+  width: 100%;
+}
+
+.timeItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeLabel {
+  font-size: 24rpx;
+  color: $text-secondary;
+  margin-bottom: 8rpx;
+  font-weight: 500;
+}
+
+// 人数计数器样式
+.participantCounterWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  width: 100%;
+}
+
+.counterButton {
+  width: 76rpx;
+  height: 76rpx;
+  border: 2rpx solid #cbd5e1;
+  border-radius: 8rpx;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // 移除所有过渡动画和悬停效果以避免闪烁
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+
+  &:active {
+    // 移除激活时的效果
+    transform: none;
+    border-color: #cbd5e1;
+  }
+
+  &:hover {
+    // 移除悬停时的效果
+    border-color: #cbd5e1;
+    background: transparent;
+  }
+}
+
+.counterButtonText {
+  color: #64748b;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
+
+  .counterButton:hover & {
+    // 移除悬停时的文字效果
+    color: #64748b;
+  }
+}
+
+.counterDisplay {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  background: #ffffff;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 14rpx;
+  padding: 20rpx 18rpx;
+  min-height: 76rpx;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.counterNumber {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $text-dark;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.counterUnit {
+  font-size: 24rpx;
+  color: $text-secondary;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+// 日期时间选择器样式
+.datetimePicker {
+  background: #ffffff;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 14rpx;
+  padding: 20rpx 18rpx;
+  font-size: 28rpx;
+  line-height: 1.4;
+  min-height: 76rpx;
+  width: 100%;
+  box-sizing: border-box;
+  // 移除过渡动画和激活效果以避免闪烁
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative; // 确保点击事件能正确传递
+
+  &:active {
+    // 移除激活时的效果
+    border-color: #e2e8f0;
+    box-shadow: none;
+    background: #ffffff;
+  }
+
+  // 确保文字不会影响点击事件
+  & > * {
+    pointer-events: none;
+  }
+}
+
+.value {
+  color: #333333;
+  flex: 1;
+}
+
+.placeholder {
+  color: #94a3b8;
+  flex: 1;
+}
+
+// picker group style
+.pickerGroup {
+  display: flex;
+  gap: 8rpx;
+  .datetimePicker {
+    flex: 1;
+  }
+}
+
+// 轻量全局微调（限当前页面作用域）
+.publishActivityPage {
+  .formItem:last-of-type { margin-bottom: 4rpx; }
+}
+
+// 隐藏样式类 - 用于控制条件渲染的元素显示/隐藏
+.hidden {
+  display: none !important;
+}
+
+// 响应式（大屏宽度兼容）
+@media screen and (min-width: 768px) {
+  .publishActivityPage { max-width: 850rpx; margin: 0 auto; }
+}

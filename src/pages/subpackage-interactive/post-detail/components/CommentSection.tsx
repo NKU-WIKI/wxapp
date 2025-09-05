@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image } from "@tarojs/components";
-import { useSelector } from "react-redux";
 import Taro from "@tarojs/taro";
+import { useSelector } from "react-redux";
 
-import { CommentDetail } from "@/types/api/_comment.d";
-import { formatRelativeTime } from "@/utils/time";
-import { normalizeImageUrl } from "@/utils/image";
+import { CommentDetail } from "@/types/api/comment";
 import { RootState } from "@/store";
-import actionApi from "@/services/api/action";
+import AuthorInfo from "@/components/author-info";
+import ActionBar, { ActionButtonConfig } from '@/components/action-bar';
+
 import ChevronDownIcon from "@/assets/chevron-down.svg";
 import ChevronRightIcon from "@/assets/chevron-right.svg";
 import HeartIcon from "@/assets/heart-outline.svg";
 import HeartActiveIcon from "@/assets/heart-bold.svg";
-import TrashIcon from "@/assets/trash.svg";
 
 import styles from "../index.module.scss";
 
@@ -64,70 +63,67 @@ interface SubCommentItemProps {
 }
 
 const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onDeleteComment: _onDeleteComment }) => {
-  const [isLiking, setIsLiking] = useState(false);
   const userState = useSelector((state: RootState) => state.user);
-  const isCommentAuthor = userState?.currentUser?.user_id === _comment.user_id;
+  const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
-  const handleLike = async () => {
-    if (isLiking) return;
-    
-    setIsLiking(true);
-    try {
-      const response = await actionApi.toggleAction({
-        target_type: 'comment',
-        target_id: _comment.id,
-        action_type: 'like'
+  const actionBarButtons: ActionButtonConfig[] = [
+    {
+      type: 'like',
+      icon: HeartIcon,
+      activeIcon: HeartActiveIcon,
+    },
+    {
+      type: 'comment',
+      icon: '/assets/message-circle.svg',
+    }
+  ];
+
+  const handleMoreClick = () => {
+    if (isCommentAuthor && _onDeleteComment) {
+      Taro.showModal({
+        title: '删除评论',
+        content: '确定要删除这条评论吗？删除后无法恢复。',
+        success: (res) => {
+          if (res.confirm) {
+            _onDeleteComment(_comment.id);
+          }
+        }
       });
-      
-      
-      
-      if (response.data) {
-        const newIsLiked = response.data.is_active;
-        // 根据新状态计算点赞数量，确保不会出现负数
-        const currentLikeCount = _comment.like_count || 0;
-        const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
-        onLikeUpdate(_comment.id, newIsLiked, newLikeCount);
-      }
-    } catch (error) {
-      
-      Taro.showToast({
-        title: '操作失败',
-        icon: 'error'
-      });
-    } finally {
-      setIsLiking(false);
     }
   };
 
   return (
     <View className={styles.subCommentItem}>
-      <Image className={styles.subAvatar} src={normalizeImageUrl(_comment.author_avatar) || ''} />
+      <AuthorInfo
+        userId={_comment.user_id}
+        mode='compact'
+        showFollowButton={false}
+        showStats={false}
+        showLevel
+        showTime
+        createTime={_comment.create_at || (_comment as any).created_at || ''}
+        showMoreButton={isCommentAuthor && _onDeleteComment ? true : false}
+        onMoreClick={handleMoreClick}
+      />
       <View className={styles.subContent}>
-        <View className={styles.subHeader}>
-          <Text className={styles.subName}>{_comment.author_nickname}</Text>
-          <Text className={styles.subTime}>{formatRelativeTime(_comment.create_at || (comment as any).created_at || '')}</Text>
-          {/* 子评论删除按钮 - 仅作者可见 */}
-          {isCommentAuthor && onDeleteComment ? (
-            <View className={styles.subDeleteButton} onClick={() => onDeleteComment(_comment.id)}>
-              <Image src={TrashIcon} className={styles.subDeleteIcon} />
-            </View>
-          ) : null}
-        </View>
-        <Text className={styles.subText}>
-          {renderCommentContent(_comment.content)}
-        </Text>
-        <View className={styles.subActions}>
-          <View className={styles.subLikeButton} onClick={handleLike}>
-            <Image 
-              className={styles.subIcon} 
-              src={_comment.has_liked ? HeartActiveIcon : HeartIcon} 
-            />
-            <Text>{_comment.like_count || 0}</Text>
-          </View>
-          <View className={styles.subReplyButton} onClick={() => onReply(comment)}>
-            <Text>回复</Text>
-          </View>
-        </View>
+        <Text className={styles.subText}>{renderCommentContent(_comment.content)}</Text>
+        <ActionBar
+          targetId={_comment.id}
+          targetType='comment'
+          buttons={actionBarButtons}
+          className={styles.subActions}
+          initialStates={{
+            'like-0': { isActive: _comment.has_liked || false, count: _comment.like_count || 0 },
+            'comment-1': { isActive: false, count: _comment.reply_count || 0 }
+          }}
+          onStateChange={(type, isActive, count) => {
+            if (type === 'like') {
+              onLikeUpdate(_comment.id, isActive, count);
+            } else if (type === 'comment') {
+              onReply(_comment);
+            }
+          }}
+        />
       </View>
     </View>
   );
@@ -143,9 +139,6 @@ interface CommentItemProps {
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onUpdateComment: _onUpdateComment, onDeleteComment: _onDeleteComment }) => {
   const userState = useSelector((state: RootState) => state.user);
-  const isLoggedIn = userState?.isLoggedIn || false;
-  const token = userState?.token || null;
-  const [isLiking, setIsLiking] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
   
   const hasReplies = _comment.children && _comment.children.length > 0;
@@ -162,91 +155,17 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
         ? _comment.children || [] 
         : (_comment.children || []).slice(0, 2)); // 默认显示前2条
 
-  const handleLike = async () => {
-    if (!isLoggedIn || !token) {
-      Taro.showModal({
-        title: '提示',
-        content: '您尚未登录，是否前往登录？',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-          }
-        }
-      });
-      return;
+  const actionBarButtons: ActionButtonConfig[] = [
+    {
+      type: 'like',
+      icon: HeartIcon,
+      activeIcon: HeartActiveIcon,
+    },
+    {
+      type: 'comment',
+      icon: '/assets/message-circle.svg',
     }
-    
-    if (isLiking) {
-      
-      return;
-    }
-    
-    // console.log('🔥 开始评论点赞操作:', {
-    //   commentId: _comment.id,
-    //   commentContent: _comment.content?.substring(0, 20) + '...',
-    //   currentLikeCount: _comment.like_count || 0,
-    //   currentIsLiked: _comment.has_liked
-    // });
-    
-    try {
-      setIsLiking(true);
-      const response = await actionApi.toggleAction({
-        target_type: 'comment',
-        target_id: _comment.id,
-        action_type: 'like'
-      });
-      
-      
-      
-      // 更新本地状态
-      if (onLikeUpdate) {
-        const newIsLiked = response.data.is_active;
-        // 根据新状态计算点赞数量，确保不会出现负数
-        const currentLikeCount = _comment.like_count || 0;
-        const newLikeCount = newIsLiked ? (currentLikeCount + 1) : Math.max(0, currentLikeCount - 1);
-        onLikeUpdate(_comment.id, newIsLiked, newLikeCount);
-      }
-    } catch (error: any) {
-      
-      
-      // 根据错误类型显示不同的提示
-      if (error.statusCode === 401) {
-        Taro.showModal({
-          title: '登录已过期',
-          content: '请重新登录后重试',
-          success: (res) => {
-            if (res.confirm) {
-              Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-            }
-          }
-        });
-      } else {
-        Taro.showToast({
-          title: error.message || '操作失败，请重试',
-          icon: 'error'
-        });
-      }
-    } finally {
-      setIsLiking(false);
-    }
-  };
-
-  const handleReply = () => {
-    if (!isLoggedIn || !token) {
-      Taro.showModal({
-        title: '提示',
-        content: '您尚未登录，是否前往登录？',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-          }
-        }
-      });
-      return;
-    }
-    
-    onReply(comment);
-  };
+  ];
 
   const toggleReplies = async () => {
     // 对于已经有完整children数据的情况，直接切换显示状态
@@ -257,7 +176,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
     
     // 如果children数据不完整，才需要获取更多数据
     if (!showReplies && hasReplies && shouldShowToggleButton) {
-      await fetchAllNestedReplies(comment);
+      await fetchAllNestedReplies(_comment);
     }
     setShowReplies(!showReplies);
   };
@@ -289,15 +208,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
       };
       
       // 通知父组件更新评论数据
-      onUpdateComment(parentComment.id, updatedComment);
+      _onUpdateComment(parentComment.id, updatedComment);
       
       
     } catch (error) {
-      
-      Taro.showToast({
-        title: '获取回复失败',
-        icon: 'error'
-      });
+      // 移除弹窗提示，静默处理错误
     }
   };
 
@@ -342,45 +257,65 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
   };
   
   // 检查当前用户是否为评论作者
-  const isCommentAuthor = userState?.currentUser?.user_id === _comment.user_id;
+  const isCommentAuthor = userState?.user?.id === _comment.user_id;
+
+  const handleMoreClick = () => {
+    if (isCommentAuthor && _onDeleteComment) {
+      Taro.showModal({
+        title: '删除评论',
+        content: '确定要删除这条评论吗？删除后无法恢复。',
+        success: (res) => {
+          if (res.confirm) {
+            _onDeleteComment(_comment.id);
+          }
+        }
+      });
+    }
+  };
 
   return (
   <View className={styles.commentItem}>
-      <Image src={normalizeImageUrl(_comment.author_avatar) || ''} className={styles.avatar} />
+    <AuthorInfo
+      userId={_comment.user_id}
+      mode='compact'
+      showFollowButton={false}
+      showStats={false}
+      showLevel
+      showTime
+      createTime={_comment.create_at || (_comment as any).created_at || ''}
+      showMoreButton={isCommentAuthor && _onDeleteComment ? true : false}
+      onMoreClick={handleMoreClick}
+    />
     <View className={styles.content}>
-      <View className={styles.header}>
-        <Text className={styles.name}>{comment?.author_nickname || '匿名用户'}</Text>
-        <Text className={styles.time}>{formatRelativeTime(_comment.create_at || (comment as any).created_at || '')}</Text>
-        {/* 删除按钮 - 仅作者可见 */}
-        {isCommentAuthor && onDeleteComment && (
-          <View className={styles.deleteButton} onClick={() => onDeleteComment(_comment.id)}>
-            <Image src={TrashIcon} className={styles.deleteIcon} />
-          </View>
-        )}
-      </View>
-        <Text className={styles.text}>{renderCommentContent(comment?.content || '')}</Text>
+        <Text className={styles.text}>{renderCommentContent(_comment?.content || '')}</Text>
       <View className={styles.actions}>
-          <View className={styles.likeButton} onClick={handleLike}>
-            <Image 
-              src={_comment.has_liked ? HeartActiveIcon : HeartIcon} 
-              className={styles.icon} 
-            />
-          <Text>{comment?.like_count || 0}</Text>
-          </View>
-          <View className={styles.replyButton} onClick={handleReply}>
-            <Text>回复</Text>
-          </View>
+          <ActionBar
+            targetId={_comment.id}
+            targetType='comment'
+            buttons={actionBarButtons}
+            initialStates={{
+              'like-0': { isActive: _comment.has_liked || false, count: _comment.like_count || 0 },
+              'comment-1': { isActive: false, count: _comment.children?.length || 0 }
+            }}
+            onStateChange={(type, isActive, count) => {
+              if (type === 'like') {
+                onLikeUpdate(_comment.id, isActive, count);
+              } else if (type === 'comment') {
+                onReply(_comment);
+              }
+            }}
+          />
           {shouldShowToggleButton && (
             <View className={styles.toggleRepliesButton} onClick={toggleReplies}>
-              <Image 
-                src={showReplies ? ChevronDownIcon : ChevronRightIcon} 
-                className={styles.toggleIcon} 
+              <Image
+                src={showReplies ? ChevronDownIcon : ChevronRightIcon}
+                className={styles.toggleIcon}
               />
               <Text>{showReplies ? '收起' : `查看剩余${replyCount - 2}条回复`}</Text>
             </View>
           )}
         </View>
-        
+
         {/* 子评论区域 */}
         {hasReplies && (shouldAutoShow || shouldShowToggleButton) && (
           <View className={styles.repliesContainer}>
@@ -390,7 +325,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
                 comment={reply}
                 onReply={onReply}
                 onLikeUpdate={onLikeUpdate}
-                onDeleteComment={onDeleteComment}
+                onDeleteComment={_onDeleteComment}
               />
             ))}
           </View>
@@ -429,14 +364,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, on
     setLocalComments(prevComments => {
       return prevComments.map(comment => {
         // 检查是否是主评论
-        if (String(_comment.id) === String(commentId)) {
-          
+        if (String(comment.id) === String(commentId)) {
+
           return { ...comment, has_liked: isLiked, like_count: likeCount };
         }
-        
+
         // 检查子评论
-        if (_comment.children && _comment.children.length > 0) {
-          const updatedChildren = _comment.children.map(child => {
+        if (comment.children && comment.children.length > 0) {
+          const updatedChildren = comment.children.map(child => {
             if (String(child.id) === String(commentId)) {
               
               return { ...child, has_liked: isLiked, like_count: likeCount };
@@ -445,7 +380,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, on
           });
           
           // 只有当子评论确实被更新时才返回新对象
-          if (updatedChildren.some((child, index) => child !== _comment.children![index])) {
+          if (updatedChildren.some((child, index) => child !== comment.children![index])) {
             return { ...comment, children: updatedChildren };
           }
         }
@@ -466,7 +401,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, on
     
     setLocalComments(prevComments => {
       return prevComments.map(comment => {
-        if (String(_comment.id) === String(commentId)) {
+        if (String(comment.id) === String(commentId)) {
           return updatedComment;
         }
         return comment;
@@ -503,12 +438,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, on
       {sortedComments.length > 0 ? (
         sortedComments.map((comment) => (
           <CommentItem 
-            key={_comment.id} 
+            key={comment.id} 
             comment={comment} 
             onReply={onReply}
             onLikeUpdate={handleLikeUpdate}
             onUpdateComment={handleUpdateComment}
-            onDeleteComment={onDeleteComment}
+            onDeleteComment={_onDeleteComment}   
           />
         ))
       ) : (

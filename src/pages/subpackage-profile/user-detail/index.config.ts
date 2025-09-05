@@ -1,3 +1,6 @@
 export default {
-  navigationStyle: 'custom'
+  navigationBarTitleText: '用户主页',
+  navigationStyle: 'custom',
+  enableShareTimeline: true,
+  enableShareAppMessage: true
 };

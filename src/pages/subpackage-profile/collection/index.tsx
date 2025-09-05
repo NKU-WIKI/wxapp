@@ -20,54 +20,7 @@ interface FavoriteItemProps {
   isFollowingAuthor?: boolean; // 新增：是否关注作者
 }
 
-// 模拟笔记数据
-const mockNotes = [
-  {
-    id: 'note-1',
-    title: '学习笔记：React Hooks 最佳实践',
-    content: '今天学习了 React Hooks 的使用方法，包括 useState、useEffect、useCallback 等。这些 Hooks 让函数组件也能拥有状态和生命周期...',
-    author_info: {
-      id: 'user-1',
-      nickname: '学习达人',
-      avatar: null
-    },
-    created_at: '2024-01-15T10:30:00Z',
-    view_count: 156,
-    like_count: 23,
-    comment_count: 8,
-    tenant_id: '00000000-0000-0000-0000-000000000000'
-  },
-  {
-    id: 'note-2',
-    title: '项目总结：Taro 小程序开发经验',
-    content: '经过一个月的 Taro 小程序开发，总结了一些经验和教训。Taro 的跨端能力很强，但在某些复杂场景下还是需要平台特定的代码...',
-    author_info: {
-      id: 'user-2',
-      nickname: '技术探索者',
-      avatar: null
-    },
-    created_at: '2024-01-14T15:20:00Z',
-    view_count: 89,
-    like_count: 15,
-    comment_count: 5,
-    tenant_id: '00000000-0000-0000-0000-000000000000'
-  },
-  {
-    id: 'note-3',
-    title: '读书笔记：《深入理解计算机系统》',
-    content: '这本书从程序员的角度介绍了计算机系统的实现细节，包括程序的表示和执行、处理器结构、编译系统等。对于理解底层原理很有帮助...',
-    author_info: {
-      id: 'user-3',
-      nickname: '知识分享者',
-      avatar: null
-    },
-    created_at: '2024-01-13T09:15:00Z',
-    view_count: 234,
-    like_count: 42,
-    comment_count: 12,
-    tenant_id: '00000000-0000-0000-0000-000000000000'
-  }
-];
+
 
 const FavoriteItemComponent: React.FC<FavoriteItemProps> = ({ favorite, isFollowingAuthor = false }) => {
   const handleNavigateToContent = () => {
@@ -197,66 +150,7 @@ const FavoriteItemComponent: React.FC<FavoriteItemProps> = ({ favorite, isFollow
   );
 };
 
-// 笔记组件，使用与帖子相同的Post组件
-const NoteItemComponent: React.FC<{ note: any }> = ({ note }) => {
-  const postData = {
-    id: note.id,
-    title: note.title,
-    content: note.content,
-    status: 'published' as const,
-    user_id: note.author_info.id,
-    user: {
-      id: note.author_info.id,
-      tenant_id: note.tenant_id,
-      created_at: note.created_at,
-      updated_at: note.created_at,
-      nickname: note.author_info.nickname,
-      avatar: note.author_info.avatar || null,
-      bio: null,
-      birthday: null,
-      school: null,
-      college: null,
-      location: null,
-      wechat_id: null,
-      qq_id: null,
-      tel: null,
-      status: 'active' as const
-    },
-    author_info: {
-      id: note.author_info.id,
-      tenant_id: note.tenant_id,
-      created_at: note.created_at,
-      updated_at: note.created_at,
-      nickname: note.author_info.nickname,
-      avatar: note.author_info.avatar || null,
-      bio: null,
-      birthday: null,
-      school: null,
-      college: null,
-      location: null,
-      wechat_id: null,
-      qq_id: null,
-      tel: null,
-      status: 'active' as const
-    },
-    created_at: note.created_at,
-    view_count: note.view_count,
-    like_count: note.like_count,
-    comment_count: note.comment_count,
-    is_favorited: true,
-    is_following_author: false,
-    tenant_id: note.tenant_id,
-    updated_at: note.created_at
-  };
 
-  return (
-    <Post 
-      post={postData} 
-      className={styles.favoriteItem} 
-      mode='list' 
-    />
-  );
-};
 
 const CollectionPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -448,12 +342,43 @@ const CollectionPage: React.FC = () => {
         </View>
       );
     } else {
-      // 笔记类型 - 使用与帖子相同的展示方式
+      // 笔记类型 - 如果没有收藏的笔记，直接显示空状态
+      if (filteredFavorites.length === 0) {
+        return (
+          <EmptyState
+            icon={starOutlineIcon}
+            text='暂无收藏笔记'
+          />
+        );
+      }
+
       return (
         <View className={styles.favoritesList}>
-          {mockNotes.map(note => (
-            <NoteItemComponent key={note.id} note={note} />
-          ))}
+          {filteredFavorites.map(favorite => {
+            // 获取当前笔记作者的关注状态
+            const authorInfo = favorite.content?.author_info;
+            const isFollowingAuthor = authorInfo?.id ? followStatusMap[authorInfo.id] || false : false;
+            
+            return (
+              <FavoriteItemComponent 
+                key={favorite.id} 
+                favorite={favorite} 
+                isFollowingAuthor={isFollowingAuthor}
+              />
+            );
+          })}
+          
+          {loading === 'pending' && filteredFavorites.length > 0 && (
+            <View className={styles.loadingMore}>
+              <Text>加载更多...</Text>
+            </View>
+          )}
+          
+          {!pagination.has_more && filteredFavorites.length > 0 && (
+            <View className={styles.noMore}>
+              <Text>没有更多内容了</Text>
+            </View>
+          )}
         </View>
       );
     }

@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import noteApi, { NoteListItem, CreateNoteRequest, NoteDetail } from '@/services/api/note';
+import noteApi, { NoteListItem, CreateNoteRequest } from '@/services/api/note';
+import { getActionStatus } from '@/services/api/user';
 import { BaseResponse } from '@/types/api/common';
+import type { NoteDetail } from '@/types/api/note';
 
 // Mock数据，用于展示功能
 const createMockNotes = (): NoteListItem[] => {
@@ -18,7 +20,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 23,
       comment_count: 8,
       author_name: '张同学',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhang'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhang',
+      user_id: 'user-001' // 新增：用户ID
     },
     {
       id: 'mock-2', 
@@ -33,7 +36,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 15,
       comment_count: 5,
       author_name: '李小红',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li',
+      user_id: 'user-002' // 新增：用户ID
     },
     {
       id: 'mock-3',
@@ -48,7 +52,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 45,
       comment_count: 12,
       author_name: '王程序员',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang',
+      user_id: 'user-003' // 新增：用户ID
     },
     {
       id: 'mock-4',
@@ -63,7 +68,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 18,
       comment_count: 6,
       author_name: '美食家小陈',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chen'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chen',
+      user_id: 'user-004' // 新增：用户ID
     },
     {
       id: 'mock-5',
@@ -78,7 +84,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 67,
       comment_count: 23,
       author_name: '算法小能手',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=algo'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=algo',
+      user_id: 'user-005' // 新增：用户ID
     },
     {
       id: 'mock-6',
@@ -93,7 +100,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 29,
       comment_count: 11,
       author_name: '摄影师小明',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=photo'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=photo',
+      user_id: 'user-006' // 新增：用户ID
     },
     {
       id: 'mock-7',
@@ -108,7 +116,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 16,
       comment_count: 4,
       author_name: 'TS大师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ts'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ts',
+      user_id: 'user-007' // 新增：用户ID
     },
     {
       id: 'mock-8',
@@ -123,7 +132,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 42,
       comment_count: 18,
       author_name: '数学小王子',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=math'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=math',
+      user_id: 'user-008' // 新增：用户ID
     },
     {
       id: 'mock-9',
@@ -138,7 +148,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 34,
       comment_count: 9,
       author_name: '健身达人',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fitness'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fitness',
+      user_id: 'user-009' // 新增：用户ID
     },
     {
       id: 'mock-10',
@@ -153,7 +164,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 52,
       comment_count: 15,
       author_name: 'Python老师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=python'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=python',
+      user_id: 'user-010' // 新增：用户ID
     },
     {
       id: 'mock-11',
@@ -168,7 +180,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 28,
       comment_count: 7,
       author_name: '旅行摄影师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=travel'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=travel',
+      user_id: 'user-011' // 新增：用户ID
     },
     {
       id: 'mock-12',
@@ -183,7 +196,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 78,
       comment_count: 25,
       author_name: '前端工程师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=frontend'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=frontend',
+      user_id: 'user-012' // 新增：用户ID
     },
     {
       id: 'mock-13',
@@ -198,7 +212,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 21,
       comment_count: 6,
       author_name: '咖啡爱好者',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=coffee'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=coffee',
+      user_id: 'user-013' // 新增：用户ID
     },
     {
       id: 'mock-14',
@@ -213,7 +228,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 36,
       comment_count: 12,
       author_name: '英语老师',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=english'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=english',
+      user_id: 'user-014' // 新增：用户ID
     },
     {
       id: 'mock-15',
@@ -228,7 +244,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 19,
       comment_count: 4,
       author_name: '手工达人',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=craft'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=craft',
+      user_id: 'user-015' // 新增：用户ID
     },
     {
       id: 'mock-16',
@@ -243,7 +260,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 48,
       comment_count: 16,
       author_name: '理财顾问',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=finance'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=finance',
+      user_id: 'user-016' // 新增：用户ID
     },
     {
       id: 'mock-17',
@@ -258,7 +276,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 33,
       comment_count: 8,
       author_name: '极简主义者',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=minimal'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=minimal',
+      user_id: 'user-017' // 新增：用户ID
     },
     {
       id: 'mock-18',
@@ -273,7 +292,8 @@ const createMockNotes = (): NoteListItem[] => {
       like_count: 41,
       comment_count: 13,
       author_name: '美食博主',
-      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=cooking'
+      author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=cooking',
+      user_id: 'user-018' // 新增：用户ID
     }
   ];
   
@@ -283,67 +303,54 @@ const createMockNotes = (): NoteListItem[] => {
 // 异步thunk - 获取笔记动态
 export const fetchNoteFeed = createAsyncThunk(
   'note/fetchNoteFeed',
-  async (params: { skip?: number; limit?: number } = {}, { getState }) => {
-    const state = getState() as any;
-    const isLoggedIn = state.user?.isLoggedIn || false;
+  async (params: { skip?: number; limit?: number } = {}) => {
+    // 不再需要检查登录状态，因为API支持可选认证
     
     try {
-      if (isLoggedIn) {
-        // 已登录用户：优先尝试个性化推荐流
-        
-        const response = await noteApi.getNoteFeed(params);
-        
-        return response;
-      } else {
-        // 未登录用户：直接使用mock数据，避免API调用失败
-        
+      // 无论是否登录都尝试调用笔记推荐流接口（可选认证）
+      const response = await noteApi.getNoteFeed(params);
+
+      // 详细检查可能的用户ID字段
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+        const firstNote = response.data[0];
+
+        // 检查整个笔记对象的结构
+
+        // 检查后端数据是否完整（是否有用户信息）
+        const hasUserInfo = firstNote.user_id || firstNote.author_id || firstNote.creator_id ||
+                           firstNote.user || firstNote.author || firstNote.creator;
+
+        if (!hasUserInfo) {
+          // console.warn('⚠️ 后端API数据不完整：缺少用户信息');
+        }
+      }
+
+      return response;
+    } catch (error: any) {
+      // Fallback到普通笔记列表接口
+      try {
+        const fallbackParams = {
+          skip: params.skip || 0,
+          limit: params.limit || 20,
+          sort_by: 'created_at',
+          sort_order: 'desc' as const
+        };
+
+        const fallbackResponse = await noteApi.getNotes(fallbackParams);
+        return fallbackResponse;
+      } catch (fallbackError: any) {
+        // 如果所有API都失败，使用模拟数据作为最后的后备方案
         const mockData = createMockNotes();
         const skip = params.skip || 0;
         const limit = params.limit || 20;
         const slicedMockData = mockData.slice(skip, skip + limit);
-        
+
         return {
           code: 0,
           message: 'success',
           data: slicedMockData
         };
       }
-    } catch (error: any) {
-      
-      
-      // 对已登录用户：尝试fallback到普通笔记列表
-      if (isLoggedIn) {
-        try {
-          const fallbackParams = {
-            skip: params.skip || 0,
-            limit: params.limit || 20,
-            sort_by: 'created_at',
-            sort_order: 'desc' as const
-          };
-          
-          
-          const fallbackResponse = await noteApi.getNotes(fallbackParams);
-          
-          
-          return fallbackResponse;
-        } catch (fallbackError: any) {
-          
-        }
-      }
-      
-      // 最终回退：使用mock数据
-      const mockData = createMockNotes();
-      const skip = params.skip || 0;
-      const limit = params.limit || 20;
-      const slicedMockData = mockData.slice(skip, skip + limit);
-      
-      
-      
-      return {
-        code: 0,
-        message: 'success',
-        data: slicedMockData
-      };
     }
   }
 );
@@ -370,67 +377,111 @@ export const createNote = createAsyncThunk<
 // 异步thunk - 加载更多笔记
 export const loadMoreNotes = createAsyncThunk(
   'note/loadMoreNotes',
-  async (params: { skip?: number; limit?: number } = {}, { getState }) => {
-    const state = getState() as any;
-    const isLoggedIn = state.user?.isLoggedIn || false;
+  async (params: { skip?: number; limit?: number } = {}) => {
+    // 不再需要检查登录状态，因为API支持可选认证
     
     try {
-      if (isLoggedIn) {
-        // 已登录用户：尝试推荐流
-        
-        const response = await noteApi.getNoteFeed(params);
-        return response;
-      } else {
-        // 未登录用户：直接使用mock数据，避免API调用失败
-        
+      // 无论是否登录都尝试调用笔记推荐流接口（可选认证）
+      const response = await noteApi.getNoteFeed(params);
+      return response;
+    } catch (error: any) {
+
+      // Fallback到普通笔记列表接口
+      try {
+        const fallbackParams = {
+          skip: params.skip || 0,
+          limit: params.limit || 20,
+          sort_by: 'created_at',
+          sort_order: 'desc' as const
+        };
+
+        const fallbackResponse = await noteApi.getNotes(fallbackParams);
+        return fallbackResponse;
+      } catch (fallbackError: any) {
+
+        // 如果所有API都失败，使用模拟数据作为最后的后备方案
         const mockData = createMockNotes();
         const skip = params.skip || 0;
         const limit = params.limit || 20;
         const slicedMockData = mockData.slice(skip, skip + limit);
-        
+
         return {
           code: 0,
           message: 'success',
           data: slicedMockData
         };
       }
-    } catch (error: any) {
-      
-      
-      // 对已登录用户：尝试fallback到普通笔记列表
-      if (isLoggedIn) {
-        try {
-          const fallbackParams = {
-            skip: params.skip || 0,
-            limit: params.limit || 20,
-            sort_by: 'created_at',
-            sort_order: 'desc' as const
-          };
-          
-          const fallbackResponse = await noteApi.getNotes(fallbackParams);
-          return fallbackResponse;
-        } catch (fallbackError: any) {
-          
-        }
-      }
-      
-      // 最终回退：使用mock数据
-      const mockData = createMockNotes();
-      const skip = params.skip || 0;
-      const limit = params.limit || 20;
-      const slicedMockData = mockData.slice(skip, skip + limit);
-      
-      return {
-        code: 0,
-        message: 'success',
-        data: slicedMockData
-      };
     }
   }
 );
 
+// 批量查询笔记的用户交互状态
+export const fetchNotesInteractionStatus = createAsyncThunk(
+  'note/fetchNotesInteractionStatus',
+  async (noteIds: string[], { getState }) => {
+    const state = getState() as any;
+    const isLoggedIn = state.user?.isLoggedIn || false;
+    
+    if (!isLoggedIn || noteIds.length === 0) {
+      return {};
+    }
+
+    try {
+      // 并发查询所有笔记的点赞和收藏状态
+      const statusPromises = noteIds.flatMap(noteId => [
+        getActionStatus(noteId, 'note', 'like').then(res => ({
+          noteId,
+          type: 'like' as const,
+          status: res.data?.is_active || false
+        })).catch(() => ({
+          noteId,
+          type: 'like' as const,
+          status: false
+        })),
+        getActionStatus(noteId, 'note', 'favorite').then(res => ({
+          noteId,
+          type: 'favorite' as const,
+          status: res.data?.is_active || false
+        })).catch(() => ({
+          noteId,
+          type: 'favorite' as const,
+          status: false
+        }))
+      ]);
+
+      const results = await Promise.all(statusPromises);
+      
+      // 组织返回数据
+      const statusMap: Record<string, { is_liked: boolean; is_favorited: boolean }> = {};
+      
+      results.forEach(result => {
+        if (!statusMap[result.noteId]) {
+          statusMap[result.noteId] = { is_liked: false, is_favorited: false };
+        }
+        
+        if (result.type === 'like') {
+          statusMap[result.noteId].is_liked = result.status;
+        } else if (result.type === 'favorite') {
+          statusMap[result.noteId].is_favorited = result.status;
+        }
+      });
+
+      return statusMap;
+    } catch (error) {
+      return {};
+    }
+  }
+);
+
+// 扩展的笔记列表项，包含用户交互状态
+interface NoteListItemWithStatus extends NoteListItem {
+  is_liked?: boolean;
+  is_favorited?: boolean;
+  interaction_loading?: boolean;
+}
+
 interface NoteState {
-  notes: NoteListItem[];
+  notes: NoteListItemWithStatus[];
   loading: boolean;
   refreshing: boolean;
   hasMore: boolean;
@@ -543,7 +594,7 @@ const noteSlice = createSlice({
             view_count: 0,
             like_count: 0,
             comment_count: 0,
-            author_name: response.data.author?.name || '我',
+            author_name: response.data.author?.nickname || '我',
             author_avatar: response.data.author?.avatar || ''
           };
           state.notes = [newNote, ...state.notes];
@@ -555,6 +606,33 @@ const noteSlice = createSlice({
       .addCase(createNote.rejected, (state, action) => {
         state.creating = false;
         state.createError = action.payload as string || action.error.message || '创建笔记失败';
+      })
+      // 批量查询交互状态
+      .addCase(fetchNotesInteractionStatus.fulfilled, (state, action) => {
+        const statusMap = action.payload;
+        
+        // 更新笔记的交互状态
+        state.notes = state.notes.map(note => ({
+          ...note,
+          is_liked: statusMap[note.id]?.is_liked ?? note.is_liked ?? false,
+          is_favorited: statusMap[note.id]?.is_favorited ?? note.is_favorited ?? false,
+          interaction_loading: false
+        }));
+      })
+      .addCase(fetchNotesInteractionStatus.pending, (state, _action) => {
+        // 标记正在查询交互状态的笔记
+        const noteIds = _action.meta.arg;
+        state.notes = state.notes.map(note => ({
+          ...note,
+          interaction_loading: noteIds.includes(note.id) ? true : note.interaction_loading
+        }));
+      })
+      .addCase(fetchNotesInteractionStatus.rejected, (state, _action) => {
+        // 清除加载状态
+        state.notes = state.notes.map(note => ({
+          ...note,
+          interaction_loading: false
+        }));
       });
   },
 });

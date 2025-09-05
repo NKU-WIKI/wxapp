@@ -1,81 +1,135 @@
+import { useState } from 'react';
 import { View, Text, Image } from '@tarojs/components';
+import Taro from '@tarojs/taro';
 import { normalizeImageUrl } from '@/utils/image';
-import { NoteListItem } from '@/services/api/note';
+import { NoteListItem } from '@/types/api/note';
+import ActionButton from '@/components/action-button';
+// 图片资源使用字符串路径引用
 import styles from './index.module.scss';
 
+// 扩展的笔记类型，包含交互状态
+interface NoteWithStatus extends NoteListItem {
+  is_liked?: boolean;
+  is_favorited?: boolean;
+  interaction_loading?: boolean;
+}
+
 interface NoteCardProps {
-  note: NoteListItem;
+  note: NoteWithStatus;
   style?: React.CSSProperties;
   onClick?: () => void;
 }
 
 const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
+  const [avatarImageError, setAvatarImageError] = useState(false);
+  const [coverImageError, setCoverImageError] = useState(false);
+
   const handleClick = () => {
     if (onClick) {
       onClick();
+    } else {
+      // 构建导航URL，如果有用户信息则传递userId
+      let url = `/pages/subpackage-interactive/note-detail/index?id=${note.id}`;
+      
+      // 如果有用户信息，添加userId参数
+      if (note.user?.id) {
+        url += `&userId=${note.user.id}`;
+      } else if ((note as any).user_id) {
+        url += `&userId=${(note as any).user_id}`;
+      }
+
+      Taro.navigateTo({ url });
     }
-    // 只提供点击效果，不进行跳转
   };
 
-  const authorAvatar = normalizeImageUrl(note.author_avatar) || '/assets/avatar1.png';
-  
-  // 生成随机图片作为笔记封面
-  const generateCoverImage = (noteId: string) => {
-    const imageConfigs = [
-      { width: 300, height: 200 },  // 3:2 比例
-      { width: 300, height: 250 },  // 6:5 比例
-      { width: 300, height: 180 },  // 5:3 比例
-      { width: 300, height: 320 },  // 15:16 比例 - 较高
-      { width: 300, height: 160 },  // 15:8 比例 - 较矮
-      { width: 300, height: 280 },  // 15:14 比例
-      { width: 300, height: 220 },  // 15:11 比例
-      { width: 300, height: 300 },  // 1:1 正方形
-      { width: 300, height: 240 },  // 5:4 比例
-      { width: 300, height: 190 },  // 30:19 比例
-    ];
-    
-    // 根据noteId生成固定的索引，确保图片稳定
-    const hash = noteId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const configIndex = hash % imageConfigs.length;
-    const config = imageConfigs[configIndex];
-    
-    // 生成随机种子，但对同一个note保持稳定
-    const seed = hash % 1000;
-    
-    return `https://picsum.photos/${config.width}/${config.height}?random=${seed}`;
+  const getAuthorAvatar = () => {
+    const avatar = note.author_avatar || (note.user?.avatar);
+    if (avatar && avatar.includes('127.0.0.1:32968/__tmp__/')) {
+      return '/assets/avatar1.png';
+    }
+    return normalizeImageUrl(avatar || undefined) || '/assets/avatar1.png';
   };
 
-  const coverImage = generateCoverImage(note.id);
+  const authorAvatar = getAuthorAvatar();
+
+  // 获取封面图片：优先使用笔记的第一张图片，如果没有则使用默认图片
+
+  const getCoverImage = () => {
+    // 如果笔记有图片数组且不为空，使用第一张图片
+    const noteWithImages = note as any;
+    if (noteWithImages.images && noteWithImages.images.length > 0) {
+      const firstImage = noteWithImages.images[0];
+
+      // 检查是否是本地开发服务器路径，如果是则使用占位图
+      if (firstImage && firstImage.includes('127.0.0.1:32968/__tmp__/')) {
+        return '/assets/placeholder-note.svg';
+      }
+
+      return normalizeImageUrl(firstImage);
+    }
+
+    // 如果没有图片，使用本地占位图片
+    return '/assets/placeholder-note.svg';
+  };
+
+  const coverImage = getCoverImage();
+
+  const handleCoverImageError = () => {
+    setCoverImageError(true);
+  };
+
+  // 如果图片加载失败或是占位图，使用默认样式
+  const isPlaceholderImage = coverImageError || coverImage.includes('placeholder.com');
 
   return (
     <View className={styles.noteCard} style={style} onClick={handleClick}>
-      {/* 笔记封面图片 - 占据上2/3空间 */}
-      <View className={styles.imageContainer}>
+      <View className={`${styles.imageContainer} ${isPlaceholderImage ? styles.placeholderContainer : ''}`}>
         <Image
           src={coverImage}
-          className={styles.coverImage}
-          mode='aspectFill'
+          className={`${styles.coverImage} ${isPlaceholderImage ? styles.placeholderImage : ''}`}
+          mode={isPlaceholderImage ? 'aspectFit' : 'widthFix'}
+          onError={handleCoverImageError}
         />
       </View>
 
-      {/* 下1/3部分：标题 */}
       <View className={styles.content}>
         <Text className={styles.title}>{note.title}</Text>
       </View>
 
-      {/* 最下面一行：作者和点赞数 */}
       <View className={styles.footer}>
-        <View className={styles.author}>
-          <Image
-            src={authorAvatar}
-            className={styles.avatar}
-            mode='aspectFill'
-          />
-          <Text className={styles.authorName}>{note.author_name || '匿名用户'}</Text>
-        </View>
+        {/* 使用AuthorInfo组件获取完整的用户信息 */}
+        {note.user ? (
+          <View className={styles.authorInfoWrapper}>
+            <Image
+              src={avatarImageError ? '/assets/avatar1.png' : normalizeImageUrl(note.user.avatar) || '/assets/avatar1.png'}
+              className={styles.exploreAvatarSmall} // 使用note-card自己的小头像样式
+              mode='aspectFill'
+              onError={() => setAvatarImageError(true)}
+            />
+            <View className={styles.authorDetails}>
+              <Text className={styles.authorName}>{note.user.nickname || '匿名用户'}</Text>
+            </View>
+          </View>
+        ) : (
+          <View className={styles.author}>
+            <Image
+              src={avatarImageError ? '/assets/avatar1.png' : authorAvatar}
+              className={styles.avatar}
+              mode='aspectFill'
+              onError={() => setAvatarImageError(true)}
+            />
+            <Text className={styles.authorName}>{note.author_name || '匿名用户'}</Text>
+          </View>
+        )}
         <View className={styles.likeInfo}>
-          <Text className={styles.likeCount}>{note.like_count}</Text>
-          <Text className={styles.likeIcon}>♥</Text>
+          <ActionButton
+            icon='/assets/heart-outline.svg'
+            activeIcon='/assets/heart-bold.svg'
+            text={note.like_count?.toString() || '0'}
+            isActive={note.is_liked || false}
+            disabled={note.interaction_loading || false}
+            className={styles.likeButton}
+          />
         </View>
       </View>
     </View>

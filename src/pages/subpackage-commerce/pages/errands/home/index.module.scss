@@ -14,6 +14,10 @@
   background-color: #fff;
   gap: 10px;
 
+  .searchBarWrapper {
+    flex: 1;
+  }
+
   .searchBar {
     flex: 1;
     input {
@@ -22,20 +26,6 @@
       padding: 5px 15px;
       height: 36px;
       font-size: 14px;
-    }
-  }
-
-  .publishButton {
-    display: flex;
-    align-items: center;
-    background-color: $theme-primary;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 18px;
-    font-size: 14px;
-    .plusIcon {
-      font-size: 16px;
-      margin-right: 4px;
     }
   }
 }

@@ -14,14 +14,16 @@ const BASE_URL = process.env.BASE_URL;
  * 上传图片文件
  * @param filePath 图片临时文件路径
  * @param options 上传选项
- * @param options.compress 是否压缩图片 (默认true)
- * @param options.quality 压缩质量 (0-1，默认0.8)
+ * @param options.compress 是否压缩图片 ('smart' | true | false，默认true)
+ * @param options.maxSizeKB 智能压缩的最大文件大小（KB），默认1024KB（1MB）
+ * @param options.quality 压缩质量 (0-1，默认0.85)
  * @returns 图片URL
  */
 export const uploadImage = (
   filePath: string,
   options: {
-    compress?: boolean;
+    compress?: 'smart' | boolean;
+    maxSizeKB?: number;
     quality?: number;
   } = {}
 ): Promise<string> => {
@@ -36,16 +38,21 @@ export const uploadImage = (
     // 如果是图片格式且需要压缩，则先进行压缩
     const {
       compress = true,
-      quality = 0.8
+      maxSizeKB = 1024,
+      quality = 0.85
     } = options;
     
     if (compress && isImageFile(filePath)) {
       try {
-        
-        finalFilePath = await compressImage(filePath, quality);
-        
+        if (compress === 'smart') {
+          // 使用智能压缩
+          const { smartCompressImage } = await import('@/utils/image');
+          finalFilePath = await smartCompressImage(filePath, maxSizeKB, quality);
+        } else {
+          // 使用传统压缩
+          finalFilePath = await compressImage(filePath, quality);
+        }
       } catch (error) {
-        
         finalFilePath = filePath;
       }
     }
@@ -74,7 +81,12 @@ export const uploadImage = (
             reject(new Error("解析服务器响应失败"));
           }
         } else {
-          reject(new Error(`上传失败，状态码：${res.statusCode}`));
+          // 特殊处理413错误（文件过大），提供更具体的错误信息
+          if (res.statusCode === 413) {
+            reject(new Error("文件大小超过限制"));
+          } else {
+            reject(new Error(`上传失败，状态码：${res.statusCode}`));
+          }
         }
       },
       fail: (err) => {

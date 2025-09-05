@@ -57,10 +57,18 @@ export const getResourceRatings = (
     `/ratings/resources/${resourceType}/${resourceId}`,
     filteredParams
   ).then(response => {
-    
+    // 处理分页参数格式转换
+    if (response.data?.data) {
+      const data = response.data.data;
+      
+      // 将 skip/limit 格式转换为 page/page_size 格式
+      if ((data as any).skip !== undefined && (data as any).limit !== undefined) {
+        (data as any).page = Math.floor((data as any).skip / (data as any).limit) + 1;
+        (data as any).page_size = (data as any).limit;
+      }
+    }
     return response;
   }).catch(error => {
-    
     throw error;
   });
 };
@@ -146,8 +154,8 @@ export const getRatingItems = (params: GetRatingItemsRequest = {}) => {
       
       // 直接使用API返回的原始数据结构，不进行转换
       const apiData = response.data?.data || response.data || {};
-      const items = apiData.items || [];
-      const total = apiData.total || 0;
+      const items = (apiData as any).items || [];
+      const total = (apiData as any).total || 0;
       const currentPage = Math.floor(queryParams.skip / queryParams.limit) + 1;
       
       // 为了兼容前端组件，我们保留原始数据并添加必要的字段
@@ -166,11 +174,9 @@ export const getRatingItems = (params: GetRatingItemsRequest = {}) => {
         message: 'success',
         data: {
           items: processedItems,
-          pagination: {
-            page: currentPage,
-            pageSize: queryParams.limit,
-            total: total
-          }
+          page: currentPage,
+          page_size: queryParams.limit,
+          total: total
         }
       };
     })
@@ -433,8 +439,6 @@ export const getResourceList = (params: GetResourceListRequest) => {
  * @returns 搜索结果
  */
 export const searchResources = (params: SearchResourcesRequest) => {
-  
-  
   // 构建查询参数
   const queryParams = {
     keyword: params.keyword,
@@ -447,10 +451,8 @@ export const searchResources = (params: SearchResourcesRequest) => {
     '/ratings/resources/search',
     queryParams
   ).then(response => {
-    
     return response;
   }).catch(error => {
-    
     throw error;
   });
 };
@@ -472,8 +474,6 @@ export const getResourceRatingsList = (
     sort_order?: string;
   } = {}
 ) => {
-  
-  
   const queryParams = {
     skip: params.skip || 0,
     limit: params.limit || 20,
@@ -485,10 +485,18 @@ export const getResourceRatingsList = (
     `/ratings/resources/${resourceType}/${resourceId}`,
     queryParams
   ).then(response => {
-    
+    // 处理分页参数格式转换
+    if (response.data?.data) {
+      const data = response.data.data;
+      
+      // 将 skip/limit 格式转换为 page/page_size 格式
+      if ((data as any).skip !== undefined && (data as any).limit !== undefined) {
+        (data as any).page = Math.floor((data as any).skip / (data as any).limit) + 1;
+        (data as any).page_size = (data as any).limit;
+      }
+    }
     return response;
   }).catch(error => {
-    
     throw error;
   });
 };

@@ -1,10 +1,10 @@
 import {
   SearchRequest,
   SearchBundleRead,
-
   SearchHistoryResponse,
   ClearHistoryResponse,
 } from '@/types/api/search';
+import { ViewHistoryRead } from '@/types/history';
 import http from '../request';
 
 /**
@@ -13,7 +13,7 @@ import http from '../request';
  * @returns 搜索结果
  */
 export const search = (params: SearchRequest) => {
-  return http.get<SearchBundleRead>('/search/', params);
+  return http.post<SearchBundleRead>('/search/', params);
 };
 
 /**
@@ -50,12 +50,26 @@ export const clearSearchHistory = () => {
   return http.post<ClearHistoryResponse>('/search/history/clear', {});
 };
 
+/**
+ * 获取我的浏览历史
+ * @param skip 跳过的记录数
+ * @param limit 返回数量
+ * @returns 浏览历史列表
+ */
+export const getMyViewHistory = (skip: number = 0, limit: number = 20) => {
+  return http.get<ViewHistoryRead[]>('/search/history/me', { 
+    skip, 
+    limit 
+  });
+};
+
 const searchApi = {
   search,
   getHotQueries,
   getHotQueriesSimple,
   getSearchHistory,
   clearSearchHistory,
+  getMyViewHistory,
 };
 
 export default searchApi;

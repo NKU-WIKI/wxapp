@@ -4,7 +4,6 @@ import {
   CreateViewHistoryRequest,
   HistoryList,
   GetHistoryParams,
-  CurrentUser,
   User,
 } from "@/types/api/user";
 import { Post } from "@/types/api/post.d";
@@ -17,7 +16,7 @@ import http from "../request";
  * @returns
  */
 export const getMe = () => {
-  return http.get<CurrentUser>("/users/me");
+  return http.get<User>("/users/me");
 };
 
 /**
@@ -27,7 +26,7 @@ export const getMe = () => {
  * @param actionType 操作类型
  * @returns
  */
-export const getActionStatus = (targetId: string, targetType: 'user' | 'post' | 'comment' | 'knowledge', actionType: 'like' | 'favorite' | 'follow') => {
+export const getActionStatus = (targetId: string, targetType: 'user' | 'post' | 'comment' | 'knowledge' | 'note', actionType: 'like' | 'favorite' | 'follow') => {
   return http.get<{ is_active: boolean; count: number }>("/actions/status", {
     target_id: targetId,
     target_type: targetType,
@@ -174,7 +173,7 @@ export const getMyComments = (params?: PaginationParams) => {
  * @returns 用户信息
  */
 export const getUserById = (userId: string) => {
-  return http.get<User>(`/users/${userId}`);
+  return http.get<User>(`/users/${userId}/detail`);
 };
 
 /**

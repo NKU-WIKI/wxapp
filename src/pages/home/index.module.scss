@@ -167,3 +167,8 @@
   line-height: 100rpx;
   font-weight: 300;
 }
+
+/* 底部占位元素，防止内容被tab bar遮挡 */
+.bottomSpacer {
+  height: 80px; /* 为底部tab bar预留足够空间 */
+}

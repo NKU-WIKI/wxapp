@@ -1,0 +1,210 @@
+@import "@/styles/variables.scss";
+
+.searchWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: $bg-input;
+  border-radius: 18px;
+  padding: 8px 12px; // 恢复为与home页面相同的8px
+  margin: 0; /* 组件自身不带外边距 */
+}
+
+.searchIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.prefixLabelContainer {
+  display: flex;
+  align-items: center;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.prefixLabel {
+  font-size: 14px;
+  color: $theme-primary;
+  font-weight: 500;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background-color: transparent;
+  font-size: 14px;
+  padding: 0;
+  min-width: 0; // 防止输入框超出容器
+}
+
+.clearIcon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.5;
+  margin-left: 8px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+// 下拉菜单样式
+.dropdownContainer {
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  right: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+// 建议列表样式
+.suggestionsContainer {
+  padding: 8px 0;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  &:active {
+    background-color: #e8e8e8;
+  }
+}
+
+.suggestionIcon {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.suggestionText {
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestionTitle {
+  font-size: 14px;
+  color: $text-primary;
+  font-weight: 500;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestionDesc {
+  font-size: 12px;
+  color: $text-helper-gray;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 动态建议样式
+.dynamicSuggestions {
+  border-top: 1px solid #f0f0f0;
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.dynamicSuggestionItem {
+  padding: 8px 16px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  &:active {
+    background-color: #e8e8e8;
+  }
+}
+
+.dynamicSuggestionText {
+  font-size: 14px;
+  color: $text-primary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 热门搜索样式
+.hotSearchSection {
+  padding: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.hotTitle {
+  font-size: 12px;
+  color: $text-helper-gray;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.hotTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hotTag {
+  background-color: #f5f5f5;
+  padding: 6px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e8e8e8;
+  }
+
+  &:active {
+    background-color: #ddd;
+  }
+}
+
+.hotTagText {
+  font-size: 12px;
+  color: $text-primary;
+  white-space: nowrap;
+}
+
+// 响应式设计
+@media (max-width: 375px) {
+  .searchContainer {
+    margin: 12px 12px 6px 12px;
+    padding: 6px 10px;
+  }
+
+  .suggestionItem {
+    padding: 10px 12px;
+  }
+
+  .hotSearchSection {
+    padding: 12px;
+  }
+}

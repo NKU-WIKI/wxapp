@@ -1,17 +1,9 @@
 import { PaginatedData, PaginationParams } from "./common";
 
-/**
- * @description /api/v1/users/me 接口返回的当前用户信息
- */
-export interface CurrentUser {
-  user_id: string;
-  tenant_id: string;
-  nickname: string;
-  roles: string[];
-}
+
 
 /**
- * @description API 返回的用户基础信息结构 (基于 UserRead)
+ * @description API 返回的用户基础信息结构
  */
 export interface User {
   id: string;
@@ -28,7 +20,7 @@ export interface User {
   wechat_id?: string | null;
   qq_id?: string | null;
   tel?: string | null;
-  status: "active" | "inactive" | "banned";
+  status: string; // "active" | "inactive" | "banned" 或其他状态
   // 扩展字段（可能在某些接口中返回）
   is_following?: boolean;
   level?: number;
@@ -67,7 +59,7 @@ export interface UserProfile {
 }
 
 /**
- * @description 更新用户个人资料的请求体 (基于 UserProfileUpdate)
+ * @description 更新用户资料的请求结构
  */
 export interface UpdateUserProfileRequest {
   assets?: Record<string, any> | null;

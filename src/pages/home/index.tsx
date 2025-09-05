@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { View, ScrollView, Text, Input, Image } from "@tarojs/components";
+import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -7,30 +7,19 @@ import type { Post as PostType } from "@/types/api/post.d";
 import { AppDispatch, RootState } from "@/store";
 import { fetchFeed, fetchForumPosts } from "@/store/slices/postSlice";
 import { useMultipleFollowStatus } from "@/hooks/useFollowStatus";
+import { getRecommendedContent, collectUserInteraction } from "@/utils/contentRecommendation";
+import { Categories } from "@/constants/categories";
 import CustomHeader from "@/components/custom-header";
 import PostItemSkeleton from "@/components/post-item-skeleton";
 import EmptyState from "@/components/empty-state";
 import Post from "@/components/post";
+import SearchBar from "@/components/search-bar";
 
 // Assets imports
 import emptyIcon from "@/assets/empty.svg";
-import searchIcon from "@/assets/search.svg";
-import studyIcon from "@/assets/school.svg";
-import hatIcon from "@/assets/hat.svg";
-import starIcon from "@/assets/star2.svg";
-import usersGroupIcon from "@/assets/p2p-fill.svg";
-import bagIcon from "@/assets/bag.svg";
 
 // Relative imports
 import styles from "./index.module.scss";
-
-const mockCategories = [
-  { id: 'c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f', name: '学习交流', icon: studyIcon },
-  { id: 'c2b8f8f5-b6b7-4c2c-9d9e-1f1f1f1f1f1f', name: '校园生活', icon: hatIcon },
-  { id: 'c3c9a9a6-c7c8-4d3d-aeaf-2a2b2c2d2e2f', name: '就业创业', icon: starIcon },
-  { id: 'd4d1a1a7-d8d9-4e4e-bfbf-3a3b3c3d3e3f', name: '社团活动', icon: usersGroupIcon },
-  { id: 'e5e2b2b8-e9ea-4f5f-cfdf-4a4b4c4d4e4f', name: '失物招领', icon: bagIcon },
-];
 
 export default function Home() {
   
@@ -158,7 +147,19 @@ export default function Home() {
       );
     }
 
-    const content = posts
+    // 根据用户设置决定帖子排序方式
+    const sortedPosts = getRecommendedContent(
+      // 默认按时间排序的帖子
+      [...posts].sort((a, b) => {
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return timeB - timeA;
+      }),
+      // 个性化推荐排序的帖子（这里简化为按点赞数排序作为示例）
+      [...posts].sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
+    );
+
+    const content = sortedPosts
       .filter((post) => post && post.id && post.user) // Changed from author_info to user
       .map((post) => {
         // 从关注状态映射中获取该作者的关注状态
@@ -170,12 +171,15 @@ export default function Home() {
           is_following_author: isFollowingAuthor
         };
         
+        // 收集用户查看行为数据
+        collectUserInteraction('view', post.id, 'post');
+        
         return (
           <Post 
             key={post.id} 
             post={postWithFollowStatus} 
             className={styles.postListItem} 
-            mode='list' 
+            mode='list'
           />
         );
       });
@@ -207,30 +211,21 @@ export default function Home() {
 
       <View className={styles.fixedContainer}>
         {/* 搜索区域 - 固定 */}
-        <View
-          className={styles.searchContainer}
+        <SearchBar
+          key='home-nav-search'
+          keyword=''
+          placeholder='搜索校园知识'
+          readonly
           onClick={() => {
             try {
               Taro.setStorageSync('explore_focus', 'true');
               Taro.switchTab({ url: '/pages/explore/index' });
             } catch {}
           }}
-        >
-          <Image src={searchIcon} className={styles.searchIcon} />
-          <Input
-            placeholder='搜索校园知识'
-            className={styles.searchInput}
-            onFocus={() => {
-              try {
-                Taro.setStorageSync('explore_focus', 'true');
-                Taro.switchTab({ url: '/pages/explore/index' });
-              } catch {}
-            }}
-          />
-        </View>
+        />
         {/* 分类区域 - 固定 */}
         <View className={styles.categoriesContainer}>
-          {mockCategories.map((category) => (
+          {Categories.map((category) => (
             <View
               key={category.id}
               className={`${styles.categoryItem} ${
@@ -271,7 +266,11 @@ export default function Home() {
           refresherTriggered={isRefreshing}
           onRefresherRefresh={handlePullRefresh}
         >
-          <View className={styles.postList}>{renderContent()}</View>
+          <View className={styles.postList}>
+            {renderContent()}
+            {/* 底部占位元素，防止内容被tab bar遮挡 */}
+            <View className={styles.bottomSpacer} />
+          </View>
         </ScrollView>
       </View>
     </View>

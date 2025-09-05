@@ -1,0 +1,195 @@
+@use "@/styles/variables.scss" as *;
+
+/* 评论区样式 */
+.commentsSection {
+  background-color: #FFFFFF;
+  padding: 16px 16px 16px 12px;
+  margin: 0 12px 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px; /* Add margin to separate from input */
+    margin-bottom: 16px;
+    
+    .title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .sort {
+      display: flex;
+      align-items: center;
+      color: #666;
+      font-size: 14px;
+      
+      .icon {
+        width: 16px;
+        height: 16px;
+        margin-left: 4px;
+      }
+    }
+  }
+  
+  .emptyComments {
+    text-align: center;
+    padding: 20px 0;
+    color: #999;
+    font-size: 14px;
+  }
+}
+
+/* 评论项样式 */
+.commentItem {
+  margin-bottom: 20px;
+  
+  .content {
+    padding-left: 48px; /* 36px avatar width + 12px margin */
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  
+  .toggleRepliesButton {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #4F46E5;
+    cursor: pointer;
+  }
+
+  .toggleIcon {
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+  }
+
+  .repliesContainer {
+    margin-top: 12px;
+    padding-left: 12px;
+    border-left: 2px solid #F0F0F0;
+  }
+
+  .text, .subText {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+  }
+  
+  .subText {
+    font-size: 14px;
+  }
+}
+
+.mentionText {
+  color: $theme-primary;
+  font-weight: 500;
+}
+
+/* 子评论项样式 */
+.subCommentItem {
+  margin-top: 12px;
+  
+  .subContent {
+    padding-left: 42px; /* Adjust for smaller avatar */
+  }
+
+  .subActions {
+    margin-top: 6px;
+  }
+}
+
+/* Action Bar Icons */
+.icon {
+  width: 18px;
+  height: 18px;
+}
+.subIcon {
+    width: 16px;
+    height: 16px;
+}
+.activeText {
+    color: $theme-primary;
+}
+
+/* Comment Input Styles */
+.commentInputWrapper {
+  width: 100%;
+  background: $bg-card;
+  border-bottom: 1px solid $border-light;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.replyIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #F0F4F8;
+  border-bottom: 1px solid #E2E8F0;
+  
+  .replyText {
+    font-size: 14px;
+    color: #4F46E5;
+    font-weight: 500;
+  }
+  
+  .cancelReplyIcon {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+}
+
+.commentInput {
+  position: relative;
+  width: 100%;
+  height: 42px; /* Adjusted height */
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.input {
+  flex: 1;
+  height: 36px;
+  padding: 0px 12px;
+  border-radius: 18px;
+  border: 1px solid #C3C3C3;
+  font-size: 15px;
+  background: $bg-input;
+  margin-right: 10px;
+}
+
+.sendButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: $bg-card;
+  border: 1px solid #C3C3C3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.sendIcon {
+  width: 14px;
+  height: 14px;
+  display: block;
+}

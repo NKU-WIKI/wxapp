@@ -55,6 +55,14 @@
   cursor: pointer;
 }
 
+/* 空状态样式 */
+.uploadEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .uploadCloudIcon {
   font-size: 48px;
   line-height: 1;
@@ -76,6 +84,12 @@
   text-align: center;
 }
 
+.uploadingText {
+  font-size: 14px;
+  color: #6366f1;
+  margin-top: 8px;
+}
+
 .selectFileBtn {
   padding: 8px 16px;
   background-color: #6366f1;
@@ -84,6 +98,78 @@
   border-radius: 8px;
   font-size: 14px;
   transition: background-color 0.2s ease;
+}
+
+/* 已选择文件状态样式 */
+.selectedFileInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.selectedFileIcon {
+  font-size: 32px;
+  color: #f59e0b;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.selectedFileName {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 4px;
+  text-align: center;
+  word-break: break-all;
+}
+
+.selectedFileSize {
+  font-size: 14px;
+  color: #f59e0b;
+  margin-bottom: 8px;
+}
+
+.reSelectTip {
+  font-size: 12px;
+  color: #6366f1;
+  text-decoration: underline;
+}
+
+/* 已上传文件状态样式 */
+.uploadedFileInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.uploadSuccessIcon {
+  font-size: 32px;
+  color: #10b981;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.uploadedFileName {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 4px;
+  text-align: center;
+  word-break: break-all;
+}
+
+.uploadedFileSize {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.reUploadTip {
+  font-size: 12px;
+  color: #6366f1;
+  text-decoration: underline;
 }
 
 /* 表单组通用样式 */
@@ -101,17 +187,37 @@
 /* 网盘链接输入框 */
 .netdiskInput {
   width: 100%;
-  padding: 8px 12px;
+  padding: 0 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 44px; /* 与height相等，确保单行文字垂直居中 */
   box-sizing: border-box;
   color: #1f2937;
   background-color: #ffffff;
-  height: 40px;
-  display: flex;
-  align-items: center;
+  height: 44px;
+  
+  /* 微信小程序兼容性 */
+  text-align: left;
+  vertical-align: middle;
+  
+  /* 确保占位符文字垂直居中 */
+  &::-webkit-input-placeholder {
+    color: #9ca3af;
+    line-height: 44px;
+    vertical-align: middle;
+  }
+  
+  &::-moz-placeholder {
+    color: #9ca3af;
+    line-height: 44px;
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
+    line-height: 44px;
+    vertical-align: middle;
+  }
 }
 
 /* 资料说明文本域 */
@@ -184,6 +290,15 @@
   border-radius: 8px;
   background-color: #ffffff;
   cursor: pointer;
+  min-height: 120px;
+  justify-content: center;
+}
+
+/* 收款码空状态 */
+.qrEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .qrIcon {
@@ -196,6 +311,28 @@
   font-size: 14px;
   color: #6b7280;
   text-align: center;
+}
+
+/* 收款码已上传状态 */
+.qrUploadedState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qrPreview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.qrReUploadTip {
+  font-size: 12px;
+  color: #6366f1;
+  text-decoration: underline;
 }
 
 /* 确认上传按钮 */

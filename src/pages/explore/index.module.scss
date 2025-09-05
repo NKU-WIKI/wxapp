@@ -15,7 +15,13 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background-color: $bg-page;
+  background-color: $bg-card; /* 改为与子元素一致的卡片背景色 */
+  /* 添加底部阴影，明确区分与内容的分界 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* 添加底部圆角，与整体设计保持一致 */
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  overflow: hidden; /* 确保子元素不超出圆角 */
 }
 
 /* 内容滚动容器 */
@@ -35,134 +41,12 @@
 }
 
 .searchBarWrapper {
-  padding: 8px 16px;
-  background-color: $bg-card !important;
-  border-bottom: 1px solid $border-gray;
+  padding: 8px 16px 0; /* 上8，左右16，下0，移除底部间隙 */
+  /* 移除背景色，继承父容器的背景 */
   backdrop-filter: blur(10px);
 }
 
-.searchContainer {
-  display: flex;
-  align-items: center;
-  background-color: $bg-input-focus;
-  border-radius: 9999px;
-  padding: 8px 12px;
-}
-
-.searchIcon, .clearIcon {
-  width: 20px;
-  height: 20px;
-  color: $text-helper-light;
-  flex-shrink: 0;
-}
-
-.inputWrapper {
-  flex: 1;
-  margin: 0 8px;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  height: 28px;
-  overflow: hidden;
-}
-
-.searchInput {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  border: none;
-  background-color: transparent;
-  font-size: 14px;
-  line-height: 28px;
-  color: $text-primary-dark;
-  caret-color: $text-primary-dark;
-  
-  &::placeholder {
-    color: #9CA3AF;
-    font-size: 14px;
-  }
-}
-
-.highlightedText { display: none; }
-
-.inputPrefix { display: none; }
-
-.inputText { display: none; }
-
-.prefixLabelContainer {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-right: 6px;
-  flex-shrink: 0;
-}
-
-.prefixLabel {
-  color: #6B46C1; /* 深紫色 */
-  font-weight: 600;
-  line-height: 28px;
-  flex-shrink: 0;
-}
-
-.prefixDesc {
-  color: #9CA3AF; /* 灰色 */
-  font-size: 14px; /* 从12px增加到14px */
-  line-height: 28px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-
-.suggestionsContainer {
-  position: absolute;
-  top: 100%;
-  left: 16px;
-  right: 16px;
-  background-color: $bg-card;
-  border: 1px solid $border-cool;
-  border-radius: 8px;
-  margin-top: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-height: 250px;
-  overflow-y: auto;
-}
-
-.suggestionItem {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  gap: 12px;
-  &:not(:last-child) {
-    border-bottom: 1px solid $border-light;
-  }
-  &:active {
-    background-color: $bg-input-focus;
-  }
-}
-
-.suggestionIcon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-}
-
-.suggestionText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.suggestionTitle {
-  font-size: 14px;
-  font-weight: 500;
-  color: $text-primary-dark;
-}
-
-.suggestionDesc {
-  font-size: 12px;
-  color: $text-secondary;
-}
+// 这些样式已由SearchBar组件提供，不再需要
 
 .resultsContainer {
   padding: 0px 16px 16px 16px; // 移除上边距
@@ -218,42 +102,7 @@
   min-height: 200px;
 }
 
-.fab {
-  position: fixed;
-  right: 16px;
-  bottom: 80px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background-color: $theme-primary;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 16px rgba(79,70,229,0.25);
-  z-index: 50;
-}
-.fabPlus { color: #fff; font-size: 24px; line-height: 1; }
 
-.uploadOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 60;
-}
-.uploadModal {
-  width: 88vw;
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-}
-.uploadTitle { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-.uploadTextarea { min-height: 120px; border: 1px solid $border-gray; border-radius: 8px; padding: 8px; }
-.uploadActions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px; }
-.cancelBtn { color: $text-secondary; }
-.submitBtn { color: $theme-primary; font-weight: 600; }
 
 .spinner {
   width: 16px;
@@ -273,7 +122,7 @@
 /* Fallback views */
 .searchSkillsContainer {
   flex: 1;
-  padding: 0px 16px 16px 16px; // 移除上边距
+  padding: 16px 16px 16px 16px; // 添加上边距，避免被搜索框遮挡
   background-color: $bg-card;
   height: 100%;
 }
@@ -349,21 +198,13 @@
   color: $text-secondary;
 }
 
-// 保留这些样式以兼容现有代码，但不再使用
-.scrollView {
-  height: 100%;
-}
-
-.bodyScroll {
-  flex: 1;
-  height: 100%;
-}
+// 已移除不再使用的样式
 
 .sourceNav {
   padding: 12px 16px;
-  background-color: $bg-card;
-  border-bottom: 1px solid $border-gray;
-  border-top: 1px solid $border-gray;
+  /* 移除背景色，继承父容器的背景 */
+  border-top: 1px solid $border-light;
+  /* 移除 border-bottom，由父容器的阴影效果替代 */
 }
 
 .sourceGrid {
@@ -390,7 +231,7 @@
 }
 
 .masonryWrapper {
-  padding: 12px;
+  padding: 0px 12px 12px 12px; /* 移除上边距，只保留左右下边距 */
 }
 
 .masonryContainer {
@@ -493,4 +334,9 @@
 .loginHintButtonText {
   color: white;
   font-size: 12px;
+}
+
+/* 底部占位元素，防止内容被tab bar遮挡 */
+.bottomSpacer {
+  height: 80px; /* 为底部tab bar预留足够空间 */
 }

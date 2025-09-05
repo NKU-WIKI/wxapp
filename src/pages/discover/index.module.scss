@@ -5,24 +5,27 @@
   flex-direction: column;
   height: 100vh;
   background-color: #f9fafc;
-  overflow: hidden; /* 防止整个页面滚动 */
+}
+
+.pageScrollView {
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 80px); // 调整减去header高度，给更多滚动空间
+  
+  // 隐藏滚动条
+  ::-webkit-scrollbar {
+    display: none;
+    width: 0;
+  }
 }
 
 .contentContainer {
-  padding: 16px 16px 16px 16px; /* 减少顶部padding从100px到16px */
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px; /* 进一步减少gap从12px到8px */
-  height: calc(100vh - 16px); /* 相应调整高度计算 */
-  overflow: hidden; /* 防止内容容器滚动 */
-
-  //隐藏滚动条
-  ::-webkit-scrollbar {
-    display:none;
-    width:0;
-    height:0;
-    color:transparent;
-  }
+  gap: 8px;
+  min-height: 100%;
+  padding-bottom: 80px; /* 增加底部padding从40px到80px，确保最后的内容可见 */
 }
 
 /* 校园热点 */
@@ -300,13 +303,9 @@
   font-weight: 700;
   flex-shrink: 0;
   margin-left: 16px;
-  background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
   padding: 6px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(116, 185, 255, 0.2);
   min-width: 50px;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(116, 185, 255, 0.1);
 }
 
 /* 空状态 */
@@ -341,7 +340,8 @@
 .moduleGrid {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* 卡片之间的垂直间距 */
+  gap: 16px; /* 增加卡片之间的垂直间距从10px到16px */
+  margin-bottom: 20px; /* 在模块网格底部添加额外间距 */
 }
 
 .moduleRow {

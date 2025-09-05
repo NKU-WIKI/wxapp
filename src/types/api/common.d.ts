@@ -15,6 +15,15 @@ export interface Pagination {
   has_more: boolean;
 }
 
+/**
+ * 后端实际使用的分页格式
+ */
+export interface BackendPagination {
+  page: number;
+  page_size: number;
+  total: number;
+}
+
 export interface PaginatedData<T> {
   data: T[]; // Changed from items to data
   pagination: Pagination;

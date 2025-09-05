@@ -1,0 +1,72 @@
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Use gap for spacing between icon and text, same as post component */
+  color: #666;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  /* Provide a subtle feedback on press */
+  &:hover, &:active {
+    background-color: #F3F4F6;
+  }
+  
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    
+    &:hover, &:active {
+      background-color: transparent;
+    }
+  }
+
+  /* 激活状态样式 */
+  &.active {
+    .icon {
+      filter: none; /* 移除任何滤镜效果 */
+    }
+
+    .text {
+      font-weight: 500;
+    }
+  }
+
+  /* 点赞激活状态 - 蓝色 */
+  &.liked {
+    .icon {
+      filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+    }
+    
+    .text {
+      color: #4F46E5;
+      font-weight: 500;
+    }
+  }
+
+  /* 收藏激活状态 - 黄色 */
+  &.favorited {
+    .icon {
+      filter: brightness(0) saturate(100%) invert(83%) sepia(31%) saturate(638%) hue-rotate(359deg) brightness(103%) contrast(107%);
+    }
+    
+    .text {
+      color: #F59E0B;
+      font-weight: 500;
+    }
+  }
+}
+
+.icon {
+  /* A default size, can be overridden by iconClassName */
+  width: 20px;
+  height: 20px;
+  vertical-align: middle; /* Ensure proper alignment with text */
+}
+
+.text {
+  /* A default size, can be overridden by textClassName */
+  font-size: 13px;
+  line-height: 1; /* Prevent extra vertical space */
+}

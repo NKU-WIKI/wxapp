@@ -115,9 +115,17 @@ export default function Discover() {
 
   return (
     <View className={styles.discoverPage}>
-      <CustomHeader title='探索' hideBack showWikiButton showNotificationIcon />
+      <CustomHeader title='发现' hideBack showWikiButton showNotificationIcon />
 
-      <View className={styles.contentContainer}>
+      <ScrollView
+        scrollY
+        className={styles.pageScrollView}
+        enhanced
+        bounces={false}
+        scrollWithAnimation
+        enableFlex
+      >
+        <View className={styles.contentContainer}>
         {/* 热门帖子 */}
         <Section
           title='热榜 TOP5'
@@ -205,7 +213,7 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                Taro.navigateTo({ url: '/pages/discover/activity-square/index' });
+                Taro.navigateTo({ url: '/pages/subpackage-discover/activity-square/index' });
               }}
             >
               <View className={styles.moduleContentWrapper}>
@@ -219,7 +227,6 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                // TODO: 待二手交易首页完成后，替换为正确的路径
                 Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/second-hand/home/index' });
               }}
             >
@@ -252,25 +259,7 @@ export default function Discover() {
             <View
               className={styles.moduleCard}
               onClick={() => {
-                Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/errands/home/index' });
-              }}
-            >
-              <View className={styles.moduleContentWrapper}>
-                <Image src='/assets/running.svg' className={styles.moduleIcon} />
-                <View className={styles.moduleTextWrapper}>
-                  <Text className={styles.moduleTitle}>校园跑腿</Text>
-                  <Text className={styles.moduleSubtitle}>任务发布与承接</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          
-          {/* 第三行 */}
-          <View className={styles.moduleRow}>
-            <View
-              className={styles.moduleCard}
-              onClick={() => {
-                Taro.navigateTo({ url: '/pages/discover/rating/index' });
+                Taro.navigateTo({ url: '/pages/subpackage-discover/rating/index' });
               }}
             >
               <View className={styles.moduleContentWrapper}>
@@ -281,11 +270,10 @@ export default function Discover() {
                 </View>
               </View>
             </View>
-             {/* 可以在这里再加一个卡片，保持对称 */}
-             <View className={`${styles.moduleCard} ${styles.placeholder}`} />
           </View>
         </View>
-      </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }

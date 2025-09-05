@@ -11,6 +11,7 @@ import {
   deleteComment as deleteCommentApi,
   getComments,
 } from "@/services/api/comment";
+import { BBSNotificationHelper } from '@/utils/notificationHelper';
 // 由于后端暂无 /users/{id} 用户详情接口，不进行远程查询，使用本地回退
 
 const getFallbackUserInfo = (userId: string) => {
@@ -137,7 +138,7 @@ export const createComment = createAsyncThunk(
       }
       
       // 如果是当前用户，直接使用当前用户信息
-      if (currentUser?.currentUser?.user_id === payload?.user_id) {
+      if (currentUser?.user?.id === payload?.user_id) {
         const normalized = {
           ...payload,
           // 统一字段
@@ -145,10 +146,31 @@ export const createComment = createAsyncThunk(
           create_at: payload?.create_at || payload?.created_at || payload?.update_time || payload?.create_time || new Date().toISOString(),
           like_count: payload?.like_count ?? payload?.likes_count ?? 0,
           has_liked: payload?.is_liked ?? payload?.has_liked ?? false,
-          author_nickname: currentUser?.currentUser?.nickname || currentUser?.userProfile?.nickname || '我',
-          author_avatar: currentUser?.userProfile?.avatar || '',
+          author_nickname: currentUser?.user?.nickname || '我',
+          author_avatar: currentUser?.user?.avatar || '',
           parent_author_nickname: parentAuthorNickname,
         } as CommentDetail;
+        
+        // 创建评论通知（如果不是给自己的帖子评论）
+        if (params.resource_type === 'post') {
+          const postAuthorId = (params as any).post_author_id;
+          const postTitle = (params as any).post_title;
+
+          if (postAuthorId && postTitle && postAuthorId !== currentUser.user.id) {
+            try {
+              BBSNotificationHelper.handleCommentNotification({
+                postId: params.resource_id,
+                postTitle: postTitle,
+                postAuthorId: postAuthorId,
+                currentUserId: currentUser.user.id,
+                commentContent: params.content
+              });
+            } catch (_error) {
+              // 静默处理通知创建错误，不影响主要功能
+            }
+          }
+        }
+        
         return normalized;
       }
 
@@ -167,40 +189,9 @@ export const createComment = createAsyncThunk(
         parent_author_nickname: parentAuthorNickname,
       } as CommentDetail;
       
-      // 创建评论通知（如果不是给自己的帖子评论）
-      if (params.resource_type === 'post' && currentUser?.currentUser?.user_id) {
-        // 需要获取帖子作者ID和标题
-        // 这里我们通过参数传递或从 store 中获取
-        const postAuthorId = (params as any).post_author_id;
-        const postTitle = (params as any).post_title;
-        
-        if (postAuthorId && postTitle && postAuthorId !== currentUser.currentUser.user_id) {
-          
-          
-          // 导入通知工具类
-          import('@/utils/notificationHelper').then(({ BBSNotificationHelper }) => {
-            BBSNotificationHelper.handleCommentNotification({
-              postId: params.resource_id,
-              postTitle: postTitle,
-              postAuthorId: postAuthorId,
-              currentUserId: currentUser.currentUser.user_id,
-              commentContent: params.content
-            }).then(() => {
-              
-            }).catch((_error) => {
-              
-            });
-          }).catch((_error) => {
-            
-          });
-        } else {
-          
-        }
-      }
       
       return normalized;
     } catch (error: any) {
-      
       return rejectWithValue(error.message || "Failed to create comment");
     }
   }

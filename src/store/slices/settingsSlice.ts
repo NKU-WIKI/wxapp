@@ -17,20 +17,26 @@ export interface SettingsState {
   whoCanComment: 'everyone' | 'followers' | 'none';
   whoCanViewPosts: 'everyone' | 'followers' | 'self';
   
+  // 通用设置
+  personalizedRecommendation: boolean;
+  allowImageSaving: boolean;
+  
   // 系统设置
   isInitialized: boolean;
 }
 
 // 默认设置
 const defaultSettings: SettingsState = {
-  messageNotification: true,
-  pushNotification: true,
-  privateMessage: true,
+  messageNotification: false,
+  pushNotification: false,
+  privateMessage: false,
   fontSize: 'medium',
   nightMode: 'auto',
   whoCanMessage: 'everyone',
   whoCanComment: 'everyone',
   whoCanViewPosts: 'everyone',
+  personalizedRecommendation: false,
+  allowImageSaving: false,
   isInitialized: false,
 };
 
@@ -44,6 +50,8 @@ export const SETTINGS_STORAGE_KEYS = {
   WHO_CAN_MESSAGE: 'settings_who_can_message',
   WHO_CAN_COMMENT: 'settings_who_can_comment',
   WHO_CAN_VIEW_POSTS: 'settings_who_can_view_posts',
+  PERSONALIZED_RECOMMENDATION: 'settings_personalized_recommendation',
+  ALLOW_IMAGE_SAVING: 'settings_allow_image_saving',
 };
 
 // 从本地存储加载设置
@@ -55,10 +63,14 @@ const loadSettingsFromStorage = (): Partial<SettingsState> => {
     const messageNotification = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.MESSAGE_NOTIFICATION);
     const pushNotification = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.PUSH_NOTIFICATION);
     const privateMessage = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.PRIVATE_MESSAGE);
+    const personalizedRecommendation = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.PERSONALIZED_RECOMMENDATION);
+    const allowImageSaving = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.ALLOW_IMAGE_SAVING);
     
     if (messageNotification !== '') settings.messageNotification = messageNotification;
     if (pushNotification !== '') settings.pushNotification = pushNotification;
     if (privateMessage !== '') settings.privateMessage = privateMessage;
+    if (personalizedRecommendation !== '') settings.personalizedRecommendation = personalizedRecommendation;
+    if (allowImageSaving !== '') settings.allowImageSaving = allowImageSaving;
     
     // 加载字符串设置
     const fontSize = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.FONT_SIZE);
@@ -155,6 +167,17 @@ const settingsSlice = createSlice({
       saveSettingToStorage(SETTINGS_STORAGE_KEYS.WHO_CAN_VIEW_POSTS, action.payload);
     },
     
+    // 更新通用设置
+    setPersonalizedRecommendation: (state, action: PayloadAction<boolean>) => {
+      state.personalizedRecommendation = action.payload;
+      saveSettingToStorage(SETTINGS_STORAGE_KEYS.PERSONALIZED_RECOMMENDATION, action.payload);
+    },
+    
+    setAllowImageSaving: (state, action: PayloadAction<boolean>) => {
+      state.allowImageSaving = action.payload;
+      saveSettingToStorage(SETTINGS_STORAGE_KEYS.ALLOW_IMAGE_SAVING, action.payload);
+    },
+    
     // 重置所有设置
     resetSettings: (state) => {
       Object.assign(state, defaultSettings);
@@ -249,6 +272,8 @@ export const {
   setWhoCanMessage,
   setWhoCanComment,
   setWhoCanViewPosts,
+  setPersonalizedRecommendation,
+  setAllowImageSaving,
   resetSettings,
 } = settingsSlice.actions;
 

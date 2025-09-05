@@ -86,10 +86,42 @@ export const markAsRead = (data: MarkReadRequest) => {
  * @returns 操作结果
  */
 export const markAllAsRead = (type?: NotificationType) => {
+  const url = type 
+    ? `/notifications/mark-all-read?notification_type=${type}`
+    : "/notifications/mark-all-read";
+  
+  console.log('🔧 [API调试] markAllAsRead 调用', { url, type });
+  
+  return http.post<{ code: number; message: string }>(url, {})
+    .then(response => {
+      console.log('🔧 [API调试] markAllAsRead 响应', response);
+      return response;
+    })
+    .catch(error => {
+      console.error('🔧 [API调试] markAllAsRead 错误', error);
+      throw error;
+    });
+};
+
+/**
+ * 标记单个通知为已读
+ * @param notificationId 通知ID
+ * @returns 操作结果
+ */
+export const markNotificationAsRead = (notificationId: string) => {
+  const payload = [notificationId];  // 直接发送数组，不包装在对象中
+  console.log('🔧 [API调试] markNotificationAsRead 调用', { notificationId, payload });
+  
   return http.post<{ code: number; message: string }>(
-    "/notifications/batch/mark-read", 
-    type ? { type } : {}
-  );
+    "/notifications/mark-read",
+    payload
+  ).then(response => {
+    console.log('🔧 [API调试] markNotificationAsRead 响应', response);
+    return response;
+  }).catch(error => {
+    console.error('🔧 [API调试] markNotificationAsRead 错误', error);
+    throw error;
+  });
 };
 
 /**
@@ -125,8 +157,6 @@ export const createBBSNotification = {
     post_id: string;
     post_title: string;
   }) => {
-    
-    
     const notificationData = {
       type: NotificationType._Message,
       business_type: 'like',
@@ -144,8 +174,6 @@ export const createBBSNotification = {
       priority: NotificationPriority._Low
     };
     
-    
-    
     return createNotification(notificationData);
   },
 
@@ -159,7 +187,16 @@ export const createBBSNotification = {
     post_title: string;
     comment_content: string;
   }) => {
-    return createNotification({
+    console.log('💬 [API调试] createBBSNotification.comment 被调用', {
+      输入参数: params,
+      recipient_id: params.recipient_id,
+      sender_id: params.sender_id,
+      post_id: params.post_id,
+      post_title: params.post_title,
+      comment_content_length: params.comment_content?.length
+    });
+
+    const notificationData = {
       type: NotificationType._Message,
       business_type: 'comment',
       business_id: params.post_id,
@@ -175,6 +212,30 @@ export const createBBSNotification = {
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal
+    };
+
+    console.log('💬 [API调试] 评论通知请求体', {
+      完整请求体: notificationData,
+      类型: notificationData.type,
+      业务类型: notificationData.business_type,
+      接收者: notificationData.recipient_id,
+      发送者: notificationData.sender_id
+    });
+
+    return createNotification(notificationData).then(response => {
+      console.log('✅ [API调试] 评论通知API响应', {
+        response,
+        成功: response?.code === 0,
+        消息: response?.message
+      });
+      return response;
+    }).catch(error => {
+      console.error('❌ [API调试] 评论通知API错误', {
+        error,
+        errorMessage: error?.message,
+        请求体: notificationData
+      });
+      throw error;
     });
   },
 
@@ -186,7 +247,7 @@ export const createBBSNotification = {
     sender_id: string;
     sender_nickname: string;
   }) => {
-    return createNotification({
+    const notificationData = {
       type: NotificationType._Message,
       business_type: 'follow',
       business_id: params.sender_id,
@@ -201,7 +262,9 @@ export const createBBSNotification = {
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal
-    });
+    };
+
+    return createNotification(notificationData);
   },
 
   /**
@@ -213,7 +276,7 @@ export const createBBSNotification = {
     post_id: string;
     post_title: string;
   }) => {
-    return createNotification({
+    const notificationData = {
       type: NotificationType._Message,
       business_type: 'collect',
       business_id: params.post_id,
@@ -228,7 +291,9 @@ export const createBBSNotification = {
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Low
-    });
+    };
+
+    return createNotification(notificationData);
   },
 
   /**

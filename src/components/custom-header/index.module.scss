@@ -84,16 +84,42 @@
   height: 20px;
 }
 
-.notificationIcon {
-  width: 24px;
-  height: 24px;
+// 通知图标容器，需要相对定位来放置红点
+.notificationIconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
-.title {
-  font-size: 17px; // 根据微信设计规范调整
-  font-weight: 600; // bold
-  color: #000;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.notificationIcon {
+  width: 20px;
+  height: 20px;
+}
+
+// 通知红点样式
+.notificationBadge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  background-color: $status-error;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
+  border: 1px solid $bg-card;
+}
+
+.badgeText {
+  font-size: 10px;
+  font-weight: 600;
+  color: $text-white;
+  line-height: 1;
+  min-width: 8px;
+  text-align: center;
 }

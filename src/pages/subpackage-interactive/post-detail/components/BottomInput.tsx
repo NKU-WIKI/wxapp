@@ -104,17 +104,8 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthor
       if (onCancelReply) {
         onCancelReply();
       }
-      
-      Taro.showToast({
-        title: replyTo ? '回复发布成功' : '评论发布成功',
-        icon: 'success'
-      });
     } catch (error) {
-      Taro.showToast({
-        title: replyTo ? '回复发布失败，请重试' : '评论发布失败，请重试',
-        icon: 'error'
-      });
-      
+      // 移除弹窗提示，静默处理错误
     } finally {
       setIsSubmitting(false);
     }

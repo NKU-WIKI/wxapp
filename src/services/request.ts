@@ -3,7 +3,6 @@ import {
   NO_ERROR_TOAST_CODES,
   RESPONSE_SUCCESS_CODE,
   HEADER_BRANCH_KEY,
-  REQUEST_BRANCH,
 } from "@/constants";
 import { BaseResponse } from "@/types/api/common";
 
@@ -25,25 +24,19 @@ const getDefaultTenantId = () => {
     const state = store.getState();
     const aboutInfo = state.user.aboutInfo;
 
-    
-
     if (aboutInfo?.tenants) {
       // 使用南开大学租户
       const tenantId = aboutInfo.tenants["南开大学"];
       if (tenantId) {
-        
         return tenantId;
       }
     }
 
     // 如果store中没有，尝试从本地存储获取缓存的租户信息
     const cachedAboutInfo = Taro.getStorageSync("aboutInfo");
-    
-
     if (cachedAboutInfo?.tenants) {
       const tenantId = cachedAboutInfo.tenants["南开大学"];
       if (tenantId) {
-        
         return tenantId;
       }
     }
@@ -52,19 +45,38 @@ const getDefaultTenantId = () => {
     if (cachedAboutInfo?.tenants) {
       const defaultTenantId = cachedAboutInfo.tenants["default"] || Object.values(cachedAboutInfo.tenants)[0];
       if (defaultTenantId) {
-        
         return defaultTenantId;
       }
     }
-  } catch (error) {
-    
+  } catch (_error) {
+    // 静默处理错误，确保在任何情况下函数都能返回一个值
   }
 
   // 如果都获取失败，使用硬编码的南开大学租户ID作为最后手段
   const fallbackTenantId = "f6303899-a51a-460a-9cd8-fe35609151eb";
-  
   return fallbackTenantId;
 };
+
+const _getCommonHeaders = () => {
+  const token = getToken();
+  const branch = process.env.NODE_ENV === "development" ? "dev" : "main";
+  const tenantId = getDefaultTenantId();
+
+  const headers: Record<string, string> = {
+    [HEADER_BRANCH_KEY]: branch,
+  };
+
+  // 系统性处理租户标识：在没有token的情况下，所有请求都使用x-tenant-id头
+  if (!token) {
+    if (tenantId) {
+      headers["x-tenant-id"] = tenantId;
+    }
+  } else {
+    // 如果有token，使用Authorization头
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
 
 const interceptor = (chain) => {
   const requestParams = chain.requestParams;
@@ -75,33 +87,11 @@ const interceptor = (chain) => {
     Taro.showLoading({ title: "加载中..." });
   }
 
-  const token = getToken();
-  const branch = REQUEST_BRANCH;
-  const tenantId = getDefaultTenantId();
-
-  
-  
-  
-
   requestParams.header = {
     ...customHeader,
     "Content-Type": "application/json",
-    [HEADER_BRANCH_KEY]: branch,
+    ..._getCommonHeaders(),
   };
-
-  // 系统性处理租户标识：在没有token的情况下，所有请求都使用x-tenant-id头
-  if (!token) {
-    if (tenantId) {
-      requestParams.header["x-tenant-id"] = tenantId;
-      
-    } else {
-      
-    }
-  } else {
-    // 如果有token，使用Authorization头
-    requestParams.header.Authorization = `Bearer ${token}`;
-    
-  }
 
   // 移除自定义头，避免发送到服务器
   const originalShowLoading = customHeader["X-Show-Loading"];
@@ -115,6 +105,12 @@ const interceptor = (chain) => {
     }
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
+      // 特殊处理413错误（文件过大），不显示通用错误提示
+      // 让业务层自己处理这种错误
+      if (res.statusCode === 413) {
+        return Promise.reject(res);
+      }
+      
       Taro.showToast({
         title: `服务器错误: ${res.statusCode}`,
         icon: "none",
@@ -151,6 +147,7 @@ const request = (
   options?: Omit<Taro.request.Option, "url" | "data" | "method">
 ): Promise<Taro.request.SuccessCallbackResult<BaseResponse<any>>> => {
   const finalUrl = `${BASE_URL}/api/v1${url}`;
+  
   return Taro.request({
     url: finalUrl,
     data,
@@ -198,23 +195,7 @@ const http = {
     options?: Partial<Omit<Taro.uploadFile.Option, "url" | "filePath">>
   ) => {
     const finalUrl = `${BASE_URL}/api/v1${url}`;
-    const token = getToken();
-    const branch = REQUEST_BRANCH;
-    const tenantId = getDefaultTenantId();
-
-    const header: Record<string, string> = {
-      [HEADER_BRANCH_KEY]: branch,
-    };
-
-    // 系统性处理租户标识：在没有token的情况下，所有请求都使用x-tenant-id头
-    if (!token) {
-      if (tenantId) {
-        header["x-tenant-id"] = tenantId;
-      }
-    } else {
-      // 如果有token，使用Authorization头
-      header.Authorization = `Bearer ${token}`;
-    }
+    const header = _getCommonHeaders();
 
     return Taro.uploadFile({
       url: finalUrl,
@@ -224,6 +205,11 @@ const http = {
       ...options,
     }).then((res) => {
       if (res.statusCode < 200 || res.statusCode >= 300) {
+        // 特殊处理413错误（文件过大），不显示通用错误提示
+        // 让业务层自己处理这种错误
+        if (res.statusCode === 413) {
+          return Promise.reject(res);
+        }
         Taro.showToast({
           title: `上传失败: ${res.statusCode}`,
           icon: "none",

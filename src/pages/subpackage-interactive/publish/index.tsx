@@ -1,44 +1,33 @@
 import { useState, useEffect, useCallback } from "react";
 import Taro, { useRouter, useUnload } from "@tarojs/taro";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  View,
-  Text,
-  Input,
-  Textarea,
-  Image,
-  ScrollView,
-} from "@tarojs/components";
-
+import { View, Text, Input, Textarea, Image, ScrollView } from "@tarojs/components";
 // Absolute imports (alphabetical order)
 import { AppDispatch, RootState } from "@/store";
+import { Categories } from "@/constants/categories";
+import { WRITING_STYLES } from "@/constants/publish";
 import CustomHeader from "@/components/custom-header";
 import { usePolish } from "@/hooks/usePolish";
 import searchApi from "@/services/api/search";
 import { uploadApi } from "@/services/api/upload";
 import { getPostDetail, getMyDrafts, deleteDraft } from "@/services/api/post";
 import { createPost } from "@/store/slices/postSlice";
-import { DraftPost } from "@/types/draft";
 import { normalizeImageUrl } from "@/utils/image";
+import { DraftPost } from "@/types/draft";
 import { saveDraft, getDrafts } from "@/utils/draft";
+import { generateUUID } from "@/utils/uuid";
 import type { Post } from "@/types/api/post.d";
 
 // Asset imports
 import atSignIcon from "@/assets/at-sign.svg";
-import bagIcon from "@/assets/bag.svg";
 import boldIcon from "@/assets/bold.svg";
 import defaultAvatar from "@/assets/profile.png";
-import hatIcon from "@/assets/hat.svg";
 import imageIcon from "@/assets/image.svg";
 import italicIcon from "@/assets/italic.svg";
 
 import penToolIcon from "@/assets/pen-tool.svg";
-import studyIcon from "@/assets/school.svg";
-import starIcon from "@/assets/star2.svg";
-import usersGroupIcon from "@/assets/p2p-fill.svg";
 import xCircleIcon from "@/assets/x-circle.svg";
 
-import topicIcon from "@/assets/hash_topic.svg";
 import settingIcon from "@/assets/cog.svg";
 import switchOffIcon from "@/assets/switch-off.svg";
 import switchOnIcon from "@/assets/switch-on.svg";
@@ -46,26 +35,7 @@ import switchOnIcon from "@/assets/switch-on.svg";
 // Relative imports
 import styles from "./index.module.scss";
 
-const mockData = {
-  styles: ["正式", "轻松", "幽默", "专业"],
-};
 
-// 分类数据，与首页保持一致
-const categories = [
-  { id: "c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f", name: "学习交流", icon: studyIcon },
-  { id: "c2b8f8f5-b6b7-4c2c-9d9e-1f1f1f1f1f1f", name: "校园生活", icon: hatIcon },
-  { id: "c3c9a9a6-c7c8-4d3d-aeaf-2a2b2c2d2e2f", name: "就业创业", icon: starIcon },
-  { id: "d4d1a1a7-d8d9-4e4e-bfbf-3a3b3c3d3e3f", name: "社团活动", icon: usersGroupIcon },
-  { id: "e5e2b2b8-e9ea-4f5f-cfdf-4a4b4c4d4e4f", name: "失物招领", icon: bagIcon },
-];
-
-// 简单 uuid 生成
-function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
 
 export default function PublishPost() {
   const [title, setTitle] = useState("");
@@ -87,7 +57,7 @@ export default function PublishPost() {
   const [draftList, setDraftList] = useState<DraftPost[]>([]);
   const [serverDrafts, setServerDrafts] = useState<Post[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<'topic' | 'settings' | 'comments' | null>(null);
+  const [activeMenu, setActiveMenu] = useState<'settings' | null>(null);
   const [isQuickActionActive, setIsQuickActionActive] = useState(false);
 
   // 使用润色Hook
@@ -135,7 +105,7 @@ export default function PublishPost() {
   const router = useRouter();
   const draftId = router?.params?.draftId;
   const postId = router?.params?.postId;
-  const userInfo = useSelector((state: RootState) => state.user?.currentUser || state.user?.userProfile);
+  const userInfo = useSelector((state: RootState) => state.user?.user);
 
   // 添加调试日志，查看当前选中的标签
   useEffect(() => {
@@ -282,7 +252,7 @@ export default function PublishPost() {
               }
             }
 
-            const id = draftId || uuid();
+            const id = draftId || generateUUID();
             const processedTags = formatTagsForPayload(selectedTags);
             saveDraft({
               id,
@@ -349,7 +319,7 @@ export default function PublishPost() {
           }
 
           // 如果服务器保存失败或不满足条件，则保存到本地
-          const id = uuid();
+          const id = generateUUID();
           const processedTags = formatTagsForPayload(selectedTags);
           saveDraft({
             id,
@@ -428,40 +398,34 @@ export default function PublishPost() {
 
   const handleAddCustomTag = () => {
     if (!customTag.trim()) {
-      // Taro.showToast({ title: "请输入话题", icon: "none" });
       setIsAddingTag(false);
+      setCustomTag('');
       return;
     }
 
-    // 格式化自定义标签
-    let formattedTag = (customTag || '').replace(/[“”"']/g, '').trim();
+    // 格式化自定义标签，确保有#前缀
+    let formattedTag = (customTag || '').replace(/[""'"']/g, '').trim();
     if (formattedTag && !formattedTag.startsWith('#')) {
       formattedTag = `#${formattedTag}`;
     }
 
     // 检查是否已存在该标签
     if (selectedTags.includes(formattedTag)) {
-      Taro.showToast({ title: "该话题已添加", icon: "none" });
+      setIsAddingTag(false);
+      setCustomTag('');
       return;
     }
 
     // 检查是否超过最大数量
     if (selectedTags.length >= 3) {
-      Taro.showToast({ title: "最多选择3个话题", icon: "none" });
+      setIsAddingTag(false);
+      setCustomTag('');
       return;
     }
 
-    
     setSelectedTags([...selectedTags, formattedTag]);
     setCustomTag("");
     setIsAddingTag(false);
-
-      // 添加成功反馈
-    Taro.showToast({ 
-      title: "话题添加成功", 
-      icon: "none",
-      duration: 1000 
-    });
   };
 
   const handlePublish = async () => {
@@ -553,8 +517,21 @@ export default function PublishPost() {
     }
   };
 
-
-
+  const handleLongPressDelete = (tag: string) => {
+    Taro.showModal({
+      title: '确认删除',
+      content: `确定要删除话题 "${tag}" 吗？`,
+      confirmText: '删除',
+      cancelText: '取消',
+      success: async (res) => {
+        if (res.confirm) {
+          const newTags = selectedTags.filter(t => t !== tag);
+          setSelectedTags(newTags);
+          Taro.showToast({ title: '话题已删除', icon: 'success' });
+        }
+      }
+    });
+  };
 
 
   return (
@@ -682,6 +659,29 @@ export default function PublishPost() {
               </View>
             )}
 
+            {/* 话题标签直接显示在内容后面 */}
+            {selectedTags.length > 0 && (
+              <View className={styles.inlineTopics}>
+                {selectedTags.map((tag) => (
+                  <View 
+                    key={tag} 
+                    className={styles.inlineTopicWrapper}
+                    onLongPress={() => handleLongPressDelete(tag)}
+                  >
+                    <Text className={styles.inlineTopic}>
+                      {tag}
+                    </Text>
+                    <Text 
+                      className={styles.inlineTopicDelete}
+                      onClick={() => handleTagToggle(tag)}
+                    >
+                      ×
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
             <View className={styles.imagePreviewContainer}>
               {images.map((url, index) => (
                 <View key={index} className={styles.imageWrapper}>
@@ -725,7 +725,7 @@ export default function PublishPost() {
                   {/* 文风选择下拉菜单 */}
                   {showStyleSelector && (
                     <View className={styles.styleDropdown}>
-                      {mockData.styles.map((style) => (
+                      {WRITING_STYLES.map((style) => (
                         <View
                           key={style}
                           className={`${styles.styleOption} ${selectedStyle === style ? styles.selected : ''}`}
@@ -752,43 +752,59 @@ export default function PublishPost() {
               </View>
             </View>
 
-              {/* 这里展示已经选择的话题 */}
-              {selectedTags.length > 0 && (
-              <View className={styles.selectedTagsContainer}>
-                <View className={styles.selectedTagsList}>
-                  {selectedTags.map((tag) => (
-                    <View key={tag} className={styles.selectedTag}>
-                      <Text>{tag}</Text>
-                      <Text
-                        className={styles.removeTag}
-                        onClick={() => handleTagToggle(tag)}
-                      >
-                        ×
-                      </Text>
-                    </View>
-                  ))}
+
+
+            {/* 添加话题和可见性设置在同一行 */}
+            <View className={styles.topicAndVisibilityRow}>
+              {/* 添加话题按钮 */}
+              {selectedTags.length < 3 && !isAddingTag && (
+                <View 
+                  className={styles.addTopicButton}
+                  onClick={() => {
+                    if (selectedTags.length < 3) {
+                      setIsAddingTag(true);
+                      setCustomTag('');
+                    }
+                  }}
+                >
+                  <Text className={styles.addTopicText}>#添加话题</Text>
                 </View>
+              )}
+
+              {/* 话题输入框 - 当正在添加话题时显示，直接替换按钮位置，不换行 */}
+              {isAddingTag && (
+                <View className={styles.topicInputContainer}>
+                  <Text className={styles.topicInputPrefix}>#</Text>
+                  <Input
+                    className={styles.topicInput}
+                    value={customTag}
+                    onInput={(e) => setCustomTag(e.detail.value)}
+                    placeholder='输入话题'
+                    focus
+                    onBlur={handleAddCustomTag}
+                    onConfirm={handleAddCustomTag}
+                  />
+                </View>
+              )}
+
+              {/* 所有人可见选项 */}
+              <View 
+                className={styles.visibleAll}
+                onClick={() => {
+                  setIsQuickActionActive(true);
+                  setActiveMenu(activeMenu === 'settings' ? null : 'settings');
+                }}
+              >
+                <Text className={styles.visibleAllText}>{isPublic ? '所有人可见 ◑' : '仅对自己可见 ◐'}</Text>
               </View>
-            )}
-            <View 
-              className={styles.visibleAll}
-              onClick={() => {
-                setIsQuickActionActive(true);
-                setActiveMenu(activeMenu === 'settings' ? null : 'settings');
-              }}
-            >
-              <Text>{isPublic ? '所有人可见 ◑' : '仅对自己可见 ◐'}</Text>
             </View>
           </View>
-
-
-
 
           {/* Category Selection */}
           <View className={styles.publishCard}>
             <Text className={styles.sectionTitle}>选择分类</Text>
             <View className={styles.categoriesContainer}>
-              {categories.map((category) => (
+              {Categories.map((category) => (
                 <View
                   key={category.id}
                   className={`${styles.categoryItem} ${
@@ -821,15 +837,6 @@ export default function PublishPost() {
               }}
             >
             <View 
-              className={`${styles.quickActionItem} ${activeMenu === 'topic' ? styles.active : ''}`}
-              onClick={() => {
-                setIsQuickActionActive(true);
-                setActiveMenu(activeMenu === 'topic' ? null : 'topic');
-              }}
-            >
-              <Image src={topicIcon} className={styles.quickActionIcon} />
-            </View>
-            <View 
               className={`${styles.quickActionItem} ${activeMenu === 'settings' ? styles.active : ''}`}
               onClick={() => {
                 setIsQuickActionActive(true);
@@ -843,97 +850,51 @@ export default function PublishPost() {
           
           {/* 子菜单界面 */}
           {activeMenu && (
-            <View 
-              className={styles.subMenuContainer}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsQuickActionActive(true);
-              }}
-            >
-              {activeMenu === 'topic' && (
-                <View className={styles.subMenu}>
-                  <Text className={styles.sectionTitle}>选择话题 ({selectedTags.length}/3)</Text>
-                  <View className={styles.tagsContainer}>
-                    {isAddingTag ? (
-                      <View className={`${styles.tagInputContainer}`}>
-                        <Input
-                          className={styles.tagInput}
-                          value={customTag}
-                          onInput={(e) => setCustomTag(e.detail.value)}
-                          placeholder='输入话题'
-                          focus
-                          onBlur={handleAddCustomTag}
-                          onConfirm={handleAddCustomTag}
-                        />
-                        <Text 
-                          className={styles.addTagBtn} 
-                          onClick={() => {
-                            setIsQuickActionActive(true);
-                            handleAddCustomTag();
-                          }}
-                        >
-                          确定
-                        </Text>
-                      </View>
-                    ) : (
-                      <View
-                        className={`${styles.tagItem} ${styles.addTag}`}
+            <>
+              {/* 页面遮罩层 */}
+              <View 
+                className={styles.pageOverlay}
+                onClick={() => {
+                  setActiveMenu(null);
+                  setIsQuickActionActive(false);
+                }}
+              />
+              
+              <View 
+                className={styles.subMenuContainer}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsQuickActionActive(true);
+                }}
+              >
+                {activeMenu === 'settings' && (
+                  <View className={styles.subMenu}>
+                    <View className={styles.settingItem}>
+                      <Text className={styles.settingLabel}>是否公开</Text>
+                      <Image 
+                        src={isPublic ? switchOnIcon : switchOffIcon} 
+                        className={styles.switchIcon}
                         onClick={() => {
                           setIsQuickActionActive(true);
-                          setIsAddingTag(true);
+                          setIsPublic(!isPublic);
                         }}
-                      >
-                        <Text>#添加话题</Text>
-                      </View>
-                    )}
+                      />
+                    </View>
+                    <View className={styles.settingItem}>
+                      <Text className={styles.settingLabel}>允许评论</Text>
+                      <Image 
+                        src={allowComments ? switchOnIcon : switchOffIcon} 
+                        className={styles.switchIcon}
+                        onClick={() => {
+                          setIsQuickActionActive(true);
+                          setAllowComments(!allowComments);
+                        }}
+                      />
+                    </View>
                   </View>
-                </View>
-              )}
-              
-              {activeMenu === 'settings' && (
-                <View className={styles.subMenu}>
-                  <View className={styles.settingItem}>
-                    <Text className={styles.settingLabel}>是否公开</Text>
-                    <Image 
-                      src={isPublic ? switchOnIcon : switchOffIcon} 
-                      className={styles.switchIcon}
-                      onClick={() => {
-                        setIsQuickActionActive(true);
-                        setIsPublic(!isPublic);
-                      }}
-                    />
-                  </View>
-                  <View className={styles.settingItem}>
-                    <Text className={styles.settingLabel}>允许评论</Text>
-                    <Image 
-                      src={allowComments ? switchOnIcon : switchOffIcon} 
-                      className={styles.switchIcon}
-                      onClick={() => {
-                        setIsQuickActionActive(true);
-                        setAllowComments(!allowComments);
-                      }}
-                    />
-                  </View>
-                </View>
-              )}
-              
-              {activeMenu === 'comments' && (
-                <View className={styles.subMenu}>
-                  <Text className={styles.sectionTitle}>评论设置</Text>
-                  <View className={styles.settingItem}>
-                    <Text className={styles.settingLabel}>允许评论</Text>
-                    <Image 
-                      src={allowComments ? switchOnIcon : switchOffIcon} 
-                      className={styles.switchIcon}
-                      onClick={() => {
-                        setIsQuickActionActive(true);
-                        setAllowComments(!allowComments);
-                      }}
-                    />
-                  </View>
-                </View>
-              )}
-            </View>
+                )}
+              </View>
+            </>
           )}
         </>
       )}

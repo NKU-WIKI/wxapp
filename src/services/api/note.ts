@@ -21,46 +21,7 @@ export interface NoteListItem {
   comment_count: number;
   author_name?: string;
   author_avatar?: string;
-}
-
-// 笔记详情接口
-export interface NoteDetail {
-  id: string;
-  tenant_id: string;
-  created_at: string;
-  updated_at: string;
-  title: string;
-  content?: string;
-  summary?: string;
-  excerpt?: string;
-  category_id?: string;
-  tags?: string[];
-  user_id: string;
-  link_info_id?: string;
-  status: 'draft' | 'published' | 'archived' | 'deleted';
-  visibility: 'PUBLIC' | 'FRIENDS' | 'PRIVATE'; // 可见性设置
-  view_count: number;
-  like_count: number;
-  favorite_count: number;
-  comment_count: number;
-  share_count: number;
-  ai_generated_title?: string;
-  ai_generated_tags?: string[];
-  ai_content_score?: number;
-  word_count: number;
-  reading_time_minutes: number;
-  last_read_at?: string;
-  published_at?: string;
-  is_featured: boolean;
-  featured_weight: number;
-  version: number;
-  parent_note_id?: string;
-  user?: any;
-  category?: any;
-  link_info?: any;
-  author?: { name?: string; avatar?: string }; // 作者信息
-  is_liked: boolean;
-  is_favorited: boolean;
+  user_id?: string; // 新增：用户ID，用于调用正确的API
 }
 
 // 笔记统计信息接口
@@ -91,8 +52,8 @@ export interface GetNotesParams {
 
 // 创建笔记请求接口
 export interface CreateNoteRequest {
-  title: string; // 笔记标题(必填)
-  content?: string; // 笔记内容(可选)
+  title: string; // 笔记标题
+  content: string; // 笔记内容
   summary?: string; // 内容摘要
   excerpt?: string; // 摘录
   category_id?: string; // 分类ID
@@ -113,29 +74,69 @@ export interface CreateNoteRequest {
 
 /**
  * 获取笔记列表
+ * 支持可选认证：未登录用户可通过x-tenant-id头访问
  */
 export const getNotes = async (params?: GetNotesParams) => {
   return http.get<{ code: number; message: string; data: NoteListItem[] }>('/notes', params);
 };
 
 /**
+ * 切换用户交互状态（点赞、收藏、关注等）
+ */
+export const toggleAction = async (params: {
+  targetId: string;
+  targetType: 'post' | 'comment' | 'user' | 'note' | 'listing';
+  actionType: 'like' | 'favorite' | 'follow';
+}) => {
+  return http.post<any>('/actions/toggle', {
+    target_id: params.targetId,
+    target_type: params.targetType,
+    action_type: params.actionType
+  });
+};
+
+/**
  * 获取笔记详情
  */
-export const getNoteDetail = async (noteId: string) => {
-  return http.get<{ code: number; message: string; data: NoteDetail }>(`/notes/${noteId}`);
+export const getNoteDetail = async (noteId: string, userId?: string) => {
+  if (userId) {
+    // 如果有用户ID，获取该用户的笔记列表
+    return http.get<any>(`/users/${userId}/notes`);
+  } else {
+    // 尝试通过feed接口获取笔记详情
+    // 由于单个笔记详情接口可能不存在，我们使用feed接口并通过ID筛选
+    try {
+      // 首先尝试直接获取笔记详情
+      return await http.get<any>(`/notes/${noteId}`);
+    } catch (error: any) {
+      // 如果直接获取失败，尝试通过其他方式
+      if (error?.status === 404) {
+        // 404错误，可能接口不存在，抛出更明确的错误
+        throw new Error('笔记不存在或已被删除');
+      }
+      throw error;
+    }
+  }
+};
+
+/**
+ * 获取用户笔记列表
+ */
+export const getUserNotes = async (userId: string, params?: GetNotesParams) => {
+  return http.get<{ code: number; message: string; data: NoteListItem[] }>(`/users/${userId}/notes`, params);
 };
 
 /**
  * 获取笔记推荐流
+ * 支持可选认证：未登录用户可通过x-tenant-id头访问
  */
 export const getNoteFeed = async (params: { skip?: number; limit?: number } = {}) => {
-  // 根据API文档，这个接口需要认证，让我们确保参数格式正确
   const requestParams = {
     skip: params.skip || 0,
     limit: params.limit || 20
   };
-  
-  return http.get<{ code: number; message: string; data: NoteListItem[] }>('/notes/feed', requestParams);
+
+  return http.get<{ code: number; message: string; data: any }>('/notes/feed', requestParams);
 };
 
 /**
@@ -156,14 +157,25 @@ export const getNoteAnalytics = async (noteId: string, days: number = 30) => {
  * 创建笔记
  */
 export const createNote = async (noteData: CreateNoteRequest) => {
-  return http.post<NoteDetail>('/notes', noteData);
+  return http.post<any>('/notes', noteData);
+};
+
+/**
+ * 分享笔记
+ */
+export const shareNote = async (noteId: string, shareType: 'link' | 'poster' | 'text' = 'link') => {
+  // 根据API文档，share_type是必需的查询参数
+  return http.post<any>(`/notes/${noteId}/share?share_type=${shareType}`);
 };
 
 export default {
   getNotes,
   getNoteDetail,
+  getUserNotes, // 新增：获取用户笔记列表
   getNoteFeed,
   getNoteStats,
   getNoteAnalytics,
   createNote,
+  toggleAction,
+  shareNote,
 };

@@ -49,9 +49,9 @@ export interface RatingTypeInfo {
  * 评分标签信息
  */
 export interface RatingTagsInfo {
-  resourceType: string;
-  presetTags: string[];
-  popularTags: string[];
+  resource_type: string;
+  preset_tags: string[];
+  popular_tags: string[];
 }
 
 /**
@@ -101,11 +101,11 @@ export interface RatingItem {
   /**
    * 创建时间
    */
-  createdAt: Date;
+  created_at: string;
   /**
    * 更新时间
    */
-  updatedAt: Date;
+  updated_at: string;
   /**
    * 租户ID
    */
@@ -117,7 +117,7 @@ export interface RatingItem {
 }
 
 /**
- * 用户评分记录 - 根据后端API文档更新
+ * 用户评分记录 - 根据后端API实际响应格式更新
  */
 export interface UserRating {
   /**
@@ -127,27 +127,27 @@ export interface UserRating {
   /**
    * 租户ID
    */
-  tenantId: string;
+  tenant_id: string;
   /**
    * 创建时间
    */
-  createdAt: Date;
+  created_at: string;
   /**
    * 更新时间
    */
-  updatedAt: Date;
+  updated_at: string;
   /**
    * 资源类型
    */
-  resourceType: string;
+  resource_type: string;
   /**
    * 资源ID
    */
-  resourceId: string;
+  resource_id: string;
   /**
    * 资源名称（用于显示）
    */
-  resource_name?: string;
+  resource_name: string;
   /**
    * 资源标题（可选，用于显示）
    */
@@ -161,6 +161,10 @@ export interface UserRating {
    */
   resource_description?: string;
   /**
+   * 资源链接URL
+   */
+  resource_url?: string;
+  /**
    * 评分值（1-5星）
    */
   score: number;
@@ -171,7 +175,23 @@ export interface UserRating {
   /**
    * 是否匿名
    */
-  isAnonymous: boolean;
+  is_anonymous: boolean;
+  /**
+   * 是否已审核
+   */
+  is_approved: boolean;
+  /**
+   * 是否精选
+   */
+  is_featured: boolean;
+  /**
+   * 是否隐藏
+   */
+  is_hidden: boolean;
+  /**
+   * 是否已验证
+   */
+  is_verified: boolean;
   /**
    * 标签列表
    */
@@ -179,43 +199,47 @@ export interface UserRating {
   /**
    * 证据图片URL列表
    */
-  evidenceUrls: string[];
+  evidence_urls: string[];
   /**
    * 评分者ID
    */
-  raterId: string;
-  /**
-   * 是否已验证
-   */
-  isVerified: boolean;
-  /**
-   * 是否精选
-   */
-  isFeatured: boolean;
-  /**
-   * 是否隐藏
-   */
-  isHidden: boolean;
-  /**
-   * 有用数量
-   */
-  helpfulCount: number;
-  /**
-   * 无用数量
-   */
-  unhelpfulCount: number;
-  /**
-   * 额外数据
-   */
-  extraData?: { [key: string]: any };
+  rater_id: string;
   /**
    * 评分者昵称
    */
-  raterNickname: string;
+  rater_nickname: string;
   /**
    * 评分者头像
    */
-  raterAvatar: string;
+  rater_avatar: string;
+  /**
+   * 被评价用户ID（可选）
+   */
+  rated_user_id?: string;
+  /**
+   * 被评价用户昵称（可选）
+   */
+  rated_user_nickname?: string;
+  /**
+   * 有用数量
+   */
+  helpful_count: number;
+  /**
+   * 无用数量
+   */
+  unhelpful_count: number;
+  /**
+   * 举报数量
+   */
+  report_count: number;
+  /**
+   * 审核原因（可选）
+   */
+  moderation_reason?: string;
+  /**
+   * 额外元数据
+   */
+  metadata?: { [key: string]: any };
 }
 
 /**
@@ -295,11 +319,11 @@ export interface GetResourceRatingsRequest {
   /**
    * 是否验证评分筛选
    */
-  isVerified?: boolean;
+  is_verified?: boolean;
   /**
    * 是否精选评分筛选
    */
-  isFeatured?: boolean;
+  is_featured?: boolean;
   /**
    * 是否有评论筛选
    */
@@ -337,7 +361,7 @@ export interface RatingItemsResponse {
 }
 
 /**
- * 资源评分列表响应
+ * 资源评分列表响应 - 匹配后端实际格式
  */
 export interface ResourceRatingsResponse {
   /**
@@ -349,13 +373,13 @@ export interface ResourceRatingsResponse {
    */
   total: number;
   /**
-   * 跳过数量
+   * 当前页码
    */
-  skip: number;
+  page: number;
   /**
-   * 返回数量
+   * 每页数量
    */
-  limit: number;
+  page_size: number;
 }
 
 /**
