@@ -355,7 +355,7 @@ const Profile = () => {
 
           <View className={styles.menuCard}>
             <View className={styles.menuList}>
-              <View className={styles.menuItem} onClick={() => handleMenuClick('likes')}>
+              {/* <View className={styles.menuItem} onClick={() => handleMenuClick('likes')}>
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>❤️</Text>
                   <Text className={styles.menuText}>我的点赞</Text>
@@ -369,7 +369,7 @@ const Profile = () => {
                   <Text className={styles.menuText}>我的收藏</Text>
                 </View>
                 <Text className={styles.chevron}>›</Text>
-              </View>
+              </View> */}
               
               <View className={styles.menuItem} onClick={() => handleMenuClick('comments')}>
                 <View className={styles.menuLeft}>
