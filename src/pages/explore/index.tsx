@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { AppDispatch, RootState } from '@/store';
 import { clearSearchResults } from '@/store/slices/chatSlice';
-import { fetchNoteFeed, loadMoreNotes, resetNotes, setRefreshing } from '@/store/slices/noteSlice';
+import { fetchNoteFeed, loadMoreNotes, resetNotes, setRefreshing, fetchNotesInteractionStatus } from '@/store/slices/noteSlice';
 import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header';
 import MasonryLayout from '@/components/masonry-layout';
 import SearchBar, { SearchSuggestion } from '@/components/search-bar';
@@ -77,8 +77,18 @@ export default function ExplorePage() {
   // 初始化时获取笔记动态 - 无论是否登录都应该能看到笔记
   useEffect(() => {
     if (!isSearchActive) {
-
-      dispatch(fetchNoteFeed({ skip: 0, limit: 20 }));
+      dispatch(fetchNoteFeed({ skip: 0, limit: 20 })).then((result) => {
+        // 如果获取笔记成功，批量查询交互状态
+        if (result.type === 'note/fetchNoteFeed/fulfilled' && result.payload && typeof result.payload === 'object' && result.payload !== null && 'data' in result.payload) {
+          const payload = result.payload as any;
+          if (payload.data && Array.isArray(payload.data)) {
+            const noteIds = payload.data.map((note: any) => note.id).filter(Boolean);
+            if (noteIds.length > 0) {
+              dispatch(fetchNotesInteractionStatus(noteIds));
+            }
+          }
+        }
+      });
     }
   }, [dispatch, isSearchActive, isLoggedIn]);
 
@@ -96,7 +106,18 @@ export default function ExplorePage() {
   const handleRefresh = () => {
     dispatch(setRefreshing(true));
     dispatch(resetNotes());
-    dispatch(fetchNoteFeed({ skip: 0, limit: 20 }));
+    dispatch(fetchNoteFeed({ skip: 0, limit: 20 })).then((result) => {
+      // 如果获取笔记成功，批量查询交互状态
+      if (result.type === 'note/fetchNoteFeed/fulfilled' && result.payload && typeof result.payload === 'object' && result.payload !== null && 'data' in result.payload) {
+        const payload = result.payload as any;
+        if (payload.data && Array.isArray(payload.data)) {
+          const noteIds = payload.data.map((note: any) => note.id).filter(Boolean);
+          if (noteIds.length > 0) {
+            dispatch(fetchNotesInteractionStatus(noteIds));
+          }
+        }
+      }
+    });
   };
 
   // 进入页面时清空上次持久化的搜索错误/结果，避免误显示错误态

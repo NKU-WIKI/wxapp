@@ -14,7 +14,7 @@ import { formatPostDate } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
 import ActionBar from '@/components/action-bar';
 import { useSharing } from '@/hooks/useSharing';
-import heartIcon from '@/assets/heart.svg';
+import heartIcon from '@/assets/heart-outline.svg';
 import heartFilledIcon from '@/assets/heart-bold.svg';
 import bookmarkIcon from '@/assets/star-outline.svg';
 import bookmarkFilledIcon from '@/assets/star-filled.svg';

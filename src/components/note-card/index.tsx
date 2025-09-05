@@ -4,12 +4,19 @@ import Taro from '@tarojs/taro';
 import { normalizeImageUrl } from '@/utils/image';
 import { NoteListItem } from '@/types/api/note';
 import ActionButton from '@/components/action-button';
-import heartIcon from '@/assets/heart.svg';
+import heartIcon from '@/assets/heart-outline.svg';
 import heartFilledIcon from '@/assets/heart-bold.svg';
 import styles from './index.module.scss';
 
+// 扩展的笔记类型，包含交互状态
+interface NoteWithStatus extends NoteListItem {
+  is_liked?: boolean;
+  is_favorited?: boolean;
+  interaction_loading?: boolean;
+}
+
 interface NoteCardProps {
-  note: NoteListItem;
+  note: NoteWithStatus;
   style?: React.CSSProperties;
   onClick?: () => void;
 }
@@ -105,7 +112,8 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
             icon={heartIcon}
             activeIcon={heartFilledIcon}
             text={note.like_count?.toString() || '0'}
-            isActive={false}
+            isActive={note.is_liked || false}
+            disabled={note.interaction_loading || false}
             className={styles.likeButton}
           />
         </View>

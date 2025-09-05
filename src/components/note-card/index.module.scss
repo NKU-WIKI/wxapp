@@ -140,8 +140,20 @@
 }
 
 .likeButton {
-  // 使用ActionButton组件的默认样式，这里可以添加自定义样式
-  // 如果需要调整大小或间距，可以在这里添加
+  // 为NoteCard定制更小的点赞按钮样式
+  :global(.icon) {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  
+  :global(.text) {
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+  
+  // 减少按钮的内边距
+  padding: 1px 4px !important;
+  gap: 4px !important;
 }
 
 // explore页面专用的小头像样式

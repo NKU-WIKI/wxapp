@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import noteApi, { NoteListItem, CreateNoteRequest, NoteDetail } from '@/services/api/note';
+import { getActionStatus } from '@/services/api/user';
 import { BaseResponse } from '@/types/api/common';
 
 // Mock数据，用于展示功能
@@ -466,8 +467,74 @@ export const loadMoreNotes = createAsyncThunk(
   }
 );
 
+// 批量查询笔记的用户交互状态
+export const fetchNotesInteractionStatus = createAsyncThunk(
+  'note/fetchNotesInteractionStatus',
+  async (noteIds: string[], { getState }) => {
+    const state = getState() as any;
+    const isLoggedIn = state.user?.isLoggedIn || false;
+    
+    if (!isLoggedIn || noteIds.length === 0) {
+      return {};
+    }
+
+    try {
+      // 并发查询所有笔记的点赞和收藏状态
+      const statusPromises = noteIds.flatMap(noteId => [
+        getActionStatus(noteId, 'note', 'like').then(res => ({
+          noteId,
+          type: 'like' as const,
+          status: res.data?.is_active || false
+        })).catch(() => ({
+          noteId,
+          type: 'like' as const,
+          status: false
+        })),
+        getActionStatus(noteId, 'note', 'favorite').then(res => ({
+          noteId,
+          type: 'favorite' as const,
+          status: res.data?.is_active || false
+        })).catch(() => ({
+          noteId,
+          type: 'favorite' as const,
+          status: false
+        }))
+      ]);
+
+      const results = await Promise.all(statusPromises);
+      
+      // 组织返回数据
+      const statusMap: Record<string, { is_liked: boolean; is_favorited: boolean }> = {};
+      
+      results.forEach(result => {
+        if (!statusMap[result.noteId]) {
+          statusMap[result.noteId] = { is_liked: false, is_favorited: false };
+        }
+        
+        if (result.type === 'like') {
+          statusMap[result.noteId].is_liked = result.status;
+        } else if (result.type === 'favorite') {
+          statusMap[result.noteId].is_favorited = result.status;
+        }
+      });
+
+      return statusMap;
+    } catch (error) {
+      console.warn('批量查询交互状态失败:', error);
+      return {};
+    }
+  }
+);
+
+// 扩展的笔记列表项，包含用户交互状态
+interface NoteListItemWithStatus extends NoteListItem {
+  is_liked?: boolean;
+  is_favorited?: boolean;
+  interaction_loading?: boolean;
+}
+
 interface NoteState {
-  notes: NoteListItem[];
+  notes: NoteListItemWithStatus[];
   loading: boolean;
   refreshing: boolean;
   hasMore: boolean;
@@ -592,6 +659,33 @@ const noteSlice = createSlice({
       .addCase(createNote.rejected, (state, action) => {
         state.creating = false;
         state.createError = action.payload as string || action.error.message || '创建笔记失败';
+      })
+      // 批量查询交互状态
+      .addCase(fetchNotesInteractionStatus.fulfilled, (state, action) => {
+        const statusMap = action.payload;
+        
+        // 更新笔记的交互状态
+        state.notes = state.notes.map(note => ({
+          ...note,
+          is_liked: statusMap[note.id]?.is_liked ?? note.is_liked ?? false,
+          is_favorited: statusMap[note.id]?.is_favorited ?? note.is_favorited ?? false,
+          interaction_loading: false
+        }));
+      })
+      .addCase(fetchNotesInteractionStatus.pending, (state, action) => {
+        // 标记正在查询交互状态的笔记
+        const noteIds = action.meta.arg;
+        state.notes = state.notes.map(note => ({
+          ...note,
+          interaction_loading: noteIds.includes(note.id) ? true : note.interaction_loading
+        }));
+      })
+      .addCase(fetchNotesInteractionStatus.rejected, (state, action) => {
+        // 清除加载状态
+        state.notes = state.notes.map(note => ({
+          ...note,
+          interaction_loading: false
+        }));
       });
   },
 });
