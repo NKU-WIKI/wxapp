@@ -15,7 +15,13 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background-color: $bg-page;
+  background-color: $bg-card; /* 改为与子元素一致的卡片背景色 */
+  /* 添加底部阴影，明确区分与内容的分界 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* 添加底部圆角，与整体设计保持一致 */
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  overflow: hidden; /* 确保子元素不超出圆角 */
 }
 
 /* 内容滚动容器 */
@@ -36,8 +42,8 @@
 
 .searchBarWrapper {
   padding: 8px 16px;
-  background-color: $bg-card !important;
-  border-bottom: 1px solid $border-gray;
+  /* 移除背景色，继承父容器的背景 */
+  border-bottom: 1px solid $border-light;
   backdrop-filter: blur(10px);
 }
 
@@ -197,9 +203,9 @@
 
 .sourceNav {
   padding: 12px 16px;
-  background-color: $bg-card;
-  border-bottom: 1px solid $border-gray;
-  border-top: 1px solid $border-gray;
+  /* 移除背景色，继承父容器的背景 */
+  border-top: 1px solid $border-light;
+  /* 移除 border-bottom，由父容器的阴影效果替代 */
 }
 
 .sourceGrid {

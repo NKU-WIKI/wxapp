@@ -10,12 +10,12 @@
 
 .masonryContent {
   display: flex;
-  padding: 0 8px 0 8px;
-  margin-top: -16px;
+  padding: 16px 8px 0 8px; /* 改为正常的顶部padding，移除负边距 */
   gap: 8px;
   min-height: 100%;
   width: 100%;
   box-sizing: border-box;
+  align-items: flex-start; /* 确保列从顶部对齐 */
 }
 
 .column {
@@ -24,6 +24,7 @@
   flex-direction: column;
   width: calc(50% - 4px); /* 确保两列宽度相等，减去gap的一半 */
   max-width: calc(50% - 4px);
+  align-items: stretch; /* 确保卡片宽度填满列宽 */
 }
 
 /* 加载动画 */

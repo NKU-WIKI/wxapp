@@ -541,12 +541,12 @@ export default function ExplorePage() {
       </View>
 
       {/* 内容滚动区域 */}
-      <View
-        className={styles.contentScrollContainer}
-        style={{
-          paddingTop: isSearchActive
-            ? `${headerHeight + 48}px`  // 搜索状态：header + 搜索框
-            : `${headerHeight + 48 + 28}px`  // 默认状态：header + 搜索框 + sourceNav(减少间距)
+      <View 
+        className={styles.contentScrollContainer} 
+        style={{ 
+          paddingTop: isSearchActive 
+            ? `${headerHeight + 40}px`  // 搜索状态：header + 搜索框
+            : `${headerHeight + 40 + 24}px`  // 默认状态：header + 搜索框 + sourceNav(减少间距)
         }}
       >
         <ScrollView scrollY className={styles.contentScrollView} enableFlex>
