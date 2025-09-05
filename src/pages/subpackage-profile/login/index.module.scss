@@ -37,156 +37,33 @@
   color: $text-secondary;
 }
 
-.modeTabs {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.modeTab {
-  flex: 1;
-  text-align: center;
-  padding: 12px 0;
-  font-size: 16px;
-  color: $text-secondary;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:first-child {
-    border-top-left-radius: 8px;
-  }
-
-  &:last-child {
-    border-top-right-radius: 8px;
-  }
-}
-
-.activeTab {
-  color: $theme-primary;
-  border-bottom-color: $theme-primary;
-  font-weight: bold;
-}
-
-.form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  flex-grow: 3;
-}
-
-.inputWrapper {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 50px;
-  background-color: $bg-input;
-  border-radius: 25px;
-  padding: 0 20px;
-  box-sizing: border-box;
-}
-
-.inputIcon {
-  width: 20px;
-  height: 20px;
-  margin-right: 12px;
-  // 保持图标颜色
-  filter: grayscale(50%);
-}
-
-.input {
-  flex: 1;
-  height: 100%;
-  border: none;
-  background: none;
-  font-size: 16px;
-  color: $text-primary;
-}
-
-.getCodeBtn {
-  font-size: 14px;
-  color: $theme-primary;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.loginButton {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 50px;
-  background-color: $theme-primary;
-  color: white;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: bold;
-  margin-top: 16px;
-  cursor: pointer;
-}
-
-.buttonGroup {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-  margin-top: 16px;
-}
-
-.registerButton {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 50px;
-  background-color: transparent;
-  color: $theme-primary;
-  border: 2px solid $theme-primary;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
 .quickLogin {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width: 100%;
-  margin-top: 24px;
-  flex-grow: 2;
+  flex-grow: 3;
+  margin: 40px 0;
 }
 
-.divider {
-  width: 100%;
-  text-align: center;
-  border-bottom: 1px solid $border-light;
-  line-height: 0.1em;
-  margin: 20px 0;
-}
-
-.dividerText {
-  background: #fff;
-  padding: 0 10px;
-  font-size: 12px;
-  color: $text-secondary;
-}
 
 .wechatLoginContainer {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  margin-top: 20px;
-  cursor: pointer;
-  padding: 12px 20px;
+  padding: 16px 32px;
   border-radius: 25px;
   background-color: #07C160;
+  cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3);
 
   &:hover {
     background-color: #06AD56;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(7, 193, 96, 0.4);
   }
 }
 
@@ -198,7 +75,8 @@
 .wechatLoginText {
   font-size: 16px;
   color: white;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 // 协议同意区域
