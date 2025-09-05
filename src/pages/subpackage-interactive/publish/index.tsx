@@ -49,8 +49,8 @@ export default function PublishPost() {
   const [customTag, setCustomTag] = useState("");
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f"); // 默认选择第一个分类
-  // 标记是否已通过弹窗保存过草稿，避免 useUnload 再次保存
-  const [hasSavedDraft, setHasSavedDraft] = useState(false);
+  // 标记是否应该跳过草稿保存提示（如发布成功、用户已选择不保存等）
+  const [shouldSkipDraftPrompt, setShouldSkipDraftPrompt] = useState(false);
   const [showRefPanel, setShowRefPanel] = useState(false);
   const [refSuggestions, setRefSuggestions] = useState<Array<{ type: 'history' | 'knowledge'; id?: string; title: string }>>([]);
   const [showDraftPicker, setShowDraftPicker] = useState(false);
@@ -241,11 +241,11 @@ export default function PublishPost() {
                   allow_comments: allowComments,
                 };
                 await dispatch(createPost(payloadForDraft)).unwrap();
-                setHasSavedDraft(true);
-                Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
-                setTimeout(() => {
-                  Taro.navigateBack();
-                }, 500);
+                            setShouldSkipDraftPrompt(true);
+            Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
+            setTimeout(() => {
+              Taro.navigateBack();
+            }, 500);
                 return;
               } catch (e) {
                 // fallthrough to local save
@@ -263,27 +263,27 @@ export default function PublishPost() {
               tags: processedTags,
               category_id: selectedCategory,
             });
-            setHasSavedDraft(true);
+            setShouldSkipDraftPrompt(true);
             Taro.showToast({ title: '已保存到草稿箱（本地）', icon: 'success' });
             setTimeout(() => {
               Taro.navigateBack();
             }, 500);
           } else {
-            setHasSavedDraft(true);
+            setShouldSkipDraftPrompt(true);
             Taro.navigateBack();
           }
         }
       });
     } else {
-      setHasSavedDraft(true);
+      setShouldSkipDraftPrompt(true);
       Taro.navigateBack();
     }
   };
 
   // 页面卸载时弹窗询问是否保存草稿（与左上角返回行为一致）
   useUnload(() => {
-    // 如果已经通过左上角按钮保存过，或者没有内容，则不处理
-    if (hasSavedDraft || (!title.trim() && !content.trim()) || draftId) {
+    // 如果应该跳过草稿提示（如发布成功、用户已选择等），或者没有内容，或者正在编辑草稿，则不处理
+    if (shouldSkipDraftPrompt || (!title.trim() && !content.trim()) || draftId) {
       return;
     }
 
@@ -333,7 +333,7 @@ export default function PublishPost() {
           Taro.showToast({ title: '已保存到草稿箱（本地）', icon: 'success' });
         }
         // 无论选择保存还是不保存，都标记为已处理，避免重复弹窗
-        setHasSavedDraft(true);
+        setShouldSkipDraftPrompt(true);
       }
     });
   });
@@ -470,7 +470,8 @@ export default function PublishPost() {
         duration: 1500,
       });
 
-
+      // 标记应跳过草稿保存提示，因为内容已成功发布
+      setShouldSkipDraftPrompt(true);
 
       // 1.5秒后跳转到首页并强制刷新
       setTimeout(() => {
