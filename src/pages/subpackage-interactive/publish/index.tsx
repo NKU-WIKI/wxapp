@@ -499,7 +499,8 @@ export default function PublishPost() {
         duration: 1500,
       });
 
-
+      // 标记内容已处理，避免页面卸载时弹出草稿保存询问
+      setHasSavedDraft(true);
 
       // 1.5秒后跳转到首页并强制刷新
       setTimeout(() => {
