@@ -288,6 +288,7 @@ const PostDetailPage = () => {
             onReply={handleReply}
             onLikeUpdate={handleLikeUpdate}
             onDeleteComment={handleDeleteComment}
+            showFollowButton={true}
           />
         </>
       );

@@ -33,3 +33,6 @@ export const RAG_CONTENT_COLLAPSE_THRESHOLD = 400;
  * 折叠时显示的最大高度（像素）
  */
 export const RAG_CONTENT_MAX_HEIGHT = 300;
+
+// 用户相关常量
+export { NICKNAME_MAX_LENGTH, NICKNAME_DISPLAY_MAX_LENGTH } from './user';

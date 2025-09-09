@@ -332,8 +332,8 @@
 .compactActions {
   display: flex;
   align-items: center;
-  flex: 1;
-  justify-content: flex-end; /* Align items to the right */
+  margin-left: auto; /* push whole actions group to far right */
+  gap: 8px;
 }
 
 // 关注按钮容器
@@ -341,7 +341,7 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  margin-right: auto; /* Push this container to the left */
+  margin-right: 8px;
 }
 
 // 时间和更多按钮的容器
@@ -349,7 +349,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto; /* Push to the far right */
 }
 
 // 简洁模式关注按钮

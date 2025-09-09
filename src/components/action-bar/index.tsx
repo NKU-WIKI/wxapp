@@ -197,8 +197,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
         response = await toggleAction({
           target_id: targetId,
           target_type: targetType as any,
-          action_type: button.type as any,
-          active: !localStates[key]?.isActive
+          action_type: button.type as any
         });
       }
 

@@ -7,6 +7,7 @@ import { useAuthorInfo } from '@/hooks/useAuthorInfo'
 import { RootState } from '@/store'
 import { formatRelativeTime } from '@/utils/time'
 import { normalizeImageUrl } from '@/utils/image'
+import { NICKNAME_DISPLAY_MAX_LENGTH } from '@/constants'
 // 导入图标资源
 import defaultAvatar from '@/assets/avatar1.png'
 import locationIcon from '@/assets/map-pin.svg'
@@ -27,6 +28,12 @@ import styles from './index.module.scss'
 const levelIcon = starIcon
 const postIcon = draftIcon
 
+// 昵称截断函数
+const truncateNickname = (nickname: string): string => {
+  if (!nickname) return '匿名用户'
+  if (nickname.length <= NICKNAME_DISPLAY_MAX_LENGTH) return nickname
+  return nickname.substring(0, NICKNAME_DISPLAY_MAX_LENGTH) + '...'
+}
 
 
 export type AuthorInfoMode = 'compact' | 'expanded' | 'profile'
@@ -190,7 +197,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
             <View className={styles.compactUserDetails}>
               <View className={styles.compactUserNameRow}>
                 <Text className={styles.compactUserName}>
-                  {user?.nickname || '匿名用户'}
+                  {truncateNickname(user?.nickname)}
                 </Text>
                 {showLevel && levelInfo && (
                   <View className={styles.compactLevelBadge}>
@@ -270,7 +277,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
         <View className={styles.userInfo}>
           <View className={styles.userNameRow}>
             <Text className={styles.userName}>
-              {user?.nickname || '匿名用户'}
+              {truncateNickname(user?.nickname)}
             </Text>
 
             {/* 等级信息 */}

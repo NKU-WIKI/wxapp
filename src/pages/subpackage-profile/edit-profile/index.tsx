@@ -4,6 +4,7 @@ import { UpdateUserProfileRequest } from "@/types/api/user";
 import userApi from "@/services/api/user";
 import { uploadApi } from "@/services/api/upload";
 import { normalizeImageUrl } from "@/utils/image";
+import { NICKNAME_MAX_LENGTH } from "@/constants";
 import CustomHeader from "@/components/custom-header";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
@@ -38,6 +39,15 @@ export default function EditProfilePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  // 处理昵称输入变化
+  const handleNicknameChange = (e: any) => {
+    const value = e.detail.value;
+    // 限制昵称长度不超过最大值
+    if (value.length <= NICKNAME_MAX_LENGTH) {
+      setNickname(value);
+    }
+  };
 
   // 学院和专业数据
   const collegesAndMajors: Record<string, { name: string; majors: string[] }> = useMemo(() => ({
@@ -426,6 +436,11 @@ export default function EditProfilePage() {
         return;
       }
 
+      if (nickname.length > NICKNAME_MAX_LENGTH) {
+        Taro.showToast({ title: `昵称长度不能超过${NICKNAME_MAX_LENGTH}个字符`, icon: "none" });
+        return;
+      }
+
       // 验证生日格式
       if (birthday && !/^\d{4}-\d{2}-\d{2}$/.test(birthday)) {
         Taro.showToast({ title: "生日格式不正确，请使用YYYY-MM-DD格式", icon: "none" });
@@ -596,12 +611,18 @@ export default function EditProfilePage() {
             <View className={styles.card}>
               <View className={styles.fieldRow}>
                 <Text className={styles.fieldLabel}>昵称</Text>
-                <Input
-                  className={styles.fieldInput}
-                  value={nickname}
-                  placeholder='张雨晨'
-                  onInput={(e) => setNickname(e.detail.value)}
-                />
+                <View className={styles.fieldInputContainer}>
+                  <Input
+                    className={styles.fieldInput}
+                    value={nickname}
+                    placeholder='张雨晨'
+                    maxlength={NICKNAME_MAX_LENGTH}
+                    onInput={handleNicknameChange}
+                  />
+                  <Text className={styles.characterCount}>
+                    {nickname.length}/{NICKNAME_MAX_LENGTH}
+                  </Text>
+                </View>
               </View>
 
               <View className={styles.fieldRow}>

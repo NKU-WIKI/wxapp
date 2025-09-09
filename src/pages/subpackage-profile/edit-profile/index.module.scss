@@ -116,6 +116,23 @@
   }
 }
 
+// 输入框容器（用于支持字符计数）
+.fieldInputContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// 字符计数样式
+.characterCount {
+  font-size: 12px;
+  color: #999;
+  flex-shrink: 0;
+  min-width: 35px;
+  text-align: right;
+}
+
 // 灰色提示文字样式的输入框（用于生日、学校、学院）
 .fieldInputGray {
   flex: 1;

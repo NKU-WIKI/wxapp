@@ -60,9 +60,11 @@ interface SubCommentItemProps {
   onReply: (_comment: CommentDetail) => void;
   onLikeUpdate: (_commentId: string, _isLiked: boolean, _likeCount: number) => void;
   onDeleteComment?: (_commentId: string) => void;
+  /** 是否显示关注按钮 */
+  showFollowButton?: boolean;
 }
 
-const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onDeleteComment: _onDeleteComment }) => {
+const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onDeleteComment: _onDeleteComment, showFollowButton = true }) => {
   const userState = useSelector((state: RootState) => state.user);
   const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
@@ -97,7 +99,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
       <AuthorInfo
         userId={_comment.user_id}
         mode='compact'
-        showFollowButton={false}
+        showFollowButton={showFollowButton}
         showStats={false}
         showLevel
         showTime
@@ -135,9 +137,11 @@ interface CommentItemProps {
   onLikeUpdate: (_commentId: string, _isLiked: boolean, _likeCount: number) => void;
   onUpdateComment: (_commentId: string, _updatedComment: CommentDetail) => void;
   onDeleteComment?: (_commentId: string) => void;
+  /** 是否显示关注按钮 */
+  showFollowButton?: boolean;
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onUpdateComment: _onUpdateComment, onDeleteComment: _onDeleteComment }) => {
+const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onUpdateComment: _onUpdateComment, onDeleteComment: _onDeleteComment, showFollowButton = true }) => {
   const userState = useSelector((state: RootState) => state.user);
   const [showReplies, setShowReplies] = useState(false);
   
@@ -278,7 +282,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
     <AuthorInfo
       userId={_comment.user_id}
       mode='compact'
-      showFollowButton={false}
+      showFollowButton={showFollowButton}
       showStats={false}
       showLevel
       showTime
@@ -326,6 +330,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment: _comment, onReply, o
                 onReply={onReply}
                 onLikeUpdate={onLikeUpdate}
                 onDeleteComment={_onDeleteComment}
+                showFollowButton={showFollowButton}
               />
             ))}
           </View>
@@ -340,9 +345,11 @@ interface CommentSectionProps {
   onReply: (_comment: CommentDetail) => void;
   onLikeUpdate: (_commentId: string, _isLiked: boolean, _likeCount: number) => void;
   onDeleteComment?: (_commentId: string) => void;
+  /** 是否在评论区显示关注按钮 */
+  showFollowButton?: boolean;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, onReply, onLikeUpdate, onDeleteComment: _onDeleteComment }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, onReply, onLikeUpdate, onDeleteComment: _onDeleteComment, showFollowButton = true }) => {
   const [sortBy, setSortBy] = useState<'time' | 'likes'>('time');
   const [localComments, setLocalComments] = useState<CommentDetail[]>([]);
   
@@ -437,13 +444,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments: _comments, on
       
       {sortedComments.length > 0 ? (
         sortedComments.map((comment) => (
-          <CommentItem 
-            key={comment.id} 
-            comment={comment} 
+          <CommentItem
+            key={comment.id}
+            comment={comment}
             onReply={onReply}
             onLikeUpdate={handleLikeUpdate}
             onUpdateComment={handleUpdateComment}
-            onDeleteComment={_onDeleteComment}   
+            onDeleteComment={_onDeleteComment}
+            showFollowButton={showFollowButton}
           />
         ))
       ) : (
