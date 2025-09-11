@@ -2,7 +2,7 @@ import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useEffect, useState, useCallback, useMemo } from "react";
 
-import activityApi, { myActivity, myOrganizedActivity } from "@/services/api/activity";
+import activityApi from "@/services/api/activity";
 import { ActivityRead, ActivityStatus, ActivityType, GetActivityListRequest } from "@/types/api/activity.d";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -307,6 +307,48 @@ export default function ActivitySquare() {
     }
   };
 
+  const handleCancelRegistration = async (act: ActivityRead, event: any) => {
+    event.stopPropagation();
+
+    try {
+      const result = await Taro.showModal({
+        title: '确认取消',
+        content: `确定要取消报名"${act.title}"吗？`,
+        confirmText: '确认取消',
+        cancelText: '再想想'
+      });
+
+      if (!result.confirm) {
+        return;
+      }
+
+      Taro.showLoading({ title: '取消中...' });
+
+      const response = await activityApi.cancelActivityRegistration(act.id);
+
+      Taro.hideLoading();
+
+      if (response.code === 0) {
+        Taro.showToast({
+          title: '取消成功！',
+          icon: 'success'
+        });
+        await fetchActivities(false, selectedCategory);
+      } else {
+        Taro.showToast({
+          title: response.message || '取消失败，请重试',
+          icon: 'none'
+        });
+      }
+    } catch (error) {
+      Taro.hideLoading();
+      Taro.showToast({
+        title: '网络错误，请重试',
+        icon: 'none'
+      });
+    }
+  };
+
   const handlePublishActivity = () => {
     Taro.navigateTo({ url: '/pages/subpackage-discover/publish-activity/index' });
   };
@@ -533,7 +575,7 @@ export default function ActivitySquare() {
                               ? styles.disabled
                               : ''
                         }`}
-                        onClick={(e) => handleJoinActivity(act, e)}
+                        onClick={(e) => act.is_registered ? handleCancelRegistration(act, e) : handleJoinActivity(act, e)}
                       >
                         {act.is_registered
                           ? '已报名'

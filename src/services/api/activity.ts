@@ -77,13 +77,27 @@ export const myOrganizedActivity = (params: GetMyActivityRequest) =>{
   });
 }
 
+/**
+ * 取消活动报名
+ * @param activityId 活动ID
+ * @returns
+ */
+export const cancelActivityRegistration = (activityId: string) => {
+  const raw = Taro.getStorageSync('token');
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
+  return http.delete(`/activities/${activityId}/registrations`, {}, {
+    header: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+}
+
 const activityApi = {
   getActivityList,
   getActivityDetail,
   createActivity,
   joinActivity,
   myActivity,
-  myOrganizedActivity
+  myOrganizedActivity,
+  cancelActivityRegistration
 }
 
 export default activityApi;

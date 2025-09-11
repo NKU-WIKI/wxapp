@@ -41,7 +41,7 @@
 }
 
 .searchBarWrapper {
-  padding: 8px 16px 0; /* 上8，左右16，下0，移除底部间隙 */
+  padding: 0; /* 移除所有内边距，让SearchBar组件的margin生效 */
   /* 移除背景色，继承父容器的背景 */
   backdrop-filter: blur(10px);
 }

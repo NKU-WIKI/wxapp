@@ -42,29 +42,7 @@
 
 /* 搜索框 */
 .searchContainer {
-  position: relative;
   margin-bottom: 24px;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 10px 44px 10px 16px; /* 减小上下padding */
-  border: 1px solid #eee;
-  border-radius: 12px;
-  font-size: 16px;
-  background-color: #fff;
-  box-sizing: border-box;
-  height: 40px; /* 减小整体高度 */
-}
-
-.searchIcon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  opacity: 0.6;
 }
 
 /* 内容滚动区域 */

@@ -3,7 +3,7 @@ import {
   Post,
   GetForumPostsParams,
   CreateForumPostRequest,
-  GetFeedParams, GetHotPostsParams,
+  GetFeedParams, GetHotPostsParams, PostHotRanking,
 } from "@/types/api/post.d";
 import { API } from "@/types/api/recommend";
 import http from "../request";
@@ -272,7 +272,7 @@ export const getHotPostList = (params?: GetHotPostsParams) => {
   const raw = Taro.getStorageSync('token');
   const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
   
-  return http.get<Post[]>("/forums/hot-posts", params,{
+  return http.get<PostHotRanking[]>("/forums/hot-posts", params,{
     header: token ? { Authorization: `Bearer ${token}` } : {}
   });
 };

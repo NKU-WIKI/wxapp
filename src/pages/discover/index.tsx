@@ -13,16 +13,10 @@ interface HotPost {
   comment_count?: number;
   view_count?: number;
   like_count?: number;
+  hot_score?: number;
   platform?: string;
   original_url?: string;
 }
-
-// 验证 UUID 格式的辅助函数 (暂时未使用)
-// function isValidUUID(uuid: string | number): boolean {
-//   if (typeof uuid !== 'string') return false;
-//   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-//   return uuidRegex.test(uuid);
-// }
 
 // eslint-disable-next-line import/no-unused-modules
 export default function Discover() {
@@ -47,6 +41,8 @@ export default function Discover() {
       if (response && response.data) {
         if (Array.isArray(response.data)) {
           postsData = response.data as HotPost[];
+          // 确保按照hot_score降序排序
+          postsData.sort((a, b) => (b.hot_score || 0) - (a.hot_score || 0));
         }
         setHotPosts(postsData);
       } else {
@@ -129,11 +125,6 @@ export default function Discover() {
         {/* 热门帖子 */}
         <Section
           title='热榜 TOP5'
-          extraText='更多'
-          isLink
-          onExtraClick={() => {
-            Taro.navigateTo({ url: '/pages/subpackage-interactive/hot-posts/index' });
-          }}
         >
           <ScrollView
             scrollY
@@ -147,7 +138,7 @@ export default function Discover() {
             {Array.isArray(hotPosts) && hotPosts.length > 0 ? (
               hotPosts.slice(0, 5).map((post: HotPost, index: number) => (
                 <View
-                  key={post.id || index}
+                  key={post.post_id || index}
                   className={styles.hotPostItem}
                   onClick={() => handlePostClick(post)}
                 >
@@ -161,10 +152,9 @@ export default function Discover() {
                       </Text>
                     </View>
                     <Text className={styles.hotPostReadCount}>
-                      {((post.comment_count || 0) + (post.view_count || 0) + (post.like_count || 0)) > 1000
-                        ? `${(((post.comment_count || 0) + (post.view_count || 0) + (post.like_count || 0)) / 1000).toFixed(1)}K`
-                        : (post.comment_count || 0) + (post.view_count || 0) + (post.like_count || 0)
-                      }
+                      {post.hot_score && post.hot_score > 1000
+                        ? `${(post.hot_score / 1000).toFixed(1)}K`
+                        : Math.round(post.hot_score || 0)}
                     </Text>
                   </View>
                 </View>
