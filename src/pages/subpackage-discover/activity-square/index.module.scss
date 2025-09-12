@@ -39,104 +39,140 @@
   color: #9ca3af;
 }
 
-// 筛选选项滚动容器样式
+// 筛选选项滚动容器样式 - 改为分段选择器
 .filterScrollContainer {
   width: 100%;
   height: auto;
-  margin-bottom: 0;
-  white-space: nowrap;
+  margin-bottom: 8px;
+  padding: 8px 16px;
 }
 
-// 筛选选项容器样式
+// 筛选选项容器样式 - 分段选择器样式
 .filterContainer {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 8px;
-  padding: 8px 16px;
-  margin: 0;
-  width: max-content;
+  background-color: #f1f3f4;
+  border-radius: 8px;
+  padding: 2px;
+  gap: 0;
+  width: 100%;
 }
 
 .filterItem {
-  padding: 6px 16px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 20px;
+  flex: 1;
+  padding: 8px 12px;
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
   transition: all 0.2s ease;
   cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
+  text-align: center;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 
   &:active {
     transform: scale(0.98);
   }
 
   &.activeFilter {
-    background-color: #4f46e5;
-    border-color: #4f46e5;
+    background-color: #6366f1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
     .filterText {
       color: #ffffff;
+      font-weight: 600;
     }
   }
 }
 
 .filterText {
   font-size: 13px;
-  color: #374151;
+  color: #6b7280;
   font-weight: 500;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-// 分类滚动容器样式
+.filterArrow {
+  font-size: 10px;
+  color: #ffffff;
+  transition: transform 0.2s ease;
+  margin-left: 2px;
+
+  &.filterArrowUp {
+    transform: rotate(180deg);
+  }
+}
+
+// 分类滚动容器样式 - 横向可滚动标签栏
 .categoryScrollContainer {
   width: 100%;
   height: auto;
-  margin-bottom: 0;
+  margin-bottom: 8px;
   white-space: nowrap;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: slideDown 0.3s ease-out;
 }
 
-// 分类容器样式
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 60px;
+  }
+}
+
+// 分类容器样式 - 标签栏样式
 .categoryContainer {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 8px;
-  padding: 12px 16px;
-  margin: 0 0 8px 0; // 移除左右margin，由外层控制
+  gap: 12px;
+  padding: 8px 16px;
+  margin: 0;
   width: max-content;
 }
 
 .categoryItem {
-  padding: 6px 12px;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 16px;
+  padding: 8px 16px;
+  background-color: #f1f3f4;
+  border: none;
+  border-radius: 18px;
   transition: all 0.2s ease;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
+  min-width: 60px;
+  text-align: center;
 
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.95);
   }
 
   &.activeCategory {
-    background-color: #4f46e5;
-    border-color: #4f46e5;
+    background-color: #6366f1;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 
     .categoryText {
       color: #ffffff;
+      font-weight: 600;
     }
   }
 }
 
 .categoryText {
-  font-size: 12px;
+  font-size: 13px;
   color: #6b7280;
   font-weight: 500;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .scrollView {

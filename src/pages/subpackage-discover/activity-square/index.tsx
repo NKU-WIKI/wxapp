@@ -25,6 +25,7 @@ export default function ActivitySquare() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]); // 用于高亮的关键词列表
   const [selectedFilter, setSelectedFilter] = useState<string>('全部');
+  const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false); // 控制第二行标签显示
 
 
   // 活动分类列表
@@ -72,12 +73,22 @@ export default function ActivitySquare() {
       const currentFilter = filter || selectedFilter;
 
       if (currentFilter === '我报名的') {
+        // 如果用户未登录，直接返回空列表
+        if (!isLoggedIn) {
+          setActivities([]);
+          return;
+        }
         // 调用获取我报名的活动API
         res = await activityApi.myActivity({
           limit: params.limit,
           skip: params.skip
         });
       } else if (currentFilter === '我发布的') {
+        // 如果用户未登录，直接返回空列表
+        if (!isLoggedIn) {
+          setActivities([]);
+          return;
+        }
         // 调用获取我发布的活动API
         res = await activityApi.myOrganizedActivity({
           limit: params.limit,
@@ -107,15 +118,25 @@ export default function ActivitySquare() {
 
       setActivities(list);
 
-    } catch (err) {
-      setActivities([]);
+    } catch (err: any) {
+      // 如果是401错误且当前选择的是需要登录的选项，自动切换回"全部"
+      const currentFilterValue = filter || selectedFilter;
+      if (err?.status === 401 && (currentFilterValue === '我报名的' || currentFilterValue === '我发布的')) {
+        setSelectedFilter('全部');
+        // 重新获取全部活动
+        setTimeout(() => {
+          fetchActivities(false, category, '全部');
+        }, 100);
+      } else {
+        setActivities([]);
+      }
     } finally {
       if (showLoading) {
         setActivitiesLoading(false);
       }
       setIsRefreshing(false);
     }
-  }, [selectedFilter]);
+  }, [selectedFilter, isLoggedIn]);
 
 
 
@@ -384,14 +405,45 @@ export default function ActivitySquare() {
     }
 
     setSelectedCategory(category);
-
+    
+    // 选择活动类型后收起第二行标签
+    setShowCategoryBar(false);
 
     // 根据选择的分类重新获取活动列表
     fetchActivities(true, category, selectedFilter);
   };
 
   const handleFilterChange = (filter: string) => {
+    // 如果选择需要登录的选项但用户未登录，提示登录
+    if ((filter === '我报名的' || filter === '我发布的') && !isLoggedIn) {
+      Taro.showModal({
+        title: '提示',
+        content: '请先登录后再查看个人活动',
+        showCancel: true,
+        cancelText: '取消',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({
+              url: '/pages/subpackage-profile/login/index'
+            });
+          }
+        }
+      });
+      return;
+    }
+
     setSelectedFilter(filter);
+    
+    // 控制第二行标签的显示
+    // 如果点击的是当前选中的选项，则切换第二行标签的显示状态
+    // 如果点击的是其他选项，则展开第二行标签
+    if (selectedFilter === filter) {
+      setShowCategoryBar(!showCategoryBar);
+    } else {
+      setShowCategoryBar(true);
+    }
+    
     // 根据选择的筛选类型重新获取活动列表
     fetchActivities(true, selectedCategory, filter);
   };
@@ -435,12 +487,8 @@ export default function ActivitySquare() {
             onClear={handleClearSearch}
           />
 
-        {/* 活动筛选选项 */}
-        <ScrollView
-          scrollX
-          className={styles.filterScrollContainer}
-          showScrollbar={false}
-        >
+        {/* 活动筛选选项 - 分段选择器 */}
+        <View className={styles.filterScrollContainer}>
           <View className={styles.filterContainer}>
             {filterOptions.map(filter => (
               <View
@@ -449,29 +497,36 @@ export default function ActivitySquare() {
                 onClick={() => handleFilterChange(filter)}
               >
                 <Text className={styles.filterText}>{filter}</Text>
+                {selectedFilter === filter && (
+                  <Text className={`${styles.filterArrow} ${showCategoryBar ? styles.filterArrowUp : ''}`}>
+                    ▼
+                  </Text>
+                )}
               </View>
             ))}
           </View>
-        </ScrollView>
+        </View>
 
-        {/* 活动分类 */}
-        <ScrollView
-          scrollX
-          className={styles.categoryScrollContainer}
-          showScrollbar={false}
-        >
-          <View className={styles.categoryContainer}>
-            {categories.map(category => (
-              <View
-                key={category}
-                className={`${styles.categoryItem} ${selectedCategory === category ? styles.activeCategory : ''}`}
-                onClick={() => handleCategoryChange(category)}
-              >
-                <Text className={styles.categoryText}>{category}</Text>
-              </View>
-            ))}
-          </View>
-        </ScrollView>
+        {/* 活动分类 - 条件显示 */}
+        {showCategoryBar && (
+          <ScrollView
+            scrollX
+            className={styles.categoryScrollContainer}
+            showScrollbar={false}
+          >
+            <View className={styles.categoryContainer}>
+              {categories.map(category => (
+                <View
+                  key={category}
+                  className={`${styles.categoryItem} ${selectedCategory === category ? styles.activeCategory : ''}`}
+                  onClick={() => handleCategoryChange(category)}
+                >
+                  <Text className={styles.categoryText}>{category}</Text>
+                </View>
+              ))}
+            </View>
+          </ScrollView>
+        )}
       </View>
 
       {/* 可滚动的活动列表 */}
