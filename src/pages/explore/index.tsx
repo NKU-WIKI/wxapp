@@ -344,8 +344,11 @@ export default function ExplorePage() {
   };
 
   const handleClearInput = () => {
+    const hasContent = !!(rawValue?.trim()?.length || inputQuery?.trim()?.length || keyword?.trim()?.length);
+
     setRawValue('');
     setInputQuery('');
+    setKeyword('');
     setSearchMode(null);
     setSearchModeDesc('');
     setShowSuggestions(false);
@@ -356,7 +359,9 @@ export default function ExplorePage() {
     setErrorMsg(null);
     setRagResponseReady(false);
     dispatch(clearSearchResults());
-    setIsSearchActive(false);
+
+    // 有内容则停留在搜索技巧界面；无内容则回到默认界面
+    setIsSearchActive(hasContent);
   };
 
 
@@ -541,6 +546,7 @@ export default function ExplorePage() {
             onSearch={handleSearch}
             onClear={handleClearInput}
             onFocus={handleSearchBarFocus}
+            alwaysShowClear={isSearchActive}
             onSuggestionClick={handleSuggestionClick}
             confirmType='search'
             adjustPosition

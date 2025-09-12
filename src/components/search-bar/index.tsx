@@ -47,6 +47,8 @@ interface SearchBarProps {
   // 样式和行为
   confirmType?: 'search' | 'done' | 'go' | 'next' | 'send'
   adjustPosition?: boolean
+  // 当为 true 时，即使 keyword 为空也显示清空按钮
+  alwaysShowClear?: boolean
 }
 
 const SearchBar = ({
@@ -70,6 +72,7 @@ const SearchBar = ({
   onDynamicSuggestionClick,
   confirmType = 'search',
   adjustPosition = true,
+  alwaysShowClear = false,
 }: SearchBarProps) => {
   const [isFocused, setIsFocused] = useState(false)
 
@@ -231,7 +234,7 @@ const SearchBar = ({
             adjustPosition={adjustPosition}
           />
         </View>
-        {keyword && !readonly && (
+        {(!!keyword || alwaysShowClear) && !readonly && (
           <Image src='/assets/x.svg' className={styles.clearIcon} onClick={onClear} />
         )}
       </View>
