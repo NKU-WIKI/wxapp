@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+﻿import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, Image, Swiper, SwiperItem, Textarea, Input } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import { useSelector } from 'react-redux';
@@ -10,6 +10,7 @@ import { getComments, createComment } from '@/services/api/comment';
 import { NoteDetail, NoteRead } from '@/types/api/note';
 import { CommentTreeRead, CreateCommentRequest } from '@/types/api/comment';
 import { normalizeImageUrl } from '@/utils/image';
+import { convertLevelToRealm } from '@/utils/levelConverter';
 import { formatPostDate } from '@/utils/time';
 import CustomHeader from '@/components/custom-header';
 import ActionBar from '@/components/action-bar';
@@ -387,7 +388,7 @@ export default function NoteDetailPage() {
                   <View className={styles.authorDetails}>
                     <View className={styles.nameAndLevel}>
                       <Text className={styles.authorName}>{note.user.nickname || '匿名用户'}</Text>
-                      <Text className={styles.authorLevel}>Lv.{note.author?.level || 1}</Text>
+                      <Text className={styles.authorLevel}>{convertLevelToRealm(note.author?.level || 1)}</Text>
                     </View>
                     {note.user.bio && (
                       <Text className={styles.authorBio}>{note.user.bio}</Text>
@@ -582,3 +583,8 @@ export default function NoteDetailPage() {
     </View>
   );
 } 
+
+
+
+
+

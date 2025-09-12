@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { User } from '@/types/api/user'
 import { LevelInfo } from '@/types/api/level'
 import { getUserById, getActionStatus } from '@/services/api/user'
 import { RootState } from '@/store'
 import { useAuthGuard } from './useAuthGuard'
+import { convertLevelToRealm } from '@/utils/levelConverter'
 
 export interface AuthorInfo {
   user: User
@@ -79,8 +80,8 @@ export const useAuthorInfo = (
               next_level_exp: undefined,
               prev_level_exp: undefined,
               progress: 0,
-              level_name: `Lv.${userLevel}`,
-              next_level_name: userLevel < 10 ? `Lv.${userLevel + 1}` : undefined,
+              level_name: convertLevelToRealm(userLevel),
+              next_level_name: userLevel < 7 ? convertLevelToRealm(userLevel + 1) : undefined,
               rules: []
             }
             setLevelInfo(levelInfoData)
@@ -180,3 +181,6 @@ export const useAuthorInfo = (
     unfollow
   }
 }
+
+
+

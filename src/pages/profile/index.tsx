@@ -1,4 +1,4 @@
-import { View, Text, Image, Button, ScrollView } from '@tarojs/components';
+﻿import { View, Text, Image, Button, ScrollView } from '@tarojs/components';
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,6 +9,7 @@ import { fetchCampusVerificationInfo } from '@/store/slices/campusVerificationSl
 import CustomHeader from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import { normalizeImageUrl } from '@/utils/image';
+import { convertLevelToRealm } from '@/utils/levelConverter';
 import styles from './index.module.scss';
 
 // 登录提示组件
@@ -275,8 +276,8 @@ const Profile = () => {
                     (() => {
                       const level = userInfo?.level;
                       return (level !== undefined && level !== null && level > 0) ?
-                        `LV.${level}` :
-                        'LV.0';
+                        `${convertLevelToRealm(level)}` :
+                        '';
                     })()
                   }
                 </Text>
@@ -441,3 +442,7 @@ const Profile = () => {
 };
 
 export default Profile;
+
+
+
+

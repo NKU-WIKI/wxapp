@@ -1,8 +1,9 @@
-import { View, Image, Text } from '@tarojs/components';
+﻿import { View, Image, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { UserInfo } from '@/types/api/user';
 import { tabBarSyncManager } from '@/utils/tabBarSync';
 import { normalizeImageUrl } from '@/utils/image';
+import { convertLevelToRealm } from '@/utils/levelConverter';
 import awardIcon from '@/assets/award.svg';
 import styles from './ProfileSummary.module.scss';
 
@@ -81,7 +82,7 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
             <Text className={styles.nickname}>{userInfo?.nickname || ''}</Text>
             {userInfo?.level && (
               <View className={styles.levelBadge}>
-                <Text>Lv.{userInfo.level}</Text>
+                <Text>{convertLevelToRealm(userInfo.level)}</Text>
               </View>
             )}
             <View className={styles.levelLink} onClick={handleNavigateToLevel}>
@@ -123,3 +124,6 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
 }
 
 export default ProfileSummary
+
+
+

@@ -1,4 +1,4 @@
-import { View, Text, Image } from '@tarojs/components';
+﻿import { View, Text, Image } from '@tarojs/components';
 import { useEffect, useMemo } from 'react';
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -8,6 +8,7 @@ import { fetchMyLevel, fetchTodayExperienceRecords } from '@/store/slices/levelS
 
 // Utils imports
 import { normalizeImageUrl } from '@/utils/image';
+import { convertLevelToRealm } from '@/utils/levelConverter';
 
 // Assets imports
 import checkinIcon from '@/assets/clock.svg';
@@ -20,14 +21,14 @@ import defaultAvatar from '@/assets/profile.png';
 import styles from './index.module.scss';
 
 const LEVELS = [
-  { lv: 0, label: 'Lv0', range: '0经验值' },
-  { lv: 1, label: 'Lv1', range: '1-50经验值' },
-  { lv: 2, label: 'Lv2', range: '51-200经验值' },
-  { lv: 3, label: 'Lv3', range: '201-450经验值' },
-  { lv: 4, label: 'Lv4', range: '451-900经验值' },
-  { lv: 5, label: 'Lv5', range: '901-1500经验值' },
-  { lv: 6, label: 'Lv6', range: '1501-3000经验值' },
-  { lv: 7, label: 'Lv7', range: '大于3000经验值' },
+  { lv: 0, label: '炼气期', range: '0经验值' },
+  { lv: 1, label: '筑基期', range: '1-50经验值' },
+  { lv: 2, label: '结丹期', range: '51-200经验值' },
+  { lv: 3, label: '元婴期', range: '201-450经验值' },
+  { lv: 4, label: '化神期', range: '451-900经验值' },
+  { lv: 5, label: '真仙期', range: '901-1500经验值' },
+  { lv: 6, label: '金仙期', range: '1501-3000经验值' },
+  { lv: 7, label: '道祖期', range: '大于3000经验值' },
 ];
 
 
@@ -64,7 +65,7 @@ export default function LevelPage() {
           <Image src={avatarUrl} className={styles.avatar} />
           <View className={styles.userMeta}>
             <Text className={styles.nickname}>{nickname}</Text>
-            <Text className={styles.levelBlue}>Lv{level}: {exp}</Text>
+            <Text className={styles.levelBlue}>{convertLevelToRealm(level)}: {exp}</Text>
           </View>
         </View>
       </View>
@@ -76,7 +77,7 @@ export default function LevelPage() {
           </View>
         <View className={styles.infoRow}>
           <Text className={styles.infoLabel}>当前等级</Text>
-          <Text className={styles.infoValue}>Lv{level}</Text>
+          <Text className={styles.infoValue}>{convertLevelToRealm(level)}</Text>
           </View>
         {/* 等级进度条 */}
         <View className={styles.progressBarWrap}>
