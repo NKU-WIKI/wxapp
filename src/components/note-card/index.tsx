@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import actionApi from '@/services/api/action';
 import { normalizeImageUrl } from '@/utils/image';
 import { NoteListItem } from '@/types/api/note';
 import ActionButton from '@/components/action-button';
@@ -12,6 +15,7 @@ interface NoteWithStatus extends NoteListItem {
   is_liked?: boolean;
   is_favorited?: boolean;
   interaction_loading?: boolean;
+  like_count?: number;
 }
 
 interface NoteCardProps {
@@ -23,6 +27,18 @@ interface NoteCardProps {
 const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
   const [avatarImageError, setAvatarImageError] = useState(false);
   const [coverImageError, setCoverImageError] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+  const [isLiked, setIsLiked] = useState(!!note.is_liked);
+  const [likeCount, setLikeCount] = useState<number>(note.like_count || 0);
+  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
+
+  // 同步外部交互状态到本地，确保加载后根据接口状态着色
+  useEffect(() => {
+    setIsLiked(!!note.is_liked);
+    if (typeof note.like_count === 'number') {
+      setLikeCount(note.like_count);
+    }
+  }, [note.id, note.is_liked, note.like_count]);
 
   const handleClick = () => {
     if (onClick) {
@@ -125,10 +141,31 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
           <ActionButton
             icon='/assets/heart-outline.svg'
             activeIcon='/assets/heart-bold.svg'
-            text={note.like_count?.toString() || '0'}
-            isActive={note.is_liked || false}
-            disabled={note.interaction_loading || false}
+            text={likeCount.toString()}
+            isActive={isLiked}
+            disabled={isLiking || note.interaction_loading}
             className={styles.likeButton}
+            onClick={async () => {
+              if (!isLoggedIn) {
+                Taro.showToast({ title: '请先登录', icon: 'none' });
+                return;
+              }
+              if (isLiking) return;
+              try {
+                setIsLiking(true);
+                const resp = await actionApi.toggleAction({ target_id: String(note.id), target_type: 'note', action_type: 'like' });
+                const nextActive = resp.data?.is_active ?? !isLiked;
+                const nextCount = typeof resp.data?.count === 'number'
+                  ? resp.data.count
+                  : (nextActive ? likeCount + 1 : Math.max(0, likeCount - 1));
+                setIsLiked(nextActive);
+                setLikeCount(nextCount);
+              } catch (_e) {
+                Taro.showToast({ title: '操作失败，请稍后重试', icon: 'none' });
+              } finally {
+                setIsLiking(false);
+              }
+            }}
           />
         </View>
       </View>
