@@ -553,7 +553,7 @@ export default function ExplorePage() {
       <View
         className={styles.contentScrollContainer}
         style={{
-          paddingTop: `40px`  // header + search bar area height
+          paddingTop: `60px`  // header + search bar area height + small gap
         }}
       >
         <ScrollView scrollY className={styles.contentScrollView} enableFlex>
