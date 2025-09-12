@@ -6,7 +6,7 @@
  * 昵称最大长度限制
  * 用于编辑资料页面和author-info组件的昵称显示
  */
-export const NICKNAME_MAX_LENGTH = 15;
+export const NICKNAME_MAX_LENGTH = 12;
 
 /**
  * 昵称显示最大长度

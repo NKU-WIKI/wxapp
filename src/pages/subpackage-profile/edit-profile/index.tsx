@@ -49,6 +49,75 @@ export default function EditProfilePage() {
     }
   };
 
+  // 处理手机号输入变化
+  const handlePhoneChange = (e: any) => {
+    const value = e.detail.value;
+    setPhone(value);
+  };
+
+  // 处理微信号输入变化
+  const handleWechatIdChange = (e: any) => {
+    const value = e.detail.value;
+    setWechatId(value);
+  };
+
+  // 处理QQ号输入变化
+  const handleQqIdChange = (e: any) => {
+    const value = e.detail.value;
+    setQqId(value);
+  };
+
+  // 验证函数
+  const validateInputs = () => {
+    const errors: string[] = [];
+
+    // 验证昵称
+    if (!nickname.trim()) {
+      errors.push("• 昵称不能为空");
+    } else if (nickname.length > NICKNAME_MAX_LENGTH) {
+      errors.push(`• 昵称长度不能超过${NICKNAME_MAX_LENGTH}个字符`);
+    }
+
+    // 验证手机号（如果填写了）
+    if (phone.trim() && !/^1[3-9]\d{9}$/.test(phone.trim())) {
+      errors.push("• 手机号格式不正确");
+      errors.push("  应为：11位数字，以1开头");
+    }
+
+    // 验证微信号（如果填写了）
+    if (wechatId.trim() && !/^[a-zA-Z][a-zA-Z0-9_-]{5,19}$/.test(wechatId.trim())) {
+      errors.push("• 微信号格式不正确");
+      errors.push("  应为：6-20字符，字母开头，允许字母、数字、下划线、减号");
+    }
+
+    // 验证QQ号（如果填写了）
+    if (qqId.trim() && !/^\d{5,10}$/.test(qqId.trim())) {
+      errors.push("• QQ号格式不正确");
+      errors.push("  应为：5-10位数字");
+    }
+
+    // 验证生日格式
+    if (birthday && !/^\d{4}-\d{2}-\d{2}$/.test(birthday)) {
+      errors.push("• 生日格式不正确");
+      errors.push("  应为：YYYY-MM-DD 格式");
+    }
+
+    // 如果有错误，显示所有错误信息
+    if (errors.length > 0) {
+      const errorMessage = errors.join('\n\n');
+      Taro.showModal({
+        title: '请检查以下信息',
+        content: errorMessage,
+        showCancel: false,
+        confirmText: '知道了',
+        confirmColor: '#576b95'
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   // 学院和专业数据
   const collegesAndMajors: Record<string, { name: string; majors: string[] }> = useMemo(() => ({
     literature: {
@@ -430,23 +499,12 @@ export default function EditProfilePage() {
       return;
     }
 
+    // 使用统一的验证函数
+    if (!validateInputs()) {
+      return;
+    }
+
     try {
-      if (!nickname.trim()) {
-        Taro.showToast({ title: "昵称不能为空", icon: "none" });
-        return;
-      }
-
-      if (nickname.length > NICKNAME_MAX_LENGTH) {
-        Taro.showToast({ title: `昵称长度不能超过${NICKNAME_MAX_LENGTH}个字符`, icon: "none" });
-        return;
-      }
-
-      // 验证生日格式
-      if (birthday && !/^\d{4}-\d{2}-\d{2}$/.test(birthday)) {
-        Taro.showToast({ title: "生日格式不正确，请使用YYYY-MM-DD格式", icon: "none" });
-        return;
-      }
-
       setIsSaving(true);
       
       const profileData: any = {
@@ -728,7 +786,7 @@ export default function EditProfilePage() {
                   className={styles.fieldInput}
                   value={wechatId}
                   placeholder='rainyday2023'
-                  onInput={(e) => setWechatId(e.detail.value)}
+                  onInput={handleWechatIdChange}
                 />
               </View>
 
@@ -738,7 +796,7 @@ export default function EditProfilePage() {
                   className={styles.fieldInput}
                   value={qqId}
                   placeholder='98765432'
-                  onInput={(e) => setQqId(e.detail.value)}
+                  onInput={handleQqIdChange}
                 />
               </View>
 
@@ -749,7 +807,7 @@ export default function EditProfilePage() {
                   value={phone}
                   placeholder='138****5678'
                   type='number'
-                  onInput={(e) => setPhone(e.detail.value)}
+                  onInput={handlePhoneChange}
                 />
               </View>
             </View>
