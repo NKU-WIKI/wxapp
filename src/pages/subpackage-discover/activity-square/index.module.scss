@@ -417,6 +417,18 @@
     }
   }
 
+  // 已取消状态样式
+  &.cancelled {
+    background: #ef4444;
+    color: #ffffff;
+    cursor: not-allowed;
+
+    &:active {
+      background: #ef4444;
+      transform: none;
+    }
+  }
+
   // 禁用状态样式（名额已满等）
   &.disabled {
     background: #9ca3af;

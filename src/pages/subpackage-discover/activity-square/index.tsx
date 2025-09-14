@@ -626,19 +626,33 @@ export default function ActivitySquare() {
                       )}
                       <Text
                         className={`${styles.actionButton} ${
-                          act.registration_status!="cancelled" && act.is_registered
-                            ? styles.registered
-                            : (act.max_participants && act.current_participants >= act.max_participants)
-                              ? styles.disabled
-                              : ''
+                          act.registration_status === "cancelled"
+                            ? styles.cancelled
+                            : act.registration_status !== "cancelled" && act.is_registered
+                              ? styles.registered
+                              : (act.max_participants && act.current_participants >= act.max_participants)
+                                ? styles.disabled
+                                : ''
                         }`}
-                        onClick={(e) => act.registration_status!="cancelled" && act.is_registered ? handleCancelRegistration(act, e) : handleJoinActivity(act, e)}
+                        onClick={(e) => {
+                          // 如果是已取消状态，不允许点击
+                          if (act.registration_status === "cancelled") {
+                            e.stopPropagation();
+                            return;
+                          }
+                          // 其他状态按原逻辑处理
+                          return act.registration_status !== "cancelled" && act.is_registered
+                            ? handleCancelRegistration(act, e)
+                            : handleJoinActivity(act, e);
+                        }}
                       >
-                        {act.registration_status!="cancelled" && act.is_registered
-                          ? '已报名'
-                          : (act.max_participants && act.current_participants >= act.max_participants)
-                            ? '名额已满'
-                            : '立即报名'
+                        {act.registration_status === "cancelled"
+                          ? '已取消'
+                          : act.registration_status !== "cancelled" && act.is_registered
+                            ? '已报名'
+                            : (act.max_participants && act.current_participants >= act.max_participants)
+                              ? '名额已满'
+                              : '立即报名'
                         }
                       </Text>
                     </View>

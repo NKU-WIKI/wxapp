@@ -380,7 +380,7 @@ export enum UserStatus {
  * RegistrationStatus，报名状态枚举
  */
 export enum RegistrationStatus {
-  Cancelled = "cancelled",
+  cancelled = "cancelled",
   Confirmed = "confirmed",
   Pending = "pending",
   Rejected = "rejected",
