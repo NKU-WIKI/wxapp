@@ -36,20 +36,22 @@ export default function Discover() {
       const response = await postApi.getHotPostList(params);
       let postsData: HotPost[] = [];
 
-      
-
       if (response && response.data) {
         if (Array.isArray(response.data)) {
           postsData = response.data as HotPost[];
-          // 确保按照hot_score降序排序
-          postsData.sort((a, b) => (b.hot_score || 0) - (a.hot_score || 0));
+          // 按照hot_score降序排序，确保排名与显示分数一致
+          postsData.sort((a, b) => {
+            const scoreA = a.hot_score || 0;
+            const scoreB = b.hot_score || 0;
+            return scoreB - scoreA;
+          });
         }
         setHotPosts(postsData);
       } else {
         setHotPosts([]);
       }
     } catch (error) {
-      
+
       setHotPosts([]);
     } finally {
       if (showLoading) {

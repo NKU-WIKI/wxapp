@@ -1,13 +1,15 @@
 import Taro from "@tarojs/taro";
 import {
-  ActivityCreateRequest,
-  ActivityCreateResponse,
+  PostActivityCreateRequest,
+  PostActivityCreateResponse,
   GetActivityListResponse,
   GetActivityListRequest,
   PostJoinActivityRequest,
   PostJoinActivityResponse,
   GetMyActivityRequest,
-  GetMyActivityResponse
+  GetMyActivityResponse,
+  DeleteCancelRegistrationsRequest,
+  DeleteCancelRegistrationsResponse
 } from "@/types/api/activity.d";
 import http from "../request";
 
@@ -27,10 +29,10 @@ export const getActivityList = (params: GetActivityListRequest) => {
  * @param data 活动数据
  * @returns
  */
-export const createActivity = (data: ActivityCreateRequest) => {
+export const createActivity = (data: PostActivityCreateRequest) => {
   const raw = Taro.getStorageSync('token');
   const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  return http.post<ActivityCreateResponse>("/activities", data, {
+  return http.post<PostActivityCreateResponse>("/activities", data, {
     header: token ? { Authorization: `Bearer ${token}` } : {}
   });
 }
@@ -51,7 +53,7 @@ export const joinActivity = (params: PostJoinActivityRequest) =>{
 export const getActivityDetail = (activityId: string) => {
   const raw = Taro.getStorageSync('token');
   const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  return http.get<ActivityCreateResponse>(`/activities/${activityId}`, {}, {
+  return http.get<PostActivityCreateResponse>(`/activities/${activityId}`, {}, {
     header: token ? { Authorization: `Bearer ${token}` } : {}
   });
 }
@@ -82,10 +84,10 @@ export const myOrganizedActivity = (params: GetMyActivityRequest) =>{
  * @param activityId 活动ID
  * @returns
  */
-export const cancelActivityRegistration = (activityId: string) => {
+export const cancelActivityRegistration = (params: DeleteCancelRegistrationsRequest) => {
   const raw = Taro.getStorageSync('token');
   const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  return http.delete(`/activities/${activityId}/registrations`, {}, {
+  return http.delete<DeleteCancelRegistrationsResponse>(`/activities/${params.activity_id}/registrations`, {}, {
     header: token ? { Authorization: `Bearer ${token}` } : {}
   });
 }

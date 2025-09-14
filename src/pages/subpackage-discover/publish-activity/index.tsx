@@ -2,7 +2,7 @@ import { View, Text, Input, Textarea, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useState, useCallback } from 'react';
 import activityApi from '@/services/api/activity';
-import { ActivityCreateRequest, ActivityType, ActivityVisibility, ActivityRead } from '@/types/api/activity.d';
+import { PostActivityCreateRequest, ActivityType, ActivityVisibility, ActivityRead } from '@/types/api/activity.d';
 import { ActivityNotificationHelper } from '@/utils/notificationHelper';
 import CustomHeader from '@/components/custom-header';
 import styles from './index.module.scss';
@@ -91,7 +91,7 @@ export default function PublishActivity() {
     }
     setSubmitting(true);
     try {
-      const payload: ActivityCreateRequest = {
+      const payload: PostActivityCreateRequest = {
         title: form.title,
         category: form.category,
         description: form.description,
@@ -103,10 +103,10 @@ export default function PublishActivity() {
         tags: form.tags ? form.tags.split(/[,，\s]+/).filter(Boolean) : undefined,
         max_participants: form.max_participants > 0 ? form.max_participants : null,
         visibility: ActivityVisibility.Public
-      } as ActivityCreateRequest;
+      } as PostActivityCreateRequest;
       console.log('🚀 [PublishActivity] 开始创建活动', payload);
       const res: any = await activityApi.createActivity(payload);
-      
+
       console.log('📝 [PublishActivity] 活动创建API响应', {
         code: res?.code,
         hasData: !!res?.data,
@@ -116,23 +116,23 @@ export default function PublishActivity() {
       if (res && res.code === 0) {
         // 获取创建的活动数据
         const createdActivity = res.data as ActivityRead;
-        
+
         console.log('✅ [PublishActivity] 活动创建成功', {
           activityId: createdActivity?.id,
           activityTitle: createdActivity?.title,
           category: createdActivity?.category
         });
-        
+
         // 获取当前用户信息
-        const currentUser = (window as any).g_app?.$app?.globalData?.userInfo || 
+        const currentUser = (window as any).g_app?.$app?.globalData?.userInfo ||
                            JSON.parse(Taro.getStorageSync('userInfo') || '{}');
-        
+
         console.log('👤 [PublishActivity] 获取到当前用户信息', {
           hasUser: !!currentUser,
           userId: currentUser?.id,
           nickname: currentUser?.nickname || currentUser?.name
         });
-        
+
         // 发送活动发布通知
         if (createdActivity && currentUser?.id) {
           console.log('🔔 [PublishActivity] 开始发送活动发布通知');
@@ -150,7 +150,7 @@ export default function PublishActivity() {
             hasUserId: !!currentUser?.id
           });
         }
-        
+
         Taro.showToast({ title: '发布成功', icon: 'success' });
         console.log('🎉 [PublishActivity] 活动发布流程完成，准备返回上一页');
         // 重新启用自动跳转，发布成功后返回上一页

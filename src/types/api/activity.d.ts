@@ -2,7 +2,7 @@
 /**
  * ActivityCreate，创建活动请求
  */
-export interface ActivityCreateRequest {
+export interface PostActivityCreateRequest {
   /**
    * 活动类型
    */
@@ -111,7 +111,7 @@ export enum ActivityVisibility {
 /**
  * ApiResponse[ActivityRead]
  */
-export interface ActivityCreateResponse {
+export interface PostActivityCreateResponse {
   /**
    * Code，业务码，成功为 0
    */
@@ -769,3 +769,36 @@ export interface GetMyOrganizedActivityResponse {
   message?: string;
   [property: string]: any;
 }
+
+export interface DeleteCancelRegistrationsRequest {
+  /**
+   * Activity Id，活动ID
+   */
+  activity_id: string;
+  [property: string]: any;
+}
+
+/**
+ * ApiResponse，统一响应包。
+ *
+ * Attributes:
+ * code: 业务码，成功为 0。
+ * message: 简明中文信息。
+ * data: 负载数据。
+ */
+export interface DeleteCancelRegistrationsResponse {
+  /**
+   * Code，业务码，成功为 0
+   */
+  code?: number;
+  /**
+   * Data，负载数据
+   */
+  data?: any;
+  /**
+   * Message，简明中文信息
+   */
+  message?: string;
+  [property: string]: any;
+}
+

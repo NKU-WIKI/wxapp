@@ -273,8 +273,8 @@ export default function ActivitySquare() {
         return;
       }
 
-      // 检查用户是否已经报名
-      if (act.is_registered) {
+      // 检查用户是否已经报名（排除已取消的报名）
+      if (act.is_registered && act.registration_status !== 'cancelled') {
         Taro.showToast({
           title: '您已经报名了这个活动',
           icon: 'none'
@@ -345,7 +345,9 @@ export default function ActivitySquare() {
 
       Taro.showLoading({ title: '取消中...' });
 
-      const response = await activityApi.cancelActivityRegistration(act.id);
+      const response = await activityApi.cancelActivityRegistration({
+        activity_id: act.id
+      });
 
       Taro.hideLoading();
 
@@ -405,7 +407,7 @@ export default function ActivitySquare() {
     }
 
     setSelectedCategory(category);
-    
+
     // 选择活动类型后收起第二行标签
     setShowCategoryBar(false);
 
@@ -434,7 +436,7 @@ export default function ActivitySquare() {
     }
 
     setSelectedFilter(filter);
-    
+
     // 控制第二行标签的显示
     // 如果点击的是当前选中的选项，则切换第二行标签的显示状态
     // 如果点击的是其他选项，则展开第二行标签
@@ -443,7 +445,7 @@ export default function ActivitySquare() {
     } else {
       setShowCategoryBar(true);
     }
-    
+
     // 根据选择的筛选类型重新获取活动列表
     fetchActivities(true, selectedCategory, filter);
   };
@@ -624,15 +626,15 @@ export default function ActivitySquare() {
                       )}
                       <Text
                         className={`${styles.actionButton} ${
-                          act.is_registered
+                          act.registration_status!="cancelled" && act.is_registered
                             ? styles.registered
                             : (act.max_participants && act.current_participants >= act.max_participants)
                               ? styles.disabled
                               : ''
                         }`}
-                        onClick={(e) => act.is_registered ? handleCancelRegistration(act, e) : handleJoinActivity(act, e)}
+                        onClick={(e) => act.registration_status!="cancelled" && act.is_registered ? handleCancelRegistration(act, e) : handleJoinActivity(act, e)}
                       >
-                        {act.is_registered
+                        {act.registration_status!="cancelled" && act.is_registered
                           ? '已报名'
                           : (act.max_participants && act.current_participants >= act.max_participants)
                             ? '名额已满'
