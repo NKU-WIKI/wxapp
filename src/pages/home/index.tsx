@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { Post as PostType } from "@/types/api/post.d";
 import { AppDispatch, RootState } from "@/store";
 import { fetchFeed, fetchForumPosts } from "@/store/slices/postSlice";
+import { fetchUnreadCounts } from "@/store/slices/notificationSlice";
 import { useMultipleFollowStatus } from "@/hooks/useFollowStatus";
 import { getRecommendedContent, collectUserInteraction } from "@/utils/contentRecommendation";
 import { Categories } from "@/constants/categories";
@@ -130,6 +131,16 @@ export default function Home() {
       dispatch(fetchFeed(params));
     }
   };
+
+  // 页面显示时刷新未读通知数量
+  useDidShow(() => {
+    const storedToken = Taro.getStorageSync("token");
+    if (storedToken) {
+      dispatch(fetchUnreadCounts()).catch(_error => {
+        // 静默处理错误，不影响主要功能
+      });
+    }
+  });
 
   const renderContent = () => {
     if (isLoading && posts.length === 0) {

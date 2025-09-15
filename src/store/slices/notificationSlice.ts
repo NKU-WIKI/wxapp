@@ -43,17 +43,59 @@ export const fetchUnreadCounts = createAsyncThunk(
             type,
             is_read: false,  // 只获取未读的
             page: 1,
-            page_size: 1    // 只需要总数，不需要具体数据
+            page_size: 50    // 获取足够数量进行前端过滤
           });
           
           console.log(`🔧 [Redux调试] ${type} 未读查询结果`, { 
             code: res.code, 
             total: res.data?.pagination?.total,
+            items: res.data?.items?.length,
             type 
           });
           
           if (res.code === 0 && res.data?.pagination) {
-            const count = res.data.pagination.total || 0;
+            // 根据business_type重新过滤通知，确保统计正确
+            let items = (res.data.items || []);
+            
+            // 首先过滤business_type
+            items = items.filter(item => {
+              const isActivityRelated = [
+                'activity_published', 
+                'activity_joined', 
+                'activity_cancelled', 
+                'activity_updated', 
+                'activity_registration',
+                'activity_cancel_registration',  // 取消报名通知
+                'participant_join_success',      // 参与者报名成功通知
+                'participant_cancel_success'     // 参与者取消报名成功通知
+              ].includes(item.business_type);
+              
+              if (type === 'activity') {
+                // activity类型：只统计活动相关的通知
+                return isActivityRelated;
+              } else {
+                // 其他类型：不统计活动相关的通知
+                return !isActivityRelated;
+              }
+            });
+            
+            // 然后过滤未读状态（后端的is_read参数可能不可靠）
+            const unreadItems = items.filter(item => {
+              // 支持多种已读状态表示方式
+              const readStatuses = ['read', 'Read', 'READ'];
+              const isRead = readStatuses.includes(item.status);
+              return !isRead; // 只保留未读的
+            });
+            
+            const count = unreadItems.length;
+            console.log(`🔧 [Redux调试] ${type} 过滤后未读数量`, { 
+              原始数量: res.data?.items?.length || 0,
+              business_type过滤后: items.length,
+              最终未读数量: count,
+              未读通知状态: unreadItems.map(item => ({ id: item.id, status: item.status, business_type: item.business_type })),
+              type 
+            });
+            
             unreadCountData[type] = count;
             totalUnread += count;
             return count;

@@ -1,18 +1,22 @@
 import { useEffect, useState, useCallback } from 'react'
 import { View, Text, Image, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '@/store'
+import { fetchUnreadCounts } from '@/store/slices/notificationSlice'
 import CustomHeader from '@/components/custom-header'
 import {
   NotificationRead,
   NotificationType,
-  NotificationStatus,
-  UnreadCountResponse
+  NotificationStatus
 } from '@/types/api/notification.d'
 import {
   getNotifications,
   markAllAsRead,
   markNotificationAsRead
 } from '@/services/api/notification'
+import { getUserById } from '@/services/api/user'
+import { User } from '@/types/api/user'
 import moreIcon from '@/assets/more-horizontal.svg'
 import checkSquareIcon from '@/assets/check-square.svg'
 import NotificationItem from './components/NotificationItem'
@@ -49,8 +53,10 @@ const NOTIFICATION_TABS = [
 type TabKey = typeof NOTIFICATION_TABS[number]['key']
 
 // 安全的状态比较和设置函数
-const isNotificationRead = (status: any): boolean => {
-  return status === 'read';
+const isNotificationRead = (status: NotificationStatus | string | undefined): boolean => {
+  // 支持多种已读状态表示方式
+  const readStatuses = ['read', 'Read', 'READ', NotificationStatus._Read];
+  return readStatuses.includes(status as string);
 };
 
 const getReadStatus = (): NotificationStatus => {
@@ -58,11 +64,14 @@ const getReadStatus = (): NotificationStatus => {
 };
 
 const NotificationPage = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const unreadCounts = useSelector((state: RootState) => state.notification.unreadCounts);
   const [currentTab, setCurrentTab] = useState<TabKey>(NotificationType._Message)
   const [notifications, setNotifications] = useState<NotificationRead[]>([])
+  const [displayNotifications, setDisplayNotifications] = useState<any[]>([]) // 解析后的显示数据
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [unreadCounts, setUnreadCounts] = useState<UnreadCountResponse>({} as UnreadCountResponse)
+  const [userCache, setUserCache] = useState<Map<string, User>>(new Map()) // 用户信息缓存
 
   const [initialized, setInitialized] = useState(false) // 初始化标识
 
@@ -70,104 +79,238 @@ const NotificationPage = () => {
     <Image src={moreIcon} className={styles.moreIcon} />
   );
 
-  // 获取未读数量统计（通过分别查询各种类型的未读通知数量）
-  const fetchUnreadCounts = useCallback(async () => {
+  // 获取用户信息（带缓存）
+  const fetchUserInfo = useCallback(async (userId: string): Promise<User | null> => {
+    if (!userId) return null;
+    
+    // 检查缓存
+    if (userCache.has(userId)) {
+      return userCache.get(userId)!;
+    }
+    
     try {
-      // 使用现有API获取各类型的未读通知数量
-      const notificationTypes = [
-        NotificationType._Message,
-        NotificationType._Activity,
-        NotificationType._System,
-        NotificationType._Announcement
-      ];
+      console.log('👤 [通知页面调试] 获取用户信息', { userId });
+      const response = await getUserById(userId);
+      if (response.code === 0 && response.data) {
+        const userInfo = response.data;
+        // 更新缓存
+        setUserCache(prev => new Map(prev.set(userId, userInfo)));
+        console.log('✅ [通知页面调试] 用户信息获取成功', { userId, userInfo });
+        return userInfo;
+      }
+    } catch (error) {
+      console.error('❌ [通知页面调试] 用户信息获取失败', { userId, error });
+    }
+    
+    return null;
+  }, [userCache]);
+
+  // 刷新未读数量统计（使用Redux统一管理）
+  const refreshUnreadCounts = useCallback(async () => {
+      try {
+        await dispatch(fetchUnreadCounts()).unwrap();
+    } catch (error) {
+      console.error('❌ [通知页面调试] 未读数量统计刷新失败', error);
+    }
+  }, [dispatch])
+
+  // 解析通知内容显示（异步获取用户信息）
+  const parseNotificationDisplay = useCallback(async (notification: NotificationRead) => {
+    let senderName = '系统';
+    let senderAvatar = '/assets/profile.png';
+    const senderId = notification.sender_id || undefined;
+
+    // 如果有sender_id，尝试获取用户信息
+    if (senderId) {
+      const userInfo = await fetchUserInfo(senderId);
+      if (userInfo) {
+        senderName = userInfo.nickname || '用户';
+        senderAvatar = userInfo.avatar || '/assets/profile.png';
+        console.log('👤 [通知页面调试] 用户信息解析成功', {
+          senderId,
+          senderName,
+          senderAvatar: userInfo.avatar
+        });
+      } else {
+        console.log('👤 [通知页面调试] 用户信息获取失败，使用fallback', {
+          senderId,
+          fallbackName: notification.sender?.nickname || notification.sender?.name || '系统'
+        });
+        // Fallback到notification中的sender信息
+        senderName = notification.sender?.nickname || notification.sender?.name || '系统';
+        senderAvatar = notification.sender?.avatar || '/assets/profile.png';
+      }
+    }
+
+    let action = '';
+    let postContent = '';
+
+    // 根据业务类型解析动作
+    if (notification.type === NotificationType._Message) {
+      switch (notification.business_type) {
+        case 'like':
+          action = '赞了你的帖子'
+          break
+        case 'comment':
+          action = '评论了你'
+          break
+        case 'follow':
+          action = '关注了你'
+          break
+        case 'mention':
+          action = '在帖子中提及了你'
+          break
+        default:
+          action = '给你发来了消息'
+      }
+
+      // 对于非关注类型，显示相关内容
+      if (notification.business_type !== 'follow' && notification.data?.post_title) {
+        postContent = notification.data.post_title
+      }
+    } else if (notification.type === NotificationType._Activity) {
+      // 活动通知简化处理，和互动消息保持一致
+      const activityTitle = notification.data?.activity_title || '未知活动';
       
-      const unreadCountData: Partial<UnreadCountResponse> = {};
-      let totalUnread = 0;
-      
-      // 并发查询各类型的未读数量
-      const promises = notificationTypes.map(async (type) => {
-        try {
-          const res = await getNotifications({
-            type,
-            page: 1,
-            page_size: 50    // 获取足够数量进行前端过滤
-          });
-          
-          if (res.code === 0 && res.data?.pagination) {
-            // 后端过滤不可靠，在前端过滤只保留未读通知
-            const actualUnreadItems = (res.data.items || []).filter(item => !isNotificationRead(item.status));
-            const actualUnreadCount = actualUnreadItems.length;
-            
-            unreadCountData[type] = actualUnreadCount;
-            totalUnread += actualUnreadCount;
-            
-            return actualUnreadCount;
-          }
-          return 0;
-        } catch (_error) {
-          return 0;
-        }
+      switch (notification.business_type) {
+        case 'activity_published':
+          senderName = '系统';
+          action = '活动发布成功';
+          postContent = activityTitle;
+          break;
+        case 'activity_registration':
+        case 'activity_cancel_registration':
+          // 保持用户信息，只修改动作文案为中性
+          action = '活动报名状态更新';
+          postContent = activityTitle;
+          break;
+        case 'participant_join_success':
+          senderName = '系统';
+          action = '活动报名成功';
+          postContent = activityTitle;
+          break;
+        case 'participant_cancel_success':
+          senderName = '系统';
+          action = '取消报名成功';
+          postContent = activityTitle;
+          break;
+        case 'activity_cancelled':
+          senderName = '系统';
+          action = '活动已取消';
+          postContent = activityTitle;
+          break;
+        case 'activity_updated':
+          senderName = '系统';
+          action = '活动信息已更新';
+          postContent = activityTitle;
+          break;
+        default:
+          action = notification.title || '活动通知';
+          postContent = activityTitle;
+      }
+    } else {
+      action = notification.title || '系统通知';
+    }
+
+    return {
+      user: senderName,
+      user_id: senderId,
+      avatar: senderAvatar,
+      action,
+      post: postContent,
+      time: new Date(notification.created_at).toISOString(),
+      unread: !isNotificationRead(notification.status)
+    };
+  }, [fetchUserInfo]);
+
+  // 处理通知显示数据（异步获取用户信息）
+  const processNotificationDisplayData = useCallback(async (notificationItems: NotificationRead[]) => {
+    console.log('🔄 [通知页面调试] 开始处理通知显示数据', { count: notificationItems.length });
+    
+    try {
+      const displayDataPromises = notificationItems.map(async (notification) => {
+        const displayData = await parseNotificationDisplay(notification);
+        return {
+          ...displayData,
+          id: notification.id,
+          originalNotification: notification
+        };
       });
       
-      await Promise.all(promises);
+      const resolvedDisplayData = await Promise.all(displayDataPromises);
+      console.log('✅ [通知页面调试] 通知显示数据处理完成', { 
+        count: resolvedDisplayData.length,
+        sampleData: resolvedDisplayData.slice(0, 2).map(item => ({
+          id: item.id,
+          user: item.user,
+          action: item.action
+        }))
+      });
       
-      // 设置未读数量统计
-      const finalUnreadCounts = {
-        ...unreadCountData,
-        total: totalUnread
-      } as UnreadCountResponse;
-      
-      setUnreadCounts(finalUnreadCounts);
-      
-    } catch (_e) {
-      // 发生错误时设置为空的统计
-      setUnreadCounts({} as UnreadCountResponse);
+      setDisplayNotifications(resolvedDisplayData);
+    } catch (error) {
+      console.error('❌ [通知页面调试] 处理通知显示数据失败', error);
+      // Fallback: 使用原始数据
+      const fallbackData = notificationItems.map(notification => ({
+        id: notification.id,
+        user: '系统',
+        user_id: notification.sender_id,
+        avatar: '/assets/profile.png',
+        action: notification.title,
+        post: '',
+        time: new Date(notification.created_at).toISOString(),
+        unread: !isNotificationRead(notification.status),
+        originalNotification: notification
+      }));
+      setDisplayNotifications(fallbackData);
     }
-  }, [])
+  }, [parseNotificationDisplay]);
 
   // 获取通知列表
   const fetchNotifications = useCallback(async (type?: NotificationType, showLoading = true) => {
     const targetType = type || currentTab;
-    console.log('📋 [通知页面调试] 开始获取通知列表', {
-      targetType,
-      showLoading,
-      currentTab,
-      请求类型: targetType
-    });
 
     try {
       if (showLoading) setLoading(true)
       setError(null)
       
-      const requestParams: any = {
-        type: targetType,
+      // 为了兼容错误分类的活动通知，我们需要同时查询多个type
+      let requestParams: any = {
         page: 1,
         page_size: 50
       };
       
-      console.log('📋 [通知页面调试] 请求参数', requestParams);
+      if (targetType === 'activity') {
+        // 活动标签页：查询所有类型并前端过滤（兼容旧数据）
+        // 不指定type，获取所有通知然后前端过滤
+      } else {
+        // 其他标签页：按正常type查询
+        requestParams.type = targetType;
+      }
       
       const res = await getNotifications(requestParams)
       
-      console.log('📋 [通知页面调试] API响应', {
-        code: res.code,
-        message: res.message,
-        totalItems: res.data?.items?.length || 0,
-        pagination: res.data?.pagination,
-        items: res.data?.items?.map(item => ({
-          id: item.id,
-          type: item.type,
-          business_type: item.business_type,
-          status: item.status,
-          title: item.title,
-          created_at: item.created_at
-        })) || []
-      });
-      
       if (res.code === 0 && res.data) {
-        const items = res.data.items || [];
-        console.log('📋 [通知页面调试] 设置通知列表', {
-          设置的通知数量: items.length,
+        let items = res.data.items || [];
+        
+        // 根据business_type重新过滤通知，确保活动相关通知在正确的标签页
+        const originalCount = items.length;
+        items = items.filter(item => {
+          const isActivityRelated = ['activity_published', 'activity_joined', 'activity_cancelled', 'activity_updated', 'activity_registration', 'activity_cancel_registration', 'participant_join_success', 'participant_cancel_success'].includes(item.business_type);
+          
+          if (targetType === 'activity') {
+            // activity标签页：只显示活动相关的通知
+            return isActivityRelated;
+          } else {
+            // 其他标签页：不显示活动相关的通知
+            return !isActivityRelated;
+          }
+        });
+        
+        console.log('📋 [通知页面调试] 过滤后设置通知列表', {
+          原始数量: originalCount,
+          过滤后数量: items.length,
+          当前标签: targetType,
           通知类型分布: items.reduce((acc, item) => {
             acc[item.business_type || 'unknown'] = (acc[item.business_type || 'unknown'] || 0) + 1;
             return acc;
@@ -179,6 +322,9 @@ const NotificationPage = () => {
         });
 
         setNotifications(items);
+        
+        // 异步解析通知显示数据（获取用户信息）
+        processNotificationDisplayData(items);
       } else {
         throw new Error(res.message || '获取通知失败')
       }
@@ -240,8 +386,17 @@ const NotificationPage = () => {
           )
         );
         
+        // 立即更新显示通知的未读状态
+        setDisplayNotifications(prev => 
+          prev.map(n => 
+            n.id === originalNotification.id 
+              ? { ...n, unread: false } 
+              : n
+          )
+        );
+        
         // 刷新未读数量统计
-        fetchUnreadCounts();
+        refreshUnreadCounts();
       }
 
       // 根据通知类型和业务类型进行页面跳转
@@ -305,7 +460,11 @@ const NotificationPage = () => {
       // 活动通知
       else if (type === NotificationType._Activity) {
         if (business_id) {
-          Taro.showToast({ title: '活动详情页面开发中', icon: 'none' });
+          await Taro.navigateTo({
+            url: `/pages/subpackage-discover/activity-detail/index?id=${business_id}`
+          });
+        } else {
+          Taro.showToast({ title: '活动信息不完整', icon: 'none' });
         }
       }
       // 系统通知和公告通知暂时不跳转
@@ -332,7 +491,7 @@ const NotificationPage = () => {
         // 刷新当前页面和未读数量
         await Promise.all([
           fetchNotifications(currentTab, false),
-          fetchUnreadCounts()
+          refreshUnreadCounts()
         ])
       } else {
         throw new Error(res.message || '操作失败')
@@ -342,52 +501,6 @@ const NotificationPage = () => {
     }
   }
 
-  // 解析通知内容显示
-  const parseNotificationDisplay = (notification: NotificationRead) => {
-    const senderName = notification.sender?.nickname || notification.sender?.name || '系统'
-    const senderAvatar = notification.sender?.avatar || '/assets/profile.png'
-    const senderId = notification.sender_id || undefined
-
-    let action = ''
-    let postContent = ''
-
-    // 根据业务类型解析动作
-    if (notification.type === NotificationType._Message) {
-      switch (notification.business_type) {
-        case 'like':
-          action = '赞了你的帖子'
-          break
-        case 'comment':
-          action = '评论了你'
-          break
-        case 'follow':
-          action = '关注了你'
-          break
-        case 'mention':
-          action = '在帖子中提及了你'
-          break
-        default:
-          action = '给你发来了消息'
-      }
-
-      // 对于非关注类型，显示相关内容
-      if (notification.business_type !== 'follow' && notification.data?.post_title) {
-        postContent = notification.data.post_title
-      }
-    } else {
-      action = notification.title
-    }
-
-    return {
-      user: senderName,
-      user_id: senderId,
-      avatar: senderAvatar,
-      action,
-      post: postContent,
-      time: new Date(notification.created_at).toISOString(),
-      unread: !isNotificationRead(notification.status)
-    }
-  }
 
   useEffect(() => {
     // 初始化加载 - 同时获取通知列表和未读数量
@@ -398,7 +511,7 @@ const NotificationPage = () => {
 
     Promise.all([
       fetchNotifications(currentTab),  // 使用当前标签页加载
-      fetchUnreadCounts()
+      refreshUnreadCounts()
     ]).then(() => {
       console.log('✅ [通知页面调试] 页面初始化数据加载完成');
     }).catch((error) => {
@@ -407,7 +520,7 @@ const NotificationPage = () => {
       setInitialized(true); // 标记为已初始化
       console.log('🏁 [通知页面调试] 页面初始化完成');
     })
-  }, [currentTab, fetchNotifications, fetchUnreadCounts])  // 只在组件挂载时执行一次
+  }, [currentTab, fetchNotifications, refreshUnreadCounts])  // 只在组件挂载时执行一次
 
   useEffect(() => {
     // 切换标签页时加载数据（只在已初始化后才执行）
@@ -417,164 +530,109 @@ const NotificationPage = () => {
   }, [currentTab, initialized, fetchNotifications])
 
   return (
-    <View className={styles.notificationPage}>
+    <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <CustomHeader 
         title='消息' 
         renderRight={renderHeaderRight()}
       />
       
-      {/* 自定义标签页导航 */}
-      <View className={styles.tabsContainer}>
-        <View className={styles.customTabs}>
-          {NOTIFICATION_TABS.map((tab) => {
-            const isActive = currentTab === tab.key
-            const unreadCount = unreadCounts[tab.key] || 0
-            
-            return (
-              <View 
-                key={tab.key}
-                className={`${styles.tabItem} ${isActive ? styles.active : ''}`}
-                onClick={() => handleTabChange(tab.key)}
-              >
-                <Text className={styles.tabText}>{tab.title}</Text>
-                {unreadCount > 0 && (
-                  <View className={styles.badge}>
-                    <Text className={styles.badgeText}>
-                      {unreadCount > 99 ? '99+' : unreadCount}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )
-          })}
-        </View>
-      </View>
-
-      {/* 通知内容区域 */}
-      <View className={styles.contentContainer}>
-        <ScrollView
-          scrollY
-          className={styles.scrollContainer}
-        >
-          <View className={styles.tabContent}>
-          {loading ? (
-            <View className={styles.loadingContainer}>
-              <Text className={styles.loadingText}>加载中...</Text>
-            </View>
-          ) : error ? (
-            <View className={styles.errorState}>
-              <View className={styles.errorIcon}>⚠️</View>
-              <Text className={styles.errorText}>{error}</Text>
-              <View 
-                className={styles.retryButton}
-                onClick={() => fetchNotifications()}
-              >
-                <Text className={styles.retryText}>点击重试</Text>
-              </View>
-            </View>
-          ) : (
-            <View className={styles.notificationList}>
-              {(() => {
-                console.log('🎨 [通知页面调试] 开始渲染通知列表', {
-                  总通知数: notifications.length,
-                  当前标签: currentTab,
-                  所有通知状态: notifications.map(n => ({ id: n.id, status: n.status, type: n.type, business_type: n.business_type }))
-                });
-
-                const unreadNotifications = notifications.filter(notification => {
-                  const isRead = isNotificationRead(notification.status);
-                  console.log('🔍 [通知页面调试] 通知过滤检查', {
-                    notificationId: notification.id,
-                    status: notification.status,
-                    isRead: isRead,
-                    willShow: !isRead,
-                    business_type: notification.business_type,
-                    title: notification.title,
-                    是否收藏通知: notification.business_type === 'collect'
-                  });
+        <View style={{ flex: 1, overflow: 'hidden' }}>
+          <ScrollView 
+            scrollY 
+            style={{ height: '100%' }}
+            refresherEnabled={true}
+            refresherTriggered={loading}
+            onRefresherRefresh={() => {
+              console.log('🔄 [通知页面调试] 下拉刷新触发');
+              fetchNotifications(currentTab, true);
+            }}
+            refresherBackground="#f8f9fa"
+          >
+            {/* 自定义标签页导航 */}
+            <View className={styles.tabsContainer}>
+              <View className={styles.customTabs}>
+                {NOTIFICATION_TABS.map((tab) => {
+                  const isActive = currentTab === tab.key
+                  const unreadCount = unreadCounts[tab.key] || 0
                   
-                  // 专门针对收藏通知的调试
-                  if (notification.business_type === 'collect') {
-                    console.log('⭐ [收藏通知专项调试] 发现收藏通知', {
-                      通知ID: notification.id,
-                      标题: notification.title,
-                      内容: notification.content,
-                      状态: notification.status,
-                      业务ID: notification.business_id,
-                      发送者: notification.sender_id,
-                      接收者: notification.recipient_id,
-                      数据: notification.data,
-                      创建时间: notification.created_at,
-                      是否会显示: !isRead
-                    });
-                  }
-                  return !isRead;
-                });
+                  return (
+                    <View 
+                      key={tab.key}
+                      className={`${styles.tabItem} ${isActive ? styles.active : ''}`}
+                      onClick={() => handleTabChange(tab.key)}
+                    >
+                      <Text className={styles.tabText}>{tab.title}</Text>
+                      {unreadCount > 0 && (
+                        <View className={styles.badge}>
+                          <Text className={styles.badgeText}>
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )
+                })}
+              </View>
+            </View>
 
-                console.log('📊 [通知页面调试] 过滤结果', {
-                  原始通知数: notifications.length,
-                  过滤后未读数: unreadNotifications.length,
-                  未读通知详情: unreadNotifications.map(n => ({
-                    id: n.id,
-                    type: n.type,
-                    business_type: n.business_type,
-                    status: n.status,
-                    title: n.title
-                  }))
-                });
-
-                return unreadNotifications.length > 0 ? (
-                  unreadNotifications.map(notification => {
-                    const displayData = parseNotificationDisplay(notification)
-                    console.log('🎨 [通知页面调试] 渲染通知项', {
-                      notificationId: notification.id,
-                      displayData,
-                      originalStatus: notification.status
-                    });
-                    return (
+            {/* 通知内容区域 */}
+            <View className={styles.contentContainer}>
+              {loading ? (
+                <View className={styles.loadingContainer}>
+                  <Text className={styles.loadingText}>加载中...</Text>
+                </View>
+              ) : error ? (
+                <View className={styles.errorState}>
+                  <View className={styles.errorIcon}>⚠️</View>
+                  <Text className={styles.errorText}>{error}</Text>
+                  <View 
+                    className={styles.retryButton}
+                    onClick={() => fetchNotifications()}
+                  >
+                    <Text className={styles.retryText}>点击重试</Text>
+                  </View>
+                </View>
+              ) : (
+                <View className={styles.notificationList}>
+                  {displayNotifications.length > 0 ? (
+                    displayNotifications.map(displayItem => (
                       <NotificationItem
-                        key={notification.id}
-                        item={{
-                          id: notification.id,
-                          ...displayData,
-                          originalNotification: notification
-                        }}
+                        key={displayItem.id}
+                        item={displayItem}
                         onItemClick={handleNotificationClick}
                       />
-                    )
-                  })
-                ) : (
-                <View className={styles.emptyState}>
-                  <View className={styles.emptyIcon}>
-                    {NOTIFICATION_TABS.find(tab => tab.key === currentTab)?.icon || '💬'}
-                  </View>
-                  <Text className={styles.emptyText}>
-                    暂无{NOTIFICATION_TABS.find(tab => tab.key === currentTab)?.title || '通知'}
-                  </Text>
-                  <Text className={styles.emptySubText}>
-                    {NOTIFICATION_TABS.find(tab => tab.key === currentTab)?.description || '当有新通知时，会在这里显示'}
-                  </Text>
+                    ))
+                  ) : (
+                    <View className={styles.emptyState}>
+                      <View className={styles.emptyIcon}>
+                        {NOTIFICATION_TABS.find(tab => tab.key === currentTab)?.icon || '💬'}
+                      </View>
+                      <Text className={styles.emptyText}>
+                        暂无{NOTIFICATION_TABS.find(tab => tab.key === currentTab)?.title || '通知'}
+                      </Text>
+                      <Text className={styles.emptySubText}>
+                        {NOTIFICATION_TABS.find(tab => tab.key === currentTab)?.description || '当有新通知时，会在这里显示'}
+                      </Text>
+                    </View>
+                  )}
                 </View>
-                );
-              })()}
+              )}
+            </View>
+          </ScrollView>
+          
+          {/* 底部操作按钮 - 固定在底部 */}
+          {notifications.filter(n => !isNotificationRead(n.status)).length > 0 && (
+            <View className={styles.footer}>
+              <View
+                className={styles.markAllReadButton}
+                onClick={handleMarkAllRead}
+              >
+                <Image src={checkSquareIcon} className={styles.footerIcon} />
+                <Text className={styles.buttonText}>全部标记为已读</Text>
+              </View>
             </View>
           )}
-          </View>
-        </ScrollView>
-      </View>
-
-      {/* 底部操作按钮 */}
-      {notifications.filter(n => !isNotificationRead(n.status)).length > 0 && (
-        <View className={styles.footer}>
-          <View
-            className={styles.markAllReadButton}
-            onClick={handleMarkAllRead}
-          >
-            <Image src={checkSquareIcon} className={styles.footerIcon} />
-            <Text className={styles.buttonText}>全部标记为已读</Text>
-          </View>
         </View>
-      )}
     </View>
   );
 };

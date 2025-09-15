@@ -9,6 +9,8 @@ import {
   NotificationPriority
 } from "@/types/api/notification.d";
 import http from "../request";
+import { store } from '@/store';
+import { incrementUnreadCount } from '@/store/slices/notificationSlice';
 
 /**
  * 获取通知列表
@@ -323,6 +325,346 @@ export const createBBSNotification = {
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal
     });
+  }
+};
+
+/**
+ * 活动通知创建器
+ */
+export const createActivityNotification = {
+  /**
+   * 创建活动发布通知
+   */
+  published: (params: {
+    activity_id: string;
+    activity_title: string;
+    activity_category: string;
+    organizer_id: string;
+    organizer_nickname: string;
+    recipient_id: string;
+  }) => {
+    const notificationData = {
+      type: NotificationType._Activity,
+      business_type: 'activity_published',
+      business_id: params.activity_id,
+      title: '活动发布通知',
+      content: `您发布的活动「${params.activity_title}」已成功发布`,
+      recipient_id: params.recipient_id,
+      sender_id: params.organizer_id,
+      data: {
+        activity_id: params.activity_id,
+        activity_title: params.activity_title,
+        activity_category: params.activity_category,
+        organizer_id: params.organizer_id,
+        organizer_nickname: params.organizer_nickname,
+        action_type: 'published'
+      },
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Normal
+    };
+
+    return createNotification(notificationData).then(response => {
+      console.log('✅ [API] 活动发布通知创建成功', response);
+      // 更新 Redux 未读数量
+      store.dispatch(incrementUnreadCount({
+        type: NotificationType._Activity,
+        count: 1
+      }));
+      return response;
+    }).catch(error => {
+      console.error('❌ [API] 活动发布通知创建失败', error);
+      throw error;
+    });
+  },
+
+  /**
+   * 创建活动参与通知
+   */
+  joined: (params: {
+    activity_id: string;
+    activity_title: string;
+    organizer_id: string;
+    participant_id: string;
+    participant_nickname: string;
+  }) => {
+    const notificationData = {
+      type: NotificationType._Activity,
+      business_type: 'activity_registration',
+      business_id: params.activity_id,
+      title: '活动报名状态通知',
+      content: `您的活动「${params.activity_title}」报名状态已更新`,
+      recipient_id: params.organizer_id,
+      sender_id: params.participant_id, // 使用参与者ID作为发送者
+      data: {
+        activity_id: params.activity_id,
+        activity_title: params.activity_title,
+        organizer_id: params.organizer_id,
+        participant_id: params.participant_id,
+        participant_nickname: params.participant_nickname,
+        action_type: 'joined'
+      },
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Normal
+    };
+
+    console.log('📨 [API] 创建活动报名状态通知', {
+      notificationData,
+      recipient: params.organizer_id,
+      participant: params.participant_id,
+      activityTitle: params.activity_title
+    });
+
+    return createNotification(notificationData).then(response => {
+      console.log('✅ [API] 活动报名状态通知创建成功', response);
+      // 更新 Redux 未读数量
+      store.dispatch(incrementUnreadCount({
+        type: NotificationType._Activity,
+        count: 1
+      }));
+      return response;
+    }).catch(error => {
+      console.error('❌ [API] 活动报名状态通知创建失败', error);
+      throw error;
+    });
+  },
+
+  /**
+   * 创建活动取消报名通知
+   */
+  cancelRegistration: (params: {
+    activity_id: string;
+    activity_title: string;
+    organizer_id: string;
+    participant_id: string;
+    participant_nickname: string;
+  }) => {
+    const notificationData = {
+      type: NotificationType._Activity,
+      business_type: 'activity_cancel_registration',
+      business_id: params.activity_id,
+      title: '活动报名状态通知',
+      content: `您的活动「${params.activity_title}」报名状态已更新`,
+      recipient_id: params.organizer_id,
+      sender_id: params.participant_id, // 使用参与者ID作为发送者
+      data: {
+        activity_id: params.activity_id,
+        activity_title: params.activity_title,
+        organizer_id: params.organizer_id,
+        participant_id: params.participant_id,
+        participant_nickname: params.participant_nickname,
+        action_type: 'cancel_registration'
+      },
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Normal
+    };
+
+    console.log('📨 [API] 创建活动报名状态通知', {
+      notificationData,
+      recipient: params.organizer_id,
+      participant: params.participant_id,
+      activityTitle: params.activity_title
+    });
+
+    return createNotification(notificationData).then(response => {
+      console.log('✅ [API] 活动报名状态通知创建成功', response);
+      // 更新 Redux 未读数量
+      store.dispatch(incrementUnreadCount({
+        type: NotificationType._Activity,
+        count: 1
+      }));
+      return response;
+    }).catch(error => {
+      console.error('❌ [API] 活动报名状态通知创建失败', error);
+      throw error;
+    });
+  },
+
+  /**
+   * 创建参与者报名成功通知
+   */
+  participantJoinSuccess: (params: {
+    activity_id: string;
+    activity_title: string;
+    participant_id: string;
+    participant_nickname: string;
+  }) => {
+    const notificationData = {
+      type: NotificationType._Activity,
+      business_type: 'participant_join_success',
+      business_id: params.activity_id,
+      title: '活动报名成功',
+      content: `您已成功报名活动「${params.activity_title}」`,
+      recipient_id: params.participant_id,
+      sender_id: null, // 系统通知
+      data: {
+        activity_id: params.activity_id,
+        activity_title: params.activity_title,
+        participant_id: params.participant_id,
+        participant_nickname: params.participant_nickname,
+        action_type: 'participant_join_success'
+      },
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Normal
+    };
+
+    console.log('📨 [API] 创建参与者报名成功通知', {
+      notificationData,
+      participant: params.participant_id,
+      activityTitle: params.activity_title
+    });
+
+    return createNotification(notificationData).then(response => {
+      console.log('✅ [API] 参与者报名成功通知创建成功', response);
+      // 更新 Redux 未读数量
+      store.dispatch(incrementUnreadCount({
+        type: NotificationType._Activity,
+        count: 1
+      }));
+      return response;
+    }).catch(error => {
+      console.error('❌ [API] 参与者报名成功通知创建失败', error);
+      throw error;
+    });
+  },
+
+  /**
+   * 创建参与者取消报名成功通知
+   */
+  participantCancelSuccess: (params: {
+    activity_id: string;
+    activity_title: string;
+    participant_id: string;
+    participant_nickname: string;
+  }) => {
+    const notificationData = {
+      type: NotificationType._Activity,
+      business_type: 'participant_cancel_success',
+      business_id: params.activity_id,
+      title: '取消报名成功',
+      content: `您已成功取消报名「${params.activity_title}」`,
+      recipient_id: params.participant_id,
+      sender_id: null, // 系统通知
+      data: {
+        activity_id: params.activity_id,
+        activity_title: params.activity_title,
+        participant_id: params.participant_id,
+        participant_nickname: params.participant_nickname,
+        action_type: 'participant_cancel_success'
+      },
+      channels: [NotificationChannel._InApp],
+      priority: NotificationPriority._Normal
+    };
+
+    console.log('📨 [API] 创建参与者取消报名成功通知', {
+      notificationData,
+      participant: params.participant_id,
+      activityTitle: params.activity_title
+    });
+
+    return createNotification(notificationData).then(response => {
+      console.log('✅ [API] 参与者取消报名成功通知创建成功', response);
+      // 更新 Redux 未读数量
+      store.dispatch(incrementUnreadCount({
+        type: NotificationType._Activity,
+        count: 1
+      }));
+      return response;
+    }).catch(error => {
+      console.error('❌ [API] 参与者取消报名成功通知创建失败', error);
+      throw error;
+    });
+  },
+
+  /**
+   * 创建活动取消通知
+   */
+  cancelled: (params: {
+    activity_id: string;
+    activity_title: string;
+    organizer_id: string;
+    organizer_nickname: string;
+    recipient_ids: string[];
+    cancel_reason?: string;
+  }) => {
+    // 发送通知给每个接收者
+    const promises = params.recipient_ids.map(recipientId => {
+      const notificationData = {
+        type: NotificationType._Activity,
+        business_type: 'activity_cancelled',
+        business_id: params.activity_id,
+        title: '活动取消通知',
+        content: `活动「${params.activity_title}」已被取消${params.cancel_reason ? `，原因：${params.cancel_reason}` : ''}`,
+        recipient_id: recipientId,
+        sender_id: params.organizer_id,
+        data: {
+          activity_id: params.activity_id,
+          activity_title: params.activity_title,
+          organizer_id: params.organizer_id,
+          organizer_nickname: params.organizer_nickname,
+          cancel_reason: params.cancel_reason,
+          action_type: 'cancelled'
+        },
+        channels: [NotificationChannel._InApp],
+        priority: NotificationPriority._High
+      };
+
+      return createNotification(notificationData).then(response => {
+        // 更新 Redux 未读数量
+        store.dispatch(incrementUnreadCount({
+          type: NotificationType._Activity,
+          count: 1
+        }));
+        return response;
+      });
+    });
+
+    return Promise.all(promises);
+  },
+
+  /**
+   * 创建活动更新通知
+   */
+  updated: (params: {
+    activity_id: string;
+    activity_title: string;
+    organizer_id: string;
+    organizer_nickname: string;
+    recipient_ids: string[];
+    update_summary: string;
+  }) => {
+    // 发送通知给每个接收者
+    const promises = params.recipient_ids.map(recipientId => {
+      const notificationData = {
+        type: NotificationType._Activity,
+        business_type: 'activity_updated',
+        business_id: params.activity_id,
+        title: '活动更新通知',
+        content: `活动「${params.activity_title}」信息已更新：${params.update_summary}`,
+        recipient_id: recipientId,
+        sender_id: params.organizer_id,
+        data: {
+          activity_id: params.activity_id,
+          activity_title: params.activity_title,
+          organizer_id: params.organizer_id,
+          organizer_nickname: params.organizer_nickname,
+          update_summary: params.update_summary,
+          action_type: 'updated'
+        },
+        channels: [NotificationChannel._InApp],
+        priority: NotificationPriority._Normal
+      };
+
+      return createNotification(notificationData).then(response => {
+        // 更新 Redux 未读数量
+        store.dispatch(incrementUnreadCount({
+          type: NotificationType._Activity,
+          count: 1
+        }));
+        return response;
+      });
+    });
+
+    return Promise.all(promises);
   }
 };
 

@@ -4,10 +4,17 @@ import { useEffect, useState } from "react";
 import activityApi from "@/services/api/activity";
 import { ActivityRead, ActivityType } from "@/types/api/activity.d";
 import { useSharing } from "@/hooks/useSharing";
+import { ActivityNotificationHelper } from "@/utils/notificationHelper";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import CustomHeader from "@/components/custom-header";
 import styles from "./index.module.scss";
 
 export default function ActivityDetail() {
+  // 从Redux store获取当前用户信息
+  const currentUser = useSelector((state: RootState) => state.user.user);
+  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
+  
   const [activity, setActivity] = useState<ActivityRead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activityId, setActivityId] = useState<string>("");
@@ -119,6 +126,42 @@ export default function ActivityDetail() {
           icon: 'success'
         });
 
+        // 发送通知
+        if (isLoggedIn && currentUser?.id) {
+          const participantNickname = currentUser.nickname || '用户';
+          
+          console.log('🔔 [ActivityDetail] 准备发送参与者通知', {
+            isLoggedIn,
+            userId: currentUser.id,
+            nickname: participantNickname,
+            activityId: activity.id,
+            helperAvailable: !!ActivityNotificationHelper.handleParticipantJoinSuccessNotification
+          });
+          
+          // 1. 发送给参与者自己的成功通知
+          try {
+            await ActivityNotificationHelper.handleParticipantJoinSuccessNotification({
+              activity: activity,
+              participantId: currentUser.id,
+              participantNickname
+            });
+            console.log('✅ [ActivityDetail] 参与者报名成功通知发送成功');
+          } catch (error) {
+            console.error('❌ [ActivityDetail] 发送参与者报名成功通知失败:', error);
+          }
+          
+          // 2. 发送给组织者的通知
+          if (activity.organizer?.id) {
+            ActivityNotificationHelper.handleActivityJoinedNotification({
+              activity: activity,
+              participantId: currentUser.id,
+              participantNickname
+            }).catch(error => {
+              console.error('❌ [ActivityDetail] 发送活动参与通知失败:', error);
+            });
+          }
+        }
+
         // 重新获取活动详情以更新状态
         fetchActivityDetail(activityId);
       } else {
@@ -129,6 +172,114 @@ export default function ActivityDetail() {
       }
     } catch (error) {
       Taro.hideLoading();
+      Taro.showToast({
+        title: '网络错误，请重试',
+        icon: 'none'
+      });
+    }
+  };
+
+  const handleCancelRegistration = async () => {
+    if (!activity) return;
+
+    try {
+      // 检查用户是否已登录
+      const token = Taro.getStorageSync('token');
+      if (!token) {
+        Taro.showModal({
+          title: '提示',
+          content: '请先登录',
+          showCancel: false,
+          success: () => {
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+          }
+        });
+        return;
+      }
+
+      // 检查是否已经报名
+      if (!activity.is_registered) {
+        Taro.showModal({
+          title: '提示',
+          content: '您尚未报名此活动',
+          showCancel: false
+        });
+        return;
+      }
+
+      // 确认取消报名
+      const confirmResult = await Taro.showModal({
+        title: '确认取消',
+        content: '确定要取消报名吗？'
+      });
+
+      if (!confirmResult.confirm) {
+        return;
+      }
+
+      // 显示加载中
+      Taro.showLoading({ title: '取消中...' });
+
+      // 调用取消报名API
+      const response = await activityApi.cancelActivityRegistration({
+        activity_id: activity.id
+      });
+
+      Taro.hideLoading();
+
+      if (response.code === 0) {
+        Taro.showToast({
+          title: '取消报名成功',
+          icon: 'success'
+        });
+
+        // 发送通知
+        if (isLoggedIn && currentUser?.id) {
+          const participantNickname = currentUser.nickname || '用户';
+          
+          console.log('🔔 [ActivityDetail] 准备发送取消报名通知', {
+            isLoggedIn,
+            userId: currentUser.id,
+            nickname: participantNickname,
+            activityId: activity.id,
+            helperAvailable: !!ActivityNotificationHelper.handleParticipantCancelSuccessNotification
+          });
+          
+          // 1. 发送给参与者自己的成功通知
+          try {
+            await ActivityNotificationHelper.handleParticipantCancelSuccessNotification({
+              activity: activity,
+              participantId: currentUser.id,
+              participantNickname
+            });
+            console.log('✅ [ActivityDetail] 参与者取消报名成功通知发送成功');
+          } catch (error) {
+            console.error('❌ [ActivityDetail] 发送参与者取消报名成功通知失败:', error);
+          }
+          
+          // 2. 发送给组织者的通知
+          if (activity.organizer?.id) {
+            ActivityNotificationHelper.handleActivityCancelRegistrationNotification({
+              activity: activity,
+              participantId: currentUser.id,
+              participantNickname
+            }).catch(error => {
+              console.error('❌ [ActivityDetail] 发送取消报名通知失败:', error);
+            });
+          }
+        }
+
+        // 重新获取活动详情以更新状态
+        fetchActivityDetail(activityId);
+      } else {
+        Taro.showToast({
+          title: response.message || '取消失败，请重试',
+          icon: 'none'
+        });
+      }
+    } catch (error) {
+      Taro.hideLoading();
+      console.error('❌ [ActivityDetail] 取消报名失败:', error);
       Taro.showToast({
         title: '网络错误，请重试',
         icon: 'none'
@@ -291,10 +442,10 @@ export default function ActivityDetail() {
             activity.is_registered ? styles.joinedButton :
             (activity.max_participants && activity.current_participants >= activity.max_participants) ? styles.fullButton : ''
           }`}
-          onClick={handleJoinActivity}
+          onClick={activity.is_registered ? handleCancelRegistration : handleJoinActivity}
         >
           <Text className={styles.joinButtonText}>
-            {activity.is_registered ? '已报名' :
+            {activity.is_registered ? '取消报名' :
              (activity.max_participants && activity.current_participants >= activity.max_participants) ? '名额已满' :
              '立即报名'}
           </Text>

@@ -1,7 +1,10 @@
 import { View, ScrollView, Text, Image } from "@tarojs/components";
-import Taro from "@tarojs/taro";
+import Taro, { useDidShow } from "@tarojs/taro";
 import { useEffect, useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import postApi from "@/services/api/post";
+import { AppDispatch, RootState } from "@/store";
+import { fetchUnreadCounts } from "@/store/slices/notificationSlice";
 import styles from "./index.module.scss";
 import CustomHeader from "../../components/custom-header";
 import Section from "./components/Section";
@@ -20,8 +23,19 @@ interface HotPost {
 
 // eslint-disable-next-line import/no-unused-modules
 export default function Discover() {
+  const dispatch = useDispatch<AppDispatch>();
   const [hotPosts, setHotPosts] = useState<HotPost[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // 页面显示时刷新未读通知数量
+  useDidShow(() => {
+    const storedToken = Taro.getStorageSync("token");
+    if (storedToken) {
+      dispatch(fetchUnreadCounts()).catch(_error => {
+        // 静默处理错误，不影响主要功能
+      });
+    }
+  });
 
   const fetchHotPosts = useCallback(async (showLoading = true) => {
     try {
@@ -268,4 +282,4 @@ export default function Discover() {
       </ScrollView>
     </View>
   );
-}
+};

@@ -8,6 +8,7 @@ import { initTabBarSync } from './utils/tabBarSync'
 import './app.scss'
 import { fetchCurrentUser, fetchAboutInfo } from "./store/slices/userSlice";
 import { initializeSettings, applyFontSize, applyNightMode } from "./store/slices/settingsSlice";
+import { fetchUnreadCounts } from "./store/slices/notificationSlice";
 
 
 // AbortController polyfill for WeChat miniprogram
@@ -58,6 +59,11 @@ function App({ children }: PropsWithChildren<any>) {
     if (storedToken) {
       // 如果有token，尝试验证其有效性
       store.dispatch(fetchCurrentUser());
+      
+      // 获取未读通知数量（仅在已登录时）
+      store.dispatch(fetchUnreadCounts()).catch(_error => {
+        // 静默处理错误，不影响应用启动
+      });
     } else {
       // 未登录状态，所有请求将使用x-tenant-id头
     }

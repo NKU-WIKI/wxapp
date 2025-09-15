@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from '@/store';
 import { fetchUserStats, fetchFollowersCount, fetchCollectionCount, resetUserStats, resetFollowersCount, resetCollectionCount } from '@/store/slices/userSlice';
 import { fetchUserPostCount, fetchUserLikeCount, resetUserPostCount, resetUserLikeCount } from '@/store/slices/userPostsSlice';
 import { fetchCampusVerificationInfo } from '@/store/slices/campusVerificationSlice';
+import { fetchUnreadCounts } from '@/store/slices/notificationSlice';
 import CustomHeader from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import { normalizeImageUrl } from '@/utils/image';
@@ -73,6 +74,11 @@ const Profile = () => {
       }
       // 获取校园认证信息
       dispatch(fetchCampusVerificationInfo());
+      
+      // 刷新未读通知数量
+      dispatch(fetchUnreadCounts()).catch(_error => {
+        // 静默处理错误，不影响主要功能
+      });
     }
   });
 

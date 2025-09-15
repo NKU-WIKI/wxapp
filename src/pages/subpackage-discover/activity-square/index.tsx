@@ -6,6 +6,7 @@ import activityApi from "@/services/api/activity";
 import { ActivityRead, ActivityStatus, ActivityType, GetActivityListRequest } from "@/types/api/activity.d";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { ActivityNotificationHelper } from "@/utils/notificationHelper";
 import CustomHeader from "@/components/custom-header";
 import AuthFloatingButton from "@/components/auth-floating-button";
 import SearchBar from "@/components/search-bar";
@@ -15,7 +16,15 @@ import styles from "./index.module.scss";
 
 // eslint-disable-next-line import/no-unused-modules
 export default function ActivitySquare() {
-  const { isLoggedIn } = useSelector((state: RootState) => state.user);
+  const { isLoggedIn, user: currentUser } = useSelector((state: RootState) => state.user);
+  
+  // 调试Redux状态
+  console.log('🏪 [ActivitySquare] Redux用户状态', {
+    isLoggedIn,
+    hasUser: !!currentUser,
+    userId: currentUser?.id,
+    nickname: currentUser?.nickname
+  });
 
   const [activities, setActivities] = useState<ActivityRead[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
@@ -310,6 +319,40 @@ export default function ActivitySquare() {
           icon: 'success'
         });
 
+        // 发送通知
+        if (isLoggedIn && currentUser?.id) {
+          const participantNickname = currentUser.nickname || '用户';
+          
+          // 1. 发送给参与者自己的成功通知
+          ActivityNotificationHelper.handleParticipantJoinSuccessNotification({
+            activity: act,
+            participantId: currentUser.id,
+            participantNickname
+          }).catch(error => {
+            console.error('❌ [ActivitySquare] 发送参与者报名成功通知失败:', error);
+          });
+          
+          // 2. 发送给组织者的通知
+          if (act.organizer?.id) {
+            ActivityNotificationHelper.handleActivityJoinedNotification({
+              activity: act,
+              participantId: currentUser.id,
+              participantNickname
+            }).then(result => {
+              console.log('✅ [ActivitySquare] 活动参与通知发送成功', result);
+            }).catch(error => {
+              console.error('❌ [ActivitySquare] 发送活动参与通知失败:', error);
+            });
+          }
+        } else {
+          console.warn('⚠️ [ActivitySquare] 活动缺少组织者ID，跳过发送通知', {
+            activity: act,
+            activityKeys: Object.keys(act),
+            organizerId: act.organizer?.id,
+            organizer: act.organizer
+          });
+        }
+
         // 重新获取活动列表以更新状态
         await fetchActivities(false, selectedCategory);
       } else {
@@ -356,6 +399,32 @@ export default function ActivitySquare() {
           title: '取消成功！',
           icon: 'success'
         });
+
+        // 发送通知
+        if (isLoggedIn && currentUser?.id) {
+          const participantNickname = currentUser.nickname || '用户';
+          
+          // 1. 发送给参与者自己的成功通知
+          ActivityNotificationHelper.handleParticipantCancelSuccessNotification({
+            activity: act,
+            participantId: currentUser.id,
+            participantNickname
+          }).catch(error => {
+            console.error('❌ [ActivitySquare] 发送参与者取消报名成功通知失败:', error);
+          });
+          
+          // 2. 发送给组织者的通知
+          if (act.organizer?.id) {
+            ActivityNotificationHelper.handleActivityCancelRegistrationNotification({
+              activity: act,
+              participantId: currentUser.id,
+              participantNickname
+            }).catch(error => {
+              console.error('❌ [ActivitySquare] 发送取消报名通知失败:', error);
+            });
+          }
+        }
+
         await fetchActivities(false, selectedCategory);
       } else {
         Taro.showToast({

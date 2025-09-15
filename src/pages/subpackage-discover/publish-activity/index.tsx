@@ -1,6 +1,8 @@
 import { View, Text, Input, Textarea, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import activityApi from '@/services/api/activity';
 import { PostActivityCreateRequest, ActivityType, ActivityVisibility, ActivityRead } from '@/types/api/activity.d';
 import { ActivityNotificationHelper } from '@/utils/notificationHelper';
@@ -21,6 +23,10 @@ interface FormState {
 }
 
 export default function PublishActivity() {
+  // 从Redux store获取当前用户信息
+  const currentUser = useSelector((state: RootState) => state.user.user);
+  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
+  
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, '0');
   const format = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -123,23 +129,27 @@ export default function PublishActivity() {
           category: createdActivity?.category
         });
 
-        // 获取当前用户信息
-        const currentUser = (window as any).g_app?.$app?.globalData?.userInfo ||
-                           JSON.parse(Taro.getStorageSync('userInfo') || '{}');
-
-        console.log('👤 [PublishActivity] 获取到当前用户信息', {
+        // 获取当前用户信息（从Redux）
+        console.log('👤 [PublishActivity] 获取Redux用户信息', {
           hasUser: !!currentUser,
           userId: currentUser?.id,
-          nickname: currentUser?.nickname || currentUser?.name
+          nickname: currentUser?.nickname,
+          isLoggedIn
         });
 
         // 发送活动发布通知
-        if (createdActivity && currentUser?.id) {
-          console.log('🔔 [PublishActivity] 开始发送活动发布通知');
+        if (createdActivity && isLoggedIn && currentUser?.id) {
+          const organizerNickname = currentUser.nickname || '用户';
+          console.log('🔔 [PublishActivity] 开始发送活动发布通知', {
+            organizerId: currentUser.id,
+            organizerNickname,
+            activityId: createdActivity.id
+          });
+          
           ActivityNotificationHelper.handleActivityPublishedNotification({
             activity: createdActivity,
             organizerId: currentUser.id,
-            organizerNickname: currentUser.nickname || currentUser.name || '用户'
+            organizerNickname
           }).catch(error => {
             // 通知发送失败不影响主流程
             console.error('❌ [PublishActivity] 发送活动发布通知失败:', error);
@@ -147,7 +157,12 @@ export default function PublishActivity() {
         } else {
           console.warn('⚠️ [PublishActivity] 缺少必要信息，跳过发送通知', {
             hasActivity: !!createdActivity,
-            hasUserId: !!currentUser?.id
+            isLoggedIn,
+            hasUserId: !!currentUser?.id,
+            userInfo: currentUser ? {
+              id: currentUser.id,
+              nickname: currentUser.nickname
+            } : null
           });
         }
 

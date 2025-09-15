@@ -1,6 +1,5 @@
 import { View, Image, Text } from '@tarojs/components'
 import { normalizeImageUrl } from '@/utils/image'
-import AuthorInfo from '@/components/author-info'
 import { NotificationRead } from '@/types/api/notification.d'
 
 // Relative imports
