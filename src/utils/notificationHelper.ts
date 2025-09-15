@@ -321,17 +321,10 @@ export class ActivityNotificationHelper {
     organizerId: string;
     organizerNickname: string;
   }) {
-    console.log('🎉 [ActivityNotification] 开始处理活动发布通知', {
-      activityId: params.activity?.id,
-      activityTitle: params.activity?.title,
-      organizerId: params.organizerId,
-      organizerNickname: params.organizerNickname
-    });
 
     try {
       // 检查必要参数
       if (!params.activity?.id || !params.organizerId || !params.organizerNickname) {
-        console.warn('⚠️ [ActivityNotification] 活动发布通知参数不完整，跳过处理', params);
         return;
       }
 
@@ -368,10 +361,6 @@ export class ActivityNotificationHelper {
         });
       }
       
-      console.log('✅ [ActivityNotification] 活动发布通知发送成功', {
-        activityId: params.activity.id,
-        recipientCount: recipientIds.length
-      });
       
     } catch (error) {
       console.error('❌ [ActivityNotification] 活动发布通知发送失败', {
@@ -435,10 +424,6 @@ export class ActivityNotificationHelper {
         cancel_reason: params.cancelReason
       });
       
-      console.log('✅ [ActivityNotification] 活动取消通知发送成功', {
-        activityId: params.activity.id,
-        participantCount: recipientIds.length
-      });
       
     } catch (error) {
       console.error('❌ [ActivityNotification] 活动取消通知发送失败', {
@@ -500,31 +485,20 @@ export class ActivityNotificationHelper {
     participantId: string;
     participantNickname: string;
   }) {
-    console.log('👥 [ActivityNotification] 开始处理活动参与通知', {
-      activityId: params.activity?.id,
-      activityTitle: params.activity?.title,
-      participantId: params.participantId,
-      participantNickname: params.participantNickname,
-      organizerId: params.activity?.organizer?.id
-    });
 
     try {
       // 检查必要参数
       const organizerId = params.activity?.organizer?.id;
       if (!params.activity?.id || !params.participantId || !params.participantNickname || !organizerId) {
-        console.warn('⚠️ [ActivityNotification] 活动参与通知参数不完整，跳过处理', params);
         return;
       }
 
       // 不给自己发通知（测试环境允许）
       if (params.participantId === organizerId) {
-        console.log('ℹ️ [ActivityNotification] 组织者自己参与活动');
         // 在测试环境中允许自己给自己发通知，方便调试
         if (process.env.NODE_ENV === 'production') {
-          console.log('ℹ️ [ActivityNotification] 生产环境，跳过自己给自己的通知');
           return;
         } else {
-          console.log('🧪 [ActivityNotification] 测试环境，允许自己给自己发通知');
         }
       }
 
@@ -544,11 +518,6 @@ export class ActivityNotificationHelper {
         participant_nickname: params.participantNickname
       });
 
-      console.log('✅ [ActivityNotification] 活动参与通知发送成功', {
-        activityId: params.activity.id,
-        participantNickname: params.participantNickname,
-        result
-      });
 
       return result;
       
@@ -592,10 +561,8 @@ export class ActivityNotificationHelper {
         console.log('ℹ️ [ActivityNotification] 组织者自己取消报名');
         // 在测试环境中允许自己给自己发通知，方便调试
         if (process.env.NODE_ENV === 'production') {
-          console.log('ℹ️ [ActivityNotification] 生产环境，跳过自己给自己的通知');
           return;
         } else {
-          console.log('🧪 [ActivityNotification] 测试环境，允许自己给自己发通知');
         }
       }
 
@@ -615,11 +582,6 @@ export class ActivityNotificationHelper {
         participant_nickname: params.participantNickname
       });
 
-      console.log('✅ [ActivityNotification] 活动取消报名通知发送成功', {
-        activityId: params.activity.id,
-        participantNickname: params.participantNickname,
-        result
-      });
 
       return result;
       
@@ -657,10 +619,6 @@ export class ActivityNotificationHelper {
         participant_nickname: params.participantNickname
       });
 
-      console.log('✅ [ActivityNotification] 参与者报名成功通知发送成功', {
-        activityId: params.activity.id,
-        participantId: params.participantId
-      });
 
     } catch (error) {
       console.error('❌ [ActivityNotification] 参与者报名成功通知发送失败', {
@@ -696,10 +654,6 @@ export class ActivityNotificationHelper {
         participant_nickname: params.participantNickname
       });
 
-      console.log('✅ [ActivityNotification] 参与者取消报名成功通知发送成功', {
-        activityId: params.activity.id,
-        participantId: params.participantId
-      });
 
     } catch (error) {
       console.error('❌ [ActivityNotification] 参与者取消报名成功通知发送失败', {

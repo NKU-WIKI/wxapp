@@ -19,12 +19,6 @@ export default function ActivitySquare() {
   const { isLoggedIn, user: currentUser } = useSelector((state: RootState) => state.user);
   
   // 调试Redux状态
-  console.log('🏪 [ActivitySquare] Redux用户状态', {
-    isLoggedIn,
-    hasUser: !!currentUser,
-    userId: currentUser?.id,
-    nickname: currentUser?.nickname
-  });
 
   const [activities, setActivities] = useState<ActivityRead[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
@@ -329,7 +323,7 @@ export default function ActivitySquare() {
             participantId: currentUser.id,
             participantNickname
           }).catch(error => {
-            console.error('❌ [ActivitySquare] 发送参与者报名成功通知失败:', error);
+            // 通知发送失败不影响主流程
           });
           
           // 2. 发送给组织者的通知
@@ -338,19 +332,10 @@ export default function ActivitySquare() {
               activity: act,
               participantId: currentUser.id,
               participantNickname
-            }).then(result => {
-              console.log('✅ [ActivitySquare] 活动参与通知发送成功', result);
             }).catch(error => {
-              console.error('❌ [ActivitySquare] 发送活动参与通知失败:', error);
+              // 通知发送失败不影响主流程
             });
           }
-        } else {
-          console.warn('⚠️ [ActivitySquare] 活动缺少组织者ID，跳过发送通知', {
-            activity: act,
-            activityKeys: Object.keys(act),
-            organizerId: act.organizer?.id,
-            organizer: act.organizer
-          });
         }
 
         // 重新获取活动列表以更新状态
@@ -410,7 +395,7 @@ export default function ActivitySquare() {
             participantId: currentUser.id,
             participantNickname
           }).catch(error => {
-            console.error('❌ [ActivitySquare] 发送参与者取消报名成功通知失败:', error);
+            // 通知发送失败不影响主流程
           });
           
           // 2. 发送给组织者的通知
@@ -420,7 +405,7 @@ export default function ActivitySquare() {
               participantId: currentUser.id,
               participantNickname
             }).catch(error => {
-              console.error('❌ [ActivitySquare] 发送取消报名通知失败:', error);
+              // 通知发送失败不影响主流程
             });
           }
         }

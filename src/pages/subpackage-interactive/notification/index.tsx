@@ -504,21 +504,14 @@ const NotificationPage = () => {
 
   useEffect(() => {
     // 初始化加载 - 同时获取通知列表和未读数量
-    console.log('🚀 [通知页面调试] 页面初始化开始', {
-      currentTab,
-      initialized
-    });
 
     Promise.all([
       fetchNotifications(currentTab),  // 使用当前标签页加载
       refreshUnreadCounts()
     ]).then(() => {
-      console.log('✅ [通知页面调试] 页面初始化数据加载完成');
     }).catch((error) => {
-      console.error('❌ [通知页面调试] 页面初始化失败', error);
     }).finally(() => {
       setInitialized(true); // 标记为已初始化
-      console.log('🏁 [通知页面调试] 页面初始化完成');
     })
   }, [currentTab, fetchNotifications, refreshUnreadCounts])  // 只在组件挂载时执行一次
 
@@ -543,7 +536,6 @@ const NotificationPage = () => {
             refresherEnabled={true}
             refresherTriggered={loading}
             onRefresherRefresh={() => {
-              console.log('🔄 [通知页面调试] 下拉刷新触发');
               fetchNotifications(currentTab, true);
             }}
             refresherBackground="#f8f9fa"

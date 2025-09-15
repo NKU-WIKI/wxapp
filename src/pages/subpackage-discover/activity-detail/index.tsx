@@ -130,13 +130,6 @@ export default function ActivityDetail() {
         if (isLoggedIn && currentUser?.id) {
           const participantNickname = currentUser.nickname || '用户';
           
-          console.log('🔔 [ActivityDetail] 准备发送参与者通知', {
-            isLoggedIn,
-            userId: currentUser.id,
-            nickname: participantNickname,
-            activityId: activity.id,
-            helperAvailable: !!ActivityNotificationHelper.handleParticipantJoinSuccessNotification
-          });
           
           // 1. 发送给参与者自己的成功通知
           try {
@@ -145,9 +138,8 @@ export default function ActivityDetail() {
               participantId: currentUser.id,
               participantNickname
             });
-            console.log('✅ [ActivityDetail] 参与者报名成功通知发送成功');
-          } catch (error) {
-            console.error('❌ [ActivityDetail] 发送参与者报名成功通知失败:', error);
+        } catch (error) {
+          // 通知发送失败不影响主流程
           }
           
           // 2. 发送给组织者的通知
@@ -157,7 +149,7 @@ export default function ActivityDetail() {
               participantId: currentUser.id,
               participantNickname
             }).catch(error => {
-              console.error('❌ [ActivityDetail] 发送活动参与通知失败:', error);
+              // 通知发送失败不影响主流程
             });
           }
         }
@@ -237,13 +229,6 @@ export default function ActivityDetail() {
         if (isLoggedIn && currentUser?.id) {
           const participantNickname = currentUser.nickname || '用户';
           
-          console.log('🔔 [ActivityDetail] 准备发送取消报名通知', {
-            isLoggedIn,
-            userId: currentUser.id,
-            nickname: participantNickname,
-            activityId: activity.id,
-            helperAvailable: !!ActivityNotificationHelper.handleParticipantCancelSuccessNotification
-          });
           
           // 1. 发送给参与者自己的成功通知
           try {
@@ -252,9 +237,8 @@ export default function ActivityDetail() {
               participantId: currentUser.id,
               participantNickname
             });
-            console.log('✅ [ActivityDetail] 参与者取消报名成功通知发送成功');
-          } catch (error) {
-            console.error('❌ [ActivityDetail] 发送参与者取消报名成功通知失败:', error);
+        } catch (error) {
+          // 通知发送失败不影响主流程
           }
           
           // 2. 发送给组织者的通知
@@ -264,7 +248,7 @@ export default function ActivityDetail() {
               participantId: currentUser.id,
               participantNickname
             }).catch(error => {
-              console.error('❌ [ActivityDetail] 发送取消报名通知失败:', error);
+              // 通知发送失败不影响主流程
             });
           }
         }
@@ -279,7 +263,7 @@ export default function ActivityDetail() {
       }
     } catch (error) {
       Taro.hideLoading();
-      console.error('❌ [ActivityDetail] 取消报名失败:', error);
+      // 记录错误信息以便调试
       Taro.showToast({
         title: '网络错误，请重试',
         icon: 'none'

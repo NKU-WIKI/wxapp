@@ -364,7 +364,6 @@ export const createActivityNotification = {
     };
 
     return createNotification(notificationData).then(response => {
-      console.log('✅ [API] 活动发布通知创建成功', response);
       // 更新 Redux 未读数量
       store.dispatch(incrementUnreadCount({
         type: NotificationType._Activity,
@@ -372,7 +371,6 @@ export const createActivityNotification = {
       }));
       return response;
     }).catch(error => {
-      console.error('❌ [API] 活动发布通知创建失败', error);
       throw error;
     });
   },
@@ -415,7 +413,6 @@ export const createActivityNotification = {
     });
 
     return createNotification(notificationData).then(response => {
-      console.log('✅ [API] 活动报名状态通知创建成功', response);
       // 更新 Redux 未读数量
       store.dispatch(incrementUnreadCount({
         type: NotificationType._Activity,
@@ -423,7 +420,6 @@ export const createActivityNotification = {
       }));
       return response;
     }).catch(error => {
-      console.error('❌ [API] 活动报名状态通知创建失败', error);
       throw error;
     });
   },
@@ -466,7 +462,6 @@ export const createActivityNotification = {
     });
 
     return createNotification(notificationData).then(response => {
-      console.log('✅ [API] 活动报名状态通知创建成功', response);
       // 更新 Redux 未读数量
       store.dispatch(incrementUnreadCount({
         type: NotificationType._Activity,
@@ -474,7 +469,6 @@ export const createActivityNotification = {
       }));
       return response;
     }).catch(error => {
-      console.error('❌ [API] 活动报名状态通知创建失败', error);
       throw error;
     });
   },
