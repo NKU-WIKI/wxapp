@@ -323,6 +323,63 @@
   margin: 16px 0;
 }
 
+.imagePlaceholder {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  background-color: $bg-input;
+  border: 2px dashed $border-base;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: $bg-input-focus;
+    border-color: $theme-primary;
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.placeholderContent {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.placeholderCameraIcon {
+  width: 24px;
+  height: 24px;
+  opacity: 0.6;
+  filter: invert(0.5);
+}
+
+.placeholderPlusIcon {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background-color: $theme-primary;
+  border-radius: 50%;
+  padding: 2px;
+  opacity: 0.9;
+  
+  .imagePlaceholder:hover & {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
 .imageWrapper {
   position: relative;
   width: 80px;

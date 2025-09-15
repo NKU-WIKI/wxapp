@@ -19,10 +19,12 @@ import type { Post } from "@/types/api/post.d";
 import atSignIcon from "@/assets/at-sign.svg";
 import bagIcon from "@/assets/bag.svg";
 import boldIcon from "@/assets/bold.svg";
+import cameraIcon from "@/assets/camera.svg";
 import defaultAvatar from "@/assets/profile.png";
 import hatIcon from "@/assets/hat.svg";
 import imageIcon from "@/assets/image.svg";
 import italicIcon from "@/assets/italic.svg";
+import plusIcon from "@/assets/plus.svg";
 
 import penToolIcon from "@/assets/pen-tool.svg";
 import studyIcon from "@/assets/school.svg";
@@ -705,6 +707,26 @@ export default function PublishPost() {
             )}
 
             <View className={styles.imagePreviewContainer}>
+              {/* 图片占位符 - 总是显示，但在达到9张时隐藏 */}
+              {images.length < 9 && (
+                <View 
+                  className={styles.imagePlaceholder}
+                  onClick={handleChooseImage}
+                >
+                  <View className={styles.placeholderContent}>
+                    <Image 
+                      src={cameraIcon} 
+                      className={styles.placeholderCameraIcon}
+                    />
+                    <Image 
+                      src={plusIcon} 
+                      className={styles.placeholderPlusIcon}
+                    />
+                  </View>
+                </View>
+              )}
+              
+              {/* 已上传的图片 */}
               {images.map((url, index) => (
                 <View key={index} className={styles.imageWrapper}>
                   <Image

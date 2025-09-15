@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import Taro, { useRouter, useUnload } from "@tarojs/taro";
-import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from "react";
+import Taro, { useRouter } from "@tarojs/taro";
+import { useDispatch } from "react-redux";
 import {
   View,
   Text,
@@ -14,20 +14,17 @@ import {
 } from "@tarojs/components";
 
 // Absolute imports (alphabetical order)
-import { AppDispatch, RootState } from "@/store";
+import { AppDispatch } from "@/store";
 import CustomHeader from "@/components/custom-header";
 import { createNote } from '@/store/slices/noteSlice';
 import { uploadApi } from "@/services/api/upload";
 
 // Asset imports
 import plusIcon from "@/assets/plus.svg";
-import penToolIcon from "@/assets/pen-tool.svg";
+import cameraIcon from "@/assets/camera.svg";
 
 // Relative imports
 import styles from "./index.module.scss";
-
-// 默认图片URL（使用本地logo.png作为初始图片）
-const defaultImageUrl = '/assets/logo.png';
 
 export default function PublishNote() {
   const dispatch = useDispatch<AppDispatch>();
@@ -35,18 +32,13 @@ export default function PublishNote() {
   // 状态管理
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [images, setImages] = useState<string[]>(['/assets/logo.png']); // 本地图片路径数组
+  const [images, setImages] = useState<string[]>([]); // 本地图片路径数组
   const [localImages, setLocalImages] = useState<Array<{path: string, size: number, compressed: boolean}>>([]); // 本地图片信息
-  const [isUploading, setIsUploading] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [showImageOverview, setShowImageOverview] = useState(false); // 图片总览弹窗状态
   const [imageAspectRatio, setImageAspectRatio] = useState<number>(1); // 图片长宽比，默认为1（正方形）
   const [currentImageIndex, setCurrentImageIndex] = useState(0); // 当前显示的图片索引
   
-  // 检查是否为默认图片（本地logo图片）
-  const isDefaultImage = (imagePath: string) => {
-    return imagePath === defaultImageUrl || imagePath === '/assets/logo.png';
-  };
 
   // 计算图片长宽比
   const calculateImageAspectRatio = (imagePath: string): Promise<number> => {
@@ -71,24 +63,9 @@ export default function PublishNote() {
     setImageAspectRatio(ratio);
   };
 
-  // 获取可删除的图片数量（非默认图片）
-  const getDeletableImageCount = () => {
-    return images.filter(img => !isDefaultImage(img)).length;
-  };
 
-  // 检查是否至少有一张用户上传的图片
-  const hasUserImages = () => {
-    return images.some(img => !isDefaultImage(img));
-  };
-
-  // 初始化默认图片和预填内容
+  // 初始化预填内容
   useEffect(() => {
-    if (images.length === 0) {
-      setImages([defaultImageUrl]);
-      // 计算logo.png的长宽比
-      calculateImageAspectRatio(defaultImageUrl).then(setImageAspectRatio);
-    }
-    
     // 处理预填内容
     const prefillContent = router?.params?.prefillContent;
     if (prefillContent) {
@@ -123,7 +100,6 @@ export default function PublishNote() {
   // 处理图片上传
   const handleImageUpload = async () => {
     try {
-      setIsUploading(true);
       
       const res = await Taro.chooseImage({
         count: 9 - images.length,
@@ -153,13 +129,6 @@ export default function PublishNote() {
                 const { smartCompressImage } = await import('@/utils/image');
                 finalPath = await smartCompressImage(tempPath, 1024, 0.85);
                 
-                // 检查压缩后的大小
-                const compressedInfo = await Taro.getFileInfo({ filePath: finalPath });
-                let compressedSize = 0;
-                
-                if ('size' in compressedInfo) {
-                  compressedSize = compressedInfo.size;
-                }
                 
                 compressed = true;
               }
@@ -200,8 +169,6 @@ export default function PublishNote() {
         icon: 'none',
         duration: 2000,
       });
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -209,37 +176,7 @@ export default function PublishNote() {
   const handleRemoveImage = (index: number) => {
     setImages(prev => {
       const newImages = [...prev];
-      const imageToRemove = newImages[index];
-      
-      // 检查是否为默认图片
-      if (isDefaultImage(imageToRemove)) {
-        // 如果是默认图片，检查是否还有其他图片
-        if (newImages.length > 1) {
-          newImages.splice(index, 1);
-        } else {
-          // 如果只有一张图片，不允许删除，提示用户
-          Taro.showToast({
-            title: '至少需要保留一张图片',
-            icon: 'none',
-            duration: 2000,
-          });
-          return prev;
-        }
-      } else {
-        // 如果不是默认图片，检查删除后是否还有图片
-        const remainingImages = newImages.filter((_, i) => i !== index);
-        if (remainingImages.length === 0) {
-          // 如果删除后没有图片了，不允许删除
-          Taro.showToast({
-            title: '至少需要保留一张图片',
-            icon: 'none',
-            duration: 2000,
-          });
-          return prev;
-        }
-        newImages.splice(index, 1);
-      }
-      
+      newImages.splice(index, 1);
       return newImages;
     });
     
@@ -269,11 +206,6 @@ export default function PublishNote() {
     setShowImageOverview(false);
   };
 
-  // 获取当前显示的图片（用于界面显示）
-  const currentDisplayImage = images.length > 0 ? images[currentImageIndex] : null;
-
-  // 检查当前显示图片是否为默认图片
-  const isCurrentImageDefault = currentDisplayImage ? isDefaultImage(currentDisplayImage) : false;
 
   // 发布笔记
   const handlePublish = async () => {
@@ -304,11 +236,8 @@ export default function PublishNote() {
       if (images.length > 0) {
         Taro.showLoading({ title: '正在上传图片...' });
         
-        // 过滤掉默认logo图片，只上传用户添加的图片
-        const userImages = localImages.filter(img => !img.path.includes('/assets/logo.png'));
-        
-        if (userImages.length > 0) {
-          const uploadPromises = userImages.map(async (imgInfo) => {
+        if (localImages.length > 0) {
+          const uploadPromises = localImages.map(async (imgInfo) => {
             try {
               const uploadResult = await uploadApi.uploadImage(imgInfo.path, { compress: false }); // 本地已压缩，直接上传
               return uploadResult;
@@ -374,15 +303,33 @@ export default function PublishNote() {
           enableBackToTop
         >
           {/* 图片上传区域 */}
-          <View 
-            className={styles.imageSection}
-          >
+          <View className={styles.imageSection}>
             <View 
               className={styles.imageGrid}
               style={{
-                height: `${Math.max(200, 300 * imageAspectRatio)}px` // 根据长宽比动态调整高度
+                height: images.length > 0 ? `${Math.max(200, 300 * imageAspectRatio)}px` : '200px'
               }}
             >
+              {/* 图片占位符 - 当没有图片时显示 */}
+              {images.length === 0 && (
+                <View 
+                  className={styles.imagePlaceholder}
+                  onClick={handleImageUpload}
+                >
+                  <View className={styles.placeholderContent}>
+                    <Image 
+                      src={cameraIcon} 
+                      className={styles.placeholderCameraIcon}
+                    />
+                    <Image 
+                      src={plusIcon} 
+                      className={styles.placeholderPlusIcon}
+                    />
+                  </View>
+                  <Text className={styles.placeholderText}>点击添加图片</Text>
+                </View>
+              )}
+
               {/* 显示图片轮播 */}
               {images.length > 0 && (
                 <Swiper
@@ -407,14 +354,12 @@ export default function PublishNote() {
                         </Text>
                         
                         {/* 移除图片按钮 - 右上角 */}
-                        {(!isDefaultImage(image) || images.length > 1) && (
-                          <View 
-                            className={styles.removeButton}
-                            onClick={() => handleRemoveImage(index)}
-                          >
-                            <Text className={styles.removeIcon}>×</Text>
-                          </View>
-                        )}
+                        <View 
+                          className={styles.removeButton}
+                          onClick={() => handleRemoveImage(index)}
+                        >
+                          <Text className={styles.removeIcon}>×</Text>
+                        </View>
                       </View>
                     </SwiperItem>
                   ))}
@@ -441,7 +386,7 @@ export default function PublishNote() {
               )}
 
               {/* 添加图片按钮 - 右下角 */}
-              {images.length < 9 && (
+              {images.length > 0 && images.length < 9 && (
                 <View 
                   className={styles.addImageButton}
                   onClick={handleImageUpload}
@@ -511,21 +456,19 @@ export default function PublishNote() {
                     className={styles.imageOverviewImage}
                     mode="aspectFill"
                   />
-                  {/* 删除按钮 - 只有非默认图片才显示，或者有多张图片时默认图片也可以删除 */}
-                  {(!isDefaultImage(image) || images.length > 1) && (
-                      <View
-                      className={styles.imageOverviewDelete}
-                      onClick={() => {
-                        handleRemoveImage(index);
-                        // 如果删除后没有图片了，关闭弹窗
-                        if (images.length <= 1) {
-                          handleCloseImageOverview();
-                        }
-                      }}
-                    >
-                      <Text className={styles.imageOverviewDeleteIcon}>×</Text>
-            </View>
-          )}
+                  {/* 删除按钮 */}
+                  <View
+                    className={styles.imageOverviewDelete}
+                    onClick={() => {
+                      handleRemoveImage(index);
+                      // 如果删除后没有图片了，关闭弹窗
+                      if (images.length <= 1) {
+                        handleCloseImageOverview();
+                      }
+                    }}
+                  >
+                    <Text className={styles.imageOverviewDeleteIcon}>×</Text>
+                  </View>
                 </View>
                 ))}
             </View>
