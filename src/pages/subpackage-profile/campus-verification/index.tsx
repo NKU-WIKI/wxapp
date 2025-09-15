@@ -73,8 +73,12 @@ const CampusVerification = () => {
         const tempFilePath = res.tempFilePaths[0];
         setCardImage(tempFilePath);
       },
-      fail: (_err) => {
-        
+      fail: (err) => {
+        // 用户取消选择是正常行为，不需要显示错误提示
+        if (err.errMsg && err.errMsg.includes('cancel')) {
+          return;
+        }
+        // 只有真正的错误才显示提示
         Taro.showToast({
           title: '选择图片失败',
           icon: 'error'

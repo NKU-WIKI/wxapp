@@ -16,6 +16,7 @@ export default {
         "user-agreement/index",
         "privacy-policy/index",
         "settings/index",
+        "account-info/index",
         "draft-box/index",
         "collection/index",
         "followers/index",

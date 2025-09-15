@@ -82,7 +82,15 @@ export default function FeedbackPage() {
       
       const newFiles = res.tempFiles || res.tempFilePaths.map(path => ({ path }));
       setFiles([...files, ...newFiles]);
-    } catch (_uploadError) {
+    } catch (error) {
+      // 检查是否是用户取消操作
+      if (error && typeof error === 'object' && 'errMsg' in error) {
+        const errMsg = (error as any).errMsg;
+        if (errMsg && errMsg.includes('cancel')) {
+          // 用户取消是正常行为，不显示错误提示
+          return;
+        }
+      }
 
       Taro.showToast({ title: '选择图片失败', icon: 'none' });
     }

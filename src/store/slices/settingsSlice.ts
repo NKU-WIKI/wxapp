@@ -19,7 +19,8 @@ export interface SettingsState {
   
   // 通用设置
   personalizedRecommendation: boolean;
-  allowImageSaving: boolean;
+  allowFileUpload: boolean;
+  allowClipboardAccess: boolean;
   
   // 系统设置
   isInitialized: boolean;
@@ -36,7 +37,8 @@ const defaultSettings: SettingsState = {
   whoCanComment: 'everyone',
   whoCanViewPosts: 'everyone',
   personalizedRecommendation: false,
-  allowImageSaving: false,
+  allowFileUpload: true,
+  allowClipboardAccess: true,
   isInitialized: false,
 };
 
@@ -51,7 +53,8 @@ export const SETTINGS_STORAGE_KEYS = {
   WHO_CAN_COMMENT: 'settings_who_can_comment',
   WHO_CAN_VIEW_POSTS: 'settings_who_can_view_posts',
   PERSONALIZED_RECOMMENDATION: 'settings_personalized_recommendation',
-  ALLOW_IMAGE_SAVING: 'settings_allow_image_saving',
+  ALLOW_FILE_UPLOAD: 'settings_allow_file_upload',
+  ALLOW_CLIPBOARD_ACCESS: 'settings_allow_clipboard_access',
 };
 
 // 从本地存储加载设置
@@ -64,13 +67,15 @@ const loadSettingsFromStorage = (): Partial<SettingsState> => {
     const pushNotification = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.PUSH_NOTIFICATION);
     const privateMessage = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.PRIVATE_MESSAGE);
     const personalizedRecommendation = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.PERSONALIZED_RECOMMENDATION);
-    const allowImageSaving = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.ALLOW_IMAGE_SAVING);
+    const allowFileUpload = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.ALLOW_FILE_UPLOAD);
+    const allowClipboardAccess = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.ALLOW_CLIPBOARD_ACCESS);
     
     if (messageNotification !== '') settings.messageNotification = messageNotification;
     if (pushNotification !== '') settings.pushNotification = pushNotification;
     if (privateMessage !== '') settings.privateMessage = privateMessage;
     if (personalizedRecommendation !== '') settings.personalizedRecommendation = personalizedRecommendation;
-    if (allowImageSaving !== '') settings.allowImageSaving = allowImageSaving;
+    if (allowFileUpload !== '') settings.allowFileUpload = allowFileUpload;
+    if (allowClipboardAccess !== '') settings.allowClipboardAccess = allowClipboardAccess;
     
     // 加载字符串设置
     const fontSize = Taro.getStorageSync(SETTINGS_STORAGE_KEYS.FONT_SIZE);
@@ -173,9 +178,14 @@ const settingsSlice = createSlice({
       saveSettingToStorage(SETTINGS_STORAGE_KEYS.PERSONALIZED_RECOMMENDATION, action.payload);
     },
     
-    setAllowImageSaving: (state, action: PayloadAction<boolean>) => {
-      state.allowImageSaving = action.payload;
-      saveSettingToStorage(SETTINGS_STORAGE_KEYS.ALLOW_IMAGE_SAVING, action.payload);
+    setAllowFileUpload: (state, action: PayloadAction<boolean>) => {
+      state.allowFileUpload = action.payload;
+      saveSettingToStorage(SETTINGS_STORAGE_KEYS.ALLOW_FILE_UPLOAD, action.payload);
+    },
+    
+    setAllowClipboardAccess: (state, action: PayloadAction<boolean>) => {
+      state.allowClipboardAccess = action.payload;
+      saveSettingToStorage(SETTINGS_STORAGE_KEYS.ALLOW_CLIPBOARD_ACCESS, action.payload);
     },
     
     // 重置所有设置
@@ -273,7 +283,8 @@ export const {
   setWhoCanComment,
   setWhoCanViewPosts,
   setPersonalizedRecommendation,
-  setAllowImageSaving,
+  setAllowFileUpload,
+  setAllowClipboardAccess,
   resetSettings,
 } = settingsSlice.actions;
 

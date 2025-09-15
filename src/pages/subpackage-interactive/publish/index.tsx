@@ -11,6 +11,7 @@ import { uploadApi } from "@/services/api/upload";
 import { getPostDetail, getMyDrafts, deleteDraft } from "@/services/api/post";
 import { createPost } from "@/store/slices/postSlice";
 import { normalizeImageUrl } from "@/utils/image";
+import { checkFileUploadPermissionWithToast } from "@/utils/permissionChecker";
 import { DraftPost } from "@/types/draft";
 import { saveDraft, getDrafts } from "@/utils/draft";
 import type { Post } from "@/types/api/post.d";
@@ -362,6 +363,11 @@ export default function PublishPost() {
   });
 
   const handleChooseImage = () => {
+  // 检查文件上传权限
+  if (!checkFileUploadPermissionWithToast()) {
+    return;
+  }
+  
   if (isUploading) return;
   const count = 9 - images.length;
   if (count <= 0) {
@@ -390,6 +396,17 @@ export default function PublishPost() {
         Taro.hideLoading();
       }
     },
+    fail: (err) => {
+      // 用户取消选择是正常行为，不需要显示错误提示
+      if (err.errMsg && err.errMsg.includes('cancel')) {
+        return;
+      }
+      // 只有真正的错误才显示提示
+      Taro.showToast({ 
+        title: "选择图片失败", 
+        icon: "none" 
+      });
+    }
   });
 };
 

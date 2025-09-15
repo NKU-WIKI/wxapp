@@ -14,17 +14,38 @@ export const getCacheSize = (): string => {
     const keys = storageInfo.keys;
     let totalSize = 0;
 
-    // 估算每个存储项的大小
+    // 需要计算的缓存keys（排除重要数据）
+    const preserveKeys = [
+      'token',
+      'persist:user',
+      'persist:settings',
+      // 设置相关的所有keys
+      'settings_message_notification',
+      'settings_push_notification', 
+      'settings_private_message',
+      'settings_font_size',
+      'settings_night_mode',
+      'settings_who_can_message',
+      'settings_who_can_comment',
+      'settings_who_can_view_posts',
+      'settings_personalized_recommendation',
+      'settings_allow_file_upload',
+      'settings_allow_clipboard_access',
+    ];
+
+    // 只计算非重要数据的大小
     for (const key of keys) {
-      try {
-        const data = Taro.getStorageSync(key);
-        if (data) {
-          // 粗略估算数据大小（字符长度 * 2字节）
-          const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
-          totalSize += dataStr.length * 2;
+      if (!preserveKeys.includes(key) && !key.startsWith('persist:')) {
+        try {
+          const data = Taro.getStorageSync(key);
+          if (data) {
+            // 粗略估算数据大小（字符长度 * 2字节）
+            const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
+            totalSize += dataStr.length * 2;
+          }
+        } catch (error) {
+          // 忽略单个存储项的错误
         }
-      } catch (error) {
-        // 忽略单个存储项的错误
       }
     }
 
@@ -37,8 +58,8 @@ export const getCacheSize = (): string => {
       return `${Math.round(totalSize / (1024 * 1024))}MB`;
     }
   } catch (error) {
-    // 如果获取失败，返回估算值
-    return '128KB';
+    // 如果获取失败，返回0
+    return '0KB';
   }
 };
 
@@ -58,7 +79,7 @@ export const clearCache = (): void => {
       'persist:settings',
       // 设置相关的所有keys
       'settings_message_notification',
-      'settings_push_notification',
+      'settings_push_notification', 
       'settings_private_message',
       'settings_font_size',
       'settings_night_mode',
@@ -66,14 +87,17 @@ export const clearCache = (): void => {
       'settings_who_can_comment',
       'settings_who_can_view_posts',
       'settings_personalized_recommendation',
-      'settings_allow_image_saving',
+      'settings_allow_file_upload',
+      'settings_allow_clipboard_access',
     ];
 
+    let deletedCount = 0;
     // 清除非关键缓存数据
     for (const key of keys) {
       if (!preserveKeys.includes(key) && !key.startsWith('persist:')) {
         try {
           Taro.removeStorageSync(key);
+          deletedCount++;
         } catch (error) {
           // 忽略单个删除失败的情况
         }
@@ -95,6 +119,11 @@ export const clearCache = (): void => {
       }
     } catch (error) {
       // 文件系统操作失败，忽略
+    }
+
+    // 如果没有删除任何项目，说明没有可清理的缓存
+    if (deletedCount === 0) {
+      // 这是正常情况，不抛异常
     }
 
   } catch (error) {

@@ -18,6 +18,7 @@ import { AppDispatch } from "@/store";
 import CustomHeader from "@/components/custom-header";
 import { createNote } from '@/store/slices/noteSlice';
 import { uploadApi } from "@/services/api/upload";
+import { checkFileUploadPermissionWithToast } from "@/utils/permissionChecker";
 
 // Asset imports
 import plusIcon from "@/assets/plus.svg";
@@ -99,6 +100,11 @@ export default function PublishNote() {
 
   // 处理图片上传
   const handleImageUpload = async () => {
+    // 检查文件上传权限
+    if (!checkFileUploadPermissionWithToast()) {
+      return;
+    }
+
     try {
       
       const res = await Taro.chooseImage({
@@ -163,7 +169,16 @@ export default function PublishNote() {
         });
       }
     } catch (error) {
-      console.error('选择图片失败:', error);
+      // 检查是否是用户取消操作
+      if (error && typeof error === 'object' && 'errMsg' in error) {
+        const errMsg = (error as any).errMsg;
+        if (errMsg && errMsg.includes('cancel')) {
+          // 用户取消是正常行为，不显示错误提示
+          return;
+        }
+      }
+      
+      // 其他错误才显示提示
       Taro.showToast({
         title: '选择图片失败',
         icon: 'none',

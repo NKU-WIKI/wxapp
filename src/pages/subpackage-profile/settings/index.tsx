@@ -4,22 +4,17 @@ import Taro from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/store/slices/userSlice';
 import {
-  setMessageNotification,
-  setPushNotification,
-  setPrivateMessage,
-  setWhoCanMessage,
-  setWhoCanComment,
-  setWhoCanViewPosts,
   setPersonalizedRecommendation,
-  setAllowImageSaving,
+  setAllowFileUpload,
+  setAllowClipboardAccess,
 } from '@/store/slices/settingsSlice';
 import { RootState } from '@/store/rootReducer';
 import { clearCache, getCacheSize } from '@/utils/cacheManager';
+import { runNetworkDiagnosis } from '@/utils/networkDiagnosis';
 import styles from './index.module.scss';
 
 // 图标组件（使用Unicode字符）
 const IconLock = () => <Text className={styles.icon}>🔒</Text>;
-const IconBell = () => <Text className={styles.icon}>🔔</Text>;
 const IconSettings = () => <Text className={styles.icon}>⚙️</Text>;
 const IconShield = () => <Text className={styles.icon}>🛡️</Text>;
 const IconArrowRight = () => <Text className={styles.arrow}>›</Text>;
@@ -60,79 +55,6 @@ const Settings: React.FC = () => {
     
     updateCacheSize();
   }, []);
-  
-  const privacyMap = {
-    everyone: '所有人',
-    followers: '关注的人',
-    none: '不允许',
-    self: '仅自己'
-  };
-
-  // 反向映射
-  const privacyReverseMap = {
-    '所有人': 'everyone',
-    '关注的人': 'followers',
-    '不允许': 'none',
-    '仅自己': 'self'
-  } as const;
-
-  // 处理隐私设置选择 - 使用更安全的方式处理showActionSheet
-  const handlePrivacySettings = (type: string, title: string, options: string[]) => {
-    // 使用setTimeout延迟执行，避免直接在事件处理中调用
-    setTimeout(() => {
-      // 临时禁用全局错误报告
-      const originalOnError = (wx as any).onError;
-      const originalOnUnhandledRejection = (wx as any).onUnhandledRejection;
-      
-      // 禁用错误报告
-      if (originalOnError) (wx as any).onError(() => {});
-      if (originalOnUnhandledRejection) (wx as any).onUnhandledRejection(() => {});
-      
-      Taro.showActionSheet({
-        itemList: options,
-        success: (res) => {
-          const selectedValue = options[res.tapIndex];
-          
-          // 根据类型转换为英文值并dispatch
-          if (type === 'message') {
-            const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
-            if (englishValue && englishValue !== 'self') {
-              dispatch(setWhoCanMessage(englishValue));
-            }
-          } else if (type === 'comment') {
-            const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
-            if (englishValue && englishValue !== 'self') {
-              dispatch(setWhoCanComment(englishValue));
-            }
-          } else if (type === 'view') {
-            const englishValue = privacyReverseMap[selectedValue as keyof typeof privacyReverseMap];
-            if (englishValue && englishValue !== 'none') {
-              dispatch(setWhoCanViewPosts(englishValue));
-            }
-          }
-          
-          Taro.showToast({
-            title: `${title}已设置为: ${selectedValue}`,
-            icon: 'success'
-          });
-          
-          // 恢复错误报告
-          setTimeout(() => {
-            if (originalOnError) (wx as any).onError(originalOnError);
-            if (originalOnUnhandledRejection) (wx as any).onUnhandledRejection(originalOnUnhandledRejection);
-          }, 100);
-        },
-        fail: () => {
-          // 用户取消选择，静默处理
-          // 恢复错误报告
-          setTimeout(() => {
-            if (originalOnError) (wx as any).onError(originalOnError);
-            if (originalOnUnhandledRejection) (wx as any).onUnhandledRejection(originalOnUnhandledRejection);
-          }, 100);
-        }
-      });
-    }, 0);
-  };
 
   // 处理清除缓存
   const handleClearCache = () => {
@@ -142,18 +64,29 @@ const Settings: React.FC = () => {
       success: (res) => {
         if (res.confirm) {
           try {
+            // 显示加载状态
+            Taro.showLoading({
+              title: '清理中...',
+              mask: true
+            });
+
             // 使用新的缓存清除逻辑
             clearCache();
             
-            // 更新缓存大小显示
-            const newSize = getCacheSize();
-            setCacheSize(newSize);
+            // 延迟一下再更新缓存大小，确保清理完成
+            setTimeout(() => {
+              const newSize = getCacheSize();
+              setCacheSize(newSize);
+              
+              Taro.hideLoading();
+              Taro.showToast({
+                title: '缓存已清除',
+                icon: 'success'
+              });
+            }, 500);
             
-            Taro.showToast({
-              title: '缓存已清除',
-              icon: 'success'
-            });
           } catch (error) {
+            Taro.hideLoading();
             Taro.showToast({
               title: error instanceof Error ? error.message : '清除失败',
               icon: 'none'
@@ -167,11 +100,10 @@ const Settings: React.FC = () => {
     });
   };
 
-  // 处理设备管理
-  const handleDeviceManagement = () => {
-    Taro.showToast({
-      title: '功能开发中',
-      icon: 'none'
+  // 处理账号基本信息
+  const handleAccountInfo = () => {
+    Taro.navigateTo({
+      url: '/pages/subpackage-profile/account-info/index'
     });
   };
 
@@ -242,6 +174,24 @@ const Settings: React.FC = () => {
     }
   };
 
+  // 使用useCallback优化Switch组件的回调，避免重渲染
+  const handlePersonalizedRecommendationChange = useCallback((value: boolean) => {
+    dispatch(setPersonalizedRecommendation(value));
+  }, [dispatch]);
+
+  const handleAllowFileUploadChange = useCallback((value: boolean) => {
+    dispatch(setAllowFileUpload(value));
+  }, [dispatch]);
+
+  const handleAllowClipboardAccessChange = useCallback((value: boolean) => {
+    dispatch(setAllowClipboardAccess(value));
+  }, [dispatch]);
+
+  // 处理网络诊断
+  const handleNetworkDiagnosis = useCallback(() => {
+    runNetworkDiagnosis();
+  }, []);
+
   // 设置配置
   const settingsSections: SettingSection[] = [
     {
@@ -249,42 +199,7 @@ const Settings: React.FC = () => {
       icon: <IconLock />,
       items: [
         {
-          label: '谁可以私信我',
-          value: privacyMap[settings.whoCanMessage],
-          type: 'selection',
-          options: ['所有人', '关注的人', '不允许'],
-          action: () => handlePrivacySettings('message', '私信权限', ['所有人', '关注的人', '不允许'])
-        },
-        {
-          label: '谁可以评论我的帖子',
-          value: privacyMap[settings.whoCanComment],
-          type: 'selection',
-          options: ['所有人', '关注的人', '不允许'],
-          action: () => handlePrivacySettings('comment', '评论权限', ['所有人', '关注的人', '不允许'])
-        },
-        {
-          label: '谁可以查看我的帖子',
-          value: privacyMap[settings.whoCanViewPosts],
-          type: 'selection',
-          options: ['所有人', '关注的人', '仅自己'],
-          action: () => handlePrivacySettings('view', '查看权限', ['所有人', '关注的人', '仅自己'])
-        }
-      ]
-    },
-    {
-      title: '通知设置',
-      icon: <IconBell />,
-      items: [
-        {
-          label: '消息通知开关',
-          type: 'toggle'
-        },
-        {
-          label: '是否开启推送',
-          type: 'toggle'
-        },
-        {
-          label: '是否接收私信',
+          label: '允许上传文件',
           type: 'toggle'
         }
       ]
@@ -298,8 +213,13 @@ const Settings: React.FC = () => {
           type: 'toggle'
         },
         {
-          label: '发布图片支持他人保存',
+          label: '允许读取剪切板',
           type: 'toggle'
+        },
+        {
+          label: '网络诊断',
+          type: 'button',
+          action: handleNetworkDiagnosis
         },
         {
           label: '清除缓存',
@@ -314,9 +234,9 @@ const Settings: React.FC = () => {
       icon: <IconShield />,
       items: [
         {
-          label: '登录设备管理',
+          label: '账号基本信息',
           type: 'navigation',
-          action: handleDeviceManagement
+          action: handleAccountInfo
         },
         {
           label: '注销账号',
@@ -331,27 +251,6 @@ const Settings: React.FC = () => {
       ]
     }
   ];
-
-  // 使用useCallback优化Switch组件的回调，避免重渲染
-  const handleMessageNotificationChange = useCallback((value: boolean) => {
-    dispatch(setMessageNotification(value));
-  }, [dispatch]);
-
-  const handlePushNotificationChange = useCallback((value: boolean) => {
-    dispatch(setPushNotification(value));
-  }, [dispatch]);
-
-  const handlePrivateMessageChange = useCallback((value: boolean) => {
-    dispatch(setPrivateMessage(value));
-  }, [dispatch]);
-
-  const handlePersonalizedRecommendationChange = useCallback((value: boolean) => {
-    dispatch(setPersonalizedRecommendation(value));
-  }, [dispatch]);
-
-  const handleAllowImageSavingChange = useCallback((value: boolean) => {
-    dispatch(setAllowImageSaving(value));
-  }, [dispatch]);
 
   const renderToggleSwitch = (label: string, _value: boolean, onChange: (_value: boolean) => void, description?: string) => (
     <View className={styles.toggleItem}>
@@ -373,27 +272,14 @@ const Settings: React.FC = () => {
   );
 
   const renderSettingItem = (item: SettingItem, sectionTitle: string) => {
-    if (sectionTitle === '通知设置' && item.type === 'toggle') {
+    if (sectionTitle === '隐私与权限' && item.type === 'toggle') {
       switch (item.label) {
-        case '消息通知开关':
+        case '允许上传文件':
           return renderToggleSwitch(
             item.label,
-            settings.messageNotification,
-            handleMessageNotificationChange,
-            '如评论、点赞、系统通知等'
-          );
-        case '是否开启推送':
-          return renderToggleSwitch(
-            item.label,
-            settings.pushNotification,
-            handlePushNotificationChange,
-            '如使用系统推送'
-          );
-        case '是否接收私信':
-          return renderToggleSwitch(
-            item.label,
-            settings.privateMessage,
-            handlePrivateMessageChange
+            settings.allowFileUpload,
+            handleAllowFileUploadChange,
+            '关闭后将无法在发帖、笔记和学习资源中上传文件'
           );
         default:
           return null;
@@ -407,14 +293,36 @@ const Settings: React.FC = () => {
             item.label,
             settings.personalizedRecommendation,
             handlePersonalizedRecommendationChange,
-            '根据您的兴趣为您推荐内容'
+            '根据点赞数量为您推荐内容'
           );
-        case '发布图片支持他人保存':
+        case '允许读取剪切板':
           return renderToggleSwitch(
             item.label,
-            settings.allowImageSaving,
-            handleAllowImageSavingChange,
-            '允许其他用户保存您发布的图片'
+            settings.allowClipboardAccess,
+            handleAllowClipboardAccessChange,
+            '允许应用读取剪切板内容以便快速粘贴'
+          );
+        default:
+          return null;
+      }
+    }
+
+    if (sectionTitle === '通用设置' && item.type === 'button') {
+      switch (item.label) {
+        case '网络诊断':
+          return (
+            <View 
+              className={styles.settingItem}
+              onClick={item.action}
+            >
+              <View className={styles.settingContent}>
+                <View className={styles.networkDiagnosisContent}>
+                  <Text className={styles.settingLabel}>{item.label}</Text>
+                  <Text className={styles.networkDiagnosisSubtitle}>页面无法打开可点网络诊断</Text>
+                </View>
+              </View>
+              <IconArrowRight />
+            </View>
           );
         default:
           return null;
@@ -432,11 +340,6 @@ const Settings: React.FC = () => {
           </Text>
           {item.value && (
             <Text className={styles.settingValue}>{item.value}</Text>
-          )}
-          {item.label === '登录设备管理' && (
-            <Text className={styles.deviceInfo}>
-              最近登录：iPhone 15 Pro Max, 2025-07-18
-            </Text>
           )}
         </View>
         <IconArrowRight />

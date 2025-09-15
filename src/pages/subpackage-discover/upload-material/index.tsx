@@ -2,6 +2,7 @@ import { View, Text, Image, Input, Textarea, Picker, RadioGroup, Radio, Label, B
 import { FileUploadRead, MAX_FILE_SIZE, getFileTypeDisplayName } from "@/types/api/fileUpload";
 import fileUploadApi from "@/services/api/fileUpload";
 import uploadApi from "@/services/api/upload";
+import { checkFileUploadPermissionWithToast } from "@/utils/permissionChecker";
 import Taro from "@tarojs/taro";
 import { useState, useEffect } from "react";
 import styles from "./index.module.scss";
@@ -222,6 +223,11 @@ export default function UploadMaterial() {
 
   // 选择文件
   const handleSelectFile = () => {
+    // 检查文件上传权限
+    if (!checkFileUploadPermissionWithToast()) {
+      return;
+    }
+
     Taro.chooseMessageFile({
       count: 1,
       type: 'file',
@@ -242,7 +248,12 @@ export default function UploadMaterial() {
           icon: 'success'
         });
       },
-      fail: (_err) => {
+      fail: (err) => {
+        // 用户取消选择是正常行为，不需要显示错误提示
+        if (err.errMsg && err.errMsg.includes('cancel')) {
+          return;
+        }
+        // 只有真正的错误才显示提示
         Taro.showToast({
           title: '文件选择失败',
           icon: 'none'
@@ -307,7 +318,12 @@ export default function UploadMaterial() {
           });
         }
       },
-      fail: (_err) => {
+      fail: (err) => {
+        // 用户取消选择是正常行为，不需要显示错误提示
+        if (err.errMsg && err.errMsg.includes('cancel')) {
+          return;
+        }
+        // 只有真正的错误才显示提示
         Taro.showToast({
           title: '选择图片失败',
           icon: 'none'

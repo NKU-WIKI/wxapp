@@ -103,6 +103,15 @@ export const useImageUpload = (initialImages: string[] = []): UseImageUploadRetu
       }
 
     } catch (error) {
+      // 检查是否是用户取消操作
+      if (error && typeof error === 'object' && 'errMsg' in error) {
+        const errMsg = (error as any).errMsg;
+        if (errMsg && errMsg.includes('cancel')) {
+          // 用户取消是正常行为，不触发错误回调和提示
+          return;
+        }
+      }
+
       const err = error instanceof Error ? error : new Error('上传失败')
       onError?.(err)
       Taro.showToast({ title: err.message, icon: 'none' })
