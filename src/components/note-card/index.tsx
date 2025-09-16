@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import actionApi from '@/services/api/action';
 import { normalizeImageUrl } from '@/utils/image';
+import { checkLoginWithModal } from '@/utils/auth';
 import { NoteListItem } from '@/types/api/note';
 import ActionButton from '@/components/action-button';
 // 图片资源使用字符串路径引用
@@ -46,7 +47,7 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
     } else {
       // 构建导航URL，如果有用户信息则传递userId
       let url = `/pages/subpackage-interactive/note-detail/index?id=${note.id}`;
-      
+
       // 如果有用户信息，添加userId参数
       if (note.user?.id) {
         url += `&userId=${note.user.id}`;
@@ -146,8 +147,8 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
             disabled={isLiking || note.interaction_loading}
             className={styles.likeButton}
             onClick={async () => {
-              if (!isLoggedIn) {
-                Taro.showToast({ title: '请先登录', icon: 'none' });
+              const hasLogin = await checkLoginWithModal();
+              if (!hasLogin) {
                 return;
               }
               if (isLiking) return;

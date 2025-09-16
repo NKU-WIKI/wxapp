@@ -39,7 +39,6 @@ export default function ExplorePage() {
 
   // Redux state
   const { notes, loading, refreshing, hasMore } = useSelector((state: RootState) => state.note);
-  const { isLoggedIn } = useSelector((state: RootState) => state.user);
 
   // Local state for search functionality
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -127,7 +126,7 @@ export default function ExplorePage() {
         setIsSearchActive(true);
         Taro.removeStorageSync('explore_focus');
       }
-    } catch {}
+    } catch { }
   });
 
   // SearchBar的focus处理
@@ -468,21 +467,6 @@ export default function ExplorePage() {
         onRefresh={handleRefresh}
         refreshing={refreshing}
       />
-
-      {/* 未登录用户显示登录提示（浮动） */}
-      {!isLoggedIn && (
-        <View className={styles.loginHint}>
-          <Text className={styles.loginHintText}>登录后解锁更多个性化推荐</Text>
-          <View
-            className={styles.loginHintButton}
-            onClick={() => {
-              Taro.switchTab({ url: '/pages/profile/index' });
-            }}
-          >
-            <Text className={styles.loginHintButtonText}>立即登录</Text>
-          </View>
-        </View>
-      )}
     </View>
   );
 

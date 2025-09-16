@@ -8,8 +8,8 @@ import styles from "./index.module.scss";
 
 // 图标路径常量
 const backIcon = "/assets/arrow-left.svg";
-const logo = "/assets/logo.png";
 const notificationIcon = "/assets/bell.svg";
+const locationIcon = "/assets/map-pin.svg";
 
 interface NavStyle {
   navBarHeight: number;
@@ -36,7 +36,7 @@ export function useCustomHeaderHeight(defaultHeight = 88) {
     try {
       const windowInfo = Taro.getWindowInfo();
       const menuButtonInfo = Taro.getMenuButtonBoundingClientRect();
-      
+
       // 使用和CustomHeader完全相同的计算逻辑
       if (windowInfo && menuButtonInfo) {
         const statusBarHeight = windowInfo.statusBarHeight || 0;
@@ -52,13 +52,13 @@ export function useCustomHeaderHeight(defaultHeight = 88) {
           statusBarHeight +
           navBarContentHeight +
           (navBarContentTop - statusBarHeight) * 2;
-        
+
         if (navBarHeight > 0 && navBarHeight < 300) { // 合理范围检查
           setHeight(navBarHeight);
           return;
         }
       }
-      
+
       // 如果数据无效，使用默认值
       setHeight(defaultHeight);
     } catch {
@@ -128,14 +128,11 @@ const CustomHeader = ({
     }
   };
 
-  const handleWikiClick = () => {
-    Taro.navigateTo({ url: '/pages/subpackage-interactive/chat/index' });
-  };
 
   const handleNotificationClick = () => {
     Taro.navigateTo({ url: "/pages/subpackage-interactive/notification/index" });
   };
-  
+
   // 获取未读消息总数
   const unreadTotal = useSelector((state: RootState) => {
     const total = state.notification.unreadCounts.total || 0;
@@ -186,9 +183,9 @@ const CustomHeader = ({
               </View>
             )}
             {showWikiButton && (
-              <View onClick={handleWikiClick} className={styles.wikiButton}>
-                <Image src={logo} className={styles.wikiIcon} />
-                <Text className={styles.wikiText}>Wiki</Text>
+              <View className={styles.wikiButton}>
+                <Image src={locationIcon} className={styles.locationIcon} />
+                <Text className={styles.wikiText}>南开大学</Text>
               </View>
             )}
             {showNotificationIcon && (

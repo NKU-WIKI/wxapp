@@ -5,6 +5,7 @@ import ActionButton, { ActionButtonProps } from '@/components/action-button';
 import { toggleAction } from '@/services/api/action';
 import { marketplaceApi } from '@/services/api/marketplace';
 import { BBSNotificationHelper } from '@/utils/notificationHelper';
+import { checkLoginWithModal } from '@/utils/auth';
 import { RootState } from '@/store';
 import Taro from '@tarojs/taro';
 import classnames from "classnames";
@@ -13,6 +14,12 @@ import styles from './index.module.scss';
 export interface ActionButtonConfig {
   /**
    * 按钮类型
+   * - like: 点赞按钮（默认需要登录）
+   * - favorite: 收藏按钮（默认需要登录）
+   * - follow: 关注按钮（默认需要登录）
+   * - comment: 评论按钮（默认不需要登录）
+   * - share: 分享按钮（默认不需要登录）
+   * - custom: 自定义按钮（权限由 requireAuth 决定）
    */
   type: 'like' | 'favorite' | 'follow' | 'share' | 'comment' | 'custom';
   /**
@@ -31,6 +38,20 @@ export interface ActionButtonConfig {
    * 自定义点击处理（仅type='custom'时有效）
    */
   onClick?: () => void;
+  /**
+   * 是否需要登录权限
+   * - undefined: 自动判断（like/favorite/follow 需要登录）
+   * - true: 需要登录
+   * - false: 不需要登录
+   */
+  requireAuth?: boolean;
+  /**
+   * 未登录时是否禁用按钮
+   * - undefined: 使用全局配置
+   * - true: 禁用按钮
+   * - false: 不禁用按钮，点击时提示登录
+   */
+  disabledWhenNotLoggedIn?: boolean;
 }
 
 export interface ActionBarProps {
@@ -65,10 +86,56 @@ export interface ActionBarProps {
     title: string;
     authorId: string;
   };
+  /**
+   * 鉴权配置
+   */
+  authConfig?: {
+    /**
+     * 未登录时是否禁用需要权限的按钮（默认为true）
+     */
+    disabledWhenNotLoggedIn?: boolean;
+    /**
+     * 自定义登录提示消息
+     */
+    loginPrompt?: string;
+  };
 }
 
 /**
  * 通用操作栏组件，用于水平排列一组操作按钮
+ *
+ * 增强版特性：
+ * - 自动登录鉴权：点赞、收藏等操作自动检查登录状态
+ * - 可配置禁用：未登录时可选择禁用按钮或点击时提示
+ * - 自定义提示：支持自定义登录提示消息
+ * - 灵活配置：支持按按钮级别或全局级别的鉴权配置
+ *
+ * @example
+ * ```tsx
+ * // 基础用法（自动鉴权）
+ * const buttons = [
+ *   { type: 'like', icon: '/assets/heart-outline.svg', activeIcon: '/assets/heart-bold.svg' },
+ *   { type: 'comment', icon: '/assets/message-circle.svg' }
+ * ];
+ *
+ * <ActionBar
+ *   buttons={buttons}
+ *   targetId="post-123"
+ *   targetType="post"
+ * />
+ *
+ * // 自定义鉴权配置
+ * <ActionBar
+ *   buttons={buttons}
+ *   targetId="post-123"
+ *   targetType="post"
+ *   authConfig={{
+ *     disabledWhenNotLoggedIn: true,
+ *     loginPrompt: '需要登录才能点赞哦'
+ *   }}
+ * />
+ * ```
+ *
  * @param {ActionBarProps} props
  * @returns {React.ReactNode}
  */
@@ -79,7 +146,8 @@ const ActionBar: React.FC<ActionBarProps> = ({
   targetType,
   initialStates = {},
   onStateChange,
-  postInfo
+  postInfo,
+  authConfig = {}
 }) => {
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const [localStates, setLocalStates] = useState<Record<string, { isActive: boolean; count: number }>>(initialStates);
@@ -103,37 +171,8 @@ const ActionBar: React.FC<ActionBarProps> = ({
 
   // 登录检查函数
   const checkLogin = useCallback(async (): Promise<boolean> => {
-    if (isLoggedIn) {
-      return true;
-    }
-
-    return new Promise((resolve) => {
-      Taro.showModal({
-        title: '提示',
-        content: '此功能需要登录后才能使用，是否前往登录？',
-        confirmText: '去登录',
-        cancelText: '取消',
-        success: (res) => {
-          if (res.confirm) {
-            // 跳转到登录页面
-            Taro.navigateTo({
-              url: '/pages/subpackage-profile/login/index',
-              fail: () => {
-                // 如果navigateTo失败，尝试使用redirectTo
-                Taro.redirectTo({
-                  url: '/pages/subpackage-profile/login/index'
-                });
-              }
-            });
-          }
-          resolve(res.confirm);
-        },
-        fail: () => {
-          resolve(false);
-        }
-      });
-    });
-  }, [isLoggedIn]);
+    return await checkLoginWithModal();
+  }, []);
 
   // 处理评论功能
   const handleComment = useCallback((buttonIndex: number) => {
@@ -155,12 +194,43 @@ const ActionBar: React.FC<ActionBarProps> = ({
     onStateChange?.('comment', true, 0);
   }, [onStateChange]);
 
+  // 判断按钮是否需要登录权限
+  const requiresAuth = useCallback((button: ActionButtonConfig): boolean => {
+    // 如果明确配置了 requireAuth，使用配置值
+    if (button.requireAuth !== undefined) {
+      return button.requireAuth;
+    }
+
+    // 默认规则：点赞、收藏、关注需要登录
+    return ['like', 'favorite', 'follow'].includes(button.type);
+  }, []);
+
+  // 判断按钮是否应该被禁用
+  const isButtonDisabled = useCallback((button: ActionButtonConfig): boolean => {
+    const needsAuth = requiresAuth(button);
+    const globalDisabled = authConfig.disabledWhenNotLoggedIn ?? true;
+    const buttonDisabled = button.disabledWhenNotLoggedIn ?? globalDisabled;
+
+    // 未登录且需要权限且配置了禁用时，禁用按钮
+    return !isLoggedIn && needsAuth && buttonDisabled;
+  }, [isLoggedIn, requiresAuth, authConfig.disabledWhenNotLoggedIn]);
+
   // 处理按钮点击
   const handleButtonClick = useCallback(async (button: ActionButtonConfig, index: number) => {
     const key = `${button.type}-${index}`;
 
     // 如果正在加载，忽略点击
     if (loadingStates[key]) {
+      return;
+    }
+
+    // 如果按钮被禁用，显示提示信息
+    if (isButtonDisabled(button)) {
+      Taro.showToast({
+        title: authConfig.loginPrompt || '请先登录',
+        icon: 'none',
+        duration: 2000
+      });
       return;
     }
 
@@ -176,8 +246,8 @@ const ActionBar: React.FC<ActionBarProps> = ({
       return;
     }
 
-    // 对于点赞和收藏，需要先检查登录状态
-    if (button.type === 'like' || button.type === 'favorite') {
+    // 检查登录状态（如果需要的话）
+    if (requiresAuth(button)) {
       const isLogged = await checkLogin();
       if (!isLogged) {
         return; // 未登录，不继续执行
@@ -245,7 +315,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
     } finally {
       setLoadingStates(prev => ({ ...prev, [key]: false }));
     }
-  }, [targetId, targetType, localStates, loadingStates, onStateChange, handleComment, checkLogin]);
+  }, [targetId, targetType, localStates, loadingStates, onStateChange, handleComment, checkLogin, isButtonDisabled, requiresAuth]);
 
   if (!buttons || buttons.length === 0) {
     return null;
@@ -262,9 +332,9 @@ const ActionBar: React.FC<ActionBarProps> = ({
         const currentIsActive = button.type === 'custom' || button.type === 'share'
           ? false
           : button.type === 'comment'
-          ? (localState?.isActive ?? false)
-          : (localState?.isActive ?? false)
-         
+            ? (localState?.isActive ?? false)
+            : (localState?.isActive ?? false)
+
         const currentText = button.type === 'custom'
           ? (button.text || '')
           : (localState?.count?.toString() ?? '0');
@@ -275,6 +345,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
           text: currentText,
           isActive: currentIsActive,
           onClick: () => handleButtonClick(button, index),
+          disabled: isButtonDisabled(button),
           className: isLoading ? 'loading' : undefined,
           openType: button.type === 'share' ? 'share' : undefined
         };

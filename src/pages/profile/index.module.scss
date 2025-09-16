@@ -3,7 +3,7 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  height: 130vh;
+  height: 100vh;
   background-color: $bg-page-gray;
 }
 
@@ -129,7 +129,7 @@
   border-radius: 4px;
   font-size: 14px;
   border: none;
-  
+
   &::after {
     border: none;
   }
@@ -161,12 +161,12 @@
   padding: 8px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background-color: rgba(123, 104, 238, 0.05);
     transform: translateY(-1px);
   }
-  
+
   &:active {
     transform: translateY(0);
     background-color: rgba(123, 104, 238, 0.1);
@@ -218,11 +218,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  
+
   &:not(:last-child) {
     border-bottom: 1px solid #f5f5f5;
   }
-  
+
   &:hover {
     background-color: #f9fafb;
   }
@@ -278,11 +278,11 @@
   justify-content: center;
   gap: 8px;
   border: none;
-  
+
   &::after {
     border: none;
   }
-  
+
   &:hover {
     background-color: #DC2626;
   }

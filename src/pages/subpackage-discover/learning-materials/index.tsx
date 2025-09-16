@@ -132,7 +132,7 @@ export default function LearningMaterials() {
       category: LearningMaterialCategory.COURSE_NOTES
     },
     {
-      id: "2", 
+      id: "2",
       title: "期末真题",
       count: `${categoryStats[LearningMaterialCategory.FINAL_EXAM]} 份资料`,
       icon: CATEGORY_CONFIG[LearningMaterialCategory.FINAL_EXAM].icon,
@@ -142,7 +142,7 @@ export default function LearningMaterials() {
     {
       id: "3",
       title: "电子书",
-      count: `${categoryStats[LearningMaterialCategory.EBOOK]} 本书籍`, 
+      count: `${categoryStats[LearningMaterialCategory.EBOOK]} 本书籍`,
       icon: CATEGORY_CONFIG[LearningMaterialCategory.EBOOK].icon,
       type: "book",
       category: LearningMaterialCategory.EBOOK
@@ -194,15 +194,15 @@ export default function LearningMaterials() {
   const handleMaterialClick = (material: LearningMaterial) => {
     // 显示资料详情和操作选项
     const actions: string[] = [];
-    
+
     if (material.fileUrl) {
       actions.push('下载文件');
     }
-    
+
     if (material.netdiskLink) {
       actions.push('复制网盘链接');
     }
-    
+
     actions.push('查看详情');
     actions.push('取消');
 
@@ -210,7 +210,7 @@ export default function LearningMaterials() {
       itemList: actions,
       success: (res) => {
         const selectedAction = actions[res.tapIndex];
-        
+
         switch (selectedAction) {
           case '下载文件':
             handleDownloadFile(material);
@@ -253,7 +253,7 @@ export default function LearningMaterials() {
             url: material.fileUrl!,
             success: (downloadRes) => {
               Taro.hideLoading();
-              
+
               // 尝试打开文件
               Taro.openDocument({
                 filePath: downloadRes.tempFilePath,
@@ -274,7 +274,7 @@ export default function LearningMaterials() {
             },
             fail: (error) => {
               Taro.hideLoading();
-              
+
               // 检查是否是域名限制错误
               if (error.errMsg && error.errMsg.includes('domain list')) {
                 Taro.showModal({
@@ -385,8 +385,8 @@ export default function LearningMaterials() {
         <Text className={styles.title}>学习资料</Text>
       </View>
 
-      {/* 搜索框 */}
-      <View className={styles.searchContainer}>
+      {/* 搜索框和标签栏 - 固定在顶部，不随滚动 */}
+      <View className={styles.fixedHeader}>
         <SearchBar
           key='learning-materials-search'
           keyword={searchValue}
@@ -395,11 +395,6 @@ export default function LearningMaterials() {
           onSearch={handleSearchConfirm}
           onClear={handleClearSearch}
         />
-      </View>
-
-      {/* 内容区域 */}
-      <ScrollView scrollY className={styles.contentScrollView}>
-        {/* 标签栏 */}
         <ScrollView scrollX className={styles.tagsContainer}>
           <View className={styles.tagsWrapper}>
             {tags.map((tag) => (
@@ -413,6 +408,10 @@ export default function LearningMaterials() {
             ))}
           </View>
         </ScrollView>
+      </View>
+
+      {/* 内容区域 */}
+      <ScrollView scrollY className={styles.contentScrollView}>
 
         {/* 分类卡片区域 */}
         <View className={styles.categoriesContainer}>

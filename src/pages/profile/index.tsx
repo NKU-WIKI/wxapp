@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchUserStats, fetchFollowersCount, fetchCollectionCount, resetUserStats, resetFollowersCount, resetCollectionCount } from '@/store/slices/userSlice';
 import { fetchUserPostCount, fetchUserLikeCount, resetUserPostCount, resetUserLikeCount } from '@/store/slices/userPostsSlice';
-import { fetchCampusVerificationInfo } from '@/store/slices/campusVerificationSlice';
 import { fetchUnreadCounts } from '@/store/slices/notificationSlice';
 import CustomHeader from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
@@ -44,9 +43,8 @@ const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
   const userState = useSelector((state: RootState) => state.user);
   const userPostsState = useSelector((state: RootState) => state.userPosts);
-  const campusVerificationState = useSelector((state: RootState) => state.campusVerification);
-  const user = userState?.user; 
-  const userInfo = user || null; 
+  const user = userState?.user;
+  const userInfo = user || null;
   const userStats = userState?.userStats; // 用户统计信息
   const followersCount = userState?.followersCount; // 关注/粉丝总数
   const collectionCount = userState?.collectionCount; // 收藏的帖子数量
@@ -55,7 +53,7 @@ const Profile = () => {
   const statsStatus = userState?.statsStatus;
   const followersCountStatus = userState?.followersCountStatus;
   const collectionCountStatus = userState?.collectionCountStatus;
-  
+
   // 页面显示时刷新数字数据（仅在数据不存在时）
   useDidShow(() => {
     if (isLoggedIn) {
@@ -72,9 +70,6 @@ const Profile = () => {
       if (userPostsState?.likeCount === null || userPostsState?.likeCount === undefined) {
         dispatch(fetchUserLikeCount({}));
       }
-      // 获取校园认证信息
-      dispatch(fetchCampusVerificationInfo());
-      
       // 刷新未读通知数量
       dispatch(fetchUnreadCounts()).catch(_error => {
         // 静默处理错误，不影响主要功能
@@ -92,7 +87,7 @@ const Profile = () => {
         dispatch(resetCollectionCount());
         dispatch(resetUserPostCount());
         dispatch(resetUserLikeCount());
-        
+
         await Promise.all([
           dispatch(fetchUserStats()).unwrap(),
           dispatch(fetchFollowersCount()).unwrap(),
@@ -106,7 +101,7 @@ const Profile = () => {
           duration: 1000
         });
       } catch (error) {
-        
+
         Taro.showToast({
           title: '刷新失败',
           icon: 'error',
@@ -135,7 +130,7 @@ const Profile = () => {
     }).then(() => {
       // Navigation success
     }).catch((_err) => {
-      
+
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -150,7 +145,7 @@ const Profile = () => {
     }).then(() => {
       // Navigation success
     }).catch((_err) => {
-      
+
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -163,7 +158,7 @@ const Profile = () => {
     Taro.navigateTo({
       url: '/pages/subpackage-profile/collection/index'
     }).catch((_err) => {
-      
+
     });
   };
 
@@ -171,7 +166,7 @@ const Profile = () => {
     Taro.navigateTo({
       url: '/pages/subpackage-profile/my-posts/index'
     }).catch((_err) => {
-      
+
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -184,7 +179,7 @@ const Profile = () => {
     Taro.navigateTo({
       url: '/pages/subpackage-profile/received-likes/index'
     }).catch((_err) => {
-      
+
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'error'
@@ -200,7 +195,6 @@ const Profile = () => {
       drafts: '/pages/subpackage-profile/draft-box/index',
       history: '/pages/subpackage-profile/history/index',
       feedback: '/pages/subpackage-profile/feedback/index',
-      'campus-verification': '/pages/subpackage-profile/campus-verification/index',
       about: '/pages/subpackage-profile/about/index',
       settings: '/pages/subpackage-profile/settings/index',
     };
@@ -217,9 +211,9 @@ const Profile = () => {
     <View className={styles.pageContainer}>
       <CustomHeader title='我的' hideBack showWikiButton showNotificationIcon />
       <View className={styles.content}>
-        <ScrollView 
-          scrollY 
-          className={styles.scrollView} 
+        <ScrollView
+          scrollY
+          className={styles.scrollView}
           style={scrollViewStyle}
           enableBackToTop
           showScrollbar={false}
@@ -237,9 +231,7 @@ const Profile = () => {
       <View className={styles.pageContainer}>
         <CustomHeader title='我的' hideBack showWikiButton showNotificationIcon />
         <View className={styles.content}>
-          <ScrollView scrollY className={styles.scrollView} style={scrollViewStyle}>
-            <LoginPrompt />
-          </ScrollView>
+          <LoginPrompt />
         </View>
       </View>
     );
@@ -255,9 +247,9 @@ const Profile = () => {
     <View className={styles.pageContainer}>
       <CustomHeader title='我的' hideBack showWikiButton showNotificationIcon />
       <View className={styles.content}>
-        <ScrollView 
-          scrollY 
-          className={styles.scrollView} 
+        <ScrollView
+          scrollY
+          className={styles.scrollView}
           style={scrollViewStyle}
           enableBackToTop
           showScrollbar={false}
@@ -269,7 +261,7 @@ const Profile = () => {
                   <Image src={normalizeImageUrl(userInfo?.avatar || '') || "/assets/profile.png"} className={styles.avatar} />
                 </View>
               </View>
-              
+
               <View className={styles.userDetails}>
                 <Text className={styles.nickname}>{userInfo?.nickname || '未设置昵称'}</Text>
                 <Text className={styles.userBio}>{userInfo?.bio || '这个人很懒，还没有设置个性签名~'}</Text>
@@ -309,8 +301,8 @@ const Profile = () => {
                 <View className={styles.statItem} onClick={handleNavigateToLikes}>
                   <Text className={styles.statValue}>
                     {(userPostsState?.likeCountLoading as any) === 'pending' ? '...' :
-                     (userPostsState?.likeCount !== null && userPostsState?.likeCount !== undefined) ? userPostsState.likeCount :
-                     (userStats?.like_count ?? userInfo?.total_likes ?? 0)}
+                      (userPostsState?.likeCount !== null && userPostsState?.likeCount !== undefined) ? userPostsState.likeCount :
+                        (userStats?.like_count ?? userInfo?.total_likes ?? 0)}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>❤️</Text>
@@ -327,7 +319,7 @@ const Profile = () => {
                   </View>
                 </View>
               </View>
-              
+
               <View className={styles.statsRow}>
                 <View className={styles.statItem} onClick={handleNavigateToFollowers}>
                   <Text className={styles.statValue}>
@@ -377,7 +369,7 @@ const Profile = () => {
                 </View>
                 <Text className={styles.chevron}>›</Text>
               </View> */}
-              
+
               <View className={styles.menuItem} onClick={() => handleMenuClick('comments')}>
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>💬</Text>
@@ -385,7 +377,7 @@ const Profile = () => {
                 </View>
                 <Text className={styles.chevron}>›</Text>
               </View>
-              
+
               <View className={styles.menuItem} onClick={() => handleMenuClick('drafts')}>
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>📁</Text>
@@ -393,7 +385,7 @@ const Profile = () => {
                 </View>
                 <Text className={styles.chevron}>›</Text>
               </View>
-              
+
               <View className={styles.menuItem} onClick={() => handleMenuClick('history')}>
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>🕒</Text>
@@ -401,7 +393,7 @@ const Profile = () => {
                 </View>
                 <Text className={styles.chevron}>›</Text>
               </View>
-              
+
               <View className={styles.menuItem} onClick={() => handleMenuClick('feedback')}>
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>✉️</Text>
@@ -409,8 +401,9 @@ const Profile = () => {
                 </View>
                 <Text className={styles.chevron}>›</Text>
               </View>
-              
-              <View className={styles.menuItem} onClick={() => handleMenuClick('campus-verification')}>
+
+              {/* 隐藏校园认证入口 */}
+              {/* <View className={styles.menuItem} onClick={() => handleMenuClick('campus-verification')}>
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>🎓</Text>
                   <Text className={styles.menuText}>校园认证</Text>
@@ -419,8 +412,8 @@ const Profile = () => {
                   )}
                 </View>
                 <Text className={styles.chevron}>›</Text>
-              </View>
-              
+              </View> */}
+
               <View className={styles.menuItem} onClick={() => handleMenuClick('about')}>
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>ℹ️</Text>
@@ -428,7 +421,7 @@ const Profile = () => {
                 </View>
                 <Text className={styles.chevron}>›</Text>
               </View>
-              
+
               <View className={styles.menuItem} onClick={() => handleMenuClick('settings')}>
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>⚙️</Text>
@@ -437,7 +430,7 @@ const Profile = () => {
                 <Text className={styles.chevron}>›</Text>
               </View>
             </View>
-            
+
             {/* 底部空间，增加下滑范围 */}
             <View className={styles.bottomSpacer}></View>
           </View>

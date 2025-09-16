@@ -15,13 +15,15 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background-color: $bg-card; /* 改为与子元素一致的卡片背景色 */
+  background-color: $bg-card;
+  /* 改为与子元素一致的卡片背景色 */
   /* 添加底部阴影，明确区分与内容的分界 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   /* 添加底部圆角，与整体设计保持一致 */
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
-  overflow: hidden; /* 确保子元素不超出圆角 */
+  overflow: hidden;
+  /* 确保子元素不超出圆角 */
 }
 
 /* 内容滚动容器 */
@@ -41,7 +43,8 @@
 }
 
 .searchBarWrapper {
-  padding: 0; /* 移除所有内边距，让SearchBar组件的margin生效 */
+  padding: 0;
+  /* 移除所有内边距，让SearchBar组件的margin生效 */
   /* 移除背景色，继承父容器的背景 */
   backdrop-filter: blur(10px);
 }
@@ -84,11 +87,21 @@
   line-height: 1.5;
 }
 
-.thumbRow { display: flex; gap: 12px; margin-top: 8px; }
-.thumbUp, .thumbDown { font-size: 13px; color: $text-secondary; }
+.thumbRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.thumbUp,
+.thumbDown {
+  font-size: 13px;
+  color: $text-secondary;
+}
 
 
-.loadingState, .errorState {
+.loadingState,
+.errorState {
   padding: 24px 16px 40px 16px; // 减少上边距，保持左右和下边距
   text-align: center;
   color: $text-helper-light;
@@ -114,8 +127,13 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 
@@ -165,7 +183,7 @@
   gap: 8px;
   transition: all 0.2s ease;
   cursor: pointer;
-  
+
   &:active {
     transform: scale(0.96);
     background-color: $alpha-primary-10;
@@ -231,7 +249,8 @@
 }
 
 .masonryWrapper {
-  padding: 0px 12px 12px 12px; /* 移除上边距，只保留左右下边距 */
+  padding: 0px 12px 12px 12px;
+  /* 移除上边距，只保留左右下边距 */
 }
 
 .masonryContainer {
@@ -302,41 +321,9 @@
   color: white;
 }
 
-/* 未登录用户的浮动登录提示 */
-.loginHint {
-  position: fixed;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 99;
-}
-
-.loginHintText {
-  color: white;
-  font-size: 12px;
-}
-
-.loginHintButton {
-  background-color: $theme-primary;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
-.loginHintButtonText {
-  color: white;
-  font-size: 12px;
-}
 
 /* 底部占位元素，防止内容被tab bar遮挡 */
 .bottomSpacer {
-  height: 80px; /* 为底部tab bar预留足够空间 */
+  height: 80px;
+  /* 为底部tab bar预留足够空间 */
 }

@@ -19,6 +19,7 @@
 .fixedHeader {
   background-color: #fff;
   border-bottom: 1px solid #f0f0f0;
+  padding: 16px 0 0 0; // 为搜索框提供顶部间距
 }
 
 .searchContainer {
@@ -47,15 +48,17 @@
 
 .filterTabs {
   display: flex;
-  padding: 0 15px 10px;
+  padding: 8px 16px 16px 16px; // 增加顶部间距，避免与搜索框重叠，左右间距与搜索框保持一致
   background-color: #fff;
   gap: 15px;
+
   .tab {
     padding: 6px 16px;
     border-radius: 16px;
     background-color: $bg-input;
     color: $text-primary;
     font-size: 14px;
+
     &.active {
       background-color: $theme-primary;
       color: #fff;
@@ -119,15 +122,34 @@
   }
 
   // 可选的不同成色颜色
-  .cond_new { background-color: rgba($status-success, 0.92); }
-  .cond_like_new { background-color: rgba($theme-primary, 0.92); }
-  .cond_good { background-color: rgba($theme-primary, 0.85); }
-  .cond_acceptable { background-color: rgba($status-warning, 0.92); }
-  .cond_damaged { background-color: rgba($status-error, 0.92); }
+  .cond_new {
+    background-color: rgba($status-success, 0.92);
+  }
+
+  .cond_like_new {
+    background-color: rgba($theme-primary, 0.92);
+  }
+
+  .cond_good {
+    background-color: rgba($theme-primary, 0.85);
+  }
+
+  .cond_acceptable {
+    background-color: rgba($status-warning, 0.92);
+  }
+
+  .cond_damaged {
+    background-color: rgba($status-error, 0.92);
+  }
 
   // 状态标签颜色 - 橙色表示出，蓝色表示收
-  .status_sell { background-color: rgba($status-warning, 0.92); }
-  .status_buy { background-color: rgba($status-info, 0.92); }
+  .status_sell {
+    background-color: rgba($status-warning, 0.92);
+  }
+
+  .status_buy {
+    background-color: rgba($status-info, 0.92);
+  }
 
   .productTitle {
     font-size: 14px;
@@ -176,5 +198,3 @@
   color: $theme-primary;
   text-align: center;
 }
-
-

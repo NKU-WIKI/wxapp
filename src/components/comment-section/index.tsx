@@ -9,6 +9,7 @@ import { createComment } from '@/store/slices/commentSlice';
 import commentApi from "@/services/api/comment";
 import AuthorInfo from "@/components/author-info";
 import ActionBar, { ActionButtonConfig } from '@/components/action-bar';
+import { checkLoginWithModal } from '@/utils/auth';
 
 import ChevronDownIcon from "@/assets/chevron-down.svg";
 import ChevronRightIcon from "@/assets/chevron-right.svg";
@@ -37,17 +38,17 @@ const renderCommentContent = (content: string): React.ReactNode => {
         </Text>
       );
     }
-    
+
     // 添加高亮的@用户名
     parts.push(
       <Text key={`mention-${match.index}`} className={styles.mentionText}>
         {match[0]}
       </Text>
     );
-    
+
     lastIndex = match.index + match[0].length;
   }
-  
+
   // 添加剩余的普通文本
   if (lastIndex < content.length) {
     parts.push(
@@ -56,7 +57,7 @@ const renderCommentContent = (content: string): React.ReactNode => {
       </Text>
     );
   }
-  
+
   return parts.length > 0 ? parts : <Text>{content}</Text>;
 };
 
@@ -168,28 +169,20 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
   const hasReplies = _comment.children && _comment.children.length > 0;
   const replyCount = _comment.children?.length || 0;
-  
+
   const shouldShowToggleButton = replyCount > 2;
   const shouldAutoShow = replyCount > 0 && replyCount <= 2;
-  
-  const repliesToShow = shouldAutoShow 
-    ? _comment.children || [] 
-    : (showReplies 
-        ? _comment.children || [] 
-        : (_comment.children || []).slice(0, 2));
+
+  const repliesToShow = shouldAutoShow
+    ? _comment.children || []
+    : (showReplies
+      ? _comment.children || []
+      : (_comment.children || []).slice(0, 2));
 
 
-  const handleReply = () => {
-    if (!isLoggedIn || !token) {
-      Taro.showModal({
-        title: '提示',
-        content: '您尚未登录，是否前往登录？',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-          }
-        }
-      });
+  const handleReply = async () => {
+    const hasLogin = await checkLoginWithModal();
+    if (!hasLogin) {
       return;
     }
     onReply(_comment);
@@ -212,7 +205,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
       setShowReplies(!showReplies);
       return;
     }
-    
+
     if (!showReplies && hasReplies && shouldShowToggleButton) {
       await fetchAllNestedReplies(_comment);
     }
@@ -233,7 +226,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
       const updatedComment = { ...parentComment, children: allReplies };
       _onUpdateComment(parentComment.id, updatedComment);
     } catch (error) {
-        //静默处理
+      //静默处理
     }
   };
 
@@ -256,13 +249,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
           const deeperReplies = await fetchAllNestedRepliesRecursive(nestedReplies, reply.author_nickname);
           allReplies.push(...deeperReplies);
         } catch (error) {
-            //静默处理
+          //静默处理
         }
       }
     }
     return allReplies;
   };
-  
+
   const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
   return (
@@ -299,15 +292,15 @@ const CommentItem: React.FC<CommentItemProps> = ({
           />
           {shouldShowToggleButton && (
             <View className={styles.toggleRepliesButton} onClick={toggleReplies}>
-              <Image 
-                src={showReplies ? ChevronDownIcon : ChevronRightIcon} 
-                className={styles.toggleIcon} 
+              <Image
+                src={showReplies ? ChevronDownIcon : ChevronRightIcon}
+                className={styles.toggleIcon}
               />
               <Text>{showReplies ? '收起' : `查看剩余${replyCount - 2}条回复`}</Text>
             </View>
           )}
         </View>
-        
+
         {hasReplies && (shouldAutoShow || shouldShowToggleButton) && (
           <View className={styles.repliesContainer}>
             {repliesToShow.map((reply) => (
@@ -349,7 +342,7 @@ const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuth
   const token = userState?.token || null;
   const isLoggedIn = userState?.isLoggedIn || false;
   const dispatch = useDispatch<AppDispatch>();
-  
+
   useEffect(() => {
     if (replyTo) {
       setTimeout(() => {
@@ -357,7 +350,7 @@ const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuth
       }, 100);
     }
   }, [replyTo]);
-  
+
   const handleSendComment = async () => {
     if (!comment.trim() || isSubmitting) return;
 
@@ -367,40 +360,34 @@ const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuth
     }
 
     if (!token || !isLoggedIn) {
-      Taro.showModal({
-        title: '提示',
-        content: '您尚未登录，是否前往登录？',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-          }
-        }
-      });
-      return;
+      const hasLogin = await checkLoginWithModal();
+      if (!hasLogin) {
+        return;
+      }
     }
-    
+
     try {
       setIsSubmitting(true);
       let finalContent = comment.trim();
-      
+
       if (replyTo && replyTo.nickname) {
         finalContent = `@${replyTo.nickname} ${finalContent}`;
       }
-      
+
       const commentParams = {
         resource_id: postId,
         resource_type: 'post' as const,
         content: finalContent,
         post_title: postTitle,
         post_author_id: postAuthorId,
-        ...(replyTo ? { 
+        ...(replyTo ? {
           parent_id: replyTo.commentId,
           parent_author_nickname: replyTo.nickname
         } : {})
       };
-      
+
       await dispatch(createComment(commentParams)).unwrap();
-      
+
       setComment('');
       if (onCancelReply) {
         onCancelReply();
@@ -429,14 +416,14 @@ const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuth
       {replyTo && (
         <View className={styles.replyIndicator}>
           <Text className={styles.replyText}>回复 @{replyTo.nickname}</Text>
-          <Image 
-            src={CloseIcon} 
+          <Image
+            src={CloseIcon}
             className={styles.cancelReplyIcon}
             onClick={handleCancelReply}
           />
         </View>
       )}
-      
+
       <View className={styles.commentInput}>
         <Input
           className={styles.input}
@@ -450,8 +437,8 @@ const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuth
           className={`${styles.sendButton} ${(isSubmitting || !allowComments) ? styles.disabled : ''}`}
           onClick={handleSendComment}
         >
-          <Image 
-            src={SendIcon} 
+          <Image
+            src={SendIcon}
             className={styles.sendIcon}
           />
         </View>
@@ -511,7 +498,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   // 根据 autoHandle 决定使用哪个 replyTo
   const replyTo = autoHandle ? internalReplyTo : externalReplyTo;
   const handleCancelReply = autoHandle ? () => setInternalReplyTo(null) : onCancelReply;
-  
+
   useEffect(() => {
     setLocalComments(_comments);
   }, [_comments]);
@@ -589,7 +576,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         return comment;
       });
     });
-    
+
     if (onLikeUpdate) {
       onLikeUpdate(commentId, isLiked, likeCount);
     }
@@ -605,7 +592,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       });
     });
   };
-  
+
   const sortedComments = [...localComments].sort((a, b) => {
     if (sortBy === 'time') {
       const bTime = (b.create_at || (b as any).created_at) ? new Date((b.create_at || (b as any).created_at) as string).getTime() : 0;
@@ -615,7 +602,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       return (b.like_count || 0) - (a.like_count || 0);
     }
   });
-  
+
   const toggleSort = () => {
     setSortBy(sortBy === 'time' ? 'likes' : 'time');
   };
@@ -637,7 +624,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           <Image src={ChevronDownIcon} className={styles.icon} />
         </View>
       </View>
-      
+
       {sortedComments.length > 0 ? (
         sortedComments.map((comment) => (
           <CommentItem
