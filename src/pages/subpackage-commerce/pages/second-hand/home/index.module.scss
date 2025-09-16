@@ -17,9 +17,7 @@
 }
 
 .fixedHeader {
-  background-color: #fff;
-  border-bottom: 1px solid #f0f0f0;
-  padding: 16px 0 0 0; // 为搜索框提供顶部间距
+  background-color: #ffffff;
 }
 
 .searchContainer {
@@ -48,21 +46,22 @@
 
 .filterTabs {
   display: flex;
-  padding: 8px 16px 16px 16px; // 增加顶部间距，避免与搜索框重叠，左右间距与搜索框保持一致
+  padding: 8px 16px 16px 16px; // 与其他模块一致
   background-color: #fff;
-  gap: 15px;
+  gap: 8px;
 
   .tab {
-    padding: 6px 16px;
-    border-radius: 16px;
+    padding: 6px 12px;
+    border-radius: 12px;
     background-color: $bg-input;
     color: $text-primary;
-    font-size: 14px;
+    font-size: 12px;
+    transition: all 0.2s ease;
 
     &.active {
       background-color: $theme-primary;
       color: #fff;
-      font-weight: bold;
+      font-weight: 600;
     }
   }
 }

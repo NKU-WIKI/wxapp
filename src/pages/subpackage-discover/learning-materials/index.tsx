@@ -1,9 +1,10 @@
-import { View, ScrollView, Text, Image } from "@tarojs/components";
+import { View, ScrollView, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useState, useEffect, useCallback } from "react";
 import AuthFloatingButton from "@/components/auth-floating-button";
 import SearchBar from "@/components/search-bar";
 import HighlightText from "@/components/highlight-text";
+import CustomHeader from "@/components/custom-header";
 import LearningMaterialService, { CATEGORY_CONFIG } from "@/services/api/learningMaterial";
 import { LearningMaterial, LearningMaterialCategory } from "@/types/api/learningMaterial";
 import styles from "./index.module.scss";
@@ -157,11 +158,7 @@ export default function LearningMaterials() {
     }
   ];
 
-  // 返回上一页
-  const handleBack = () => {
-    Taro.navigateBack();
-  };
-
+  // 使用全局 CustomHeader，无需本地返回处理
 
 
   // 标签点击处理
@@ -377,13 +374,7 @@ export default function LearningMaterials() {
 
   return (
     <View className={styles.learningMaterialsPage}>
-      {/* 导航栏 */}
-      <View className={styles.navbar}>
-        <View className={styles.backButton} onClick={handleBack}>
-          <Image src={require("@/assets/arrow-left.svg")} className={styles.backIcon} />
-        </View>
-        <Text className={styles.title}>学习资料</Text>
-      </View>
+      <CustomHeader title='学习资料' />
 
       {/* 搜索框和标签栏 - 固定在顶部，不随滚动 */}
       <View className={styles.fixedHeader}>

@@ -188,17 +188,17 @@ const RatingPage = () => {
       <CustomHeader title='评分' />
       
       {/* 搜索框 */}
-      <View className={styles.searchContainer}>
+      <View className={styles.fixedHeader}>
         <SearchBar
           key='rating-search'
           keyword={searchKeyword}
-          placeholder='搜索评分内容标题...'
+          placeholder='搜索评分内容标题'
           onInput={handleSearchInput}
           onSearch={handleSearchConfirm}
           onClear={handleClearSearch}
         />
       </View>
-      
+       
       {/* 分类标签栏 */}
       <View className={styles.categoryContainer}>
         <ScrollView scrollX className={styles.categoryScroll}>
