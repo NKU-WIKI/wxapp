@@ -299,7 +299,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           className={styles.actions}
           // 增强的登录鉴权配置
           authConfig={{
-            disabledWhenNotLoggedIn: true, // 未登录时禁用需要权限的按钮
+            disabledWhenNotLoggedIn: false, // 未登录时不禁用按钮，点击时显示登录提示
             loginPrompt: '登录后才能点赞和收藏哦' // 自定义提示消息
           }}
           onStateChange={(_type, _isActive, _count) => {

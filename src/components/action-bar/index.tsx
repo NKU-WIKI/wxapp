@@ -154,6 +154,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
   const isLoggedIn = useSelector((state: RootState) => !!(state.user.user && state.user.token));
   const currentUser = useSelector((state: RootState) => state.user.user);
 
+
   // 初始化本地状态（如果还没有初始化）
   useEffect(() => {
     setLocalStates(prev => {
@@ -208,7 +209,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
   // 判断按钮是否应该被禁用
   const isButtonDisabled = useCallback((button: ActionButtonConfig): boolean => {
     const needsAuth = requiresAuth(button);
-    const globalDisabled = authConfig.disabledWhenNotLoggedIn ?? true;
+    const globalDisabled = authConfig.disabledWhenNotLoggedIn ?? false; // 默认改为false，不禁用
     const buttonDisabled = button.disabledWhenNotLoggedIn ?? globalDisabled;
 
     // 未登录且需要权限且配置了禁用时，禁用按钮
@@ -248,9 +249,12 @@ const ActionBar: React.FC<ActionBarProps> = ({
 
     // 检查登录状态（如果需要的话）
     if (requiresAuth(button)) {
-      const isLogged = await checkLogin();
-      if (!isLogged) {
-        return; // 未登录，不继续执行
+      if (!isLoggedIn) {
+        const isLogged = await checkLogin();
+        if (!isLogged) {
+          return; // 用户拒绝登录，不继续执行
+        }
+        return; // 跳转到登录页面，操作中断
       }
     }
 
@@ -312,6 +316,11 @@ const ActionBar: React.FC<ActionBarProps> = ({
       onStateChange?.(button.type, isActive, count);
 
     } catch (error) {
+      Taro.showToast({
+        title: '操作失败，请稍后重试',
+        icon: 'none',
+        duration: 2000
+      });
     } finally {
       setLoadingStates(prev => ({ ...prev, [key]: false }));
     }

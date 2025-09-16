@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { View, Image, Text, Checkbox } from '@tarojs/components';
+import { View, Image, Text, Checkbox, ScrollView } from '@tarojs/components';
 import { useDispatch } from 'react-redux';
 import Taro from '@tarojs/taro';
 import { AppDispatch } from '@/store';
 import { login } from '@/store/slices/userSlice';
+import CustomHeader from '@/components/custom-header';
 import styles from './index.module.scss';
 
 // 图标路径
@@ -89,57 +90,70 @@ export default function LoginPage() {
   };
 
   return (
-    <View className={styles.loginContainer}>
-      <View className={styles.header}>
-        <Image src={logo} className={styles.logo} mode='aspectFit' />
-        <Text className={styles.title}>开源·共治·普惠</Text>
-        <Text className={styles.subtitle}>加入我们, 探索无限可能</Text>
-      </View>
+    <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {/* 自定义导航栏，只显示返回按钮 */}
+      <CustomHeader
+        hideBack={false}
+        showNotificationIcon={false}
+        showWikiButton={false}
+      />
 
+      {/* 页面主体内容 */}
+      <View style={{ flex: 1, overflow: 'hidden' }}>
+        <ScrollView scrollY style={{ height: '100%' }}>
+          <View className={styles.loginContainer}>
+            <View className={styles.header}>
+              <Image src={logo} className={styles.logo} mode='aspectFit' />
+              <Text className={styles.title}>开源·共治·普惠</Text>
+              <Text className={styles.subtitle}>加入我们, 探索无限可能</Text>
+            </View>
 
-      <View className={styles.quickLogin}>
-        <View className={styles.wechatLoginContainer} onClick={handleWechatLogin}>
-          <Image src={wechatIcon} className={styles.socialIcon} />
-          <Text className={styles.wechatLoginText}>微信一键登录</Text>
-        </View>
-      </View>
+            <View className={styles.quickLogin}>
+              <View className={styles.wechatLoginContainer} onClick={handleWechatLogin}>
+                <Image src={wechatIcon} className={styles.socialIcon} />
+                <Text className={styles.wechatLoginText}>微信一键登录</Text>
+              </View>
+            </View>
 
-      {/* 协议同意区域 */}
-      <View className={styles.agreementSection}>
-        <View
-          className={styles.agreementRow}
-          onClick={() => {
-            setAgreedToTerms(!agreedToTerms);
-          }}
-        >
-          <Checkbox
-            value='agree'
-            checked={agreedToTerms}
-            className={styles.checkbox}
-          />
-          <Text className={styles.agreementText}>
-            我已仔细阅读并同意{' '}
-            <Text
-              className={styles.link}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleViewUserAgreement();
-              }}
-            >
-              《用户服务协议》
-            </Text>
-            和{' '}
-            <Text
-              className={styles.link}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleViewPrivacyPolicy();
-              }}
-            >
-              《隐私政策》
-            </Text>
-          </Text>
-        </View>
+            {/* 协议同意区域 */}
+            <View className={styles.agreementSection}>
+              <View
+                className={styles.agreementRow}
+                onClick={() => {
+                  setAgreedToTerms(!agreedToTerms);
+                }}
+              >
+                <Checkbox
+                  value='agree'
+                  checked={agreedToTerms}
+                  className={styles.checkbox}
+                />
+                <Text className={styles.agreementText}>
+                  我已仔细阅读并同意{' '}
+                  <Text
+                    className={styles.link}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewUserAgreement();
+                    }}
+                  >
+                    《用户服务协议》
+                  </Text>
+                  和{' '}
+                  <Text
+                    className={styles.link}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewPrivacyPolicy();
+                    }}
+                  >
+                    《隐私政策》
+                  </Text>
+                </Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
       </View>
     </View>
   );
