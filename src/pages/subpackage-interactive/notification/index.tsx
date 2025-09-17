@@ -88,19 +88,13 @@ const NotificationPage = () => {
       return userCache.get(userId)!;
     }
 
-    try {
-      console.log('👤 [通知页面调试] 获取用户信息', { userId });
-      const response = await getUserById(userId);
-      if (response.code === 0 && response.data) {
-        const userInfo = response.data;
-        // 更新缓存
-        setUserCache(prev => new Map(prev.set(userId, userInfo)));
-        console.log('✅ [通知页面调试] 用户信息获取成功', { userId, userInfo });
-        return userInfo;
+    const response = await getUserById(userId);
+    if (response.code === 0 && response.data) {
+      const userInfo = response.data;
+      // 更新缓存
+      setUserCache(prev => new Map(prev.set(userId, userInfo)));
+      return userInfo;
       }
-    } catch (error) {
-      console.error('❌ [通知页面调试] 用户信息获取失败', { userId, error });
-    }
 
     return null;
   }, [userCache]);
@@ -224,8 +218,6 @@ const NotificationPage = () => {
 
   // 处理通知显示数据（异步获取用户信息）
   const processNotificationDisplayData = useCallback(async (notificationItems: NotificationRead[]) => {
-    console.log('🔄 [通知页面调试] 开始处理通知显示数据', { count: notificationItems.length });
-
     try {
       const displayDataPromises = notificationItems.map(async (notification) => {
         const displayData = await parseNotificationDisplay(notification);
@@ -298,20 +290,6 @@ const NotificationPage = () => {
           }
         });
 
-        console.log('📋 [通知页面调试] 过滤后设置通知列表', {
-          原始数量: originalCount,
-          过滤后数量: items.length,
-          当前标签: targetType,
-          通知类型分布: items.reduce((acc, item) => {
-            acc[item.business_type || 'unknown'] = (acc[item.business_type || 'unknown'] || 0) + 1;
-            return acc;
-          }, {} as Record<string, number>),
-          状态分布: items.reduce((acc, item) => {
-            acc[item.status || 'unknown'] = (acc[item.status || 'unknown'] || 0) + 1;
-            return acc;
-          }, {} as Record<string, number>)
-        });
-
         setNotifications(items);
 
         // 异步解析通知显示数据（获取用户信息）
@@ -337,19 +315,10 @@ const NotificationPage = () => {
 
   // 切换标签页
   const handleTabChange = (tabKey: TabKey) => {
-    console.log('📋 [通知页面调试] 切换标签页', {
-      从: currentTab,
-      到: tabKey,
-      是否需要切换: tabKey !== currentTab
-    });
-
     if (tabKey !== currentTab) {
       setCurrentTab(tabKey)
       setNotifications([])
-      console.log('📋 [通知页面调试] 开始加载新标签页数据', { newTab: tabKey });
       fetchNotifications(tabKey)
-    } else {
-      console.log('📋 [通知页面调试] 点击相同标签，无需切换');
     }
   }
 
