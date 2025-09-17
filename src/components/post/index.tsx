@@ -215,6 +215,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           createTime={mode === 'list' ? ((displayPost as any).created_at || displayPost.create_time) : undefined}
           showMoreButton={canDelete}
           onMoreClick={handleDeletePost}
+          disableNameTruncate={mode === 'detail'}
         />
       </View>
 

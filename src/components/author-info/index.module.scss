@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@use "../../styles/variables.scss" as *;
 
 .container {
   background-color: #fff;
@@ -58,6 +58,19 @@
   font-weight: 600;
   color: $text-primary;
   margin-right: 8px;
+  /* 防止昵称过长影响布局 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px; /* 适合expanded模式的最大宽度（收紧） */
+}
+
+// 关闭截断时使用的样式修饰符
+.noTruncate {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  max-width: none;
 }
 
 // 等级徽章
@@ -181,7 +194,8 @@
 
     .progressFill {
       height: 100%;
-      background: linear-gradient(90deg, $theme-primary, lighten($theme-primary, 10%));
+      // 使用更兼容的双色梯度，避免使用已弃用的 lighten()
+      background: linear-gradient(90deg, $theme-primary 0%, $theme-primary 60%, #6b7cff 100%);
       border-radius: 2px;
       transition: width 0.3s ease;
     }
@@ -279,6 +293,19 @@
   font-weight: 500;
   color: $text-primary;
   margin-right: 6px;
+  /* 防止昵称过长影响布局 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80px; /* 适合compact模式的最大宽度（收紧） */
+}
+
+// 在需要完整展示昵称的场景下（如帖子详情的评论区），去除截断
+.noTruncate {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  max-width: none;
 }
 
 // 简洁模式等级徽章
@@ -312,11 +339,13 @@
   color: $text-secondary;
 }
 
-// 简洁模式时间信息
+// 简洁模式时间信息 (移动到评论区操作栏)
 .compactTime {
   font-size: 11px;
   color: $text-helper-gray;
-  margin-top: 2px;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
 }
 
 // 简洁模式简介
@@ -344,7 +373,7 @@
   margin-right: 8px;
 }
 
-// 时间和更多按钮的容器
+// 时间和更多按钮的容器 (移除时间显示，只保留更多按钮)
 .compactTimeActions {
   display: flex;
   align-items: center;
@@ -439,6 +468,11 @@
   font-size: 18px;
   font-weight: 600;
   color: #333;
+  /* 防止昵称过长影响布局 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 110px; /* 适合profile模式的最大宽度（收紧） */
 }
 
 .profileBio {

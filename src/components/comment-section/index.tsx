@@ -17,6 +17,7 @@ import HeartIcon from "@/assets/heart-outline.svg";
 import HeartActiveIcon from "@/assets/heart-bold.svg";
 import CloseIcon from '@/assets/x.svg';
 import SendIcon from '@/assets/sendcomment.svg';
+import { formatRelativeTime } from '@/utils/time';
 
 
 import styles from "./index.module.scss";
@@ -102,30 +103,33 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
         showFollowButton={showFollowButton}
         showStats={false}
         showLevel
-        showTime
-        createTime={_comment.create_at || (_comment as any).created_at || ''}
         showMoreButton={isCommentAuthor && !!_onDeleteComment}
         onMoreClick={handleMoreClick}
+        disableNameTruncate
       />
       <View className={styles.subContent}>
         <Text className={styles.subText}>{renderCommentContent(_comment.content)}</Text>
-        <ActionBar
-          targetId={_comment.id}
-          targetType='comment'
-          buttons={actionBarButtons}
-          className={styles.subActions}
-          initialStates={{
-            'like-0': { isActive: _comment.has_liked || false, count: _comment.like_count || 0 },
-            'comment-1': { isActive: false, count: _comment.reply_count || 0 }
-          }}
-          onStateChange={(type, isActive, count) => {
-            if (type === 'like') {
-              onLikeUpdate(_comment.id, isActive, count);
-            } else if (type === 'comment') {
-              onReply(_comment);
-            }
-          }}
-        />
+        <View className={styles.subActions}>
+          <ActionBar
+            targetId={_comment.id}
+            targetType='comment'
+            buttons={actionBarButtons}
+            initialStates={{
+              'like-0': { isActive: _comment.has_liked || false, count: _comment.like_count || 0 },
+              'comment-1': { isActive: false, count: _comment.reply_count || 0 }
+            }}
+            onStateChange={(type, isActive, count) => {
+              if (type === 'like') {
+                onLikeUpdate(_comment.id, isActive, count);
+              } else if (type === 'comment') {
+                onReply(_comment);
+              }
+            }}
+          />
+          <Text className={styles.subCommentTime}>
+            {formatRelativeTime(_comment.create_at || (_comment as any).created_at || '')}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -266,10 +270,9 @@ const CommentItem: React.FC<CommentItemProps> = ({
         showFollowButton={showFollowButton}
         showStats={false}
         showLevel
-        showTime
-        createTime={_comment.create_at || (_comment as any).created_at || ''}
         showMoreButton={isCommentAuthor && !!_onDeleteComment}
         onMoreClick={handleMoreClick}
+        disableNameTruncate
       />
       <View className={styles.content}>
         <Text className={styles.text}>{renderCommentContent(_comment?.content || '')}</Text>
@@ -290,15 +293,20 @@ const CommentItem: React.FC<CommentItemProps> = ({
               }
             }}
           />
-          {shouldShowToggleButton && (
-            <View className={styles.toggleRepliesButton} onClick={toggleReplies}>
-              <Image
-                src={showReplies ? ChevronDownIcon : ChevronRightIcon}
-                className={styles.toggleIcon}
-              />
-              <Text>{showReplies ? '收起' : `查看剩余${replyCount - 2}条回复`}</Text>
-            </View>
-          )}
+          <View className={styles.commentRightSection}>
+            <Text className={styles.commentTime}>
+              {formatRelativeTime(_comment.create_at || (_comment as any).created_at || '')}
+            </Text>
+            {shouldShowToggleButton && (
+              <View className={styles.toggleRepliesButton} onClick={toggleReplies}>
+                <Image
+                  src={showReplies ? ChevronDownIcon : ChevronRightIcon}
+                  className={styles.toggleIcon}
+                />
+                <Text>{showReplies ? '收起' : `查看剩余${replyCount - 2}条回复`}</Text>
+              </View>
+            )}
+          </View>
         </View>
 
         {hasReplies && (shouldAutoShow || shouldShowToggleButton) && (

@@ -40,6 +40,11 @@
   font-size: 20px;
   font-weight: bold;
   color: $text-primary-dark;
+  /* 防止昵称过长影响布局 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px; /* 适合ProfileSummary模式的最大宽度（收紧） */
 }
 
 .levelBadge {

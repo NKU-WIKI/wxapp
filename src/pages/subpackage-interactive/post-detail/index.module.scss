@@ -397,6 +397,26 @@
   .content {
     padding-left: 48px; /* 36px avatar width + 12px margin */
   }
+  
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  
+  .commentRightSection {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 12px;
+  }
+  
+  .commentTime {
+    font-size: 11px;
+    color: #9CA3AF;
+    white-space: nowrap;
+  }
 }
 
 /* 子评论项样式 */
@@ -405,6 +425,20 @@
   
   .subContent {
     padding-left: 48px; /* 36px avatar width + 12px margin */
+  }
+  
+  .subActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  
+  .subCommentTime {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-left: auto;
+    white-space: nowrap;
   }
 }
 

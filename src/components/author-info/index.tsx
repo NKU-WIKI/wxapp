@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, Text, Image } from '@tarojs/components'
-import Taro from '@tarojs/taro'
 import classnames from 'classnames'
 import { useSelector } from 'react-redux'
 import { useAuthorInfo } from '@/hooks/useAuthorInfo'
@@ -61,6 +60,8 @@ export interface AuthorInfoProps {
   extraNode?: React.ReactNode
   /** 自定义类名 */
   className?: string
+  /** 是否禁用昵称截断（在评论区需要完整显示昵称时启用） */
+  disableNameTruncate?: boolean
   /** 外部点击回调（可选，用于自定义行为） */
   onClick?: () => void
   /** Profile模式专用：是否显示操作菜单 */
@@ -102,7 +103,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
   createTime,
   extraNode,
   className,
-  onClick,
+  disableNameTruncate = false,
   showMenu = true,
   showEditButton = true,
   onEdit,
@@ -135,20 +136,6 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
 
   const isCurrentUser = !!currentUserId && currentUserId === userId
 
-  // 处理用户信息点击
-  const handleUserClick = () => {
-    if (onClick) {
-      // 如果有外部回调，执行外部回调
-      onClick()
-    } else {
-      // 默认行为：跳转到用户详情页
-      Taro.navigateTo({
-        url: `/pages/subpackage-profile/user-detail/index?id=${userId}&nickname=${encodeURIComponent(user?.nickname || '')}&avatar=${encodeURIComponent(user?.avatar || '')}`
-      }).catch(() => {
-        Taro.showToast({ title: '用户详情页开发中', icon: 'none' })
-      })
-    }
-  }
 
   const handleFollowToggle = async () => {
     if (isFollowing) {
@@ -159,7 +146,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
   }
 
   const containerClasses = classnames(styles.container, className, {
-    [styles.clickable]: !!onClick,
+    [styles.clickable]: false, // 移除点击功能，不再显示为可点击状态
     [styles.compact]: mode === 'compact',
     [styles.expanded]: mode === 'expanded',
     [styles.profile]: mode === 'profile'
@@ -188,16 +175,16 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
     return (
       <View className={containerClasses}>
         <View className={styles.compactUserInfo}>
-          <View className={styles.compactUserInfoLeft} onClick={handleUserClick}>
+          <View className={styles.compactUserInfoLeft}>
             <Image
               src={normalizeImageUrl(user?.avatar || undefined) || defaultAvatar}
               className={classnames(styles.compactAvatar, className)}
               mode='aspectFill'
             />
-            <View className={styles.compactUserDetails}>
+              <View className={styles.compactUserDetails}>
               <View className={styles.compactUserNameRow}>
-                <Text className={styles.compactUserName}>
-                  {truncateNickname(user?.nickname)}
+                <Text className={classnames(styles.compactUserName, { [styles.noTruncate]: disableNameTruncate })}>
+                  {disableNameTruncate ? (user?.nickname || '匿名用户') : truncateNickname(user?.nickname)}
                 </Text>
                 {showLevel && levelInfo && (
                   <View className={styles.compactLevelBadge}>
@@ -242,11 +229,6 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
               )}
             </View>
             <View className={styles.compactTimeActions}>
-              {showTime && createTime && (
-                <Text className={styles.compactTime}>
-                  {formatRelativeTime(createTime)}
-                </Text>
-              )}
               {showMoreButton && onMoreClick && (
                 <View
                   className={styles.moreButton}
@@ -265,7 +247,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
   // 详细模式渲染（完整的用户信息卡片）
   if (mode === 'expanded') {
     return (
-    <View className={containerClasses} onClick={handleUserClick}>
+    <View className={containerClasses}>
       {/* 用户头像和基本信息 */}
       <View className={styles.userHeader}>
         <Image

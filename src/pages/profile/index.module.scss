@@ -82,10 +82,15 @@
 .nickname {
   color: #374151;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 17px; /* 微调增大昵称字号 */
   margin-bottom: 4px;
   display: block;
   width: 100%;
+  /* 防止昵称过长影响布局 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px; /* 设置最大宽度（收紧） */
 }
 
 .userBio {
@@ -93,20 +98,20 @@
   font-size: 13px;
   margin-top: 0;
   display: block;
-  width: 100%;
+  width: 100%; /* 占据整行宽度 */
   line-height: 1.4;
-  max-width: 160px;
+  /* 允许Bio在一行内根据容器宽度自适应，取消限制 */
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .levelBadge {
   background-color: rgba(255, 193, 7, 0.2);
-  padding: 4px 12px;
+  padding: 2px 8px; /* 缩小徽章尺寸 */
   border-radius: 9999px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px; /* 略缩小间距 */
   margin-right: 12px;
 }
 
@@ -116,7 +121,7 @@
 
 .levelText {
   color: #FFC107;
-  font-size: 14px;
+  font-size: 12px; /* 缩小徽章文字 */
 }
 
 .editButton {
@@ -125,9 +130,9 @@
   gap: 4px;
   background-color: #4F46E5;
   color: white;
-  padding: 6px 12px;
+  padding: 4px 10px; /* 缩小编辑按钮尺寸 */
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 12px; /* 缩小按钮文字 */
   border: none;
 
   &::after {
@@ -377,7 +382,8 @@
   }
 
   &:hover {
-    background-color: darken($theme-primary, 5%);
+    // 避免使用已弃用的 darken()，直接使用固定色值以保持一致
+    background-color: #4338ca;
   }
 }
 

@@ -58,6 +58,19 @@
     margin-top: 8px;
   }
   
+  .commentRightSection {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 12px;
+  }
+  
+  .commentTime {
+    font-size: 11px;
+    color: #9CA3AF;
+    white-space: nowrap;
+  }
+  
   .toggleRepliesButton {
     display: flex;
     align-items: center;
@@ -104,7 +117,17 @@
   }
 
   .subActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-top: 6px;
+  }
+  
+  .subCommentTime {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-left: auto;
+    white-space: nowrap;
   }
 }
 

@@ -43,7 +43,16 @@
 .authorDetails {}
 
 .authorMainRow { display: flex; align-items: center; }
-.authorName { font-size: 16px; font-weight: 500; color: #222; }
+.authorName { 
+  font-size: 16px; 
+  font-weight: 500; 
+  color: #222; 
+  /* 防止昵称过长影响布局 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px; /* 适合post模式的最大宽度 */
+}
 .levelBadge { margin-left: 6px; padding: 0 6px; height: 18px; border-radius: 9px; background: #f0f0f0; display: flex; align-items: center; }
 .followButton { margin-left: 8px; padding: 0 8px; height: 24px; border-radius: 12px; background: #7baae8; color: #fff; font-size: 12px; display:flex; align-items: center; }
 .followButton.followed { background: #f5f5f5; color: #666; }
