@@ -82,12 +82,12 @@ const NotificationPage = () => {
   // 获取用户信息（带缓存）
   const fetchUserInfo = useCallback(async (userId: string): Promise<User | null> => {
     if (!userId) return null;
-    
+
     // 检查缓存
     if (userCache.has(userId)) {
       return userCache.get(userId)!;
     }
-    
+
     try {
       console.log('👤 [通知页面调试] 获取用户信息', { userId });
       const response = await getUserById(userId);
@@ -101,7 +101,7 @@ const NotificationPage = () => {
     } catch (error) {
       console.error('❌ [通知页面调试] 用户信息获取失败', { userId, error });
     }
-    
+
     return null;
   }, [userCache]);
 
@@ -117,7 +117,7 @@ const NotificationPage = () => {
   // 解析通知内容显示（异步获取用户信息）
   const parseNotificationDisplay = useCallback(async (notification: NotificationRead) => {
     let senderName = '系统';
-    let senderAvatar = '/assets/profile.png';
+    let senderAvatar = '/assets/profile.png'; // 默认头像
     const senderId = notification.sender_id || undefined;
 
     // 如果有sender_id，尝试获取用户信息
@@ -126,16 +126,7 @@ const NotificationPage = () => {
       if (userInfo) {
         senderName = userInfo.nickname || '用户';
         senderAvatar = userInfo.avatar || '/assets/profile.png';
-        console.log('👤 [通知页面调试] 用户信息解析成功', {
-          senderId,
-          senderName,
-          senderAvatar: userInfo.avatar
-        });
       } else {
-        console.log('👤 [通知页面调试] 用户信息获取失败，使用fallback', {
-          senderId,
-          fallbackName: notification.sender?.nickname || notification.sender?.name || '系统'
-        });
         // Fallback到notification中的sender信息
         senderName = notification.sender?.nickname || notification.sender?.name || '系统';
         senderAvatar = notification.sender?.avatar || '/assets/profile.png';
@@ -171,10 +162,11 @@ const NotificationPage = () => {
     } else if (notification.type === NotificationType._Activity) {
       // 活动通知简化处理，和互动消息保持一致
       const activityTitle = notification.data?.activity_title || '未知活动';
-      
+
       switch (notification.business_type) {
         case 'activity_published':
           senderName = '系统';
+          senderAvatar = '/assets/profile.png'; // 系统通知使用默认头像
           action = '活动发布成功';
           postContent = activityTitle;
           break;
@@ -186,21 +178,25 @@ const NotificationPage = () => {
           break;
         case 'participant_join_success':
           senderName = '系统';
+          senderAvatar = '/assets/profile.png'; // 系统通知使用默认头像
           action = '活动报名成功';
           postContent = activityTitle;
           break;
         case 'participant_cancel_success':
           senderName = '系统';
+          senderAvatar = '/assets/profile.png'; // 系统通知使用默认头像
           action = '取消报名成功';
           postContent = activityTitle;
           break;
         case 'activity_cancelled':
           senderName = '系统';
+          senderAvatar = '/assets/profile.png'; // 系统通知使用默认头像
           action = '活动已取消';
           postContent = activityTitle;
           break;
         case 'activity_updated':
           senderName = '系统';
+          senderAvatar = '/assets/profile.png'; // 系统通知使用默认头像
           action = '活动信息已更新';
           postContent = activityTitle;
           break;
@@ -209,6 +205,9 @@ const NotificationPage = () => {
           postContent = activityTitle;
       }
     } else {
+      // 系统通知和公告通知
+      senderName = '系统';
+      senderAvatar = '/assets/profile.png'; // 系统通知使用默认头像
       action = notification.title || '系统通知';
     }
 
@@ -226,7 +225,7 @@ const NotificationPage = () => {
   // 处理通知显示数据（异步获取用户信息）
   const processNotificationDisplayData = useCallback(async (notificationItems: NotificationRead[]) => {
     console.log('🔄 [通知页面调试] 开始处理通知显示数据', { count: notificationItems.length });
-    
+
     try {
       const displayDataPromises = notificationItems.map(async (notification) => {
         const displayData = await parseNotificationDisplay(notification);
@@ -236,17 +235,9 @@ const NotificationPage = () => {
           originalNotification: notification
         };
       });
-      
+
       const resolvedDisplayData = await Promise.all(displayDataPromises);
-      console.log('✅ [通知页面调试] 通知显示数据处理完成', { 
-        count: resolvedDisplayData.length,
-        sampleData: resolvedDisplayData.slice(0, 2).map(item => ({
-          id: item.id,
-          user: item.user,
-          action: item.action
-        }))
-      });
-      
+
       setDisplayNotifications(resolvedDisplayData);
     } catch (error) {
       console.error('❌ [通知页面调试] 处理通知显示数据失败', error);
@@ -273,31 +264,31 @@ const NotificationPage = () => {
     try {
       if (showLoading) setLoading(true)
       setError(null)
-      
+
       // 为了兼容错误分类的活动通知，我们需要同时查询多个type
       let requestParams: any = {
         page: 1,
         page_size: 50
       };
-      
+
       if (targetType === 'activity') {
-        // 活动标签页：查询所有类型并前端过滤（兼容旧数据）
+        // 活动标��页：查询所有类型并前端过滤（兼容旧数据）
         // 不指定type，获取所有通知然后前端过滤
       } else {
         // 其他标签页：按正常type查询
         requestParams.type = targetType;
       }
-      
+
       const res = await getNotifications(requestParams)
-      
+
       if (res.code === 0 && res.data) {
         let items = res.data.items || [];
-        
+
         // 根据business_type重新过滤通知，确保活动相关通知在正确的标签页
         const originalCount = items.length;
         items = items.filter(item => {
           const isActivityRelated = ['activity_published', 'activity_joined', 'activity_cancelled', 'activity_updated', 'activity_registration', 'activity_cancel_registration', 'participant_join_success', 'participant_cancel_success'].includes(item.business_type);
-          
+
           if (targetType === 'activity') {
             // activity标签页：只显示活动相关的通知
             return isActivityRelated;
@@ -306,7 +297,7 @@ const NotificationPage = () => {
             return !isActivityRelated;
           }
         });
-        
+
         console.log('📋 [通知页面调试] 过滤后设置通知列表', {
           原始数量: originalCount,
           过滤后数量: items.length,
@@ -322,7 +313,7 @@ const NotificationPage = () => {
         });
 
         setNotifications(items);
-        
+
         // 异步解析通知显示数据（获取用户信息）
         processNotificationDisplayData(items);
       } else {
@@ -376,25 +367,25 @@ const NotificationPage = () => {
 
       if (isUnread) {
         await markNotificationAsRead(originalNotification.id);
-        
+
         // 更新本地状态
-        setNotifications(prev => 
-          prev.map(n => 
-            n.id === originalNotification.id 
-              ? { ...n, status: getReadStatus() } 
+        setNotifications(prev =>
+          prev.map(n =>
+            n.id === originalNotification.id
+              ? { ...n, status: getReadStatus() }
               : n
           )
         );
-        
+
         // 立即更新显示通知的未读状态
-        setDisplayNotifications(prev => 
-          prev.map(n => 
-            n.id === originalNotification.id 
-              ? { ...n, unread: false } 
+        setDisplayNotifications(prev =>
+          prev.map(n =>
+            n.id === originalNotification.id
+              ? { ...n, unread: false }
               : n
           )
         );
-        
+
         // 刷新未读数量统计
         refreshUnreadCounts();
       }
@@ -402,9 +393,9 @@ const NotificationPage = () => {
       // 根据通知类型和业务类型进行页面跳转
       await handleNotificationNavigation(originalNotification);
     } catch (error: any) {
-      Taro.showToast({ 
-        title: error?.message || '操作失败', 
-        icon: 'none' 
+      Taro.showToast({
+        title: error?.message || '操作失败',
+        icon: 'none'
       });
     }
   };
@@ -431,7 +422,7 @@ const NotificationPage = () => {
               Taro.showToast({ title: '帖子信息不完整', icon: 'none' });
             }
             break;
-          
+
           case 'follow':
             // 跳转到用户主页
             const userId = sender_id || data?.follower_id;
@@ -443,11 +434,11 @@ const NotificationPage = () => {
               Taro.showToast({ title: '用户信息不完整', icon: 'none' });
             }
             break;
-          
+
           default:
             break;
         }
-      } 
+      }
       // 提及通知
       else if (type === NotificationType._Mention) {
         const postId = business_id || data?.post_id;
@@ -469,9 +460,9 @@ const NotificationPage = () => {
       }
       // 系统通知和公告通知暂时不跳转
     } catch (_navError) {
-      Taro.showToast({ 
-        title: '页面跳转失败', 
-        icon: 'none' 
+      Taro.showToast({
+        title: '页面跳转失败',
+        icon: 'none'
       });
     }
   };
@@ -524,14 +515,14 @@ const NotificationPage = () => {
 
   return (
     <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <CustomHeader 
-        title='消息' 
+      <CustomHeader
+        title='消息'
         renderRight={renderHeaderRight()}
       />
-      
+
         <View style={{ flex: 1, overflow: 'hidden' }}>
-          <ScrollView 
-            scrollY 
+          <ScrollView
+            scrollY
             style={{ height: '100%' }}
             refresherEnabled={true}
             refresherTriggered={loading}
@@ -546,9 +537,9 @@ const NotificationPage = () => {
                 {NOTIFICATION_TABS.map((tab) => {
                   const isActive = currentTab === tab.key
                   const unreadCount = unreadCounts[tab.key] || 0
-                  
+
                   return (
-                    <View 
+                    <View
                       key={tab.key}
                       className={`${styles.tabItem} ${isActive ? styles.active : ''}`}
                       onClick={() => handleTabChange(tab.key)}
@@ -577,7 +568,7 @@ const NotificationPage = () => {
                 <View className={styles.errorState}>
                   <View className={styles.errorIcon}>⚠️</View>
                   <Text className={styles.errorText}>{error}</Text>
-                  <View 
+                  <View
                     className={styles.retryButton}
                     onClick={() => fetchNotifications()}
                   >
@@ -611,7 +602,7 @@ const NotificationPage = () => {
               )}
             </View>
           </ScrollView>
-          
+
           {/* 底部操作按钮 - 固定在底部 */}
           {notifications.filter(n => !isNotificationRead(n.status)).length > 0 && (
             <View className={styles.footer}>
