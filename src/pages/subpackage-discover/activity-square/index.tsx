@@ -1,9 +1,9 @@
 import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
 import activityApi from "@/services/api/activity";
-import { ActivityRead, ActivityStatus, ActivityType, GetActivityListRequest } from "@/types/api/activity.d";
+import { ActivityRead, ActivityStatus, ActivityType, GetActivityListRequest, RegistrationStatus } from "@/types/api/activity.d";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { ActivityNotificationHelper } from "@/utils/notificationHelper";
@@ -17,8 +17,9 @@ import styles from "./index.module.scss";
 // eslint-disable-next-line import/no-unused-modules
 export default function ActivitySquare() {
   const { isLoggedIn, user: currentUser } = useSelector((state: RootState) => state.user);
-  
-  // 调试Redux状态
+
+  // 添加ScrollView的ref
+  const scrollViewRef = useRef<any>(null);
 
   const [activities, setActivities] = useState<ActivityRead[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
@@ -26,10 +27,14 @@ export default function ActivitySquare() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [searchKeywords, setSearchKeywords] = useState<string[]>([]); // 用于高亮的关键词列表
+  const [searchKeywords, setSearchKeywords] = useState<string[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>('全部');
-  const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false); // 控制第二行标签显示
+  const [showCategoryBar, setShowCategoryBar] = useState<boolean>(false);
 
+  // 分页相关状态
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // 活动分类列表
   const categories = [
@@ -50,66 +55,63 @@ export default function ActivitySquare() {
   ];
 
   // 获取活动列表
-  const fetchActivities = useCallback(async (showLoading = true, category?: string, filter?: string) => {
+  const fetchActivities = useCallback(async (showLoading = true, category?: string, filter?: string, isLoadMore = false) => {
     try {
       if (showLoading) {
         setActivitiesLoading(true);
       }
-      setIsRefreshing(true);
+      if (!isLoadMore) {
+        setIsRefreshing(true);
+      }
 
+      const pageToFetch = isLoadMore ? currentPage : 0;
       const params: GetActivityListRequest = {
         limit: 20,
         status: ActivityStatus.Published,
         sort_by: 'start_time',
         sort_order: 'desc',
-        skip: 0
+        skip: pageToFetch * 20
       };
 
-        // 根据选择的分类添加过滤条件
-        if (category && category !== '全部' && !['我报名的', '我组织的'].includes(category)) {
-          // 假设后端API支持category参数
-          (params as any).category = category;
-        }
+      // 根据选择的分类添加过滤条件
+      if (category && category !== '全部' && !['我报名的', '我组织的'].includes(category)) {
+        (params as any).category = category;
+      }
 
       // 根据筛选类型调用不同的API
       let res;
       const currentFilter = filter || selectedFilter;
 
       if (currentFilter === '我报名的') {
-        // 如果用户未登录，直接返回空列表
         if (!isLoggedIn) {
           setActivities([]);
+          setHasMore(false);
           return;
         }
-        // 调用获取我报名的活动API
         res = await activityApi.myActivity({
           limit: params.limit,
           skip: params.skip
         });
       } else if (currentFilter === '我发布的') {
-        // 如果用户未登录，直接返回空列表
         if (!isLoggedIn) {
           setActivities([]);
+          setHasMore(false);
           return;
         }
-        // 调用获取我发布的活动API
         res = await activityApi.myOrganizedActivity({
           limit: params.limit,
           skip: params.skip
         });
       } else {
-        // 全部活动
         res = await activityApi.getActivityList(params);
       }
 
-      // 兼容后端 data?.data?.items / data?.data?.items 结构
+      // 兼容后端数据结构
       let list: ActivityRead[] = [];
       if (res?.data) {
-        // 优先 PageActivityRead 结构
         const pageData: any = res.data as any;
         if (pageData?.items && Array.isArray(pageData.items)) {
           if (currentFilter === '我报名的') {
-            // 如果是我报名的活动，需要提取activity字段
             list = pageData.items.map((item: any) => item.activity || item) as ActivityRead[];
           } else {
             list = pageData.items as ActivityRead[];
@@ -119,64 +121,101 @@ export default function ActivitySquare() {
         }
       }
 
-      setActivities(list);
+      setActivities(prevActivities => {
+        // 如果是加载更多，拼接数据
+        if (isLoadMore) {
+          return [...prevActivities, ...list];
+        }
+        // 否则直接替换
+        return list;
+      });
+
+      // 更新是否还有更多数据的状态
+      setHasMore(list.length === params.limit);
 
     } catch (err: any) {
-      // 如果是401错误且当前选择的是需要登录的选项，自动切换回"全部"
       const currentFilterValue = filter || selectedFilter;
       if (err?.status === 401 && (currentFilterValue === '我报名的' || currentFilterValue === '我发布的')) {
         setSelectedFilter('全部');
-        // 重新获取全部活动
         setTimeout(() => {
+          setCurrentPage(0);
+          setHasMore(true);
           fetchActivities(false, category, '全部');
         }, 100);
       } else {
-        setActivities([]);
+        if (!isLoadMore) {
+          setActivities([]);
+        }
+        setHasMore(false);
       }
     } finally {
       if (showLoading) {
         setActivitiesLoading(false);
       }
       setIsRefreshing(false);
+      setIsLoadingMore(false);
     }
-  }, [selectedFilter, isLoggedIn]);
-
-
+  }, [selectedFilter, isLoggedIn, currentPage]);
 
   useEffect(() => {
     fetchActivities(true, selectedCategory, selectedFilter);
   }, [fetchActivities, selectedCategory, selectedFilter]);
 
-  // 页面显示时刷新活动列表（每次进入页面都会触发）
+  // 页面显示时刷新活动列表
   useEffect(() => {
     const refreshActivities = () => {
+      setCurrentPage(0);
+      setHasMore(true);
       fetchActivities(false, selectedCategory);
     };
 
-    // 使用 Taro 的事件监听
     const handleShow = () => {
       refreshActivities();
     };
 
-    // 添加页面显示监听
     Taro.eventCenter.on('__taro_page_show', handleShow);
 
-    // 清理函数
     return () => {
       Taro.eventCenter.off('__taro_page_show', handleShow);
     };
   }, [fetchActivities, selectedCategory]);
 
   const handleRefresh = async () => {
-    await fetchActivities(false);
+    setCurrentPage(0);
+    setHasMore(true);
+
+    // 滚动到顶部
+    if (scrollViewRef.current) {
+      try {
+        scrollViewRef.current.scrollTo({
+          top: 0,
+          animated: true
+        });
+      } catch (error) {
+        // 兼容处理，如果scrollTo不可用，则忽略错误
+      }
+    }
+
+    await fetchActivities(false, selectedCategory, selectedFilter);
   };
+
+  // 触底加载更多
+  const handleScrollToLower = useCallback(async () => {
+    if (hasMore && !isLoadingMore && !activitiesLoading) {
+      setIsLoadingMore(true);
+      setCurrentPage(prevPage => {
+        const nextPage = prevPage + 1;
+        fetchActivities(false, selectedCategory, selectedFilter, true);
+        return nextPage;
+      });
+    }
+  }, [hasMore, isLoadingMore, activitiesLoading, selectedCategory, selectedFilter, fetchActivities]);
 
   // 处理搜索输入
   const handleSearchInput = useCallback((e: any) => {
     const value = e.detail.value;
     setSearchKeyword(value);
 
-    // 设置关键词用于高亮
     if (value.trim()) {
       const keywords = value.trim().split(/\s+/).filter(k => k.length > 0);
       setSearchKeywords(keywords);
@@ -187,14 +226,9 @@ export default function ActivitySquare() {
 
   // 处理搜索确认
   const handleSearchConfirm = useCallback(() => {
-    // 本地搜索已经在filteredActivities中自动执行
-    // 这里可以添加一些用户反馈
     if (searchKeyword.trim()) {
-      // 延迟执行以确保状态已更新
       setTimeout(() => {
         const keyword = searchKeyword.trim().toLowerCase();
-
-        // 根据搜索关键词过滤
         const filtered = activities.filter(activityItem =>
           activityItem.title?.toLowerCase().includes(keyword) ||
           activityItem.description?.toLowerCase().includes(keyword) ||
@@ -203,7 +237,6 @@ export default function ActivitySquare() {
           activityItem.organizer?.nickname?.toLowerCase().includes(keyword)
         );
 
-        // 如果有分类过滤，再次应用分类过滤
         let finalFiltered = filtered;
         if (selectedCategory !== '全部') {
           finalFiltered = filtered.filter(activityItem => activityItem.category === selectedCategory);
@@ -230,7 +263,6 @@ export default function ActivitySquare() {
   const handleClearSearch = useCallback(() => {
     setSearchKeyword('');
     setSearchKeywords([]);
-    // 清空搜索后显示所有活动（根据当前分类）
     Taro.showToast({
       title: '已清空搜索',
       icon: 'success',
@@ -238,19 +270,16 @@ export default function ActivitySquare() {
     });
   }, []);
 
-
   const handleActivityClick = (act: ActivityRead) => {
-    // 跳转到活动详情页面
     Taro.navigateTo({
       url: `/pages/subpackage-discover/activity-detail/index?id=${act.id}`
     });
   };
 
   const handleJoinActivity = async (act: ActivityRead, event: any) => {
-    event.stopPropagation(); // 阻止事件冒泡到活动卡片
+    event.stopPropagation();
 
     try {
-      // 检查用户是否已登录
       const token = Taro.getStorageSync('token');
       if (!token) {
         Taro.showModal({
@@ -267,7 +296,15 @@ export default function ActivitySquare() {
         return;
       }
 
-      // 检查活动是否还有名额
+      // 检查用户是否为活动组织者
+      if (currentUser?.id && act.organizer?.id === currentUser.id) {
+        Taro.showToast({
+          title: '不能报名自己发布的活动',
+          icon: 'none'
+        });
+        return;
+      }
+
       if (act.max_participants && act.current_participants >= act.max_participants) {
         Taro.showToast({
           title: '活动名额已满',
@@ -276,8 +313,7 @@ export default function ActivitySquare() {
         return;
       }
 
-      // 检查用户是否已经报名（排除已取消的报名）
-      if (act.is_registered && act.registration_status !== 'cancelled') {
+      if (act.is_registered && act.registration_status !== "cancelled") {
         Taro.showToast({
           title: '您已经报名了这个活动',
           icon: 'none'
@@ -285,7 +321,6 @@ export default function ActivitySquare() {
         return;
       }
 
-      // 显示确认对话框
       const result = await Taro.showModal({
         title: '确认报名',
         content: `确定要报名参加"${act.title}"吗？`,
@@ -297,10 +332,8 @@ export default function ActivitySquare() {
         return;
       }
 
-      // 显示加载中
       Taro.showLoading({ title: '报名中...' });
 
-      // 调用参加活动API
       const response = await activityApi.joinActivity({
         activity_id: act.id
       });
@@ -313,33 +346,30 @@ export default function ActivitySquare() {
           icon: 'success'
         });
 
-        // 发送通知
         if (isLoggedIn && currentUser?.id) {
           const participantNickname = currentUser.nickname || '用户';
-          
-          // 1. 发送给参与者自己的成功通知
+
           ActivityNotificationHelper.handleParticipantJoinSuccessNotification({
             activity: act,
             participantId: currentUser.id,
             participantNickname
-          }).catch(error => {
+          }).catch(_error => {
             // 通知发送失败不影响主流程
           });
-          
-          // 2. 发送给组织者的通知
+
           if (act.organizer?.id) {
             ActivityNotificationHelper.handleActivityJoinedNotification({
               activity: act,
               participantId: currentUser.id,
               participantNickname
-            }).catch(error => {
+            }).catch(_error => {
               // 通知发送失败不影响主流程
             });
           }
         }
 
         // 重新获取活动列表以更新状态
-        await fetchActivities(false, selectedCategory);
+        await handleRefresh();
       } else {
         Taro.showToast({
           title: response.message || '报名失败，请重试',
@@ -348,7 +378,6 @@ export default function ActivitySquare() {
       }
     } catch (error) {
       Taro.hideLoading();
-      // console.error('参加活动失败:', error);
       Taro.showToast({
         title: '网络错误，请重试',
         icon: 'none'
@@ -385,32 +414,29 @@ export default function ActivitySquare() {
           icon: 'success'
         });
 
-        // 发送通知
         if (isLoggedIn && currentUser?.id) {
           const participantNickname = currentUser.nickname || '用户';
-          
-          // 1. 发送给参与者自己的成功通知
+
           ActivityNotificationHelper.handleParticipantCancelSuccessNotification({
             activity: act,
             participantId: currentUser.id,
             participantNickname
-          }).catch(error => {
+          }).catch(_error => {
             // 通知发送失败不影响主流程
           });
-          
-          // 2. 发送给组织者的通知
+
           if (act.organizer?.id) {
             ActivityNotificationHelper.handleActivityCancelRegistrationNotification({
               activity: act,
               participantId: currentUser.id,
               participantNickname
-            }).catch(error => {
+            }).catch(_error => {
               // 通知发送失败不影响主流程
             });
           }
         }
 
-        await fetchActivities(false, selectedCategory);
+        await handleRefresh();
       } else {
         Taro.showToast({
           title: response.message || '取消失败，请重试',
@@ -431,7 +457,7 @@ export default function ActivitySquare() {
   };
 
   const toggleExpanded = (activityId: string, event: any) => {
-    event.stopPropagation(); // 阻止事件冒泡到活动卡片
+    event.stopPropagation();
     setExpandedItems(prev => {
       const newSet = new Set(prev);
       if (newSet.has(activityId)) {
@@ -444,7 +470,6 @@ export default function ActivitySquare() {
   };
 
   const handleCategoryChange = (category: string) => {
-    // 检查用户是否登录（对于个人相关的标签）
     if ((category === '我报名的' || category === '我组织的') && !isLoggedIn) {
       Taro.showModal({
         title: '提示',
@@ -461,16 +486,17 @@ export default function ActivitySquare() {
     }
 
     setSelectedCategory(category);
-
-    // 选择活动类型后收起第二行标签
     setShowCategoryBar(false);
 
-    // 根据选择的分类重新获取活动列表
+    // 重置分页状态
+    setCurrentPage(0);
+    setHasMore(true);
+    setActivities([]);
+
     fetchActivities(true, category, selectedFilter);
   };
 
   const handleFilterChange = (filter: string) => {
-    // 如果选择需要登录的选项但用户未登录，提示登录
     if ((filter === '我报名的' || filter === '我发布的') && !isLoggedIn) {
       Taro.showModal({
         title: '提示',
@@ -491,29 +517,28 @@ export default function ActivitySquare() {
 
     setSelectedFilter(filter);
 
-    // 控制第二行标签的显示
-    // 如果点击的是当前选中的选项，则切换第二行标签的显示状态
-    // 如果点击的是其他选项，则展开第二行标签
     if (selectedFilter === filter) {
       setShowCategoryBar(!showCategoryBar);
     } else {
       setShowCategoryBar(true);
     }
 
-    // 根据选择的筛选类型重新获取活动列表
+    // 重置分页状态
+    setCurrentPage(0);
+    setHasMore(true);
+    setActivities([]);
+
     fetchActivities(true, selectedCategory, filter);
   };
 
-  // 过滤活动列表的函数（同时支持数据源、分类和搜索过滤）
+  // 过滤活动列表
   const filteredActivities = useMemo(() => {
     let filtered = activities;
 
-    // 对于"全部"标签以外的其他分类标签进行过滤
     if (selectedCategory !== '全部' && !['我报名的', '我组织的'].includes(selectedCategory)) {
       filtered = filtered.filter(activityItem => activityItem.category === selectedCategory);
     }
 
-    // 根据搜索关键词过滤
     if (searchKeyword.trim()) {
       const keyword = searchKeyword.trim().toLowerCase();
       filtered = filtered.filter(activityItem =>
@@ -534,14 +559,14 @@ export default function ActivitySquare() {
 
       {/* 固定的搜索框和分类栏 */}
       <View className={styles.fixedHeader}>
-          <SearchBar
-            key='activity-square-search'
-            keyword={searchKeyword}
-            placeholder='搜索活动'
-            onInput={handleSearchInput}
-            onSearch={handleSearchConfirm}
-            onClear={handleClearSearch}
-          />
+        <SearchBar
+          key='activity-square-search'
+          keyword={searchKeyword}
+          placeholder='搜索活动'
+          onInput={handleSearchInput}
+          onSearch={handleSearchConfirm}
+          onClear={handleClearSearch}
+        />
 
         {/* 活动筛选选项 - 分段选择器 */}
         <View className={styles.filterScrollContainer}>
@@ -587,12 +612,14 @@ export default function ActivitySquare() {
 
       {/* 可滚动的活动列表 */}
       <ScrollView
+        ref={scrollViewRef}
         scrollY
         className={styles.scrollView}
         refresherEnabled
         refresherTriggered={isRefreshing}
         onRefresherRefresh={handleRefresh}
         refresherBackground='#f8fafc'
+        onScrollToLower={handleScrollToLower}
       >
         {/* 活动列表 */}
         <View
@@ -609,6 +636,11 @@ export default function ActivitySquare() {
           ) : filteredActivities && filteredActivities.length > 0 ? (
             filteredActivities.map(act => {
               const isExpanded = expandedItems.has(act.id || '');
+              const isOrganizer = currentUser?.id && act.organizer?.id === currentUser.id;
+              const isCancelled = act.registration_status === RegistrationStatus.cancelled;
+              const isRegistered = act.registration_status !== RegistrationStatus.cancelled && act.is_registered;
+              const isFull = act.max_participants && act.current_participants >= act.max_participants;
+
               return (
                 <View
                   key={act.id}
@@ -680,33 +712,35 @@ export default function ActivitySquare() {
                       )}
                       <Text
                         className={`${styles.actionButton} ${
-                          act.registration_status === "cancelled"
-                            ? styles.cancelled
-                            : act.registration_status !== "cancelled" && act.is_registered
-                              ? styles.registered
-                              : (act.max_participants && act.current_participants >= act.max_participants)
-                                ? styles.disabled
-                                : ''
+                          isOrganizer
+                            ? styles.organizer
+                            : isCancelled
+                              ? styles.cancelled
+                              : isRegistered
+                                ? styles.registered
+                                : isFull
+                                  ? styles.disabled
+                                  : ''
                         }`}
                         onClick={(e) => {
-                          // 如果是已取消状态，不允许点击
-                          if (act.registration_status === "cancelled") {
+                          if (isOrganizer || isCancelled) {
                             e.stopPropagation();
                             return;
                           }
-                          // 其他状态按原逻辑处理
-                          return act.registration_status !== "cancelled" && act.is_registered
+                          return isRegistered
                             ? handleCancelRegistration(act, e)
                             : handleJoinActivity(act, e);
                         }}
                       >
-                        {act.registration_status === "cancelled"
-                          ? '已取消'
-                          : act.registration_status !== "cancelled" && act.is_registered
-                            ? '已报名'
-                            : (act.max_participants && act.current_participants >= act.max_participants)
-                              ? '名额已满'
-                              : '立即报名'
+                        {isOrganizer
+                          ? '我的活动'
+                          : isCancelled
+                            ? '已取消'
+                            : isRegistered
+                              ? '已报名'
+                              : isFull
+                                ? '名额已满'
+                                : '立即报名'
                         }
                       </Text>
                     </View>
@@ -715,7 +749,6 @@ export default function ActivitySquare() {
               );
             })
           ) : (
-            // 显示暂无活动
             <View className={styles.emptyState}>
               <Image src={require("@/assets/empty.svg")} className={styles.emptyIcon} />
               <Text className={styles.emptyText}>暂无活动</Text>
@@ -724,8 +757,15 @@ export default function ActivitySquare() {
           )}
         </View>
 
+        {/* 加载更多提示 */}
+        {isLoadingMore && (
+          <View className={styles.loadingMore}>
+            <Text>加载更多...</Text>
+          </View>
+        )}
+
         <View className={styles.bottomTip}>
-          <Text>已经到底了</Text>
+          <Text>{hasMore ? '上拉加载更多' : '已经到底了'}</Text>
         </View>
       </ScrollView>
 

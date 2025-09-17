@@ -429,6 +429,18 @@
     }
   }
 
+  // 组织者状态样式（我的活动）
+  &.organizer {
+    background: #10b981;
+    color: #ffffff;
+    cursor: not-allowed;
+
+    &:active {
+      background: #10b981;
+      transform: none;
+    }
+  }
+
   // 禁用状态样式（名额已满等）
   &.disabled {
     background: #9ca3af;
@@ -479,4 +491,14 @@
 .emptySubText {
   font-size: 14px;
   color: #94a3b8;
+}
+
+// 加载更多样式
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: #64748b;
+  font-size: 14px;
 }
