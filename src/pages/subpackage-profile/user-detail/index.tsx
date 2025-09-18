@@ -33,14 +33,14 @@ const UserDetail: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!userId) return;
-      
+
       try {
         setLoading(true);
-        
+
         // 从路由参数中获取用户信息
         const userInfoFromParams = router.params;
-        
-        
+
+
         // 使用路由参数构建用户信息
         const tempUser = {
           id: userId,
@@ -52,9 +52,9 @@ const UserDetail: React.FC = () => {
           following_count: 0, // 初始化为0，稍后通过API获取
           post_count: 0, // 初始化为0，稍后通过API获取
         };
-        
+
         setTargetUser(tempUser);
-        
+
         // 并行获取用户的统计数据
         try {
           const [postCount, followersCount, followingCount] = await Promise.all([
@@ -62,7 +62,7 @@ const UserDetail: React.FC = () => {
             getUserFollowersCount(userId),
             getUserFollowingCount(userId)
           ]);
-          
+
           // 更新用户信息 with 真实数据
           setTargetUser(prev => ({
             ...prev,
@@ -71,29 +71,29 @@ const UserDetail: React.FC = () => {
             following_count: followingCount
           }));
         } catch (error) {
-          
+
           // 如果API调用失败，保持默认值0
         }
-        
+
         // 获取关注状态
         if (isLoggedIn && userId) {
           try {
             const statusResponse = await getActionStatus(userId, 'user', 'follow');
             setIsFollowing(statusResponse.data.is_active);
           } catch (error: any) {
-            
-            
+
+
             // 特别处理422错误（OpenAPI文档target_id类型定义错误）
             if (error?.statusCode === 422) {
-              
+
               // 暂时使用默认值，等待后端修复OpenAPI文档
             }
-            
+
             setIsFollowing(false);
           }
         }
       } catch (error) {
-        
+
         Taro.showToast({
           title: '获取用户信息失败',
           icon: 'none'
@@ -102,7 +102,7 @@ const UserDetail: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, [userId, router.params, isLoggedIn]);
 
@@ -131,34 +131,34 @@ const UserDetail: React.FC = () => {
       const response = await followAction({
         target_user_id: userId,
       });
-      
+
       if (response.code === 0 && response.data) {
         const { is_active } = response.data;
-        
+
         setIsFollowing(is_active);
-        
+
         // 如果操作成功且状态变为激活（关注），创建通知
         if (is_active) {
-          
-          
+
+
           // 获取当前用户信息
-          const currentUser = (window as any).g_app?.$app?.globalData?.userInfo || 
-                             JSON.parse(Taro.getStorageSync('userInfo') || '{}');
-          
+          const currentUser = (window as any).g_app?.$app?.globalData?.userInfo ||
+            JSON.parse(Taro.getStorageSync('userInfo') || '{}');
+
           BBSNotificationHelper.handleFollowNotification({
             targetUserId: userId,
             currentUserId: currentUser?.id || '',
             currentUserNickname: currentUser?.nickname || currentUser?.name || '用户',
             isFollowing: is_active
           }).then(() => {
-            
+
           }).catch((_error) => {
-            
+
           });
         } else {
-          
+
         }
-        
+
         // 重新获取真实的粉丝数量
         try {
           const newFollowersCount = await getUserFollowersCount(userId);
@@ -167,18 +167,18 @@ const UserDetail: React.FC = () => {
             follower_count: newFollowersCount
           }));
         } catch (error) {
-          
+
           // 如果获取失败，使用简单的加减逻辑作为备选
           if (targetUser) {
             setTargetUser({
               ...targetUser,
-              follower_count: is_active 
-                ? (targetUser.follower_count || 0) + 1 
+              follower_count: is_active
+                ? (targetUser.follower_count || 0) + 1
                 : Math.max((targetUser.follower_count || 0) - 1, 0)
             });
           }
         }
-        
+
         // 更新用户信息以确保主页的粉丝数量实时更新
         if (userId) {
           dispatch(fetchUserProfile(userId));
@@ -217,7 +217,7 @@ const UserDetail: React.FC = () => {
   return (
     <View className={styles.container}>
       <CustomHeader title='用户资料' />
-      
+
       <View className={styles.content}>
         <AuthorInfo
           userId={targetUser.id}
@@ -250,7 +250,7 @@ const UserDetail: React.FC = () => {
           buttons={[
             {
               type: 'custom',
-              icon: isFollowing ? '/assets/user-check.svg' : '/assets/user-plus.svg',
+              icon: isFollowing ? '/assets/check-square.svg' : '/assets/plus.svg',
               text: isFollowing ? '已关注' : '关注',
               onClick: handleFollow,
             },

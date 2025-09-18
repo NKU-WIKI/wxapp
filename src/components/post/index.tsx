@@ -129,6 +129,33 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
     }
   };
 
+  // 跳转到用户详情页
+  const navigateToUserDetail = () => {
+    if (author?.id) {
+      // 构造用户参数（不包含userId，因为它会作为路由参数传递）
+      const userParams = {
+        nickname: encodeURIComponent(author.nickname || '未知用户'),
+        avatar: author.avatar || '',
+        bio: encodeURIComponent(author.bio || ''),
+        level: author.level || 1
+      };
+
+      // 构建查询字符串
+      const queryString = Object.entries(userParams)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('&');
+
+      Taro.navigateTo({
+        url: `/pages/subpackage-profile/user-detail/index?userId=${author.id}&${queryString}`
+      }).catch(() => {
+        Taro.showToast({
+          title: '跳转失败',
+          icon: 'none'
+        });
+      });
+    }
+  };
+
   // 删除帖子逻辑
   const handleDeletePost = () => {
     Taro.showModal({
@@ -215,6 +242,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           createTime={mode === 'list' ? ((displayPost as any).created_at || displayPost.create_time) : undefined}
           showMoreButton={canDelete}
           onMoreClick={handleDeletePost}
+          onClick={navigateToUserDetail}
           disableNameTruncate={mode === 'detail'}
         />
       </View>
