@@ -115,3 +115,190 @@
   font-size: 14px;
   color: $text-secondary-gray;
 }
+
+// ActionSheet 样式
+.actionSheetOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.actionSheet {
+  background: $bg-card;
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px 0 40px 0;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.actionOption {
+  padding: 16px 20px;
+  border-bottom: 1px solid $border-light;
+  cursor: pointer;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:active {
+    background: $bg-page-gray;
+  }
+}
+
+.actionOptionText {
+  font-size: 16px;
+  color: $text-primary;
+  text-align: center;
+  
+  &.deleteText {
+    color: $status-error;
+  }
+}
+
+// PinModal 样式
+.pinModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.pinModal {
+  background: $bg-card;
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 400px;
+  animation: slideUp 0.3s ease-out;
+}
+
+.pinModalHeader {
+  padding: 20px;
+  border-bottom: 1px solid $border-light;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pinModalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.pinModalContent {
+  padding: 20px;
+}
+
+.pinOption {
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.3); // 浅蓝色边框
+  border-radius: 8px; // 圆角
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  background: $bg-card;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:active {
+    background: $bg-page-gray;
+  }
+  
+  &.pinOptionSelected {
+    background: rgba(139, 92, 246, 0.1); // 浅紫色选中效果
+    border-color: rgba(139, 92, 246, 0.5); // 选中时边框变为紫色
+  }
+}
+
+.pinOptionText {
+  font-size: 16px;
+  color: $text-primary;
+}
+
+.pinOptionCost {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.coinIcon {
+  width: 16px;
+  height: 16px;
+  filter: sepia(1) saturate(2) hue-rotate(40deg) brightness(1.2); // 金黄色效果
+}
+
+.pinOptionTokens {
+  font-size: 14px;
+  color: $text-secondary-gray;
+}
+
+// 新增：置顶模态框底部
+.pinModalFooter {
+  padding: 20px;
+  border-top: 1px solid $border-light;
+}
+
+.confirmButton {
+  width: 100%;
+  padding: 14px 20px;
+  background: $theme-primary;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  &:active {
+    background: $theme-primary-dark;
+    transform: scale(0.98);
+  }
+  
+  &.confirmButtonDisabled {
+    background: $bg-page-gray;
+    cursor: not-allowed;
+    
+    &:active {
+      background: $bg-page-gray;
+      transform: none;
+    }
+  }
+}
+
+.confirmButtonText {
+  color: $text-white;
+  font-size: 16px;
+  font-weight: 500;
+  
+  .confirmButtonDisabled & {
+    color: $text-secondary-gray;
+  }
+}

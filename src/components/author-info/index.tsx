@@ -231,7 +231,10 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                   className={classnames(styles.compactFollowButton, {
                     [styles.following]: isFollowing
                   })}
-                  onClick={handleFollowToggle}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    handleFollowToggle();
+                  }}
                 >
                   <Text>{isFollowing ? '已关注' : '关注'}</Text>
                 </View>
@@ -241,7 +244,10 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
               {showMoreButton && onMoreClick && (
                 <View
                   className={styles.moreButton}
-                  onClick={onMoreClick}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    onMoreClick();
+                  }}
                 >
                   <Image src={moreIcon} className={styles.moreIcon} />
                 </View>

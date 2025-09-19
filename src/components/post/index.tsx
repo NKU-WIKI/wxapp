@@ -29,6 +29,7 @@ interface PostProps {
   className?: string;
   mode?: PostMode;
   enableNavigation?: boolean;
+  onMoreClick?: (_postId: string) => void; // 自定义的三个点点击处理
 }
 
 /**
@@ -39,7 +40,7 @@ interface PostProps {
  * @param mode - 显示模式：'list' | 'detail'，默认为 'list'
  * @param enableNavigation - 是否启用点击跳转，默认为 true
  */
-const Post = ({ post, className = "", mode = "list", enableNavigation = true }: PostProps) => {
+const Post = ({ post, className = "", mode = "list", enableNavigation = true, onMoreClick }: PostProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const userState = useSelector((state: RootState) => state.user);
   const postState = useSelector((state: RootState) => state.post);
@@ -204,6 +205,15 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
   // 判断是否可以删除
   const canDelete = getCurrentUserId() === author?.id || getCurrentUserRole() === 'admin';
 
+  // 创建包装函数来处理onMoreClick
+  const handleMoreClickWrapper = () => {
+    if (onMoreClick) {
+      onMoreClick(displayPost.id);
+    } else {
+      handleDeletePost();
+    }
+  };
+
   const actionBarButtons: ActionButtonConfig[] = [
     {
       type: 'like',
@@ -241,7 +251,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true }: 
           showTime={mode === 'list'}
           createTime={mode === 'list' ? ((displayPost as any).created_at || displayPost.create_time) : undefined}
           showMoreButton={canDelete}
-          onMoreClick={handleDeletePost}
+          onMoreClick={handleMoreClickWrapper}
           onClick={navigateToUserDetail}
           disableNameTruncate={mode === 'detail'}
         />

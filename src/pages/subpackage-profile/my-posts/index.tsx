@@ -1,15 +1,17 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { View, Text, ScrollView } from '@tarojs/components';
+import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppDispatch, RootState } from '@/store';
 import { fetchUserPosts, resetUserPosts } from '@/store/slices/userPostsSlice';
+import { deletePost } from '@/store/slices/postSlice';
 import EmptyState from '@/components/empty-state';
 import Post from '@/components/post';
 
 // Assets imports
 import penToolIcon from '@/assets/pen-tool.svg';
+import coinIcon from '@/assets/coin.svg';
 
 // Relative imports
 import styles from './index.module.scss';
@@ -19,6 +21,12 @@ const MyPostsPage: React.FC = () => {
   const { items: posts, loading, error: userPostsError, pagination } = useSelector((state: RootState) => state.userPosts);
   const userState = useSelector((state: RootState) => state.user);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // 弹窗状态管理
+  const [showActionSheet, setShowActionSheet] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<string>('');
+  const [selectedDuration, setSelectedDuration] = useState<{hours: number, tokens: number} | null>(null);
 
   // 使用 ref 保存 pagination 的最新值，避免依赖循环
   const paginationRef = React.useRef(pagination);
@@ -48,6 +56,63 @@ const MyPostsPage: React.FC = () => {
       });
     }
   }, [dispatch]); // 只依赖 dispatch
+
+  // 处理三个点点击 - 显示操作选项
+  const handleMoreClick = useCallback((postId: string) => {
+    setSelectedPostId(postId);
+    setShowActionSheet(true);
+  }, []);
+
+  // 处理置顶帖子
+  const handlePinPost = useCallback(() => {
+    setShowActionSheet(false);
+    setShowPinModal(true);
+  }, []);
+
+  // 处理删除帖子
+  const handleDeletePost = useCallback(() => {
+    setShowActionSheet(false);
+    Taro.showModal({
+      title: '确认删除',
+      content: '确定要删除这条帖子吗？',
+      success: async (res) => {
+        if (res.confirm && selectedPostId) {
+          try {
+            await dispatch(deletePost(selectedPostId)).unwrap();
+            Taro.showToast({
+              title: '删除成功',
+              icon: 'success'
+            });
+            // 刷新列表
+            loadMyPosts(true);
+          } catch (error) {
+            Taro.showToast({
+              title: '删除失败，请重试',
+              icon: 'none'
+            });
+          }
+        }
+      }
+    });
+  }, [dispatch, selectedPostId, loadMyPosts]);
+
+  // 处理置顶时长选择
+  const handleSelectDuration = useCallback((hours: number, tokens: number) => {
+    setSelectedDuration({ hours, tokens });
+  }, []);
+
+  // 确认置顶
+  const handleConfirmPin = useCallback(() => {
+    if (!selectedDuration) return;
+    
+    setShowPinModal(false);
+    setSelectedDuration(null);
+    // TODO: 这里应该调用置顶帖子的API
+    Taro.showToast({
+      title: `置顶${selectedDuration.hours}小时，消耗${selectedDuration.tokens}金币`,
+      icon: 'success'
+    });
+  }, [selectedDuration]);
 
   // 初始加载 - 避免循环依赖
   useEffect(() => {
@@ -151,6 +216,7 @@ const MyPostsPage: React.FC = () => {
                 post={post}
                 mode='list'
                 enableNavigation
+                onMoreClick={handleMoreClick}
               />
             </View>
           ))}
@@ -170,6 +236,72 @@ const MyPostsPage: React.FC = () => {
           )}
         </View>
       </ScrollView>
+
+      {/* ActionSheet - 底部弹出的操作选项 */}
+      {showActionSheet && (
+        <View className={styles.actionSheetOverlay} onClick={() => setShowActionSheet(false)}>
+          <View className={styles.actionSheet} onClick={(e) => e.stopPropagation()}>
+            <View 
+              className={styles.actionOption}
+              onClick={handlePinPost}
+            >
+              <Text className={styles.actionOptionText}>置顶帖子</Text>
+            </View>
+            <View 
+              className={styles.actionOption}
+              onClick={handleDeletePost}
+            >
+              <Text className={`${styles.actionOptionText} ${styles.deleteText}`}>删除帖子</Text>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* PinModal - 置顶时长选择 */}
+      {showPinModal && (
+        <View className={styles.pinModalOverlay} onClick={() => {
+          setShowPinModal(false);
+          setSelectedDuration(null);
+        }}
+        >
+          <View className={styles.pinModal} onClick={(e) => e.stopPropagation()}>
+            <View className={styles.pinModalHeader}>
+              <Text className={styles.pinModalTitle}>设置置顶时长</Text>
+            </View>
+            <View className={styles.pinModalContent}>
+              {[
+                { hours: 1, tokens: 100 },
+                { hours: 2, tokens: 200 },
+                { hours: 4, tokens: 400 },
+                { hours: 6, tokens: 600 },
+                { hours: 8, tokens: 800 }
+              ].map((option) => (
+                <View
+                  key={option.hours}
+                  className={`${styles.pinOption} ${selectedDuration?.hours === option.hours ? styles.pinOptionSelected : ''}`}
+                  onClick={() => handleSelectDuration(option.hours, option.tokens)}
+                >
+                  <Text className={styles.pinOptionText}>{option.hours}小时</Text>
+                  <View className={styles.pinOptionCost}>
+                    <Image src={coinIcon} className={styles.coinIcon} />
+                    <Text className={styles.pinOptionTokens}>{option.tokens} tokens</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+            <View className={styles.pinModalFooter}>
+              <View 
+                className={`${styles.confirmButton} ${!selectedDuration ? styles.confirmButtonDisabled : ''}`}
+                onClick={selectedDuration ? handleConfirmPin : undefined}
+              >
+                <Text className={styles.confirmButtonText}>
+                  确认置顶{selectedDuration ? `（${selectedDuration.tokens} tokens）` : ''}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
