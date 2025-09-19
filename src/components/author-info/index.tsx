@@ -217,6 +217,14 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
 
           <View className={styles.compactActions}>
             {extraNode}
+
+            {/* 时间信息 */}
+            {showTime && createTime && (
+              <Text className={styles.compactTime}>
+                {formatRelativeTime(createTime)}
+              </Text>
+            )}
+
             <View className={styles.compactFollowContainer}>
               {showFollowButton && !isCurrentUser && (
                 <View
