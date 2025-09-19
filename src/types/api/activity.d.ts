@@ -24,6 +24,14 @@ export interface PostActivityCreateRequest {
    */
   end_time: Date;
   /**
+   * Organizer Type，组织者类型
+   */
+  organizer_type?: 'personal' | 'organization';
+  /**
+   * Organization Name，组织名称
+   */
+  organization_name?: string;
+  /**
    * Fee Amount，活动费用
    */
   fee_amount?: number | null;
@@ -236,6 +244,14 @@ export interface ActivityRead {
    */
   online_url: null | string;
   organizer: UserRead;
+  /**
+   * Organizer Type，组织者类型
+   */
+  organizer_type?: 'personal' | 'organization';
+  /**
+   * Organization Name，组织名称
+   */
+  organization_name?: string;
   /**
    * Recurrence Pattern
    */

@@ -20,6 +20,8 @@ interface FormState {
   online_url: string;
   tags: string;
   max_participants: number;
+  organizer_type: 'personal' | 'organization';
+  organization_name: string;
 }
 
 export default function PublishActivity() {
@@ -41,14 +43,17 @@ export default function PublishActivity() {
     location: '',
     online_url: '',
     tags: '',
-    max_participants: 5
+    max_participants: 5,
+    organizer_type: 'personal',
+    organization_name: ''
   });
   const [submitting, setSubmitting] = useState(false);
 
   const requiredFilled = form.title && form.category && form.description && form.start_time && form.end_time &&
     ((form.activity_type === ActivityType.Offline && form.location) ||
       (form.activity_type === ActivityType.Online && form.online_url) ||
-      (form.activity_type === ActivityType.Hybrid));
+      (form.activity_type === ActivityType.Hybrid)) &&
+    (form.organizer_type === 'personal' || (form.organizer_type === 'organization' && form.organization_name));
 
   const update = useCallback(<K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -108,7 +113,9 @@ export default function PublishActivity() {
         online_url: form.activity_type !== ActivityType.Offline ? (form.online_url || undefined) : undefined,
         tags: form.tags ? form.tags.split(/[,，\s]+/).filter(Boolean) : undefined,
         max_participants: form.max_participants > 0 ? form.max_participants : null,
-        visibility: ActivityVisibility.Public
+        visibility: ActivityVisibility.Public,
+        organizer_type: form.organizer_type,
+        organization_name: form.organizer_type === 'organization' ? form.organization_name : undefined
       } as PostActivityCreateRequest;
       const res: any = await activityApi.createActivity(payload);
 
@@ -172,6 +179,42 @@ export default function PublishActivity() {
       <View className={styles.formItem}>
         <Text className={styles.label}>活动内容<Text className={styles.required}>*</Text></Text>
         <Textarea className={styles.textarea} value={form.description} placeholder='介绍活动目的、流程、参与要求等...' onInput={e => update('description', e.detail.value)} />
+      </View>
+
+      <View className={styles.formItem}>
+        <Text className={styles.label}>发布者类型<Text className={styles.required}>*</Text></Text>
+        <Picker
+          mode='selector'
+          range={['个人', '组织']}
+          value={form.organizer_type === 'personal' ? 0 : 1}
+          onChange={(e) => {
+            const selectedIndex = e.detail.value;
+            const selectedType = selectedIndex === 0 ? 'personal' : 'organization';
+            update('organizer_type', selectedType);
+            // 如果切换为个人，清空组织名称
+            if (selectedType === 'personal') {
+              update('organization_name', '');
+            }
+          }}
+        >
+          <View className={styles.pickerWrapper}>
+            <Text className={styles.pickerText}>
+              {form.organizer_type === 'personal' ? '个人' : '组织'}
+            </Text>
+            <Text className={styles.pickerArrow}>›</Text>
+          </View>
+        </Picker>
+      </View>
+
+      {/* 组织名称输入框，仅在选择组织时显示 */}
+      <View className={`${styles.formItem} ${form.organizer_type === 'personal' ? styles.hidden : ''}`}>
+        <Text className={styles.label}>组织名称{form.organizer_type === 'organization' ? <Text className={styles.required}>*</Text> : ''}</Text>
+        <Input
+          className={styles.input}
+          value={form.organization_name}
+          placeholder='请填写组织名称，例如：计算机科学与技术学院学生会'
+          onInput={e => update('organization_name', e.detail.value)}
+        />
       </View>
 
       <View className={styles.formItem}>

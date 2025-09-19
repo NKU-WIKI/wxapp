@@ -102,6 +102,16 @@
   flex-shrink: 0;
 }
 
+// 字段提示文字
+.fieldHint {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 8px;
+}
+
 .fieldInput {
   flex: 1;
   text-align: right;

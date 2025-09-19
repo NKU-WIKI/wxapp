@@ -4,7 +4,6 @@ import { UpdateUserProfileRequest } from "@/types/api/user";
 import userApi from "@/services/api/user";
 import { uploadApi } from "@/services/api/upload";
 import { normalizeImageUrl } from "@/utils/image";
-import { NICKNAME_MAX_LENGTH } from "@/constants";
 import CustomHeader from "@/components/custom-header";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
@@ -40,11 +39,15 @@ export default function EditProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  // 验证昵称长度（限制为9个字符）
+  const validateNicknameLength = (str: string) => {
+    return str.length <= 9;
+  };
+
   // 处理昵称输入变化
   const handleNicknameChange = (e: any) => {
     const value = e.detail.value;
-    // 限制昵称长度不超过最大值
-    if (value.length <= NICKNAME_MAX_LENGTH) {
+    if (validateNicknameLength(value)) {
       setNickname(value);
     }
   };
@@ -74,8 +77,8 @@ export default function EditProfilePage() {
     // 验证昵称
     if (!nickname.trim()) {
       errors.push("• 昵称不能为空");
-    } else if (nickname.length > NICKNAME_MAX_LENGTH) {
-      errors.push(`• 昵称长度不能超过${NICKNAME_MAX_LENGTH}个字符`);
+    } else if (!validateNicknameLength(nickname)) {
+      errors.push("• 昵称长度不能超过9个字符");
     }
 
     // 验证手机号（如果填写了）
@@ -674,15 +677,17 @@ export default function EditProfilePage() {
                     className={styles.fieldInput}
                     value={nickname}
                     placeholder='张雨晨'
-                    maxlength={NICKNAME_MAX_LENGTH}
+                    maxlength={9}
                     onInput={handleNicknameChange}
                   />
                   <Text className={styles.characterCount}>
-                    {nickname.length}/{NICKNAME_MAX_LENGTH}
+                    {nickname.length}/9
                   </Text>
                 </View>
               </View>
-
+              
+              
+              
               <View className={styles.fieldRow}>
                 <Text className={styles.fieldLabel}>个人简介</Text>
                 <Input

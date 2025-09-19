@@ -648,6 +648,12 @@ export default function ActivitySquare() {
                   onClick={() => handleActivityClick(act)}
                 >
                   <View className={styles.activityContent}>
+                    {/* 组织标签，仅在组织活动时显示 */}
+                    {act.organizer_type === 'organization' && act.organization_name && (
+                      <View className={styles.organizationTag}>
+                        <Text className={styles.organizationTagText}>{act.organization_name}</Text>
+                      </View>
+                    )}
                     <View>
                       <Text className={styles.activityTitle}>
                         <HighlightText text={act.title || '无标题'} keywords={searchKeywords} />

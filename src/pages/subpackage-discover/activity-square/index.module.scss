@@ -261,6 +261,25 @@
   display: flex;
   flex-direction: column;
   gap: 0; // 移除自动间距，手动控制
+  position: relative; // 为绝对定位的标签提供相对定位基准
+}
+
+// 组织标签样式
+.organizationTag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #059669;
+  border-radius: 12px;
+  padding: 4px 8px;
+  z-index: 1;
+}
+
+.organizationTagText {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
 }
 
 .activityTitle {

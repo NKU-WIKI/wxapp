@@ -78,6 +78,32 @@ $text-secondary: #64748b;
 
 // 标签输入微调
 .tagsInput { font-size: 26rpx; letter-spacing: .5rpx; }
+
+// 选择器包装器样式
+.pickerWrapper {
+  background: #ffffff;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 14rpx;
+  padding: 20rpx 18rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 76rpx;
+  box-sizing: border-box;
+}
+
+.pickerText {
+  font-size: 28rpx;
+  color: #1e293b;
+  flex: 1;
+}
+
+.pickerArrow {
+  font-size: 32rpx;
+  color: #94a3b8;
+  font-weight: 600;
+  transform: rotate(90deg);
+}
 .helper { font-size: 22rpx; color: #94a3b8; margin-top: 6rpx; }
 
 // 活动分类选择器样式
