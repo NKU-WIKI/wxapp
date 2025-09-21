@@ -16,6 +16,14 @@ export interface PostActivityCreateRequest {
    */
   category: string;
   /**
+   * Contact Info，联系方式
+   */
+  contact_info?: null | string;
+  /**
+   * Contact Name，联系人称呼
+   */
+  contact_name?: null | string;
+  /**
    * Description，活动描述
    */
   description: string;
@@ -23,14 +31,6 @@ export interface PostActivityCreateRequest {
    * End Time，结束时间
    */
   end_time: Date;
-  /**
-   * Organizer Type，组织者类型
-   */
-  organizer_type?: 'personal' | 'organization';
-  /**
-   * Organization Name，组织名称
-   */
-  organization_name?: string;
   /**
    * Fee Amount，活动费用
    */
@@ -60,6 +60,14 @@ export interface PostActivityCreateRequest {
    */
   online_url?: null | string;
   /**
+   * Publisher，发布者
+   */
+  publisher?: null | string;
+  /**
+   * Publisher Organization，发布组织
+   */
+  publisher_organization?: null | string;
+  /**
    * Recurrence Pattern，重复模式
    */
   recurrence_pattern?: { [key: string]: any } | null;
@@ -75,6 +83,10 @@ export interface PostActivityCreateRequest {
    * Start Time，开始时间
    */
   start_time: Date;
+  /**
+   * 活动初始状态，默认为已发布，必要时可改为draft
+   */
+  status?: ActivityStatus;
   /**
    * Tags，活动标签
    */
@@ -166,7 +178,19 @@ export interface ActivityRead {
   /**
    * Co Organizers
    */
-  co_organizers: UserRead[] | null;
+  co_organizers: string[] | null;
+  /**
+   * Comment Count，评论数量
+   */
+  comment_count?: number;
+  /**
+   * Contact Info
+   */
+  contact_info: null | string;
+  /**
+   * Contact Name
+   */
+  contact_name: null | string;
   /**
    * Created At
    */
@@ -188,9 +212,9 @@ export interface ActivityRead {
    */
   end_time: Date;
   /**
-   * Favorite Count
+   * Favorite Count，收藏数量
    */
-  favorite_count: number;
+  favorite_count?: number;
   /**
    * Fee Amount
    */
@@ -215,6 +239,10 @@ export interface ActivityRead {
    * Is Registered
    */
   is_registered?: boolean;
+  /**
+   * Like Count，点赞数量
+   */
+  like_count?: number;
   /**
    * Location
    */
@@ -245,13 +273,13 @@ export interface ActivityRead {
   online_url: null | string;
   organizer: UserRead;
   /**
-   * Organizer Type，组织者类型
+   * Publisher
    */
-  organizer_type?: 'personal' | 'organization';
+  publisher: null | string;
   /**
-   * Organization Name，组织名称
+   * Publisher Organization
    */
-  organization_name?: string;
+  publisher_organization: null | string;
   /**
    * Recurrence Pattern
    */
@@ -274,9 +302,9 @@ export interface ActivityRead {
    */
   safety_score: number | null;
   /**
-   * Share Count
+   * Share Count，分享数量
    */
-  share_count: number;
+  share_count?: number;
   /**
    * Start Time
    */
@@ -303,9 +331,9 @@ export interface ActivityRead {
    */
   updated_at: Date;
   /**
-   * View Count
+   * View Count，浏览数量
    */
-  view_count: number;
+  view_count?: number;
   visibility: ActivityVisibility;
   /**
    * Waitlist Count

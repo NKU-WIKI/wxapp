@@ -14,7 +14,7 @@ export default function ActivityDetail() {
   // 从Redux store获取当前用户信息
   const currentUser = useSelector((state: RootState) => state.user.user);
   const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
-  
+
   const [activity, setActivity] = useState<ActivityRead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activityId, setActivityId] = useState<string>("");
@@ -129,8 +129,8 @@ export default function ActivityDetail() {
         // 发送通知
         if (isLoggedIn && currentUser?.id) {
           const participantNickname = currentUser.nickname || '用户';
-          
-          
+
+
           // 1. 发送给参与者自己的成功通知
           try {
             await ActivityNotificationHelper.handleParticipantJoinSuccessNotification({
@@ -141,7 +141,7 @@ export default function ActivityDetail() {
         } catch (error) {
           // 通知发送失败不影响主流程
           }
-          
+
           // 2. 发送给组织者的通知
           if (activity.organizer?.id) {
             ActivityNotificationHelper.handleActivityJoinedNotification({
@@ -228,8 +228,8 @@ export default function ActivityDetail() {
         // 发送通知
         if (isLoggedIn && currentUser?.id) {
           const participantNickname = currentUser.nickname || '用户';
-          
-          
+
+
           // 1. 发送给参与者自己的成功通知
           try {
             await ActivityNotificationHelper.handleParticipantCancelSuccessNotification({
@@ -240,7 +240,7 @@ export default function ActivityDetail() {
         } catch (error) {
           // 通知发送失败不影响主流程
           }
-          
+
           // 2. 发送给组织者的通知
           if (activity.organizer?.id) {
             ActivityNotificationHelper.handleActivityCancelRegistrationNotification({
@@ -384,6 +384,46 @@ export default function ActivityDetail() {
           <View className={styles.activityDescription}>
             <Text className={styles.descriptionTitle}>活动介绍 </Text>
             <Text className={styles.descriptionContent}>{activity.description}</Text>
+          </View>
+
+          {/* 组织者与联系方式 */}
+          <View className={styles.organizerAndContactSection}>
+            {/* 发布人信息 */}
+            {activity.organizer && (
+              <View
+                className={styles.infoItem}
+                onClick={() => Taro.navigateTo({ url: `/pages/subpackage-profile/profile-detail/index?userId=${activity.organizer.id}` })}
+              >
+                <Image
+                  src={activity.organizer.avatar || require("@/assets/placeholder.jpg")}
+                  className={styles.organizerAvatar}
+                />
+                <View className={styles.infoContent}>
+                  <Text className={styles.organizerLabel}>活动组织者: </Text>
+                  <Text className={styles.organizerName}>{activity.organizer.nickname}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* 联系人 */}
+            {activity.contact_name && (
+              <View className={styles.infoItem}>
+                <Image src={require("@/assets/profile.svg")} className={styles.infoIcon} />
+                <View className={styles.infoContent}>
+                  <Text className={styles.infoValue}>联系人: {activity.contact_name}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* 联系方式 */}
+            {activity.contact_info && (
+              <View className={styles.infoItem}>
+                <Image src={require("@/assets/message-square.svg")} className={styles.infoIcon} />
+                <View className={styles.infoContent}>
+                  <Text className={styles.infoValue}>联系方式: {activity.contact_info}</Text>
+                </View>
+              </View>
+            )}
           </View>
 
           {/* 活动标签 */}

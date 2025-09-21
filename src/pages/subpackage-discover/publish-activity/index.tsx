@@ -22,13 +22,15 @@ interface FormState {
   max_participants: number;
   organizer_type: 'personal' | 'organization';
   organization_name: string;
+  contact_nickname: string;
+  contact_method: string;
 }
 
 export default function PublishActivity() {
   // 从Redux store获取当前用户信息
   const currentUser = useSelector((state: RootState) => state.user.user);
   const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
-  
+
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, '0');
   const format = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -45,11 +47,14 @@ export default function PublishActivity() {
     tags: '',
     max_participants: 5,
     organizer_type: 'personal',
-    organization_name: ''
+    organization_name: '',
+    contact_nickname: '',
+    contact_method: ''
   });
   const [submitting, setSubmitting] = useState(false);
 
   const requiredFilled = form.title && form.category && form.description && form.start_time && form.end_time &&
+    form.contact_nickname && form.contact_method &&
     ((form.activity_type === ActivityType.Offline && form.location) ||
       (form.activity_type === ActivityType.Online && form.online_url) ||
       (form.activity_type === ActivityType.Hybrid)) &&
@@ -115,7 +120,10 @@ export default function PublishActivity() {
         max_participants: form.max_participants > 0 ? form.max_participants : null,
         visibility: ActivityVisibility.Public,
         organizer_type: form.organizer_type,
-        organization_name: form.organizer_type === 'organization' ? form.organization_name : undefined
+        organization_name: form.organizer_type === 'organization' ? form.organization_name : undefined,
+        contact_name: form.contact_nickname,
+        contact_info: form.contact_method,
+        publisher: currentUser?.nickname || '匿名用户'
       } as PostActivityCreateRequest;
       const res: any = await activityApi.createActivity(payload);
 
@@ -130,7 +138,7 @@ export default function PublishActivity() {
         // 发送活动发布通知
         if (createdActivity && isLoggedIn && currentUser?.id) {
           const organizerNickname = currentUser.nickname || '用户';
-          
+
           ActivityNotificationHelper.handleActivityPublishedNotification({
             activity: createdActivity,
             organizerId: currentUser.id,
@@ -208,7 +216,7 @@ export default function PublishActivity() {
 
       {/* 组织名称输入框，仅在选择组织时显示 */}
       <View className={`${styles.formItem} ${form.organizer_type === 'personal' ? styles.hidden : ''}`}>
-        <Text className={styles.label}>组织名称{form.organizer_type === 'organization' ? <Text className={styles.required}>*</Text> : ''}</Text>
+        <Text className={styles.label}>发布组织{form.organizer_type === 'organization' ? <Text className={styles.required}>*</Text> : ''}</Text>
         <Input
           className={styles.input}
           value={form.organization_name}
@@ -216,6 +224,25 @@ export default function PublishActivity() {
           onInput={e => update('organization_name', e.detail.value)}
         />
       </View>
+
+      <View className={styles.formItem}>
+        <Text className={styles.label}>联系人称呼<Text className={styles.required}>*</Text></Text>
+        <Input
+          className={styles.input}
+          value={form.contact_nickname}
+          placeholder='活动参与者如何称呼您'
+          onInput={e => update('contact_nickname', e.detail.value)}
+        />
+      </View>
+
+      <View className={styles.formItem}>
+        <Text className={styles.label}>联系方法<Text className={styles.required}>*</Text></Text>
+        <Input
+          className={styles.input}
+          value={form.contact_method}
+          placeholder='微信号/手机号/QQ号'
+          onInput={e => update('contact_method', e.detail.value)}
+        />
 
       <View className={styles.formItem}>
         <Text className={styles.label}>分类<Text className={styles.required}>*</Text></Text>
@@ -374,6 +401,7 @@ export default function PublishActivity() {
         onClick={() => { if (!submitting) handleSubmit(); }}
       >
         <Text>{submitting ? '提交中...' : '发布活动'}</Text>
+      </View>
       </View>
     </View>
   );

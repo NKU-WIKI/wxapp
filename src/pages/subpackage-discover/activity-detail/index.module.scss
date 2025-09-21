@@ -82,6 +82,13 @@
   }
 }
 
+.infoIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
 .infoDateIcon {
   width: 17px;
   height: 20px;
@@ -155,16 +162,59 @@
 .participantsValue {
   font-size: 14px;
   color: #ea580c;
-  line-height: 1.4;
 }
 
-// 活动描述样式
+.organizerAndContactSection {
+  padding: 16px;
+  margin-top: 16px;
+  background-color: #FFFFFF;
+  border-top: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* 发布人信息卡片 */
+.organizerCard {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.organizerAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.organizerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.organizerName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.organizerLabel {
+  font-size: 14px;
+  color: #1f2937;
+  margin-right: 8px;
+}
+
+
+/* 活动描述 */
 .activityDescription {
-  background-color: transparent;
-  border-radius: 0;
+  margin-top: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
   padding: 16px;
   margin-bottom: 0;
-  box-shadow: none;
+  border-left: 4px solid #4F46E5;
 }
 
 .descriptionTitle {
@@ -180,6 +230,30 @@
   color: #333;
   line-height: 1.6;
   white-space: pre-line;
+}
+
+.contactSection {
+  padding: 16px;
+  padding-top: 0;
+}
+
+// 活动联系人信息样式
+.organizerInfo {
+  background-color: transparent;
+  border-radius: 0;
+  padding: 16px;
+  margin-bottom: 0;
+  box-shadow: none;
+}
+
+.infoItemName{
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 // 活动标签样式
