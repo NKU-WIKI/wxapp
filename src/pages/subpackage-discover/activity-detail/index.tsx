@@ -460,20 +460,22 @@ export default function ActivityDetail() {
           </View>
         </View>
 
-        {/* 右侧报名按钮 */}
-        <View
-          className={`${styles.fixedJoinButton} ${
-            activity.is_registered ? styles.joinedButton :
-            (activity.max_participants && activity.current_participants >= activity.max_participants) ? styles.fullButton : ''
-          }`}
-          onClick={activity.is_registered ? handleCancelRegistration : handleJoinActivity}
-        >
-          <Text className={styles.joinButtonText}>
-            {activity.is_registered ? '取消报名' :
-             (activity.max_participants && activity.current_participants >= activity.max_participants) ? '名额已满' :
-             '立即报名'}
-          </Text>
-        </View>
+        {/* 右侧报名按钮 - 仅在非组织者访问时显示 */}
+        {currentUser?.id !== activity?.organizer?.id && (
+          <View
+            className={`${styles.fixedJoinButton} ${
+              activity.is_registered ? styles.joinedButton :
+              (activity.max_participants && activity.current_participants >= activity.max_participants) ? styles.fullButton : ''
+            }`}
+            onClick={activity.is_registered ? handleCancelRegistration : handleJoinActivity}
+          >
+            <Text className={styles.joinButtonText}>
+              {activity.is_registered ? '取消报名' :
+               (activity.max_participants && activity.current_participants >= activity.max_participants) ? '名额已满' :
+               '立即报名'}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
