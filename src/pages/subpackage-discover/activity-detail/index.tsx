@@ -8,6 +8,7 @@ import { ActivityNotificationHelper } from "@/utils/notificationHelper";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import CustomHeader from "@/components/custom-header";
+import RegistrationModal from "@/components/registration-modal";
 import styles from "./index.module.scss";
 
 export default function ActivityDetail() {
@@ -18,6 +19,7 @@ export default function ActivityDetail() {
   const [activity, setActivity] = useState<ActivityRead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activityId, setActivityId] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 使用分享 Hook
   useSharing({
@@ -59,63 +61,64 @@ export default function ActivityDetail() {
     }
   };
 
-  const handleJoinActivity = async () => {
+  const handleJoinClick = async () => {
     if (!activity) return;
 
-    try {
-      // 检查用户是否已登录
-      const token = Taro.getStorageSync('token');
-      if (!token) {
-        Taro.showModal({
-          title: '提示',
-          content: '请先登录后再报名活动',
-          showCancel: false,
-          confirmText: '去登录',
-          success: (res) => {
-            if (res.confirm) {
-              Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
-            }
+    // 检查用户是否已登录
+    const token = Taro.getStorageSync('token');
+    if (!token) {
+      Taro.showModal({
+        title: '提示',
+        content: '请先登录后再报名活动',
+        showCancel: false,
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
           }
-        });
-        return;
-      }
-
-      // 检查活动是否还有名额
-      if (activity.max_participants && activity.current_participants >= activity.max_participants) {
-        Taro.showToast({
-          title: '活动名额已满',
-          icon: 'none'
-        });
-        return;
-      }
-
-      // 检查用户是否已经报名
-      if (activity.is_registered) {
-        Taro.showToast({
-          title: '您已经报名了这个活动',
-          icon: 'none'
-        });
-        return;
-      }
-
-      // 显示确认对话框
-      const result = await Taro.showModal({
-        title: '确认报名',
-        content: `确定要报名参加"${activity.title}"吗？`,
-        confirmText: '确认报名',
-        cancelText: '取消'
+        }
       });
+      return;
+    }
 
-      if (!result.confirm) {
-        return;
-      }
+    // 检查活动是否还有名额
+    if (activity.max_participants && activity.current_participants >= activity.max_participants) {
+      Taro.showToast({
+        title: '活动名额已满',
+        icon: 'none'
+      });
+      return;
+    }
 
+    // 检查用户是否已经报名
+    if (activity.is_registered) {
+      Taro.showToast({
+        title: '您已经报名了这个活动',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 打开弹窗
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmRegistration = async (name: string, studentId: string) => {
+    if (!activity) return;
+
+    setIsModalOpen(false);
+
+    try {
       // 显示加载中
       Taro.showLoading({ title: '报名中...' });
 
       // 调用参加活动API
       const response = await activityApi.joinActivity({
-        activity_id: activity.id
+        activity_id: activity.id,
+        participant_info: {
+          name,
+          student_id: studentId,
+        }
       });
 
       Taro.hideLoading();
@@ -130,7 +133,6 @@ export default function ActivityDetail() {
         if (isLoggedIn && currentUser?.id) {
           const participantNickname = currentUser.nickname || '用户';
 
-
           // 1. 发送给参与者自己的成功通知
           try {
             await ActivityNotificationHelper.handleParticipantJoinSuccessNotification({
@@ -138,8 +140,8 @@ export default function ActivityDetail() {
               participantId: currentUser.id,
               participantNickname
             });
-        } catch (error) {
-          // 通知发送失败不影响主流程
+          } catch (error) {
+            // 通知发送失败不影响主流程
           }
 
           // 2. 发送给组织者的通知
@@ -442,6 +444,16 @@ export default function ActivityDetail() {
         </View>
       </ScrollView>
 
+      {/* 报名信息填写弹窗 */}
+      {activity && (
+        <RegistrationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={handleConfirmRegistration}
+          activityTitle={activity.title}
+        />
+      )}
+
       {/* 固定底部操作栏 */}
       <View className={styles.fixedBottomBar}>
         {/* 左侧统计信息 */}
@@ -467,7 +479,7 @@ export default function ActivityDetail() {
               activity.is_registered ? styles.joinedButton :
               (activity.max_participants && activity.current_participants >= activity.max_participants) ? styles.fullButton : ''
             }`}
-            onClick={activity.is_registered ? handleCancelRegistration : handleJoinActivity}
+            onClick={activity.is_registered ? handleCancelRegistration : handleJoinClick}
           >
             <Text className={styles.joinButtonText}>
               {activity.is_registered ? '取消报名' :
