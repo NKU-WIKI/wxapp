@@ -10,7 +10,6 @@ import { setCurrentCategory } from '@/store/slices/ratingSlice'
 import { getResourceList } from '@/services/api/rating'
 import { RatingCategory } from '@/types/api/rating.d'
 import CustomHeader from '@/components/custom-header'
-import AuthFloatingButton from '@/components/auth-floating-button'
 import SearchBar from '@/components/search-bar'
 
 // Relative imports

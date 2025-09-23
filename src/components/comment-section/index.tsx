@@ -161,8 +161,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
   showFollowButton = true
 }) => {
   const userState = useSelector((state: RootState) => state.user);
-  const isLoggedIn = userState?.isLoggedIn || false;
-  const token = userState?.token || null;
+  const _isLoggedIn = userState?.isLoggedIn || false;
+  const _token = userState?.token || null;
   const [showReplies, setShowReplies] = useState(false);
 
   const handleMoreClick = async () => {

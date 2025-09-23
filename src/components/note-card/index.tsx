@@ -31,7 +31,7 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
   const [isLiking, setIsLiking] = useState(false);
   const [isLiked, setIsLiked] = useState(!!note.is_liked);
   const [likeCount, setLikeCount] = useState<number>(note.like_count || 0);
-  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
+  const _isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
 
   // 同步外部交互状态到本地，确保加载后根据接口状态着色
   useEffect(() => {

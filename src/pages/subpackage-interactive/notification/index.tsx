@@ -277,7 +277,7 @@ const NotificationPage = () => {
         let items = res.data.items || [];
 
         // 根据business_type重新过滤通知，确保活动相关通知在正确的标签页
-        const originalCount = items.length;
+        const _originalCount = items.length;
         items = items.filter(item => {
           const isActivityRelated = ['activity_published', 'activity_joined', 'activity_cancelled', 'activity_updated', 'activity_registration', 'activity_cancel_registration', 'participant_join_success', 'participant_cancel_success'].includes(item.business_type);
 

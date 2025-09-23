@@ -1,5 +1,5 @@
 ﻿import { useState, useCallback } from 'react';
-import { View, Text, ScrollView, Image, Swiper, SwiperItem, Textarea, Input } from '@tarojs/components';
+import { View, Text, ScrollView, Image, Swiper, SwiperItem, Input } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import { useSelector } from 'react-redux';
 
@@ -241,7 +241,7 @@ export default function NoteDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [noteId, userId, isLoggedIn]);
+  }, [noteId, userId, isLoggedIn, loadComments]);
   
   // 页面显示时加载数据
   useDidShow(() => {

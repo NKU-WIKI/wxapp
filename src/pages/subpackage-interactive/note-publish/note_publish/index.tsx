@@ -91,7 +91,7 @@ export default function PublishNote() {
       // 始终以第一张图片的长宽比为准
       updateImageAspectRatio(images[0]);
     }
-  }, [images]);
+  }, [images, updateImageAspectRatio]);
 
   // 处理图片轮播变化
   const handleImageChange = (e: any) => {

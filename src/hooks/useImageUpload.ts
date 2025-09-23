@@ -6,17 +6,17 @@ export interface ImageUploadOptions {
   maxCount?: number
   compress?: boolean
   quality?: number
-  onSuccess?: (urls: string[]) => void
-  onError?: (error: Error) => void
-  onProgress?: (progress: number) => void
+  onSuccess?: (_urls: string[]) => void
+  onError?: (_error: Error) => void
+  onProgress?: (_progress: number) => void
 }
 
 export interface UseImageUploadReturn {
   images: string[]
   isUploading: boolean
   uploadProgress: number
-  uploadImages: (options?: ImageUploadOptions) => Promise<void>
-  removeImage: (index: number) => void
+  uploadImages: (_options?: ImageUploadOptions) => Promise<void>
+  removeImage: (_index: number) => void
   clearImages: () => void
 }
 

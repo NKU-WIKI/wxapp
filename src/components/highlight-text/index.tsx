@@ -1,4 +1,4 @@
-import { View, Text } from '@tarojs/components'
+import { Text } from '@tarojs/components'
 
 interface HighlightTextProps {
   text: string

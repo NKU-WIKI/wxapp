@@ -71,7 +71,7 @@ const RatingDetailPage = () => {
     }
 
     loadData(resourceType, resourceId, resourceName)
-  }, [router.params])
+  }, [router.params, loadData])
 
   // 加载页面数据
   const loadData = async (resourceType: string, resourceId: string, resourceName?: string) => {
