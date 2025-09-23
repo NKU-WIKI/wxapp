@@ -1,4 +1,4 @@
-ï»¿import { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, Image, Swiper, SwiperItem, Input } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import { useSelector } from 'react-redux';
@@ -28,37 +28,37 @@ export default function NoteDetailPage() {
   const router = useRouter();
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
   
-  // çŠ¶æ€ç®¡ç†
+  // ×´Ì¬¹ÜÀí
   const [note, setNote] = useState<NoteDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [commentText, setCommentText] = useState('');
   
-  // è¯„è®ºç›¸å…³çŠ¶æ€
+  // ÆÀÂÛÏà¹Ø×´Ì¬
   const [comments, setComments] = useState<CommentTreeRead[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
   
-  // äº¤äº’çŠ¶æ€
+  // ½»»¥×´Ì¬
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [shareCount, setShareCount] = useState(0);
   
-  // è·å–ç¬”è®°IDå’Œç”¨æˆ·ID
+  // »ñÈ¡±Ê¼ÇIDºÍÓÃ»§ID
   const noteId = router?.params?.id;
-  const userId = router?.params?.userId; // å‘å¸–äººçš„ID
+  const userId = router?.params?.userId; // ·¢ÌûÈËµÄID
 
-  // ä½¿ç”¨åˆ†äº« Hook
+  // Ê¹ÓÃ·ÖÏí Hook
   useSharing({
-    title: note?.title || 'åˆ†äº«ç¬”è®°',
+    title: note?.title || '·ÖÏí±Ê¼Ç',
     path: `/pages/subpackage-interactive/note-detail/index?id=${noteId}${userId ? `&userId=${userId}` : ''}`,
     imageUrl: note?.images?.[0] ? normalizeImageUrl(note.images[0]) : undefined,
   });
 
-  // åŠ è½½è¯„è®ºåˆ—è¡¨
+  // ¼ÓÔØÆÀÂÛÁĞ±í
   const loadComments = useCallback(async () => {
     if (!noteId) return;
     
@@ -74,7 +74,7 @@ export default function NoteDetailPage() {
       });
       
       if (response.code === 0 && Array.isArray(response.data)) {
-        // å°† Comment[] è½¬æ¢ä¸º CommentTreeRead[] æ ¼å¼
+        // ½« Comment[] ×ª»»Îª CommentTreeRead[] ¸ñÊ½
         const commentTreeData = response.data.map(comment => ({
           ...comment,
           tenant_id: comment.tenant_id || '',
@@ -90,16 +90,15 @@ export default function NoteDetailPage() {
         setComments(commentTreeData);
       }
     } catch (_error) {
-      // console.error('åŠ è½½è¯„è®ºå¤±è´¥:', _error);
     } finally {
       setCommentsLoading(false);
     }
   }, [noteId]);
 
-  // åŠ è½½ç¬”è®°è¯¦æƒ…
+  // ¼ÓÔØ±Ê¼ÇÏêÇé
   const loadNoteDetail = useCallback(async () => {
     if (!noteId) {
-      setError('ç¬”è®°IDä¸å­˜åœ¨');
+      setError('±Ê¼ÇID²»´æÔÚ');
       setLoading(false);
       return;
     }
@@ -109,15 +108,15 @@ export default function NoteDetailPage() {
       setError(null);
 
       if (userId) {
-        // å¦‚æœæœ‰userIdï¼Œä½¿ç”¨ç”¨æˆ·ç¬”è®°åˆ—è¡¨æ¥å£è·å–è¯¥ç”¨æˆ·çš„ç¬”è®°åˆ—è¡¨
+        // Èç¹ûÓĞuserId£¬Ê¹ÓÃÓÃ»§±Ê¼ÇÁĞ±í½Ó¿Ú»ñÈ¡¸ÃÓÃ»§µÄ±Ê¼ÇÁĞ±í
         const response = await getNoteDetail(noteId, userId);
 
         if (response.code === 0 && response.data) {
-          // ä»ç”¨æˆ·ç¬”è®°åˆ—è¡¨ä¸­ç­›é€‰å‡ºç‰¹å®šç¬”è®°
+          // ´ÓÓÃ»§±Ê¼ÇÁĞ±íÖĞÉ¸Ñ¡³öÌØ¶¨±Ê¼Ç
           const userNotes = response.data as NoteRead[];
 
           if (!Array.isArray(userNotes)) {
-            setError('APIè¿”å›æ•°æ®æ ¼å¼é”™è¯¯');
+            setError('API·µ»ØÊı¾İ¸ñÊ½´íÎó');
             setLoading(false);
             return;
           }
@@ -125,12 +124,12 @@ export default function NoteDetailPage() {
           const noteData = userNotes.find((noteItem: NoteRead) => noteItem.id === noteId);
 
           if (!noteData) {
-            setError('ç¬”è®°ä¸å­˜åœ¨æˆ–å·²è¢«åˆ é™¤');
+            setError('±Ê¼Ç²»´æÔÚ»òÒÑ±»É¾³ı');
             setLoading(false);
             return;
           }
 
-          // å°†NoteReadè½¬æ¢ä¸ºNoteDetailæ ¼å¼
+          // ½«NoteRead×ª»»ÎªNoteDetail¸ñÊ½
           const noteDetailData: NoteDetail = {
             id: noteData.id,
             title: noteData.title,
@@ -178,42 +177,42 @@ export default function NoteDetailPage() {
           };
 
           setNote(noteDetailData);
-          // è®¾ç½®äº¤äº’çŠ¶æ€å’Œè®¡æ•°
+          // ÉèÖÃ½»»¥×´Ì¬ºÍ¼ÆÊı
           setIsLiked(Boolean(noteData.is_liked));
           setIsBookmarked(Boolean(noteData.is_favorited));
           setLikeCount(noteData.like_count || 0);
           setFavoriteCount(noteData.favorite_count || 0);
           setShareCount(noteData.share_count || 0);
         } else {
-          setError(response.message || 'åŠ è½½å¤±è´¥');
+          setError(response.message || '¼ÓÔØÊ§°Ü');
         }
       } else {
-        // å¦‚æœæ²¡æœ‰userIdï¼Œç›´æ¥ä½¿ç”¨noteIdè·å–ç¬”è®°è¯¦æƒ…ï¼ˆå‘åå…¼å®¹ï¼‰
+        // Èç¹ûÃ»ÓĞuserId£¬Ö±½ÓÊ¹ÓÃnoteId»ñÈ¡±Ê¼ÇÏêÇé£¨Ïòºó¼æÈİ£©
         const response = await getNoteDetail(noteId);
 
         if (response.code === 0 && response.data) {
           const noteData = response.data as unknown as NoteDetail;
 
           setNote(noteData);
-          // æ£€æŸ¥æ˜¯å¦å·²ç‚¹èµå’Œæ”¶è—
+          // ¼ì²éÊÇ·ñÒÑµãÔŞºÍÊÕ²Ø
           setIsLiked(noteData.is_liked || false);
           setIsBookmarked(noteData.is_favorited || false);
-          // è®¾ç½®è®¡æ•°
+          // ÉèÖÃ¼ÆÊı
           setLikeCount(noteData.like_count || 0);
           setFavoriteCount(noteData.favorite_count || 0);
           setShareCount(noteData.share_count || 0);
         } else {
-          setError(response.message || 'åŠ è½½å¤±è´¥');
+          setError(response.message || '¼ÓÔØÊ§°Ü');
         }
       }
 
-      // åŠ è½½è¯„è®ºåˆ—è¡¨
+      // ¼ÓÔØÆÀÂÛÁĞ±í
       await loadComments();
       
-      // å¦‚æœç”¨æˆ·å·²ç™»å½•ï¼Œä¸»åŠ¨æŸ¥è¯¢ç”¨æˆ·çš„ç‚¹èµæ”¶è—çŠ¶æ€
+      // Èç¹ûÓÃ»§ÒÑµÇÂ¼£¬Ö÷¶¯²éÑ¯ÓÃ»§µÄµãÔŞÊÕ²Ø×´Ì¬
       if (isLoggedIn && noteId) {
         try {
-          // æŸ¥è¯¢ç‚¹èµçŠ¶æ€
+          // ²éÑ¯µãÔŞ×´Ì¬
           const likeResponse = await getActionStatus(noteId, 'note', 'like');
           
           if (likeResponse.code === 0 && likeResponse.data) {
@@ -221,11 +220,11 @@ export default function NoteDetailPage() {
             setLikeCount(likeResponse.data.count || 0);
           }
         } catch (_error) {
-          // å¦‚æœæŸ¥è¯¢å¤±è´¥ï¼Œä¿æŒåŸæœ‰çŠ¶æ€
+          // Èç¹û²éÑ¯Ê§°Ü£¬±£³ÖÔ­ÓĞ×´Ì¬
         }
 
         try {
-          // æŸ¥è¯¢æ”¶è—çŠ¶æ€
+          // ²éÑ¯ÊÕ²Ø×´Ì¬
           const favoriteResponse = await getActionStatus(noteId, 'note', 'favorite');
           
           if (favoriteResponse.code === 0 && favoriteResponse.data) {
@@ -233,48 +232,46 @@ export default function NoteDetailPage() {
             setFavoriteCount(favoriteResponse.data.count || 0);
           }
         } catch (_error) {
-          // å¦‚æœæŸ¥è¯¢å¤±è´¥ï¼Œä¿æŒåŸæœ‰çŠ¶æ€
+          // Èç¹û²éÑ¯Ê§°Ü£¬±£³ÖÔ­ÓĞ×´Ì¬
         }
       }
     } catch (err) {
-      setError('ç½‘ç»œé”™è¯¯ï¼Œè¯·é‡è¯•');
+      setError('ÍøÂç´íÎó£¬ÇëÖØÊÔ');
     } finally {
       setLoading(false);
     }
   }, [noteId, userId, isLoggedIn, loadComments]);
   
-  // é¡µé¢æ˜¾ç¤ºæ—¶åŠ è½½æ•°æ®
+  // Ò³ÃæÏÔÊ¾Ê±¼ÓÔØÊı¾İ
   useDidShow(() => {
     if (noteId) {
       loadNoteDetail();
     }
   });
   
-  // å¤„ç†å›¾ç‰‡è½®æ’­å˜åŒ–
+  // ´¦ÀíÍ¼Æ¬ÂÖ²¥±ä»¯
   const handleImageChange = (e: any) => {
     setCurrentImageIndex(e.detail.current);
   };
 
-  // å¤„ç†å›¾ç‰‡é¢„è§ˆ
+  // ´¦ÀíÍ¼Æ¬Ô¤ÀÀ
   const handleImagePreview = (imageUrl: string, index: number) => {
     const images = note?.images || [];
     Taro.previewImage({
-      urls: images, // ä¼ å…¥æ‰€æœ‰å›¾ç‰‡URLæ•°ç»„
-      current: index, // å½“å‰å›¾ç‰‡ç´¢å¼•
+      urls: images, // ´«ÈëËùÓĞÍ¼Æ¬URLÊı×é
+      current: index, // µ±Ç°Í¼Æ¬Ë÷Òı
       success: () => {
-        // console.log('å›¾ç‰‡é¢„è§ˆæˆåŠŸ');
       },
       fail: (_err) => {
-        // console.error('å›¾ç‰‡é¢„è§ˆå¤±è´¥:', _err);
       }
     });
   };
 
-  // å¤„ç†è¯„è®ºæäº¤
+  // ´¦ÀíÆÀÂÛÌá½»
   const handleCommentSubmit = async () => {
     if (!commentText.trim()) {
       Taro.showToast({
-        title: 'è¯·è¾“å…¥è¯„è®ºå†…å®¹',
+        title: 'ÇëÊäÈëÆÀÂÛÄÚÈİ',
         icon: 'none'
       });
       return;
@@ -282,7 +279,7 @@ export default function NoteDetailPage() {
     
     if (!isLoggedIn) {
       Taro.showToast({
-        title: 'è¯·å…ˆç™»å½•',
+        title: 'ÇëÏÈµÇÂ¼',
         icon: 'none'
       });
       return;
@@ -290,7 +287,7 @@ export default function NoteDetailPage() {
     
     if (!noteId) {
       Taro.showToast({
-        title: 'ç¬”è®°IDä¸å­˜åœ¨',
+        title: '±Ê¼ÇID²»´æÔÚ',
         icon: 'none'
       });
       return;
@@ -309,19 +306,18 @@ export default function NoteDetailPage() {
       
       if (response.code === 0) {
         Taro.showToast({
-          title: 'è¯„è®ºæˆåŠŸ',
+          title: 'ÆÀÂÛ³É¹¦',
           icon: 'success'
         });
         setCommentText('');
-        // é‡æ–°åŠ è½½è¯„è®ºåˆ—è¡¨
+        // ÖØĞÂ¼ÓÔØÆÀÂÛÁĞ±í
         await loadComments();
       } else {
-        throw new Error(response.message || 'è¯„è®ºå¤±è´¥');
+        throw new Error(response.message || 'ÆÀÂÛÊ§°Ü');
       }
     } catch (_error: any) {
-      // console.error('è¯„è®ºå¤±è´¥:', _error);
       Taro.showToast({
-        title: _error.message || 'è¯„è®ºå¤±è´¥ï¼Œè¯·é‡è¯•',
+        title: _error.message || 'ÆÀÂÛÊ§°Ü£¬ÇëÖØÊÔ',
         icon: 'none'
       });
     } finally {
@@ -329,30 +325,30 @@ export default function NoteDetailPage() {
     }
   };
 
-  // æ¸²æŸ“åŠ è½½çŠ¶æ€
+  // äÖÈ¾¼ÓÔØ×´Ì¬
   if (loading) {
     return (
       <View className={styles.container}>
-        <CustomHeader title='ç¬”è®°è¯¦æƒ…' />
+        <CustomHeader title='±Ê¼ÇÏêÇé' />
         <View className={styles.content}>
           <View className={styles.loadingContainer}>
-            <Text className={styles.loadingText}>åŠ è½½ä¸­...</Text>
+            <Text className={styles.loadingText}>¼ÓÔØÖĞ...</Text>
           </View>
         </View>
       </View>
     );
   }
 
-  // æ¸²æŸ“é”™è¯¯çŠ¶æ€
+  // äÖÈ¾´íÎó×´Ì¬
   if (error || !note) {
     return (
       <View className={styles.container}>
-        <CustomHeader title='ç¬”è®°è¯¦æƒ…' />
+        <CustomHeader title='±Ê¼ÇÏêÇé' />
         <View className={styles.content}>
           <View className={styles.errorContainer}>
-            <Text className={styles.errorText}>{error || 'ç¬”è®°ä¸å­˜åœ¨'}</Text>
+            <Text className={styles.errorText}>{error || '±Ê¼Ç²»´æÔÚ'}</Text>
             <View className={styles.retryButton} onClick={loadNoteDetail}>
-              <Text>é‡æ–°åŠ è½½</Text>
+              <Text>ÖØĞÂ¼ÓÔØ</Text>
             </View>
           </View>
         </View>
@@ -360,13 +356,13 @@ export default function NoteDetailPage() {
     );
   }
   
-  // è·å–å›¾ç‰‡æ•°ç»„
+  // »ñÈ¡Í¼Æ¬Êı×é
   const images: string[] = note.images || [];
   const hasImages = images.length > 0;
 
   return (
     <View className={styles.container}>
-      <CustomHeader title='ç¬”è®°è¯¦æƒ…' />
+      <CustomHeader title='±Ê¼ÇÏêÇé' />
       
       <View className={styles.content}>
         <ScrollView
@@ -374,9 +370,9 @@ export default function NoteDetailPage() {
           className={styles.scrollView}
           enableBackToTop
         >
-          {/* ç¬”è®°å¤´éƒ¨ä¿¡æ¯ */}
+          {/* ±Ê¼ÇÍ·²¿ĞÅÏ¢ */}
           <View className={styles.noteHeader}>
-            {/* è‡ªå®šä¹‰ä½œè€…ä¿¡æ¯å¸ƒå±€ */}
+            {/* ×Ô¶¨Òå×÷ÕßĞÅÏ¢²¼¾Ö */}
             {note.user && (
               <View className={styles.authorSection}>
                 <View className={styles.customAuthorInfo}>
@@ -387,7 +383,7 @@ export default function NoteDetailPage() {
                   />
                   <View className={styles.authorDetails}>
                     <View className={styles.nameAndLevel}>
-                      <Text className={styles.authorName}>{note.user.nickname || 'åŒ¿åç”¨æˆ·'}</Text>
+                      <Text className={styles.authorName}>{note.user.nickname || 'ÄäÃûÓÃ»§'}</Text>
                       <Text className={styles.authorLevel}>{convertLevelToRealm(note.author?.level || 1)}</Text>
                     </View>
                     {note.user.bio && (
@@ -395,21 +391,21 @@ export default function NoteDetailPage() {
                     )}
                   </View>
                   <View className={styles.authorActions}>
-                    {/* åªæœ‰å½“å‰ç”¨æˆ·ä¸æ˜¯ç¬”è®°ä½œè€…æ—¶æ‰æ˜¾ç¤ºå…³æ³¨æŒ‰é’® */}
+                    {/* Ö»ÓĞµ±Ç°ÓÃ»§²»ÊÇ±Ê¼Ç×÷ÕßÊ±²ÅÏÔÊ¾¹Ø×¢°´Å¥ */}
                     {note.user && note.user.id !== userId && (
                       <View className={styles.followButton}>
-                        <Text className={styles.followText}>å…³æ³¨</Text>
+                        <Text className={styles.followText}>¹Ø×¢</Text>
                       </View>
                     )}
                     <Text className={styles.publicationTime}>
-                      {note.created_at ? formatPostDate(note.created_at) : 'æ—¶é—´æœªçŸ¥'}
+                      {note.created_at ? formatPostDate(note.created_at) : 'Ê±¼äÎ´Öª'}
                     </Text>
                   </View>
                 </View>
               </View>
             )}
             
-            {/* æ ‡ç­¾ */}
+            {/* ±êÇ© */}
             {note.tags && note.tags.length > 0 && (
               <View className={styles.tagsContainer}>
                 {note.tags.map((tag, index) => (
@@ -422,7 +418,7 @@ export default function NoteDetailPage() {
             )}
           </View>
           
-          {/* å›¾ç‰‡è½®æ’­ */}
+          {/* Í¼Æ¬ÂÖ²¥ */}
           {hasImages && (
             <View className={styles.imageSection}>
               <Swiper
@@ -443,12 +439,12 @@ export default function NoteDetailPage() {
                 ))}
               </Swiper>
               
-              {/* å›¾ç‰‡è®¡æ•°å™¨ */}
+              {/* Í¼Æ¬¼ÆÊıÆ÷ */}
               <Text className={styles.imageCounter}>
                 {currentImageIndex + 1}/{images.length}
               </Text>
               
-              {/* å›¾ç‰‡æŒ‡ç¤ºç‚¹ */}
+              {/* Í¼Æ¬Ö¸Ê¾µã */}
               <View className={styles.imageDots}>
                 {images.map((_, index) => (
                   <View 
@@ -460,7 +456,7 @@ export default function NoteDetailPage() {
             </View>
           )}
           
-          {/* ç¬”è®°å†…å®¹ */}
+          {/* ±Ê¼ÇÄÚÈİ */}
           <View className={styles.noteContent}>
             <Text className={styles.noteTitle}>{note.title}</Text>
             <Text className={styles.contentText}>{note.content}</Text>
@@ -468,16 +464,16 @@ export default function NoteDetailPage() {
           
 
           
-          {/* è¯„è®ºåŒºåŸŸ */}
+          {/* ÆÀÂÛÇøÓò */}
           <View className={styles.commentSection}>
             <View className={styles.commentHeader}>
-              <Text className={styles.commentCount}>è¯„è®º {comments.length}</Text>
+              <Text className={styles.commentCount}>ÆÀÂÛ {comments.length}</Text>
             </View>
             
-            {/* è¯„è®ºåˆ—è¡¨ */}
+            {/* ÆÀÂÛÁĞ±í */}
             {commentsLoading ? (
               <View className={styles.commentLoading}>
-                <Text className={styles.loadingText}>åŠ è½½è¯„è®ºä¸­...</Text>
+                <Text className={styles.loadingText}>¼ÓÔØÆÀÂÛÖĞ...</Text>
               </View>
             ) : comments.length > 0 ? (
               <View className={styles.commentList}>
@@ -490,11 +486,11 @@ export default function NoteDetailPage() {
                     />
                     <View className={styles.commentContent}>
                       <Text className={styles.commentAuthor}>
-                        {comment.user?.nickname || 'åŒ¿åç”¨æˆ·'}
+                        {comment.user?.nickname || 'ÄäÃûÓÃ»§'}
                       </Text>
                       <Text className={styles.commentText}>{comment.content}</Text>
                       <Text className={styles.commentTime}>
-                        {comment.created_at ? formatPostDate(comment.created_at) : 'æ—¶é—´æœªçŸ¥'}
+                        {comment.created_at ? formatPostDate(comment.created_at) : 'Ê±¼äÎ´Öª'}
                       </Text>
                     </View>
                   </View>
@@ -502,17 +498,17 @@ export default function NoteDetailPage() {
               </View>
             ) : (
               <View className={styles.emptyComments}>
-                <Text className={styles.emptyText}>æš‚æ— è¯„è®ºï¼Œå¿«æ¥å‘è¡¨ç¬¬ä¸€æ¡è¯„è®ºå§ï¼</Text>
+                <Text className={styles.emptyText}>ÔİÎŞÆÀÂÛ£¬¿ìÀ´·¢±íµÚÒ»ÌõÆÀÂÛ°É£¡</Text>
               </View>
             )}
             
-            {/* è¯„è®ºè¾“å…¥æ¡† */}
+            {/* ÆÀÂÛÊäÈë¿ò */}
             <View className={styles.commentInput}>
               <Input
                 className={styles.inputField}
                 value={commentText}
                 onInput={(e) => setCommentText(e.detail.value)}
-                placeholder='å†™ä¸‹ä½ çš„è¯„è®º...'
+                placeholder='Ğ´ÏÂÄãµÄÆÀÂÛ...'
                 maxlength={500}
                 disabled={submittingComment}
               />
@@ -521,7 +517,7 @@ export default function NoteDetailPage() {
                 onClick={handleCommentSubmit}
               >
                 {submittingComment ? (
-                  <Text className={styles.sendingText}>å‘é€ä¸­...</Text>
+                  <Text className={styles.sendingText}>·¢ËÍÖĞ...</Text>
                 ) : (
                   <Image className={styles.sendIcon} src={sendIcon} />
                 )}
@@ -531,7 +527,7 @@ export default function NoteDetailPage() {
         </ScrollView>
       </View>
       
-      {/* åº•éƒ¨æ“ä½œæ  */}
+      {/* µ×²¿²Ù×÷À¸ */}
       <View className={styles.bottomBar}>
         <ActionBar
           targetId={noteId || ''}
@@ -563,7 +559,7 @@ export default function NoteDetailPage() {
             }
           ]}
           onStateChange={(type, isActive, count) => {
-            // ActionBar å·²ç»å¤„ç†äº†æ“ä½œï¼Œè¿™é‡Œå¯ä»¥æ·»åŠ é¢å¤–çš„ä¸šåŠ¡é€»è¾‘
+            // ActionBar ÒÑ¾­´¦ÀíÁË²Ù×÷£¬ÕâÀï¿ÉÒÔÌí¼Ó¶îÍâµÄÒµÎñÂß¼­
             if (type === 'like') {
               setIsLiked(isActive);
               setLikeCount(count);
@@ -571,10 +567,10 @@ export default function NoteDetailPage() {
               setIsBookmarked(isActive);
               setFavoriteCount(count);
             } else if (type === 'comment') {
-              // è¯„è®ºæŒ‰é’®è¢«ç‚¹å‡»ï¼Œèšç„¦åˆ°è¯„è®ºè¾“å…¥æ¡†
-              // è¿™é‡Œå¯ä»¥å®ç°æ»šåŠ¨åˆ°è¯„è®ºåŒºåŸŸå¹¶èšç„¦è¾“å…¥æ¡†çš„é€»è¾‘
+              // ÆÀÂÛ°´Å¥±»µã»÷£¬¾Û½¹µ½ÆÀÂÛÊäÈë¿ò
+              // ÕâÀï¿ÉÒÔÊµÏÖ¹ö¶¯µ½ÆÀÂÛÇøÓò²¢¾Û½¹ÊäÈë¿òµÄÂß¼­
             } else if (type === 'share') {
-              // åˆ†äº«æ“ä½œå®Œæˆåï¼Œå¢åŠ åˆ†äº«è®¡æ•°
+              // ·ÖÏí²Ù×÷Íê³Éºó£¬Ôö¼Ó·ÖÏí¼ÆÊı
               setShareCount(prev => prev + 1);
             }
           }}

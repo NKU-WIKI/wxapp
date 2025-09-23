@@ -29,8 +29,7 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
     
     // 检查数据结构：可能是直接返回数组，也可能是包含applications属性的对象
     if (Array.isArray(rawData)) {
-      // 直接返回数组的情况
-      applications = rawData;
+      // 直接返回数组的情�?      applications = rawData;
     } else if (rawData && rawData.applications && Array.isArray(rawData.applications)) {
       // 包含applications属性的对象
       applications = rawData.applications;
@@ -38,8 +37,7 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
     
     
     
-    // 如果没有申请记录，返回未认证状态
-    if (!applications || applications.length === 0) {
+    // 如果没有申请记录，返回未认证状�?    if (!applications || applications.length === 0) {
       
       return {
         is_verified: false,
@@ -81,13 +79,11 @@ export const submitCampusVerification = createAsyncThunk(
     try {
       
       
-      // 先上传文件
-      
+      // 先上传文�?      
       const uploadResponse = await campusVerificationApi.uploadFile(data.card_image);
       
       
-      const fileUrl = (uploadResponse.data as any).url || (uploadResponse.data as any).file_url; // 兼容不同的返回格式
-      
+      const fileUrl = (uploadResponse.data as any).url || (uploadResponse.data as any).file_url; // 兼容不同的返回格�?      
       
       if (!fileUrl) {
         
@@ -111,8 +107,7 @@ export const submitCampusVerification = createAsyncThunk(
         student_id: data.student_id,
         department: data.department,
         contact_phone: data.contact_phone,
-        documents: [document], // 至少需要一张证件照片
-      };
+        documents: [document], // 至少需要一张证件照�?      };
 
       
       const response = await campusVerificationApi.submitCampusVerification(verificationRequest);
@@ -121,7 +116,6 @@ export const submitCampusVerification = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       
-      // console.error('错误详情:', {
       //   message: error?.message,
       //   statusCode: error?.statusCode,
       //   data: error?.data,
@@ -172,8 +166,7 @@ const campusVerificationSlice = createSlice({
       })
       .addCase(submitCampusVerification.fulfilled, (state, _action) => {
         state.submitStatus = 'succeeded';
-        // 提交成功后更新认证状态为自动审核中
-        if (state.info) {
+        // 提交成功后更新认证状态为自动审核�?        if (state.info) {
           state.info.verification_status = 'auto_reviewing';
         }
       })

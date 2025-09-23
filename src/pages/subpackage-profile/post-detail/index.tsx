@@ -47,23 +47,20 @@ const PostDetailPage = () => {
     }
   }, [dispatch, postId]);
 
-  // 监听 currentPost 变化，写入历史（含 avatar 字段）
-  useEffect(() => {
+  // 监听 currentPost 变化，写入历史（�?avatar 字段�?  useEffect(() => {
     if (currentPost) {
-      // 记录到本地和服务器
-      // 注意：post.id是string类型（UUID），但服务器API需要number类型
+      // 记录到本地和服务�?      // 注意：post.id是string类型（UUID），但服务器API需要number类型
       const numericId = parseInt(String(currentPost.id)) || 0;
       
-      // 获取头像：优先使用 user.avatar，兼容 author_info.avatar
+      // 获取头像：优先使�?user.avatar，兼�?author_info.avatar
       const author = currentPost.user || currentPost.author_info;
       const avatarUrl = author?.avatar || '';
       
-      // 获取时间：优先使用 created_at，兼容 create_time，如果没有则使用当前时间
+      // 获取时间：优先使�?created_at，兼�?create_time，如果没有则使用当前时间
       const createTime = currentPost.created_at || currentPost.create_time || new Date().toISOString();
       const viewTime = new Date().toISOString();
       
       // 调试日志
-      // console.log('调试日志:', {
       //   postId: currentPost.id,
       //   title: currentPost.title,
       //   avatarUrl: avatarUrl,
@@ -91,7 +88,7 @@ const PostDetailPage = () => {
 
   const renderContent = () => {
     if (detailLoading === 'pending') {
-      return <View className={styles.loading}>加载中...</View>;
+      return <View className={styles.loading}>加载�?..</View>;
     }
     
     if (detailLoading === 'failed' || !currentPost) {
@@ -115,7 +112,7 @@ const PostDetailPage = () => {
           <View className={styles.commentsContainer}>
             <Text className={styles.commentsTitle}>评论 ({comments?.length || 0})</Text>
             {commentsLoading === 'pending' ? (
-              <Text>加载评论中...</Text>
+              <Text>加载评论�?..</Text>
             ) : (
               comments?.map((comment, index) => (
                 <View key={comment.id || index} className={styles.commentItem}>

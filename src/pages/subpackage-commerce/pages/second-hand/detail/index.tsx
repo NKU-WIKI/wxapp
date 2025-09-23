@@ -338,7 +338,7 @@ const SecondHandDetailPage = () => {
             comments={comments}
             allowComments // 默认允许
             autoHandle // 启用自动处理模式，内部自动处理所有评论操作
-            showFollowButton
+            showFollowButton={true}
           />
         </ScrollView>
       </View>
