@@ -142,7 +142,7 @@ const RatingDetailPage = () => {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [isLoggedIn, userState.user?.id])
 
   // 页面初始化
   useEffect(() => {

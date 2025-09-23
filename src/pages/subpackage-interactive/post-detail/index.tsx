@@ -23,96 +23,98 @@ const PostDetailPage = () => {
 
   // 从路由参数中获取帖子ID（UUID格式�?  const postId = router.params.id as string;
 
-  // 回复状态管�?
-  const [replyTo, setReplyTo] = useState<{
-    commentId: string; // 修复：改为string以匹配comment.id类型
-    nickname: string;
-    replyToNickname?: string; // 被回复用户的昵称
-  } | null>(null);
+  // 回复状态管�?  const [replyTo, setReplyTo] = useState<{
+  commentId: string; // 修复：改为string以匹配comment.id类型
+  nickname: string;
+  replyToNickname ?: string; // 被回复用户的昵称
+} | null > (null);
 
-  // 下拉刷新状�?  const [refreshing, setRefreshing] = useState(false);
+// 下拉刷新状�?  const [refreshing, setRefreshing] = useState(false);
 
-  // 获取帖子详情
-  useEffect(() => {
-    if (postId) {
-      dispatch(fetchPostDetail(postId));
-    }
-  }, [postId, dispatch]);
-
-  // 获取评论列表 - 使用树形接口
-  useEffect(() => {
-    if (postId) {
-      dispatch(fetchComments({
-        resource_id: postId,
-        resource_type: 'post',
-        max_depth: 5, // 限制评论树深�?        limit_per_level: 10, // 每层最�?0个评�?        limit: 20 // 每次获取20个顶级评�?      }));
-      }
-  }, [postId, dispatch]);
-
-  // 监听帖子详情变化，添加到浏览历史
-  useEffect(() => {
-    if (postState?.currentPost) {
-      const post = postState.currentPost;
-
-      // 记录到本地和服务�?      // 注意：post.id是string类型（UUID），但服务器API需要number类型
-      // 这里我们尝试将UUID转换为数字，如果失败则使用一个默认�?      const numericId = parseInt(post.id) || 0;
-
-      // 获取头像：优先使�?user.avatar，兼�?author_info.avatar
-      const author = post.user || post.author_info;
-      const avatarUrl = normalizeImageUrl(author?.avatar || undefined) || '';
-
-      // 获取时间：优先使�?created_at，兼�?create_time，如果没有则使用当前时间
-      const createTime = post.created_at || post.create_time || new Date().toISOString();
-      const viewTime = new Date().toISOString();
-
-      // 调试日志
-      //   postId: post.id,
-      //   title: post.title,
-      //   avatarUrl: avatarUrl,
-      //   createTime: createTime,
-      //   viewTime: viewTime,
-      //   postCreatedAt: post.created_at,
-      //   postCreateTime: post.create_time,
-      //   postData: post
-      // });
-
-      addHistoryWithServerSync(
-        {
-          id: post.id, // post.id已经是string类型（UUID�?          title: post.title,
-          cover: post.image_urls?.[0] || '',
-          avatar: avatarUrl,
-          createdAt: createTime,
-          viewedAt: viewTime
-        },
-        'post',
-        numericId
-      );
-    }
-  }, [postState?.currentPost]);
-
-  // 处理回复评论
-  const handleReply = (comment: CommentDetail) => {
-
-
-    // 查找顶级父评论ID的辅助函�?    const findRootCommentId = (targetComment: CommentDetail): string => {
-    // 如果comment有root_id，说明它是子评论，返回root_id
-    if (targetComment.root_id) {
-      return targetComment.root_id;
-    }
-
-    // 如果comment没有root_id，需要在评论树中查找它的顶级父评�?      const findInComments = (comments: CommentDetail[], targetId: string): string | null => {
-    for (const c of comments) {
-      // 如果在顶级评论中找到，说明它就是顶级评论
-      if (c.id === targetId) {
-        return c.id;
-      }
-      // 在子评论中查�?          if (c.children && c.children.length > 0) {
-      const found = findInChildren(c.children, targetId, c.id);
-      if (found) return found;
-    }
+// 获取帖子详情
+useEffect(() => {
+  if (postId) {
+    dispatch(fetchPostDetail(postId));
   }
-  return null;
-};
+}, [postId, dispatch]);
+
+// 获取评论列表 - 使用树形接口
+useEffect(() => {
+  if (postId) {
+    dispatch(fetchComments({
+      resource_id: postId,
+      resource_type: 'post',
+      max_depth: 5, // 限制评论树深度
+      limit_per_level: 10, // 每层最多10个评论
+      limit: 20 // 每次获取20个顶级评论
+    }));
+  }
+}, [postId, dispatch]);
+
+// 监听帖子详情变化，添加到浏览历史
+useEffect(() => {
+  if (postState?.currentPost) {
+    const post = postState.currentPost;
+
+    // 记录到本地和服务�?      // 注意：post.id是string类型（UUID），但服务器API需要number类型
+    // 这里我们尝试将UUID转换为数字，如果失败则使用一个默认�?      const numericId = parseInt(post.id) || 0;
+
+    // 获取头像：优先使�?user.avatar，兼�?author_info.avatar
+    const author = post.user || post.author_info;
+    const avatarUrl = normalizeImageUrl(author?.avatar || undefined) || '';
+
+    // 获取时间：优先使�?created_at，兼�?create_time，如果没有则使用当前时间
+    const createTime = post.created_at || post.create_time || new Date().toISOString();
+    const viewTime = new Date().toISOString();
+
+    // 调试日志
+    //   postId: post.id,
+    //   title: post.title,
+    //   avatarUrl: avatarUrl,
+    //   createTime: createTime,
+    //   viewTime: viewTime,
+    //   postCreatedAt: post.created_at,
+    //   postCreateTime: post.create_time,
+    //   postData: post
+    // });
+
+    addHistoryWithServerSync(
+      {
+        id: post.id, // post.id已经是string类型（UUID�?          title: post.title,
+        cover: post.image_urls?.[0] || '',
+        avatar: avatarUrl,
+        createdAt: createTime,
+        viewedAt: viewTime
+      },
+      'post',
+      numericId
+    );
+  }
+}, [postState?.currentPost]);
+
+// 处理回复评论
+const handleReply = (comment: CommentDetail) => {
+
+
+  // 查找顶级父评论ID的辅助函�?    const findRootCommentId = (targetComment: CommentDetail): string => {
+  // 如果comment有root_id，说明它是子评论，返回root_id
+  if (targetComment.root_id) {
+    return targetComment.root_id;
+  }
+
+  // 如果comment没有root_id，需要在评论树中查找它的顶级父评�?      const findInComments = (comments: CommentDetail[], targetId: string): string | null => {
+  for (const c of comments) {
+    // 如果在顶级评论中找到，说明它就是顶级评论
+    if (c.id === targetId) {
+      return c.id;
+    }
+    // 在子评论中查�?          if (c.children && c.children.length > 0) {
+    const found = findInChildren(c.children, targetId, c.id);
+    if (found) return found;
+  }
+}
+return null;
+      };
 
 const findInChildren = (children: CommentDetail[], targetId: string, rootId: string): string | null => {
   for (const child of children) {

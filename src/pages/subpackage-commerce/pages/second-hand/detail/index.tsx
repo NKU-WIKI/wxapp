@@ -324,7 +324,7 @@ const SecondHandDetailPage = () => {
             userId={currentListing.user_id}
             mode='expanded'
             showBio
-            showFollowButton
+            showFollowButton={true}
             showStats
             showLevel
             showLocation

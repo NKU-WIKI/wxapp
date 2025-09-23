@@ -110,15 +110,15 @@ const ErrandsHomePage = () => {
   return () => {
     Taro.eventCenter.off('refreshErrandsListings', handleRefreshEvent);
   };
-}, [loadErrands])
+}, [loadErrands]);
 
-  // 错误处理
-  useEffect(() => {
-    if (error) {
-      Taro.showToast({ title: error, icon: 'none' })
-      dispatch(clearError())
-    }
-  }, [error, dispatch])
+// 错误处理
+useEffect(() => {
+  if (error) {
+    Taro.showToast({ title: error, icon: 'none' })
+    dispatch(clearError())
+  }
+}, [error, dispatch])
 
 
 // 处理搜索

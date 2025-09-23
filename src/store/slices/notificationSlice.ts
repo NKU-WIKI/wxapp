@@ -133,43 +133,44 @@ const notificationSlice = createSlice({
       state.lastUpdated = Date.now();
     },
 
-    // 标记特定类型的消息为已读（将该类型的未读数设为0）    markTypeAsRead: (state, action: PayloadAction<NotificationType>) => {
-    const type = action.payload;
+    // 标记特定类型的消息为已读（将该类型的未读数设为0）
+    markTypeAsRead: (state, action: PayloadAction<NotificationType>) => {
+      const type = action.payload;
 
-    if(state.unreadCounts[type]) {
-      // 从总数中减去该类型的未读数
-      const typeCount = state.unreadCounts[type] || 0;
-state.unreadCounts.total = Math.max(0, (state.unreadCounts.total || 0) - typeCount);
-state.unreadCounts[type] = 0;
-state.lastUpdated = Date.now();
+      if (state.unreadCounts[type]) {
+        // 从总数中减去该类型的未读数
+        const typeCount = state.unreadCounts[type] || 0;
+        state.unreadCounts.total = Math.max(0, (state.unreadCounts.total || 0) - typeCount);
+        state.unreadCounts[type] = 0;
+        state.lastUpdated = Date.now();
       }
     },
 
-// 标记所有消息为已读
-markAllAsRead: (state) => {
-  state.unreadCounts = {
-    [NotificationType._Message]: 0,
-    [NotificationType._Activity]: 0,
-    [NotificationType._System]: 0,
-    [NotificationType._Announcement]: 0,
-    total: 0
-  };
-  state.lastUpdated = Date.now();
-},
-
-    // 增加未读数量（当收到新消息时�?    incrementUnreadCount: (state, action: PayloadAction<{ type: NotificationType; count?: number }>) => {
-      const { type, count = 1 } = action.payload;
-
-state.unreadCounts[type] = (state.unreadCounts[type] || 0) + count;
-state.unreadCounts.total = (state.unreadCounts.total || 0) + count;
-state.lastUpdated = Date.now();
+    // 标记所有消息为已读
+    markAllAsRead: (state) => {
+      state.unreadCounts = {
+        [NotificationType._Message]: 0,
+        [NotificationType._Activity]: 0,
+        [NotificationType._System]: 0,
+        [NotificationType._Announcement]: 0,
+        total: 0
+      };
+      state.lastUpdated = Date.now();
     },
 
-// 重置状�?    resetNotificationState: (state) => {
-state.unreadCounts = {};
-state.loading = false;
-state.lastUpdated = null;
-    }
+    // 增加未读数量（当收到新消息时�?    incrementUnreadCount: (state, action: PayloadAction<{ type: NotificationType; count?: number }>) => {
+    const { type, count = 1 } = action.payload;
+
+    state.unreadCounts[type] = (state.unreadCounts[type] || 0) + count;
+    state.unreadCounts.total = (state.unreadCounts.total || 0) + count;
+    state.lastUpdated = Date.now();
+  },
+
+  // 重置状�?    resetNotificationState: (state) => {
+  state.unreadCounts = {};
+  state.loading = false;
+  state.lastUpdated = null;
+}
   },
 extraReducers: (builder) => {
   builder

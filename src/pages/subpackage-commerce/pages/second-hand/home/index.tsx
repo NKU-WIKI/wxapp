@@ -128,11 +128,10 @@ const SecondHandHomePage = () => {
 
       // 手动更新 Redux store
       if (skip === 0) {
-        // 首次加载或刷新
-            dispatch({
+        // 首次加载或刷�?            dispatch({
         type: 'marketplace/setListings',
           payload: searchResults
-      });
+      })
     } else {
       // 加载更多
       dispatch({
@@ -153,10 +152,11 @@ const SecondHandHomePage = () => {
   } else {
     Taro.showToast({ title: '获取商品列表失败', icon: 'none' })
   }
+}
 } else {
   // 没有搜索关键词，使用原有的商品列表接�?        const queryParams: any = {
   skip: skip,
-  limit: 20,
+    limit: 20,
 }
 
 // 只在用户主动选择类型时才添加类型参数

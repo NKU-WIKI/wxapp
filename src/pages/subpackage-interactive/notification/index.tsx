@@ -77,30 +77,32 @@ const NotificationPage = () => {
     <Image src={moreIcon} className={styles.moreIcon} />
   );
 
-  // 获取用户信息（带缓存�?  const fetchUserInfo = useCallback(async (userId: string): Promise<User | null> => {
-  if (!userId) return null;
+  // 获取用户信息（带缓存）
+  const fetchUserInfo = useCallback(async (userId: string): Promise<User | null> => {
+    if (!userId) return null;
 
-  // 检查缓�?    if (userCache.has(userId)) {
-  return userCache.get(userId)!;
-}
+    // 检查缓存
+    if (userCache.has(userId)) {
+      return userCache.get(userId)!;
+    }
 
-const response = await getUserById(userId);
-if (response.code === 0 && response.data) {
-  const userInfo = response.data;
-  // 更新缓存
-  setUserCache(prev => new Map(prev.set(userId, userInfo)));
-  return userInfo;
-}
+    const response = await getUserById(userId);
+    if (response.code === 0 && response.data) {
+      const userInfo = response.data;
+      // 更新缓存
+      setUserCache(prev => new Map(prev.set(userId, userInfo)));
+      return userInfo;
+    }
 
-return null;
-}, [userCache]);
+    return null;
+  }, [userCache]);
 
-// 刷新未读数量统计（使用Redux统一管理）  const refreshUnreadCounts = useCallback(async () => {
-try {
-  await dispatch(fetchUnreadCounts()).unwrap();
-} catch (_error) {
-}
-  }, [dispatch])
+  // 刷新未读数量统计（使用Redux统一管理）  const refreshUnreadCounts = useCallback(async () => {
+  try {
+    await dispatch(fetchUnreadCounts()).unwrap();
+  } catch (_error) {
+  }
+}, [dispatch])
 
 // 解析通知内容显示（异步获取用户信息）
 const parseNotificationDisplay = useCallback(async (notification: NotificationRead) => {
