@@ -481,6 +481,32 @@ export interface SubmitRatingRequest {
 }
 
 /**
+ * 更新评分请求 - 根据后端API文档
+ */
+export interface UpdateRatingRequest {
+  /**
+   * 评分值（1-5星）
+   */
+  score?: number;
+  /**
+   * 评价内容
+   */
+  comment?: string;
+  /**
+   * 是否匿名
+   */
+  is_anonymous?: boolean;
+  /**
+   * 标签列表
+   */
+  tags?: string[];
+  /**
+   * 证据图片URL列表
+   */
+  evidence_urls?: string[];
+}
+
+/**
  * API响应格式
  */
 export interface RatingApiResponse<T = any> {

@@ -4,7 +4,7 @@ import Taro, { useRouter } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 // import { createUserRating } from '@/store/slices/ratingSlice' // 未使用
-import { getResourceRatingsList, getResourceStatistics, createRating } from '@/services/api/rating'
+import { getResourceRatingsList, getResourceStatistics, createRating, updateRating } from '@/services/api/rating'
 import CustomHeader from '@/components/custom-header'
 
 // 引入星星图标
@@ -258,56 +258,100 @@ const RatingDetailPage = () => {
     try {
       setSubmitting(true)
       
-      const ratingData = {
-        resource_type: resourceType,
-        resource_name: resourceInfo.resource_name,
-        resource_title: resourceInfo.title,
-        resource_description: resourceInfo.description,
-        resource_image: resourceInfo.image_url,
-        score: userRating,
-        comment: newComment.trim(),
-        is_anonymous: isAnonymous,
-        tags: [], // 可以后续添加标签选择功能
-        evidence_urls: []
-      }
-
-      
-      
-      const response = await createRating(ratingData)
-      
-      // 检查响应是否成功 - 支持多种成功格式
-      const isSuccess = response?.code === 0 || response?.data?.code === 0 || response.data;
-      
-      if (isSuccess) {
-        Taro.showToast({
-          title: '评分提交成功',
-          icon: 'success',
-          duration: 2000
+      // 如果用户已有评分，则更新；否则创建新评分
+      if (userExistingRating) {
+        // 更新现有评分
+        const updateData = {
+          score: userRating,
+          comment: newComment.trim(),
+          is_anonymous: isAnonymous,
+          tags: [], // 可以后续添加标签选择功能
+          evidence_urls: []
+        }
+        
+        console.log('更新评分请求数据:', {
+          ratingId: userExistingRating.id,
+          updateData
         })
         
-        // 重置表单
-        setUserRating(0)
-        setNewComment('')
-        setIsAnonymous(false)
+        const response = await updateRating(userExistingRating.id, updateData)
         
-        // 重新加载数据
-        loadData(resourceType, resourceId, resourceInfo.resource_name)
+        console.log('更新评分响应:', response)
+        
+        // 检查响应是否成功
+        const isSuccess = response?.code === 0 || response?.data?.code === 0 || response.data;
+        
+        if (isSuccess) {
+          Taro.showToast({
+            title: '评价更新成功',
+            icon: 'success',
+            duration: 2000
+          })
+          
+          // 重新加载数据
+          loadData(resourceType, resourceId, resourceInfo.resource_name)
+        } else {
+          throw new Error(response?.message || response?.data?.message || '更新失败')
+        }
       } else {
-        throw new Error(response?.message || response?.data?.message || '提交失败')
+        // 创建新评分
+        const ratingData = {
+          resource_type: resourceType,
+          resource_name: resourceInfo.resource_name,
+          resource_title: resourceInfo.title,
+          resource_description: resourceInfo.description,
+          resource_image: resourceInfo.image_url,
+          score: userRating,
+          comment: newComment.trim(),
+          is_anonymous: isAnonymous,
+          tags: [], // 可以后续添加标签选择功能
+          evidence_urls: []
+        }
+
+        const response = await createRating(ratingData)
+        
+        // 检查响应是否成功 - 支持多种成功格式
+        const isSuccess = response?.code === 0 || response?.data?.code === 0 || response.data;
+        
+        if (isSuccess) {
+          Taro.showToast({
+            title: '评分提交成功',
+            icon: 'success',
+            duration: 2000
+          })
+          
+          // 重新加载数据
+          loadData(resourceType, resourceId, resourceInfo.resource_name)
+        } else {
+          throw new Error(response?.message || response?.data?.message || '提交失败')
+        }
       }
       
     } catch (err: any) {
+      console.error('评分操作错误详情:', {
+        statusCode: err.statusCode,
+        code: err.code,
+        message: err.message,
+        data: err.data,
+        fullError: err
+      })
       
       // 处理409冲突错误（已评分）
       if (err.statusCode === 409 || err.code === 409) {
         Taro.showToast({
-          title: '您已经对该条目做出过评价',
+          title: '您已经对该条目做出过评价，请刷新页面后更新',
           icon: 'none',
-          duration: 2000
+          duration: 3000
+        })
+      } else if (err.statusCode === 500 || err.code === 500) {
+        Taro.showToast({
+          title: '服务器内部错误，请稍后重试',
+          icon: 'error',
+          duration: 3000
         })
       } else {
         Taro.showToast({
-          title: err.message || '评分提交失败',
+          title: err.message || '操作失败',
           icon: 'error',
           duration: 2000
         })

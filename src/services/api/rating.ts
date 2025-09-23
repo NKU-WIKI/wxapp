@@ -6,6 +6,7 @@ import {
   GetRatingItemsRequest,
   CreateRatingItemRequest,
   SubmitRatingRequest,
+  UpdateRatingRequest,
   RatingApiResponse,
   RatingItemDetailResponse,
   CreateRatingRequest,
@@ -270,6 +271,27 @@ export const getRatingDetail = (ratingId: string) => {
   
   return http.get<RatingApiResponse<RatingDetailResponse>>(
     `/ratings/${ratingId}`
+  ).then(response => {
+    
+    return response;
+  }).catch(error => {
+    
+    throw error;
+  });
+};
+
+/**
+ * 更新评分 - 根据后端API文档 PUT /api/v1/ratings/{rating_id}
+ * @param ratingId 评分ID
+ * @param data 更新数据
+ * @returns 更新结果
+ */
+export const updateRating = (ratingId: string, data: UpdateRatingRequest) => {
+  
+  
+  return http.put<RatingApiResponse<UserRating>>(
+    `/ratings/${ratingId}`,
+    data
   ).then(response => {
     
     return response;
