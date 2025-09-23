@@ -198,11 +198,11 @@ const TaskCard = ({ task }: { task: any }) => {
 
   const getTaskStatusDisplay = (status?: string) => {
     switch (status) {
-      case 'pending': return '待接�?
-      case 'accepted': return '进行�?
-      case 'completed': return '已完�?
-      case 'cancelled': return '已取�?
-      default: return '待接�?
+      case 'pending': return '待接取';
+      case 'accepted': return '进行中';
+      case 'completed': return '已完成';
+      case 'cancelled': return '已取消';
+      default: return '待接取';
     }
   }
 
