@@ -58,7 +58,7 @@ export class LearningMaterialService {
     
     const newMaterial: LearningMaterial = {
       id: Date.now().toString(),
-      title: materialData.description || materialData.original_file_name || '未命名资料',
+      title: materialData.original_file_name || materialData.description || '未命名资料',
       description: materialData.description || '',
       college: materialData.college || '',
       subject: materialData.subject || '',

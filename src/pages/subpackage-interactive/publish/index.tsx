@@ -477,6 +477,22 @@ export default function PublishPost() {
       });
       return;
     }
+    if (title.trim().length < 4) {
+      Taro.showToast({
+        title: "标题至少需要4个字符",
+        icon: "none",
+        duration: 2000,
+      });
+      return;
+    }
+    if (title.trim().length > 20) {
+      Taro.showToast({
+        title: "标题最多20个字符",
+        icon: "none",
+        duration: 2000,
+      });
+      return;
+    }
     if (!content.trim()) {
       Taro.showToast({
         title: "请输入内容",
@@ -601,12 +617,16 @@ export default function PublishPost() {
           }}
         >
           <View className={styles.publishCard}>
-            <Input
-              placeholder='请输入标题'
-              className={styles.titleInput}
-              value={title}
-              onInput={(e) => setTitle(e.detail.value)}
-            />
+            <View className={styles.titleSection}>
+              <Input
+                placeholder='请描述你的需求（4~20字）'
+                className={styles.titleInput}
+                value={title}
+                maxlength={20}
+                onInput={(e) => setTitle(e.detail.value)}
+              />
+              <Text className={styles.titleCount}>{title.length}/20</Text>
+            </View>
             <View className={styles.separator} />
             {/* 润色打字机动画或普通输入框 */}
             {isTyping || typingText ? (

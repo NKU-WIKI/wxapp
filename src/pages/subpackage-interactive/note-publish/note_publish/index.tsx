@@ -233,6 +233,24 @@ export default function PublishNote() {
       return;
     }
 
+    if (title.trim().length < 4) {
+      Taro.showToast({
+        title: '标题至少需要4个字符',
+        icon: 'none',
+        duration: 2000,
+      });
+      return;
+    }
+
+    if (title.trim().length > 20) {
+      Taro.showToast({
+        title: '标题最多20个字符',
+        icon: 'none',
+        duration: 2000,
+      });
+      return;
+    }
+
     if (!content.trim()) {
       Taro.showToast({
         title: '请输入内容',
@@ -414,15 +432,18 @@ export default function PublishNote() {
 
           {/* 标题输入 */}
           <View className={styles.inputSection}>
-            <Text className={styles.inputLabel}>笔记标题</Text>
+            <View className={styles.inputHeader}>
+              <Text className={styles.inputLabel}>笔记标题</Text>
+              <Text className={styles.titleCount}>{title.length}/20</Text>
+            </View>
             <Input
               className={styles.titleInput}
-              placeholder="为你的笔记添加一个标题"
+              placeholder="为你的笔记添加一个标题（4-20个字符）"
               value={title}
               onInput={(e) => setTitle(e.detail.value)}
-              maxlength={100}
+              maxlength={20}
             />
-                    </View>
+          </View>
 
           {/* 内容输入 */}
           <View className={styles.inputSection}>

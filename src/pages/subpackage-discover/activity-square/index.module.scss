@@ -261,37 +261,54 @@
   display: flex;
   flex-direction: column;
   gap: 0; // 移除自动间距，手动控制
-  position: relative; // 为绝对定位的标签提供相对定位基准
 }
 
-// 组织标签样式
-.organizationTag {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #059669;
-  border-radius: 12px;
-  padding: 4px 8px;
-  z-index: 1;
+// 标题区域样式
+// 标题区域样式
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;  // 减小间距，让标签更紧挨着标题
+  margin-bottom: 16px;
+  flex-wrap: nowrap;  // 防止换行，确保在同一行
 }
 
-.organizationTagText {
+// 组织者标签样式（深紫色方形标签）
+.organizerTag {
+  background: #6B46C1;
+  border-radius: 4px;
+  padding: 4px 8px;  // 减小内边距，让标签更紧凑
+  flex-shrink: 0;
+}
+
+.organizerTagText {
+  color: #ffffff;
+  font-size: 12px;  // 稍微减小字体
+  font-weight: 600;
+  line-height: 1;
+}
+
+// 内联组织者标签样式（直接在标题文本后面）
+.organizerTagInline {
+  background: #6B46C1;
   color: #ffffff;
   font-size: 12px;
-  font-weight: 500;
-  line-height: 1;
+  font-weight: 600;
+  padding: 4px 8px;  // 增加上下padding从2px到4px，左右从6px到8px
+  border-radius: 4px;  // 稍微增加圆角
+  margin-left: 8px;
 }
 
 .activityTitle {
   font-size: 18px;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 16px; // 从8px增加到16px，拉开与下方内容的距离
   line-height: 1.3;
-  width: 100%;
-  display: block;
+  margin: 0; // 移除边距，由父容器控制间距
   word-wrap: break-word;
   word-break: break-all;
+  flex-shrink: 1;  // 允许标题收缩以给标签让空间
+  min-width: 0;    // 确保可以收缩
 }
 
 .descriptionContainer {

@@ -2,6 +2,7 @@ import { View, Text, Image, Input, Textarea, Picker, RadioGroup, Radio, Label, B
 import { FileUploadRead, MAX_FILE_SIZE, getFileTypeDisplayName } from "@/types/api/fileUpload";
 import fileUploadApi from "@/services/api/fileUpload";
 import uploadApi from "@/services/api/upload";
+import { LearningMaterialService } from "@/services/api/learningMaterial";
 import { checkFileUploadPermissionWithToast } from "@/utils/permissionChecker";
 import Taro from "@tarojs/taro";
 import { useState, useEffect } from "react";
@@ -371,6 +372,14 @@ export default function UploadMaterial() {
       return;
     }
 
+    if (description.trim().length > 200) {
+      Taro.showToast({
+        title: '资料说明不能超过200字',
+        icon: 'none'
+      });
+      return;
+    }
+
     if (!selectedCollege) {
       Taro.showToast({
         title: '请选择所属学院',
@@ -411,6 +420,23 @@ export default function UploadMaterial() {
         if (fileUploadResult && fileUploadResult.data) {
           setUploadedFile(fileUploadResult.data as FileUploadRead);
           
+          // 创建学习资料记录
+          const materialData = {
+            description: description.trim(),
+            college: selectedCollege,
+            subject: selectedSubject,
+            signature_type: signatureType,
+            file_url: fileUploadResult.data.file_url,
+            server_file_name: fileUploadResult.data.file_name,
+            original_file_name: selectedFile.name,
+            netdisk_link: netdiskLink.trim(),
+            file_size: selectedFile.size,
+            link_id: fileUploadResult.data.id
+          };
+          
+          // 添加到学习资料列表
+          LearningMaterialService.addMaterial(materialData);
+          
           // 更新加载提示
           Taro.hideLoading();
           Taro.showLoading({
@@ -419,6 +445,23 @@ export default function UploadMaterial() {
         } else {
           throw new Error('文件上传失败');
         }
+      } else if (netdiskLink.trim()) {
+        // 只有网盘链接的情况，也需要创建学习资料记录
+        const materialData = {
+          description: description.trim(),
+          college: selectedCollege,
+          subject: selectedSubject,
+          signature_type: signatureType,
+          file_url: '',
+          server_file_name: '',
+          original_file_name: netdiskLink.trim(), // 使用网盘链接作为标题
+          netdisk_link: netdiskLink.trim(),
+          file_size: 0,
+          link_id: ''
+        };
+        
+        // 添加到学习资料列表
+        LearningMaterialService.addMaterial(materialData);
       }
 
       // 隐藏加载状态
@@ -577,12 +620,16 @@ export default function UploadMaterial() {
 
       {/* 资料说明文本域 */}
       <View className={styles.formGroup}>
-        <Text className={styles.formLabel}>资料说明</Text>
+        <View className={styles.labelRow}>
+          <Text className={styles.formLabel}>资料说明</Text>
+          <Text className={styles.charCount}>{description.length}/200</Text>
+        </View>
         <Textarea
-          placeholder='请输入资料说明'
+          placeholder='请输入资料说明（最多200字）'
           className={styles.descriptionTextarea}
           value={description}
           onInput={handleDescriptionInput}
+          maxlength={200}
         />
       </View>
 
