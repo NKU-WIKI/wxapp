@@ -26,8 +26,10 @@ export default {
         "user-detail/index",
         "history/index",
         "feedback/index",
+        "feedback-list/index",
         "campus-verification/index",
         "my-posts/index",
+        "post-detail/index",
       ]
     },
     {
@@ -63,6 +65,7 @@ export default {
         "pages/second-hand/detail/index",
         "pages/errands/home/index",
         "pages/errands/publish/index",
+        "pages/errands/detail/index",
         "pages/errands/my-orders/index",
         "pages/errands/my/index"
       ]
