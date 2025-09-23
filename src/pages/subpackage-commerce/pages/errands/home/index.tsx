@@ -1,5 +1,5 @@
 // Third-party imports
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { View, ScrollView, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useDispatch, useSelector } from 'react-redux'
@@ -298,7 +298,7 @@ return (
       onClick={() => Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/errands/publish/index' })}
       loginPrompt='您需要登录后才能发布跑腿任务，是否立即前往登录页面？'
       redirectUrl='/pages/subpackage-commerce/pages/errands/publish/index'
-      />
+    />
 
     <ErrandsTabBar activeTab='home' />
   </View>
