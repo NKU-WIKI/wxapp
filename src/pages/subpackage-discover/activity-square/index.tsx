@@ -321,12 +321,12 @@ export default function ActivitySquare() {
         return;
       }
 
-      const result = await Taro.showModal({
-        title: '确认报名',
-        content: `确定要报名参加"${act.title}"吗？`,
-        confirmText: '确认报名',
-        cancelText: '取消'
-      });
+          const result = await Taro.showModal({
+            title: '确认报名',
+            content: `确定要报名参加"${act.title}"吗？`,
+            confirmText: '确认',
+            cancelText: '取消'
+          });
 
       if (!result.confirm) {
         return;

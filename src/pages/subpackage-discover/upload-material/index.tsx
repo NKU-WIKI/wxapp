@@ -399,7 +399,14 @@ export default function UploadMaterial() {
       
       // 如果有选择文件，先上传文件
       if (selectedFile) {
-        fileUploadResult = await fileUploadApi.uploadFileSimple(selectedFile.path);
+        // 根据学科分类决定文件分类
+        const category = selectedSubject.includes('计算机') || selectedSubject.includes('软件') ? 'code' : 'document';
+        
+        fileUploadResult = await fileUploadApi.uploadFileSimple(
+          selectedFile.path,
+          category,
+          false // 默认不公开
+        );
         
         if (fileUploadResult && fileUploadResult.data) {
           setUploadedFile(fileUploadResult.data as FileUploadRead);
@@ -413,24 +420,6 @@ export default function UploadMaterial() {
           throw new Error('文件上传失败');
         }
       }
-
-      // 准备提交数据
-      const uploadData = {
-        file_url: fileUploadResult?.data?.url || '',
-        file_name: originalFileName || fileUploadResult?.data?.filename || '',
-        original_file_name: originalFileName,
-        server_file_name: fileUploadResult?.data?.filename || '',
-        netdisk_link: netdiskLink,
-        description: description,
-        college: selectedCollege,
-        subject: selectedSubject,
-        signature_type: signatureType,
-        qr_code_url: qrCodeImage
-      };
-
-      // TODO: 这里后续会调用真正的提交API
-      // 临时存储数据用于调试
-      Taro.setStorageSync('uploadMaterialData', uploadData);
 
       // 隐藏加载状态
       Taro.hideLoading();

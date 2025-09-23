@@ -7,6 +7,7 @@ import HighlightText from "@/components/highlight-text";
 import CustomHeader from "@/components/custom-header";
 import LearningMaterialService, { CATEGORY_CONFIG } from "@/services/api/learningMaterial";
 import { LearningMaterial, LearningMaterialCategory } from "@/types/api/learningMaterial";
+import { downloadFile, getDownloadInfo, saveImageToAlbum } from "@/services/api/download";
 import styles from "./index.module.scss";
 
 // eslint-disable-next-line import/no-unused-modules
@@ -192,8 +193,12 @@ export default function LearningMaterials() {
     // 显示资料详情和操作选项
     const actions: string[] = [];
 
-    if (material.fileUrl) {
+    // 如果有linkId，优先使用新的下载API
+    if (material.linkId) {
       actions.push('下载文件');
+      actions.push('查看下载信息');
+    } else if (material.fileUrl) {
+      actions.push('下载文件(旧版)');
     }
 
     if (material.netdiskLink) {
@@ -210,7 +215,13 @@ export default function LearningMaterials() {
 
         switch (selectedAction) {
           case '下载文件':
-            handleDownloadFile(material);
+            handleDownloadFileNew(material);
+            break;
+          case '查看下载信息':
+            handleShowDownloadInfo(material);
+            break;
+          case '下载文件(旧版)':
+            handleDownloadFileOld(material);
             break;
           case '复制网盘链接':
             handleCopyNetdiskLink(material);
@@ -223,8 +234,107 @@ export default function LearningMaterials() {
     });
   };
 
-  // 下载文件处理
-  const handleDownloadFile = (material: LearningMaterial) => {
+  // 使用新API下载文件
+  const handleDownloadFileNew = async (material: LearningMaterial) => {
+    if (!material.linkId) {
+      Taro.showToast({
+        title: '文件链接ID不存在',
+        icon: 'none'
+      });
+      return;
+    }
+
+    try {
+      const result = await downloadFile(material.linkId, { showProgress: true });
+      
+      // 下载成功后尝试打开文件
+      try {
+        await Taro.openDocument({
+          filePath: result.tempFilePath,
+          showMenu: true
+        });
+        
+        Taro.showToast({
+          title: '文件已打开',
+          icon: 'success'
+        });
+      } catch (openError) {
+        // 如果无法打开，询问是否保存到相册（仅限图片）
+        if (material.fileType === 'Image') {
+          const saveRes = await Taro.showModal({
+            title: '无法打开文件',
+            content: '这是一个图片文件，是否保存到相册？',
+            confirmText: '保存',
+            cancelText: '取消'
+          });
+          
+          if (saveRes.confirm) {
+            await saveImageToAlbum(result.tempFilePath);
+          }
+        } else {
+          Taro.showToast({
+            title: '文件已下载但无法打开',
+            icon: 'none'
+          });
+        }
+      }
+    } catch (error) {
+      // 错误已在downloadFile中处理
+    }
+  };
+
+  // 查看下载信息
+  const handleShowDownloadInfo = async (material: LearningMaterial) => {
+    if (!material.linkId) {
+      Taro.showToast({
+        title: '文件链接ID不存在',
+        icon: 'none'
+      });
+      return;
+    }
+
+    try {
+      Taro.showLoading({
+        title: '获取信息...',
+        mask: true
+      });
+
+      const response = await getDownloadInfo(material.linkId);
+      Taro.hideLoading();
+
+      if (response.data) {
+        const info = response.data;
+        const details = [
+          `文件名：${info.file_name}`,
+          `文件大小：${formatFileSize(info.file_size)}`,
+          `文件类型：${info.file_type}`,
+          `下载权限：${info.can_download ? '可下载' : '无权限'}`,
+          `下载次数：${info.download_count}`,
+          `上传时间：${formatTime(info.upload_time)}`,
+        ];
+
+        if (info.content_description) {
+          details.push(`描述：${info.content_description}`);
+        }
+
+        Taro.showModal({
+          title: '文件下载信息',
+          content: details.join('\n'),
+          showCancel: false,
+          confirmText: '知道了'
+        });
+      }
+    } catch (error) {
+      Taro.hideLoading();
+      Taro.showToast({
+        title: '获取信息失败',
+        icon: 'none'
+      });
+    }
+  };
+
+  // 旧版下载文件处理（保持兼容性）
+  const handleDownloadFileOld = (material: LearningMaterial) => {
     if (!material.fileUrl) {
       Taro.showToast({
         title: '文件URL不存在',

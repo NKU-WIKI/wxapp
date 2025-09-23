@@ -15,6 +15,7 @@ import PostItemSkeleton from "@/components/post-item-skeleton";
 import EmptyState from "@/components/empty-state";
 import Post from "@/components/post";
 import SearchBar from "@/components/search-bar";
+import { usePageRefresh } from "@/utils/pageRefreshManager";
 
 // Assets imports
 import emptyIcon from "@/assets/empty.svg";
@@ -56,6 +57,19 @@ export default function Home() {
     // 登录状态改变或首次加载时获取信息流
     dispatch(fetchFeed({ skip: 0, limit: 10 }));
   }, [dispatch, isLoggedIn]);
+
+  // 注册页面刷新监听器
+  const pageRefresh = usePageRefresh('/pages/home/index', () => {
+    // 刷新页面数据
+    handlePullRefresh();
+  });
+
+  useEffect(() => {
+    pageRefresh.subscribe();
+    return () => {
+      pageRefresh.unsubscribe();
+    };
+  }, [pageRefresh]);
 
   useDidShow(() => {
     // 每次显示首页时都刷新帖子数据和关注状态

@@ -14,6 +14,7 @@ import agentApi from '@/services/api/agent';
 import GeminiReadingAnimation from '@/components/gemini-reading-animation';
 import SearchResultRenderer from '@/components/search-result-renderer';
 import { SearchResultItem, SearchMode } from '@/types/api/search';
+import { usePageRefresh } from '@/utils/pageRefreshManager';
 
 // Icon imports need to be after component/logic imports if they are just paths
 import messageCircleIcon from '@/assets/message-circle.svg';
@@ -78,6 +79,19 @@ export default function ExplorePage() {
       });
     }
   }, [dispatch, isSearchActive]);
+
+  // 注册页面刷新监听器
+  const pageRefresh = usePageRefresh('/pages/explore/index', () => {
+    // 刷新页面数据
+    handleRefresh();
+  });
+
+  useEffect(() => {
+    pageRefresh.subscribe();
+    return () => {
+      pageRefresh.unsubscribe();
+    };
+  }, [pageRefresh]);
 
 
 

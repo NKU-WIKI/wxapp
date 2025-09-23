@@ -2,12 +2,30 @@ import { FileUploadRead } from "@/types/api/fileUpload";
 import http from "../request";
 
 /**
- * 上传文件到服务器（简化版）
+ * 上传文件到服务器
  * @param filePath 文件临时路径
+ * @param category 文件分类，默认为 'general'
+ * @param isPublic 是否公开访问，默认为 false
  * @returns Promise<any>
  */
-export const uploadFileSimple = (filePath: string) => {
-  return http.uploadFile("/tools/uploads/file", filePath);
+export const uploadFileSimple = async (
+  filePath: string, 
+  category: string = 'general', 
+  isPublic: boolean = false
+) => {
+  try {
+    const result = await http.uploadFile("/tools/uploads/file", filePath, {
+      formData: {
+        category,
+        is_public: isPublic.toString()
+      }
+    });
+
+    return result;
+  } catch (error) {
+    // 简化的错误处理
+    throw error;
+  }
 };
 
 /**
@@ -23,19 +41,23 @@ export const getFileInfo = (fileId: string): Promise<FileUploadRead> => {
 /**
  * 上传文件到服务器
  * @param filePath 文件临时路径
- * @param folder 可选的文件夹前缀
+ * @param category 文件分类，默认为 'general'
+ * @param isPublic 是否公开访问，默认为 false
  * @returns Promise<FileUploadRead>
  */
 export const uploadFile = (
   filePath: string, 
-  folder?: string
+  category: string = 'general', 
+  isPublic: boolean = false
 ): Promise<FileUploadRead> => {
-  const options: any = {};
-  if (folder) {
-    options.formData = { folder };
-  }
+  const formData: any = {
+    category,
+    is_public: isPublic.toString()
+  };
   
-  return http.uploadFile<FileUploadRead>("/tools/uploads/file", filePath, options)
+  return http.uploadFile<FileUploadRead>("/tools/uploads/file", filePath, {
+    formData
+  })
     .then(res => {
       // http.uploadFile 返回的是 BaseResponse<FileUploadRead> 格式
       // 所以我们需要访问 res.data 来获取实际的文件数据

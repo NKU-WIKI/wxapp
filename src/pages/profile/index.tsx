@@ -10,6 +10,7 @@ import CustomHeader from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
 import { normalizeImageUrl } from '@/utils/image';
 import { convertLevelToRealm } from '@/utils/levelConverter';
+import { usePageRefresh } from '@/utils/pageRefreshManager';
 import styles from './index.module.scss';
 
 // 登录提示组件
@@ -117,7 +118,33 @@ const Profile = () => {
     if (isLoggedIn && !userStats && (statsStatus as any) !== 'loading') {
       dispatch(fetchUserStats());
     }
-  }, [isLoggedIn, userStats, statsStatus, dispatch]);
+  }, [dispatch, isLoggedIn, userStats, statsStatus]);
+
+  // 注册页面刷新监听器
+  const pageRefresh = usePageRefresh('/pages/profile/index', () => {
+    // 刷新页面数据
+    if (isLoggedIn) {
+      dispatch(resetUserStats());
+      dispatch(resetFollowersCount());
+      dispatch(resetCollectionCount());
+      dispatch(resetUserPostCount());
+      dispatch(resetUserLikeCount());
+      
+      dispatch(fetchUserStats());
+      dispatch(fetchFollowersCount());
+      dispatch(fetchCollectionCount());
+      dispatch(fetchUserPostCount({}));
+      dispatch(fetchUserLikeCount({}));
+      dispatch(fetchUnreadCounts());
+    }
+  });
+
+  useEffect(() => {
+    pageRefresh.subscribe();
+    return () => {
+      pageRefresh.unsubscribe();
+    };
+  }, [pageRefresh]);
 
   const handleEditProfile = () => {
     Taro.navigateTo({ url: "/pages/subpackage-profile/edit-profile/index" });

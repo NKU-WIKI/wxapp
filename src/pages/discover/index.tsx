@@ -1,10 +1,13 @@
 import { View, ScrollView, Text, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { useEffect, useState, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import postApi from "@/services/api/post";
-import { AppDispatch, RootState } from "@/store";
+import { getPinnedPosts } from "@/services/api/pin";
+import { AppDispatch } from "@/store";
 import { fetchUnreadCounts } from "@/store/slices/notificationSlice";
+import type { Post as PostData } from "@/types/api/post.d";
+import { usePageRefresh } from "@/utils/pageRefreshManager";
 import styles from "./index.module.scss";
 import CustomHeader from "../../components/custom-header";
 import Section from "./components/Section";
@@ -19,13 +22,33 @@ interface HotPost {
   hot_score?: number;
   platform?: string;
   original_url?: string;
+  isPinned?: boolean; // 新增字段标记是否为置顶帖子
+}
+
+interface CombinedPost {
+  id?: string | number;
+  post_id?: string | number;
+  title?: string;
+  comment_count?: number;
+  view_count?: number;
+  like_count?: number;
+  hot_score?: number;
+  platform?: string;
+  original_url?: string;
+  isPinned?: boolean;
+  created_at?: string;
+  create_time?: string;
 }
 
 // eslint-disable-next-line import/no-unused-modules
 export default function Discover() {
   const dispatch = useDispatch<AppDispatch>();
   const [hotPosts, setHotPosts] = useState<HotPost[]>([]);
+  const [pinnedPosts, setPinnedPosts] = useState<PostData[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // 合并置顶帖子和热榜帖子的数据
+  const [combinedPosts, setCombinedPosts] = useState<CombinedPost[]>([]);
 
   // 页面显示时刷新未读通知数量
   useDidShow(() => {
@@ -74,12 +97,92 @@ export default function Discover() {
     }
   }, []);
 
+  // 获取置顶帖子
+  const fetchPinnedPosts = useCallback(async () => {
+    try {
+      const response = await getPinnedPosts();
+      if (response.code === 0 && response.data) {
+        setPinnedPosts(response.data);
+      } else {
+        setPinnedPosts([]);
+      }
+    } catch (error) {
+      setPinnedPosts([]);
+    }
+  }, []);
+
+  // 合并置顶帖子和热榜帖子
+  useEffect(() => {
+    const combined: CombinedPost[] = [];
+    
+    // 先添加置顶帖子（转换为HotPost格式）
+    pinnedPosts.forEach((post, index) => {
+      combined.push({
+        id: post.id,
+        post_id: post.id,
+        title: post.title,
+        comment_count: post.comment_count,
+        view_count: post.view_count,
+        like_count: post.like_count,
+        hot_score: 999999 - index, // 给置顶帖子很高的热度分数，确保排在前面
+        platform: 'pinned',
+        isPinned: true, // 标记为置顶帖子
+        created_at: post.created_at,
+        create_time: post.create_time
+      });
+    });
+    
+    // 然后添加热榜帖子
+    hotPosts.forEach(post => {
+      combined.push({
+        ...post,
+        isPinned: false
+      });
+    });
+    
+    // 按指定规则排序
+    combined.sort((a, b) => {
+      // 如果都是置顶帖子，按创建时间从新到旧排序（假设最新置顶的会有更新的创建时间）
+      if (a.isPinned && b.isPinned) {
+        const timeA = new Date(a.created_at || a.create_time || 0).getTime();
+        const timeB = new Date(b.created_at || b.create_time || 0).getTime();
+        return timeB - timeA; // 新的在前
+      }
+      // 置顶帖子排在前面
+      if (a.isPinned) return -1;
+      if (b.isPinned) return 1;
+      // 其他帖子按点赞量排序
+      return (b.like_count || 0) - (a.like_count || 0);
+    });
+    
+    // 只取前5个
+    setCombinedPosts(combined.slice(0, 5));
+  }, [pinnedPosts, hotPosts]);
+
   useEffect(() => {
     fetchHotPosts(false);
-  }, [fetchHotPosts]);
+    fetchPinnedPosts();
+  }, [fetchHotPosts, fetchPinnedPosts]);
+
+  // 注册页面刷新监听器
+  const pageRefresh = usePageRefresh('/pages/discover/index', () => {
+    // 刷新页面数据
+    fetchHotPosts(false);
+    fetchPinnedPosts();
+  });
+
+  useEffect(() => {
+    pageRefresh.subscribe();
+    return () => {
+      pageRefresh.unsubscribe();
+    };
+  }, [pageRefresh]);
 
   const handleRefresh = async () => {
-    await fetchHotPosts(true);
+    await Promise.all([
+      fetchHotPosts(true),
+      fetchPinnedPosts()
+    ]);
   };
 
   const handlePostClick = (post: HotPost) => {
@@ -138,9 +241,9 @@ export default function Discover() {
         enableFlex
       >
         <View className={styles.contentContainer}>
-        {/* 热门帖子 */}
+        {/* 热门帖子 - 包含置顶和热榜 */}
         <Section
-          title='热榜 TOP5'
+          title='🔥 热榜'
         >
           <ScrollView
             scrollY
@@ -151,8 +254,8 @@ export default function Discover() {
             onRefresherRefresh={handleRefresh}
             refresherBackground='#f8fafc'
           >
-            {Array.isArray(hotPosts) && hotPosts.length > 0 ? (
-              hotPosts.slice(0, 5).map((post: HotPost, index: number) => (
+            {Array.isArray(combinedPosts) && combinedPosts.length > 0 ? (
+              combinedPosts.map((post: CombinedPost, index: number) => (
                 <View
                   key={post.post_id || index}
                   className={styles.hotPostItem}
@@ -163,14 +266,21 @@ export default function Discover() {
                       <Text className={`${styles.rankNumber} ${styles[`rank${index + 1 <= 3 ? index + 1 : 'Other'}`]}`}>
                         {index + 1}
                       </Text>
-                      <Text className={styles.hotPostTitle} numberOfLines={1}>
-                        {post.title}
-                      </Text>
+                      <View className={styles.titleWrapper}>
+                        {post.isPinned ? (
+                          <Text className={styles.pinnedBadge}>顶</Text>
+                        ) : (
+                          <Text className={styles.hotBadge}>🔥</Text>
+                        )}
+                        <Text className={styles.hotPostTitle} numberOfLines={1}>
+                          {post.title}
+                        </Text>
+                      </View>
                     </View>
                     <Text className={styles.hotPostReadCount}>
-                      {post.hot_score && post.hot_score > 1000
-                        ? `${(post.hot_score / 1000).toFixed(1)}K`
-                        : Math.round(post.hot_score || 0)}
+                      {post.comment_count && post.comment_count > 1000
+                        ? `${(post.comment_count / 1000).toFixed(1)}K`
+                        : post.comment_count || 0}
                     </Text>
                   </View>
                 </View>

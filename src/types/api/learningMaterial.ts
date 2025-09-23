@@ -20,6 +20,8 @@ export interface LearningMaterial {
   downloadCount?: number;
   rating?: number;
   category: LearningMaterialCategory;
+  // 新增字段：用于文件下载的链接ID
+  linkId?: string;
 }
 
 /**

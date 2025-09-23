@@ -197,6 +197,10 @@ const http = {
     const finalUrl = `${BASE_URL}/api/v1${url}`;
     const header = _getCommonHeaders();
 
+    // 不设置 Content-Type，让浏览器自动设置为 multipart/form-data
+    // 删除可能存在的 Content-Type 头
+    delete header["Content-Type"];
+
     return Taro.uploadFile({
       url: finalUrl,
       filePath,
