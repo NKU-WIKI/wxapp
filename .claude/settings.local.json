@@ -19,7 +19,8 @@
       "Bash(gh:*)",
       "Bash(export:*)",
       "Bash(npm install)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

@@ -170,13 +170,14 @@ const SecondHandHomePage = () => {
 
     await dispatch(fetchListings(queryParams)).unwrap();
   }
-    } catch (fetchError) {
-  Taro.showToast({ title: '获取商品列表失败', icon: 'none' })
+  } catch (fetchError) {
+    Taro.showToast({ title: '获取商品列表失败', icon: 'none' });
   } finally {
     if (params?.refresh) {
       setIsRefreshing(false);
     }
-  }, [dispatch, selectedType, loadProductDetails]); // eslint-disable-line react-hooks/exhaustive-deps
+  }
+}, [dispatch, selectedType, loadProductDetails]); // eslint-disable-line react-hooks/exhaustive-deps
 
 // 处理搜索
 const handleSearch = useCallback(async () => {
