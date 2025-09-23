@@ -169,11 +169,12 @@ try {
     }
   }
 
-  // 其他错误才显示提�?      Taro.showToast({
-  title: '选择图片失败',
-    icon: 'none',
+    // 其他错误才显示提示
+    Taro.showToast({
+      title: '选择图片失败',
+      icon: 'none',
       duration: 2000,
-      });
+    });
     }
   };
 

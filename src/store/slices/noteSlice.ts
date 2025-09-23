@@ -72,10 +72,10 @@ const mockNotes: NoteListItem[] = [
   },
   {
     id: 'mock-5',
-    title: '数据结构与算法笔�?,
-      content: '整理的数据结构与算法复习笔记，包含常见题型和解题思路，涵盖链表、树、图等重要数据结�?..',
+    title: '数据结构与算法笔记',
+    content: '整理的数据结构与算法复习笔记，包含常见题型和解题思路，涵盖链表、树、图等重要数据结构...',
     category_id: 'study',
-    tags: ['算法', '数据结构', '计算机科�?],
+    tags: ['算法', '数据结构', '计算机科学'],
       created_at: new Date(Date.now() - 14400000).toISOString(),
       updated_at: new Date(Date.now() - 14400000).toISOString(),
       is_public: true,

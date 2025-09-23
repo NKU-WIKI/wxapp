@@ -183,11 +183,11 @@ const handleClearSearch = useCallback(() => {
 // 任务卡片组件
 const TaskCard = ({ task }: { task: any }) => {
   const getTaskTypeDisplay = (taskItem: any) => {
-    if (taskItem.errand_type === 'express_pickup') return '快递代�?
-    if (taskItem.errand_type === 'food_delivery') return '食堂打饭'
-    if (taskItem.errand_type === 'grocery_shopping') return '超市代购'
-    if (taskItem.errand_type === 'other') return '其他'
-    return taskItem.title || '其他'
+    if (taskItem.errand_type === 'express_pickup') return '快递代取';
+    if (taskItem.errand_type === 'food_delivery') return '食堂打饭';
+    if (taskItem.errand_type === 'grocery_shopping') return '超市代购';
+    if (taskItem.errand_type === 'other') return '其他';
+    return taskItem.title || '其他';
   }
 
   const getTaskRouteDisplay = (taskItem: any) => {

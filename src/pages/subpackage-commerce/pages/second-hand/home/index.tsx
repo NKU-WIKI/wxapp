@@ -177,7 +177,7 @@ await dispatch(fetchListings(queryParams)).unwrap()
     setIsRefreshing(false)
   }
 }
-  }, [dispatch, selectedType, loadProductDetails]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dispatch, selectedType, loadProductDetails]); // eslint-disable-line react-hooks/exhaustive-deps
 
 // 处理搜索
 const handleSearch = useCallback(async () => {
