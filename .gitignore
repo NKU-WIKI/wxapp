@@ -13,3 +13,9 @@ node_modules/
 *.local
 .idea/*
 temp/
+
+# 环境变量和密钥文件
+.env
+*.key
+private.key
+priviate.key

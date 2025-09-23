@@ -82,7 +82,6 @@ export const useImageUpload = (initialImages: string[] = []): UseImageUploadRetu
           }
 
         } catch (uploadError) {
-          console.error(`上传第 ${i + 1} 张图片失败:`, uploadError)
           tempImageUrls[i] = '' // 标记上传失败
           // 继续上传其他图片，不中断整个上传过程
         }
