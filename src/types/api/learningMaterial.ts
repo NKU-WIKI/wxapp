@@ -27,6 +27,7 @@ export interface LearningMaterial {
 /**
  * 学习资料分类
  */
+/* eslint-disable no-unused-vars */
 export enum LearningMaterialCategory {
   COURSE_NOTES = 'course_notes',
   FINAL_EXAM = 'final_exam',
@@ -35,6 +36,7 @@ export enum LearningMaterialCategory {
   LAB_REPORT = 'lab_report',
   OTHER = 'other'
 }
+/* eslint-enable no-unused-vars */
 
 /**
  * 分类显示信息

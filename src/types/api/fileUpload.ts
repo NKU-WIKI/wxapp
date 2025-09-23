@@ -29,6 +29,7 @@ export interface FileUploadRequest {
 /**
  * 文件类型枚举
  */
+/* eslint-disable no-unused-vars */
 export enum FileType {
   PDF = 'application/pdf',
   WORD = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -45,6 +46,7 @@ export enum FileType {
   IMAGE_GIF = 'image/gif',
   IMAGE_WEBP = 'image/webp'
 }
+/* eslint-enable no-unused-vars */
 
 /**
  * 支持的文件类型配置

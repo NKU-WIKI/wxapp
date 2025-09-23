@@ -148,7 +148,7 @@ export default function ActivityDetail() {
               activity: activity,
               participantId: currentUser.id,
               participantNickname
-            }).catch(error => {
+            }).catch(_error => {
               // 通知发送失败不影响主流程
             });
           }
@@ -247,7 +247,7 @@ export default function ActivityDetail() {
               activity: activity,
               participantId: currentUser.id,
               participantNickname
-            }).catch(error => {
+            }).catch(_error => {
               // 通知发送失败不影响主流程
             });
           }

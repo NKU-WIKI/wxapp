@@ -103,8 +103,8 @@ const NotificationPage = () => {
   const refreshUnreadCounts = useCallback(async () => {
       try {
         await dispatch(fetchUnreadCounts()).unwrap();
-    } catch (error) {
-      console.error('❌ [通知页面调试] 未读数量统计刷新失败', error);
+    } catch (_error) {
+      // console.error('❌ [通知页面调试] 未读数量统计刷新失败', _error);
     }
   }, [dispatch])
 
@@ -231,8 +231,8 @@ const NotificationPage = () => {
       const resolvedDisplayData = await Promise.all(displayDataPromises);
 
       setDisplayNotifications(resolvedDisplayData);
-    } catch (error) {
-      console.error('❌ [通知页面调试] 处理通知显示数据失败', error);
+    } catch (_error) {
+      // console.error('❌ [通知页面调试] 处理通知显示数据失败', _error);
       // Fallback: 使用原始数据
       const fallbackData = notificationItems.map(notification => ({
         id: notification.id,
@@ -277,7 +277,6 @@ const NotificationPage = () => {
         let items = res.data.items || [];
 
         // 根据business_type重新过滤通知，确保活动相关通知在正确的标签页
-        const _originalCount = items.length;
         items = items.filter(item => {
           const isActivityRelated = ['activity_published', 'activity_joined', 'activity_cancelled', 'activity_updated', 'activity_registration', 'activity_cancel_registration', 'participant_join_success', 'participant_cancel_success'].includes(item.business_type);
 
@@ -298,12 +297,12 @@ const NotificationPage = () => {
         throw new Error(res.message || '获取通知失败')
       }
     } catch (e: any) {
-      console.error('❌ [通知页面调试] 获取通知失败', {
-        error: e,
-        errorMessage: e?.message,
-        targetType,
-        currentTab
-      });
+      // console.error('❌ [通知页面调试] 获取通知失败', {
+      //   error: e,
+      //   errorMessage: e?.message,
+      //   targetType,
+      //   currentTab
+      // });
       setError(e?.message || '获取通知失败')
       if (e?.message !== '网络错误') {
         Taro.showToast({ title: e?.message || '获取通知失败', icon: 'none' })
@@ -311,7 +310,7 @@ const NotificationPage = () => {
     } finally {
       if (showLoading) setLoading(false)
     }
-  }, [currentTab])
+  }, [currentTab, processNotificationDisplayData])
 
   // 切换标签页
   const handleTabChange = (tabKey: TabKey) => {
@@ -361,9 +360,9 @@ const NotificationPage = () => {
 
       // 根据通知类型和业务类型进行页面跳转
       await handleNotificationNavigation(originalNotification);
-    } catch (error: any) {
+    } catch (_error: any) {
       Taro.showToast({
-        title: error?.message || '操作失败',
+        title: _error?.message || '操作失败',
         icon: 'none'
       });
     }
@@ -469,7 +468,7 @@ const NotificationPage = () => {
       fetchNotifications(currentTab),  // 使用当前标签页加载
       refreshUnreadCounts()
     ]).then(() => {
-    }).catch((error) => {
+    }).catch((_error) => {
     }).finally(() => {
       setInitialized(true); // 标记为已初始化
     })
@@ -493,12 +492,12 @@ const NotificationPage = () => {
           <ScrollView
             scrollY
             style={{ height: '100%' }}
-            refresherEnabled={true}
+            refresherEnabled
             refresherTriggered={loading}
             onRefresherRefresh={() => {
               fetchNotifications(currentTab, true);
             }}
-            refresherBackground="#f8f9fa"
+            refresherBackground='#f8f9fa'
           >
             {/* 自定义标签页导航 */}
             <View className={styles.tabsContainer}>

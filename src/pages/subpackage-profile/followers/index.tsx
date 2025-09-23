@@ -1,4 +1,4 @@
-import { View, Text, Button, Image, Input } from '@tarojs/components'
+import { View, Text, Button } from '@tarojs/components'
 import { useState, useEffect, useCallback } from 'react'
 import Taro from '@tarojs/taro'
 import { useDispatch } from 'react-redux'
@@ -16,7 +16,6 @@ import { getFollowers, followAction } from '@/services/api/followers'
 
 // Utils imports
 import { BBSNotificationHelper } from '@/utils/notificationHelper'
-import { normalizeImageUrl } from '@/utils/image'
 
 // Component imports
 import AuthorInfo from '@/components/author-info'
@@ -112,8 +111,7 @@ const FollowersPage = () => {
     }
   }
 
-  // 处理关注/取消关注
-  const handleFollowAction = useCallback(async (userId: string, relation: FollowRelation) => {
+  // 获取用户信息和关注状态
     try {
       const params: FollowActionParams = {
         target_user_id: userId,
@@ -164,9 +162,9 @@ const FollowersPage = () => {
         }
         
         // 更新Redux store中的用户信息，确保主页的粉丝数量实时更新
-        dispatch(fetchUserProfile())
+        dispatch(fetchUserProfile());
       } else {
-        throw new Error(response.message || '操作失败')
+        throw new Error(response.message || '操作失败');
       }
     } catch (err) {
       
@@ -229,15 +227,6 @@ const FollowersPage = () => {
     setUsers(allUsers)
   }, [allUsers])
 
-  // 获取关注按钮文本和样式
-  const getFollowButtonInfo = (relation: FollowRelation) => {
-    switch (relation) {
-      case 'following':
-        return { text: '已关注', className: styles.following }
-      default:
-        return { text: '+关注', className: styles.followBack }
-    }
-  }
 
   // 页面初始化和依赖更新
   useEffect(() => {
@@ -366,10 +355,10 @@ const FollowersPage = () => {
                   <AuthorInfo
                     userId={user.id}
                     mode='compact'
-                    showBio={true}
+                    showBio
                     showFollowButton={activeTab === 'following' || user.relation === 'none'}
                     showStats={false}
-                    showLevel={true}
+                    showLevel
                   />
                   {/* 搜索关键词高亮提示 */}
                   {searchKeywords.length > 0 && user.nickname && (

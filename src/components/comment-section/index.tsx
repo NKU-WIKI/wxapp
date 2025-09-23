@@ -160,9 +160,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
   onSubDeleteComment,
   showFollowButton = true
 }) => {
-  const userState = useSelector((state: RootState) => state.user);
-  const _isLoggedIn = userState?.isLoggedIn || false;
-  const _token = userState?.token || null;
   const [showReplies, setShowReplies] = useState(false);
 
   const handleMoreClick = async () => {

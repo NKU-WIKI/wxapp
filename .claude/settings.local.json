@@ -13,7 +13,13 @@
       "Bash(npm ci:*)",
       "Bash(npm run lint)",
       "Bash(npm run stylelint)",
-      "Bash(npm run build:weapp:*)"
+      "Bash(npm run build:weapp:*)",
+      "Bash(git --version)",
+      "Bash(winget install:*)",
+      "Bash(gh:*)",
+      "Bash(export:*)",
+      "Bash(npm install)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []

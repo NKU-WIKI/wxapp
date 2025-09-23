@@ -581,7 +581,6 @@ export default function PublishPost() {
       cancelText: '取消',
       success: async (res) => {
         if (res.confirm) {
-          const cleanedTag = tag.startsWith('#') ? tag.substring(1) : tag;
           const newTags = selectedTags.filter(t => t !== tag);
           setSelectedTags(newTags);
           Taro.showToast({ title: '话题已删除', icon: 'success' });

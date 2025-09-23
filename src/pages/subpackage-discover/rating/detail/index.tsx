@@ -1,5 +1,5 @@
 import { View, Text, Image, ScrollView, Input } from '@tarojs/components'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
@@ -57,24 +57,8 @@ const RatingDetailPage = () => {
   const userState = useSelector((state: RootState) => state.user)
   const isLoggedIn = userState.isLoggedIn
 
-  // 页面初始化
-  useEffect(() => {
-    const { resourceId, resourceType, resourceName } = router.params
-    
-    
-    
-    
-    if (!resourceId || !resourceType) {
-      setError('缺少必要的参数')
-      setLoading(false)
-      return
-    }
-
-    loadData(resourceType, resourceId, resourceName)
-  }, [router.params, loadData])
-
   // 加载页面数据
-  const loadData = async (resourceType: string, resourceId: string, resourceName?: string) => {
+  const loadData = useCallback(async (resourceType: string, resourceId: string, resourceName?: string) => {
     try {
       setLoading(true)
       setError(null)
@@ -121,7 +105,7 @@ const RatingDetailPage = () => {
         const firstRating = ratingsData[0]
         
         if (firstRating) {
-          const resourceInfo = {
+          const newResourceInfo = {
             id: resourceId,
             resource_name: firstRating.resource_name || resourceName || '未知资源',
             title: firstRating.resource_title || firstRating.resource_name || resourceName || '未知资源',
@@ -131,7 +115,7 @@ const RatingDetailPage = () => {
             average_score: statisticsResponse.data?.data?.average_score || (statisticsResponse.data as any)?.average_score || 0,
             rating_count: statisticsResponse.data?.data?.total_ratings || (statisticsResponse.data as any)?.total_ratings || 0
           };
-          setResourceInfo(resourceInfo);
+          setResourceInfo(newResourceInfo);
         } else {
           // 如果没有评分数据，创建基础资源信息
           const basicResourceInfo = {
@@ -158,7 +142,20 @@ const RatingDetailPage = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  // 页面初始化
+  useEffect(() => {
+    const { resourceId, resourceType, resourceName } = router.params
+
+    if (!resourceId || !resourceType) {
+      setError('缺少必要的参数')
+      setLoading(false)
+      return
+    }
+
+    loadData(resourceType, resourceId, resourceName)
+  }, [router.params, loadData])
 
   // 渲染星级评分（支持精确百分比）
   const renderStars = (score: number, size: 'large' | 'small' = 'small') => {

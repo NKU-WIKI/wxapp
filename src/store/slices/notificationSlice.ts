@@ -46,12 +46,12 @@ export const fetchUnreadCounts = createAsyncThunk(
             page_size: 50    // 获取足够数量进行前端过滤
           });
           
-          console.log(`🔧 [Redux调试] ${type} 未读查询结果`, { 
-            code: res.code, 
-            total: res.data?.pagination?.total,
-            items: res.data?.items?.length,
-            type 
-          });
+          // // console.log(`🔧 [Redux调试] ${type} 未读查询结果`, {
+          //   code: res.code,
+          //   total: res.data?.pagination?.total,
+          //   items: res.data?.items?.length,
+          //   type
+          // });
           
           if (res.code === 0 && res.data?.pagination) {
             // 根据business_type重新过滤通知，确保统计正确
@@ -88,13 +88,13 @@ export const fetchUnreadCounts = createAsyncThunk(
             });
             
             const count = unreadItems.length;
-            console.log(`🔧 [Redux调试] ${type} 过滤后未读数量`, { 
-              原始数量: res.data?.items?.length || 0,
-              business_type过滤后: items.length,
-              最终未读数量: count,
-              未读通知状态: unreadItems.map(item => ({ id: item.id, status: item.status, business_type: item.business_type })),
-              type 
-            });
+            // // console.log(`🔧 [Redux调试] ${type} 过滤后未读数量`, {
+            //   原始数量: res.data?.items?.length || 0,
+            //   business_type过滤后: items.length,
+            //   最终未读数量: count,
+            //   未读通知状态: unreadItems.map(item => ({ id: item.id, status: item.status, business_type: item.business_type })),
+            //   type
+            // });
             
             unreadCountData[type] = count;
             totalUnread += count;
@@ -102,7 +102,7 @@ export const fetchUnreadCounts = createAsyncThunk(
           }
           return 0;
         } catch (error) {
-          console.warn(`⚠️ [NotificationSlice] 获取 ${type} 未读数量失败:`, error);
+          // // console.warn(`⚠️ [NotificationSlice] 获取 ${type} 未读数量失败:`, error);
           return 0;
         }
       });
@@ -115,11 +115,11 @@ export const fetchUnreadCounts = createAsyncThunk(
         total: totalUnread
       };
       
-      console.log('🔧 [Redux调试] 最终未读数量统计', finalUnreadCounts);
+      // // console.log('🔧 [Redux调试] 最终未读数量统计', finalUnreadCounts);
       
       return finalUnreadCounts;
     } catch (error) {
-      console.error('❌ [NotificationSlice] 获取未读消息统计失败:', error);
+      // // console.error('❌ [NotificationSlice] 获取未读消息统计失败:', error);
       throw error;
     }
   }
@@ -186,9 +186,9 @@ const notificationSlice = createSlice({
         state.unreadCounts = action.payload;
         state.lastUpdated = Date.now();
       })
-      .addCase(fetchUnreadCounts.rejected, (state, action) => {
+      .addCase(fetchUnreadCounts.rejected, (state, _action) => {
         state.loading = false;
-        console.error('❌ [NotificationSlice] fetchUnreadCounts 失败:', action.error.message);
+        // // console.error('❌ [NotificationSlice] fetchUnreadCounts 失败:', action.error.message);
         // 失败时不重置数据，保持上次的状态
       });
   }

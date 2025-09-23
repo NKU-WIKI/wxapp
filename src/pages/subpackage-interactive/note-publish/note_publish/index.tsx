@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Taro, { useRouter } from "@tarojs/taro";
 import { useDispatch } from "react-redux";
 import {
@@ -59,10 +59,10 @@ export default function PublishNote() {
   };
 
   // 更新图片长宽比
-  const updateImageAspectRatio = async (imagePath: string) => {
+  const updateImageAspectRatio = useCallback(async (imagePath: string) => {
     const ratio = await calculateImageAspectRatio(imagePath);
     setImageAspectRatio(ratio);
-  };
+  }, []);
 
 
   // 初始化预填内容
@@ -80,7 +80,7 @@ export default function PublishNote() {
           setTitle(autoTitle);
           }
       } catch (error) {
-        console.error('解析预填内容失败:', error);
+        // console.error('解析预填内容失败:', error);
       }
     }
   }, [router?.params?.prefillContent]);
@@ -145,7 +145,7 @@ export default function PublishNote() {
                 compressed: compressed
               };
             } catch (error) {
-              console.error('图片处理失败:', error);
+              // console.error('图片处理失败:', error);
               return {
                 path: tempPath,
                 size: 0,
@@ -275,7 +275,7 @@ export default function PublishNote() {
               const uploadResult = await uploadApi.uploadImage(imgInfo.path, { compress: false }); // 本地已压缩，直接上传
               return uploadResult;
             } catch (error) {
-              console.error('图片上传失败:', error);
+              // console.error('图片上传失败:', error);
               throw new Error(`图片上传失败: ${error}`);
             }
           });
@@ -314,7 +314,7 @@ export default function PublishNote() {
         throw new Error(response.message || '发布失败');
       }
     } catch (error: any) {
-      console.error('发布失败:', error);
+      // console.error('发布失败:', error);
       Taro.showToast({
         title: error.message || '发布失败，请重试',
         icon: 'none',
@@ -327,7 +327,7 @@ export default function PublishNote() {
 
   return (
     <View className={styles.pageContainer}>
-      <CustomHeader title="发布笔记" />
+      <CustomHeader title='发布笔记' />
 
       <View className={styles.contentWrapper}>
         <ScrollView 
@@ -377,7 +377,7 @@ export default function PublishNote() {
                         <Image 
                           src={image}
                           className={styles.image}
-                          mode="aspectFit"
+                          mode='aspectFit'
                           onClick={handleShowImageOverview}
                         />
                         
@@ -438,7 +438,7 @@ export default function PublishNote() {
             </View>
             <Input
               className={styles.titleInput}
-              placeholder="为你的笔记添加一个标题（4-20个字符）"
+              placeholder='为你的笔记添加一个标题（4-20个字符）'
               value={title}
               onInput={(e) => setTitle(e.detail.value)}
               maxlength={20}
@@ -450,12 +450,12 @@ export default function PublishNote() {
             <Text className={styles.inputLabel}>笔记内容</Text>
               <Textarea
                 className={styles.contentInput}
-              placeholder="详细介绍资源内容、适用人群、学习建议..."
+                placeholder='详细介绍资源内容、适用人群、学习建议...'
                 value={content}
-              onInput={(e) => setContent(e.detail.value)}
+                onInput={(e) => setContent(e.detail.value)}
                 maxlength={2000}
-              autoHeight
-            />
+                autoHeight
+              />
                   </View>
 
 
@@ -490,7 +490,7 @@ export default function PublishNote() {
                   <Image
                     src={image}
                     className={styles.imageOverviewImage}
-                    mode="aspectFill"
+                    mode='aspectFill'
                   />
                   {/* 删除按钮 */}
                   <View

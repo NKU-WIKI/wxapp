@@ -6,7 +6,6 @@ import { AppDispatch, RootState } from '@/store';
 import { fetchPostDetail } from '@/store/slices/postSlice';
 import { fetchComments } from '@/store/slices/commentSlice';
 import { CommentDetail } from '@/types/api/comment';
-import { usePrivacyCheck } from '@/utils/privacyCheck';
 import CustomHeader from '@/components/custom-header';
 import Post from '@/components/post';
 import { addHistoryWithServerSync } from '@/utils/history';
@@ -21,7 +20,6 @@ const PostDetailPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const postState = useSelector((state: RootState) => state.post);
   const commentState = useSelector((state: RootState) => state.comment);
-  const permissions = usePrivacyCheck();
 
   // 从路由参数中获取帖子ID（UUID格式）
   const postId = router.params.id as string;
@@ -288,7 +286,7 @@ const PostDetailPage = () => {
             onReply={handleReply}
             onLikeUpdate={handleLikeUpdate}
             onDeleteComment={handleDeleteComment}
-            showFollowButton={true}
+            showFollowButton
           />
         </>
       );

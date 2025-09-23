@@ -89,8 +89,8 @@ export default function NoteDetailPage() {
         })) as CommentTreeRead[];
         setComments(commentTreeData);
       }
-    } catch (error) {
-      console.error('加载评论失败:', error);
+    } catch (_error) {
+      // console.error('加载评论失败:', _error);
     } finally {
       setCommentsLoading(false);
     }
@@ -318,10 +318,10 @@ export default function NoteDetailPage() {
       } else {
         throw new Error(response.message || '评论失败');
       }
-    } catch (error: any) {
-      console.error('评论失败:', error);
+    } catch (_error: any) {
+      // console.error('评论失败:', _error);
       Taro.showToast({
-        title: error.message || '评论失败，请重试',
+        title: _error.message || '评论失败，请重试',
         icon: 'none'
       });
     } finally {

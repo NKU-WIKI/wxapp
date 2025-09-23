@@ -22,7 +22,7 @@ const LEVEL_MAPPING = {
  */
 export function convertLevelToRealm(level: number): string {
   if (level < 0 || level > 7) {
-    console.warn(`Invalid level: ${level}, using default realm`);
+    // console.warn(`Invalid level: ${level}, using default realm`);
     return "炼气期";
   }
   
@@ -39,7 +39,7 @@ export function parseLevelString(levelString: string): string {
   // 提取数字部分
   const match = levelString.match(/Lv(\d+)/i);
   if (!match) {
-    console.warn(`Invalid level string format: ${levelString}`);
+    // console.warn(`Invalid level string format: ${levelString}`);
     return "炼气期";
   }
   

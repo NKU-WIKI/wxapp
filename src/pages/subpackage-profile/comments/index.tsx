@@ -86,9 +86,9 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
         showBio={false}
         showFollowButton={false}
         showStats={false}
-        showLevel={true}
+        showLevel
         showLocation={false}
-        showTime={true}
+        showTime
         createTime={comment.created_at}
       />
 

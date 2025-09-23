@@ -285,21 +285,25 @@ export interface GetNotesParams {
 /**
  * 笔记状态枚举
  */
+/* eslint-disable no-unused-vars */
 export enum NoteStatus {
     Archived = "archived",
     Deleted = "deleted",
     Draft = "draft",
     Published = "published",
 }
+/* eslint-enable no-unused-vars */
 
 /**
  * 可见性枚举
  */
+/* eslint-disable no-unused-vars */
 export enum Visibility {
     Friends = "FRIENDS",
     Private = "PRIVATE",
     Public = "PUBLIC",
 }
+/* eslint-enable no-unused-vars */
 
 /**
  * NoteRead，笔记读取模型
@@ -600,11 +604,13 @@ export interface UserRead {
  * INACTIVE: 未激活用户，可能是注册后未验证邮箱
  * BANNED: 被禁用户，无法登录和使用功能
  */
+/* eslint-disable no-unused-vars */
 export enum UserStatus {
   Active = "active",
   Banned = "banned",
   Inactive = "inactive",
 }
+/* eslint-enable no-unused-vars */
 
 /**
  * LinkInfoRead，链接信息读取模型
@@ -701,9 +707,11 @@ export interface AppsapiV1SchemasNoteLinkInfoRead {
  *
  * LinkStatus，链接状态枚举
  */
+/* eslint-disable no-unused-vars */
 export enum LinkStatus {
   Expired = "expired",
   Invalid = "invalid",
   Pending = "pending",
   Valid = "valid",
-} 
+}
+/* eslint-enable no-unused-vars */ 
