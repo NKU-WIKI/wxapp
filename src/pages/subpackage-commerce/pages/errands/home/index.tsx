@@ -260,7 +260,7 @@ return (
           </View>
           <View className={styles.publishButton} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/errands/publish/index' })}>
             <Text className={styles.plusIcon}>+</Text>
-            <Text>发布需�?/Text>
+            <Text>发布需求</Text>
           </View>
         </View>
         <FilterTabs />
