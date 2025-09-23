@@ -296,8 +296,8 @@ return (
     <AuthFloatingButton
       variant='plus'
       onClick={() => Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/errands/publish/index' })}
-      loginPrompt='您需要登录后才能发布跑腿任务，是否立即前往登录页面�?
-        redirectUrl='/pages/subpackage-commerce/pages/errands/publish/index'
+      loginPrompt='您需要登录后才能发布跑腿任务，是否立即前往登录页面？'
+      redirectUrl='/pages/subpackage-commerce/pages/errands/publish/index'
       />
 
     <ErrandsTabBar activeTab='home' />
