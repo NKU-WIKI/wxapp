@@ -158,7 +158,8 @@ const notificationSlice = createSlice({
       state.lastUpdated = Date.now();
     },
 
-    // 增加未读数量（当收到新消息时�?    incrementUnreadCount: (state, action: PayloadAction<{ type: NotificationType; count?: number }>) => {
+    // 增加未读数量（当收到新消息时）
+    incrementUnreadCount: (state, action: PayloadAction<{ type: NotificationType; count?: number }>) => {
     const { type, count = 1 } = action.payload;
 
     state.unreadCounts[type] = (state.unreadCounts[type] || 0) + count;
@@ -166,7 +167,8 @@ const notificationSlice = createSlice({
     state.lastUpdated = Date.now();
   },
 
-  // 重置状�?    resetNotificationState: (state) => {
+    // 重置状态
+    resetNotificationState: (state) => {
   state.unreadCounts = {};
   state.loading = false;
   state.lastUpdated = null;

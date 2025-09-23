@@ -93,7 +93,8 @@ const SecondHandHomePage = () => {
         filters: {}
       }
 
-      // 只在用户主动选择类型时才添加类型过滤�?        if (selectedType !== 'all') {
+      // 只在用户主动选择类型时才添加类型过滤
+      if (selectedType !== 'all') {
       searchParams.filters = {
         listing_type: selectedType === 'sell' ? 'sell' : 'buy'
       }
@@ -114,7 +115,8 @@ const SecondHandHomePage = () => {
           title: item.title || '',
           description: item.content || '',
           price: item.price || null,
-          images: item.images || ['/assets/placeholder.jpg'], // 确保至少有一个图�?              condition: item.condition || '',
+          images: item.images || ['/assets/placeholder.jpg'], // 确保至少有一个图片
+          condition: item.condition || '',
           category: item.category || '',
           created_at: item.created_at || item.create_time || '',
           user: {
@@ -128,16 +130,17 @@ const SecondHandHomePage = () => {
 
       // 手动更新 Redux store
       if (skip === 0) {
-        // 首次加载或刷�?            dispatch({
-        type: 'marketplace/setListings',
+        // 首次加载或刷新
+        dispatch({
+          type: 'marketplace/setListings',
           payload: searchResults
-      })
+        });
     } else {
       // 加载更多
       dispatch({
         type: 'marketplace/addListings',
         payload: searchResults
-      })
+      });
     }
 
     dispatch({
@@ -149,19 +152,20 @@ const SecondHandHomePage = () => {
         total: response.data.total
       }
     })
+    } else {
+      Taro.showToast({ title: '获取商品列表失败', icon: 'none' })
+    }
   } else {
-    Taro.showToast({ title: '获取商品列表失败', icon: 'none' })
-  }
-}
-} else {
-  // 没有搜索关键词，使用原有的商品列表接�?        const queryParams: any = {
-  skip: skip,
-    limit: 20,
-}
+    // 没有搜索关键词，使用原有的商品列表接口
+    const queryParams: any = {
+      skip: skip,
+      limit: 20,
+    }
 
-// 只在用户主动选择类型时才添加类型参数
-if (selectedType !== 'all') {
-  queryParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY
+
+    // 只在用户主动选择类型时才添加类型参数
+    if (selectedType !== 'all') {
+      queryParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY
 }
 
 await dispatch(fetchListings(queryParams)).unwrap()

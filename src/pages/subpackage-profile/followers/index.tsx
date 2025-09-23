@@ -51,8 +51,8 @@ const FollowersPage = () => {
   const [users, setUsers] = useState<any[]>([])
   const [searchKeyword, setSearchKeyword] = useState('')
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]) // 用于高亮的关键词列表
-  const [allUsers, setAllUsers] = useState<any[]>([]) // 存储所有用户数据用于搜�?
-  // 获取用户列表的核心函数（不使用useCallback避免循环依赖�?  const fetchUsers = async (isRefresh = false) => {
+  const [allUsers, setAllUsers] = useState<any[]>([]) // 存储所有用户数据用于搜�?
+  // 获取用户列表的核心函数（不使用useCallback避免循环依赖�?  const fetchUsers = async (isRefresh = false) => {
     if (loading && !isRefresh) return
 
     setLoading(true)
@@ -70,13 +70,15 @@ const FollowersPage = () => {
 
       // 根据OpenAPI文档，标准响应格式为 ApiResponse<User[]>
       if (response.code === 0 && response.data !== undefined) {
-        // 处理API响应格式 - data是用户对象数�?        let newUsers: any[] = [];
+        // 处理API响应格式 - data是用户对象数�?        let newUsers: any[] = [];
         const responseData = response.data as any[];
 
         if (Array.isArray(responseData)) {
-          // 为每个用户添加关注状�?          newUsers = responseData.map((user: any) => ({
+          // 为每个用户添加关注状态
+          newUsers = responseData.map((user: any) => ({
             ...user,
-            // 关注列表中的用户都是已关注状态，粉丝列表中需要根据实际情况判断（默认为未关注�?            relation: activeTab === 'following' ? 'following' : 'none'
+            // 关注列表中的用户都是已关注状态，粉丝列表中需要根据实际情况判断（默认为未关注）
+            relation: activeTab === 'following' ? 'following' : 'none'
           }));
         } else {
 
@@ -85,7 +87,7 @@ const FollowersPage = () => {
 
         if (isRefresh) {
           setUsers(newUsers)
-          setAllUsers(newUsers) // 保存所有用户数据用于搜�?          setCurrentPage(2)
+          setAllUsers(newUsers) // 保存所有用户数据用于搜�?          setCurrentPage(2)
         } else {
           setUsers(prev => [...prev, ...newUsers])
           setAllUsers(prev => [...prev, ...newUsers]) // 也保存到allUsers
@@ -105,7 +107,7 @@ const FollowersPage = () => {
     }
   }
 
-  // 获取用户信息和关注状�?  try {
+  // 获取用户信息和关注状�?  try {
     const params: FollowActionParams = {
       target_user_id: userId,
       action: relation === 'none' ? 'follow' : 'unfollow'
@@ -120,7 +122,7 @@ const FollowersPage = () => {
 
 
 
-      // 更新本地状�?- 不论在哪个tab都只更新关注状态，不删除用�?      setUsers(prev => prev.map(user =>
+      // 更新本地状�?- 不论在哪个tab都只更新关注状态，不删除用�?      setUsers(prev => prev.map(user =>
         user.id === userId
           ? { ...user, relation: isActive ? 'following' : 'none' as FollowRelation }
           : user
@@ -169,7 +171,7 @@ const FollowersPage = () => {
 
 
 
-// 切换标签�?const handleTabSwitch = (tab: TabType) => {
+// 切换标签�?const handleTabSwitch = (tab: TabType) => {
   if (tab !== activeTab) {
     setActiveTab(tab)
     setUsers([])
@@ -177,7 +179,7 @@ const FollowersPage = () => {
     setCurrentPage(1)
     setHasMore(true)
     setError(null)
-    setSearchKeyword('') // 重置搜索关键�?  }
+    setSearchKeyword('') // 重置搜索关键�?  }
 }
 
 // 处理搜索输入
@@ -195,7 +197,7 @@ const handleSearchInput = useCallback((e: any) => {
     )
     setUsers(filteredUsers)
 
-    // 设置关键词用于高�?    const keywords = value.trim().split(/\s+/).filter(k => k.length > 0)
+    // 设置关键词用于高�?    const keywords = value.trim().split(/\s+/).filter(k => k.length > 0)
     setSearchKeywords(keywords)
   }
 }, [allUsers])
@@ -226,7 +228,7 @@ useEffect(() => {
     setAllUsers([]) // 重置allUsers
     setCurrentPage(1)
     setHasMore(true)
-    setSearchKeyword('') // 重置搜索关键�?
+    setSearchKeyword('') // 重置搜索关键�?
     try {
       const params: GetFollowersParams = {
         type: activeTab,
@@ -237,7 +239,7 @@ useEffect(() => {
 
       const response = await getFollowers(params)
 
-      // 修复：API返回code�?表示成功，不�?00
+      // 修复：API返回code�?表示成功，不�?00
       if ((response.code === 200 || response.code === 0) && response.data !== undefined) {
         let newUsers: any[] = [];
         const responseData = response.data as any;
@@ -250,7 +252,7 @@ useEffect(() => {
         }
 
         setUsers(newUsers)
-        setAllUsers(newUsers) // 保存所有用户数�?        setCurrentPage(2)
+        setAllUsers(newUsers) // 保存所有用户数�?        setCurrentPage(2)
         setHasMore(newUsers.length >= 20)
       } else {
         throw new Error((response as any).msg || (response as any).message || '获取用户列表失败')
@@ -264,11 +266,11 @@ useEffect(() => {
   }
 
   loadInitialData()
-}, [activeTab, targetUserId]) // 只依赖activeTab，fetchUsers在组件内部定�?
+}, [activeTab, targetUserId]) // 只依赖activeTab，fetchUsers在组件内部定�?
 return (
   <View className={styles.container}>
 
-    {/* 标签页导�?*/}
+    {/* 标签页导�?*/}
     <View className={styles.tabsContainer}>
       <Button
         className={`${styles.tabButton} ${activeTab === 'following' ? styles.active : ''}`}
@@ -284,7 +286,7 @@ return (
       </Button>
     </View>
 
-    {/* 固定搜索和统计区�?*/}
+    {/* 固定搜索和统计区�?*/}
     <View className={styles.fixedSearchArea}>
       {/* 搜索区域 */}
       <View className={styles.searchSection}>
@@ -301,12 +303,12 @@ return (
       {/* 统计信息 */}
       {!loading && !error && (
         <Text className={styles.countInfo}>
-          �?{users.length} 位{activeTab === 'following' ? '关注' : '粉丝'}
+          �?{users.length} 位{activeTab === 'following' ? '关注' : '粉丝'}
         </Text>
       )}
     </View>
 
-    {/* 主要内容区域 - 只包含可滚动的用户列�?*/}
+    {/* 主要内容区域 - 只包含可滚动的用户列�?*/}
     <View className={styles.main}>
       {/* 用户列表 */}
       {error ? (
@@ -327,8 +329,8 @@ return (
             </Text>
             <Text className={styles.emptyDescription}>
               {activeTab === 'following'
-                ? '快去关注一些有趣的用户�?
-                : '分享精彩内容，吸引更多粉�?
+                ? '快去关注一些有趣的用户�?
+                : '分享精彩内容，吸引更多粉�?
               }
             </Text>
           </View>
@@ -346,7 +348,7 @@ return (
                   showStats={false}
                   showLevel
                 />
-                {/* 搜索关键词高亮提�?*/}
+                {/* 搜索关键词高亮提�?*/}
                 {searchKeywords.length > 0 && user.nickname && (
                   <View className={styles.searchHighlight}>
                     <Text className={styles.highlightText}>
@@ -363,10 +365,10 @@ return (
         </View>
       )}
 
-      {/* 加载状�?*/}
+      {/* 加载状�?*/}
       {loading && (
         <View className={styles.loading}>
-          <Text className={styles.loadingText}>加载�?..</Text>
+          <Text className={styles.loadingText}>加载�?..</Text>
         </View>
       )}
 

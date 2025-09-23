@@ -102,7 +102,7 @@ const NotificationPage = () => {
     await dispatch(fetchUnreadCounts()).unwrap();
   } catch (_error) {
   }
-}, [dispatch])
+}, [dispatch]);
 
 // 解析通知内容显示（异步获取用户信息）
 const parseNotificationDisplay = useCallback(async (notification: NotificationRead) => {

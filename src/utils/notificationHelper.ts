@@ -230,7 +230,7 @@ export const debugNotification = {
 
     const testData = {
       activity_id: 'test-' + Date.now(),
-      activity_title: '测试活动�? + new Date().toLocaleTimeString(),
+      activity_title: '测试活动 ' + new Date().toLocaleTimeString(),
       organizer_id: 'test-organizer',
       participant_id: 'test-participant',
       participant_nickname: '测试用户'
@@ -249,7 +249,7 @@ export const debugNotification = {
           result = await createActivityNotification.published({
             ...testData,
             activity_category: '测试分类',
-            organizer_nickname: '测试组织�?,
+            organizer_nickname: '测试组织者',
             recipient_id: testData.organizer_id
           });
           break;

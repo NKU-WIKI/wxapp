@@ -98,13 +98,14 @@ const ErrandsHomePage = () => {
     }
   }, [selectedType, loadErrands])
 
-  // 监听发布成功事件，刷新列�?  useEffect(() => {
+  // 监听发布成功事件，刷新列表
+  useEffect(() => {
   const handleRefreshEvent = () => {
     loadErrands({ refresh: true })
   }
 
   // 监听发布成功事件
-  Taro.eventCenter.on('refreshErrandsListings', handleRefreshEvent)
+  Taro.eventCenter.on('refreshErrandsListings', handleRefreshEvent);
 
   // 清理事件监听
   return () => {
@@ -115,8 +116,8 @@ const ErrandsHomePage = () => {
 // 错误处理
 useEffect(() => {
   if (error) {
-    Taro.showToast({ title: error, icon: 'none' })
-    dispatch(clearError())
+    Taro.showToast({ title: error, icon: 'none' });
+    dispatch(clearError());
   }
 }, [error, dispatch])
 
@@ -144,12 +145,14 @@ const handleClearSearch = useCallback(() => {
   setSearchKeywords([])
 }, [])
 
-// 处理筛选类型变�?  const handleTypeChange = useCallback((type: 'all' | 'express' | 'food' | 'shopping') => {
-userFilterChangedRef.current = true
-setSelectedType(type)
+  // 处理筛选类型变化
+  const handleTypeChange = useCallback((type: 'all' | 'express' | 'food' | 'shopping') => {
+    userFilterChangedRef.current = true;
+    setSelectedType(type);
   }, [])
 
-// 筛选标签组�?  const FilterTabs = () => (
+  // 筛选标签组件
+  const FilterTabs = () => (
 <View className={styles.filterTabs}>
   <Text
     className={`${styles.tab} ${selectedType === 'all' ? styles.active : ''}`}

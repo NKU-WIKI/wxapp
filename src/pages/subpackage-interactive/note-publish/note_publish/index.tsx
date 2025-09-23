@@ -55,27 +55,31 @@ export default function PublishNote() {
 });
   };
 
-// 更新图片长宽�?  const updateImageAspectRatio = useCallback(async (imagePath: string) => {
-const ratio = await calculateImageAspectRatio(imagePath);
-setImageAspectRatio(ratio);
+  // 更新图片长宽比
+  const updateImageAspectRatio = useCallback(async (imagePath: string) => {
+    const ratio = await calculateImageAspectRatio(imagePath);
+    setImageAspectRatio(ratio);
   }, []);
 
 
-// 初始化预填内�?  useEffect(() => {
-// 处理预填内容
+  // 初始化预填内容
+  useEffect(() => {
+    // 处理预填内容
 const prefillContent = router?.params?.prefillContent;
 if (prefillContent) {
   try {
     const decodedContent = decodeURIComponent(prefillContent);
     setContent(decodedContent);
 
-    // 如果内容较长，可以自动生成标�?        if (decodedContent.length > 20) {
-    const autoTitle = decodedContent.substring(0, 20) + '...';
-    setTitle(autoTitle);
-  }
-      } catch (error) {
-}
+    // 如果内容较长，可以自动生成标题
+    if (decodedContent.length > 20) {
+      const autoTitle = decodedContent.substring(0, 20) + '...';
+      setTitle(autoTitle);
     }
+  } catch (error) {
+    console.error('解析预填内容失败:', error);
+  }
+}
   }, [router?.params?.prefillContent]);
 
 // 监听图片数组变化，自动更新长宽比

@@ -23,13 +23,15 @@ const PostDetailPage = () => {
 
   // 从路由参数中获取帖子ID（UUID格式�?  const postId = router.params.id as string;
 
-  // 回复状态管�?  const [replyTo, setReplyTo] = useState<{
+  // 回复状态管理
+  const [replyTo, setReplyTo] = useState<{
   commentId: string; // 修复：改为string以匹配comment.id类型
   nickname: string;
-  replyToNickname ?: string; // 被回复用户的昵称
-} | null > (null);
+  replyToNickname?: string; // 被回复用户的昵称
+} | null>(null);
 
-// 下拉刷新状�?  const [refreshing, setRefreshing] = useState(false);
+  // 下拉刷新状态
+  const [refreshing, setRefreshing] = useState(false);
 
 // 获取帖子详情
 useEffect(() => {

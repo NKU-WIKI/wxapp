@@ -34,14 +34,14 @@ const mockNotes: NoteListItem[] = [
     view_count: 89,
     like_count: 15,
     comment_count: 5,
-    author_name: '李小�?,
+    author_name: '李小明',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li',
     user_id: 'user-002' // 新增：用户ID
   },
   {
     id: 'mock-3',
-    title: 'React Hooks 最佳实�?,
-      content: '总结了React Hooks的常见使用模式和最佳实践，包括useState、useEffect、useContext等常用hooks的详细用�?..',
+    title: 'React Hooks 最佳实践',
+    content: '总结了React Hooks的常见使用模式和最佳实践，包括useState、useEffect、useContext等常用hooks的详细用法...',
     category_id: 'tech',
     tags: ['React', 'Hooks', '前端'],
     created_at: new Date(Date.now() - 7200000).toISOString(),
@@ -66,7 +66,7 @@ const mockNotes: NoteListItem[] = [
     view_count: 67,
     like_count: 18,
     comment_count: 6,
-    author_name: '美食家小�?,
+    author_name: '美食家小陈',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chen',
     user_id: 'user-004' // 新增：用户ID
   },
