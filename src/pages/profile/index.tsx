@@ -413,13 +413,14 @@ const Profile = () => {
                 <Text className={styles.chevron}>›</Text>
               </View>
 
-              <View className={styles.menuItem} onClick={() => handleMenuClick('history')}>
+              {/* 暂时隐藏浏览历史菜单 */}
+              {/* <View className={styles.menuItem} onClick={() => handleMenuClick('history')}>
                 <View className={styles.menuLeft}>
                   <Text className={styles.menuIcon}>🕒</Text>
                   <Text className={styles.menuText}>浏览历史</Text>
                 </View>
                 <Text className={styles.chevron}>›</Text>
-              </View>
+              </View> */}
 
               <View className={styles.menuItem} onClick={() => handleMenuClick('feedback')}>
                 <View className={styles.menuLeft}>
