@@ -136,11 +136,6 @@ const CustomHeader = ({
   // 获取未读消息总数
   const unreadTotal = useSelector((state: RootState) => {
     const total = state.notification.unreadCounts.total || 0;
-    console.log('🔔 [CustomHeader调试] 从Redux读取未读数量', {
-      total,
-      完整的unreadCounts: state.notification.unreadCounts,
-      lastUpdated: state.notification.lastUpdated
-    });
     return total;
   });
 

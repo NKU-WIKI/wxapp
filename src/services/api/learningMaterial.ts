@@ -58,7 +58,7 @@ export class LearningMaterialService {
     
     const newMaterial: LearningMaterial = {
       id: Date.now().toString(),
-      title: materialData.description || materialData.original_file_name || '未命名资料',
+      title: materialData.original_file_name || materialData.description || '未命名资料',
       description: materialData.description || '',
       college: materialData.college || '',
       subject: materialData.subject || '',
@@ -68,12 +68,14 @@ export class LearningMaterialService {
       originalFileName: materialData.original_file_name || '',
       netdiskLink: materialData.netdisk_link || '',
       qrCodeUrl: materialData.qr_code_url || '',
-      fileSize: 0, // 这个需要从文件信息中获取
+      fileSize: materialData.file_size || 0,
       fileType: getFileTypeFromExtension(materialData.original_file_name || ''),
       uploadTime: new Date().toISOString(),
       category: category,
       downloadCount: 0,
-      rating: 0
+      rating: 0,
+      // 添加linkId支持新的下载API
+      linkId: materialData.link_id || materialData.linkId || materialData.id
     };
 
     materials.unshift(newMaterial); // 添加到开头

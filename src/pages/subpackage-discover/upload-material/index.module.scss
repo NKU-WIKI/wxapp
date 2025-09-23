@@ -177,11 +177,22 @@
   margin-bottom: 20px;
 }
 
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .formLabel {
   display: block;
   font-size: 14px;
   color: #4b5563;
-  margin-bottom: 8px;
+}
+
+.charCount {
+  font-size: 12px;
+  color: #9ca3af;
 }
 
 /* 网盘链接输入框 */

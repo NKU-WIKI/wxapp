@@ -321,12 +321,12 @@ export default function ActivitySquare() {
         return;
       }
 
-      const result = await Taro.showModal({
-        title: '确认报名',
-        content: `确定要报名参加"${act.title}"吗？`,
-        confirmText: '确认报名',
-        cancelText: '取消'
-      });
+          const result = await Taro.showModal({
+            title: '确认报名',
+            content: `确定要报名参加"${act.title}"吗？`,
+            confirmText: '确认',
+            cancelText: '取消'
+          });
 
       if (!result.confirm) {
         return;
@@ -648,15 +648,13 @@ export default function ActivitySquare() {
                   onClick={() => handleActivityClick(act)}
                 >
                   <View className={styles.activityContent}>
-                    {/* 组织标签，仅在组织活动时显示 */}
-                    {act.organizer_type === 'organization' && act.organization_name && (
-                      <View className={styles.organizationTag}>
-                        <Text className={styles.organizationTagText}>{act.organization_name}</Text>
-                      </View>
-                    )}
-                    <View>
+                    <View className={styles.titleSection}>
                       <Text className={styles.activityTitle}>
                         <HighlightText text={act.title || '无标题'} keywords={searchKeywords} />
+                        {/* 组织者标签，直接在标题文本后面 */}
+                        {act.publisher_organization && (
+                          <Text className={styles.organizerTagInline}> {act.publisher_organization}</Text>
+                        )}
                       </Text>
                     </View>
                     <View className={styles.activityDetails}>

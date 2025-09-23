@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { View, Text, ScrollView, Image } from '@tarojs/components';
+import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -8,10 +8,9 @@ import { fetchUserPosts, resetUserPosts } from '@/store/slices/userPostsSlice';
 import { deletePost } from '@/store/slices/postSlice';
 import EmptyState from '@/components/empty-state';
 import Post from '@/components/post';
-
-// Assets imports
 import penToolIcon from '@/assets/pen-tool.svg';
-import coinIcon from '@/assets/coin.svg';
+
+import { togglePostPin } from '../../../services/api/actions';
 
 // Relative imports
 import styles from './index.module.scss';
@@ -24,9 +23,8 @@ const MyPostsPage: React.FC = () => {
 
   // 弹窗状态管理
   const [showActionSheet, setShowActionSheet] = useState(false);
-  const [showPinModal, setShowPinModal] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string>('');
-  const [selectedDuration, setSelectedDuration] = useState<{hours: number, tokens: number} | null>(null);
+  const [pinnedPostIds, setPinnedPostIds] = useState<Set<string>>(new Set()); // 跟踪置顶帖子ID
 
   // 使用 ref 保存 pagination 的最新值，避免依赖循环
   const paginationRef = React.useRef(pagination);
@@ -63,11 +61,44 @@ const MyPostsPage: React.FC = () => {
     setShowActionSheet(true);
   }, []);
 
-  // 处理置顶帖子
-  const handlePinPost = useCallback(() => {
+  // 切换帖子置顶状态
+  const handleTogglePin = useCallback(async () => {
     setShowActionSheet(false);
-    setShowPinModal(true);
-  }, []);
+    if (!selectedPostId) return;
+
+    try {
+      const response = await togglePostPin(selectedPostId);
+      if (response.code === 0) {
+        const isNowPinned = response.data?.is_active || false;
+        
+        Taro.showToast({
+          title: isNowPinned ? '置顶成功' : '取消置顶成功',
+          icon: 'success'
+        });
+        
+        // 更新置顶帖子ID列表
+        setPinnedPostIds(prev => {
+          const newSet = new Set(prev);
+          if (isNowPinned) {
+            newSet.add(selectedPostId);
+          } else {
+            newSet.delete(selectedPostId);
+          }
+          return newSet;
+        });
+        
+        // 刷新我的帖子列表
+        loadMyPosts(true);
+      } else {
+        throw new Error(response.message || '置顶操作失败');
+      }
+    } catch (error) {
+      Taro.showToast({
+        title: '置顶操作失败',
+        icon: 'none'
+      });
+    }
+  }, [selectedPostId, loadMyPosts]);
 
   // 处理删除帖子
   const handleDeletePost = useCallback(() => {
@@ -95,24 +126,6 @@ const MyPostsPage: React.FC = () => {
       }
     });
   }, [dispatch, selectedPostId, loadMyPosts]);
-
-  // 处理置顶时长选择
-  const handleSelectDuration = useCallback((hours: number, tokens: number) => {
-    setSelectedDuration({ hours, tokens });
-  }, []);
-
-  // 确认置顶
-  const handleConfirmPin = useCallback(() => {
-    if (!selectedDuration) return;
-    
-    setShowPinModal(false);
-    setSelectedDuration(null);
-    // TODO: 这里应该调用置顶帖子的API
-    Taro.showToast({
-      title: `置顶${selectedDuration.hours}小时，消耗${selectedDuration.tokens}金币`,
-      icon: 'success'
-    });
-  }, [selectedDuration]);
 
   // 初始加载 - 避免循环依赖
   useEffect(() => {
@@ -241,63 +254,20 @@ const MyPostsPage: React.FC = () => {
       {showActionSheet && (
         <View className={styles.actionSheetOverlay} onClick={() => setShowActionSheet(false)}>
           <View className={styles.actionSheet} onClick={(e) => e.stopPropagation()}>
+            {/* 置顶/取消置顶选项 - 使用同一个函数，API会自动切换 */}
             <View 
               className={styles.actionOption}
-              onClick={handlePinPost}
+              onClick={handleTogglePin}
             >
-              <Text className={styles.actionOptionText}>置顶帖子</Text>
+              <Text className={styles.actionOptionText}>
+                {pinnedPostIds.has(selectedPostId) ? '取消置顶' : '置顶帖子'}
+              </Text>
             </View>
             <View 
               className={styles.actionOption}
               onClick={handleDeletePost}
             >
               <Text className={`${styles.actionOptionText} ${styles.deleteText}`}>删除帖子</Text>
-            </View>
-          </View>
-        </View>
-      )}
-
-      {/* PinModal - 置顶时长选择 */}
-      {showPinModal && (
-        <View className={styles.pinModalOverlay} onClick={() => {
-          setShowPinModal(false);
-          setSelectedDuration(null);
-        }}
-        >
-          <View className={styles.pinModal} onClick={(e) => e.stopPropagation()}>
-            <View className={styles.pinModalHeader}>
-              <Text className={styles.pinModalTitle}>设置置顶时长</Text>
-            </View>
-            <View className={styles.pinModalContent}>
-              {[
-                { hours: 1, tokens: 100 },
-                { hours: 2, tokens: 200 },
-                { hours: 4, tokens: 400 },
-                { hours: 6, tokens: 600 },
-                { hours: 8, tokens: 800 }
-              ].map((option) => (
-                <View
-                  key={option.hours}
-                  className={`${styles.pinOption} ${selectedDuration?.hours === option.hours ? styles.pinOptionSelected : ''}`}
-                  onClick={() => handleSelectDuration(option.hours, option.tokens)}
-                >
-                  <Text className={styles.pinOptionText}>{option.hours}小时</Text>
-                  <View className={styles.pinOptionCost}>
-                    <Image src={coinIcon} className={styles.coinIcon} />
-                    <Text className={styles.pinOptionTokens}>{option.tokens} tokens</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-            <View className={styles.pinModalFooter}>
-              <View 
-                className={`${styles.confirmButton} ${!selectedDuration ? styles.confirmButtonDisabled : ''}`}
-                onClick={selectedDuration ? handleConfirmPin : undefined}
-              >
-                <Text className={styles.confirmButtonText}>
-                  确认置顶{selectedDuration ? `（${selectedDuration.tokens} tokens）` : ''}
-                </Text>
-              </View>
             </View>
           </View>
         </View>

@@ -80,6 +80,12 @@ export default function PublishActivity() {
   }, []);
 
   const handleSubmit = async () => {
+    // 检查标题长度
+    if (form.title.length < 4 || form.title.length > 20) {
+      Taro.showToast({ title: '活动标题需要4-20个字符', icon: 'none' });
+      return;
+    }
+
     if (!requiredFilled) {
       Taro.showToast({ title: '请完善必填项', icon: 'none' });
       return;
@@ -120,7 +126,7 @@ export default function PublishActivity() {
         max_participants: form.max_participants > 0 ? form.max_participants : null,
         visibility: ActivityVisibility.Public,
         organizer_type: form.organizer_type,
-        organization_name: form.organizer_type === 'organization' ? form.organization_name : undefined,
+        publisher_organization: form.organizer_type === 'organization' ? form.organization_name : undefined,
         contact_name: form.contact_nickname,
         contact_info: form.contact_method,
         publisher: currentUser?.nickname || '匿名用户'
@@ -180,8 +186,20 @@ export default function PublishActivity() {
       <CustomHeader title='发布活动' hideBack={false} />
 
       <View className={styles.formItem}>
-        <Text className={styles.label}>活动标题<Text className={styles.required}>*</Text></Text>
-        <Input className={styles.input} value={form.title} placeholder='例如：校园技术交流会' onInput={e => update('title', e.detail.value)} />
+        <View className={styles.labelContainer}>
+          <Text className={styles.label}>活动标题<Text className={styles.required}>*</Text></Text>
+          <Text className={styles.charCount}>{form.title.length}/20</Text>
+        </View>
+        <Input 
+          className={styles.input} 
+          value={form.title} 
+          placeholder='例如：校园技术交流会（4-20字）' 
+          maxlength={20}
+          onInput={e => update('title', e.detail.value)} 
+        />
+        {form.title.length > 0 && form.title.length < 4 && (
+          <Text className={styles.errorText}>标题至少需要4个字符</Text>
+        )}
       </View>
 
       <View className={styles.formItem}>
