@@ -82,7 +82,7 @@ const mockNotes: NoteListItem[] = [
       view_count: 312,
       like_count: 67,
       comment_count: 23,
-      author_name: '算法小能�?,
+      author_name: '算法小能手',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=algo',
       user_id: 'user-005' // 新增：用户ID
     },

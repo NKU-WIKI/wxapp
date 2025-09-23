@@ -110,13 +110,14 @@ const handleReply = (comment: CommentDetail) => {
     if (c.id === targetId) {
       return c.id;
     }
-    // 在子评论中查�?          if (c.children && c.children.length > 0) {
-    const found = findInChildren(c.children, targetId, c.id);
-    if (found) return found;
+    // 在子评论中查找
+    if (c.children && c.children.length > 0) {
+      const found = findInChildren(c.children, targetId, c.id);
+      if (found) return found;
+    }
   }
-}
-return null;
-      };
+  return null;
+};
 
 const findInChildren = (children: CommentDetail[], targetId: string, rootId: string): string | null => {
   for (const child of children) {
@@ -131,9 +132,9 @@ const findInChildren = (children: CommentDetail[], targetId: string, rootId: str
   return null;
 };
 
-const rootId = findInComments(commentState?.comments || [], targetComment.id);
-return rootId || targetComment.id; // 如果找不到，默认返回自己的ID
-    };
+    const rootId = findInComments(commentState?.comments || [], targetComment.id);
+    return rootId || targetComment.id; // 如果找不到，默认返回自己的ID
+  };
 
 const rootCommentId = findRootCommentId(comment);
 

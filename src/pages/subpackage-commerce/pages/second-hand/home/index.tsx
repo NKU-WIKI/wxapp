@@ -165,18 +165,17 @@ const SecondHandHomePage = () => {
 
     // 只在用户主动选择类型时才添加类型参数
     if (selectedType !== 'all') {
-      queryParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY
-}
+      queryParams.listing_type = selectedType === 'sell' ? ListingType.SELL : ListingType.BUY;
+    }
 
-await dispatch(fetchListings(queryParams)).unwrap()
-      }
+    await dispatch(fetchListings(queryParams)).unwrap();
+  }
     } catch (fetchError) {
   Taro.showToast({ title: '获取商品列表失败', icon: 'none' })
-} finally {
-  if (params?.refresh) {
-    setIsRefreshing(false)
-  }
-}
+  } finally {
+    if (params?.refresh) {
+      setIsRefreshing(false);
+    }
   }, [dispatch, selectedType, loadProductDetails]); // eslint-disable-line react-hooks/exhaustive-deps
 
 // 处理搜索
