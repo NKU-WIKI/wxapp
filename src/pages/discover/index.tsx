@@ -46,7 +46,7 @@ export default function Discover() {
   const [hotPosts, setHotPosts] = useState<HotPost[]>([]);
   const [pinnedPosts, setPinnedPosts] = useState<PostData[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // 合并置顶帖子和热榜帖子的数据
   const [combinedPosts, setCombinedPosts] = useState<CombinedPost[]>([]);
 
@@ -67,7 +67,7 @@ export default function Discover() {
       }
 
       const params = {
-        limit: 5
+        limit: 10
       };
 
       const response = await postApi.getHotPostList(params);
@@ -113,9 +113,16 @@ export default function Discover() {
 
   // 合并置顶帖子和热榜帖子
   useEffect(() => {
+    // 从热榜中过滤掉已置顶的帖子
+    const pinnedPostIds = new Set(pinnedPosts.map(p => p.id));
+    const filteredHotPosts = hotPosts.filter(p => !pinnedPostIds.has(p.id || p.post_id));
+
+    // 取前5个非置顶的热榜帖子
+    const top5HotPosts = filteredHotPosts.slice(0, 5);
+
     const combined: CombinedPost[] = [];
-    
-    // 先添加置顶帖子（转换为HotPost格式）
+
+    // 先添加置顶帖子
     pinnedPosts.forEach((post, index) => {
       combined.push({
         id: post.id,
@@ -124,39 +131,35 @@ export default function Discover() {
         comment_count: post.comment_count,
         view_count: post.view_count,
         like_count: post.like_count,
-        hot_score: 999999 - index, // 给置顶帖子很高的热度分数，确保排在前面
+        hot_score: 999999 - index, // 确保置顶帖子排在最前面
         platform: 'pinned',
-        isPinned: true, // 标记为置顶帖子
+        isPinned: true,
         created_at: post.created_at,
         create_time: post.create_time
       });
     });
-    
+
     // 然后添加热榜帖子
-    hotPosts.forEach(post => {
+    top5HotPosts.forEach(post => {
       combined.push({
         ...post,
         isPinned: false
       });
     });
-    
-    // 按指定规则排序
+
+    // 排序：置顶的在最前面，非置顶的按热度排序
     combined.sort((a, b) => {
-      // 如果都是置顶帖子，按创建时间从新到旧排序（假设最新置顶的会有更新的创建时间）
-      if (a.isPinned && b.isPinned) {
-        const timeA = new Date(a.created_at || a.create_time || 0).getTime();
-        const timeB = new Date(b.created_at || b.create_time || 0).getTime();
-        return timeB - timeA; // 新的在前
+      if (a.isPinned && !b.isPinned) {
+        return -1;
       }
-      // 置顶帖子排在前面
-      if (a.isPinned) return -1;
-      if (b.isPinned) return 1;
-      // 其他帖子按点赞量排序
-      return (b.like_count || 0) - (a.like_count || 0);
+      if (!a.isPinned && b.isPinned) {
+        return 1;
+      }
+      // 如果都是置顶或都不是置顶，按热度分数排序
+      return (b.hot_score || 0) - (a.hot_score || 0);
     });
-    
-    // 只取前5个
-    setCombinedPosts(combined.slice(0, 5));
+
+    setCombinedPosts(combined);
   }, [pinnedPosts, hotPosts]);
 
   useEffect(() => {
@@ -255,36 +258,51 @@ export default function Discover() {
             refresherBackground='#f8fafc'
           >
             {Array.isArray(combinedPosts) && combinedPosts.length > 0 ? (
-              combinedPosts.map((post: CombinedPost, index: number) => (
-                <View
-                  key={post.post_id || index}
-                  className={styles.hotPostItem}
-                  onClick={() => handlePostClick(post)}
-                >
-                  <View className={styles.hotPostContent}>
-                    <View className={styles.rankWrapper}>
-                      <Text className={`${styles.rankNumber} ${styles[`rank${index + 1 <= 3 ? index + 1 : 'Other'}`]}`}>
-                        {index + 1}
-                      </Text>
-                      <View className={styles.titleWrapper}>
-                        {post.isPinned ? (
-                          <Text className={styles.pinnedBadge}>顶</Text>
-                        ) : (
-                          <Text className={styles.hotBadge}>🔥</Text>
+              (() => {
+                let nonPinnedRank = 0;
+                return combinedPosts.map((post: CombinedPost, index: number) => {
+                  const isPinned = post.isPinned;
+                  if (!isPinned) {
+                    nonPinnedRank++;
+                  }
+                  const rank = nonPinnedRank;
+
+                  return (
+                    <View
+                      key={post.post_id || index}
+                      className={styles.hotPostItem}
+                      onClick={() => handlePostClick(post)}
+                    >
+                      <View className={styles.hotPostContent}>
+                        <View className={styles.rankWrapper}>
+                          {!isPinned && (
+                            <Text className={`${styles.rankNumber} ${styles[`rank${rank <= 3 ? rank : 'Other'}`]}`}>
+                              {rank}
+                            </Text>
+                          )}
+                          <View className={styles.titleWrapper}>
+                            {isPinned ? (
+                              <Text className={styles.pinnedBadge}>顶</Text>
+                            ) : (
+                              rank <= 3 && <Text className={styles.hotBadge}>🔥</Text>
+                            )}
+                            <Text className={styles.hotPostTitle} numberOfLines={1}>
+                              {post.title}
+                            </Text>
+                          </View>
+                        </View>
+                        {!isPinned && (
+                          <Text className={styles.hotPostReadCount}>
+                            {post.hot_score && post.hot_score > 1000
+                              ? `${(post.hot_score / 1000).toFixed(1)}K`
+                              : post.hot_score || 0}
+                          </Text>
                         )}
-                        <Text className={styles.hotPostTitle} numberOfLines={1}>
-                          {post.title}
-                        </Text>
                       </View>
                     </View>
-                    <Text className={styles.hotPostReadCount}>
-                      {post.comment_count && post.comment_count > 1000
-                        ? `${(post.comment_count / 1000).toFixed(1)}K`
-                        : post.comment_count || 0}
-                    </Text>
-                  </View>
-                </View>
-              ))
+                  );
+                });
+              })()
             ) : (
               [
                 { id: '1', title: '实习工资怎么理财', readCount: '5.9K', rank: 1 },
