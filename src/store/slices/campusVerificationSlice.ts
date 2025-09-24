@@ -37,7 +37,7 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
 
 
 
-    // 如果没有申请记录，返回未认证状�?    if (!applications || applications.length === 0) {
+    // 如果没有申请记录，返回未认证状态    if (!applications || applications.length === 0) {
 
     return {
       is_verified: false,

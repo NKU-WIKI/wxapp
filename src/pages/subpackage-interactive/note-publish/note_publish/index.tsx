@@ -76,8 +76,8 @@ if (prefillContent) {
       const autoTitle = decodedContent.substring(0, 20) + '...';
       setTitle(autoTitle);
     }
-  } catch (error) {
-    console.error('解析预填内容失败:', error);
+  } catch (_error) {
+    // console.error('解析预填内容失败:', _error);
   }
 }
   }, [router?.params?.prefillContent]);
@@ -96,7 +96,7 @@ const handleImageChange = (e: any) => {
 
 // 处理图片上传
 const handleImageUpload = async () => {
-  // 检查文件上传权�?    if (!checkFileUploadPermissionWithToast()) {
+  // 检查文件上传权限    if (!checkFileUploadPermissionWithToast()) {
   return;
 }
 

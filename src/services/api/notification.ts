@@ -110,8 +110,8 @@ export const markNotificationAsRead ������Ӧ= (notificationId: strin
     payload
   ).then(response => {
     return response;
-  }).catch(error => {
-    throw error;
+  }).catch(_error => {
+    throw _error;
   });
 };
 
@@ -399,8 +399,8 @@ export const createActivityNotification = {
       count: 1
     }));
     return response;
-  }).catch(error => {
-    throw error;
+  }).catch(_error => {
+    throw _error;
   });
 },
 
@@ -491,8 +491,8 @@ participantJoinSuccess: (params: {
       count: 1
     }));
     return response;
-  }).catch(error => {
-    throw error;
+  }).catch(_error => {
+    throw _error;
   });
 },
 
