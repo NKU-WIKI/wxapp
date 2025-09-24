@@ -54,7 +54,8 @@ type TabKey = typeof NOTIFICATION_TABS[number]['key']
 
 // 安全的状态比较和设置函数
 const isNotificationRead = (status: NotificationStatus | string | undefined): boolean => {
-  // 支持多种已读状态表示方�?  const readStatuses = ['read', 'Read', 'READ', NotificationStatus._Read];
+  // 支持多种已读状态表示方�?
+  const readStatuses = ['read', 'Read', 'READ', NotificationStatus._Read];
   return readStatuses.includes(status as string);
 };
 
@@ -97,7 +98,8 @@ const NotificationPage = () => {
     return null;
   }, [userCache]);
 
-  // 刷新未读数量统计（使用Redux统一管理）  const refreshUnreadCounts = useCallback(async () => {
+  // 刷新未读数量统计（使用Redux统一管理）
+  const refreshUnreadCounts = useCallback(async () => {
   try {
     await dispatch(fetchUnreadCounts()).unwrap();
   } catch (_error) {
@@ -110,7 +112,8 @@ const parseNotificationDisplay = useCallback(async (notification: NotificationRe
   let senderAvatar = '/assets/profile.png'; // 默认头像
   const senderId = notification.sender_id || undefined;
 
-  // 如果有sender_id，尝试获取用户信�?    if (senderId) {
+  // 如果有sender_id，尝试获取用户信�?
+  if (senderId) {
   const userInfo = await fetchUserInfo(senderId);
   if (userInfo) {
     senderName = userInfo.nickname || '用户';
@@ -141,7 +144,7 @@ if (notification.type === NotificationType._Message) {
       action = '在帖子中提及了你'
       break
     default:
-      action = '给你发来了消�?
+      action = '给你发来了消息'
   }
 
   // 对于非关注类型，显示相关内容
@@ -149,7 +152,8 @@ if (notification.type === NotificationType._Message) {
     postContent = notification.data.post_title
   }
 } else if (notification.type === NotificationType._Activity) {
-  // 活动通知简化处理，和互动消息保持一�?      const activityTitle = notification.data?.activity_title || '未知活动';
+  // 活动通知简化处理，和互动消息保持一�?
+  const activityTitle = notification.data?.activity_title || '未知活动';
 
   switch (notification.business_type) {
     case 'activity_published':
@@ -160,7 +164,8 @@ if (notification.type === NotificationType._Message) {
       break;
     case 'activity_registration':
     case 'activity_cancel_registration':
-      // 保持用户信息，只修改动作文案为中�?          action = '活动报名状态更�?;
+      // 保持用户信息，只修改动作文案为中�?
+      action = '活动报名状态更新';
       postContent = activityTitle;
       break;
     case 'participant_join_success':
@@ -178,13 +183,13 @@ if (notification.type === NotificationType._Message) {
     case 'activity_cancelled':
       senderName = '系统';
       senderAvatar = '/assets/profile.png'; // 系统通知使用默认头像
-      action = '活动已取�?;
+      action = '活动已取消';
       postContent = activityTitle;
       break;
     case 'activity_updated':
       senderName = '系统';
       senderAvatar = '/assets/profile.png'; // 系统通知使用默认头像
-      action = '活动信息已更�?;
+      action = '活动信息已更新';
       postContent = activityTitle;
       break;
     default:
@@ -256,7 +261,8 @@ const fetchNotifications = useCallback(async (type?: NotificationType, showLoadi
     };
 
     if (targetType === 'activity') {
-      // 活动标��页：查询所有类型并前端过滤（兼容旧数据�?        // 不指定type，获取所有通知然后前端过滤
+      // 活动标��页：查询所有类型并前端过滤（兼容旧数据�?
+      // 不指定type，获取所有通知然后前端过滤
     } else {
       // 其他标签页：按正常type查询
       requestParams.type = targetType;
@@ -267,7 +273,8 @@ const fetchNotifications = useCallback(async (type?: NotificationType, showLoadi
     if (res.code === 0 && res.data) {
       let items = res.data.items || [];
 
-      // 根据business_type重新过滤通知，确保活动相关通知在正确的标签�?        items = items.filter(item => {
+      // 根据business_type重新过滤通知，确保活动相关通知在正确的标签�?
+      items = items.filter(item => {
       const isActivityRelated = ['activity_published', 'activity_joined', 'activity_cancelled', 'activity_updated', 'activity_registration', 'activity_cancel_registration', 'participant_join_success', 'participant_cancel_success'].includes(item.business_type);
 
       if (targetType === 'activity') {
@@ -301,7 +308,8 @@ processNotificationDisplayData(items);
 }
   }, [currentTab, processNotificationDisplayData])
 
-// 切换标签�?  const handleTabChange = (tabKey: TabKey) => {
+// 切换标签�?
+const handleTabChange = (tabKey: TabKey) => {
 if (tabKey !== currentTab) {
   setCurrentTab(tabKey)
   setNotifications([])
@@ -311,18 +319,21 @@ if (tabKey !== currentTab) {
 
 
 
-// 处理通知项点击事�?  const handleNotificationClick = async (_item: any, originalNotification?: NotificationRead) => {
+// 处理通知项点击事�?
+const handleNotificationClick = async (_item: any, originalNotification?: NotificationRead) => {
 try {
   if (!originalNotification) {
     return;
   }
 
-  // 如果是未读通知，先标记为已�?      const isUnread = !isNotificationRead(originalNotification.status);
+  // 如果是未读通知，先标记为已�?
+  const isUnread = !isNotificationRead(originalNotification.status);
 
   if (isUnread) {
     await markNotificationAsRead(originalNotification.id);
 
-    // 更新本地状�?        setNotifications(prev =>
+    // 更新本地状�?
+    setNotifications(prev =>
     prev.map(n =>
       n.id === originalNotification.id
         ? { ...n, status: getReadStatus() }
@@ -330,7 +341,8 @@ try {
     )
         );
 
-    // 立即更新显示通知的未读状�?        setDisplayNotifications(prev =>
+    // 立即更新显示通知的未读状�?
+    setDisplayNotifications(prev =>
     prev.map(n =>
       n.id === originalNotification.id
         ? { ...n, unread: false }
@@ -342,7 +354,8 @@ try {
     refreshUnreadCounts();
   }
 
-  // 根据通知类型和业务类型进行页面跳�?      await handleNotificationNavigation(originalNotification);
+  // 根据通知类型和业务类型进行页面跳�?
+  await handleNotificationNavigation(originalNotification);
 } catch (_error: any) {
   Taro.showToast({
     title: _error?.message || '操作失败',
@@ -371,19 +384,20 @@ const handleNotificationNavigation = async (notification: NotificationRead) => {
             });
           } else {
             Taro.showToast({
-              title: '帖子信息不完�?, icon: 'none' });
+              title: '帖子信息不完全', icon: 'none' });
             }
             break;
 
           case 'follow':
-          // 跳转到用户主�?            const userId = sender_id || data?.follower_id;
+          // 跳转到用户主�?
+            const userId = sender_id || data?.follower_id;
           if (userId) {
             await Taro.navigateTo({
               url: `/pages/profile/index?userId=${userId}`
             });
           } else {
             Taro.showToast({
-              title: '用户信息不完�?, icon: 'none' });
+              title: '用户信息不完全', icon: 'none' });
             }
             break;
 
@@ -408,10 +422,11 @@ const handleNotificationNavigation = async (notification: NotificationRead) => {
         });
       } else {
         Taro.showToast({
-          title: '活动信息不完�?, icon: 'none' });
+          title: '活动信息不完全', icon: 'none' });
         }
       }
-      // 系统通知和公告通知暂时不跳�?    } catch (_navError) {
+      // 系统通知和公告通知暂时不跳�?
+    } catch (_navError) {
       Taro.showToast({
         title: '页面跳转失败',
         icon: 'none'
@@ -431,7 +446,8 @@ const handleNotificationNavigation = async (notification: NotificationRead) => {
       const res = await markAllAsRead(currentTab)
       if (res.code === 0) {
         Taro.showToast({ title: '已全部标记为已读', icon: 'success' })
-        // 刷新当前页面和未读数�?        await Promise.all([
+        // 刷新当前页面和未读数�?
+        await Promise.all([
         fetchNotifications(currentTab, false),
           refreshUnreadCounts()
         ])
@@ -447,11 +463,13 @@ const handleNotificationNavigation = async (notification: NotificationRead) => {
 useEffect(() => {
   // 初始化加�?- 同时获取通知列表和未读数�?
   Promise.all([
-    fetchNotifications(currentTab),  // 使用当前标签页加�?      refreshUnreadCounts()
+    fetchNotifications(currentTab),  // 使用当前标签页加�?
+    refreshUnreadCounts()
   ]).then(() => {
   }).catch((_error) => {
   }).finally(() => {
-    setInitialized(true); // 标记为已初始�?    })
+    setInitialized(true); // 标记为已初始�
+    })
   }, [currentTab, fetchNotifications, refreshUnreadCounts])  // 只在组件挂载时执行一�?
   useEffect(() => {
     // 切换标签页时加载数据（只在已初始化后才执行）
@@ -558,7 +576,7 @@ useEffect(() => {
               onClick={handleMarkAllRead}
             >
               <Image src={checkSquareIcon} className={styles.footerIcon} />
-              <Text className={styles.buttonText}>全部标记为已�?/Text>
+              <Text className={styles.buttonText}>全部标记为已读</Text>
             </View>
           </View>
         )}

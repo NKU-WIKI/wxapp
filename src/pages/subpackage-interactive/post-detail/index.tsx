@@ -21,7 +21,8 @@ const PostDetailPage = () => {
   const postState = useSelector((state: RootState) => state.post);
   const commentState = useSelector((state: RootState) => state.comment);
 
-  // 从路由参数中获取帖子ID（UUID格式�?  const postId = router.params.id as string;
+  // 从路由参数中获取帖子ID（UUID格式�?
+  const postId = router.params.id as string;
 
   // 回复状态管理
   const [replyTo, setReplyTo] = useState<{
@@ -59,7 +60,8 @@ useEffect(() => {
     const post = postState.currentPost;
 
     // 记录到本地和服务�?      // 注意：post.id是string类型（UUID），但服务器API需要number类型
-    // 这里我们尝试将UUID转换为数字，如果失败则使用一个默认�?      const numericId = parseInt(post.id) || 0;
+    // 这里我们尝试将UUID转换为数字，如果失败则使用一个默认�?
+    const numericId = parseInt(post.id) || 0;
 
     // 获取头像：优先使�?user.avatar，兼�?author_info.avatar
     const author = post.user || post.author_info;
@@ -82,7 +84,8 @@ useEffect(() => {
 
     addHistoryWithServerSync(
       {
-        id: post.id, // post.id已经是string类型（UUID�?          title: post.title,
+        id: post.id, // post.id已经是string类型（UUID�?
+        title: post.title,
         cover: post.image_urls?.[0] || '',
         avatar: avatarUrl,
         createdAt: createTime,
@@ -98,13 +101,15 @@ useEffect(() => {
 const handleReply = (comment: CommentDetail) => {
 
 
-  // 查找顶级父评论ID的辅助函�?    const findRootCommentId = (targetComment: CommentDetail): string => {
+  // 查找顶级父评论ID的辅助函�?
+  const findRootCommentId = (targetComment: CommentDetail): string => {
   // 如果comment有root_id，说明它是子评论，返回root_id
   if (targetComment.root_id) {
     return targetComment.root_id;
   }
 
-  // 如果comment没有root_id，需要在评论树中查找它的顶级父评�?      const findInComments = (comments: CommentDetail[], targetId: string): string | null => {
+  // 如果comment没有root_id，需要在评论树中查找它的顶级父评�?
+    const findInComments = (comments: CommentDetail[], targetId: string): string | null => {
   for (const c of comments) {
     // 如果在顶级评论中找到，说明它就是顶级评论
     if (c.id === targetId) {
@@ -145,10 +150,12 @@ setReplyTo({
 });
   };
 
-// 处理点赞状态更�?  const handleLikeUpdate = (_commentId: string, _isLiked: boolean, _likeCount: number) => {
+// 处理点赞状态更�?
+const handleLikeUpdate = (_commentId: string, _isLiked: boolean, _likeCount: number) => {
 
 
-// 重新获取评论列表以同步状�?    if (postId) {
+// 重新获取评论列表以同步状�?
+if (postId) {
 
 dispatch(fetchComments({
   resource_id: postId,
@@ -165,10 +172,11 @@ const handleDeleteComment = async (commentId: string) => {
 
 
   try {
-    // 显示确认对话�?      const res = await new Promise<boolean>((resolve) => {
+    // 显示确认对话�?
+    const res = await new Promise<boolean>((resolve) => {
     Taro.showModal({
       title: '确认删除',
-      content: '确定要删除这条评论吗�?,
+      content: '确定要删除这条评论吗?',
           success: (result) => {
         resolve(result.confirm);
       },
@@ -185,7 +193,7 @@ const handleDeleteComment = async (commentId: string) => {
 
   // 显示加载提示
   Taro.showLoading({
-    title: '删除�?..'
+    title: '删除中..'
   });
 
   // 调用删除API
@@ -226,7 +234,8 @@ const handleRefresh = async () => {
   setRefreshing(true);
 
   try {
-    // 同时刷新帖子详情和评论列�?      await Promise.all([
+    // 同时刷新帖子详情和评论列�?
+    await Promise.all([
     dispatch(fetchPostDetail(postId)),
       dispatch(fetchComments({
         resource_id: postId,
@@ -236,7 +245,7 @@ const handleRefresh = async () => {
         limit: 20
       }))
       ]);
-      
+
     } catch (error) {
 
 } finally {
@@ -248,17 +257,20 @@ const handleRefresh = async () => {
 const renderContent = () => {
 
 
-  // 正在加载中，显示加载状�?    if (postState?.detailLoading === 'pending') {
+  // 正在加载中，显示加载状�?
+  if (postState?.detailLoading === 'pending') {
   return <View className={styles.loading}>加载�?..</View>;
 }
 
-// 加载失败，显示错误信�?    if (postState?.detailLoading === 'failed' || postState?.error) {
+// 加载失败，显示错误信�?
+if (postState?.detailLoading === 'failed' || postState?.error) {
 return <View className={styles.error}>加载失败: {postState.error}</View>;
     }
 
-// 加载完成（成功或失败）后，如�?currentPost 为空，则显示帖子不存�?    // 只有在加载完成后才判断帖子是否存在，避免首次加载时的闪烁问题
+// 加载完成（成功或失败）后，如�?currentPost 为空，则显示帖子不存�?
+// 只有在加载完成后才判断帖子是否存在，避免首次加载时的闪烁问题
 if (postState?.detailLoading === 'succeeded' && !postState?.currentPost) {
-  return <View className={styles.error}>帖子不存�?/View>;
+  return <View className={styles.error}>帖子不存在</View>;
     }
 
     // 加载成功且帖子存在，显示帖子内容

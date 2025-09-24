@@ -30,16 +30,18 @@ import styles from "./index.module.scss";
 export default function PublishNote() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  // 状态管�?  const [title, setTitle] = useState('');
+  // 状态管�?
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]); // 本地图片路径数组
   const [localImages, setLocalImages] = useState<Array<{ path: string, size: number, compressed: boolean }>>([]); // 本地图片信息
   const [isPublishing, setIsPublishing] = useState(false);
   const [showImageOverview, setShowImageOverview] = useState(false); // 图片总览弹窗状态
   const [imageAspectRatio, setImageAspectRatio] = useState<number>(1); // 图片长宽比，默认1（正方形）
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); // 当前显示的图片索引  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); // 当前显示的图片索引
 
-  // 计算图片长宽�?  const calculateImageAspectRatio = (imagePath: string): Promise<number> => {
+  // 计算图片长宽�?
+  const calculateImageAspectRatio = (imagePath: string): Promise<number> => {
   return new Promise((resolve) => {
     // 使用Taro的getImageInfo API来获取图片信息
       Taro.getImageInfo({
@@ -77,7 +79,6 @@ if (prefillContent) {
       setTitle(autoTitle);
     }
   } catch (error) {
-    console.error('解析预填内容失败:', error);
   }
 }
   }, [router?.params?.prefillContent]);
@@ -85,7 +86,8 @@ if (prefillContent) {
 // 监听图片数组变化，自动更新长宽比
 useEffect(() => {
   if (images.length > 0) {
-    // 始终以第一张图片的长宽比为�?      updateImageAspectRatio(images[0]);
+    // 始终以第一张图片的长宽比为�?
+    updateImageAspectRatio(images[0]);
   }
 }, [images, updateImageAspectRatio]);
 
@@ -95,8 +97,10 @@ const handleImageChange = (e: any) => {
 };
 
 // 处理图片上传
+// eslint-disable-next-line no-unused-vars
 const handleImageUpload = async () => {
-  // 检查文件上传权�?    if (!checkFileUploadPermissionWithToast()) {
+  // 检查文件上传权�?
+  if (!checkFileUploadPermissionWithToast()) {
   return;
 }
 
@@ -104,7 +108,8 @@ try {
 
   const res = await Taro.chooseImage({
     count: 9 - images.length,
-    sizeType: ['original'], // 选择原图，本地压�?        sourceType: ['album', 'camera'],
+    sizeType: ['original'], // 选择原图，本地压�?
+    sourceType: ['album', 'camera'],
   });
 
   if (res.tempFilePaths && res.tempFilePaths.length > 0) {
@@ -120,7 +125,8 @@ try {
             originalSize = fileInfo.size;
           }
 
-          // 如果图片超过1MB，进行本地压�?              let finalPath = tempPath;
+          // 如果图片超过1MB，进行本地压�?
+          let finalPath = tempPath;
           let compressed = false;
 
           if (originalSize > 1024 * 1024) { // 超过1MB
@@ -165,7 +171,8 @@ try {
   if (error && typeof error === 'object' && 'errMsg' in error) {
     const errMsg = (error as any).errMsg;
     if (errMsg && errMsg.includes('cancel')) {
-      // 用户取消是正常行为，不显示错误提�?          return;
+      // 用户取消是正常行为，不显示错误提�?
+      return;
     }
   }
 
@@ -175,8 +182,7 @@ try {
       icon: 'none',
       duration: 2000,
     });
-    }
-  };
+    };
 
 // 移除图片
 const handleRemoveImage = (index: number) => {
@@ -217,7 +223,7 @@ const handleCloseImageOverview = () => {
 const handlePublish = async () => {
   if (!title.trim()) {
     Taro.showToast({
-      title: '请输入标�?,
+      title: '请输入标题?',
         icon: 'none',
       duration: 2000,
     });
@@ -226,7 +232,7 @@ const handlePublish = async () => {
 
   if (title.trim().length < 4) {
     Taro.showToast({
-      title: '标题至少需�?个字�?,
+      title: '标题至少需要4个字',
         icon: 'none',
       duration: 2000,
     });
@@ -235,7 +241,7 @@ const handlePublish = async () => {
 
   if (title.trim().length > 20) {
     Taro.showToast({
-      title: '标题最�?0个字�?,
+      title: '标题最多有20个字',
         icon: 'none',
       duration: 2000,
     });
@@ -244,7 +250,7 @@ const handlePublish = async () => {
 
   if (!content.trim()) {
     Taro.showToast({
-      title: '请输入内�?,
+      title: '请输入内容',
         icon: 'none',
       duration: 2000,
     });
@@ -254,7 +260,8 @@ const handlePublish = async () => {
   try {
     setIsPublishing(true);
 
-    // 先上传所有图片到服务�?      const imageUrls: string[] = [];
+    // 先上传所有图片到服务�?
+    const imageUrls: string[] = [];
 
     if (images.length > 0) {
       Taro.showLoading({ title: '正在上传图片...' });
@@ -284,7 +291,8 @@ const handlePublish = async () => {
         images: imageUrls,
         allow_comment: true,
         allow_share: true,
-        category_id: 'c1a7e7e4-a5b6-4c1c-8d8e-9e9f9f9f9f9f', // 示例分类ID，实际应从后端获�?        })
+        category_id: 'c1a7e7e4-a5b6-4c1c-8d8e-9e9f9f9f9f9f', // 示例分类ID，实际应从后端获�?
+        })
       ).unwrap();
 
     if (response.code === 0) {
@@ -294,7 +302,8 @@ const handlePublish = async () => {
         duration: 2000,
       });
 
-      // 发布成功后返回上一�?        setTimeout(() => {
+      // 发布成功后返回上一�?
+      setTimeout(() => {
       Taro.navigateBack();
     }, 2000);
   } else {
@@ -483,19 +492,20 @@ return (
                   className={styles.imageOverviewDelete}
                   onClick={() => {
                     handleRemoveImage(index);
-                    // 如果删除后没有图片了，关闭弹�?                      if (images.length <= 1) {
-                    handleCloseImageOverview();
-                  }
+                    // 如果删除后没有图片了，关闭弹窗
+                    if (images.length <= 1) {
+                      handleCloseImageOverview();
+                    }
                   }}
-                  >
-                <Text className={styles.imageOverviewDeleteIcon}>×</Text>
-              </View>
+                >
+                  <Text className={styles.imageOverviewDeleteIcon}>×</Text>
                 </View>
-                ))}
+              </View>
+            ))}
+          </View>
         </View>
       </View>
-        </View>
-)}
-    </View >
-  );
+    )}
+  </View>
+);}
 }

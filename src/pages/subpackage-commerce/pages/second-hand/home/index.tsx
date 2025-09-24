@@ -285,12 +285,15 @@ const handleProductClick = useCallback((product: ListingRead) => {
 }, [])
 
 
-// 页面每次显示时刷新数据（包括首次进入和从其他页面返回�?  useDidShow(() => {
+// 页面每次显示时刷新数据（包括首次进入和从其他页面返回�?
+useDidShow(() => {
 loadListings({ refresh: true, keyword: searchKeyword })
   })
 
-// 当筛选类型发生变化时，自动重新加载数�?  useEffect(() => {
-// 只有当用户主动进行了筛选操作时才重新加�?    if (userFilterChangedRef.current) {
+// 当筛选类型发生变化时，自动重新加载数�?
+useEffect(() => {
+// 只有当用户主动进行了筛选操作时才重新加�?
+if (userFilterChangedRef.current) {
 loadListings({ refresh: true, keyword: searchKeyword })
 userFilterChangedRef.current = false // 重置标记
     }
@@ -313,10 +316,12 @@ const handleSearchInput = useCallback((e: any) => {
 const handleClearSearch = useCallback(() => {
   setSearchKeyword('')
   setSearchKeywords([])
-  // 清空后重新加载所有商�?    loadListings({ refresh: true, keyword: '' })
+  // 清空后重新加载所有商�?
+  loadListings({ refresh: true, keyword: '' })
 }, [loadListings])
 
-// 处理筛选类型变�?  const handleTypeChange = useCallback((type: 'all' | 'sell' | 'buy') => {
+// 处理筛选类型变�?
+const handleTypeChange = useCallback((type: 'all' | 'sell' | 'buy') => {
 userFilterChangedRef.current = true
 setSelectedType(type)
   }, [])
@@ -325,21 +330,22 @@ setSelectedType(type)
 const ProductCard = ({ product }: { product: ListingRead }) => {
   const { formattedTime } = useRelativeTime(product.created_at, {
     autoUpdate: true,
-    updateInterval: 60000 // 每分钟更新一�?    })
+    updateInterval: 60000 // 每分钟更新一�?
+    })
 
     const getConditionText = (condition?: string) => {
       switch (condition) {
         case 'new': return '全新'
-        case 'like_new': return '九成�?
-        case 'good': return '八成�?
-        case 'acceptable': return '七成�?
+        case 'like_new': return '九成?'
+        case 'good': return '八成?'
+        case 'acceptable': return '七成?'
         case 'damaged': return '其他'
         default: return ''
       }
     }
 
     return(
-      <View className = { styles.productCard } onClick = {() => handleProductClick(product)}>
+      <View className={styles.productCard} onClick={() => handleProductClick(product)}>
         <View className={styles.imageWrapper}>
           <Image
             src={product.images?.[0] || '/assets/placeholder.jpg'}
@@ -356,7 +362,7 @@ const ProductCard = ({ product }: { product: ListingRead }) => {
           {/* 状态标�?- �?�?*/}
           <View className={`${styles.statusBadge} ${styles[`status_${product.listing_type}`]}`}>
             <Text className={styles.badgeText}>
-              {product.listing_type === 'sell' ? '�? : '�?}
+              {product.listing_type === 'sell' ? '�?' : '�?'}
             </Text>
           </View>
         </View>
@@ -447,7 +453,7 @@ const ProductCard = ({ product }: { product: ListingRead }) => {
       <AuthFloatingButton
         variant='plus'
         onClick={() => Taro.navigateTo({ url: '/pages/subpackage-commerce/pages/second-hand/publish/index' })}
-        loginPrompt='您需要登录后才能发布商品，是否立即前往登录页面�?
+        loginPrompt='您需要登录后才能发布商品，是否立即前往登录页面?'
         redirectUrl='/pages/subpackage-commerce/pages/second-hand/publish/index'
       />
     </View>

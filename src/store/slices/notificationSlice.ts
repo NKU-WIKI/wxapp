@@ -175,20 +175,21 @@ const notificationSlice = createSlice({
 }
   },
 extraReducers: (builder) => {
-  builder
-    .addCase(fetchUnreadCounts.pending, (state) => {
-      state.loading = true;
-    })
-    .addCase(fetchUnreadCounts.fulfilled, (state, action) => {
-      state.loading = false;
-      state.unreadCounts = action.payload;
-      state.lastUpdated = Date.now();
-    })
-    .addCase(fetchUnreadCounts.rejected, (state, _action) => {
-      state.loading = false;
-      // // console.error('�?[NotificationSlice] fetchUnreadCounts 失败:', action.error.message);
-      // 失败时不重置数据，保持上次的状�?      });
-    }
+    builder
+      .addCase(fetchUnreadCounts.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchUnreadCounts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.unreadCounts = action.payload;
+        state.lastUpdated = Date.now();
+      })
+      .addCase(fetchUnreadCounts.rejected, (state, _action) => {
+        state.loading = false;
+        // console.error('❌[NotificationSlice] fetchUnreadCounts 失败:', action.error.message);
+        // 失败时不重置数据，保持上次的状态
+      });
+  },
 });
 
 export const {
