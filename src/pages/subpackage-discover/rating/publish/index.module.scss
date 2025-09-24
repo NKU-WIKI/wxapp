@@ -1,4 +1,4 @@
-@import "../../../../styles/variables.scss";
+@import url('../../../../styles/variables.scss');
 
 .pageContainer {
   display: flex;
@@ -50,7 +50,7 @@
   background-color: $bg-input;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:active {
     background-color: darken($bg-input, 5%);
     border-color: $theme-primary;
@@ -101,7 +101,7 @@
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  
+
   &:active {
     background-color: rgba(0, 0, 0, 0.8);
   }
@@ -117,7 +117,7 @@
 /* 表单组件 */
 .formGroup {
   margin-bottom: 20px;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -148,12 +148,12 @@
   color: $text-primary;
   background-color: $bg-input;
   transition: border-color 0.2s ease;
-  
+
   &:focus {
     border-color: $theme-primary;
     outline: none;
   }
-  
+
   &::placeholder {
     color: $text-helper-gray;
   }
@@ -170,12 +170,12 @@
   background-color: $bg-input;
   resize: none;
   transition: border-color 0.2s ease;
-  
+
   &:focus {
     border-color: $theme-primary;
     outline: none;
   }
-  
+
   &::placeholder {
     color: $text-helper-gray;
   }
@@ -202,7 +202,7 @@
   font-size: 24px;
   opacity: 0.3;
   transition: opacity 0.2s ease;
-  
+
   &.starActive {
     opacity: 1;
   }
@@ -236,15 +236,15 @@
   cursor: pointer;
   border-bottom: 1px solid $border-light;
   transition: background-color 0.2s ease;
-  
+
   &:last-child {
     border-bottom: none;
   }
-  
+
   &:active {
     background-color: $bg-input;
   }
-  
+
   &.selected {
     background-color: rgba($theme-primary, 0.1);
     color: $theme-primary;
@@ -274,11 +274,11 @@
   background-color: $bg-input;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:active {
     background-color: darken($bg-input, 5%);
   }
-  
+
   &.selected {
     border-color: $theme-primary;
     background-color: rgba($theme-primary, 0.05);
@@ -306,7 +306,7 @@
   justify-content: space-between;
   padding: 16px 0;
   border-bottom: 1px solid $border-light;
-  
+
   &:last-child {
     border-bottom: none;
   }
@@ -325,7 +325,7 @@
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  
+
   &.switchOn {
     background-color: $theme-primary;
   }
@@ -340,7 +340,7 @@
   background-color: white;
   border-radius: 50%;
   transition: transform 0.3s ease;
-  
+
   .switch.switchOn & {
     transform: translateX(20px);
   }
@@ -368,15 +368,15 @@
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  
+
   &:active {
     background-color: darken($theme-primary, 10%);
   }
-  
+
   &.disabled {
     background-color: $text-helper-gray;
     cursor: not-allowed;
-    
+
     &:active {
       background-color: $text-helper-gray;
     }
@@ -390,11 +390,11 @@
 }
 
 /* 响应式优化 */
-@media (max-width: 375px) {
+@media (width <= 375px) {
   .categoriesContainer {
     grid-template-columns: 1fr;
   }
-  
+
   .starContainer {
     flex-wrap: wrap;
   }
@@ -414,11 +414,11 @@
 
 .publishCard {
   animation: fadeInUp 0.3s ease-out;
-  
+
   &:nth-child(2) {
     animation-delay: 0.1s;
   }
-  
+
   &:nth-child(3) {
     animation-delay: 0.2s;
   }
@@ -435,7 +435,7 @@
   .input,
   .textarea {
     border-color: $status-error;
-    
+
     &:focus {
       border-color: $status-error;
       box-shadow: 0 0 0 2px rgba($status-error, 0.2);
@@ -448,7 +448,7 @@
   .input,
   .textarea {
     border-color: $status-success;
-    
+
     &:focus {
       border-color: $status-success;
       box-shadow: 0 0 0 2px rgba($status-success, 0.2);

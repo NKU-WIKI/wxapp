@@ -7,7 +7,7 @@
 
 // 固定的头部区域（搜索框和分类栏）
 .fixedHeader {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 // 搜索框样式
@@ -17,7 +17,7 @@
   background-color: #f3f4f6;
   border-radius: 9999px;
   padding: 8px 12px; // 恢复为与home页面相同的8px
-  margin: 16px 16px 8px 16px; // 恢复为与home页面相同的边距
+  margin: 16px 16px 8px; // 恢复为与home页面相同的边距
 }
 
 .searchIcon {
@@ -82,7 +82,7 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
     .filterText {
-      color: #ffffff;
+      color: #fff;
       font-weight: 600;
     }
   }
@@ -97,7 +97,7 @@
 
 .filterArrow {
   font-size: 10px;
-  color: #ffffff;
+  color: #fff;
   transition: transform 0.2s ease;
   margin-left: 2px;
 
@@ -133,8 +133,7 @@
 // 分类容器样式 - 标签栏样式
 .categoryContainer {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-flow: row nowrap;
   gap: 12px;
   padding: 8px 16px;
   margin: 0;
@@ -162,7 +161,7 @@
     box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 
     .categoryText {
-      color: #ffffff;
+      color: #fff;
       font-weight: 600;
     }
   }
@@ -242,7 +241,7 @@
 }
 
 .activityCard {
-  background: #ffffff;
+  background: #fff;
   border-radius: 12px;
   margin-bottom: 2px; // 原8px减半为4px
   overflow: hidden;
@@ -268,34 +267,34 @@
 .titleSection {
   display: flex;
   align-items: center;
-  gap: 8px;  // 减小间距，让标签更紧挨着标题
+  gap: 8px; // 减小间距，让标签更紧挨着标题
   margin-bottom: 16px;
-  flex-wrap: nowrap;  // 防止换行，确保在同一行
+  flex-wrap: nowrap; // 防止换行，确保在同一行
 }
 
 // 组织者标签样式（深紫色方形标签）
 .organizerTag {
-  background: #6B46C1;
+  background: #6b46c1;
   border-radius: 4px;
-  padding: 4px 8px;  // 减小内边距，让标签更紧凑
+  padding: 4px 8px; // 减小内边距，让标签更紧凑
   flex-shrink: 0;
 }
 
 .organizerTagText {
-  color: #ffffff;
-  font-size: 12px;  // 稍微减小字体
+  color: #fff;
+  font-size: 12px; // 稍微减小字体
   font-weight: 600;
   line-height: 1;
 }
 
 // 内联组织者标签样式（直接在标题文本后面）
 .organizerTagInline {
-  background: #6B46C1;
-  color: #ffffff;
+  background: #6b46c1;
+  color: #fff;
   font-size: 12px;
   font-weight: 600;
-  padding: 4px 8px;  // 增加上下padding从2px到4px，左右从6px到8px
-  border-radius: 4px;  // 稍微增加圆角
+  padding: 4px 8px; // 增加上下padding从2px到4px，左右从6px到8px
+  border-radius: 4px; // 稍微增加圆角
   margin-left: 8px;
 }
 
@@ -307,8 +306,8 @@
   margin: 0; // 移除边距，由父容器控制间距
   word-wrap: break-word;
   word-break: break-all;
-  flex-shrink: 1;  // 允许标题收缩以给标签让空间
-  min-width: 0;    // 确保可以收缩
+  flex-shrink: 1; // 允许标题收缩以给标签让空间
+  min-width: 0; // 确保可以收缩
 }
 
 .descriptionContainer {
@@ -399,7 +398,8 @@
   width: 14px;
   height: 14px;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  filter: brightness(0) saturate(100%) invert(45%) sepia(10%) saturate(1000%) hue-rotate(195deg) brightness(95%) contrast(85%);
+  filter: brightness(0) saturate(100%) invert(45%) sepia(10%) saturate(1000%) hue-rotate(195deg)
+    brightness(95%) contrast(85%);
 
   &.expanded {
     transform: rotate(180deg);
@@ -429,7 +429,7 @@
 
 .actionButton {
   background: #4f46e5;
-  color: #ffffff;
+  color: #fff;
   padding: 8px 16px;
   border-radius: 8px; // 从20px改为8px，变成圆角矩形
   font-size: 14px;
@@ -445,7 +445,7 @@
   // 已报名状态样式
   &.registered {
     background: #a5b4fc;
-    color: #ffffff;
+    color: #fff;
 
     &:active {
       background: #a5b4fc;
@@ -456,7 +456,7 @@
   // 已取消状态样式
   &.cancelled {
     background: #ef4444;
-    color: #ffffff;
+    color: #fff;
     cursor: not-allowed;
 
     &:active {
@@ -468,7 +468,7 @@
   // 组织者状态样式（我的活动）
   &.organizer {
     background: #10b981;
-    color: #ffffff;
+    color: #fff;
     cursor: not-allowed;
 
     &:active {
@@ -480,7 +480,7 @@
   // 禁用状态样式（名额已满等）
   &.disabled {
     background: #9ca3af;
-    color: #ffffff;
+    color: #fff;
     opacity: 0.7;
     cursor: not-allowed;
 
@@ -494,11 +494,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 0 50px 0;
+  padding: 0 0 50px;
   color: #94a3b8;
   font-size: 14px;
 }
-
 
 // 空状态样式
 .emptyState {

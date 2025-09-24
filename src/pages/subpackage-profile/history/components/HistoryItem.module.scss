@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import url('@/styles/variables.scss');
 
 .item {
   display: flex;
@@ -79,7 +79,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #FF4444; // 简单的红色
+  background: #f44; // 简单的红色
   display: flex;
   align-items: center;
   justify-content: center;
@@ -87,7 +87,7 @@
   transition: background-color 0.2s ease;
 
   &:active {
-    background-color: #CC3333; // 点击时更深的红色
+    background-color: #c33; // 点击时更深的红色
   }
 
   &::before {
@@ -97,4 +97,4 @@
     font-weight: bold;
     line-height: 1;
   }
-} 
+}

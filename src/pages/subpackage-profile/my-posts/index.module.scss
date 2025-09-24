@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import url('@/styles/variables.scss');
 
 .container {
   display: flex;
@@ -13,12 +13,12 @@
 }
 
 .postsContainer {
-  padding: 20px 16px 40px 16px; /* 增加顶部内边距，因为没有标题栏了 */
+  padding: 20px 16px 40px; /* 增加顶部内边距，因为没有标题栏了 */
 }
 
 .postWrapper {
   margin-bottom: 16px;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -57,7 +57,7 @@
   background: $theme-primary;
   border-radius: 8px;
   cursor: pointer;
-  
+
   &:active {
     background: $theme-primary-dark;
   }
@@ -80,7 +80,7 @@
   background: $theme-primary;
   border-radius: 8px;
   cursor: pointer;
-  
+
   &:active {
     background: $theme-primary-dark;
   }
@@ -119,10 +119,7 @@
 // ActionSheet 样式
 .actionSheetOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.3);
   z-index: 1000;
   display: flex;
@@ -135,7 +132,7 @@
   border-radius: 16px 16px 0 0;
   width: 100%;
   max-width: 400px;
-  padding: 20px 0 40px 0;
+  padding: 20px 0 40px;
   animation: slideUp 0.3s ease-out;
 }
 
@@ -152,11 +149,11 @@
   padding: 16px 20px;
   border-bottom: 1px solid $border-light;
   cursor: pointer;
-  
+
   &:last-child {
     border-bottom: none;
   }
-  
+
   &:active {
     background: $bg-page-gray;
   }
@@ -166,7 +163,7 @@
   font-size: 16px;
   color: $text-primary;
   text-align: center;
-  
+
   &.deleteText {
     color: $status-error;
   }
@@ -175,10 +172,7 @@
 // PinModal 样式
 .pinModalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.3);
   z-index: 1001;
   display: flex;
@@ -223,15 +217,15 @@
   align-items: center;
   transition: all 0.2s ease;
   background: $bg-card;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
-  
+
   &:active {
     background: $bg-page-gray;
   }
-  
+
   &.pinOptionSelected {
     background: rgba(139, 92, 246, 0.1); // 浅紫色选中效果
     border-color: rgba(139, 92, 246, 0.5); // 选中时边框变为紫色
@@ -276,16 +270,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  
+
   &:active {
     background: $theme-primary-dark;
     transform: scale(0.98);
   }
-  
+
   &.confirmButtonDisabled {
     background: $bg-page-gray;
     cursor: not-allowed;
-    
+
     &:active {
       background: $bg-page-gray;
       transform: none;
@@ -297,7 +291,7 @@
   color: $text-white;
   font-size: 16px;
   font-weight: 500;
-  
+
   .confirmButtonDisabled & {
     color: $text-secondary-gray;
   }

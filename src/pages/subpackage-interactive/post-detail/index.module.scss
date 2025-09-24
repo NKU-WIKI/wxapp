@@ -1,11 +1,11 @@
-@use "../../../styles/variables.scss" as *;
+@use '../../../styles/variables.scss' as *;
 
 // 页面整体布局
 .postDetailPage {
   position: relative;
   width: 100%;
   height: 100vh;
-  background: #F8FAFC;
+  background: #f8fafc;
   display: flex;
   flex-direction: column;
 }
@@ -13,17 +13,17 @@
 .contentWrapper {
   flex: 1;
   overflow: hidden;
-  background: #F8FAFC;
+  background: #f8fafc;
 }
 
 .scrollView {
   height: 100%;
-  background: #F8FAFC;
+  background: #f8fafc;
 }
 
 .mainContent {
   padding-bottom: 90px; /* 为固定底部输入框留出空间 (62px输入框 + 边距) */
-  background: #F8FAFC;
+  background: #f8fafc;
 }
 
 .loading {
@@ -35,7 +35,7 @@
 .error {
   padding: 20px;
   text-align: center;
-  color: #EF4444;
+  color: #ef4444;
 }
 
 // 固定底部输入框
@@ -45,16 +45,16 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #FFFFFF;
-  border-top: 1px solid #E5E5E5;
+  background: #fff;
+  border-top: 1px solid #e5e5e5;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
 }
 
 // 帖子详情样式
 .postWrapper {
-  background-color: #FFFFFF;
+  background-color: #fff;
   padding: 16px;
-  margin: 12px 12px;
+  margin: 12px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -65,7 +65,7 @@
   margin-bottom: 12px;
   padding-left: 12px;
   padding-top: 5px;
-  
+
   .title {
     font-size: 18px;
     font-weight: bold;
@@ -74,7 +74,7 @@
     width: 343px;
     min-height: 38px;
   }
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -82,8 +82,8 @@
     transform: translateX(-50%);
     bottom: -10px;
     width: 340px;
-    height: 0px;
-    border-bottom: 1px solid #D8D8D8;
+    height: 0;
+    border-bottom: 1px solid #d8d8d8;
   }
 }
 
@@ -97,39 +97,39 @@
   padding-right: 16px;
   height: 48px;
   position: relative;
-  
+
   .authorInfo {
     display: flex;
     align-items: center;
     width: 100%; /* Occupy full width */
     height: 48px;
   }
-  
+
   .avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     margin-right: 12px;
   }
-  
+
   .userMeta {
     display: flex;
     flex-direction: column;
   }
-  
+
   .nameWrapper {
     display: flex;
     align-items: center;
     margin-bottom: 4px;
   }
-  
+
   .authorName {
     font-weight: 600;
     font-size: 15px;
     color: #333;
     margin-right: 8px;
   }
-  
+
   .levelTag {
     background-color: #fef08a;
     padding: 2px 8px;
@@ -141,7 +141,7 @@
     justify-content: center;
     margin-left: 4px;
     height: 18px;
-    
+
     .levelText {
       font-size: 11px;
       color: #854d0e;
@@ -149,27 +149,27 @@
       line-height: 1;
     }
   }
-  
+
   .meta {
     font-size: 12px;
     color: #999;
   }
-  
+
   .followButton {
     position: absolute;
     right: 32px;
     top: 8px;
     background-color: transparent;
-    color: #4F46E5;
+    color: #4f46e5;
     padding: 2px 10px;
     border-radius: 6px;
-    border: 1px solid #4F46E5;
+    border: 1px solid #4f46e5;
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    Text {
-      color: #4F46E5;
+
+    text {
+      color: #4f46e5;
       font-size: 12px;
     }
   }
@@ -181,7 +181,7 @@
   padding-left: 12px;
   padding-right: 16px;
   position: relative;
-  
+
   .text {
     font-size: 15px;
     line-height: 1.6;
@@ -200,7 +200,7 @@
   margin-bottom: 16px;
   padding-left: 12px;
   padding-right: 16px;
-  
+
   .postImage {
     width: 100%;
     height: 160px;
@@ -212,7 +212,7 @@
 // 单张图片布局
 .singleImage {
   grid-template-columns: 1fr;
-  
+
   .postImage {
     height: 200px;
   }
@@ -226,7 +226,7 @@
 // 九宫格布局 (3-9张图)
 .gridImage {
   grid-template-columns: repeat(3, 1fr);
-  
+
   .postImage {
     height: 110px;
   }
@@ -245,42 +245,42 @@
   width: 343px;
   height: auto;
   min-height: 24px;
-  
+
   .tag {
     position: relative;
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
     height: 24px;
     border-radius: 12px;
     opacity: 1;
-    background: #F3F4F6;
+    background: #f3f4f6;
     padding: 0 12px;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    
+
     .tagText {
       font-size: 12px;
       color: #666;
       white-space: nowrap;
     }
   }
-  
+
   .locationTag {
     display: flex;
     align-items: center;
-    background-color: #F3F4F6;
+    background-color: #f3f4f6;
     padding: 0 12px;
     border-radius: 12px;
     height: 24px;
-    
+
     .locationIcon {
       width: 12px;
       height: 12px;
       margin-right: 4px;
     }
-    
+
     .tagText {
       font-size: 12px;
       color: #666;
@@ -297,30 +297,30 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background-color: #FFFFFF;
+  background-color: #fff;
   box-sizing: border-box;
-  border-top: 1px solid #C3C3C3;
-  border-bottom: 1px solid #C3C3C3;
+  border-top: 1px solid #c3c3c3;
+  border-bottom: 1px solid #c3c3c3;
   margin-top: 16px; // 与上方内容保持一定间距
-  
+
   .actionButton {
     display: flex;
     align-items: center;
     justify-content: center;
     flex: 1;
     gap: 4px;
-    
+
     .actionIcon {
       width: 20px;
       height: 20px;
     }
-    
+
     .actionCount {
       font-size: 14px;
       color: #666;
-      
+
       &.active {
-        color: #4F46E5;
+        color: #4f46e5;
       }
     }
   }
@@ -328,30 +328,30 @@
 
 /* 评论区样式 */
 .commentsSection {
-  background-color: #FFFFFF;
+  background-color: #fff;
   padding: 16px 16px 16px 12px;
   margin: 0 12px 12px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  
+
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
-    
+
     .title {
       font-size: 16px;
       font-weight: 600;
       color: #333;
     }
-    
+
     .sort {
       display: flex;
       align-items: center;
       color: #666;
       font-size: 14px;
-      
+
       .icon {
         width: 16px;
         height: 16px;
@@ -359,14 +359,14 @@
       }
     }
   }
-  
+
   .emptyComments {
     text-align: center;
     padding: 20px 0;
     color: #999;
     font-size: 14px;
   }
-  
+
   .loading {
     text-align: center;
     padding: 20px 0;
@@ -377,15 +377,15 @@
 
 /* 错误容器样式 */
 .errorContainer {
-  background-color: #FFFFFF;
+  background-color: #fff;
   padding: 16px;
   margin: 0 12px 12px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   text-align: center;
-  
+
   .errorText {
-    color: #EF4444;
+    color: #ef4444;
     font-size: 14px;
   }
 }
@@ -393,28 +393,28 @@
 /* 评论项样式 */
 .commentItem {
   margin-bottom: 20px;
-  
+
   .content {
     padding-left: 48px; /* 36px avatar width + 12px margin */
   }
-  
+
   .actions {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-top: 8px;
   }
-  
+
   .commentRightSection {
     display: flex;
     align-items: center;
     margin-left: auto;
     gap: 12px;
   }
-  
+
   .commentTime {
     font-size: 11px;
-    color: #9CA3AF;
+    color: #9ca3af;
     white-space: nowrap;
   }
 }
@@ -422,21 +422,21 @@
 /* 子评论项样式 */
 .subCommentItem {
   margin-bottom: 12px;
-  
+
   .subContent {
     padding-left: 48px; /* 36px avatar width + 12px margin */
   }
-  
+
   .subActions {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-top: 8px;
   }
-  
+
   .subCommentTime {
     font-size: 11px;
-    color: #9CA3AF;
+    color: #9ca3af;
     margin-left: auto;
     white-space: nowrap;
   }
@@ -451,12 +451,12 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   }
-  
+
   text {
     color: white;
     font-size: 12px;
@@ -465,31 +465,29 @@
 }
 
 .topBar {
-  position: absolute;
-  left: 0px;
-  top: 0px;
+  left: 0;
+  top: 0;
   width: 375px;
   height: 62px;
-  border-radius: 10px 10px 0px 0px;
+  border-radius: 10px 10px 0 0;
   opacity: 1;
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   padding: 10px;
-  gap: 10px 10px;
-  flex-wrap: wrap;
+  gap: 10px;
   align-content: flex-start;
-  background: #FFFFFF;
+  background: #fff;
   box-sizing: border-box;
-  
+
   /* 移除旧的边框样式 */
   border: none;
-  
+
   /* 使用多种方法确保边框显示 */
-  border-bottom: 2px solid #C3C3C3 !important;
-  
+  border-bottom: 2px solid #c3c3c3 !important;
+
   /* 添加伪元素作为备用边框 */
   position: relative;
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -497,10 +495,10 @@
     left: 0;
     width: 100%;
     height: 1px;
-    background-color: #C3C3C3;
+    background-color: #c3c3c3;
     z-index: 11;
   }
-  
+
   z-index: 10;
 }
 
@@ -514,15 +512,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background: #F0F4F8;
-  border-bottom: 1px solid #E2E8F0;
-  
+  background: #f0f4f8;
+  border-bottom: 1px solid #e2e8f0;
+
   .replyText {
     font-size: 14px;
-    color: #4F46E5;
+    color: #4f46e5;
     font-weight: 500;
   }
-  
+
   .cancelReplyIcon {
     width: 16px;
     height: 16px;
@@ -537,10 +535,9 @@
   border-radius: 0;
   opacity: 1;
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   padding: 10px;
-  gap: 10px 10px;
-  flex-wrap: wrap;
+  gap: 10px;
   align-content: flex-start;
   background: $bg-card;
   box-sizing: border-box;
@@ -555,10 +552,10 @@
   opacity: 1;
   display: flex;
   flex-direction: column;
-  padding: 0px 12px;
+  padding: 0 12px;
   z-index: 1;
   border-radius: 18px; /* 增加圆角 */
-  border: 1px solid #C3C3C3;
+  border: 1px solid #c3c3c3;
   font-size: 15px;
   background: $bg-input;
 }
@@ -573,12 +570,12 @@
   opacity: 1;
   background: $bg-card;
   box-sizing: border-box;
-  border: 1px solid #C3C3C3;
+  border: 1px solid #c3c3c3;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 30;
-  
+
   &.disabled {
     opacity: 0.5;
     pointer-events: none;
@@ -589,15 +586,12 @@
   width: 14px;
   height: 14px;
   display: block;
-} 
+}
 
 // 子评论回复模态框样式
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -620,8 +614,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #E5E7EB;
-  background: #F9FAFB;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
 }
 
 .modalTitle {
@@ -637,17 +631,17 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #F3F4F6;
+  background: #f3f4f6;
   cursor: pointer;
-  
+
   text {
     font-size: 20px;
-    color: #6B7280;
+    color: #6b7280;
     font-weight: 300;
   }
-  
+
   &:hover {
-    background: #E5E7EB;
+    background: #e5e7eb;
   }
 }
 
@@ -658,11 +652,11 @@
 }
 
 .originalComment {
-  background: #F3F4F6;
+  background: #f3f4f6;
   padding: 12px 16px;
   border-radius: 8px;
   margin-bottom: 16px;
-  border-left: 3px solid #3B82F6;
+  border-left: 3px solid #3b82f6;
 }
 
 .originalAuthor {
@@ -672,7 +666,7 @@
 }
 
 .originalContent {
-  color: #6B7280;
+  color: #6b7280;
   font-size: 14px;
 }
 
@@ -690,9 +684,9 @@
 .subRepliesEmpty {
   text-align: center;
   padding: 40px 20px;
-  
+
   text {
-    color: #9CA3AF;
+    color: #9ca3af;
     font-size: 14px;
   }
 }
@@ -700,34 +694,34 @@
 .subRepliesList {
   .subReplyItem {
     padding: 12px 0;
-    border-bottom: 1px solid #F3F4F6;
-    
+    border-bottom: 1px solid #f3f4f6;
+
     &:last-child {
       border-bottom: none;
     }
   }
-  
+
   .subReplyHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 4px;
   }
-  
+
   .subReplyAuthor {
     font-size: 14px;
     font-weight: 600;
     color: #374151;
   }
-  
+
   .subReplyTime {
     font-size: 12px;
-    color: #9CA3AF;
+    color: #9ca3af;
   }
-  
+
   .subReplyContent {
     font-size: 14px;
-    color: #6B7280;
+    color: #6b7280;
     line-height: 1.5;
   }
 }
@@ -739,55 +733,57 @@
   margin-bottom: 8px;
 }
 
-      .likeButton {
-        display: flex;
-        align-items: center;
-        color: #666;
-        padding: 2px 6px;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        
-        &:hover, &:active {
-          background-color: #F3F4F6;
-        }
-        
-        .icon {
-          width: 16px !important;
-          height: 16px !important;
-          margin-right: 4px;
-          vertical-align: middle;
-        }
-      }
+.likeButton {
+  display: flex;
+  align-items: center;
+  color: #666;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 
-      .subLikeButton {
-        display: flex;
-        align-items: center;
-        color: #6B7280;
-        padding: 2px 4px;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        
-        &:hover, &:active {
-          background-color: #F3F4F6;
-        }
-        
-        .subIcon {
-          width: 14px !important;
-          height: 14px !important;
-          margin-right: 4px;
-          vertical-align: middle;
-        }
-        
-        Text {
-          color: #6B7280;
-          font-size: 12px;
-          font-weight: 500;
-        }
-      }
+  &:hover,
+  &:active {
+    background-color: #f3f4f6;
+  }
 
-      .toggleIcon {
-        width: 14px !important;
-        height: 14px !important;
-        margin-right: 4px;
-        transition: transform 0.2s ease;
-      }
+  .icon {
+    width: 16px !important;
+    height: 16px !important;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+}
+
+.subLikeButton {
+  display: flex;
+  align-items: center;
+  color: #6b7280;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover,
+  &:active {
+    background-color: #f3f4f6;
+  }
+
+  .subIcon {
+    width: 14px !important;
+    height: 14px !important;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  text {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+  }
+}
+
+.toggleIcon {
+  width: 14px !important;
+  height: 14px !important;
+  margin-right: 4px;
+  transition: transform 0.2s ease;
+}

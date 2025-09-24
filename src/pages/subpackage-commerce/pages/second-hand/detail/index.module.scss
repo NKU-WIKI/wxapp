@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import url('@/styles/variables.scss');
 
 .pageContainer {
   display: flex;
@@ -97,8 +97,12 @@
     }
 
     // 状态标签颜色 - 橙色表示出，蓝色表示收
-    .status_sell { background-color: rgba($status-warning, 0.9); }
-    .status_buy { background-color: rgba($status-info, 0.9); }
+    .status_sell {
+      background-color: rgba($status-warning, 0.9);
+    }
+    .status_buy {
+      background-color: rgba($status-info, 0.9);
+    }
 
     .productPrice {
       font-size: 20px;
@@ -309,7 +313,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #ffffff;
+  background-color: #fff;
   padding: 12px 16px;
   padding-bottom: calc(12px + constant(safe-area-inset-bottom));
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
@@ -342,7 +346,7 @@
         font-size: 16px;
       }
 
-       :global(.action-button_icon__1-s_m) {
+      :global(.action-button_icon__1-s_m) {
         // 在这里应用 filter
         filter: brightness(0) invert(1);
       }
@@ -351,7 +355,7 @@
     &:active {
       background-color: rgba(0, 0, 0, 0.05);
     }
-     &:last-child:active {
+    &:last-child:active {
       background-color: darken($theme-primary, 5%);
     }
   }

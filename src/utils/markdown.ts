@@ -6,8 +6,8 @@ const parseMarkdown = (markdown: string): string => {
     .replace(/\n{3,}/g, '\n\n')
     // 移除行首和行尾的空白字符
     .split('\n')
-    .map(line => line.trim())
-    .join('\n');
+    .map((line) => line.trim())
+    .join('\n')
 
   // 解析各种markdown元素
   let html = processedMarkdown
@@ -24,8 +24,8 @@ const parseMarkdown = (markdown: string): string => {
     // 代码块（必须在其他代码处理之前）
     .replace(/```([\s\S]*?)```/g, (_, code) => {
       // 清理代码内容，移除首尾空白行
-      const cleanCode = code.replace(/^\n+|\n+$/g, '');
-      return `<pre class="code-block"><code>${cleanCode}</code></pre>`;
+      const cleanCode = code.replace(/^\n+|\n+$/g, '')
+      return `<pre class="code-block"><code>${cleanCode}</code></pre>`
     })
     // 粗体和斜体
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -41,13 +41,13 @@ const parseMarkdown = (markdown: string): string => {
     // 单换行在列表中保持，段落中转为换行符
     .replace(/\n/g, (match, offset, string) => {
       // 如果在列表内部，保留换行；否则转为<br>
-      const beforeChar = offset > 0 ? string[offset - 1] : '';
-      const afterChar = offset < string.length - 1 ? string[offset + 1] : '';
+      const beforeChar = offset > 0 ? string[offset - 1] : ''
+      const afterChar = offset < string.length - 1 ? string[offset + 1] : ''
       if (beforeChar === '-' || afterChar === '-') {
-        return '\n';
+        return '\n'
       }
-      return '<br>';
-    });
+      return '<br>'
+    })
 
   // 不再需要包装列表，列表项直接作为span元素
 
@@ -57,62 +57,65 @@ const parseMarkdown = (markdown: string): string => {
     .replace(/<p class="markdown-p"><\/p>/g, '')
     // 移除开头和结尾的段落包装，以减少与周围元素的间距
     .replace(/^<p class="markdown-p">/, '')
-    .replace(/<\/p>$/, '');
+    .replace(/<\/p>$/, '')
 
   // 重新包装内容，但使用更紧凑的结构
   if (html.trim()) {
     // 如果内容以块级元素开头，不需要额外包装
-    if (!html.startsWith('<h1 class="markdown-h1">') &&
-        !html.startsWith('<h2 class="markdown-h2">') &&
-        !html.startsWith('<h3 class="markdown-h3">') &&
-        !html.startsWith('<h4 class="markdown-h4">') &&
-        !html.startsWith('<h5 class="markdown-h5">') &&
-        !html.startsWith('<h6 class="markdown-h6">') &&
-        !html.startsWith('<span class="markdown-list-item">') &&
-        !html.startsWith('<pre class="code-block">') &&
-        !html.startsWith('<hr class="markdown-hr">')) {
+    if (
+      !html.startsWith('<h1 class="markdown-h1">') &&
+      !html.startsWith('<h2 class="markdown-h2">') &&
+      !html.startsWith('<h3 class="markdown-h3">') &&
+      !html.startsWith('<h4 class="markdown-h4">') &&
+      !html.startsWith('<h5 class="markdown-h5">') &&
+      !html.startsWith('<h6 class="markdown-h6">') &&
+      !html.startsWith('<span class="markdown-list-item">') &&
+      !html.startsWith('<pre class="code-block">') &&
+      !html.startsWith('<hr class="markdown-hr">')
+    ) {
       // 使用div包装而不是p，以减少默认间距
-      html = `<div class="markdown-content">${html}</div>`;
+      html = `<div class="markdown-content">${html}</div>`
     } else {
       // 如果以块级元素开头，直接返回
-      html = `<div class="markdown-content">${html}</div>`;
+      html = `<div class="markdown-content">${html}</div>`
     }
   }
 
-  return html;
-};
+  return html
+}
 
 // 将markdown转换为小程序RichText支持的HTML格式
 export function markdownToHtml(markdown: string): string {
   try {
-    const html = parseMarkdown(markdown);
+    const html = parseMarkdown(markdown)
 
     // 对HTML进行一些清理，适配小程序RichText组件
-    return html
-      // 移除不必要的换行和空格
-      .replace(/\n/g, '')
-      .replace(/\s+/g, ' ')
-      // 将代码块的样式适配小程序
-      .replace(/<pre><code class="language-(\w+)">/g, '<pre class="code-block lang-$1"><code>')
-      .replace(/<pre><code>/g, '<pre class="code-block"><code>')
-      // 确保段落有合适的样式
-      .replace(/<p>/g, '<p class="markdown-p">')
-      // 确保标题有合适的样式
-      .replace(/<h(\d)>/g, '<h$1 class="markdown-h$1">')
-      // 列表项使用span标签，已在前面处理
-      // 确保引用有合适的样式
-      .replace(/<blockquote>/g, '<blockquote class="markdown-blockquote">')
-      // 确保链接有合适的样式
-      .replace(/<a href="([^"]+)">/g, '<a class="markdown-a" href="$1">')
-      // 确保代码有合适的样式
-      .replace(/<code>/g, '<code class="markdown-code">')
-      // 确保表格有合适的样式
-      .replace(/<table>/g, '<table class="markdown-table">')
-      .replace(/<th>/g, '<th class="markdown-th">')
-      .replace(/<td>/g, '<td class="markdown-td">');
+    return (
+      html
+        // 移除不必要的换行和空格
+        .replace(/\n/g, '')
+        .replace(/\s+/g, ' ')
+        // 将代码块的样式适配小程序
+        .replace(/<pre><code class="language-(\w+)">/g, '<pre class="code-block lang-$1"><code>')
+        .replace(/<pre><code>/g, '<pre class="code-block"><code>')
+        // 确保段落有合适的样式
+        .replace(/<p>/g, '<p class="markdown-p">')
+        // 确保标题有合适的样式
+        .replace(/<h(\d)>/g, '<h$1 class="markdown-h$1">')
+        // 列表项使用span标签，已在前面处理
+        // 确保引用有合适的样式
+        .replace(/<blockquote>/g, '<blockquote class="markdown-blockquote">')
+        // 确保链接有合适的样式
+        .replace(/<a href="([^"]+)">/g, '<a class="markdown-a" href="$1">')
+        // 确保代码有合适的样式
+        .replace(/<code>/g, '<code class="markdown-code">')
+        // 确保表格有合适的样式
+        .replace(/<table>/g, '<table class="markdown-table">')
+        .replace(/<th>/g, '<th class="markdown-th">')
+        .replace(/<td>/g, '<td class="markdown-td">')
+    )
   } catch (error) {
-    
-    return markdown; // 如果解析失败，返回原始文本
+    return markdown // 如果解析失败，返回原始文本
   }
 }
 
@@ -130,10 +133,9 @@ export function markdownToText(markdown: string): string {
       .replace(/>/g, '') // 移除引用标记
       .replace(/[-*_]{3,}/g, '') // 移除分割线
       .replace(/\n{2,}/g, '\n') // 合并多余的换行
-      .trim();
+      .trim()
   } catch (error) {
-    
-    return markdown;
+    return markdown
   }
 }
 
@@ -145,12 +147,7 @@ export function testMarkdown(): void {
     '> 这是一个引用块\n\n- 项目1\n- 项目2',
     '[链接文本](https://example.com)',
     '---\n\n分隔线测试\n\n***\n\n另一个分隔线\n\n___\n\n多余的\n\n\n\n换行测试',
-  ];
+  ]
 
-  
-  testCases.forEach((_test, _index) => {
-    
-    
-    
-  });
+  testCases.forEach((_test, _index) => {})
 }

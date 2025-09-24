@@ -1,423 +1,420 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #f8f8f8;
-  }
-  
-  .content {
-    flex: 1;
-    overflow: hidden;
-  }
-  
-  .scrollView {
-    height: 100%;
-  }
-  
-  .noteHeader {
-    background-color: #ffffff;
-    padding: 6px 16px 4px; // 进一步减少上下padding
-    margin-bottom: 1px; // 进一步减少底部margin
-  }
-  
-  .noteContent {
-    background-color: #ffffff;
-    padding: 12px 16px; // 减少上下padding
-    margin-bottom: 2px; // 减少底部margin
-  }
-  
-  .noteTitle {
-    font-size: 20px; // 稍微减少标题字体大小
-    font-weight: 700;
-    color: #000000;
-    line-height: 1.3; // 减少行高
-    margin-bottom: 12px; // 减少标题和内容之间的间距
-    display: block;
-    margin-left: 8px;
-    font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
-  }
-  
-  .authorSection {
-    margin-bottom: 2px; // 进一步减少作者区域底部margin
-  }
-  
-  .customAuthorInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px; // 减少元素间距
-    padding: 2px 0; // 进一步减少上下padding
-  }
-  
-  .authorAvatar {
-    width: 40px; // 将头像从36px调大到40px
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #f0f0f0;
-    flex-shrink: 0;
-  }
-  
-  .authorDetails {
-    display: flex;
-    flex-direction: column;
-    gap: 4px; // 减少元素间距
-    flex-shrink: 0;
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f8f8f8;
+}
 
-  .nameAndLevel {
-    display: flex;
-    align-items: center;
-    gap: 8px; // 名称和等级之间的间距
-  }
-  
-  .authorName {
-    font-size: 15px; // 稍微减少字体大小
-    font-weight: 500;
-    color: #333333;
-    margin-top: 2px; // 减少顶部margin
-    display: block;
-  }
-  
-  .authorLevel {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #4F46E5;
-    color: #fff;
-    padding: 1px 5px; // 减少内padding
-    border-radius: 8px;
-    font-size: 10px; // 减少字体大小
-    font-weight: 500;
-    height: 16px; // 减少高度
-    width: fit-content;
-  }
+.content {
+  flex: 1;
+  overflow: hidden;
+}
 
-  .authorBio {
-    font-size: 13px;
-    color: #666666;
-    line-height: 1.3;
-    margin-top: 2px;
-    display: block;
-    max-width: 200px; // 限制签名宽度，避免过长
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .authorActions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px; // 减少元素间距
-    margin-left: auto;
-  }
-  
-  .followButton {
-    background-color: #f5f5f5;
-    color: #333333;
-    padding: 4px 10px; // 减少内padding
-    border-radius: 14px;
-    border: 1px solid #e0e0e0;
-    cursor: pointer;
-  }
-  
-  .followText {
-    font-size: 13px; // 减少字体大小
-    font-weight: 500;
-  }
-  
-  .publicationTime {
-    font-size: 13px; // 减少字体大小
-    color: #666666;
-    white-space: nowrap;
-  }
-  
-  .tagsContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px; // 减少标签间距
-    margin-top: 8px; // 减少标签顶部margin
-  }
-  
-  .tag {
-    display: flex;
-    align-items: center;
-    gap: 4px; // 减少标签内元素间距
-    background-color: #f0f8ff;
-    color: #4a90e2;
-    padding: 4px 8px; // 减少标签内padding
-    border-radius: 16px;
-    font-size: 11px; // 减少字体大小
-    border: 1px solid #e1f0ff;
-    box-shadow: 0 1px 3px rgba(74, 144, 226, 0.1); // 减少阴影
-  }
-  
-  .tagIcon {
-    width: 12px; // 减少图标大小
-    height: 12px;
-  }
-  
-  .tagText {
-    font-weight: 500;
-  }
-  
-  .imageSection {
-    background-color: #ffffff;
-    margin-bottom: 2px; // 减少图片区域底部margin
-    position: relative;
-    padding: 16px; // 添加内边距，让图片周围有空隙
-  }
-  
-  .imageContainer {
-    width: 100%;
-    height: 180px; // 进一步减少图片高度
-    border-radius: 12px; // 添加圆角
-    overflow: hidden; // 确保圆角生效
-    background-color: #f8f8f8; // 添加背景色，为留白区域提供统一的背景
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; // 改为contain确保图片完整显示并留白
-    border-radius: 12px; // 为图片本身也添加圆角
-    cursor: pointer; // 添加手型光标提示可点击
-    transition: transform 0.2s ease; // 添加过渡效果
-    
-    &:active {
-      transform: scale(0.98); // 点击时轻微缩小，提供触觉反馈
-    }
-  }
-  
-  .imageCounter {
-    position: absolute;
-    bottom: 10px; // 减少底部距离
-    right: 16px;
-    background-color: rgba(0, 0, 0, 0.6);
-    color: #ffffff;
-    padding: 3px 6px; // 减少内padding
-    border-radius: 10px;
-    font-size: 11px; // 减少字体大小
-    font-weight: 500;
-  }
-  
-  .imageDots {
-    position: absolute;
-    bottom: 12px; // 减少底部距离
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 5px; // 减少点间距
-  }
-  
-  .dot {
-    width: 5px; // 减少点大小
-    height: 5px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.5);
-    transition: background-color 0.3s;
-  }
-  
-  .dot.active {
-    background-color: #ffffff;
-  }
-  
-  .contentText {
-    font-size: 15px; // 稍微减少字体大小
-    line-height: 1.5; // 减少行高
-    color: #333333;
-    text-align: justify;
-  }
-  
+.scrollView {
+  height: 100%;
+}
 
-  
-  .commentSection {
-    background-color: #ffffff;
-    padding: 12px 16px 0; // 减少上下padding，底部不设padding
-    margin-bottom: 2px; // 减少底部margin
+.noteHeader {
+  background-color: #fff;
+  padding: 6px 16px 4px; // 进一步减少上下padding
+  margin-bottom: 1px; // 进一步减少底部margin
+}
+
+.noteContent {
+  background-color: #fff;
+  padding: 12px 16px; // 减少上下padding
+  margin-bottom: 2px; // 减少底部margin
+}
+
+.noteTitle {
+  font-size: 20px; // 稍微减少标题字体大小
+  font-weight: 700;
+  color: #000;
+  line-height: 1.3; // 减少行高
+  margin-bottom: 12px; // 减少标题和内容之间的间距
+  display: block;
+  margin-left: 8px;
+  font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.authorSection {
+  margin-bottom: 2px; // 进一步减少作者区域底部margin
+}
+
+.customAuthorInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px; // 减少元素间距
+  padding: 2px 0; // 进一步减少上下padding
+}
+
+.authorAvatar {
+  width: 40px; // 将头像从36px调大到40px
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.authorDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; // 减少元素间距
+  flex-shrink: 0;
+}
+
+.nameAndLevel {
+  display: flex;
+  align-items: center;
+  gap: 8px; // 名称和等级之间的间距
+}
+
+.authorName {
+  font-size: 15px; // 稍微减少字体大小
+  font-weight: 500;
+  color: #333;
+  margin-top: 2px; // 减少顶部margin
+  display: block;
+}
+
+.authorLevel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4f46e5;
+  color: #fff;
+  padding: 1px 5px; // 减少内padding
+  border-radius: 8px;
+  font-size: 10px; // 减少字体大小
+  font-weight: 500;
+  height: 16px; // 减少高度
+  width: fit-content;
+}
+
+.authorBio {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.3;
+  margin-top: 2px;
+  display: block;
+  max-width: 200px; // 限制签名宽度，避免过长
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.authorActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px; // 减少元素间距
+  margin-left: auto;
+}
+
+.followButton {
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 4px 10px; // 减少内padding
+  border-radius: 14px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+}
+
+.followText {
+  font-size: 13px; // 减少字体大小
+  font-weight: 500;
+}
+
+.publicationTime {
+  font-size: 13px; // 减少字体大小
+  color: #666;
+  white-space: nowrap;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px; // 减少标签间距
+  margin-top: 8px; // 减少标签顶部margin
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 4px; // 减少标签内元素间距
+  background-color: #f0f8ff;
+  color: #4a90e2;
+  padding: 4px 8px; // 减少标签内padding
+  border-radius: 16px;
+  font-size: 11px; // 减少字体大小
+  border: 1px solid #e1f0ff;
+  box-shadow: 0 1px 3px rgba(74, 144, 226, 0.1); // 减少阴影
+}
+
+.tagIcon {
+  width: 12px; // 减少图标大小
+  height: 12px;
+}
+
+.tagText {
+  font-weight: 500;
+}
+
+.imageSection {
+  background-color: #fff;
+  margin-bottom: 2px; // 减少图片区域底部margin
+  position: relative;
+  padding: 16px; // 添加内边距，让图片周围有空隙
+}
+
+.imageContainer {
+  width: 100%;
+  height: 180px; // 进一步减少图片高度
+  border-radius: 12px; // 添加圆角
+  overflow: hidden; // 确保圆角生效
+  background-color: #f8f8f8; // 添加背景色，为留白区域提供统一的背景
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; // 改为contain确保图片完整显示并留白
+  border-radius: 12px; // 为图片本身也添加圆角
+  cursor: pointer; // 添加手型光标提示可点击
+  transition: transform 0.2s ease; // 添加过渡效果
+
+  &:active {
+    transform: scale(0.98); // 点击时轻微缩小，提供触觉反馈
   }
-  
-  .commentHeader {
-    margin-bottom: 10px; // 减少评论头部底部margin
+}
+
+.imageCounter {
+  position: absolute;
+  bottom: 10px; // 减少底部距离
+  right: 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 3px 6px; // 减少内padding
+  border-radius: 10px;
+  font-size: 11px; // 减少字体大小
+  font-weight: 500;
+}
+
+.imageDots {
+  position: absolute;
+  bottom: 12px; // 减少底部距离
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px; // 减少点间距
+}
+
+.dot {
+  width: 5px; // 减少点大小
+  height: 5px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  transition: background-color 0.3s;
+}
+
+.dot.active {
+  background-color: #fff;
+}
+
+.contentText {
+  font-size: 15px; // 稍微减少字体大小
+  line-height: 1.5; // 减少行高
+  color: #333;
+  text-align: justify;
+}
+
+.commentSection {
+  background-color: #fff;
+  padding: 12px 16px 0; // 减少上下padding，底部不设padding
+  margin-bottom: 2px; // 减少底部margin
+}
+
+.commentHeader {
+  margin-bottom: 10px; // 减少评论头部底部margin
+}
+
+.commentCount {
+  font-size: 17px; // 减少字体大小
+  font-weight: 600;
+  color: #333;
+}
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; // 减少评论项之间的间距
+  margin-bottom: 12px; // 减少评论列表底部margin
+}
+
+.commentItem {
+  display: flex;
+  gap: 10px; // 减少元素间距
+}
+
+.commentAvatar {
+  width: 32px; // 减少头像大小
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.commentContent {
+  flex: 1;
+}
+
+.commentAuthor {
+  font-size: 13px; // 减少字体大小
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 3px; // 减少底部margin
+  display: block;
+}
+
+.commentText {
+  font-size: 13px; // 减少字体大小
+  color: #333;
+  line-height: 1.4; // 减少行高
+  margin-bottom: 3px; // 减少底部margin
+}
+
+.commentTime {
+  font-size: 11px; // 减少字体大小
+  color: #999;
+}
+
+.commentInput {
+  position: relative;
+  width: 100%;
+  height: 62px;
+  border-radius: 0;
+  opacity: 1;
+  display: flex;
+  flex-flow: row wrap;
+  padding: 10px;
+  gap: 10px;
+  align-content: flex-start;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.inputField {
+  position: absolute;
+  left: 8px;
+  top: 13px;
+  width: 280px;
+  height: 36px;
+  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px;
+  z-index: 1;
+  border-radius: 18px;
+  border: 1px solid #c3c3c3;
+  font-size: 15px;
+  background: #f5f5f5;
+}
+
+.sendButton {
+  position: absolute;
+  right: 8px;
+  top: 15px;
+  width: 32px;
+  height: 32px;
+  border-radius: 80px;
+  opacity: 1;
+  background: #fff;
+  box-sizing: border-box;
+  border: 1px solid #c3c3c3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+
+  &.sending {
+    opacity: 0.5;
+    pointer-events: none;
   }
-  
-  .commentCount {
-    font-size: 17px; // 减少字体大小
-    font-weight: 600;
-    color: #333333;
-  }
-  
-  .commentList {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; // 减少评论项之间的间距
-    margin-bottom: 12px; // 减少评论列表底部margin
-  }
-  
-  .commentItem {
-    display: flex;
-    gap: 10px; // 减少元素间距
-  }
-  
-  .commentAvatar {
-    width: 32px; // 减少头像大小
-    height: 32px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  
-  .commentContent {
-    flex: 1;
-  }
-  
-  .commentAuthor {
-    font-size: 13px; // 减少字体大小
-    font-weight: 500;
-    color: #333333;
-    margin-bottom: 3px; // 减少底部margin
-    display: block;
-  }
-  
-  .commentText {
-    font-size: 13px; // 减少字体大小
-    color: #333333;
-    line-height: 1.4; // 减少行高
-    margin-bottom: 3px; // 减少底部margin
-  }
-  
-  .commentTime {
-    font-size: 11px; // 减少字体大小
-    color: #999999;
-  }
-  
-  .commentInput {
-    position: relative;
-    width: 100%;
-    height: 62px;
-    border-radius: 0;
-    opacity: 1;
-    display: flex;
-    flex-direction: row;
-    padding: 10px;
-    gap: 10px 10px;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    background: #ffffff;
-    box-sizing: border-box;
-  }
-  
-  .inputField {
-    position: absolute;
-    left: 8px;
-    top: 13px;
-    width: 280px;
-    height: 36px;
-    opacity: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 0px 12px;
-    z-index: 1;
-    border-radius: 18px;
-    border: 1px solid #C3C3C3;
-    font-size: 15px;
-    background: #F5F5F5;
-  }
-  
-  .sendButton {
-    position: absolute;
-    right: 8px;
-    top: 15px;
-    width: 32px;
-    height: 32px;
-    border-radius: 80px;
-    opacity: 1;
-    background: #ffffff;
-    box-sizing: border-box;
-    border: 1px solid #C3C3C3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 30;
-    
-    &.sending {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-  }
-  
-  .sendIcon {
-    width: 14px;
-    height: 14px;
-    display: block;
-  }
-  
-  // 评论加载状态
-  .commentLoading {
-    display: flex;
-    justify-content: center;
-    padding: 20px 0;
-  }
-  
-  // 空评论状态
-  .emptyComments {
-    display: flex;
-    justify-content: center;
-    padding: 30px 0;
-    text-align: center;
-  }
-  
-  .emptyText {
-    font-size: 14px;
-    color: #999999;
-  }
-  
-  // 发送中状态
-  .sending {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-  
-  .sendingText {
-    color: #ffffff;
-    font-size: 12px;
-  }
-  
-  .bottomBar {
-    background-color: #ffffff;
-    border-top: 1px solid #e9ecef;
-    padding: 10px 16px; // 减少上下padding
-  }
-  
-  .loadingContainer,
-  .errorContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 50px 20px; // 减少上下padding
-    text-align: center;
-  }
-  
-  .loadingText {
-    font-size: 15px; // 减少字体大小
-    color: #666666;
-    margin-bottom: 12px; // 减少底部margin
-  }
-  
-  .errorText {
-    font-size: 15px; // 减少字体大小
-    color: #e74c3c;
-    margin-bottom: 16px; // 减少底部margin
-    text-align: center;
-  }
-  
-  .retryButton {
-    background-color: #4a90e2;
-    color: #ffffff;
-    padding: 10px 20px; // 减少内padding
-    border-radius: 18px;
-    font-size: 13px; // 减少字体大小
-    font-weight: 500;
-  }
+}
+
+.sendIcon {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+// 评论加载状态
+.commentLoading {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+// 空评论状态
+.emptyComments {
+  display: flex;
+  justify-content: center;
+  padding: 30px 0;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: 14px;
+  color: #999;
+}
+
+// 发送中状态
+.sending {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.sendingText {
+  color: #fff;
+  font-size: 12px;
+}
+
+.bottomBar {
+  background-color: #fff;
+  border-top: 1px solid #e9ecef;
+  padding: 10px 16px; // 减少上下padding
+}
+
+.loadingContainer,
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px; // 减少上下padding
+  text-align: center;
+}
+
+.loadingText {
+  font-size: 15px; // 减少字体大小
+  color: #666;
+  margin-bottom: 12px; // 减少底部margin
+}
+
+.errorText {
+  font-size: 15px; // 减少字体大小
+  color: #e74c3c;
+  margin-bottom: 16px; // 减少底部margin
+  text-align: center;
+}
+
+.retryButton {
+  background-color: #4a90e2;
+  color: #fff;
+  padding: 10px 20px; // 减少内padding
+  border-radius: 18px;
+  font-size: 13px; // 减少字体大小
+  font-weight: 500;
+}

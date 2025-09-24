@@ -11,7 +11,7 @@
   /* Provide a subtle feedback on press */
   &:hover,
   &:active {
-    background-color: #F3F4F6;
+    background-color: #f3f4f6;
   }
 
   &.disabled {
@@ -40,11 +40,12 @@
   /* 点赞激活状态 - 蓝色 */
   &.liked {
     .icon {
-      filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+      filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg)
+        brightness(104%) contrast(97%);
     }
 
     .text {
-      color: #4F46E5;
+      color: #4f46e5;
       font-weight: 500;
     }
   }
@@ -52,11 +53,12 @@
   /* 收藏激活状态 - 黄色 */
   &.favorited {
     .icon {
-      filter: brightness(0) saturate(100%) invert(83%) sepia(31%) saturate(638%) hue-rotate(359deg) brightness(103%) contrast(107%);
+      filter: brightness(0) saturate(100%) invert(83%) sepia(31%) saturate(638%) hue-rotate(359deg)
+        brightness(103%) contrast(107%);
     }
 
     .text {
-      color: #F59E0B;
+      color: #f59e0b;
       font-weight: 500;
     }
   }

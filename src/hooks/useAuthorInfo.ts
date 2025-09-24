@@ -39,11 +39,7 @@ export const useAuthorInfo = (
   follow: () => Promise<void>
   unfollow: () => Promise<void>
 } => {
-  const {
-    includeLevel = true,
-    includeFollowStatus = true,
-    includeStats = true
-  } = options
+  const { includeLevel = true, includeFollowStatus = true, includeStats = true } = options
 
   const { checkAuth } = useAuthGuard()
   const currentUserId = useSelector((state: RootState) => state.user.user?.id)
@@ -82,7 +78,7 @@ export const useAuthorInfo = (
               progress: 0,
               level_name: convertLevelToRealm(userLevel),
               next_level_name: userLevel < 7 ? convertLevelToRealm(userLevel + 1) : undefined,
-              rules: []
+              rules: [],
             }
             setLevelInfo(levelInfoData)
           } catch (_err) {
@@ -98,7 +94,7 @@ export const useAuthorInfo = (
           } catch (_err) {
             // 忽略统计信息提取错误
           }
-        } 
+        }
       } else {
         throw new Error(userResponse.message || '获取用户信息失败')
       }
@@ -134,7 +130,7 @@ export const useAuthorInfo = (
       // 这里应该调用关注API
       // 暂时模拟关注成功
       setIsFollowing(true)
-      setFollowersCount(prev => prev + 1)
+      setFollowersCount((prev) => prev + 1)
     } catch (_err) {
       // 忽略关注操作错误
     }
@@ -148,7 +144,7 @@ export const useAuthorInfo = (
       // 这里应该调用取消关注API
       // 暂时模拟取消关注成功
       setIsFollowing(false)
-      setFollowersCount(prev => Math.max(0, prev - 1))
+      setFollowersCount((prev) => Math.max(0, prev - 1))
     } catch (_err) {
       // 忽略取消关注操作错误
     }
@@ -156,10 +152,7 @@ export const useAuthorInfo = (
 
   // 重新获取数据
   const refetch = useCallback(async () => {
-    await Promise.all([
-      fetchUserInfo(),
-      fetchFollowStatus()
-    ])
+    await Promise.all([fetchUserInfo(), fetchFollowStatus()])
   }, [fetchUserInfo, fetchFollowStatus])
 
   // 初始化数据
@@ -178,9 +171,6 @@ export const useAuthorInfo = (
     error,
     refetch,
     follow,
-    unfollow
+    unfollow,
   }
 }
-
-
-

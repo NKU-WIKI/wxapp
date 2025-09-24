@@ -1,6 +1,10 @@
-import { GetCollectionParams, RemoveFromCollectionParams, CollectionResponse } from "@/types/api/collection.d";
-import { getMyFavorites } from "@/services/api/user";
-import http from "../request";
+import {
+  GetCollectionParams,
+  RemoveFromCollectionParams,
+  CollectionResponse,
+} from '@/types/api/collection.d'
+import { getMyFavorites } from '@/services/api/user'
+import http from '../request'
 
 /**
  * 获取收藏列表
@@ -8,8 +12,8 @@ import http from "../request";
  * @returns
  */
 export const getCollections = (params: GetCollectionParams) => {
-  return http.get<CollectionResponse>("/users/me/favorites", params);
-};
+  return http.get<CollectionResponse>('/users/me/favorites', params)
+}
 
 /**
  * 切换收藏状态
@@ -17,12 +21,12 @@ export const getCollections = (params: GetCollectionParams) => {
  * @returns
  */
 export const toggleCollection = (params: { post_id: number }) => {
-  return http.post("/actions/toggle", {
+  return http.post('/actions/toggle', {
     target_id: params.post_id,
-    target_type: "post",
-    action_type: "favorite"
-  });
-};
+    target_type: 'post',
+    action_type: 'favorite',
+  })
+}
 
 /**
  * 从收藏中移除
@@ -30,8 +34,8 @@ export const toggleCollection = (params: { post_id: number }) => {
  * @returns
  */
 export const removeFromCollection = (params: RemoveFromCollectionParams) => {
-  return http.post("/actions/collection/remove", params);
-};
+  return http.post('/actions/collection/remove', params)
+}
 
 /**
  * 获取用户收藏的帖子数量
@@ -40,19 +44,18 @@ export const removeFromCollection = (params: RemoveFromCollectionParams) => {
 export const getCollectionCount = async () => {
   try {
     // 使用正确的API获取收藏列表
-    const response = await getMyFavorites({ skip: 0, limit: 100 });
-    
+    const response = await getMyFavorites({ skip: 0, limit: 100 })
+
     if (response.code === 0 && response.data) {
       // 过滤出收藏动作（action_type为'favorite'）
-      const favoriteActions = response.data.filter((action: any) => 
-        action.action_type === 'favorite'
-      );
-      return favoriteActions.length;
+      const favoriteActions = response.data.filter(
+        (action: any) => action.action_type === 'favorite'
+      )
+      return favoriteActions.length
     }
-    
-    return 0;
+
+    return 0
   } catch (error) {
-    
-    throw error;
+    throw error
   }
-};
+}

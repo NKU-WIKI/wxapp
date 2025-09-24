@@ -38,20 +38,18 @@ const ImageUploader: FC<ImageUploaderProps> = ({
   onUploadSuccess,
   onUploadError,
   onChange,
-  onRemove
+  onRemove,
 }) => {
-  const {
-    images,
-    isUploading,
-    uploadProgress,
-    uploadImages,
-    removeImage
-  } = useImageUpload(initialImages)
+  const { images, isUploading, uploadProgress, uploadImages, removeImage } =
+    useImageUpload(initialImages)
 
   // 处理图片变化 - 使用useCallback优化
-  const handleImageChange = React.useCallback((_newImages: string[]) => {
-    onChange?.(_newImages)
-  }, [onChange])
+  const handleImageChange = React.useCallback(
+    (_newImages: string[]) => {
+      onChange?.(_newImages)
+    },
+    [onChange]
+  )
 
   React.useEffect(() => {
     handleImageChange(images)
@@ -70,7 +68,7 @@ const ImageUploader: FC<ImageUploaderProps> = ({
         },
         onError: (_error) => {
           onUploadError?.(_error)
-        }
+        },
       })
     } catch (error) {
       // 错误已在 hook 中处理
@@ -78,10 +76,13 @@ const ImageUploader: FC<ImageUploaderProps> = ({
   }, [isUploading, maxCount, uploadOptions, uploadImages, onUploadSuccess, onUploadError])
 
   // 处理删除 - 使用useCallback优化
-  const handleRemove = React.useCallback((_index: number) => {
-    removeImage(_index)
-    onRemove?.(_index)
-  }, [removeImage, onRemove])
+  const handleRemove = React.useCallback(
+    (_index: number) => {
+      removeImage(_index)
+      onRemove?.(_index)
+    },
+    [removeImage, onRemove]
+  )
 
   const containerClasses = classnames(styles.container, className)
 
@@ -90,17 +91,10 @@ const ImageUploader: FC<ImageUploaderProps> = ({
       {/* 已上传的图片列表 */}
       {images.map((image, index) => (
         <View key={`image-${index}-${image}`} className={styles.imageWrapper}>
-          <Image
-            src={image}
-            className={styles.uploadedImage}
-            mode='aspectFill'
-          />
+          <Image src={image} className={styles.uploadedImage} mode="aspectFill" />
           {/* 只有真实图片（非临时图片）才显示删除按钮 */}
           {image.startsWith('http') && (
-            <View
-              className={styles.removeButton}
-              onClick={() => handleRemove(index)}
-            >
+            <View className={styles.removeButton} onClick={() => handleRemove(index)}>
               <Text className={styles.removeIcon}>×</Text>
             </View>
           )}
@@ -117,7 +111,7 @@ const ImageUploader: FC<ImageUploaderProps> = ({
       {showUploadButton && images.length < maxCount && (
         <View
           className={classnames(styles.uploadButton, {
-            [styles.disabled]: isUploading
+            [styles.disabled]: isUploading,
           })}
           onClick={handleUpload}
         >
@@ -128,10 +122,7 @@ const ImageUploader: FC<ImageUploaderProps> = ({
             </View>
           ) : (
             <View className={styles.uploadContent}>
-              <Image
-                src='/assets/camera.svg'
-                className={styles.cameraIcon}
-              />
+              <Image src="/assets/camera.svg" className={styles.cameraIcon} />
               <Text className={styles.uploadText}>
                 {uploadButtonText} ({images.length}/{maxCount})
               </Text>

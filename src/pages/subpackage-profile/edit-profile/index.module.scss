@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import url('@/styles/variables.scss');
 
 // 主要内容区域
 .content {
@@ -35,10 +35,7 @@
 
 .uploadingOverlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 50%;
   display: flex;
@@ -61,9 +58,9 @@
 .sectionTitle {
   font-size: 16px;
   font-weight: 600;
-  color: #4F46E5;
-  margin-bottom: 12px;  // 缩短与卡片的距离
-  margin-top: 20px;     // 缩短与上方内容的距离
+  color: #4f46e5;
+  margin-bottom: 12px; // 缩短与卡片的距离
+  margin-top: 20px; // 缩短与上方内容的距离
 }
 
 .card {
@@ -78,7 +75,7 @@
   font-size: 16px;
   font-weight: 600;
   color: #6366f1;
-  padding: 16px 16px 0 16px;
+  padding: 16px 16px 0;
   margin-bottom: 16px;
   display: none; // 隐藏卡片内的标题
 }
@@ -156,7 +153,7 @@
   &::placeholder {
     color: #ccc;
   }
-  
+
   &:focus {
     color: #333; // 聚焦时变为正常颜色
   }
@@ -221,7 +218,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 20px 16px 24px 16px;  // 增加上下内边距
+  padding: 20px 16px 24px; // 增加上下内边距
 }
 
 .interestTag {
@@ -249,7 +246,7 @@
 
 // 保存按钮容器
 .saveButtonContainer {
-  padding: 16px 16px; // 缩短上方间距
+  padding: 16px; // 缩短上方间距
   margin-bottom: 20px; // 缩短底部间距
 }
 

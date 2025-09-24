@@ -1,4 +1,4 @@
-@use "../../../styles/variables.scss" as *;
+@use '../../../styles/variables.scss' as *;
 
 .uploadMaterialPage {
   padding: 16px;
@@ -51,7 +51,7 @@
   padding: 24px;
   border: 2px dashed #e5e7eb;
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: #fff;
   cursor: pointer;
 }
 
@@ -93,7 +93,7 @@
 .selectFileBtn {
   padding: 8px 16px;
   background-color: #6366f1;
-  color: #ffffff;
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -205,25 +205,25 @@
   line-height: 44px; /* 与height相等，确保单行文字垂直居中 */
   box-sizing: border-box;
   color: #1f2937;
-  background-color: #ffffff;
+  background-color: #fff;
   height: 44px;
-  
+
   /* 微信小程序兼容性 */
   text-align: left;
   vertical-align: middle;
-  
+
   /* 确保占位符文字垂直居中 */
-  &::-webkit-input-placeholder {
+  &::input-placeholder {
     color: #9ca3af;
     line-height: 44px;
     vertical-align: middle;
   }
-  
-  &::-moz-placeholder {
+
+  &::placeholder {
     color: #9ca3af;
     line-height: 44px;
   }
-  
+
   &::placeholder {
     color: #9ca3af;
     line-height: 44px;
@@ -241,7 +241,7 @@
   font-size: 14px;
   box-sizing: border-box;
   color: #1f2937;
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 /* 下拉选择器（学院、学科） */
@@ -252,7 +252,7 @@
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
-  background-color: #ffffff;
+  background-color: #fff;
   color: #1f2937;
   display: flex;
   justify-content: space-between;
@@ -299,7 +299,7 @@
   padding: 20px;
   border: 2px dashed #e5e7eb;
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: #fff;
   cursor: pointer;
   min-height: 120px;
   justify-content: center;
@@ -351,7 +351,7 @@
   width: 100%;
   padding: 8px;
   background-color: #6366f1;
-  color: #ffffff;
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-size: 16px;

@@ -18,7 +18,7 @@ export const useSharing = (options: {
     return {
       title: options.title,
       path: options.path,
-      imageUrl: options.imageUrl
+      imageUrl: options.imageUrl,
     }
   })
 
@@ -26,7 +26,7 @@ export const useSharing = (options: {
     return {
       title: options.title,
       query: options.query || '',
-      imageUrl: options.imageUrl
+      imageUrl: options.imageUrl,
     }
   })
 }

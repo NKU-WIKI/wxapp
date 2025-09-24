@@ -1,82 +1,80 @@
 // Icon imports
-import userIcon from '@/assets/user.svg';
-import clockIcon from '@/assets/clock.svg';
-import starIcon from '@/assets/star.svg';
-import wechatIcon from '@/assets/wechat.svg';
-import websiteIcon from '@/assets/website.png';
-import fileTextIcon from '@/assets/file-text.svg';
+import userIcon from '@/assets/user.svg'
+import clockIcon from '@/assets/clock.svg'
+import starIcon from '@/assets/star.svg'
+import wechatIcon from '@/assets/wechat.svg'
+import websiteIcon from '@/assets/website.png'
+import fileTextIcon from '@/assets/file-text.svg'
 
-import { View, Text, Image, RichText } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import { useState, useEffect } from 'react';
-import { markdownToHtml } from '@/utils/markdown';
-import { RAG_CONTENT_COLLAPSE_THRESHOLD, RAG_CONTENT_MAX_HEIGHT } from '@/constants';
-import styles from './RagResult.module.scss';
+import { View, Text, Image, RichText } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { useState, useEffect } from 'react'
+import { markdownToHtml } from '@/utils/markdown'
+import { RAG_CONTENT_COLLAPSE_THRESHOLD, RAG_CONTENT_MAX_HEIGHT } from '@/constants'
+import styles from './RagResult.module.scss'
 
 interface RagSourceItem {
-  title: string;
-  content?: string;
-  platform?: string;
-  original_url?: string;
-  url?: string;
-  publish_time?: string;
-  author?: string;
-  pagerank_score?: number;
-  relevance?: number;
+  title: string
+  content?: string
+  platform?: string
+  original_url?: string
+  url?: string
+  publish_time?: string
+  author?: string
+  pagerank_score?: number
+  relevance?: number
 }
 
 interface RagData {
-  answer: string;
-  sources?: RagSourceItem[];
+  answer: string
+  sources?: RagSourceItem[]
 }
 
 interface Props {
-  data: RagData | null;
+  data: RagData | null
 }
 
-const botAvatar = '/assets/wiki.svg';
+const botAvatar = '/assets/wiki.svg'
 
 // 根据platform返回对应的图标
 const getPlatformIcon = (platform?: string): string => {
   switch (platform?.toLowerCase()) {
     case 'wechat':
-      return wechatIcon;
+      return wechatIcon
     case 'website':
-      return websiteIcon;
+      return websiteIcon
     case 'post':
-      return fileTextIcon;
+      return fileTextIcon
     default:
-      return websiteIcon; // 默认使用website图标
+      return websiteIcon // 默认使用website图标
   }
-};
+}
 
 export default function RagResult({ data }: Props) {
-  const [renderedAnswer, setRenderedAnswer] = useState<string>('');
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [renderedAnswer, setRenderedAnswer] = useState<string>('')
+  const [isExpanded, setIsExpanded] = useState<boolean>(false)
 
   // 同步将markdown转换为HTML
   useEffect(() => {
     if (!data?.answer) {
-      setRenderedAnswer('');
-      setIsExpanded(false);
-      return;
+      setRenderedAnswer('')
+      setIsExpanded(false)
+      return
     }
 
     try {
-      const html = markdownToHtml(data.answer);
-      setRenderedAnswer(html);
+      const html = markdownToHtml(data.answer)
+      setRenderedAnswer(html)
       // 如果内容较长，默认折叠
-      setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD);
+      setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD)
     } catch (error) {
-      
-      setRenderedAnswer(data.answer); // 失败时使用原始文本
-      setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD);
+      setRenderedAnswer(data.answer) // 失败时使用原始文本
+      setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD)
     }
-  }, [data?.answer]);
+  }, [data?.answer])
 
-  if (!data) return null;
-  const { sources = [] } = data;
-
+  if (!data) return null
+  const { sources = [] } = data
 
   return (
     <View className={styles.ragContainer}>
@@ -88,21 +86,21 @@ export default function RagResult({ data }: Props) {
         <View className={styles.responseText}>
           <View
             className={`${styles.contentWrapper} ${!isExpanded ? styles.collapsed : ''}`}
-            style={!isExpanded ? { '--max-height': `${RAG_CONTENT_MAX_HEIGHT}px` } as any : {}}
+            style={!isExpanded ? ({ '--max-height': `${RAG_CONTENT_MAX_HEIGHT}px` } as any) : {}}
           >
             <RichText nodes={renderedAnswer} />
           </View>
           {renderedAnswer && renderedAnswer.length > RAG_CONTENT_COLLAPSE_THRESHOLD && (
-            <View className={styles.expandButtonContainer} onClick={() => setIsExpanded(!isExpanded)}>
+            <View
+              className={styles.expandButtonContainer}
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
               <View className={styles.expandButton}>
-                <Text className={styles.expandText}>
-                  {isExpanded ? '收起内容' : '展开全部'}
-                </Text>
+                <Text className={styles.expandText}>{isExpanded ? '收起内容' : '展开全部'}</Text>
               </View>
             </View>
           )}
         </View>
-
       </View>
 
       {sources.length > 0 && (
@@ -117,9 +115,7 @@ export default function RagResult({ data }: Props) {
               <View className={styles.sourceContent}>
                 <Text className={styles.sourceTitle}>{s.title}</Text>
 
-                {s.content && (
-                  <Text className={styles.sourceContentText}>{s.content}</Text>
-                )}
+                {s.content && <Text className={styles.sourceContentText}>{s.content}</Text>}
 
                 <View className={styles.sourceMeta}>
                   {s.author && (
@@ -152,12 +148,12 @@ export default function RagResult({ data }: Props) {
                   <Text
                     className={styles.sourceUrl}
                     onClick={() => {
-                      const url = s.original_url || s.url;
+                      const url = s.original_url || s.url
                       if (url) {
                         Taro.setClipboardData({
                           data: url,
-                          success: () => Taro.showToast({ title: '链接已复制', icon: 'success' })
-                        });
+                          success: () => Taro.showToast({ title: '链接已复制', icon: 'success' }),
+                        })
                       }
                     }}
                   >
@@ -170,7 +166,5 @@ export default function RagResult({ data }: Props) {
         </View>
       )}
     </View>
-  );
+  )
 }
-
-

@@ -45,11 +45,11 @@ const RatingList = ({
   title,
   showTotal = false,
   onRatingChange: _onRatingChange,
-  className = ''
+  className = '',
 }: RatingListProps) => {
   const [ratings] = useState<Record<string, number>>(() => {
     const initialRatings: Record<string, number> = {}
-    items.forEach(item => {
+    items.forEach((item) => {
       if (item.currentRating !== undefined) {
         initialRatings[item.id] = item.currentRating
       }
@@ -83,7 +83,7 @@ const RatingList = ({
       {/* 评分项目列表 */}
       <ScrollView className={styles.listContent} scrollY enhanced>
         {items.length > 0 ? (
-          items.map(item => (
+          items.map((item) => (
             <RatingComponent
               key={item.id}
               title={item.title}
@@ -99,9 +99,7 @@ const RatingList = ({
           <View className={styles.emptyState}>
             <View className={styles.emptyIcon}>📝</View>
             <Text className={styles.emptyTitle}>暂无评分项目</Text>
-            <Text className={styles.emptyDescription}>
-              当前没有可评分的内容
-            </Text>
+            <Text className={styles.emptyDescription}>当前没有可评分的内容</Text>
           </View>
         )}
       </ScrollView>

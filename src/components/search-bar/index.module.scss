@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import url('@/styles/variables.scss');
 
 .searchWrapper {
   position: relative;
@@ -11,7 +11,7 @@
   background-color: $bg-input;
   border-radius: 18px;
   padding: 8px 12px; // 保持8px的内边距
-  margin: 16px 16px 8px 16px; /* 添加统一的外边距 */
+  margin: 16px 16px 8px; /* 添加统一的外边距 */
 }
 
 .searchIcon {
@@ -194,9 +194,9 @@
 }
 
 // 响应式设计
-@media (max-width: 375px) {
+@media (width <= 375px) {
   .searchContainer {
-    margin: 12px 12px 6px 12px;
+    margin: 12px 12px 6px;
     padding: 6px 10px;
   }
 

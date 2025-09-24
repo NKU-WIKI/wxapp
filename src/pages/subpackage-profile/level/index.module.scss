@@ -1,9 +1,9 @@
-@import '@/styles/variables.scss';
+@import url('@/styles/variables.scss');
 
 .page {
   background: $bg-page;
   min-height: 100vh;
-  padding: 0 0 24px 0;
+  padding: 0 0 24px;
 }
 
 .navBar {
@@ -28,9 +28,9 @@
 .card {
   background: $bg-card;
   border-radius: 12px;
-  margin: 16px 16px 0 16px;
+  margin: 16px 16px 0;
   padding: 0;
-  box-shadow: 0 2px 8px rgba(79,70,229,0.03);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.03);
 }
 
 .expCard {
@@ -40,7 +40,7 @@
 .userInfoRow {
   display: flex;
   align-items: center;
-  padding: 20px 20px 20px 20px;
+  padding: 20px;
 }
 .avatar {
   width: 44px;
@@ -70,7 +70,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px 0 20px;
+  padding: 12px 20px 0;
 }
 .infoLabel {
   font-size: 15px;
@@ -82,7 +82,7 @@
   font-weight: 600;
 }
 .progressBarWrap {
-  padding: 12px 20px 0 20px;
+  padding: 12px 20px 0;
 }
 .progressBarBg {
   width: 100%;
@@ -107,7 +107,7 @@
 .levelGrid {
   display: flex;
   flex-direction: row;
-  padding: 16px 20px 16px 20px;
+  padding: 16px 20px;
   gap: 16px;
 }
 .levelCol {
@@ -126,7 +126,7 @@
 .levelActive {
   border-color: $theme-primary;
   background: #f3f4ff;
-    }
+}
 .levelTitle {
   font-size: 15px;
   font-weight: 600;
@@ -142,12 +142,12 @@
   font-size: 17px;
   font-weight: 600;
   color: $text-primary;
-  padding: 48px 20px 16px 20px;
+  padding: 48px 20px 16px;
 }
 .expRow {
   display: flex;
   align-items: center;
-  padding: 16px 20px 16px 20px;
+  padding: 16px 20px;
   position: relative;
 }
 .expIconWrap {
@@ -177,7 +177,7 @@
 }
 .statusBlue {
   color: $theme-primary;
-  }
+}
 .statusGray {
   color: $text-helper-gray;
 }

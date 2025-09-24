@@ -1,7 +1,6 @@
-
-import { View, Text, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import styles from './index.module.scss';
+import { View, Text, ScrollView } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import styles from './index.module.scss'
 
 /**
  * 隐私政策页面
@@ -9,14 +8,16 @@ import styles from './index.module.scss';
  */
 export default function PrivacyPolicyPage() {
   const handleBack = () => {
-    Taro.navigateBack();
-  };
+    Taro.navigateBack()
+  }
 
   return (
     <View className={styles.container}>
       {/* 顶部导航栏 */}
       <View className={styles.header}>
-        <Text className={styles.backBtn} onClick={handleBack}>返回</Text>
+        <Text className={styles.backBtn} onClick={handleBack}>
+          返回
+        </Text>
         <Text className={styles.title}>隐私政策</Text>
       </View>
 
@@ -28,9 +29,7 @@ export default function PrivacyPolicyPage() {
             nku元智wiki（以下简称&quot;本平台&quot;）非常重视用户的隐私保护。
             我们会按照本隐私政策收集、使用和保护您的个人信息。
           </Text>
-          <Text className={styles.sectionContent}>
-            我们可能收集的个人信息包括：
-          </Text>
+          <Text className={styles.sectionContent}>我们可能收集的个人信息包括：</Text>
           <Text className={styles.listItem}>• 账户信息：用户名、密码、昵称</Text>
           <Text className={styles.listItem}>• 联系信息：手机号码、邮箱地址</Text>
           <Text className={styles.listItem}>• 设备信息：设备型号、操作系统、IP地址</Text>
@@ -53,9 +52,7 @@ export default function PrivacyPolicyPage() {
 
         <View className={styles.section}>
           <Text className={styles.sectionTitle}>3. 信息使用目的</Text>
-          <Text className={styles.sectionContent}>
-            我们收集和使用您的个人信息用于以下目的：
-          </Text>
+          <Text className={styles.sectionContent}>我们收集和使用您的个人信息用于以下目的：</Text>
           <Text className={styles.listItem}>• 提供基础的平台服务和功能</Text>
           <Text className={styles.listItem}>• 维护平台安全和秩序</Text>
           <Text className={styles.listItem}>• 改进和优化用户体验</Text>
@@ -99,9 +96,7 @@ export default function PrivacyPolicyPage() {
 
         <View className={styles.section}>
           <Text className={styles.sectionTitle}>7. 未成年人保护</Text>
-          <Text className={styles.sectionContent}>
-            7.1 本平台主要面向18岁以上的用户。
-          </Text>
+          <Text className={styles.sectionContent}>7.1 本平台主要面向18岁以上的用户。</Text>
           <Text className={styles.sectionContent}>
             7.2 若您是未成年人，请在监护人指导下使用本平台。
           </Text>
@@ -112,9 +107,7 @@ export default function PrivacyPolicyPage() {
 
         <View className={styles.section}>
           <Text className={styles.sectionTitle}>8. 您的权利</Text>
-          <Text className={styles.sectionContent}>
-            您对个人信息享有以下权利：
-          </Text>
+          <Text className={styles.sectionContent}>您对个人信息享有以下权利：</Text>
           <Text className={styles.listItem}>• 访问和查看您的个人信息</Text>
           <Text className={styles.listItem}>• 更正不准确的信息</Text>
           <Text className={styles.listItem}>• 删除您的个人信息</Text>
@@ -134,9 +127,7 @@ export default function PrivacyPolicyPage() {
 
         <View className={styles.section}>
           <Text className={styles.sectionTitle}>10. 隐私政策更新</Text>
-          <Text className={styles.sectionContent}>
-            10.1 我们可能不定期更新本隐私政策。
-          </Text>
+          <Text className={styles.sectionContent}>10.1 我们可能不定期更新本隐私政策。</Text>
           <Text className={styles.sectionContent}>
             10.2 重大变更时，我们会通过平台通知等方式告知您。
           </Text>
@@ -160,5 +151,5 @@ export default function PrivacyPolicyPage() {
         </View>
       </ScrollView>
     </View>
-  );
+  )
 }

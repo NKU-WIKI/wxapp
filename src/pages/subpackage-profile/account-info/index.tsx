@@ -1,101 +1,101 @@
-import { useState, useEffect } from 'react';
-import { View, Text, Input, Button } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import userApi from '@/services/api/user';
-import styles from './index.module.scss';
+import { useState, useEffect } from 'react'
+import { View, Text, Input, Button } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import userApi from '@/services/api/user'
+import styles from './index.module.scss'
 
 interface UserProfile {
-  phone?: string | null;
-  wechat_id?: string | null;
-  qq_id?: string | null;
-  is_verified?: boolean;
+  phone?: string | null
+  wechat_id?: string | null
+  qq_id?: string | null
+  is_verified?: boolean
 }
 
 export default function AccountInfo() {
-  const [profile, setProfile] = useState<UserProfile>({});
-  const [loading, setLoading] = useState(true);
-  const [editingField, setEditingField] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState('');
+  const [profile, setProfile] = useState<UserProfile>({})
+  const [loading, setLoading] = useState(true)
+  const [editingField, setEditingField] = useState<string | null>(null)
+  const [editValue, setEditValue] = useState('')
 
   // 获取用户资料
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        setLoading(true);
-        const response = await userApi.getMeProfile();
+        setLoading(true)
+        const response = await userApi.getMeProfile()
         if (response?.data) {
-          setProfile(response.data);
+          setProfile(response.data)
         }
       } catch (error) {
         Taro.showToast({
           title: '获取资料失败',
-          icon: 'none'
-        });
+          icon: 'none',
+        })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchUserProfile();
-  }, []);
+    fetchUserProfile()
+  }, [])
 
   // 开始编辑字段
   const startEdit = (field: string, currentValue: string) => {
-    setEditingField(field);
-    setEditValue(currentValue || '');
-  };
+    setEditingField(field)
+    setEditValue(currentValue || '')
+  }
 
   // 取消编辑
   const cancelEdit = () => {
-    setEditingField(null);
-    setEditValue('');
-  };
+    setEditingField(null)
+    setEditValue('')
+  }
 
   // 保存编辑
   const saveEdit = async () => {
-    if (!editingField) return;
+    if (!editingField) return
 
     // 验证输入
     if (!validateInput(editingField, editValue)) {
-      return;
+      return
     }
 
     try {
       const updateData = {
-        [editingField]: editValue.trim()
-      };
+        [editingField]: editValue.trim(),
+      }
 
-      await userApi.updateMeProfile(updateData);
-      
+      await userApi.updateMeProfile(updateData)
+
       // 更新本地状态
-      setProfile(prev => ({
+      setProfile((prev) => ({
         ...prev,
-        [editingField]: editValue.trim()
-      }));
+        [editingField]: editValue.trim(),
+      }))
 
-      setEditingField(null);
-      setEditValue('');
-      
+      setEditingField(null)
+      setEditValue('')
+
       Taro.showToast({
         title: '修改成功',
-        icon: 'success'
-      });
+        icon: 'success',
+      })
     } catch (error) {
       Taro.showToast({
         title: '修改失败',
-        icon: 'none'
-      });
+        icon: 'none',
+      })
     }
-  };
+  }
 
   // 验证输入
   const validateInput = (field: string, value: string) => {
     if (!value.trim()) {
       Taro.showToast({
         title: '请输入内容',
-        icon: 'none'
-      });
-      return false;
+        icon: 'none',
+      })
+      return false
     }
 
     switch (field) {
@@ -103,57 +103,62 @@ export default function AccountInfo() {
         if (!/^1[3-9]\d{9}$/.test(value.trim())) {
           Taro.showToast({
             title: '手机号格式不正确',
-            icon: 'none'
-          });
-          return false;
+            icon: 'none',
+          })
+          return false
         }
-        break;
+        break
       case 'wechat_id':
         if (!/^[a-zA-Z][a-zA-Z0-9_-]{5,19}$/.test(value.trim())) {
           Taro.showToast({
             title: '微信号格式不正确',
-            icon: 'none'
-          });
-          return false;
+            icon: 'none',
+          })
+          return false
         }
-        break;
+        break
       case 'qq_id':
         if (!/^\d{5,10}$/.test(value.trim())) {
           Taro.showToast({
             title: 'QQ号格式不正确',
-            icon: 'none'
-          });
-          return false;
+            icon: 'none',
+          })
+          return false
         }
-        break;
+        break
     }
-    return true;
-  };
+    return true
+  }
 
   // 处理校园认证
   const handleVerification = () => {
     if (profile.is_verified) {
       Taro.showToast({
         title: '您已完成校园认证',
-        icon: 'none'
-      });
+        icon: 'none',
+      })
     } else {
       // 跳转到校园认证页面
       Taro.navigateTo({
-        url: '/pages/subpackage-profile/campus-verification/index'
-      });
+        url: '/pages/subpackage-profile/campus-verification/index',
+      })
     }
-  };
+  }
 
   // 渲染字段行
-  const renderField = (field: string, label: string, value: string | undefined, placeholder: string) => {
-    const isEditing = editingField === field;
-    const displayValue = value || '';
+  const renderField = (
+    field: string,
+    label: string,
+    value: string | undefined,
+    placeholder: string
+  ) => {
+    const isEditing = editingField === field
+    const displayValue = value || ''
 
     return (
       <View key={field} className={styles.fieldRow}>
         <Text className={styles.fieldLabel}>{label}</Text>
-        
+
         {isEditing ? (
           <View className={styles.editContainer}>
             <Input
@@ -164,28 +169,16 @@ export default function AccountInfo() {
               focus
             />
             <View className={styles.editButtons}>
-              <Button
-                className={styles.cancelButton}
-                size='mini'
-                onClick={cancelEdit}
-              >
+              <Button className={styles.cancelButton} size="mini" onClick={cancelEdit}>
                 取消
               </Button>
-              <Button
-                className={styles.saveButton}
-                size='mini'
-                type='primary'
-                onClick={saveEdit}
-              >
+              <Button className={styles.saveButton} size="mini" type="primary" onClick={saveEdit}>
                 保存
               </Button>
             </View>
           </View>
         ) : (
-          <View 
-            className={styles.fieldValue}
-            onClick={() => startEdit(field, displayValue)}
-          >
+          <View className={styles.fieldValue} onClick={() => startEdit(field, displayValue)}>
             <Text className={displayValue ? styles.valueText : styles.placeholderText}>
               {displayValue || '未设置'}
             </Text>
@@ -193,8 +186,8 @@ export default function AccountInfo() {
           </View>
         )}
       </View>
-    );
-  };
+    )
+  }
 
   if (loading) {
     return (
@@ -203,7 +196,7 @@ export default function AccountInfo() {
           <Text>加载中...</Text>
         </View>
       </View>
-    );
+    )
   }
 
   return (
@@ -234,5 +227,5 @@ export default function AccountInfo() {
         </View>
       </View>
     </View>
-  );
+  )
 }

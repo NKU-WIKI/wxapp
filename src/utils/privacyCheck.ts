@@ -1,9 +1,8 @@
-import { RootState } from '@/store';
-import { User } from '@/types/api/user';
+import { RootState } from '@/store'
+import { User } from '@/types/api/user'
 
 // 隐私权限检查工具
 export class PrivacyChecker {
-  
   /**
    * 检查是否可以评论某用户的帖子
    */
@@ -13,22 +12,22 @@ export class PrivacyChecker {
     authorSettings: RootState['settings']
   ): boolean {
     // 如果没有登录，不能评论
-    if (!currentUser) return false;
-    
+    if (!currentUser) return false
+
     // 如果是自己的帖子，可以评论
-    if (postAuthor.id === currentUser.id) return true;
-    
+    if (postAuthor.id === currentUser.id) return true
+
     // 根据帖子作者的隐私设置判断
     switch (authorSettings.whoCanComment) {
       case 'everyone':
-        return true;
+        return true
       case 'followers':
         // 需要检查是否是关注者，这里简化处理，假设已关注
-        return true; // 实际应该查询关注关系
+        return true // 实际应该查询关注关系
       case 'none':
-        return false;
+        return false
       default:
-        return false;
+        return false
     }
   }
 
@@ -41,22 +40,22 @@ export class PrivacyChecker {
     authorSettings: RootState['settings']
   ): boolean {
     // 如果是自己的帖子，总是可以查看
-    if (currentUser && postAuthor.id === currentUser.id) return true;
-    
+    if (currentUser && postAuthor.id === currentUser.id) return true
+
     // 根据帖子作者的隐私设置判断
     switch (authorSettings.whoCanViewPosts) {
       case 'everyone':
-        return true;
+        return true
       case 'followers':
         // 如果没有登录，不能查看
-        if (!currentUser) return false;
+        if (!currentUser) return false
         // 需要检查是否是关注者，这里简化处理
-        return true; // 实际应该查询关注关系
+        return true // 实际应该查询关注关系
       case 'self':
         // 只有自己可以查看
-        return currentUser ? postAuthor.id === currentUser.id : false;
+        return currentUser ? postAuthor.id === currentUser.id : false
       default:
-        return false;
+        return false
     }
   }
 
@@ -66,15 +65,15 @@ export class PrivacyChecker {
   static getPrivacyDescription(setting: 'everyone' | 'followers' | 'none' | 'self'): string {
     switch (setting) {
       case 'everyone':
-        return '所有人都可以';
+        return '所有人都可以'
       case 'followers':
-        return '仅关注的人可以';
+        return '仅关注的人可以'
       case 'none':
-        return '不允许任何人';
+        return '不允许任何人'
       case 'self':
-        return '仅自己可以';
+        return '仅自己可以'
       default:
-        return '未知设置';
+        return '未知设置'
     }
   }
 
@@ -85,7 +84,7 @@ export class PrivacyChecker {
   static async isFollowing(_userId: string, _targetUserId: string): Promise<boolean> {
     // TODO: 实现关注关系检查API调用
     // 这里返回true作为占位
-    return Promise.resolve(true);
+    return Promise.resolve(true)
   }
 }
 
@@ -96,5 +95,5 @@ export const usePrivacyCheck = () => {
     canViewPost: PrivacyChecker.canViewPost,
     getPrivacyDescription: PrivacyChecker.getPrivacyDescription,
     isFollowing: PrivacyChecker.isFollowing,
-  };
-};
+  }
+}

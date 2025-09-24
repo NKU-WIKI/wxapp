@@ -218,7 +218,7 @@
   border-radius: 6px;
   font-size: 13px;
   cursor: pointer;
-  
+
   &:hover {
     background-color: #3367d6;
   }
@@ -237,15 +237,15 @@
 }
 
 .postTag {
-  background-color: #E0F2FE;
-  color: #0369A1;
-  border: 1px solid #BAE6FD;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 
 .replyTag {
-  background-color: #F0FDF4;
-  color: #15803D;
-  border: 1px solid #BBF7D0;
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
 .commentContent {
@@ -308,24 +308,24 @@
 }
 
 .postInfoCard {
-  background: #F0F9FF;
+  background: #f0f9ff;
   padding: 10px 14px;
   border-radius: 8px;
-  border-left: 3px solid #38BDF8;
+  border-left: 3px solid #38bdf8;
   margin-top: 6px;
   margin-bottom: 2px;
   box-shadow: 0 1px 3px rgba(56, 189, 248, 0.06);
-  
+
   .postTitle {
     font-size: 13px;
     font-weight: 600;
-    color: #0369A1;
+    color: #0369a1;
     margin-bottom: 4px;
     display: block;
   }
   .postContent {
     font-size: 12px;
-    color: #64748B;
+    color: #64748b;
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -337,11 +337,11 @@
 }
 
 .parentCommentInfo {
-  background: #F8FAFC;
+  background: #f8fafc;
   padding: 8px 12px;
   border-radius: 8px;
-  border-left: 3px solid #10B981;
-  
+  border-left: 3px solid #10b981;
+
   .parentAuthor {
     font-size: 13px;
     font-weight: 600;
@@ -349,10 +349,10 @@
     margin-bottom: 4px;
     display: block;
   }
-  
+
   .parentContent {
     font-size: 12px;
-    color: #6B7280;
+    color: #6b7280;
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -361,19 +361,19 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
+
   .parentPlaceholder {
     .parentHint {
       font-size: 11px;
-      color: #9CA3AF;
+      color: #9ca3af;
       font-style: italic;
       opacity: 0.8;
       margin-bottom: 2px;
     }
-    
+
     .parentId {
       font-size: 10px;
-      color: #6B7280;
+      color: #6b7280;
       font-family: monospace;
     }
   }
@@ -402,7 +402,7 @@
   padding: 16px 0;
   color: #999;
   font-size: 14px;
-  margin: 8px 0 48px 0;
+  margin: 8px 0 48px;
   background-color: #f9f9f9;
   border-radius: 8px;
 }
@@ -430,8 +430,8 @@
   border-radius: 6px;
   font-size: 13px;
   cursor: pointer;
-  
+
   &:hover {
     background-color: #3367d6;
   }
-} 
+}

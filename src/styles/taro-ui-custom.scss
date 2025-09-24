@@ -2,13 +2,14 @@
 // 只引入项目中实际使用的组件样式
 
 // 引入必要的变量和 mixins
-@import '../../node_modules/taro-ui/dist/style/variables/default.scss';
-@import '../../node_modules/taro-ui/dist/style/mixins/index.scss';
+@import url('../../node_modules/taro-ui/dist/style/variables/default.scss');
+@import url('../../node_modules/taro-ui/dist/style/mixins/index.scss');
 
 // 引入图标字体（必需）
 @font-face {
   font-family: iconfont;
-  src: url(data:application/x-font-woff;charset=utf-8;base64,d09GRgABAAAAACzsAAsAAAAASZgAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAADMAAABCsP6z7U9TLzIAAAE8AAAARAAAAFY/d0tZY21hcAAAAYAAAAIiAAAG8vi5tr1nbHlmAAADpAAAI/IAADeY7eoYuGhlYWQAACeYAAAALwAAADYSVnjKaGhlYQAAJ8gAAAAcAAAAJAfeA+VobXR4AAAn5AAAABEAAAGQkAAAAGxvY2EAACf4AAAAygAAAMqKgH2CbWF4cAAAKMQAAAAfAAAAIAF8AK1uYW1lAAAo5AAAAUUAAAJtPlT+fXBvc3QAACosAAACwAAABGw/XD2l) format("woff");
+  src: url('data:application/x-font-woff;charset=utf-8;base64,d09GRgABAAAAACzsAAsAAAAASZgAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAADMAAABCsP6z7U9TLzIAAAE8AAAARAAAAFY/d0tZY21hcAAAAYAAAAIiAAAG8vi5tr1nbHlmAAADpAAAI/IAADeY7eoYuGhlYWQAACeYAAAALwAAADYSVnjKaGhlYQAAJ8gAAAAcAAAAJAfeA+VobXR4AAAn5AAAABEAAAGQkAAAAGxvY2EAACf4AAAAygAAAMqKgH2CbWF4cAAAKMQAAAAfAAAAIAF8AK1uYW1lAAAo5AAAAUUAAAJtPlT+fXBvc3QAACosAAACwAAABGw/XD2l')
+    format('woff');
 }
 
 .at-icon {
@@ -94,10 +95,7 @@ $at-tabs-pane-min-height: 100px;
   &__underline {
     display: block;
     position: absolute;
-    top: 0;
-    left: 0;
-    bottom: auto;
-    right: auto;
+    inset: 0 auto auto 0;
     width: 600%;
     height: $at-tabs-line-height;
     background-color: $at-tabs-underline-color;
@@ -150,10 +148,7 @@ $at-tabs-pane-min-height: 100px;
 
       &-underline {
         display: block;
-        top: 0;
-        right: 0;
-        bottom: auto;
-        left: auto;
+        inset: 0 0 auto auto;
         width: $at-tabs-line-height;
         height: 100%;
         transform: scaleY(0);

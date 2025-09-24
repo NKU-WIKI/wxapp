@@ -11,7 +11,7 @@ const HighlightText = ({
   text,
   keywords,
   highlightStyle = { color: '#ff4d4f', fontWeight: 'bold' },
-  highlightClassName = 'highlight-text'
+  highlightClassName = 'highlight-text',
 }: HighlightTextProps) => {
   if (!keywords.length || !text) {
     return <Text>{text}</Text>
@@ -24,15 +24,9 @@ const HighlightText = ({
   return (
     <Text>
       {parts.map((part, index) => {
-        const isKeyword = keywords.some(keyword =>
-          keyword.toLowerCase() === part.toLowerCase()
-        )
+        const isKeyword = keywords.some((keyword) => keyword.toLowerCase() === part.toLowerCase())
         return isKeyword ? (
-          <Text
-            key={index}
-            className={highlightClassName}
-            style={highlightStyle}
-          >
+          <Text key={index} className={highlightClassName} style={highlightStyle}>
             {part}
           </Text>
         ) : (

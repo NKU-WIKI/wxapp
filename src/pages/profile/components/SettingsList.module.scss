@@ -1,4 +1,4 @@
-@use "../../../styles/variables.scss" as *;
+@use '../../../styles/variables.scss' as *;
 
 .settingsSection {
   display: flex;
@@ -36,7 +36,8 @@
   }
 }
 
-.itemLeft, .itemRight {
+.itemLeft,
+.itemRight {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -62,4 +63,4 @@
   width: 20px;
   height: 20px;
   color: $text-helper-gray;
-} 
+}

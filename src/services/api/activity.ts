@@ -1,4 +1,4 @@
-import Taro from "@tarojs/taro";
+import Taro from '@tarojs/taro'
 import {
   PostActivityCreateRequest,
   PostActivityCreateResponse,
@@ -9,9 +9,9 @@ import {
   GetMyActivityRequest,
   GetMyActivityResponse,
   DeleteCancelRegistrationsRequest,
-  DeleteCancelRegistrationsResponse
-} from "@/types/api/activity.d";
-import http from "../request";
+  DeleteCancelRegistrationsResponse,
+} from '@/types/api/activity.d'
+import http from '../request'
 
 /**
  * 获取活动列表
@@ -19,30 +19,34 @@ import http from "../request";
  * @returns
  */
 export const getActivityList = (params: GetActivityListRequest) => {
-  const raw = Taro.getStorageSync('token');
-  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  return http.get<GetActivityListResponse>("/activities", params, {
-    header: token ? { Authorization: `Bearer ${token}` } : {}
-  });
+  const raw = Taro.getStorageSync('token')
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : ''
+  return http.get<GetActivityListResponse>('/activities', params, {
+    header: token ? { Authorization: `Bearer ${token}` } : {},
+  })
 }
 /** * 创建新活动
  * @param data 活动数据
  * @returns
  */
 export const createActivity = (data: PostActivityCreateRequest) => {
-  const raw = Taro.getStorageSync('token');
-  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  return http.post<PostActivityCreateResponse>("/activities", data, {
-    header: token ? { Authorization: `Bearer ${token}` } : {}
-  });
+  const raw = Taro.getStorageSync('token')
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : ''
+  return http.post<PostActivityCreateResponse>('/activities', data, {
+    header: token ? { Authorization: `Bearer ${token}` } : {},
+  })
 }
 
-export const joinActivity = (params: PostJoinActivityRequest) =>{
-  const raw = Taro.getStorageSync('token');
-  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  return http.post<PostJoinActivityResponse>(`/activities/${params.activity_id}/registrations`, params, {
-    header: token ? { Authorization: `Bearer ${token}` } : {}
-  });
+export const joinActivity = (params: PostJoinActivityRequest) => {
+  const raw = Taro.getStorageSync('token')
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : ''
+  return http.post<PostJoinActivityResponse>(
+    `/activities/${params.activity_id}/registrations`,
+    params,
+    {
+      header: token ? { Authorization: `Bearer ${token}` } : {},
+    }
+  )
 }
 
 /**
@@ -51,19 +55,23 @@ export const joinActivity = (params: PostJoinActivityRequest) =>{
  * @returns
  */
 export const getActivityDetail = (activityId: string) => {
-  const raw = Taro.getStorageSync('token');
-  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  return http.get<PostActivityCreateResponse>(`/activities/${activityId}`, {}, {
-    header: token ? { Authorization: `Bearer ${token}` } : {}
-  });
+  const raw = Taro.getStorageSync('token')
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : ''
+  return http.get<PostActivityCreateResponse>(
+    `/activities/${activityId}`,
+    {},
+    {
+      header: token ? { Authorization: `Bearer ${token}` } : {},
+    }
+  )
 }
 
-export const myActivity = (params: GetMyActivityRequest) =>{
-  const raw = Taro.getStorageSync('token');
-  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
+export const myActivity = (params: GetMyActivityRequest) => {
+  const raw = Taro.getStorageSync('token')
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : ''
   return http.get<GetMyActivityResponse>(`/activities/me/registered`, params, {
-    header: token ? { Authorization: `Bearer ${token}` } : {}
-  });
+    header: token ? { Authorization: `Bearer ${token}` } : {},
+  })
 }
 
 /**
@@ -71,12 +79,12 @@ export const myActivity = (params: GetMyActivityRequest) =>{
  * @param params 查询参数
  * @returns
  */
-export const myOrganizedActivity = (params: GetMyActivityRequest) =>{
-  const raw = Taro.getStorageSync('token');
-  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
+export const myOrganizedActivity = (params: GetMyActivityRequest) => {
+  const raw = Taro.getStorageSync('token')
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : ''
   return http.get<GetMyActivityResponse>(`/activities/me/organized`, params, {
-    header: token ? { Authorization: `Bearer ${token}` } : {}
-  });
+    header: token ? { Authorization: `Bearer ${token}` } : {},
+  })
 }
 
 /**
@@ -85,11 +93,15 @@ export const myOrganizedActivity = (params: GetMyActivityRequest) =>{
  * @returns
  */
 export const cancelActivityRegistration = (params: DeleteCancelRegistrationsRequest) => {
-  const raw = Taro.getStorageSync('token');
-  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  return http.delete<DeleteCancelRegistrationsResponse>(`/activities/${params.activity_id}/registrations`, {}, {
-    header: token ? { Authorization: `Bearer ${token}` } : {}
-  });
+  const raw = Taro.getStorageSync('token')
+  const token = raw ? raw.replace(/^Bearer\s+/i, '') : ''
+  return http.delete<DeleteCancelRegistrationsResponse>(
+    `/activities/${params.activity_id}/registrations`,
+    {},
+    {
+      header: token ? { Authorization: `Bearer ${token}` } : {},
+    }
+  )
 }
 
 const activityApi = {
@@ -99,7 +111,7 @@ const activityApi = {
   joinActivity,
   myActivity,
   myOrganizedActivity,
-  cancelActivityRegistration
+  cancelActivityRegistration,
 }
 
-export default activityApi;
+export default activityApi

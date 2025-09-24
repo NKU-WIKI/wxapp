@@ -44,7 +44,7 @@ const RatingComponent = ({
   value = 0,
   readonly = false,
   onChange,
-  className = ''
+  className = '',
 }: RatingComponentProps) => {
   const [currentRating, setCurrentRating] = useState(value)
   const [hoverRating, setHoverRating] = useState(0)
@@ -91,9 +91,7 @@ const RatingComponent = ({
           onTouchStart={() => handleRatingHover(i)}
           onTouchEnd={handleRatingLeave}
         >
-          <Text className={styles.starIcon}>
-            {isFilled ? '★' : '☆'}
-          </Text>
+          <Text className={styles.starIcon}>{isFilled ? '★' : '☆'}</Text>
         </View>
       )
     }
@@ -106,17 +104,13 @@ const RatingComponent = ({
       {/* 标题和描述 */}
       <View className={styles.header}>
         <Text className={styles.title}>{title}</Text>
-        {description && (
-          <Text className={styles.description}>{description}</Text>
-        )}
+        {description && <Text className={styles.description}>{description}</Text>}
       </View>
 
       {/* 评分区域 */}
       <View className={styles.ratingContainer}>
-        <View className={styles.starsContainer}>
-          {renderStars()}
-        </View>
-        
+        <View className={styles.starsContainer}>{renderStars()}</View>
+
         {/* 评分数值显示 */}
         <View className={styles.ratingValue}>
           <Text className={styles.ratingText}>
@@ -128,9 +122,7 @@ const RatingComponent = ({
       {/* 评分说明 */}
       {!readonly && (
         <View className={styles.ratingHint}>
-          <Text className={styles.hintText}>
-            点击星星进行评分
-          </Text>
+          <Text className={styles.hintText}>点击星星进行评分</Text>
         </View>
       )}
     </View>

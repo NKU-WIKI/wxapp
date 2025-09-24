@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import url('@/styles/variables.scss');
 
 .page-container {
   display: flex;
@@ -17,7 +17,7 @@
 }
 
 .fixedHeader {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 .searchContainer {
@@ -26,7 +26,7 @@
   background-color: $bg-input;
   border-radius: 18px;
   padding: 8px 12px;
-  margin: 16px 16px 8px 16px;
+  margin: 16px 16px 8px;
 }
 
 .searchIcon {
@@ -46,7 +46,7 @@
 
 .filterTabs {
   display: flex;
-  padding: 8px 16px 16px 16px; // 与其他模块一致
+  padding: 8px 16px 16px; // 与其他模块一致
   background-color: #fff;
   gap: 8px;
 

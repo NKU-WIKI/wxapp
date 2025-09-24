@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import url('@/styles/variables.scss');
 
 .page-container {
   display: flex;
@@ -59,7 +59,7 @@
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   .cardHeader {
     display: flex;
@@ -99,18 +99,18 @@
 }
 
 .customTabBar {
-    display: flex;
-    justify-content: space-around;
-    background-color: #fff;
-    padding: 10px 0;
-    border-top: 1px solid $border-light;
-    .tabItem {
-        text-align: center;
-        color: $text-secondary;
-        font-size: 14px;
-        &.active {
-            color: $theme-primary;
-            font-weight: bold;
-        }
+  display: flex;
+  justify-content: space-around;
+  background-color: #fff;
+  padding: 10px 0;
+  border-top: 1px solid $border-light;
+  .tabItem {
+    text-align: center;
+    color: $text-secondary;
+    font-size: 14px;
+    &.active {
+      color: $theme-primary;
+      font-weight: bold;
     }
+  }
 }

@@ -1,4 +1,4 @@
-@use "../../../../styles/variables.scss" as *;
+@use '../../../../styles/variables.scss' as *;
 
 .notificationItem {
   position: relative;
@@ -10,7 +10,7 @@
   border: 1px solid $border-light;
   transition: all 0.2s ease;
   cursor: pointer;
-  
+
   &:active {
     transform: scale(0.98);
     background-color: $bg-input;

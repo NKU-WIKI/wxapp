@@ -1,81 +1,81 @@
-import { useState, useCallback } from 'react';
-import { View, Text, ScrollView, Image, Swiper, SwiperItem, Input } from '@tarojs/components';
-import Taro, { useRouter, useDidShow } from '@tarojs/taro';
-import { useSelector } from 'react-redux';
+import { useState, useCallback } from 'react'
+import { View, Text, ScrollView, Image, Swiper, SwiperItem, Input } from '@tarojs/components'
+import Taro, { useRouter, useDidShow } from '@tarojs/taro'
+import { useSelector } from 'react-redux'
 
-import { RootState } from '@/store';
-import { getNoteDetail } from '@/services/api/note';
-import { getActionStatus } from '@/services/api/user';
-import { getComments, createComment } from '@/services/api/comment';
-import { NoteDetail, NoteRead } from '@/types/api/note';
-import { CommentTreeRead, CreateCommentRequest } from '@/types/api/comment';
-import { normalizeImageUrl } from '@/utils/image';
-import { convertLevelToRealm } from '@/utils/levelConverter';
-import { formatPostDate } from '@/utils/time';
-import CustomHeader from '@/components/custom-header';
-import ActionBar from '@/components/action-bar';
-import { useSharing } from '@/hooks/useSharing';
-import heartIcon from '@/assets/heart-outline.svg';
-import heartFilledIcon from '@/assets/heart-bold.svg';
-import bookmarkIcon from '@/assets/star-outline.svg';
-import bookmarkFilledIcon from '@/assets/star-filled.svg';
-import shareIcon from '@/assets/share.svg';
-import commentIcon from '@/assets/message-circle.svg';
-import sendIcon from '@/assets/sendcomment.svg';
-import styles from './index.module.scss';
+import { RootState } from '@/store'
+import { getNoteDetail } from '@/services/api/note'
+import { getActionStatus } from '@/services/api/user'
+import { getComments, createComment } from '@/services/api/comment'
+import { NoteDetail, NoteRead } from '@/types/api/note'
+import { CommentTreeRead, CreateCommentRequest } from '@/types/api/comment'
+import { normalizeImageUrl } from '@/utils/image'
+import { convertLevelToRealm } from '@/utils/levelConverter'
+import { formatPostDate } from '@/utils/time'
+import CustomHeader from '@/components/custom-header'
+import ActionBar from '@/components/action-bar'
+import { useSharing } from '@/hooks/useSharing'
+import heartIcon from '@/assets/heart-outline.svg'
+import heartFilledIcon from '@/assets/heart-bold.svg'
+import bookmarkIcon from '@/assets/star-outline.svg'
+import bookmarkFilledIcon from '@/assets/star-filled.svg'
+import shareIcon from '@/assets/share.svg'
+import commentIcon from '@/assets/message-circle.svg'
+import sendIcon from '@/assets/sendcomment.svg'
+import styles from './index.module.scss'
 
 export default function NoteDetailPage() {
-  const router = useRouter();
-  const { isLoggedIn } = useSelector((state: RootState) => state.user);
-  
-  // ×´Ì¬¹ÜÀí
-  const [note, setNote] = useState<NoteDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [commentText, setCommentText] = useState('');
-  
-  // ÆÀÂÛÏà¹Ø×´Ì¬
-  const [comments, setComments] = useState<CommentTreeRead[]>([]);
-  const [commentsLoading, setCommentsLoading] = useState(false);
-  const [submittingComment, setSubmittingComment] = useState(false);
-  
-  // ½»»¥×´Ì¬
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const [favoriteCount, setFavoriteCount] = useState(0);
-  const [shareCount, setShareCount] = useState(0);
-  
-  // »ñÈ¡±Ê¼ÇIDºÍÓÃ»§ID
-  const noteId = router?.params?.id;
-  const userId = router?.params?.userId; // ·¢ÌûÈËµÄID
+  const router = useRouter()
+  const { isLoggedIn } = useSelector((state: RootState) => state.user)
 
-  // Ê¹ÓÃ·ÖÏí Hook
+  // ×´Ì¬ï¿½ï¿½ï¿½ï¿½
+  const [note, setNote] = useState<NoteDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [commentText, setCommentText] = useState('')
+
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
+  const [comments, setComments] = useState<CommentTreeRead[]>([])
+  const [commentsLoading, setCommentsLoading] = useState(false)
+  const [submittingComment, setSubmittingComment] = useState(false)
+
+  // ï¿½ï¿½ï¿½ï¿½×´Ì¬
+  const [isLiked, setIsLiked] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
+  const [favoriteCount, setFavoriteCount] = useState(0)
+  const [shareCount, setShareCount] = useState(0)
+
+  // ï¿½ï¿½È¡ï¿½Ê¼ï¿½IDï¿½ï¿½ï¿½Ã»ï¿½ID
+  const noteId = router?.params?.id
+  const userId = router?.params?.userId // ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ID
+
+  // Ê¹ï¿½Ã·ï¿½ï¿½ï¿½ Hook
   useSharing({
-    title: note?.title || '·ÖÏí±Ê¼Ç',
+    title: note?.title || 'ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½',
     path: `/pages/subpackage-interactive/note-detail/index?id=${noteId}${userId ? `&userId=${userId}` : ''}`,
     imageUrl: note?.images?.[0] ? normalizeImageUrl(note.images[0]) : undefined,
-  });
+  })
 
-  // ¼ÓÔØÆÀÂÛÁÐ±í
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
   const loadComments = useCallback(async () => {
-    if (!noteId) return;
-    
+    if (!noteId) return
+
     try {
-      setCommentsLoading(true);
+      setCommentsLoading(true)
       const response = await getComments({
         resource_id: noteId,
         resource_type: 'note',
         skip: 0,
         limit: 50,
         sort_by: 'created_at',
-        sort_desc: true
-      });
-      
+        sort_desc: true,
+      })
+
       if (response.code === 0 && Array.isArray(response.data)) {
-        // ½« Comment[] ×ª»»Îª CommentTreeRead[] ¸ñÊ½
-        const commentTreeData = response.data.map(comment => ({
+        // ï¿½ï¿½ Comment[] ×ªï¿½ï¿½Îª CommentTreeRead[] ï¿½ï¿½Ê½
+        const commentTreeData = response.data.map((comment) => ({
           ...comment,
           tenant_id: comment.tenant_id || '',
           updated_at: comment.updated_at || comment.created_at,
@@ -85,51 +85,51 @@ export default function NoteDetailPage() {
           total_children_count: comment.children?.length || 0,
           tree_depth: comment.depth || 0,
           has_more_children: false,
-          is_expanded: false
-        })) as CommentTreeRead[];
-        setComments(commentTreeData);
+          is_expanded: false,
+        })) as CommentTreeRead[]
+        setComments(commentTreeData)
       }
     } catch (_error) {
     } finally {
-      setCommentsLoading(false);
+      setCommentsLoading(false)
     }
-  }, [noteId]);
+  }, [noteId])
 
-  // ¼ÓÔØ±Ê¼ÇÏêÇé
+  // ï¿½ï¿½ï¿½Ø±Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½
   const loadNoteDetail = useCallback(async () => {
     if (!noteId) {
-      setError('±Ê¼ÇID²»´æÔÚ');
-      setLoading(false);
-      return;
+      setError('ï¿½Ê¼ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')
+      setLoading(false)
+      return
     }
 
     try {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
       if (userId) {
-        // Èç¹ûÓÐuserId£¬Ê¹ÓÃÓÃ»§±Ê¼ÇÁÐ±í½Ó¿Ú»ñÈ¡¸ÃÓÃ»§µÄ±Ê¼ÇÁÐ±í
-        const response = await getNoteDetail(noteId, userId);
+        // ï¿½ï¿½ï¿½ï¿½ï¿½userIdï¿½ï¿½Ê¹ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ê¼ï¿½ï¿½Ð±ï¿½ï¿½Ó¿Ú»ï¿½È¡ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ä±Ê¼ï¿½ï¿½Ð±ï¿½
+        const response = await getNoteDetail(noteId, userId)
 
         if (response.code === 0 && response.data) {
-          // ´ÓÓÃ»§±Ê¼ÇÁÐ±íÖÐÉ¸Ñ¡³öÌØ¶¨±Ê¼Ç
-          const userNotes = response.data as NoteRead[];
+          // ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ê¼ï¿½ï¿½Ð±ï¿½ï¿½ï¿½É¸Ñ¡ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½Ê¼ï¿½
+          const userNotes = response.data as NoteRead[]
 
           if (!Array.isArray(userNotes)) {
-            setError('API·µ»ØÊý¾Ý¸ñÊ½´íÎó');
-            setLoading(false);
-            return;
+            setError('APIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¸ï¿½Ê½ï¿½ï¿½ï¿½ï¿½')
+            setLoading(false)
+            return
           }
 
-          const noteData = userNotes.find((noteItem: NoteRead) => noteItem.id === noteId);
+          const noteData = userNotes.find((noteItem: NoteRead) => noteItem.id === noteId)
 
           if (!noteData) {
-            setError('±Ê¼Ç²»´æÔÚ»òÒÑ±»É¾³ý');
-            setLoading(false);
-            return;
+            setError('ï¿½Ê¼Ç²ï¿½ï¿½ï¿½ï¿½Ú»ï¿½ï¿½Ñ±ï¿½É¾ï¿½ï¿½')
+            setLoading(false)
+            return
           }
 
-          // ½«NoteRead×ª»»ÎªNoteDetail¸ñÊ½
+          // ï¿½ï¿½NoteRead×ªï¿½ï¿½ÎªNoteDetailï¿½ï¿½Ê½
           const noteDetailData: NoteDetail = {
             id: noteData.id,
             title: noteData.title,
@@ -141,284 +141,300 @@ export default function NoteDetailPage() {
             allow_comment: noteData.allow_comment || true,
             allow_share: noteData.allow_share || true,
             status: noteData.status || 'published',
-            created_at: noteData.created_at instanceof Date ? noteData.created_at.toISOString() : new Date().toISOString(),
-            updated_at: noteData.updated_at instanceof Date ? noteData.updated_at.toISOString() : new Date().toISOString(),
-            published_at: noteData.published_at instanceof Date ? noteData.published_at.toISOString() : null,
+            created_at:
+              noteData.created_at instanceof Date
+                ? noteData.created_at.toISOString()
+                : new Date().toISOString(),
+            updated_at:
+              noteData.updated_at instanceof Date
+                ? noteData.updated_at.toISOString()
+                : new Date().toISOString(),
+            published_at:
+              noteData.published_at instanceof Date ? noteData.published_at.toISOString() : null,
             view_count: noteData.view_count || 0,
             like_count: noteData.like_count || 0,
             comment_count: noteData.comment_count || 0,
             share_count: noteData.share_count || 0,
-            user: noteData.user ? {
-              id: noteData.user.id,
-              tenant_id: noteData.user.tenant_id,
-              created_at: noteData.user.created_at instanceof Date ? noteData.user.created_at.toISOString() : new Date().toISOString(),
-              updated_at: noteData.user.updated_at instanceof Date ? noteData.user.updated_at.toISOString() : new Date().toISOString(),
-              nickname: noteData.user.nickname,
-              avatar: noteData.user.avatar || '',
-              bio: noteData.user.bio || '',
-              birthday: noteData.user.birthday instanceof Date ? noteData.user.birthday.toISOString() : null,
-              school: noteData.user.school || null,
-              college: noteData.user.college || null,
-              location: noteData.user.location || null,
-              wechat_id: noteData.user.qq_id || null,
-              qq_id: noteData.user.qq_id || null,
-              tel: noteData.user.tel || null,
-              status: noteData.user.status
-            } : undefined,
-            author: noteData.user ? {
-              id: noteData.user.id,
-              nickname: noteData.user.nickname,
-              avatar: noteData.user.avatar || '',
-              level: noteData.user.level || 1,
-              bio: noteData.user.bio || ''
-            } : undefined,
+            user: noteData.user
+              ? {
+                  id: noteData.user.id,
+                  tenant_id: noteData.user.tenant_id,
+                  created_at:
+                    noteData.user.created_at instanceof Date
+                      ? noteData.user.created_at.toISOString()
+                      : new Date().toISOString(),
+                  updated_at:
+                    noteData.user.updated_at instanceof Date
+                      ? noteData.user.updated_at.toISOString()
+                      : new Date().toISOString(),
+                  nickname: noteData.user.nickname,
+                  avatar: noteData.user.avatar || '',
+                  bio: noteData.user.bio || '',
+                  birthday:
+                    noteData.user.birthday instanceof Date
+                      ? noteData.user.birthday.toISOString()
+                      : null,
+                  school: noteData.user.school || null,
+                  college: noteData.user.college || null,
+                  location: noteData.user.location || null,
+                  wechat_id: noteData.user.qq_id || null,
+                  qq_id: noteData.user.qq_id || null,
+                  tel: noteData.user.tel || null,
+                  status: noteData.user.status,
+                }
+              : undefined,
+            author: noteData.user
+              ? {
+                  id: noteData.user.id,
+                  nickname: noteData.user.nickname,
+                  avatar: noteData.user.avatar || '',
+                  level: noteData.user.level || 1,
+                  bio: noteData.user.bio || '',
+                }
+              : undefined,
             is_liked: noteData.is_liked || false,
-            is_favorited: noteData.is_favorited || false
-          };
+            is_favorited: noteData.is_favorited || false,
+          }
 
-          setNote(noteDetailData);
-          // ÉèÖÃ½»»¥×´Ì¬ºÍ¼ÆÊý
-          setIsLiked(Boolean(noteData.is_liked));
-          setIsBookmarked(Boolean(noteData.is_favorited));
-          setLikeCount(noteData.like_count || 0);
-          setFavoriteCount(noteData.favorite_count || 0);
-          setShareCount(noteData.share_count || 0);
+          setNote(noteDetailData)
+          // ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½×´Ì¬ï¿½Í¼ï¿½ï¿½ï¿½
+          setIsLiked(Boolean(noteData.is_liked))
+          setIsBookmarked(Boolean(noteData.is_favorited))
+          setLikeCount(noteData.like_count || 0)
+          setFavoriteCount(noteData.favorite_count || 0)
+          setShareCount(noteData.share_count || 0)
         } else {
-          setError(response.message || '¼ÓÔØÊ§°Ü');
+          setError(response.message || 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½')
         }
       } else {
-        // Èç¹ûÃ»ÓÐuserId£¬Ö±½ÓÊ¹ÓÃnoteId»ñÈ¡±Ê¼ÇÏêÇé£¨Ïòºó¼æÈÝ£©
-        const response = await getNoteDetail(noteId);
+        // ï¿½ï¿½ï¿½Ã»ï¿½ï¿½userIdï¿½ï¿½Ö±ï¿½ï¿½Ê¹ï¿½ï¿½noteIdï¿½ï¿½È¡ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½é£¨ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½
+        const response = await getNoteDetail(noteId)
 
         if (response.code === 0 && response.data) {
-          const noteData = response.data as unknown as NoteDetail;
+          const noteData = response.data as unknown as NoteDetail
 
-          setNote(noteData);
-          // ¼ì²éÊÇ·ñÒÑµãÔÞºÍÊÕ²Ø
-          setIsLiked(noteData.is_liked || false);
-          setIsBookmarked(noteData.is_favorited || false);
-          // ÉèÖÃ¼ÆÊý
-          setLikeCount(noteData.like_count || 0);
-          setFavoriteCount(noteData.favorite_count || 0);
-          setShareCount(noteData.share_count || 0);
+          setNote(noteData)
+          // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ñµï¿½ï¿½Þºï¿½ï¿½Õ²ï¿½
+          setIsLiked(noteData.is_liked || false)
+          setIsBookmarked(noteData.is_favorited || false)
+          // ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½
+          setLikeCount(noteData.like_count || 0)
+          setFavoriteCount(noteData.favorite_count || 0)
+          setShareCount(noteData.share_count || 0)
         } else {
-          setError(response.message || '¼ÓÔØÊ§°Ü');
+          setError(response.message || 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½')
         }
       }
 
-      // ¼ÓÔØÆÀÂÛÁÐ±í
-      await loadComments();
-      
-      // Èç¹ûÓÃ»§ÒÑµÇÂ¼£¬Ö÷¶¯²éÑ¯ÓÃ»§µÄµãÔÞÊÕ²Ø×´Ì¬
+      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
+      await loadComments()
+
+      // ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ñµï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯ï¿½Ã»ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½Õ²ï¿½×´Ì¬
       if (isLoggedIn && noteId) {
         try {
-          // ²éÑ¯µãÔÞ×´Ì¬
-          const likeResponse = await getActionStatus(noteId, 'note', 'like');
-          
+          // ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½×´Ì¬
+          const likeResponse = await getActionStatus(noteId, 'note', 'like')
+
           if (likeResponse.code === 0 && likeResponse.data) {
-            setIsLiked(likeResponse.data.is_active);
-            setLikeCount(likeResponse.data.count || 0);
+            setIsLiked(likeResponse.data.is_active)
+            setLikeCount(likeResponse.data.count || 0)
           }
         } catch (_error) {
-          // Èç¹û²éÑ¯Ê§°Ü£¬±£³ÖÔ­ÓÐ×´Ì¬
+          // ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½×´Ì¬
         }
 
         try {
-          // ²éÑ¯ÊÕ²Ø×´Ì¬
-          const favoriteResponse = await getActionStatus(noteId, 'note', 'favorite');
-          
+          // ï¿½ï¿½Ñ¯ï¿½Õ²ï¿½×´Ì¬
+          const favoriteResponse = await getActionStatus(noteId, 'note', 'favorite')
+
           if (favoriteResponse.code === 0 && favoriteResponse.data) {
-            setIsBookmarked(favoriteResponse.data.is_active);
-            setFavoriteCount(favoriteResponse.data.count || 0);
+            setIsBookmarked(favoriteResponse.data.is_active)
+            setFavoriteCount(favoriteResponse.data.count || 0)
           }
         } catch (_error) {
-          // Èç¹û²éÑ¯Ê§°Ü£¬±£³ÖÔ­ÓÐ×´Ì¬
+          // ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½×´Ì¬
         }
       }
     } catch (err) {
-      setError('ÍøÂç´íÎó£¬ÇëÖØÊÔ');
+      setError('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [noteId, userId, isLoggedIn, loadComments]);
-  
-  // Ò³ÃæÏÔÊ¾Ê±¼ÓÔØÊý¾Ý
+  }, [noteId, userId, isLoggedIn, loadComments])
+
+  // Ò³ï¿½ï¿½ï¿½ï¿½Ê¾Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   useDidShow(() => {
     if (noteId) {
-      loadNoteDetail();
+      loadNoteDetail()
     }
-  });
-  
-  // ´¦ÀíÍ¼Æ¬ÂÖ²¥±ä»¯
+  })
+
+  // ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½Ö²ï¿½ï¿½ä»¯
   const handleImageChange = (e: any) => {
-    setCurrentImageIndex(e.detail.current);
-  };
+    setCurrentImageIndex(e.detail.current)
+  }
 
-  // ´¦ÀíÍ¼Æ¬Ô¤ÀÀ
+  // ï¿½ï¿½ï¿½ï¿½Í¼Æ¬Ô¤ï¿½ï¿½
   const handleImagePreview = (imageUrl: string, index: number) => {
-    const images = note?.images || [];
+    const images = note?.images || []
     Taro.previewImage({
-      urls: images, // ´«ÈëËùÓÐÍ¼Æ¬URLÊý×é
-      current: index, // µ±Ç°Í¼Æ¬Ë÷Òý
-      success: () => {
-      },
-      fail: (_err) => {
-      }
-    });
-  };
+      urls: images, // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬URLï¿½ï¿½ï¿½ï¿½
+      current: index, // ï¿½ï¿½Ç°Í¼Æ¬ï¿½ï¿½ï¿½ï¿½
+      success: () => {},
+      fail: (_err) => {},
+    })
+  }
 
-  // ´¦ÀíÆÀÂÛÌá½»
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á½»
   const handleCommentSubmit = async () => {
     if (!commentText.trim()) {
       Taro.showToast({
-        title: 'ÇëÊäÈëÆÀÂÛÄÚÈÝ',
-        icon: 'none'
-      });
-      return;
+        title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+        icon: 'none',
+      })
+      return
     }
-    
+
     if (!isLoggedIn) {
       Taro.showToast({
-        title: 'ÇëÏÈµÇÂ¼',
-        icon: 'none'
-      });
-      return;
+        title: 'ï¿½ï¿½ï¿½Èµï¿½Â¼',
+        icon: 'none',
+      })
+      return
     }
-    
+
     if (!noteId) {
       Taro.showToast({
-        title: '±Ê¼ÇID²»´æÔÚ',
-        icon: 'none'
-      });
-      return;
+        title: 'ï¿½Ê¼ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+        icon: 'none',
+      })
+      return
     }
-    
+
     try {
-      setSubmittingComment(true);
-      
+      setSubmittingComment(true)
+
       const commentData: CreateCommentRequest = {
         content: commentText.trim(),
         resource_id: noteId,
-        resource_type: 'note'
-      };
-      
-      const response = await createComment(commentData);
-      
+        resource_type: 'note',
+      }
+
+      const response = await createComment(commentData)
+
       if (response.code === 0) {
         Taro.showToast({
-          title: 'ÆÀÂÛ³É¹¦',
-          icon: 'success'
-        });
-        setCommentText('');
-        // ÖØÐÂ¼ÓÔØÆÀÂÛÁÐ±í
-        await loadComments();
+          title: 'ï¿½ï¿½ï¿½Û³É¹ï¿½',
+          icon: 'success',
+        })
+        setCommentText('')
+        // ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
+        await loadComments()
       } else {
-        throw new Error(response.message || 'ÆÀÂÛÊ§°Ü');
+        throw new Error(response.message || 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½')
       }
     } catch (_error: any) {
       Taro.showToast({
-        title: _error.message || 'ÆÀÂÛÊ§°Ü£¬ÇëÖØÊÔ',
-        icon: 'none'
-      });
+        title: _error.message || 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+        icon: 'none',
+      })
     } finally {
-      setSubmittingComment(false);
+      setSubmittingComment(false)
     }
-  };
+  }
 
-  // äÖÈ¾¼ÓÔØ×´Ì¬
+  // ï¿½ï¿½È¾ï¿½ï¿½ï¿½ï¿½×´Ì¬
   if (loading) {
     return (
       <View className={styles.container}>
-        <CustomHeader title='±Ê¼ÇÏêÇé' />
+        <CustomHeader title="ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½" />
         <View className={styles.content}>
           <View className={styles.loadingContainer}>
-            <Text className={styles.loadingText}>¼ÓÔØÖÐ...</Text>
+            <Text className={styles.loadingText}>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...</Text>
           </View>
         </View>
       </View>
-    );
+    )
   }
 
-  // äÖÈ¾´íÎó×´Ì¬
+  // ï¿½ï¿½È¾ï¿½ï¿½ï¿½ï¿½×´Ì¬
   if (error || !note) {
     return (
       <View className={styles.container}>
-        <CustomHeader title='±Ê¼ÇÏêÇé' />
+        <CustomHeader title="ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½" />
         <View className={styles.content}>
           <View className={styles.errorContainer}>
-            <Text className={styles.errorText}>{error || '±Ê¼Ç²»´æÔÚ'}</Text>
+            <Text className={styles.errorText}>{error || 'ï¿½Ê¼Ç²ï¿½ï¿½ï¿½ï¿½ï¿½'}</Text>
             <View className={styles.retryButton} onClick={loadNoteDetail}>
-              <Text>ÖØÐÂ¼ÓÔØ</Text>
+              <Text>ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½</Text>
             </View>
           </View>
         </View>
       </View>
-    );
+    )
   }
-  
-  // »ñÈ¡Í¼Æ¬Êý×é
-  const images: string[] = note.images || [];
-  const hasImages = images.length > 0;
+
+  // ï¿½ï¿½È¡Í¼Æ¬ï¿½ï¿½ï¿½ï¿½
+  const images: string[] = note.images || []
+  const hasImages = images.length > 0
 
   return (
     <View className={styles.container}>
-      <CustomHeader title='±Ê¼ÇÏêÇé' />
-      
+      <CustomHeader title="ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½" />
+
       <View className={styles.content}>
-        <ScrollView
-          scrollY
-          className={styles.scrollView}
-          enableBackToTop
-        >
-          {/* ±Ê¼ÇÍ·²¿ÐÅÏ¢ */}
+        <ScrollView scrollY className={styles.scrollView} enableBackToTop>
+          {/* ï¿½Ê¼ï¿½Í·ï¿½ï¿½ï¿½ï¿½Ï¢ */}
           <View className={styles.noteHeader}>
-            {/* ×Ô¶¨Òå×÷ÕßÐÅÏ¢²¼¾Ö */}
+            {/* ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ */}
             {note.user && (
               <View className={styles.authorSection}>
                 <View className={styles.customAuthorInfo}>
                   <Image
-                    src={note.user.avatar ? normalizeImageUrl(note.user.avatar) : '/assets/avatar1.png'}
+                    src={
+                      note.user.avatar ? normalizeImageUrl(note.user.avatar) : '/assets/avatar1.png'
+                    }
                     className={styles.authorAvatar}
-                    mode='aspectFill'
+                    mode="aspectFill"
                   />
                   <View className={styles.authorDetails}>
                     <View className={styles.nameAndLevel}>
-                      <Text className={styles.authorName}>{note.user.nickname || 'ÄäÃûÓÃ»§'}</Text>
-                      <Text className={styles.authorLevel}>{convertLevelToRealm(note.author?.level || 1)}</Text>
+                      <Text className={styles.authorName}>{note.user.nickname || 'ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½'}</Text>
+                      <Text className={styles.authorLevel}>
+                        {convertLevelToRealm(note.author?.level || 1)}
+                      </Text>
                     </View>
-                    {note.user.bio && (
-                      <Text className={styles.authorBio}>{note.user.bio}</Text>
-                    )}
+                    {note.user.bio && <Text className={styles.authorBio}>{note.user.bio}</Text>}
                   </View>
                   <View className={styles.authorActions}>
-                    {/* Ö»ÓÐµ±Ç°ÓÃ»§²»ÊÇ±Ê¼Ç×÷ÕßÊ±²ÅÏÔÊ¾¹Ø×¢°´Å¥ */}
+                    {/* Ö»ï¿½Ðµï¿½Ç°ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ç±Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½×¢ï¿½ï¿½Å¥ */}
                     {note.user && note.user.id !== userId && (
                       <View className={styles.followButton}>
-                        <Text className={styles.followText}>¹Ø×¢</Text>
+                        <Text className={styles.followText}>ï¿½ï¿½×¢</Text>
                       </View>
                     )}
                     <Text className={styles.publicationTime}>
-                      {note.created_at ? formatPostDate(note.created_at) : 'Ê±¼äÎ´Öª'}
+                      {note.created_at ? formatPostDate(note.created_at) : 'Ê±ï¿½ï¿½Î´Öª'}
                     </Text>
                   </View>
                 </View>
               </View>
             )}
-            
-            {/* ±êÇ© */}
+
+            {/* ï¿½ï¿½Ç© */}
             {note.tags && note.tags.length > 0 && (
               <View className={styles.tagsContainer}>
                 {note.tags.map((tag, index) => (
                   <View key={index} className={styles.tag}>
-                    <Image className={styles.tagIcon} src='/assets/check-square.svg' />
+                    <Image className={styles.tagIcon} src="/assets/check-square.svg" />
                     <Text className={styles.tagText}>{tag}</Text>
                   </View>
                 ))}
               </View>
             )}
           </View>
-          
-          {/* Í¼Æ¬ÂÖ²¥ */}
+
+          {/* Í¼Æ¬ï¿½Ö²ï¿½ */}
           {hasImages && (
             <View className={styles.imageSection}>
               <Swiper
@@ -429,68 +445,70 @@ export default function NoteDetailPage() {
               >
                 {images.map((image, index) => (
                   <SwiperItem key={index}>
-                    <Image 
+                    <Image
                       className={styles.image}
                       src={image}
-                      mode='aspectFit'
+                      mode="aspectFit"
                       onClick={() => handleImagePreview(image, index)}
                     />
                   </SwiperItem>
                 ))}
               </Swiper>
-              
-              {/* Í¼Æ¬¼ÆÊýÆ÷ */}
+
+              {/* Í¼Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */}
               <Text className={styles.imageCounter}>
                 {currentImageIndex + 1}/{images.length}
               </Text>
-              
-              {/* Í¼Æ¬Ö¸Ê¾µã */}
+
+              {/* Í¼Æ¬Ö¸Ê¾ï¿½ï¿½ */}
               <View className={styles.imageDots}>
                 {images.map((_, index) => (
-                  <View 
-                    key={index} 
+                  <View
+                    key={index}
                     className={`${styles.dot} ${index === currentImageIndex ? styles.active : ''}`}
                   />
                 ))}
               </View>
             </View>
           )}
-          
-          {/* ±Ê¼ÇÄÚÈÝ */}
+
+          {/* ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ */}
           <View className={styles.noteContent}>
             <Text className={styles.noteTitle}>{note.title}</Text>
             <Text className={styles.contentText}>{note.content}</Text>
           </View>
-          
 
-          
-          {/* ÆÀÂÛÇøÓò */}
+          {/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */}
           <View className={styles.commentSection}>
             <View className={styles.commentHeader}>
-              <Text className={styles.commentCount}>ÆÀÂÛ {comments.length}</Text>
+              <Text className={styles.commentCount}>ï¿½ï¿½ï¿½ï¿½ {comments.length}</Text>
             </View>
-            
-            {/* ÆÀÂÛÁÐ±í */}
+
+            {/* ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ */}
             {commentsLoading ? (
               <View className={styles.commentLoading}>
-                <Text className={styles.loadingText}>¼ÓÔØÆÀÂÛÖÐ...</Text>
+                <Text className={styles.loadingText}>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...</Text>
               </View>
             ) : comments.length > 0 ? (
               <View className={styles.commentList}>
                 {comments.map((comment) => (
                   <View key={comment.id} className={styles.commentItem}>
-                    <Image 
+                    <Image
                       className={styles.commentAvatar}
-                      src={comment.user?.avatar ? normalizeImageUrl(comment.user.avatar) : '/assets/avatar1.png'}
-                      mode='aspectFill'
+                      src={
+                        comment.user?.avatar
+                          ? normalizeImageUrl(comment.user.avatar)
+                          : '/assets/avatar1.png'
+                      }
+                      mode="aspectFill"
                     />
                     <View className={styles.commentContent}>
                       <Text className={styles.commentAuthor}>
-                        {comment.user?.nickname || 'ÄäÃûÓÃ»§'}
+                        {comment.user?.nickname || 'ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½'}
                       </Text>
                       <Text className={styles.commentText}>{comment.content}</Text>
                       <Text className={styles.commentTime}>
-                        {comment.created_at ? formatPostDate(comment.created_at) : 'Ê±¼äÎ´Öª'}
+                        {comment.created_at ? formatPostDate(comment.created_at) : 'Ê±ï¿½ï¿½Î´Öª'}
                       </Text>
                     </View>
                   </View>
@@ -498,26 +516,26 @@ export default function NoteDetailPage() {
               </View>
             ) : (
               <View className={styles.emptyComments}>
-                <Text className={styles.emptyText}>ÔÝÎÞÆÀÂÛ£¬¿ìÀ´·¢±íµÚÒ»ÌõÆÀÂÛ°É£¡</Text>
+                <Text className={styles.emptyText}>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Û°É£ï¿½</Text>
               </View>
             )}
-            
-            {/* ÆÀÂÛÊäÈë¿ò */}
+
+            {/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */}
             <View className={styles.commentInput}>
               <Input
                 className={styles.inputField}
                 value={commentText}
                 onInput={(e) => setCommentText(e.detail.value)}
-                placeholder='Ð´ÏÂÄãµÄÆÀÂÛ...'
+                placeholder="Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½..."
                 maxlength={500}
                 disabled={submittingComment}
               />
-              <View 
-                className={`${styles.sendButton} ${submittingComment ? styles.sending : ''}`} 
+              <View
+                className={`${styles.sendButton} ${submittingComment ? styles.sending : ''}`}
                 onClick={handleCommentSubmit}
               >
                 {submittingComment ? (
-                  <Text className={styles.sendingText}>·¢ËÍÖÐ...</Text>
+                  <Text className={styles.sendingText}>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...</Text>
                 ) : (
                   <Image className={styles.sendIcon} src={sendIcon} />
                 )}
@@ -526,17 +544,17 @@ export default function NoteDetailPage() {
           </View>
         </ScrollView>
       </View>
-      
-      {/* µ×²¿²Ù×÷À¸ */}
+
+      {/* ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */}
       <View className={styles.bottomBar}>
         <ActionBar
           targetId={noteId || ''}
-          targetType='note'
+          targetType="note"
           initialStates={{
             'like-0': { isActive: isLiked, count: likeCount },
             'favorite-1': { isActive: isBookmarked, count: favoriteCount },
             'comment-2': { isActive: false, count: note.comment_count || 0 },
-            'share-3': { isActive: false, count: shareCount }
+            'share-3': { isActive: false, count: shareCount },
           }}
           buttons={[
             {
@@ -556,31 +574,26 @@ export default function NoteDetailPage() {
             {
               type: 'share',
               icon: shareIcon,
-            }
+            },
           ]}
           onStateChange={(type, isActive, count) => {
-            // ActionBar ÒÑ¾­´¦ÀíÁË²Ù×÷£¬ÕâÀï¿ÉÒÔÌí¼Ó¶îÍâµÄÒµÎñÂß¼­
+            // ActionBar ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½ï¿½ß¼ï¿½
             if (type === 'like') {
-              setIsLiked(isActive);
-              setLikeCount(count);
+              setIsLiked(isActive)
+              setLikeCount(count)
             } else if (type === 'favorite') {
-              setIsBookmarked(isActive);
-              setFavoriteCount(count);
+              setIsBookmarked(isActive)
+              setFavoriteCount(count)
             } else if (type === 'comment') {
-              // ÆÀÂÛ°´Å¥±»µã»÷£¬¾Û½¹µ½ÆÀÂÛÊäÈë¿ò
-              // ÕâÀï¿ÉÒÔÊµÏÖ¹ö¶¯µ½ÆÀÂÛÇøÓò²¢¾Û½¹ÊäÈë¿òµÄÂß¼­
+              // ï¿½ï¿½ï¿½Û°ï¿½Å¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+              // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò²¢¾Û½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
             } else if (type === 'share') {
-              // ·ÖÏí²Ù×÷Íê³Éºó£¬Ôö¼Ó·ÖÏí¼ÆÊý
-              setShareCount(prev => prev + 1);
+              // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Éºï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+              setShareCount((prev) => prev + 1)
             }
           }}
         />
       </View>
     </View>
-  );
-} 
-
-
-
-
-
+  )
+}

@@ -57,7 +57,8 @@ export const getUnreadCountByType = async (type: NotificationType): Promise<numb
       type,
       is_read: false,
       page: 1,
-      page_size: 1  // 只需要总数，不需要具体数�?    });
+      page_size: 1  // 只需要总数，不需要具体数据
+    });
     
     if(res.code === 0 && res.data?.pagination) {
         return res.data.pagination.total || 0;
@@ -558,7 +559,7 @@ participantJoinSuccess: (params: {
         business_type: 'activity_cancelled',
         business_id: params.activity_id,
         title: '活动取消通知',
-        content: `活动�?{params.activity_title}」已被取�?{params.cancel_reason ? `，原因：${ params.cancel_reason }` : ''}`,
+        content: `活动�?{params.activity_title}」已被取消?{params.cancel_reason ? `，原因：${ params.cancel_reason }` : ''}`,
           recipient_id: recipientId,
             sender_id: params.organizer_id,
               data: {

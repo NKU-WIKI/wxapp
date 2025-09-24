@@ -160,22 +160,19 @@ try {
       duration: 2000,
     });
   }
-} catch (error) {
-  // 检查是否是用户取消操作
-  if (error && typeof error === 'object' && 'errMsg' in error) {
-    const errMsg = (error as any).errMsg;
-    if (errMsg && errMsg.includes('cancel')) {
-      // 用户取消是正常行为，不显示错误提�?          return;
-    }
+} catch (_error) {
+  // 静默处理取消选择的情况
+  if (_error.errMsg && _error.errMsg.includes('cancel')) {
+    return;
   }
 
-    // 其他错误才显示提示
-    Taro.showToast({
-      title: '选择图片失败',
-      icon: 'none',
-      duration: 2000,
-    });
-    }
+  // 其他错误才显示提示
+  Taro.showToast({
+    title: '选择图片失败',
+    icon: 'none',
+    duration: 2000,
+  });
+}
   };
 
 // 移除图片

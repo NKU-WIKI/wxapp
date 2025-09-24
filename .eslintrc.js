@@ -1,11 +1,12 @@
 module.exports = {
   extends: [
-    'taro/react'
+    'taro/react',
+    'prettier'
   ],
   rules: {
     // 可以在这里添加或覆盖规则
     'react/react-in-jsx-scope': 'off', // React 17+ 不需要导入React
-    'react-hooks/exhaustive-deps': 'warn',
+    'react-hooks/exhaustive-deps': 'error',
     'no-unused-vars': ['error', {
       'varsIgnorePattern': '^_',
       'argsIgnorePattern': '^_',

@@ -1,4 +1,4 @@
-@import "../../../styles/variables.scss";
+@import url('../../../styles/variables.scss');
 
 .page {
   min-height: 100vh;
@@ -10,7 +10,8 @@
   height: calc(100vh - 32px);
 }
 
-.loading, .empty {
+.loading,
+.empty {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -100,7 +101,7 @@
 }
 
 .replySection {
-  background-color: #F8F9FA;
+  background-color: #f8f9fa;
   border-radius: 8px;
   padding: 12px;
   margin-top: 12px;
@@ -118,4 +119,4 @@
   font-size: 14px;
   color: $text-primary;
   line-height: 1.5;
-} 
+}

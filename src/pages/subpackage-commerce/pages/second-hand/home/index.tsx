@@ -284,13 +284,15 @@ const handleProductClick = useCallback((product: ListingRead) => {
   })
 }, [])
 
+// 页面每次显示时刷新数据（包括首次进入和从其他页面返回）
+useDidShow(() => {
+  loadListings({ refresh: true, keyword: searchKeyword })
+})
 
-// 页面每次显示时刷新数据（包括首次进入和从其他页面返回�?  useDidShow(() => {
-loadListings({ refresh: true, keyword: searchKeyword })
-  })
-
-// 当筛选类型发生变化时，自动重新加载数�?  useEffect(() => {
-// 只有当用户主动进行了筛选操作时才重新加�?    if (userFilterChangedRef.current) {
+// 当筛选类型发生变化时，自动重新加载数据
+useEffect(() => {
+  // 只有当用户主动进行了筛选操作时才重新加载
+    if (userFilterChangedRef.current) {
 loadListings({ refresh: true, keyword: searchKeyword })
 userFilterChangedRef.current = false // 重置标记
     }
@@ -316,10 +318,11 @@ const handleClearSearch = useCallback(() => {
   // 清空后重新加载所有商�?    loadListings({ refresh: true, keyword: '' })
 }, [loadListings])
 
-// 处理筛选类型变�?  const handleTypeChange = useCallback((type: 'all' | 'sell' | 'buy') => {
-userFilterChangedRef.current = true
-setSelectedType(type)
-  }, [])
+// 处理筛选类型变化
+const handleTypeChange = useCallback((type: 'all' | 'sell' | 'buy') => {
+  userFilterChangedRef.current = true
+  setSelectedType(type)
+}, [])
 
 // 商品卡片组件
 const ProductCard = ({ product }: { product: ListingRead }) => {

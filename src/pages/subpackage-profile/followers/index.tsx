@@ -122,11 +122,12 @@ const FollowersPage = () => {
 
 
 
-      // 更新本地状�?- 不论在哪个tab都只更新关注状态，不删除用�?      setUsers(prev => prev.map(user =>
+      // 更新本地状态 - 不论在哪个tab都只更新关注状态，不删除用户
+      setUsers(prev => prev.map(user =>
         user.id === userId
           ? { ...user, relation: isActive ? 'following' : 'none' as FollowRelation }
           : user
-      ))
+      ));
       setAllUsers(prev => prev.map(user =>
         user.id === userId
           ? { ...user, relation: isActive ? 'following' : 'none' as FollowRelation }

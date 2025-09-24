@@ -34,7 +34,6 @@ const truncateNickname = (nickname: string): string => {
   return nickname.substring(0, NICKNAME_DISPLAY_MAX_LENGTH) + '...'
 }
 
-
 export type AuthorInfoMode = 'compact' | 'expanded' | 'profile'
 
 export interface AuthorInfoProps {
@@ -112,11 +111,9 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
   isCampusVerified = false,
   points = 0,
   showMoreButton = false,
-  onMoreClick
+  onMoreClick,
 }) => {
-  const currentUserId = useSelector((state: RootState) => (
-    state.user.user?.id || ''
-  ))
+  const currentUserId = useSelector((state: RootState) => state.user.user?.id || '')
 
   const {
     user,
@@ -128,15 +125,14 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
     isLoading,
     error,
     follow,
-    unfollow
+    unfollow,
   } = useAuthorInfo(userId, {
     includeLevel: showLevel,
     includeFollowStatus: showFollowButton,
-    includeStats: showStats
+    includeStats: showStats,
   })
 
   const isCurrentUser = !!currentUserId && currentUserId === userId
-
 
   const handleFollowToggle = async () => {
     if (isFollowing) {
@@ -150,7 +146,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
     [styles.clickable]: mode === 'compact' && onClick, // compact模式下如果有onClick则显示可点击状态
     [styles.compact]: mode === 'compact',
     [styles.expanded]: mode === 'expanded',
-    [styles.profile]: mode === 'profile'
+    [styles.profile]: mode === 'profile',
   })
 
   if (isLoading) {
@@ -164,9 +160,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
   if (error && !user) {
     return (
       <View className={containerClasses}>
-        <Text className={styles.errorText}>
-          {error || '用户信息加载失败'}
-        </Text>
+        <Text className={styles.errorText}>{error || '用户信息加载失败'}</Text>
       </View>
     )
   }
@@ -180,18 +174,22 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
             <Image
               src={normalizeImageUrl(user?.avatar || undefined) || defaultAvatar}
               className={classnames(styles.compactAvatar, className)}
-              mode='aspectFill'
+              mode="aspectFill"
             />
             <View className={styles.compactUserDetails}>
               <View className={styles.compactUserNameRow}>
-                <Text className={classnames(styles.compactUserName, { [styles.noTruncate]: disableNameTruncate })}>
-                  {disableNameTruncate ? (user?.nickname || '匿名用户') : truncateNickname(user?.nickname)}
+                <Text
+                  className={classnames(styles.compactUserName, {
+                    [styles.noTruncate]: disableNameTruncate,
+                  })}
+                >
+                  {disableNameTruncate
+                    ? user?.nickname || '匿名用户'
+                    : truncateNickname(user?.nickname)}
                 </Text>
                 {showLevel && levelInfo && (
                   <View className={styles.compactLevelBadge}>
-                    <Text className={styles.compactLevelText}>
-                      {levelInfo.level_name}
-                    </Text>
+                    <Text className={styles.compactLevelText}>{levelInfo.level_name}</Text>
                   </View>
                 )}
               </View>
@@ -207,9 +205,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                     className={styles.compactLocationIcon}
                     style={{ width: '10px', height: '10px' }}
                   />
-                  <Text className={styles.compactLocationText}>
-                    {user?.location}
-                  </Text>
+                  <Text className={styles.compactLocationText}>{user?.location}</Text>
                 </View>
               )}
             </View>
@@ -220,20 +216,18 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
 
             {/* 时间信息 */}
             {showTime && createTime && (
-              <Text className={styles.compactTime}>
-                {formatRelativeTime(createTime)}
-              </Text>
+              <Text className={styles.compactTime}>{formatRelativeTime(createTime)}</Text>
             )}
 
             <View className={styles.compactFollowContainer}>
               {showFollowButton && !isCurrentUser && (
                 <View
                   className={classnames(styles.compactFollowButton, {
-                    [styles.following]: isFollowing
+                    [styles.following]: isFollowing,
                   })}
                   onClick={(e) => {
-                    e.stopPropagation(); // 阻止事件冒泡
-                    handleFollowToggle();
+                    e.stopPropagation() // 阻止事件冒泡
+                    handleFollowToggle()
                   }}
                 >
                   <Text>{isFollowing ? '已关注' : '关注'}</Text>
@@ -245,8 +239,8 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                 <View
                   className={styles.moreButton}
                   onClick={(e) => {
-                    e.stopPropagation(); // 阻止事件冒泡
-                    onMoreClick();
+                    e.stopPropagation() // 阻止事件冒泡
+                    onMoreClick()
                   }}
                 >
                   <Image src={moreIcon} className={styles.moreIcon} />
@@ -268,14 +262,12 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           <Image
             src={normalizeImageUrl(user?.avatar || undefined) || defaultAvatar}
             className={styles.avatar}
-            mode='aspectFill'
+            mode="aspectFill"
           />
 
           <View className={styles.userInfo}>
             <View className={styles.userNameRow}>
-              <Text className={styles.userName}>
-                {truncateNickname(user?.nickname)}
-              </Text>
+              <Text className={styles.userName}>{truncateNickname(user?.nickname)}</Text>
 
               {/* 等级信息 */}
               {showLevel && levelInfo && (
@@ -285,9 +277,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                     className={styles.levelIcon}
                     style={{ width: '14px', height: '14px' }}
                   />
-                  <Text className={styles.levelText}>
-                    {levelInfo.level_name}
-                  </Text>
+                  <Text className={styles.levelText}>{levelInfo.level_name}</Text>
                 </View>
               )}
             </View>
@@ -295,7 +285,8 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
             {/* 学校信息 */}
             {(user?.school || user?.college) && (
               <Text className={styles.userSchool}>
-                {user?.school || ''}{user?.college ? ` ${user.college}` : ''}
+                {user?.school || ''}
+                {user?.college ? ` ${user.college}` : ''}
               </Text>
             )}
 
@@ -307,17 +298,13 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                   className={styles.locationIcon}
                   style={{ width: '12px', height: '12px' }}
                 />
-                <Text className={styles.locationText}>
-                  {user?.location}
-                </Text>
+                <Text className={styles.locationText}>{user?.location}</Text>
               </View>
             )}
 
             {/* 时间信息 */}
             {showTime && createTime && (
-              <Text className={styles.userTime}>
-                {formatRelativeTime(createTime)}
-              </Text>
+              <Text className={styles.userTime}>{formatRelativeTime(createTime)}</Text>
             )}
           </View>
 
@@ -325,7 +312,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           {showFollowButton && !isCurrentUser && (
             <View
               className={classnames(styles.followButton, {
-                [styles.following]: isFollowing
+                [styles.following]: isFollowing,
               })}
               onClick={handleFollowToggle}
             >
@@ -335,11 +322,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
         </View>
 
         {/* 用户简介 */}
-        {user?.bio && (
-          <Text className={styles.userBio}>
-            {user?.bio}
-          </Text>
-        )}
+        {user?.bio && <Text className={styles.userBio}>{user?.bio}</Text>}
 
         {/* 统计信息 */}
         {showStats && (
@@ -383,7 +366,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
               <View
                 className={styles.progressFill}
                 style={{
-                  width: `${Math.min(100, levelInfo.progress * 100)}%`
+                  width: `${Math.min(100, levelInfo.progress * 100)}%`,
                 }}
               />
             </View>
@@ -407,15 +390,13 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
               <Image
                 src={normalizeImageUrl(user?.avatar || undefined) || defaultAvatar}
                 className={styles.profileAvatar}
-                mode='aspectFill'
+                mode="aspectFill"
               />
             </View>
           </View>
 
           <View className={styles.profileUserDetails}>
-            <Text className={styles.profileNickname}>
-              {user?.nickname || '未设置昵称'}
-            </Text>
+            <Text className={styles.profileNickname}>{user?.nickname || '未设置昵称'}</Text>
             <Text className={styles.profileBio}>
               {user?.bio || '这个人很懒，还没有设置个性签名~'}
             </Text>
@@ -429,9 +410,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                 className={styles.profileStarIcon}
                 style={{ width: '14px', height: '14px' }}
               />
-              <Text className={styles.profileLevelText}>
-                {levelInfo.level_name}
-              </Text>
+              <Text className={styles.profileLevelText}>{levelInfo.level_name}</Text>
             </View>
           )}
 
@@ -585,7 +564,10 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                 <Text className={styles.profileChevron}>›</Text>
               </View>
 
-              <View className={styles.profileMenuItem} onClick={() => onMenuClick?.('campus-verification')}>
+              <View
+                className={styles.profileMenuItem}
+                onClick={() => onMenuClick?.('campus-verification')}
+              >
                 <View className={styles.profileMenuLeft}>
                   <Image
                     src={campusIcon}
@@ -593,9 +575,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                     style={{ width: '16px', height: '16px' }}
                   />
                   <Text className={styles.profileMenuText}>校园认证</Text>
-                  {isCampusVerified && (
-                    <Text className={styles.profileVerifiedBadge}>已认证</Text>
-                  )}
+                  {isCampusVerified && <Text className={styles.profileVerifiedBadge}>已认证</Text>}
                 </View>
                 <Text className={styles.profileChevron}>›</Text>
               </View>

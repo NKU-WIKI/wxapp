@@ -1,77 +1,101 @@
-﻿import { View, Image, Text } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import { UserInfo } from '@/types/api/user';
-import { tabBarSyncManager } from '@/utils/tabBarSync';
-import { normalizeImageUrl } from '@/utils/image';
-import { convertLevelToRealm } from '@/utils/levelConverter';
-import awardIcon from '@/assets/award.svg';
-import styles from './ProfileSummary.module.scss';
+﻿import { View, Image, Text } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { UserInfo } from '@/types/api/user'
+import { tabBarSyncManager } from '@/utils/tabBarSync'
+import { normalizeImageUrl } from '@/utils/image'
+import { convertLevelToRealm } from '@/utils/levelConverter'
+import awardIcon from '@/assets/award.svg'
+import styles from './ProfileSummary.module.scss'
 
 interface ProfileSummaryProps {
-  userInfo: UserInfo;
+  userInfo: UserInfo
 }
 
 const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
   // 添加空值检查，防止 userInfo 为 undefined 时报错
   if (!userInfo) {
-    return null;
+    return null
   }
 
   const handleEditProfile = () => {
     // 使用全局导航管理器，自动判断是否为tabBar页面
-    tabBarSyncManager.navigateToPage('/pages/edit-profile/index');
-  };
+    tabBarSyncManager.navigateToPage('/pages/edit-profile/index')
+  }
 
   const handleNavigateToLevel = () => {
     // 使用全局导航管理器，自动判断是否为tabBar页面
-    tabBarSyncManager.navigateToPage('/pages/level/index');
+    tabBarSyncManager.navigateToPage('/pages/level/index')
   }
 
   const handleNavigateToFollowers = () => {
-     // 调试日志
+    // 调试日志
     // 导航到关注/粉丝页面
     Taro.navigateTo({
-      url: '/pages/subpackage-profile/followers/index'
-    }).then(() => {
-      
-    }).catch((_err) => {
-      
-      Taro.showToast({
-        title: '页面跳转失败',
-        icon: 'error'
-      });
-    });
-  };
+      url: '/pages/subpackage-profile/followers/index',
+    })
+      .then(() => {})
+      .catch((_err) => {
+        Taro.showToast({
+          title: '页面跳转失败',
+          icon: 'error',
+        })
+      })
+  }
 
   const handleNavigateToCollection = () => {
     // 导航到收藏页面
     Taro.navigateTo({
-      url: '/pages/subpackage-profile/collection/index'
-    });
-  };
+      url: '/pages/subpackage-profile/collection/index',
+    })
+  }
 
   const handleNavigateToPosts = () => {
     Taro.showToast({
       title: '帖子页面还未开发',
-      icon: 'none'
-    });
-  };
+      icon: 'none',
+    })
+  }
 
   const handleNavigateToLikes = () => {
     Taro.showToast({
       title: '获赞页面还未开发',
-      icon: 'none'
-    });
-  };
+      icon: 'none',
+    })
+  }
 
   const statistics = [
-    { label: '帖子', value: userInfo?.postsCount || 0, clickable: true, onClick: handleNavigateToPosts },
-    { label: '获赞', value: userInfo?.likesCount || 0, clickable: true, onClick: handleNavigateToLikes },
-    { label: '关注', value: userInfo?.followingCount || 0, clickable: true, onClick: handleNavigateToFollowers },
-    { label: '粉丝', value: userInfo?.followersCount || 0, clickable: true, onClick: handleNavigateToFollowers },
-    { label: '收藏', value: userInfo?.favoritesCount || 0, clickable: true, onClick: handleNavigateToCollection },
+    {
+      label: '帖子',
+      value: userInfo?.postsCount || 0,
+      clickable: true,
+      onClick: handleNavigateToPosts,
+    },
+    {
+      label: '获赞',
+      value: userInfo?.likesCount || 0,
+      clickable: true,
+      onClick: handleNavigateToLikes,
+    },
+    {
+      label: '关注',
+      value: userInfo?.followingCount || 0,
+      clickable: true,
+      onClick: handleNavigateToFollowers,
+    },
+    {
+      label: '粉丝',
+      value: userInfo?.followersCount || 0,
+      clickable: true,
+      onClick: handleNavigateToFollowers,
+    },
+    {
+      label: '收藏',
+      value: userInfo?.favoritesCount || 0,
+      clickable: true,
+      onClick: handleNavigateToCollection,
+    },
     { label: '积分', value: userInfo?.points || 0, clickable: false, onClick: undefined },
-  ];
+  ]
 
   return (
     <View className={styles.profileSummary}>
@@ -101,22 +125,21 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
       <View className={styles.statsGrid}>
         {statistics.map((stat) => {
           const handleClick = () => {
-            
             if (stat.clickable && stat.onClick) {
-              stat.onClick();
+              stat.onClick()
             }
-          };
+          }
 
           return (
-            <View 
-              key={stat.label} 
-              className={`${styles.statItem} ${stat.clickable ? styles.clickable : ''}`} 
+            <View
+              key={stat.label}
+              className={`${styles.statItem} ${stat.clickable ? styles.clickable : ''}`}
               onClick={handleClick}
             >
               <Text className={styles.statValue}>{stat.value}</Text>
               <Text className={styles.statLabel}>{stat.label}</Text>
             </View>
-          );
+          )
         })}
       </View>
     </View>
@@ -124,6 +147,3 @@ const ProfileSummary = ({ userInfo }: ProfileSummaryProps) => {
 }
 
 export default ProfileSummary
-
-
-

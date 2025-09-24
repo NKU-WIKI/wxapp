@@ -7,18 +7,22 @@
 ## 功能特性
 
 ### 1. 页面布局
+
 - **顶部导航栏**: 64px高度，包含返回按钮和页面标题
 - **应用信息区域**: 居中显示Logo、应用名称、版本号和副标题
 - **内容区域**: 包含愿景目标、相关链接、开发团队、注册公司等信息
 - **底部版权**: 显示版权信息
 
 ### 2. 交互功能
+
 - **返回按钮**: 点击返回上一页
 - **链接点击**: 点击相关链接会复制对应内容到剪贴板并显示提示
 - **响应式设计**: 适配375px宽度的移动端布局
 
 ### 3. 数据配置
+
 页面数据通过 `companyInfo` 对象配置，包含：
+
 - `appName`: 应用名称
 - `version`: 版本号
 - `website`: 官方网站
@@ -47,16 +51,18 @@ src/types/
 ## 使用方法
 
 ### 1. 页面跳转
+
 ```typescript
-import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro'
 
 // 跳转到关于我们页面
 Taro.navigateTo({
-  url: '/pages/about/index'
-});
+  url: '/pages/about/index',
+})
 ```
 
 ### 2. 自定义数据
+
 修改 `src/pages/about/index.tsx` 中的 `companyInfo` 对象：
 
 ```typescript
@@ -67,18 +73,19 @@ const companyInfo: CompanyInfo = {
   email: 'support@your-email.com',
   github: 'your-github-repo',
   teamName: 'your-team-name',
-  companyName: 'your-company-name'
-};
+  companyName: 'your-company-name',
+}
 ```
 
 ### 3. 样式定制
+
 修改 `src/pages/about/index.module.scss` 中的样式变量：
 
 ```scss
 // 主色调
-$primary-color: #4A90E2;
+$primary-color: #4a90e2;
 $text-color: #000000;
-$secondary-color: #9B9B9B;
+$secondary-color: #9b9b9b;
 
 // 布局尺寸
 $header-height: 64px;
@@ -89,16 +96,19 @@ $logo-size: 120px;
 ## 技术实现
 
 ### 1. 组件架构
+
 - 使用函数式组件和React Hooks
 - 模块化SCSS样式
 - TypeScript类型安全
 
 ### 2. 图标系统
+
 - 自定义SVG图标组件
 - 支持动态颜色和尺寸
 - 本地资源，无外部依赖
 
 ### 3. 交互处理
+
 - 使用Taro API进行页面导航
 - 剪贴板操作和用户反馈
 - 错误处理和边界情况
@@ -113,8 +123,9 @@ $logo-size: 120px;
 ## 扩展功能
 
 可以考虑添加以下功能：
+
 - 多语言支持
 - 主题切换
 - 分享功能
 - 用户反馈入口
-- 更新日志展示 
+- 更新日志展示

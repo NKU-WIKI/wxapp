@@ -6,14 +6,13 @@
 }
 
 .fixedContainer {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
-
 .categoriesContainer {
-  background-color: #ffffff;
+  background-color: #fff;
   padding: 12px 0;
-  margin: 0 16px 8px 16px; // 减少顶部margin，让categories更靠近search
+  margin: 0 16px 8px; // 减少顶部margin，让categories更靠近search
   display: flex;
   justify-content: center; // 添加居中对齐
 }
@@ -52,7 +51,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #FFFFFF;
+  background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,7 +114,7 @@
   padding: 16px 0; // 减少padding
   color: #999;
   font-size: 14px;
-  margin: 8px 0 48px 0; // 增加底部margin
+  margin: 8px 0 48px; // 增加底部margin
   background-color: #f9f9f9;
   border-radius: 8px;
 
@@ -135,7 +134,9 @@
   color: white;
   display: flex;
   justify-content: center;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
   z-index: 50;
 }
 

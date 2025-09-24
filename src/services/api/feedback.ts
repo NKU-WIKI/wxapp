@@ -3,11 +3,11 @@ import {
   CreateFeedbackParams,
   GetFeedbackListParams,
   CreateFeedbackResponse,
-} from "@/types/api/feedback.d";
-import { PaginatedData } from "@/types/api/common";
+} from '@/types/api/feedback.d'
+import { PaginatedData } from '@/types/api/common'
 
 // Relative imports
-import http from "../request";
+import http from '../request'
 
 /**
  * 创建反馈
@@ -21,39 +21,44 @@ export const createFeedback = (data: CreateFeedbackParams) => {
     images: data.images, // 直接使用 images 字段
     device_info: data.device_info,
     version: data.version,
-  };
-  return http.post<CreateFeedbackResponse>("/feedback/", payload);
-};
+  }
+  return http.post<CreateFeedbackResponse>('/feedback/', payload)
+}
 
 /**
  * 获取当前用户创建的反馈列表
  */
 export const getMyFeedbacks = (params: GetFeedbackListParams) => {
-  return http.get<PaginatedData<Feedback>>("/feedback/my/list", params);
-};
+  return http.get<PaginatedData<Feedback>>('/feedback/my/list', params)
+}
 
 // 兼容旧调用：getFeedbackList -> getMyFeedbacks
-export const getFeedbackList = (params: GetFeedbackListParams) => getMyFeedbacks(params);
+export const getFeedbackList = (params: GetFeedbackListParams) => getMyFeedbacks(params)
 
 // 详情与删除（若后端暂未提供，可保留占位或后续根据文档调整）
 export const getFeedback = (feedbackId: number) => {
-  return http.get<Feedback>(`/feedback/${feedbackId}`);
-};
+  return http.get<Feedback>(`/feedback/${feedbackId}`)
+}
 
 export const deleteFeedback = (feedbackId: number) => {
-  return http.delete<void>(`/feedback/${feedbackId}`);
-};
+  return http.delete<void>(`/feedback/${feedbackId}`)
+}
 
 const feedbackApi = {
   createFeedback,
   getMyFeedbacks,
   getFeedbackList,
   // 兼容旧调用：简单上报一个反馈记录
-  sendThumbFeedback: (data: { scope: string; action: 'up' | 'down'; title?: string; extra?: any }) =>
+  sendThumbFeedback: (data: {
+    scope: string
+    action: 'up' | 'down'
+    title?: string
+    extra?: any
+  }) =>
     createFeedback({
       content: `[thumb-${data.action}] ${data.title || ''}`.trim(),
       type: 'suggest',
     } as any),
-};
+}
 
-export default feedbackApi; 
+export default feedbackApi

@@ -35,7 +35,7 @@
 }
 
 // 响应式适配
-@media screen and (min-width: 768px) {
+@media screen and (width >= 768px) {
   .floatingButton {
     bottom: 60rpx;
     right: 60rpx;

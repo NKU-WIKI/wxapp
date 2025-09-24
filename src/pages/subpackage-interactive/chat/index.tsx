@@ -1,77 +1,79 @@
-import { useState, useEffect, useRef } from "react";
-import { View, ScrollView, Text, Textarea, Image } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { useSelector, useDispatch } from "react-redux";
+import { useState, useEffect, useRef } from 'react'
+import { View, ScrollView, Text, Textarea, Image } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { useSelector, useDispatch } from 'react-redux'
 
-import { ChatMessage } from "@/types/chat";
-import { RootState, AppDispatch } from "@/store";
-import { addMessage, streamMessageFromAI, initializeChat } from "@/store/slices/chatSlice";
-import CustomHeader from "@/components/custom-header";
+import { ChatMessage } from '@/types/chat'
+import { RootState, AppDispatch } from '@/store'
+import { addMessage, streamMessageFromAI, initializeChat } from '@/store/slices/chatSlice'
+import CustomHeader from '@/components/custom-header'
 
 // Assets imports
-import RobotAvatar from "@/assets/wiki.svg";
-import DefaultUserAvatar from "@/assets/profile.svg";
-import SendIcon from "@/assets/send.svg";
-import MenuIcon from "@/assets/more-horizontal.svg";
+import RobotAvatar from '@/assets/wiki.svg'
+import DefaultUserAvatar from '@/assets/profile.svg'
+import SendIcon from '@/assets/send.svg'
+import MenuIcon from '@/assets/more-horizontal.svg'
 
 // Relative imports
-import ChatSidebar from "./components/chat-sidebar/index";
-import styles from "./index.module.scss";
+import ChatSidebar from './components/chat-sidebar/index'
+import styles from './index.module.scss'
 
 const Chat = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>()
   const { currentSession, isTyping, isLoading, error } = useSelector(
-    (state: RootState) => state.chat || {
-      currentSession: null,
-      isTyping: false,
-      isLoading: false,
-      error: null,
-      sessions: []
-    }
-  );
+    (state: RootState) =>
+      state.chat || {
+        currentSession: null,
+        isTyping: false,
+        isLoading: false,
+        error: null,
+        sessions: [],
+      }
+  )
   const { userInfo, isLoggedIn } = useSelector(
-    (state: RootState) => state.user || {
-      userInfo: null,
-      isLoggedIn: false
-    }
-  );
+    (state: RootState) =>
+      state.user || {
+        userInfo: null,
+        isLoggedIn: false,
+      }
+  )
 
-  const [inputText, setInputText] = useState("");
-  const [scrollTop, setScrollTop] = useState(9999); // 初始化一个较大的值以滚动到底部
-  const scrollViewRef = useRef(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSearchingKnowledge, setIsSearchingKnowledge] = useState(false);
+  const [inputText, setInputText] = useState('')
+  const [scrollTop, setScrollTop] = useState(9999) // 初始化一个较大的值以滚动到底部
+  const scrollViewRef = useRef(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSearchingKnowledge, setIsSearchingKnowledge] = useState(false)
 
   // 初始化聊天状态
   useEffect(() => {
-    dispatch(initializeChat());
-  }, [dispatch]);
+    dispatch(initializeChat())
+  }, [dispatch])
 
   // 当消息更新时自动滚动到底部
   useEffect(() => {
     if (currentSession?.messages && currentSession.messages.length > 0) {
       Taro.nextTick(() => {
-        setScrollTop((prev) => prev + 10000); // 增加 scrollTop 以确保滚动到底部
-      });
+        setScrollTop((prev) => prev + 10000) // 增加 scrollTop 以确保滚动到底部
+      })
     }
-  }, [currentSession?.messages, isTyping]);
+  }, [currentSession?.messages, isTyping])
 
   const handleSend = async () => {
     if (inputText.trim() && currentSession?.id) {
       const userMessage: ChatMessage = {
         id: `user_${Date.now()}`,
         content: inputText.trim(),
-        role: "user",
+        role: 'user',
         timestamp: Date.now(),
-      };
+      }
 
-      dispatch(addMessage(userMessage));
+      dispatch(addMessage(userMessage))
 
-      const messageContent = inputText.trim();
-      setInputText("");
+      const messageContent = inputText.trim()
+      setInputText('')
 
       // 显示正在搜索知识库的状态
-      setIsSearchingKnowledge(true);
+      setIsSearchingKnowledge(true)
 
       // 发送消息到AI
       dispatch(
@@ -81,43 +83,39 @@ const Chat = () => {
         })
       ).finally(() => {
         // 无论成功失败，都结束搜索状态
-        setIsSearchingKnowledge(false);
-      });
+        setIsSearchingKnowledge(false)
+      })
     }
-  };
+  }
 
   // 参考资料折叠/展开状态管理
-  const [expandedReferences, setExpandedReferences] = useState<
-    Record<string, boolean>
-  >({});
+  const [expandedReferences, setExpandedReferences] = useState<Record<string, boolean>>({})
 
   // 切换参考资料的折叠/展开状态
   const toggleReferenceExpand = (messageId: string) => {
     setExpandedReferences((prev) => ({
       ...prev,
       [messageId]: !prev[messageId],
-    }));
-  };
+    }))
+  }
 
   const renderMessage = (message: ChatMessage) => {
     if (!message || !message.id) {
-      return null;
+      return null
     }
 
-    const isUser = message.role === "user";
+    const isUser = message.role === 'user'
     const hasReferences =
       !isUser &&
       message.references &&
       Array.isArray(message.references) &&
-      message.references.length > 0;
-    const isExpanded = expandedReferences[message.id] || false;
+      message.references.length > 0
+    const isExpanded = expandedReferences[message.id] || false
 
     return (
       <View
         key={message.id}
-        className={`${styles.messageItem} ${
-          isUser ? styles.userMessage : styles.assistantMessage
-        }`}
+        className={`${styles.messageItem} ${isUser ? styles.userMessage : styles.assistantMessage}`}
       >
         <Image
           src={
@@ -147,8 +145,7 @@ const Chat = () => {
                 onClick={() => toggleReferenceExpand(message.id)}
               >
                 <Text className={styles.referencesToggleText}>
-                  {isExpanded ? "收起参考资料" : "查看参考资料"} (
-                  {message.references?.length || 0})
+                  {isExpanded ? '收起参考资料' : '查看参考资料'} ({message.references?.length || 0})
                 </Text>
               </View>
 
@@ -156,19 +153,13 @@ const Chat = () => {
                 <View className={styles.referencesList}>
                   {message.references?.map((reference, index) => (
                     <View key={index} className={styles.referenceItem}>
-                      <Text className={styles.referenceIndex}>
-                        {index + 1}
-                      </Text>
+                      <Text className={styles.referenceIndex}>{index + 1}</Text>
                       <View className={styles.referenceContent}>
-                        <Text className={styles.referenceTitle}>
-                          {reference.title}
-                        </Text>
-                        <Text className={styles.referenceText}>
-                          {reference.content}
-                        </Text>
+                        <Text className={styles.referenceTitle}>{reference.title}</Text>
+                        <Text className={styles.referenceText}>{reference.content}</Text>
                         {reference.original_url && (
                           <Text className={styles.referenceLink}>
-                            来源: {reference.platform || "未知来源"}
+                            来源: {reference.platform || '未知来源'}
                           </Text>
                         )}
                       </View>
@@ -180,8 +171,8 @@ const Chat = () => {
           )}
         </View>
       </View>
-    );
-  };
+    )
+  }
 
   const renderWelcome = () => (
     <View className={styles.welcomeContainer}>
@@ -189,7 +180,7 @@ const Chat = () => {
       <Text className={styles.welcomeTitle}>南开小知</Text>
       <Text className={styles.welcomeTip}>南开知识社区的智能助理</Text>
     </View>
-  );
+  )
 
   const renderTypingIndicator = () => (
     <View className={`${styles.messageItem} ${styles.assistantMessage}`}>
@@ -207,12 +198,12 @@ const Chat = () => {
         </View>
       </View>
     </View>
-  );
+  )
 
   return (
     <View className={styles.chatPage}>
       <CustomHeader
-        title='南开小知'
+        title="南开小知"
         leftIcon={MenuIcon}
         onLeftClick={() => setIsSidebarOpen(true)}
       />
@@ -244,19 +235,19 @@ const Chat = () => {
       <View className={styles.inputArea}>
         <Textarea
           className={styles.inputField}
-          placeholder='有关南开的问题，尽管问我...'
+          placeholder="有关南开的问题，尽管问我..."
           value={inputText}
           onInput={(e) => setInputText(e.detail.value)}
           autoHeight
           maxlength={-1}
           showConfirmBar={false}
-          confirmType='send'
+          confirmType="send"
           disabled={isTyping}
           onConfirm={handleSend}
         />
         <View
           className={`${styles.sendButton} ${
-            !inputText.trim() || isTyping ? styles.sendButtonDisabled : ""
+            !inputText.trim() || isTyping ? styles.sendButtonDisabled : ''
           }`}
           onClick={handleSend}
         >
@@ -264,7 +255,7 @@ const Chat = () => {
         </View>
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default Chat;
+export default Chat

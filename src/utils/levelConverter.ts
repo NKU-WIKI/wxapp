@@ -1,64 +1,64 @@
 /**
- * µÈ¼¶ÏµÍ³×ª»»¹¤¾ß
- * ½«Êý×ÖµÈ¼¶×ª»»ÎªÐÞÏÉ¾³½çÃû³Æ
+ * ï¿½È¼ï¿½ÏµÍ³×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ÖµÈ¼ï¿½×ªï¿½ï¿½Îªï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  */
 
-// ÐÞÏÉ¾³½çÓ³Éä±í
+// ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½
 const LEVEL_MAPPING = {
-  0: "Á¶ÆøÆÚ",
-  1: "Öþ»ùÆÚ", 
-  2: "½áµ¤ÆÚ",
-  3: "ÔªÓ¤ÆÚ",
-  4: "»¯ÉñÆÚ",
-  5: "ÕæÏÉÆÚ",
-  6: "½ðÏÉÆÚ",
-  7: "µÀ×æÆÚ"
-} as const;
+  0: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+  1: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+  2: 'ï¿½áµ¤ï¿½ï¿½',
+  3: 'ÔªÓ¤ï¿½ï¿½',
+  4: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+  5: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+  6: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+  7: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
+} as const
 
 /**
- * ½«µÈ¼¶Êý×Ö×ª»»ÎªÐÞÏÉ¾³½çÃû³Æ
- * @param level µÈ¼¶Êý×Ö (0-7)
- * @returns ÐÞÏÉ¾³½çÃû³Æ
+ * ï¿½ï¿½ï¿½È¼ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½Îªï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @param level ï¿½È¼ï¿½ï¿½ï¿½ï¿½ï¿½ (0-7)
+ * @returns ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  */
 export function convertLevelToRealm(level: number): string {
   if (level < 0 || level > 7) {
-    return "Á¶ÆøÆÚ";
+    return 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'
   }
-  
-  return LEVEL_MAPPING[level as keyof typeof LEVEL_MAPPING];
+
+  return LEVEL_MAPPING[level as keyof typeof LEVEL_MAPPING]
 }
 
 /**
- * ½âÎöµÈ¼¶×Ö·û´®²¢×ª»»ÎªÐÞÏÉ¾³½çÃû³Æ
- * Ö§³Ö¸ñÊ½: "Lv0", "Lv1", "Lv2" µÈ
- * @param levelString µÈ¼¶×Ö·û´®
- * @returns ÐÞÏÉ¾³½çÃû³Æ
+ * ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½Îªï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * Ö§ï¿½Ö¸ï¿½Ê½: "Lv0", "Lv1", "Lv2" ï¿½ï¿½
+ * @param levelString ï¿½È¼ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
+ * @returns ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  */
 export function parseLevelString(levelString: string): string {
-  // ÌáÈ¡Êý×Ö²¿·Ö
-  const match = levelString.match(/Lv(\d+)/i);
+  // ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½
+  const match = levelString.match(/Lv(\d+)/i)
   if (!match) {
-    return "Á¶ÆøÆÚ";
+    return 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'
   }
-  
-  const level = parseInt(match[1], 10);
-  return convertLevelToRealm(level);
+
+  const level = parseInt(match[1], 10)
+  return convertLevelToRealm(level)
 }
 
 /**
- * »ñÈ¡ËùÓÐ¿ÉÓÃµÄÐÞÏÉ¾³½çÁÐ±í
- * @returns ÐÞÏÉ¾³½çÊý×é
+ * ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ð¿ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
+ * @returns ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  */
 export function getAllRealms(): string[] {
-  return Object.values(LEVEL_MAPPING);
+  return Object.values(LEVEL_MAPPING)
 }
 
 /**
- * ¸ù¾ÝÐÞÏÉ¾³½çÃû³Æ»ñÈ¡¶ÔÓ¦µÄµÈ¼¶Êý×Ö
- * @param realm ÐÞÏÉ¾³½çÃû³Æ
- * @returns µÈ¼¶Êý×Ö£¬Èç¹ûÎ´ÕÒµ½·µ»Ø -1
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ»ï¿½È¡ï¿½ï¿½Ó¦ï¿½ÄµÈ¼ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @param realm ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @returns ï¿½È¼ï¿½ï¿½ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½Î´ï¿½Òµï¿½ï¿½ï¿½ï¿½ï¿½ -1
  */
 export function getLevelFromRealm(realm: string): number {
-  const entry = Object.entries(LEVEL_MAPPING).find(([, value]) => value === realm);
-  return entry ? parseInt(entry[0], 10) : -1;
+  const entry = Object.entries(LEVEL_MAPPING).find(([, value]) => value === realm)
+  return entry ? parseInt(entry[0], 10) : -1
 }

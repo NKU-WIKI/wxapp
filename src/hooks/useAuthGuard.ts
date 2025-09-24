@@ -1,9 +1,9 @@
-import { useSelector } from 'react-redux';
-import Taro from '@tarojs/taro';
-import { RootState } from '@/store';
+import { useSelector } from 'react-redux'
+import Taro from '@tarojs/taro'
+import { RootState } from '@/store'
 
 export const useAuthGuard = () => {
-  const { isLoggedIn, token } = useSelector((state: RootState) => state.user);
+  const { isLoggedIn, token } = useSelector((state: RootState) => state.user)
 
   const checkAuth = () => {
     if (!isLoggedIn || !token) {
@@ -14,14 +14,14 @@ export const useAuthGuard = () => {
         cancelText: '取消',
         success: (res) => {
           if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' })
           }
         },
-      });
-      return false;
+      })
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
-  return { checkAuth, isLoggedIn };
-};
+  return { checkAuth, isLoggedIn }
+}

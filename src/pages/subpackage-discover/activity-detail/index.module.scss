@@ -1,5 +1,5 @@
 .activityDetailPage {
-  background-color: #F8FAFC;
+  background-color: #f8fafc;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -8,12 +8,12 @@
 .scrollView {
   flex: 1;
   padding: 12px;
-  background: #F8FAFC;
+  background: #f8fafc;
 }
 
 // 主活动卡片
 .mainCard {
-  background-color: #FFFFFF;
+  background-color: #fff;
   border-radius: 10px;
   padding: 0;
   margin-bottom: 80px; // 增加底部边距，避免被固定底部栏遮挡
@@ -167,7 +167,7 @@
 .organizerAndContactSection {
   padding: 16px;
   margin-top: 16px;
-  background-color: #FFFFFF;
+  background-color: #fff;
   border-top: 1px solid #f3f4f6;
   border-bottom: 1px solid #f3f4f6;
 }
@@ -206,7 +206,6 @@
   margin-right: 8px;
 }
 
-
 /* 活动描述 */
 .activityDescription {
   margin-top: 16px;
@@ -214,7 +213,7 @@
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 0;
-  border-left: 4px solid #4F46E5;
+  border-left: 4px solid #4f46e5;
 }
 
 .descriptionTitle {
@@ -246,7 +245,7 @@
   box-shadow: none;
 }
 
-.infoItemName{
+.infoItemName {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
@@ -327,7 +326,7 @@
 }
 
 .joinButton {
-  background-color: #4F46E5;
+  background-color: #4f46e5;
   border-radius: 8px;
   padding: 14px;
   display: flex;
@@ -338,7 +337,7 @@
 
   &:active {
     transform: scale(0.98);
-    background-color: #4338CA;
+    background-color: #4338ca;
   }
 
   &.joinedButton {
@@ -361,7 +360,7 @@
 .joinButtonText {
   font-size: 16px;
   font-weight: 600;
-  color: #ffffff;
+  color: #fff;
   text-align: center;
 }
 
@@ -372,7 +371,7 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  background-color: #FFFFFF;
+  background-color: #fff;
   border-radius: 10px;
   margin: 12px;
   padding: 40px;
@@ -390,7 +389,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #ffffff;
+  background-color: #fff;
   padding: 12px 16px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
   display: flex;
@@ -433,7 +432,7 @@
 
 // 右侧固定报名按钮
 .fixedJoinButton {
-  background-color: #4F46E5;
+  background-color: #4f46e5;
   border-radius: 6px;
   padding: 10px 24px;
   display: flex;
@@ -444,7 +443,7 @@
 
   &:active {
     transform: scale(0.98);
-    background-color: #4338CA;
+    background-color: #4338ca;
   }
 
   &.joinedButton {
@@ -467,6 +466,6 @@
 .joinButtonText {
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: #fff;
   text-align: center;
 }

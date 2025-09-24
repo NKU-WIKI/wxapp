@@ -1,39 +1,39 @@
-import { combineReducers } from "@reduxjs/toolkit";
-import { persistReducer } from 'redux-persist';
-import persistStorage from '@/utils/persistStorage';
-import userReducer from "./slices/userSlice";
-import postReducer from "./slices/postSlice";
-import commentReducer from "./slices/commentSlice";
-import actionReducer from "./slices/actionSlice"; // Action slice for like/favorite/follow actions
-import likeReducer from "./slices/likeSlice"; // Like list slice
-import userCommentReducer from "./slices/userCommentSlice"; // User comment list slice
-import favoriteReducer from "./slices/favoriteSlice"; // Favorite list slice
-import userPostsReducer from "./slices/userPostsSlice"; // User posts list slice
-import likesReducer from "./slices/likesSlice"; // User likes list slice
-import aboutReducer from "./slices/aboutSlice";
-import chatReducer from "./slices/chatSlice";
-import feedbackReducer from "./slices/feedbackSlice";
-import levelReducer from "./slices/levelSlice";
-import settingsReducer from "./slices/settingsSlice"; // Settings slice
-import searchReducer from "./slices/searchSlice"; // Search slice
-import noteReducer from "./slices/noteSlice"; // Note slice
-import campusVerificationReducer from "./slices/campusVerificationSlice"; // Campus verification slice
-import ratingReducer from "./slices/ratingSlice"; // Rating slice
-import marketplaceReducer from "./slices/marketplaceSlice"; // Marketplace slice
-import notificationReducer from "./slices/notificationSlice"; // Notification slice
+import { combineReducers } from '@reduxjs/toolkit'
+import { persistReducer } from 'redux-persist'
+import persistStorage from '@/utils/persistStorage'
+import userReducer from './slices/userSlice'
+import postReducer from './slices/postSlice'
+import commentReducer from './slices/commentSlice'
+import actionReducer from './slices/actionSlice' // Action slice for like/favorite/follow actions
+import likeReducer from './slices/likeSlice' // Like list slice
+import userCommentReducer from './slices/userCommentSlice' // User comment list slice
+import favoriteReducer from './slices/favoriteSlice' // Favorite list slice
+import userPostsReducer from './slices/userPostsSlice' // User posts list slice
+import likesReducer from './slices/likesSlice' // User likes list slice
+import aboutReducer from './slices/aboutSlice'
+import chatReducer from './slices/chatSlice'
+import feedbackReducer from './slices/feedbackSlice'
+import levelReducer from './slices/levelSlice'
+import settingsReducer from './slices/settingsSlice' // Settings slice
+import searchReducer from './slices/searchSlice' // Search slice
+import noteReducer from './slices/noteSlice' // Note slice
+import campusVerificationReducer from './slices/campusVerificationSlice' // Campus verification slice
+import ratingReducer from './slices/ratingSlice' // Rating slice
+import marketplaceReducer from './slices/marketplaceSlice' // Marketplace slice
+import notificationReducer from './slices/notificationSlice' // Notification slice
 
 const userPersistConfig = {
   key: 'user',
   storage: persistStorage,
   // Do not persist these fields
   blacklist: ['isLoggedIn', 'status', 'error'],
-};
+}
 
 const settingsPersistConfig = {
   key: 'settings',
   storage: persistStorage,
   // 持久化所有设置
-};
+}
 
 const rootReducer = combineReducers({
   user: persistReducer(userPersistConfig, userReducer),
@@ -56,7 +56,7 @@ const rootReducer = combineReducers({
   rating: ratingReducer, // Add rating reducer
   marketplace: marketplaceReducer, // Add marketplace reducer
   notification: notificationReducer, // Add notification reducer
-});
+})
 
-export type RootState = ReturnType<typeof rootReducer>;
-export default rootReducer;
+export type RootState = ReturnType<typeof rootReducer>
+export default rootReducer

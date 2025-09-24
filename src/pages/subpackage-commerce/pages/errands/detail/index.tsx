@@ -24,20 +24,26 @@ const ErrandsDetailPage = () => {
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
 
-  const { currentErrand, errandDetailLoading: detailLoading, error } = useSelector((state: RootState) => state.marketplace)
+  const {
+    currentErrand,
+    errandDetailLoading: detailLoading,
+    error,
+  } = useSelector((state: RootState) => state.marketplace)
   const userState = useSelector((state: RootState) => state.user)
   const currentUserId = useSelector((state: RootState) => state.user.user?.id)
 
   // 获取任务详情
-  const loadErrandDetail = useCallback(async (id: string) => {
-    try {
-      await dispatch(fetchErrandDetail(id)).unwrap()
-    } catch (detailError) {
-      //
-      Taro.showToast({ title: '获取任务详情失败', icon: 'none' })
-    }
-  }, [dispatch])
-
+  const loadErrandDetail = useCallback(
+    async (id: string) => {
+      try {
+        await dispatch(fetchErrandDetail(id)).unwrap()
+      } catch (detailError) {
+        //
+        Taro.showToast({ title: '获取任务详情失败', icon: 'none' })
+      }
+    },
+    [dispatch]
+  )
 
   // 初始化
   useEffect(() => {
@@ -66,7 +72,7 @@ const ErrandsDetailPage = () => {
   const TaskInfo = ({ errand }: { errand: ListingRead }) => {
     const { formattedTime } = useRelativeTime(errand.created_at, {
       autoUpdate: true,
-      updateInterval: 60000 // 每分钟更新一次
+      updateInterval: 60000, // 每分钟更新一次
     })
 
     const errandOwnerId = errand.user_id || (errand as any).user?.id
@@ -75,42 +81,49 @@ const ErrandsDetailPage = () => {
     const handleMore = () => {
       if (!isOwner) return
       Taro.showActionSheet({
-        itemList: ['编辑任务', '删除任务']
-      }).then(res => {
-        if (res.tapIndex === 0) {
-          // 编辑任务
-          Taro.navigateTo({
-            url: `/pages/subpackage-commerce/pages/errands/publish/index?id=${errand.id}`
-          }).catch(() => {
-            Taro.showToast({ title: '编辑功能开发中', icon: 'none' })
-          })
-        } else if (res.tapIndex === 1) {
-          // 删除任务
-          Taro.showModal({
-            title: '确认删除',
-            content: `确定要删除任务"${errand.title}"吗？此操作不可恢复。`,
-            success: async (deleteRes) => {
-              if (deleteRes.confirm) {
-                try {
-                  // TODO: 实现删除任务API
-                  Taro.showToast({ title: '删除功能开发中', icon: 'none' })
-                } catch (deleteError) {
-                  Taro.showToast({ title: '删除失败', icon: 'none' })
+        itemList: ['编辑任务', '删除任务'],
+      })
+        .then((res) => {
+          if (res.tapIndex === 0) {
+            // 编辑任务
+            Taro.navigateTo({
+              url: `/pages/subpackage-commerce/pages/errands/publish/index?id=${errand.id}`,
+            }).catch(() => {
+              Taro.showToast({ title: '编辑功能开发中', icon: 'none' })
+            })
+          } else if (res.tapIndex === 1) {
+            // 删除任务
+            Taro.showModal({
+              title: '确认删除',
+              content: `确定要删除任务"${errand.title}"吗？此操作不可恢复。`,
+              success: async (deleteRes) => {
+                if (deleteRes.confirm) {
+                  try {
+                    // TODO: 实现删除任务API
+                    Taro.showToast({ title: '删除功能开发中', icon: 'none' })
+                  } catch (deleteError) {
+                    Taro.showToast({ title: '删除失败', icon: 'none' })
+                  }
                 }
-              }
-            }
-          })
-        }
-      }).catch(() => {})
+              },
+            })
+          }
+        })
+        .catch(() => {})
     }
 
     const getTaskTypeText = (errandType?: string) => {
       switch (errandType) {
-        case ErrandType.EXPRESS_PICKUP: return '快递代取'
-        case ErrandType.FOOD_DELIVERY: return '食堂打饭'
-        case ErrandType.GROCERY_SHOPPING: return '超市代购'
-        case ErrandType.OTHER: return '其他'
-        default: return '跑腿任务'
+        case ErrandType.EXPRESS_PICKUP:
+          return '快递代取'
+        case ErrandType.FOOD_DELIVERY:
+          return '食堂打饭'
+        case ErrandType.GROCERY_SHOPPING:
+          return '超市代购'
+        case ErrandType.OTHER:
+          return '其他'
+        default:
+          return '跑腿任务'
       }
     }
 
@@ -139,12 +152,8 @@ const ErrandsDetailPage = () => {
         </View>
 
         <View className={styles.taskMeta}>
-          <Text className={styles.taskTime}>
-            发布时间: {formattedTime}
-          </Text>
-          <Text className={styles.taskType}>
-            任务类型: {getTaskTypeText(errandType)}
-          </Text>
+          <Text className={styles.taskTime}>发布时间: {formattedTime}</Text>
+          <Text className={styles.taskType}>任务类型: {getTaskTypeText(errandType)}</Text>
         </View>
 
         {/* 任务路线信息 */}
@@ -165,9 +174,7 @@ const ErrandsDetailPage = () => {
         {deadline && (
           <View className={styles.taskDeadline}>
             <Text className={styles.deadlineLabel}>期望送达：</Text>
-            <Text className={styles.deadlineText}>
-              {new Date(deadline).toLocaleString()}
-            </Text>
+            <Text className={styles.deadlineText}>{new Date(deadline).toLocaleString()}</Text>
           </View>
         )}
 
@@ -185,9 +192,7 @@ const ErrandsDetailPage = () => {
   const TaskDescription = ({ content }: { content?: string }) => (
     <View className={styles.taskDescription}>
       <Text className={styles.descriptionTitle}>任务描述</Text>
-      <Text className={styles.descriptionContent}>
-        {content || '暂无描述'}
-      </Text>
+      <Text className={styles.descriptionContent}>{content || '暂无描述'}</Text>
     </View>
   )
 
@@ -225,20 +230,25 @@ const ErrandsDetailPage = () => {
                   break
               }
 
-              if (content && content !== '暂无微信号' && content !== '暂无QQ号' && content !== '暂无手机号') {
+              if (
+                content &&
+                content !== '暂无微信号' &&
+                content !== '暂无QQ号' &&
+                content !== '暂无手机号'
+              ) {
                 Taro.setClipboardData({
                   data: content,
                   success: () => {
                     Taro.showToast({ title: '已复制到剪贴板', icon: 'success' })
-                  }
+                  },
                 })
               } else {
                 Taro.showToast({ title: '暂无联系方式', icon: 'none' })
               }
-            }
+            },
           })
-        }
-      }
+        },
+      },
     ]
 
     // 统一的底部按钮布局，所有用户都使用相同的按钮
@@ -248,10 +258,13 @@ const ErrandsDetailPage = () => {
         <View className={styles.leftArea}>
           <ActionBar
             targetId={errand.id}
-            targetType='errand'
+            targetType="errand"
             buttons={actionBarButtons}
             initialStates={{
-              'favorite-0': { isActive: (errand.favorite_count || 0) > 0, count: errand.favorite_count || 0 }
+              'favorite-0': {
+                isActive: (errand.favorite_count || 0) > 0,
+                count: errand.favorite_count || 0,
+              },
             }}
             onStateChange={(type, isActive, _count) => {
               if (type === 'favorite') {
@@ -297,7 +310,7 @@ const ErrandsDetailPage = () => {
   if (detailLoading === 'pending') {
     return (
       <View className={styles.pageContainer}>
-        <CustomHeader title='任务详情' />
+        <CustomHeader title="任务详情" />
         <View className={styles.loadingContainer}>
           <Text className={styles.loadingText}>加载中...</Text>
         </View>
@@ -309,7 +322,7 @@ const ErrandsDetailPage = () => {
   if (!currentErrand) {
     return (
       <View className={styles.pageContainer}>
-        <CustomHeader title='任务详情' />
+        <CustomHeader title="任务详情" />
         <View className={styles.emptyContainer}>
           <Text className={styles.emptyText}>任务不存在或已下架</Text>
         </View>
@@ -320,20 +333,15 @@ const ErrandsDetailPage = () => {
   // 主页面内容
   return (
     <View className={styles.pageContainer}>
-      <CustomHeader title='任务详情' />
+      <CustomHeader title="任务详情" />
       <View className={styles.contentContainer}>
-        <ScrollView
-          scrollY
-          className={styles.scrollView}
-          enableFlex
-          scrollWithAnimation
-        >
+        <ScrollView scrollY className={styles.scrollView} enableFlex scrollWithAnimation>
           <TaskInfo errand={currentErrand} />
           <TaskDescription content={currentErrand.content} />
 
           <AuthorInfo
             userId={currentErrand.user_id}
-            mode='expanded'
+            mode="expanded"
             showFollowButton
             showStats
             showLevel

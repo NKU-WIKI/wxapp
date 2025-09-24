@@ -3,5 +3,5 @@ export default {
   navigationStyle: 'custom',
   enableShareTimeline: true,
   enableShareAppMessage: true,
-  backgroundColor: '#f8f9fa'
-};
+  backgroundColor: '#f8f9fa',
+}

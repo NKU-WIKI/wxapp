@@ -8,4 +8,4 @@ export default definePageConfig({
   enablePullDownRefresh: false,
   disableScroll: false,
   onReachBottomDistance: 50,
-});
+})

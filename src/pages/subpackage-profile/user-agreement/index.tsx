@@ -1,7 +1,6 @@
-
-import { View, Text, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import styles from './index.module.scss';
+import { View, Text, ScrollView } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import styles from './index.module.scss'
 
 /**
  * 用户服务协议页面
@@ -9,14 +8,16 @@ import styles from './index.module.scss';
  */
 export default function UserAgreementPage() {
   const handleBack = () => {
-    Taro.navigateBack();
-  };
+    Taro.navigateBack()
+  }
 
   return (
     <View className={styles.container}>
       {/* 顶部导航栏 */}
       <View className={styles.header}>
-        <Text className={styles.backBtn} onClick={handleBack}>返回</Text>
+        <Text className={styles.backBtn} onClick={handleBack}>
+          返回
+        </Text>
         <Text className={styles.title}>用户服务协议</Text>
       </View>
 
@@ -33,9 +34,7 @@ export default function UserAgreementPage() {
 
         <View className={styles.section}>
           <Text className={styles.sectionTitle}>2. 服务内容</Text>
-          <Text className={styles.sectionContent}>
-            本平台为高校师生提供以下服务：
-          </Text>
+          <Text className={styles.sectionContent}>本平台为高校师生提供以下服务：</Text>
           <Text className={styles.listItem}>• 校园信息分享和交流平台</Text>
           <Text className={styles.listItem}>• 学术资源和学习资料共享</Text>
           <Text className={styles.listItem}>• 校园活动和通知发布</Text>
@@ -83,12 +82,8 @@ export default function UserAgreementPage() {
           <Text className={styles.sectionContent}>
             6.1 本平台有权根据需要暂停或终止部分或全部服务。
           </Text>
-          <Text className={styles.sectionContent}>
-            6.2 您有权随时终止使用本平台服务。
-          </Text>
-          <Text className={styles.sectionContent}>
-            6.3 严重违规用户，本平台有权永久封禁账户。
-          </Text>
+          <Text className={styles.sectionContent}>6.2 您有权随时终止使用本平台服务。</Text>
+          <Text className={styles.sectionContent}>6.3 严重违规用户，本平台有权永久封禁账户。</Text>
         </View>
 
         <View className={styles.section}>
@@ -122,5 +117,5 @@ export default function UserAgreementPage() {
         </View>
       </ScrollView>
     </View>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-@use "../../../styles/variables.scss" as *;
+@use '../../../styles/variables.scss' as *;
 
 // 标签页导航容器
 .tabsContainer {
@@ -32,7 +32,7 @@
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   background-color: transparent;
   min-height: 28px;
-  
+
   &.active {
     background-color: $theme-primary;
     box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
@@ -44,7 +44,7 @@
   font-weight: 500;
   color: $text-secondary;
   transition: color 0.2s ease;
-  
+
   .tabItem.active & {
     color: $text-white;
   }
@@ -74,7 +74,7 @@
 
 // 内容容器
 .contentContainer {
-  padding: 16px 16px 80px 16px; // 底部添加padding为底部按钮留空间
+  padding: 16px 16px 80px; // 底部添加padding为底部按钮留空间
   background-color: $bg-page;
 }
 
@@ -82,7 +82,7 @@
 .notificationList {
   display: flex;
   flex-direction: column;
-  
+
   // 为通知项添加统一的间距
   & > *:not(:last-child) {
     margin-bottom: 8px;
@@ -131,10 +131,10 @@
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:active {
     transform: scale(0.95);
-    background-color: #4338CA;
+    background-color: #4338ca;
   }
 }
 
@@ -179,7 +179,7 @@
   height: 24px;
   opacity: 0.7;
   transition: opacity 0.2s ease;
-  
+
   &:active {
     opacity: 0.5;
   }
@@ -206,10 +206,10 @@
   background-color: $theme-primary;
   border-radius: 8px;
   transition: all 0.2s ease;
-  
+
   &:active {
     transform: scale(0.98);
-    background-color: #4338CA;
+    background-color: #4338ca;
   }
 }
 

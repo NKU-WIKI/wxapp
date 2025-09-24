@@ -4,5 +4,5 @@ export default {
   enableShareAppMessage: true,
   enablePullDownRefresh: true,
   onReachBottomDistance: 50,
-  navigationStyle: 'default'
-} 
+  navigationStyle: 'default',
+}

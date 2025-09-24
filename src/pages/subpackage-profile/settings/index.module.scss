@@ -1,4 +1,4 @@
-@import '@/styles/variables.scss';
+@import url('@/styles/variables.scss');
 
 .container {
   min-height: 100vh;
@@ -17,7 +17,7 @@
   margin-bottom: 12px;
   background-color: $bg-card;
   border-radius: 8px;
-  border: 1px solid #F0F0F0;
+  border: 1px solid #f0f0f0;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -27,7 +27,7 @@
   align-items: center;
   gap: 8px;
   padding: 20px;
-  border-bottom: 1px solid #F0F0F0;
+  border-bottom: 1px solid #f0f0f0;
   background-color: $bg-card;
 }
 
@@ -54,8 +54,8 @@
 }
 
 .itemWrapper {
-  border-bottom: 1px solid #F0F0F0;
-  
+  border-bottom: 1px solid #f0f0f0;
+
   &:last-child {
     border-bottom: none;
   }
@@ -71,22 +71,19 @@
   background-color: $bg-card;
   transition: background-color 0.2s ease;
   z-index: 25;
-  
+
   // 确保背景完全覆盖
   &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background-color: $bg-card;
     z-index: -1;
   }
-  
+
   &:active {
     background-color: rgba(79, 70, 229, 0.1);
-    
+
     &::before {
       background-color: rgba(79, 70, 229, 0.1);
     }
@@ -160,7 +157,7 @@
   min-height: 54px;
   background-color: $bg-card;
   transition: background-color 0.2s ease;
-  
+
   &:active {
     background-color: rgba(0, 0, 0, 0.05);
   }
@@ -209,21 +206,21 @@
   height: 36px;
   line-height: 36px;
   font-size: 14px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #e5e7eb;
   border-radius: 4px;
   background-color: $bg-card;
   color: $text-primary;
-  
+
   &.fontSizeButtonActive {
     background-color: $theme-primary;
     color: $text-white;
     border-color: $theme-primary;
   }
-  
+
   &:active {
     background-color: rgba(79, 70, 229, 0.1);
   }
-  
+
   &.fontSizeButtonActive:active {
     background-color: $theme-primary-dark;
   }
@@ -236,7 +233,7 @@
   left: 0;
   right: 0;
   background-color: $bg-card;
-  border-top: 1px solid #F0F0F0;
+  border-top: 1px solid #f0f0f0;
   padding: 16px;
   z-index: 100;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
@@ -256,7 +253,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &:active {
     background-color: $theme-primary-dark;
     transform: translateY(1px);

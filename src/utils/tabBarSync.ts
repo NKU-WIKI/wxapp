@@ -1,109 +1,109 @@
-import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro'
 
 // 定义 tabBar 页面路径
 export const TAB_BAR_PAGES = [
   '/pages/home/index',
   '/pages/explore/index',
   '/pages/discover/index',
-  '/pages/profile/index'
-];
+  '/pages/profile/index',
+]
 
 // 全局状态管理
 class TabBarSyncManager {
-  private listeners: Set<(_index: number) => void> = new Set();
-  private currentSelectedIndex: number = 0;
+  private listeners: Set<(_index: number) => void> = new Set()
+  private currentSelectedIndex: number = 0
 
   // 添加监听器
   addListener(callback: (_index: number) => void) {
-    this.listeners.add(callback);
+    this.listeners.add(callback)
     // 立即调用一次，同步当前状态
-    callback(this.getCurrentSelectedIndex());
+    callback(this.getCurrentSelectedIndex())
   }
 
   // 移除监听器
   removeListener(callback: (_index: number) => void) {
-    this.listeners.delete(callback);
+    this.listeners.delete(callback)
   }
 
   // 通知所有监听器
   private notifyListeners(index: number) {
-    this.currentSelectedIndex = index;
-    this.listeners.forEach(callback => {
+    this.currentSelectedIndex = index
+    this.listeners.forEach((callback) => {
       try {
-        callback(index);
+        callback(index)
       } catch (error) {
         // 静默处理错误
       }
-    });
+    })
   }
 
   // 获取当前选中的索引
   getCurrentSelectedIndex(): number {
     try {
-      const pages = Taro.getCurrentPages();
-      if (pages.length === 0) return 0;
-      
-      const currentPage = pages[pages.length - 1];
-      const currentPath = `/${currentPage.route}`;
-      
-      const index = TAB_BAR_PAGES.findIndex(path => path === currentPath);
-      return index >= 0 ? index : this.currentSelectedIndex;
+      const pages = Taro.getCurrentPages()
+      if (pages.length === 0) return 0
+
+      const currentPage = pages[pages.length - 1]
+      const currentPath = `/${currentPage.route}`
+
+      const index = TAB_BAR_PAGES.findIndex((path) => path === currentPath)
+      return index >= 0 ? index : this.currentSelectedIndex
     } catch (error) {
       // 返回当前索引作为默认值
-      return this.currentSelectedIndex;
+      return this.currentSelectedIndex
     }
   }
 
   // 更新选中状态
   updateSelectedIndex() {
-    const newIndex = this.getCurrentSelectedIndex();
+    const newIndex = this.getCurrentSelectedIndex()
     if (newIndex !== this.currentSelectedIndex) {
-      this.notifyListeners(newIndex);
+      this.notifyListeners(newIndex)
     }
   }
 
   // 手动设置选中状态（用于导航栏点击）
   setSelectedIndex(index: number) {
-    this.notifyListeners(index);
+    this.notifyListeners(index)
   }
 
   // 检查是否为 tabBar 页面
   isTabBarPage(path: string): boolean {
-    return TAB_BAR_PAGES.includes(path);
+    return TAB_BAR_PAGES.includes(path)
   }
 
   // 安全的页面跳转方法
   navigateToPage(url: string) {
     // 提取页面路径（去除查询参数）
-    const pagePath = url.split('?')[0];
-    
+    const pagePath = url.split('?')[0]
+
     if (this.isTabBarPage(pagePath)) {
       // 如果是 tabBar 页面，使用 switchTab
-      Taro.switchTab({ url: pagePath });
-      
+      Taro.switchTab({ url: pagePath })
+
       // 更新选中状态
-      const index = TAB_BAR_PAGES.findIndex(path => path === pagePath);
+      const index = TAB_BAR_PAGES.findIndex((path) => path === pagePath)
       if (index >= 0) {
-        this.setSelectedIndex(index);
+        this.setSelectedIndex(index)
       }
     } else {
       // 如果不是 tabBar 页面，使用 navigateTo
-      Taro.navigateTo({ url });
+      Taro.navigateTo({ url })
     }
   }
 }
 
 // 创建全局实例
-export const tabBarSyncManager = new TabBarSyncManager();
+export const tabBarSyncManager = new TabBarSyncManager()
 
 // 初始化页面监听
 export const initTabBarSync = () => {
   // 监听应用显示事件
   Taro.onAppShow(() => {
     setTimeout(() => {
-      tabBarSyncManager.updateSelectedIndex();
-    }, 100);
-  });
+      tabBarSyncManager.updateSelectedIndex()
+    }, 100)
+  })
 
   // 监听页面切换（如果支持的话）
   if (typeof Taro.onPageNotFound !== 'undefined') {
@@ -112,9 +112,9 @@ export const initTabBarSync = () => {
 
   // 定期检查状态（作为备用方案）
   setInterval(() => {
-    tabBarSyncManager.updateSelectedIndex();
-  }, 2000);
-};
+    tabBarSyncManager.updateSelectedIndex()
+  }, 2000)
+}
 
 // 导出便捷方法
 export const useTabBarSync = (callback: (_index: number) => void) => {
@@ -122,6 +122,6 @@ export const useTabBarSync = (callback: (_index: number) => void) => {
     subscribe: () => tabBarSyncManager.addListener(callback),
     unsubscribe: () => tabBarSyncManager.removeListener(callback),
     getCurrentIndex: () => tabBarSyncManager.getCurrentSelectedIndex(),
-    navigateTo: (url: string) => tabBarSyncManager.navigateToPage(url)
-  };
-};
+    navigateTo: (url: string) => tabBarSyncManager.navigateToPage(url),
+  }
+}

@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import Taro from '@tarojs/taro';
-import agentApi from '@/services/api/agent';
-import type { ChatRequest } from '@/types/api/agent.d';
+import { useState } from 'react'
+import Taro from '@tarojs/taro'
+import agentApi from '@/services/api/agent'
+import type { ChatRequest } from '@/types/api/agent.d'
 
 /**
  * Wiki润色功能Hook
@@ -22,11 +22,11 @@ import type { ChatRequest } from '@/types/api/agent.d';
  * rejectPolish(); // 拒绝
  */
 export const usePolish = () => {
-  const [loading, setLoading] = useState(false);
-  const [polishSuggestion, setPolishSuggestion] = useState<string>('');
-  const [typingText, setTypingText] = useState<string>('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [polishSuggestion, setPolishSuggestion] = useState<string>('')
+  const [typingText, setTypingText] = useState<string>('')
+  const [isTyping, setIsTyping] = useState(false)
+  const [showOptions, setShowOptions] = useState(false)
 
   /**
    * 润色文本内容
@@ -36,43 +36,54 @@ export const usePolish = () => {
    */
   const polishText = async (text: string, style: string = '正式'): Promise<string> => {
     if (!text.trim()) {
-      throw new Error('请先输入内容');
+      throw new Error('请先输入内容')
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
       // 分析原文特征
-      const originalText = text.trim();
-      const textLength = originalText.length;
+      const originalText = text.trim()
+      const textLength = originalText.length
 
       // 根据原文长度动态计算max_tokens和调整策略
-      let enhancedText = originalText;
-      let contextHint = '';
+      let enhancedText = originalText
+      let contextHint = ''
 
       if (textLength < 20) {
         // 短文本特殊处理：提供上下文提示，让AI更好地理解和扩展
-        if (originalText.includes('求助') || originalText.includes('帮助') || originalText.includes('咨询')) {
-          contextHint = '这是一个求助或咨询信息的标题，请将其润色为更礼貌、更有吸引力的表达方式，适当扩展内容以增加亲和力。';
-        } else if (originalText.includes('分享') || originalText.includes('经验') || originalText.includes('教程')) {
-          contextHint = '这是一个分享或教程信息的标题，请将其润色为更吸引人的表达方式，突出价值和实用性。';
+        if (
+          originalText.includes('求助') ||
+          originalText.includes('帮助') ||
+          originalText.includes('咨询')
+        ) {
+          contextHint =
+            '这是一个求助或咨询信息的标题，请将其润色为更礼貌、更有吸引力的表达方式，适当扩展内容以增加亲和力。'
+        } else if (
+          originalText.includes('分享') ||
+          originalText.includes('经验') ||
+          originalText.includes('教程')
+        ) {
+          contextHint =
+            '这是一个分享或教程信息的标题，请将其润色为更吸引人的表达方式，突出价值和实用性。'
         } else if (originalText.includes('通知') || originalText.includes('公告')) {
-          contextHint = '这是一个通知或公告信息的标题，请将其润色为更正式、清晰的表达方式。';
+          contextHint = '这是一个通知或公告信息的标题，请将其润色为更正式、清晰的表达方式。'
         } else {
-          contextHint = '这是一个简短的标题或主题，请将其润色为更完整、更有吸引力的表达方式，适当扩展内容。';
+          contextHint =
+            '这是一个简短的标题或主题，请将其润色为更完整、更有吸引力的表达方式，适当扩展内容。'
         }
         // 为短文本提供更多润色空间
-        enhancedText = `请${contextHint}原文内容："${originalText}"`;
+        enhancedText = `请${contextHint}原文内容："${originalText}"`
       }
 
       // 根据原文长度动态计算max_tokens
       // 短文本给更多token进行扩展，长文本适当增加
-      const baseTokens = textLength < 20 ? 800 : 500; // 短文本基础token更多
-      const lengthBasedTokens = Math.ceil(textLength * (textLength < 20 ? 3 : 1.5)); // 短文本扩展倍数更大
-      const maxTokens = Math.min(baseTokens + lengthBasedTokens, 2000); // 最大不超过2000
+      const baseTokens = textLength < 20 ? 800 : 500 // 短文本基础token更多
+      const lengthBasedTokens = Math.ceil(textLength * (textLength < 20 ? 3 : 1.5)) // 短文本扩展倍数更大
+      const maxTokens = Math.min(baseTokens + lengthBasedTokens, 2000) // 最大不超过2000
 
       // 根据文风设置不同的参数
       const styleConfigs = {
-        '正式': {
+        正式: {
           temperature: textLength < 20 ? 0.4 : 0.3, // 短文本稍微提高创造性
           systemPrompt: `你是一个专业的文本润色专家。用户发送的任何消息都是需要你润色的文本内容。
 
@@ -84,10 +95,10 @@ export const usePolish = () => {
 5. 直接输出润色后的完整文本，不要添加任何说明、解释、标题或格式标记
 6. 不要提及"润色"、"优化"等字样，不要询问用户任何问题，直接输出润色结果
 
-请记住：用户发送的每条消息都是需要润色的文本，直接进行润色并输出结果。`
+请记住：用户发送的每条消息都是需要润色的文本，直接进行润色并输出结果。`,
         },
 
-        '轻松': {
+        轻松: {
           temperature: textLength < 20 ? 0.6 : 0.5, // 短文本提高创造性
           systemPrompt: `你是一个友好的文本润色助手。用户发送的任何消息都是需要你润色的文本内容。
 
@@ -99,10 +110,10 @@ export const usePolish = () => {
 5. 直接输出润色后的完整文本，不要添加任何说明、解释或格式标记
 6. 让文本读起来更亲切自然
 
-请记住：用户发送的每条消息都是需要润色的文本，直接进行润色并输出结果。`
+请记住：用户发送的每条消息都是需要润色的文本，直接进行润色并输出结果。`,
         },
 
-        '幽默': {
+        幽默: {
           temperature: textLength < 20 ? 0.9 : 0.8, // 短文本进一步提高创造性
           systemPrompt: `你是一个幽默的文本润色专家。用户发送的任何消息都是需要你润色的文本内容。
 
@@ -114,10 +125,10 @@ export const usePolish = () => {
 5. 直接输出润色后的完整文本，不要添加任何说明、解释或格式标记
 6. 让读者在轻松中获得乐趣
 
-请记住：用户发送的每条消息都是需要润色的文本，直接进行润色并输出结果。`
+请记住：用户发送的每条消息都是需要润色的文本，直接进行润色并输出结果。`,
         },
 
-        '专业': {
+        专业: {
           temperature: textLength < 20 ? 0.3 : 0.2, // 短文本稍微提高创造性
           systemPrompt: `你是一个学术和专业文本润色专家。用户发送的任何消息都是需要你润色的文本内容。
 
@@ -129,53 +140,42 @@ export const usePolish = () => {
 5. 直接输出润色后的完整文本，不要添加任何说明、解释或格式标记
 6. 确保文本符合专业标准
 
-请记住：用户发送的每条消息都是需要润色的文本，直接进行润色并输出结果。`
-        }
-      };
+请记住：用户发送的每条消息都是需要润色的文本，直接进行润色并输出结果。`,
+        },
+      }
 
-      const config = styleConfigs[style as keyof typeof styleConfigs] || styleConfigs['正式'];
+      const config = styleConfigs[style as keyof typeof styleConfigs] || styleConfigs['正式']
 
       const requestData: ChatRequest = {
         message: enhancedText,
         system_prompt: config.systemPrompt,
         temperature: config.temperature,
-        max_tokens: maxTokens
-      };
+        max_tokens: maxTokens,
+      }
 
-      
-      
-      
-      
-
-      const response = await agentApi.chatAPI(requestData);
-
-      
+      const response = await agentApi.chatAPI(requestData)
 
       if (response.code === 0 && (response.data as any)?.content) {
-        const polishedText = (response.data as any).content.trim();
+        const polishedText = (response.data as any).content.trim()
 
-        
-        
-        
-        setPolishSuggestion(polishedText);
-        return polishedText;
+        setPolishSuggestion(polishedText)
+        return polishedText
       } else {
-        const errorMsg = response.message || '润色失败，请重试';
-        throw new Error(errorMsg);
+        const errorMsg = response.message || '润色失败，请重试'
+        throw new Error(errorMsg)
       }
     } catch (error: any) {
-      
-      const errorMsg = error?.message || '润色失败，请检查网络连接';
+      const errorMsg = error?.message || '润色失败，请检查网络连接'
       Taro.showToast({
         title: errorMsg,
         icon: 'none',
-        duration: 2000
-      });
-      throw error;
+        duration: 2000,
+      })
+      throw error
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   /**
    * 打字机动画效果
@@ -184,18 +184,18 @@ export const usePolish = () => {
    * @returns Promise<void>
    */
   const startTypingAnimation = async (text: string, speed: number = 30): Promise<void> => {
-    setIsTyping(true);
-    setTypingText('');
-    setShowOptions(false);
+    setIsTyping(true)
+    setTypingText('')
+    setShowOptions(false)
 
     for (let i = 0; i <= text.length; i++) {
-      setTypingText(text.slice(0, i));
-      await new Promise(resolve => setTimeout(resolve, speed));
+      setTypingText(text.slice(0, i))
+      await new Promise((resolve) => setTimeout(resolve, speed))
     }
 
-    setIsTyping(false);
-    setShowOptions(true);
-  };
+    setIsTyping(false)
+    setShowOptions(true)
+  }
 
   /**
    * 开始润色并显示动画
@@ -205,13 +205,13 @@ export const usePolish = () => {
    */
   const polishTextWithAnimation = async (text: string, style: string = '正式'): Promise<string> => {
     try {
-      const result = await polishText(text, style);
-      await startTypingAnimation(result);
-      return result;
+      const result = await polishText(text, style)
+      await startTypingAnimation(result)
+      return result
     } catch (error) {
-      throw error;
+      throw error
     }
-  };
+  }
 
   /**
    * 采纳润色结果
@@ -219,27 +219,27 @@ export const usePolish = () => {
    */
   const acceptPolish = (callback?: (_text: string) => void) => {
     if (polishSuggestion && callback) {
-      callback(polishSuggestion);
+      callback(polishSuggestion)
     }
-    clearSuggestion();
-  };
+    clearSuggestion()
+  }
 
   /**
    * 拒绝润色结果
    */
   const rejectPolish = () => {
-    clearSuggestion();
-  };
+    clearSuggestion()
+  }
 
   /**
    * 清空润色建议
    */
   const clearSuggestion = () => {
-    setPolishSuggestion('');
-    setTypingText('');
-    setIsTyping(false);
-    setShowOptions(false);
-  };
+    setPolishSuggestion('')
+    setTypingText('')
+    setIsTyping(false)
+    setShowOptions(false)
+  }
 
   return {
     loading,
@@ -251,6 +251,6 @@ export const usePolish = () => {
     polishTextWithAnimation,
     acceptPolish,
     rejectPolish,
-    clearSuggestion
-  };
-};
+    clearSuggestion,
+  }
+}

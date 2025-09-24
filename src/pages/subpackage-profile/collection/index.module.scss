@@ -1,4 +1,4 @@
-@import '@/styles/variables.scss';
+@import url('@/styles/variables.scss');
 
 .collectionPage {
   display: flex;
@@ -41,20 +41,20 @@
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0 12px;
-  
+
   &:active {
     transform: scale(0.95);
   }
-  
+
   &.active {
     background-color: $theme-primary;
     border-color: $theme-primary;
-    
+
     .switchText {
       color: $text-white;
     }
   }
-  
+
   &:not(.active) {
     &:hover {
       background-color: $bg-input;
@@ -86,7 +86,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border-left: 4px solid transparent;
   transition: all 0.2s ease;
-  
+
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
@@ -196,7 +196,7 @@
   border-radius: 6px;
   font-size: 13px;
   cursor: pointer;
-  
+
   &:hover {
     background-color: #3367d6;
   }
@@ -227,14 +227,14 @@
 
 .headerTitle {
   text-align: center;
-  padding: 60px 0 20px 0;
+  padding: 60px 0 20px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 80px;
   border-bottom: 1px solid $border-light;
-  
+
   .titleText {
     font-size: 18px;
     font-weight: 700;
@@ -262,16 +262,16 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background-color: $bg-input;
   }
-  
+
   &:active {
     transform: translateY(-50%) scale(0.95);
     background-color: $bg-input-focus;
   }
-  
+
   &::after {
     border: none;
   }
@@ -279,7 +279,7 @@
 
 // 搜索区域
 .searchSection {
-  padding: 0 16px 12px 16px;
+  padding: 0 16px 12px;
 }
 
 .searchBox {
@@ -287,7 +287,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  
+
   .searchInput {
     flex: 1;
     height: 40px;
@@ -297,17 +297,17 @@
     padding: 0 16px 0 40px;
     font-size: 14px;
     color: $text-primary;
-    
+
     &::placeholder {
       color: $text-placeholder;
     }
-    
+
     &:focus {
       background-color: $bg-input-focus;
       outline: none;
     }
   }
-  
+
   .searchIcon {
     position: absolute;
     left: 12px;
@@ -316,7 +316,7 @@
     color: $text-placeholder;
     font-size: 16px;
   }
-  
+
   .searchButton {
     flex-shrink: 0;
     height: 40px;
@@ -329,15 +329,15 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background-color: $theme-primary-dark;
     }
-    
+
     &:active {
       transform: scale(0.95);
     }
-    
+
     &::after {
       border: none;
     }
@@ -346,10 +346,10 @@
 
 // 分类标签
 .filterSection {
-  padding: 0 16px 12px 16px;
+  padding: 0 16px 12px;
   overflow-x: auto;
   white-space: nowrap;
-  
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -368,16 +368,16 @@
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &.active {
     background-color: $theme-primary;
     color: $text-white;
   }
-  
+
   &:not(.active) {
     background-color: $bg-input;
     color: $text-secondary;
-    
+
     &:hover {
       background-color: $bg-input-focus;
     }
@@ -388,7 +388,7 @@
 .main {
   margin-top: 220px;
   margin-bottom: 60px;
-  padding: 20px 16px 0 16px;
+  padding: 20px 16px 0;
   min-height: calc(100vh - 280px);
 }
 
@@ -405,7 +405,7 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   transition: transform 0.2s ease;
-  
+
   &:active {
     transform: scale(0.98);
   }
@@ -425,7 +425,7 @@
   border-radius: 50%;
   background-color: $bg-input;
   overflow: hidden;
-  
+
   image {
     width: 100%;
     height: 100%;
@@ -444,7 +444,7 @@
   aspect-ratio: 16 / 9;
   background-color: $bg-input;
   overflow: hidden;
-  
+
   image {
     width: 100%;
     height: 100%;
@@ -503,7 +503,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  
+
   .icon {
     font-size: 14px;
   }
@@ -524,12 +524,12 @@
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background-color: $theme-primary;
     color: $text-white;
   }
-  
+
   &:active {
     transform: scale(0.95);
   }
@@ -570,7 +570,7 @@
   justify-content: center;
   align-items: center;
   padding: 40px;
-  
+
   .loadingText {
     color: $text-helper;
     font-size: 14px;
@@ -614,7 +614,7 @@
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
-  
+
   &:active {
     transform: scale(0.95);
   }

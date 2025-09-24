@@ -1,4 +1,4 @@
-@use "../../../styles/variables.scss" as *;
+@use '../../../styles/variables.scss' as *;
 
 .profileSummary {
   background-color: $bg-card;
@@ -99,17 +99,17 @@
   flex-direction: column;
   align-items: center;
   transition: all 0.3s ease;
-  
+
   &.clickable {
     cursor: pointer;
     padding: 8px;
     border-radius: 8px;
-    
+
     &:hover {
       background: rgba($theme-primary, 0.05);
       transform: translateY(-1px);
     }
-    
+
     &:active {
       transform: translateY(0);
       background: rgba($theme-primary, 0.1);
@@ -126,4 +126,4 @@
 .statLabel {
   font-size: 14px;
   color: $text-helper-light;
-} 
+}

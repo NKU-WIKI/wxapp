@@ -1,26 +1,21 @@
-import { View, Text, Image } from "@tarojs/components";
-import classnames from "classnames";
+import { View, Text, Image } from '@tarojs/components'
+import classnames from 'classnames'
 
-import globeIcon from "@/assets/globe.svg";
-import messageCircleIcon from "@/assets/message-circle.svg";
+import globeIcon from '@/assets/globe.svg'
+import messageCircleIcon from '@/assets/message-circle.svg'
 
 // Relative imports
-import styles from "./PublishSettings.module.scss";
+import styles from './PublishSettings.module.scss'
 
 interface PublishSettingsProps {
-  isPublic: boolean;
-  onPublicChange: (_value: boolean) => void;
-  allowComments: boolean;
-  onAllowCommentsChange: (_value: boolean) => void;
+  isPublic: boolean
+  onPublicChange: (_value: boolean) => void
+  allowComments: boolean
+  onAllowCommentsChange: (_value: boolean) => void
 }
 
 const PublishSettings = (props: PublishSettingsProps) => {
-  const {
-    isPublic,
-    onPublicChange,
-    allowComments,
-    onAllowCommentsChange,
-  } = props;
+  const { isPublic, onPublicChange, allowComments, onAllowCommentsChange } = props
 
   return (
     <View className={styles.settingsCard}>
@@ -43,7 +38,7 @@ const PublishSettings = (props: PublishSettingsProps) => {
         <Text className={styles.label}>允许评论</Text>
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default PublishSettings;
+export default PublishSettings

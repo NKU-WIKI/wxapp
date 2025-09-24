@@ -6,104 +6,104 @@ export interface PostActivityCreateRequest {
   /**
    * 活动类型
    */
-  activity_type: ActivityType;
+  activity_type: ActivityType
   /**
    * Allow Waitlist，是否允许等待队列
    */
-  allow_waitlist?: boolean;
+  allow_waitlist?: boolean
   /**
    * Category，活动分类
    */
-  category: string;
+  category: string
   /**
    * Contact Info，联系方式
    */
-  contact_info?: null | string;
+  contact_info?: null | string
   /**
    * Contact Name，联系人称呼
    */
-  contact_name?: null | string;
+  contact_name?: null | string
   /**
    * Description，活动描述
    */
-  description: string;
+  description: string
   /**
    * End Time，结束时间
    */
-  end_time: Date;
+  end_time: Date
   /**
    * Fee Amount，活动费用
    */
-  fee_amount?: number | null;
+  fee_amount?: number | null
   /**
    * Fee Currency，费用币种
    */
-  fee_currency?: string;
+  fee_currency?: string
   /**
    * Is Recurrent，是否为定期活动
    */
-  is_recurrent?: boolean;
+  is_recurrent?: boolean
   /**
    * Location，活动地点
    */
-  location?: null | string;
+  location?: null | string
   /**
    * Max Participants，最大参与人数
    */
-  max_participants?: number | null;
+  max_participants?: number | null
   /**
    * Min Participants，最少参与人数
    */
-  min_participants?: number | null;
+  min_participants?: number | null
   /**
    * Online Url，线上活动链接
    */
-  online_url?: null | string;
+  online_url?: null | string
   /**
    * Publisher，发布者
    */
-  publisher?: null | string;
+  publisher?: null | string
   /**
    * Publisher Organization，发布组织
    */
-  publisher_organization?: null | string;
+  publisher_organization?: null | string
   /**
    * Recurrence Pattern，重复模式
    */
-  recurrence_pattern?: { [key: string]: any } | null;
+  recurrence_pattern?: { [key: string]: any } | null
   /**
    * Require Approval，是否需要审核
    */
-  require_approval?: boolean;
+  require_approval?: boolean
   /**
    * Requirements，参与要求
    */
-  requirements?: { [key: string]: any } | null;
+  requirements?: { [key: string]: any } | null
   /**
    * Start Time，开始时间
    */
-  start_time: Date;
+  start_time: Date
   /**
    * 活动初始状态，默认为已发布，必要时可改为draft
    */
-  status?: ActivityStatus;
+  status?: ActivityStatus
   /**
    * Tags，活动标签
    */
-  tags?: string[] | null;
+  tags?: string[] | null
   /**
    * Target Audience，目标受众
    */
-  target_audience?: { [key: string]: any } | null;
+  target_audience?: { [key: string]: any } | null
   /**
    * Title，活动标题
    */
-  title: string;
+  title: string
   /**
    * 可见性
    */
-  visibility?: ActivityVisibility;
-  [property: string]: any;
+  visibility?: ActivityVisibility
+  [property: string]: any
 }
 
 /**
@@ -112,9 +112,9 @@ export interface PostActivityCreateRequest {
  * ActivityType，活动类型枚举
  */
 export enum ActivityType {
-  Hybrid = "hybrid",
-  Offline = "offline",
-  Online = "online",
+  Hybrid = 'hybrid',
+  Offline = 'offline',
+  Online = 'online',
 }
 
 /**
@@ -123,9 +123,9 @@ export enum ActivityType {
  * ActivityVisibility，活动可见性枚举
  */
 export enum ActivityVisibility {
-  Private = "private",
-  Public = "public",
-  Tenant = "tenant",
+  Private = 'private',
+  Public = 'public',
+  Tenant = 'tenant',
 }
 
 /**
@@ -135,16 +135,16 @@ export interface PostActivityCreateResponse {
   /**
    * Code，业务码，成功为 0
    */
-  code?: number;
+  code?: number
   /**
    * 负载数据
    */
-  data?: null | ActivityRead;
+  data?: null | ActivityRead
   /**
    * Message，简明中文信息
    */
-  message?: string;
-  [property: string]: any;
+  message?: string
+  [property: string]: any
 }
 
 /**
@@ -154,194 +154,193 @@ export interface ActivityRead {
   /**
    * 活动类型
    */
-  activity_type: ActivityType;
+  activity_type: ActivityType
   /**
    * Ai Recommendation Score
    */
-  ai_recommendation_score: number | null;
+  ai_recommendation_score: number | null
   /**
    * Ai Tags
    */
-  ai_tags: string[] | null;
+  ai_tags: string[] | null
   /**
    * Allow Guest
    */
-  allow_guest: boolean;
+  allow_guest: boolean
   /**
    * Allow Waitlist
    */
-  allow_waitlist: boolean;
+  allow_waitlist: boolean
   /**
    * Category，活动分类
    */
-  category: string;
+  category: string
   /**
    * Co Organizers
    */
-  co_organizers: string[] | null;
+  co_organizers: string[] | null
   /**
    * Comment Count，评论数量
    */
-  comment_count?: number;
+  comment_count?: number
   /**
    * Contact Info
    */
-  contact_info: null | string;
+  contact_info: null | string
   /**
    * Contact Name
    */
-  contact_name: null | string;
+  contact_name: null | string
   /**
    * Created At
    */
-  created_at: Date;
+  created_at: Date
   /**
    * Current Participants
    */
-  current_participants: number;
+  current_participants: number
   /**
    * Description，活动描述
    */
-  description: string;
+  description: string
   /**
    * Discussion Count
    */
-  discussion_count: number;
+  discussion_count: number
   /**
    * End Time
    */
-  end_time: Date;
+  end_time: Date
   /**
    * Favorite Count，收藏数量
    */
-  favorite_count?: number;
+  favorite_count?: number
   /**
    * Fee Amount
    */
-  fee_amount: number | null;
+  fee_amount: number | null
   /**
    * Fee Currency
    */
-  fee_currency: string;
+  fee_currency: string
   /**
    * Id
    */
-  id: string;
+  id: string
   /**
    * Is Favorited
    */
-  is_favorited?: boolean;
+  is_favorited?: boolean
   /**
    * Is Recurrent
    */
-  is_recurrent: boolean;
+  is_recurrent: boolean
   /**
    * Is Registered
    */
-  is_registered?: boolean;
+  is_registered?: boolean
   /**
    * Like Count，点赞数量
    */
-  like_count?: number;
+  like_count?: number
   /**
    * Location
    */
-  location: null | string;
+  location: null | string
   /**
    * Max Participants
    */
-  max_participants: number | null;
+  max_participants: number | null
   /**
    * Meeting Info
    */
-  meeting_info: { [key: string]: any } | null;
+  meeting_info: { [key: string]: any } | null
   /**
    * Min Participants
    */
-  min_participants: number | null;
+  min_participants: number | null
   /**
    * Moderation Reason
    */
-  moderation_reason: null | string;
+  moderation_reason: null | string
   /**
    * Moderation Status
    */
-  moderation_status: string;
+  moderation_status: string
   /**
    * Online Url
    */
-  online_url: null | string;
-  organizer: UserRead;
+  online_url: null | string
+  organizer: UserRead
   /**
    * Publisher
    */
-  publisher: null | string;
+  publisher: null | string
   /**
    * Publisher Organization
    */
-  publisher_organization: null | string;
+  publisher_organization: null | string
   /**
    * Recurrence Pattern
    */
-  recurrence_pattern: { [key: string]: any } | null;
+  recurrence_pattern: { [key: string]: any } | null
   /**
    * Registration Deadline
    */
-  registration_deadline: Date | null;
-  registration_status?: RegistrationStatus | null;
+  registration_deadline: Date | null
+  registration_status?: RegistrationStatus | null
   /**
    * Require Approval
    */
-  require_approval: boolean;
+  require_approval: boolean
   /**
    * Requirements
    */
-  requirements: { [key: string]: any } | null;
+  requirements: { [key: string]: any } | null
   /**
    * Safety Score
    */
-  safety_score: number | null;
+  safety_score: number | null
   /**
    * Share Count，分享数量
    */
-  share_count?: number;
+  share_count?: number
   /**
    * Start Time
    */
-  start_time: Date;
-  status: ActivityStatus;
+  start_time: Date
+  status: ActivityStatus
   /**
    * Tags，活动标签
    */
-  tags?: string[] | null;
+  tags?: string[] | null
   /**
    * Target Audience
    */
-  target_audience: { [key: string]: any } | null;
+  target_audience: { [key: string]: any } | null
   /**
    * Tenant Id
    */
-  tenant_id: string;
+  tenant_id: string
   /**
    * Title，活动标题
    */
-  title: string;
+  title: string
   /**
    * Updated At
    */
-  updated_at: Date;
+  updated_at: Date
   /**
    * View Count，浏览数量
    */
-  view_count?: number;
-  visibility: ActivityVisibility;
+  view_count?: number
+  visibility: ActivityVisibility
   /**
    * Waitlist Count
    */
-  waitlist_count: number;
-  [property: string]: any;
+  waitlist_count: number
+  [property: string]: any
 }
-
 
 /**
  * UserRead
@@ -350,61 +349,61 @@ export interface UserRead {
   /**
    * Avatar
    */
-  avatar?: null | string;
+  avatar?: null | string
   /**
    * Bio
    */
-  bio?: null | string;
+  bio?: null | string
   /**
    * Birthday
    */
-  birthday?: Date | null;
+  birthday?: Date | null
   /**
    * College
    */
-  college?: null | string;
+  college?: null | string
   /**
    * Created At
    */
-  created_at: Date;
+  created_at: Date
   /**
    * Id
    */
-  id: string;
+  id: string
   /**
    * Location
    */
-  location?: null | string;
+  location?: null | string
   /**
    * Nickname
    */
-  nickname: string;
+  nickname: string
   /**
    * Qq Id
    */
-  qq_id?: null | string;
+  qq_id?: null | string
   /**
    * School
    */
-  school?: null | string;
-  status: UserStatus;
+  school?: null | string
+  status: UserStatus
   /**
    * Tel
    */
-  tel?: null | string;
+  tel?: null | string
   /**
    * Tenant Id
    */
-  tenant_id: string;
+  tenant_id: string
   /**
    * Updated At
    */
-  updated_at: Date;
+  updated_at: Date
   /**
    * Wechat Id
    */
-  wechat_id?: null | string;
-  [property: string]: any;
+  wechat_id?: null | string
+  [property: string]: any
 }
 
 /**
@@ -415,87 +414,87 @@ export interface UserRead {
  * BANNED: 被禁用户，无法登录和使用功能
  */
 export enum UserStatus {
-  Active = "active",
-  Banned = "banned",
-  Inactive = "inactive",
+  Active = 'active',
+  Banned = 'banned',
+  Inactive = 'inactive',
 }
 
 /**
  * RegistrationStatus，报名状态枚举
  */
 export enum RegistrationStatus {
-  cancelled = "cancelled",
-  Confirmed = "confirmed",
-  Pending = "pending",
-  Rejected = "rejected",
-  Waitlist = "waitlist",
+  cancelled = 'cancelled',
+  Confirmed = 'confirmed',
+  Pending = 'pending',
+  Rejected = 'rejected',
+  Waitlist = 'waitlist',
 }
 
 /**
  * ActivityStatus，活动状态枚举
  */
 export enum ActivityStatus {
-  Cancelled = "cancelled",
-  Completed = "completed",
-  Draft = "draft",
-  Ongoing = "ongoing",
-  Published = "published",
+  Cancelled = 'cancelled',
+  Completed = 'completed',
+  Draft = 'draft',
+  Ongoing = 'ongoing',
+  Published = 'published',
 }
 
 export interface GetActivityListRequest {
   /**
    * Activity Type，活动类型
    */
-  activity_type?: ActivityType | null;
+  activity_type?: ActivityType | null
   /**
    * Category，活动分类
    */
-  category?: null | string;
+  category?: null | string
   /**
    * Fee Max，费用最大值
    */
-  fee_max?: number | null;
+  fee_max?: number | null
   /**
    * Fee Min，费用最小值
    */
-  fee_min?: number | null;
+  fee_min?: number | null
   /**
    * Has Slots，是否有空位
    */
-  has_slots?: boolean | null;
+  has_slots?: boolean | null
   /**
    * Is Free，是否免费
    */
-  is_free?: boolean | null;
+  is_free?: boolean | null
   /**
    * Limit，返回数量
    */
-  limit?: number;
+  limit?: number
   /**
    * Skip，跳过数量
    */
-  skip?: number;
+  skip?: number
   /**
    * Sort By，排序字段
    */
-  sort_by?: string;
+  sort_by?: string
   /**
    * Sort Order，排序顺序
    */
-  sort_order?: string;
+  sort_order?: string
   /**
    * Start Date From，开始时间从
    */
-  start_date_from?: Date | null;
+  start_date_from?: Date | null
   /**
    * Start Date To，开始时间到
    */
-  start_date_to?: Date | null;
+  start_date_to?: Date | null
   /**
    * Status，活动状态
    */
-  status?: ActivityStatus | null;
-  [property: string]: any;
+  status?: ActivityStatus | null
+  [property: string]: any
 }
 
 /**
@@ -505,16 +504,16 @@ export interface GetActivityListResponse {
   /**
    * Code，业务码，成功为 0
    */
-  code?: number;
+  code?: number
   /**
    * 负载数据
    */
-  data?: null | PageActivityRead;
+  data?: null | PageActivityRead
   /**
    * Message，简明中文信息
    */
-  message?: string;
-  [property: string]: any;
+  message?: string
+  [property: string]: any
 }
 
 /**
@@ -524,28 +523,28 @@ export interface PageActivityRead {
   /**
    * Items
    */
-  items: ActivityRead[];
+  items: ActivityRead[]
   /**
    * Page
    */
-  page: number;
+  page: number
   /**
    * Page Size
    */
-  page_size: number;
+  page_size: number
   /**
    * Total
    */
-  total: number;
-  [property: string]: any;
+  total: number
+  [property: string]: any
 }
 
 export interface PostJoinActivityRequest {
   /**
    * Activity Id，活动ID
    */
-  activity_id: string;
-  [property: string]: any;
+  activity_id: string
+  [property: string]: any
 }
 
 /**
@@ -555,33 +554,32 @@ export interface PostJoinActivityResponse {
   /**
    * Code，业务码，成功为 0
    */
-  code?: number;
+  code?: number
   /**
    * 负载数据
    */
-  data?: null | ActivityRegistrationRead;
+  data?: null | ActivityRegistrationRead
   /**
    * Message，简明中文信息
    */
-  message?: string;
-  [property: string]: any;
+  message?: string
+  [property: string]: any
 }
-
 
 export interface GetMyActivityRequest {
   /**
    * Limit，返回数量
    */
-  limit?: number;
+  limit?: number
   /**
    * Skip，跳过数量
    */
-  skip?: number;
+  skip?: number
   /**
    * Status，报名状态过滤
    */
-  status?: RegistrationStatus | null;
-  [property: string]: any;
+  status?: RegistrationStatus | null
+  [property: string]: any
 }
 
 /**
@@ -591,16 +589,16 @@ export interface GetMyActivityResponse {
   /**
    * Code，业务码，成功为 0
    */
-  code?: number;
+  code?: number
   /**
    * 负载数据
    */
-  data?: null | PageActivityRegistrationRead;
+  data?: null | PageActivityRegistrationRead
   /**
    * Message，简明中文信息
    */
-  message?: string;
-  [property: string]: any;
+  message?: string
+  [property: string]: any
 }
 
 /**
@@ -610,189 +608,189 @@ export interface PageActivityRegistrationRead {
   /**
    * Items
    */
-  items: ActivityRegistrationRead[];
+  items: ActivityRegistrationRead[]
   /**
    * Page
    */
-  page: number;
+  page: number
   /**
    * Page Size
    */
-  page_size: number;
+  page_size: number
   /**
    * Total
    */
-  total: number;
-  [property: string]: any;
+  total: number
+  [property: string]: any
 }
 
 /**
  * ActivityRegistrationRead，活动报名读取模型
  */
 export interface ActivityRegistrationRead {
-  activity: ActivitySummary;
+  activity: ActivitySummary
   /**
    * Activity Id
    */
-  activity_id: string;
+  activity_id: string
   /**
    * Cancelled Time
    */
-  cancelled_time: Date | null;
+  cancelled_time: Date | null
   /**
    * Check In Time
    */
-  check_in_time: Date | null;
+  check_in_time: Date | null
   /**
    * Check Out Time
    */
-  check_out_time: Date | null;
+  check_out_time: Date | null
   /**
    * Confirmed Time
    */
-  confirmed_time: Date | null;
+  confirmed_time: Date | null
   /**
    * Created At
    */
-  created_at: Date;
+  created_at: Date
   /**
    * Feedback
    */
-  feedback: { [key: string]: any } | null;
+  feedback: { [key: string]: any } | null
   /**
    * Guest Count
    */
-  guest_count: number;
+  guest_count: number
   /**
    * Id
    */
-  id: string;
+  id: string
   /**
    * Participant Info
    */
-  participant_info: { [key: string]: any } | null;
+  participant_info: { [key: string]: any } | null
   /**
    * Participation Score
    */
-  participation_score: number | null;
+  participation_score: number | null
   /**
    * Payment Amount
    */
-  payment_amount: number | null;
+  payment_amount: number | null
   /**
    * Payment Status
    */
-  payment_status: string;
+  payment_status: string
   /**
    * Queue Entered Time
    */
-  queue_entered_time: Date | null;
+  queue_entered_time: Date | null
   /**
    * Queue Position
    */
-  queue_position: number | null;
+  queue_position: number | null
   /**
    * Registration Time
    */
-  registration_time: Date;
+  registration_time: Date
   /**
    * Review Notes
    */
-  review_notes: null | string;
+  review_notes: null | string
   /**
    * Review Time
    */
-  review_time: Date | null;
+  review_time: Date | null
   /**
    * Reviewed By
    */
-  reviewed_by: null | string;
-  reviewer: null | UserRead;
+  reviewed_by: null | string
+  reviewer: null | UserRead
   /**
    * Special Requirements
    */
-  special_requirements: null | string;
-  status: RegistrationStatus;
+  special_requirements: null | string
+  status: RegistrationStatus
   /**
    * Tenant Id
    */
-  tenant_id: string;
+  tenant_id: string
   /**
    * Updated At
    */
-  updated_at: Date;
-  user: UserRead;
+  updated_at: Date
+  user: UserRead
   /**
    * User Id
    */
-  user_id: string;
-  [property: string]: any;
+  user_id: string
+  [property: string]: any
 }
 
 /**
  * ActivitySummary，活动摘要模型
  */
 export interface ActivitySummary {
-  activity_type: ActivityType;
+  activity_type: ActivityType
   /**
    * Ai Recommendation Score
    */
-  ai_recommendation_score: number | null;
+  ai_recommendation_score: number | null
   /**
    * Category
    */
-  category: string;
+  category: string
   /**
    * Current Participants
    */
-  current_participants: number;
+  current_participants: number
   /**
    * End Time
    */
-  end_time: Date;
+  end_time: Date
   /**
    * Fee Amount
    */
-  fee_amount: number | null;
+  fee_amount: number | null
   /**
    * Id
    */
-  id: string;
+  id: string
   /**
    * Location
    */
-  location: null | string;
+  location: null | string
   /**
    * Max Participants
    */
-  max_participants: number | null;
-  organizer: UserRead;
+  max_participants: number | null
+  organizer: UserRead
   /**
    * Start Time
    */
-  start_time: Date;
-  status: ActivityStatus;
+  start_time: Date
+  status: ActivityStatus
   /**
    * Title
    */
-  title: string;
+  title: string
   /**
    * View Count
    */
-  view_count: number;
-  [property: string]: any;
+  view_count: number
+  [property: string]: any
 }
 
 export interface GetMyOrganizedActivityRequest {
   /**
    * Limit，返回数量
    */
-  limit?: number;
+  limit?: number
   /**
    * Skip，跳过数量
    */
-  skip?: number;
-  [property: string]: any;
+  skip?: number
+  [property: string]: any
 }
 
 /**
@@ -802,24 +800,24 @@ export interface GetMyOrganizedActivityResponse {
   /**
    * Code，业务码，成功为 0
    */
-  code?: number;
+  code?: number
   /**
    * 负载数据
    */
-  data?: null | PageActivityRead;
+  data?: null | PageActivityRead
   /**
    * Message，简明中文信息
    */
-  message?: string;
-  [property: string]: any;
+  message?: string
+  [property: string]: any
 }
 
 export interface DeleteCancelRegistrationsRequest {
   /**
    * Activity Id，活动ID
    */
-  activity_id: string;
-  [property: string]: any;
+  activity_id: string
+  [property: string]: any
 }
 
 /**
@@ -834,15 +832,14 @@ export interface DeleteCancelRegistrationsResponse {
   /**
    * Code，业务码，成功为 0
    */
-  code?: number;
+  code?: number
   /**
    * Data，负载数据
    */
-  data?: any;
+  data?: any
   /**
    * Message，简明中文信息
    */
-  message?: string;
-  [property: string]: any;
+  message?: string
+  [property: string]: any
 }
-

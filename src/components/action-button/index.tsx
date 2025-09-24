@@ -37,7 +37,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   iconClassName = '',
   textClassName = '',
   openType,
-  disabled = false
+  disabled = false,
 }) => {
   const iconSrc = isActive && activeIcon ? activeIcon : icon
 
@@ -49,11 +49,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 
   return (
     <Button
-      className={classnames(
-        styles.actionButton,
-        className,
-        { [styles.disabled]: disabled }
-      )}
+      className={classnames(styles.actionButton, className, { [styles.disabled]: disabled })}
       onClick={handleClick}
       openType={openType}
       disabled={disabled}
@@ -73,12 +69,12 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         outline: 'none',
       }}
     >
-      <Image 
-        src={iconSrc} 
-        className={classnames(styles.icon, iconClassName)} 
-        style={{ 
+      <Image
+        src={iconSrc}
+        className={classnames(styles.icon, iconClassName)}
+        style={{
           // 如果使用activeIcon，则不需要CSS滤镜
-          filter: isActive && activeIcon ? 'none' : undefined 
+          filter: isActive && activeIcon ? 'none' : undefined,
         }}
       />
       {/* 只有在 text prop 被提供时才渲染 Text 组件 */}
