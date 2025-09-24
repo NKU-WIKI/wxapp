@@ -32,8 +32,8 @@ export const getRecommendations = async (params: API.RecommendParams) => {
         }
       }
     };
-  } catch (error) {
-    
+  } catch (_error) {
+
     // 发生错误时返回空数据
     return {
       code: 0,

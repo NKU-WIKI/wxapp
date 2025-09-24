@@ -1,4 +1,5 @@
 import { normalizeImageUrl, compressImage, isImageFile } from "@/utils/image";
+
 import http from "../request";
 
 // 上传图片响应类型
@@ -43,7 +44,7 @@ export const uploadImage = async (
         // 使用传统压缩
         finalFilePath = await compressImage(filePath, quality);
       }
-    } catch (error) {
+    } catch (_error) {
       // 压缩失败时使用原文件
       finalFilePath = filePath;
     }

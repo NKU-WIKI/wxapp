@@ -155,7 +155,7 @@ const RatingDetailPage = () => {
     }
 
     loadData(resourceType, resourceId, resourceName)
-  }, [router.params, loadData])
+  }, [loadData, router.params])
 
   // 渲染星级评分（支持精确百分比）
   const renderStars = (score: number, size: 'large' | 'small' = 'small') => {

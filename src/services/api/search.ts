@@ -5,6 +5,7 @@ import {
   ClearHistoryResponse,
 } from '@/types/api/search';
 import { ViewHistoryRead } from '@/types/history';
+
 import http from '../request';
 
 /**

@@ -9,6 +9,7 @@ import {
 import { Post } from "@/types/api/post.d";
 import { PaginatedData, PaginationParams } from "@/types/api/common";
 import { ActionRead } from "@/store/slices/favoriteSlice";
+
 import http from "../request";
 
 /**
@@ -84,9 +85,9 @@ export const getMyTags = () => {
 export const getMyStats = () => {
   return http.get<any>("/persona/me/stats").then(response => {
     return response;
-  }).catch(error => {
-    
-    throw error;
+  }).catch(_error => {
+
+    throw _error;
   });
 };
 
@@ -191,9 +192,9 @@ export const getUserPosts = (userId: string, params?: PaginationParams) => {
   
   return http.get<Post[]>(`/users/${userId}/posts`, safeParams).then(response => {
     return response;
-  }).catch(error => {
-    
-    throw error;
+  }).catch(_error => {
+
+    throw _error;
   });
 };
 
@@ -211,9 +212,9 @@ export const getMyPosts = (params?: PaginationParams) => {
   
   return http.get<Post[]>("/users/me/posts", safeParams).then(response => {
     return response;
-  }).catch(error => {
-    
-    throw error;
+  }).catch(_error => {
+
+    throw _error;
   });
 };
 
@@ -235,8 +236,7 @@ export const getMyPostCount = async () => {
       return myPosts.length;
     }
     return 0;
-  } catch (error) {
-    
+  } catch {
     return 0;
   }
 };
@@ -271,8 +271,7 @@ export const getUserPostCount = async (userId: string) => {
       return response.data.length;
     }
     return 0;
-  } catch (error) {
-    
+  } catch {
     return 0;
   }
 };
@@ -289,8 +288,7 @@ export const getUserFollowersCount = async (userId: string) => {
       return response.data.length;
     }
     return 0;
-  } catch (error) {
-    
+  } catch {
     return 0;
   }
 };
@@ -307,8 +305,7 @@ export const getUserFollowingCount = async (userId: string) => {
       return response.data.length;
     }
     return 0;
-  } catch (error) {
-    
+  } catch {
     return 0;
   }
 };

@@ -165,7 +165,7 @@ export const createComment = createAsyncThunk(
                 currentUserId: currentUser.user.id,
                 commentContent: params.content
               });
-            } catch (_error) {
+            } catch {
               // 静默处理通知创建错误，不影响主要功能
             }
           }

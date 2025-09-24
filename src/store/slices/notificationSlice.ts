@@ -187,7 +187,7 @@ extraReducers: (builder) => {
     .addCase(fetchUnreadCounts.rejected, (state, _action) => {
       state.loading = false;
       // // console.error('�?[NotificationSlice] fetchUnreadCounts 失败:', action.error.message);
-      // 失败时不重置数据，保持上次的状�?      });
+      // 失败时不重置数据，保持上次的状态      });
     }
 });
 

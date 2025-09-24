@@ -239,7 +239,7 @@ const processNotificationDisplayData = useCallback(async (notificationItems: Not
     }));
     setDisplayNotifications(fallbackData);
   }
-}, [parseNotificationDisplay]);
+}, [parseNotificationDisplay, setDisplayNotifications]);
 
 // 获取通知列表
 const fetchNotifications = useCallback(async (type?: NotificationType, showLoading = true) => {
