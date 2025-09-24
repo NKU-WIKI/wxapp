@@ -1,27 +1,33 @@
-import { View, Text, ScrollView, Image, Input } from '@tarojs/components'
-import { useSelector, useDispatch } from 'react-redux'
+
 import { useState, useEffect } from 'react'
+
+import { View, Text, ScrollView, Image, Input } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { ChatSession } from '@/types/chat'
+
+import { useSelector, useDispatch } from 'react-redux'
+
+
+import CheckIcon from '@/assets/check-square.svg'
+import PlusIcon from '@/assets/plus.png'
+import AboutIcon from '@/components/about-icons'
 import { RootState, AppDispatch } from '@/store'
 import {
   createSession,
   switchSession,
   deleteSession,
-  renameSession
+  renameSession,
 } from '@/store/slices/chatSlice'
+import { ChatSession } from '@/types/chat'
+
+import styles from './index.module.scss'
 
 // Components imports
-import AboutIcon from '@/components/about-icons'
 
 // Assets imports (relative imports)
-import PlusIcon from '@/assets/plus.png';
-import CheckIcon from '@/assets/check-square.svg';
 
-import styles from './index.module.scss';
 
 interface ChatSidebarProps {
-  onClose: () => void;
+  onClose: () => void
 }
 
 const ChatSidebar = ({ onClose }: ChatSidebarProps) => {
@@ -62,7 +68,7 @@ const ChatSidebar = ({ onClose }: ChatSidebarProps) => {
         if (res.confirm) {
           dispatch(deleteSession(sessionId))
         }
-      }
+      },
     })
   }
 
@@ -84,70 +90,72 @@ const ChatSidebar = ({ onClose }: ChatSidebarProps) => {
     <>
       <View className={styles.sidebarOverlay} onClick={onClose} />
       <View className={styles.sidebar} style={{ paddingTop: `${safeAreaInsetTop}px` }}>
-      <View className={styles.header}>
-        <Text className={styles.title}>历史会话</Text>
-        <View className={styles.newChatButton} onClick={handleCreateSession}>
-          <Image src={PlusIcon} className={styles.icon} />
-          <Text>新对话</Text>
+        <View className={styles.header}>
+          <Text className={styles.title}>历史会话</Text>
+          <View className={styles.newChatButton} onClick={handleCreateSession}>
+            <Image src={PlusIcon} className={styles.icon} />
+            <Text>新对话</Text>
+          </View>
         </View>
-      </View>
 
-      <ScrollView scrollY className={styles.sessionList}>
-        {isLoading ? (
-          <View className={styles.loadingContainer}>
-            <View className={styles.loadingSpinner}></View>
-            <Text className={styles.loadingText}>加载会话中...</Text>
-          </View>
-        ) : sessions.length === 0 ? (
-          <View className={styles.emptyState}>
-            <Text className={styles.emptyText}>暂无会话记录</Text>
-            <Text className={styles.emptyTip}>点击&quot;新对话&quot;开始聊天</Text>
-          </View>
-        ) : sessions.map(session => (
-          <View
-            key={session.id}
-            className={`${styles.sessionItem} ${currentSession?.id === session.id ? styles.active : ''}`}
-            onClick={() => handleSwitchSession(session.id)}
-          >
-            {renamingId === session.id ? (
-              <Input
-                className={styles.renameInput}
-                value={renameText}
-                onInput={(e) => setRenameText(e.detail.value)}
-                onConfirm={(e) => handleConfirmRename(e, session.id)}
-                focus
-              />
-            ) : (
-              <Text className={styles.sessionTitle}>{session.title}</Text>
-            )}
-            
-            <View className={styles.actions}>
-              {renamingId === session.id ? (
-                <Image 
-                  src={CheckIcon} 
-                  className={styles.actionIcon} 
-                  onClick={(e) => handleConfirmRename(e, session.id)}
-                  mode='aspectFit'
-                />
-              ) : (
-                <AboutIcon 
-                  type='pen-tool' 
-                  size={18} 
-                  onClick={(e) => handleStartRename(e, session)} 
-                  className={styles.actionIcon}
-                />
-              )}
-              <AboutIcon 
-                type='x' 
-                size={18} 
-                onClick={(e) => handleDeleteSession(e, session.id)} 
-                className={styles.actionIcon}
-              />
+        <ScrollView scrollY className={styles.sessionList}>
+          {isLoading ? (
+            <View className={styles.loadingContainer}>
+              <View className={styles.loadingSpinner}></View>
+              <Text className={styles.loadingText}>加载会话中...</Text>
             </View>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
+          ) : sessions.length === 0 ? (
+            <View className={styles.emptyState}>
+              <Text className={styles.emptyText}>暂无会话记录</Text>
+              <Text className={styles.emptyTip}>点击&quot;新对话&quot;开始聊天</Text>
+            </View>
+          ) : (
+            sessions.map((session) => (
+              <View
+                key={session.id}
+                className={`${styles.sessionItem} ${currentSession?.id === session.id ? styles.active : ''}`}
+                onClick={() => handleSwitchSession(session.id)}
+              >
+                {renamingId === session.id ? (
+                  <Input
+                    className={styles.renameInput}
+                    value={renameText}
+                    onInput={(e) => setRenameText(e.detail.value)}
+                    onConfirm={(e) => handleConfirmRename(e, session.id)}
+                    focus
+                  />
+                ) : (
+                  <Text className={styles.sessionTitle}>{session.title}</Text>
+                )}
+
+                <View className={styles.actions}>
+                  {renamingId === session.id ? (
+                    <Image
+                      src={CheckIcon}
+                      className={styles.actionIcon}
+                      onClick={(e) => handleConfirmRename(e, session.id)}
+                      mode="aspectFit"
+                    />
+                  ) : (
+                    <AboutIcon
+                      type="pen-tool"
+                      size={18}
+                      onClick={(e) => handleStartRename(e, session)}
+                      className={styles.actionIcon}
+                    />
+                  )}
+                  <AboutIcon
+                    type="x"
+                    size={18}
+                    onClick={(e) => handleDeleteSession(e, session.id)}
+                    className={styles.actionIcon}
+                  />
+                </View>
+              </View>
+            ))
+          )}
+        </ScrollView>
+      </View>
     </>
   )
 }

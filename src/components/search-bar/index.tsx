@@ -1,5 +1,7 @@
-import { View, Image, Input, Text } from '@tarojs/components'
 import { useState, memo, useCallback } from 'react'
+
+import { View, Image, Input, Text } from '@tarojs/components'
+
 
 // 图片资源使用字符串路径引用
 
@@ -97,36 +99,45 @@ const SearchBar = ({
   }, [onBlur])
 
   // 处理输入变化
-  const handleInput = useCallback((e: any) => {
-    if (onInput) {
-      // 如果有mode，需要重新构建完整的keyword
-      if (mode) {
-        const displayValue = e.detail?.value || ''
-        const fullValue = `@${mode} ${displayValue}`.trim()
-        onInput({
-          ...e,
-          detail: {
-            ...e.detail,
-            value: fullValue
-          }
-        })
-      } else {
-        onInput(e)
+  const handleInput = useCallback(
+    (e: any) => {
+      if (onInput) {
+        // 如果有mode，需要重新构建完整的keyword
+        if (mode) {
+          const displayValue = e.detail?.value || ''
+          const fullValue = `@${mode} ${displayValue}`.trim()
+          onInput({
+            ...e,
+            detail: {
+              ...e.detail,
+              value: fullValue,
+            },
+          })
+        } else {
+          onInput(e)
+        }
       }
-    }
-  }, [onInput, mode])
+    },
+    [onInput, mode]
+  )
 
-  const handleSuggestionClick = useCallback((_suggestion: SearchSuggestion) => {
-    if (onSuggestionClick) {
-      onSuggestionClick(_suggestion)
-    }
-  }, [onSuggestionClick])
+  const handleSuggestionClick = useCallback(
+    (_suggestion: SearchSuggestion) => {
+      if (onSuggestionClick) {
+        onSuggestionClick(_suggestion)
+      }
+    },
+    [onSuggestionClick]
+  )
 
-  const handleDynamicSuggestionClick = useCallback((_suggestion: string) => {
-    if (onDynamicSuggestionClick) {
-      onDynamicSuggestionClick(_suggestion)
-    }
-  }, [onDynamicSuggestionClick])
+  const handleDynamicSuggestionClick = useCallback(
+    (_suggestion: string) => {
+      if (onDynamicSuggestionClick) {
+        onDynamicSuggestionClick(_suggestion)
+      }
+    },
+    [onDynamicSuggestionClick]
+  )
 
   // 渲染前缀标签
   const renderPrefixLabel = useCallback(() => {
@@ -146,8 +157,6 @@ const SearchBar = ({
     return keyword
   }, [keyword, mode])
 
-
-
   // 渲染建议列表
   const renderSuggestions = useCallback(() => {
     if (!showSuggestions || suggestions.length === 0) return null
@@ -160,14 +169,10 @@ const SearchBar = ({
             className={styles.suggestionItem}
             onClick={() => handleSuggestionClick(suggestion)}
           >
-            {suggestion.icon && (
-              <Image src={suggestion.icon} className={styles.suggestionIcon} />
-            )}
+            {suggestion.icon && <Image src={suggestion.icon} className={styles.suggestionIcon} />}
             <View className={styles.suggestionText}>
               <Text className={styles.suggestionTitle}>{suggestion.title}</Text>
-              {suggestion.desc && (
-                <Text className={styles.suggestionDesc}>{suggestion.desc}</Text>
-              )}
+              {suggestion.desc && <Text className={styles.suggestionDesc}>{suggestion.desc}</Text>}
             </View>
           </View>
         ))}
@@ -186,7 +191,14 @@ const SearchBar = ({
         )}
       </View>
     )
-  }, [showSuggestions, suggestions, showDynamicSuggestions, dynamicSuggestions, handleSuggestionClick, handleDynamicSuggestionClick])
+  }, [
+    showSuggestions,
+    suggestions,
+    showDynamicSuggestions,
+    dynamicSuggestions,
+    handleSuggestionClick,
+    handleDynamicSuggestionClick,
+  ])
 
   // 渲染热门搜索
   const renderHotSearches = useCallback(() => {
@@ -214,7 +226,7 @@ const SearchBar = ({
     <View className={styles.searchWrapper}>
       <View className={styles.searchContainer} onClick={handleContainerClick}>
         <Image
-          src='/assets/search.svg'
+          src="/assets/search.svg"
           className={styles.searchIcon}
           style={{ width: '18px', height: '18px' }}
           onClick={onSearch}
@@ -235,7 +247,7 @@ const SearchBar = ({
           />
         </View>
         {(!!keyword || alwaysShowClear) && !readonly && (
-          <Image src='/assets/x.svg' className={styles.clearIcon} onClick={onClear} />
+          <Image src="/assets/x.svg" className={styles.clearIcon} onClick={onClear} />
         )}
       </View>
 

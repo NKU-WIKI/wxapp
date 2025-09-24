@@ -1,16 +1,21 @@
+
+import React, { useState, useCallback, useEffect, FC } from 'react'
+
 import { View, ScrollView, Text, Input, Textarea, Switch } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+
 import { useDispatch, useSelector } from 'react-redux'
-import React, { useState, useCallback, useEffect, FC } from 'react'
+
 
 import CustomHeader from '@/components/custom-header'
 import ImageUploader from '@/components/image-uploader'
-import * as marketplaceSlice from '@/store/slices/marketplaceSlice'
-import { RootState, AppDispatch } from '@/store'
-import { ListingType, ListingCondition, CategoryRead } from '@/types/api/marketplace.d'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
+import { RootState, AppDispatch } from '@/store'
+import * as marketplaceSlice from '@/store/slices/marketplaceSlice'
+import { ListingType, ListingCondition, CategoryRead } from '@/types/api/marketplace.d'
 
 import styles from './index.module.scss'
+
 
 // #region Sub-components
 
@@ -41,8 +46,6 @@ const ActionTabs: FC<ActionTabsProps> = React.memo(({ listingType, onTabClick })
   )
 })
 
-
-
 interface FormInputProps {
   placeholder: string
   value: string
@@ -50,43 +53,51 @@ interface FormInputProps {
   isTextarea?: boolean
   type?: string
 }
-const FormInput: FC<FormInputProps> = React.memo(({ placeholder: _placeholder, value: _value, onChange, isTextarea = false, type: _type = 'text' }) => {
-  // 使用参数以避免lint警告
-  void _placeholder
-  void _value
-  void onChange
-  void isTextarea
-  void _type
+const FormInput: FC<FormInputProps> = React.memo(
+  ({
+    placeholder: _placeholder,
+    value: _value,
+    onChange,
+    isTextarea = false,
+    type: _type = 'text',
+  }) => {
+    // 使用参数以避免lint警告
+    void _placeholder
+    void _value
+    void onChange
+    void isTextarea
+    void _type
 
-  const handleInput = (e: any) => {
-    onChange(e.detail.value)
-  }
+    const handleInput = (e: any) => {
+      onChange(e.detail.value)
+    }
 
-  return (
-    <View className={styles.formInput}>
-      <View className={styles.formInputWrapper}>
-        {isTextarea ? (
-          <Textarea
-            placeholder={_placeholder}
-            value={_value}
-            onInput={handleInput}
-            adjustPosition={false}
-            holdKeyboard
-          />
-        ) : (
-          <Input
-            type={_type as any}
-            placeholder={_placeholder}
-            value={_value}
-            onInput={handleInput}
-            adjustPosition={false}
-            holdKeyboard
-          />
-        )}
+    return (
+      <View className={styles.formInput}>
+        <View className={styles.formInputWrapper}>
+          {isTextarea ? (
+            <Textarea
+              placeholder={_placeholder}
+              value={_value}
+              onInput={handleInput}
+              adjustPosition={false}
+              holdKeyboard
+            />
+          ) : (
+            <Input
+              type={_type as any}
+              placeholder={_placeholder}
+              value={_value}
+              onInput={handleInput}
+              adjustPosition={false}
+              holdKeyboard
+            />
+          )}
+        </View>
       </View>
-    </View>
-  )
-})
+    )
+  }
+)
 
 interface FormRowProps {
   label: string
@@ -107,41 +118,43 @@ interface TagListProps {
   onAddTag: () => void
   onRemoveTag: (_tag: string) => void
 }
-const TagList: FC<TagListProps> = React.memo(({ tags: _tags, tagInput: _tagInput, onTagInputChange, onAddTag, onRemoveTag }) => {
-  // 使用参数以避免lint警告
-  void _tags
-  void _tagInput
-  void onTagInputChange
-  void onAddTag
-  void onRemoveTag
+const TagList: FC<TagListProps> = React.memo(
+  ({ tags: _tags, tagInput: _tagInput, onTagInputChange, onAddTag, onRemoveTag }) => {
+    // 使用参数以避免lint警告
+    void _tags
+    void _tagInput
+    void onTagInputChange
+    void onAddTag
+    void onRemoveTag
 
-  const handleInput = (e: any) => onTagInputChange(e.detail.value)
+    const handleInput = (e: any) => onTagInputChange(e.detail.value)
 
-  return (
-    <View className={styles.tagList}>
-      {_tags.map((tag, index) => (
-        <View key={index} className={styles.tag}>
-          <Text className={styles.tagText}>{tag}</Text>
-          <Text className={styles.tagRemove} onClick={() => onRemoveTag(tag)}>
-            ×
-          </Text>
-        </View>
-      ))}
-      {_tags.length < 5 && (
-        <View className={styles.tagInput}>
-          <Input
-            placeholder='添加标签'
-            value={_tagInput}
-            onInput={handleInput}
-            onConfirm={onAddTag}
-            adjustPosition={false}
-            holdKeyboard
-          />
-        </View>
-      )}
-    </View>
-  )
-})
+    return (
+      <View className={styles.tagList}>
+        {_tags.map((tag, index) => (
+          <View key={index} className={styles.tag}>
+            <Text className={styles.tagText}>{tag}</Text>
+            <Text className={styles.tagRemove} onClick={() => onRemoveTag(tag)}>
+              ×
+            </Text>
+          </View>
+        ))}
+        {_tags.length < 5 && (
+          <View className={styles.tagInput}>
+            <Input
+              placeholder="添加标签"
+              value={_tagInput}
+              onInput={handleInput}
+              onConfirm={onAddTag}
+              adjustPosition={false}
+              holdKeyboard
+            />
+          </View>
+        )}
+      </View>
+    )
+  }
+)
 
 interface ContactInputsProps {
   wechatId: string
@@ -151,63 +164,65 @@ interface ContactInputsProps {
   onQqChange: (_value: string) => void
   onPhoneChange: (_value: string) => void
 }
-const ContactInputs: FC<ContactInputsProps> = React.memo(({
-  wechatId: _wechatId,
-  qqNumber: _qqNumber,
-  phoneNumber: _phoneNumber,
-  onWechatChange,
-  onQqChange,
-  onPhoneChange
-}) => {
-  // 使用参数以避免lint警告
-  void _wechatId
-  void _qqNumber
-  void _phoneNumber
-  void onWechatChange
-  void onQqChange
-  void onPhoneChange
+const ContactInputs: FC<ContactInputsProps> = React.memo(
+  ({
+    wechatId: _wechatId,
+    qqNumber: _qqNumber,
+    phoneNumber: _phoneNumber,
+    onWechatChange,
+    onQqChange,
+    onPhoneChange,
+  }) => {
+    // 使用参数以避免lint警告
+    void _wechatId
+    void _qqNumber
+    void _phoneNumber
+    void onWechatChange
+    void onQqChange
+    void onPhoneChange
 
-  return (
-    <View className={styles.contactInputs}>
-      <FormRow label='微信号' onClick={() => {}}>
-        <View className={styles.contactInputWrapper}>
-          <Input
-            type='text'
-            placeholder='请输入微信号 (选填)'
-            value={_wechatId}
-            onInput={(e) => onWechatChange(e.detail.value)}
-            adjustPosition={false}
-            holdKeyboard
-          />
-        </View>
-      </FormRow>
-      <FormRow label='QQ号' onClick={() => {}}>
-        <View className={styles.contactInputWrapper}>
-          <Input
-            type='number'
-            placeholder='请输入QQ号 (选填)'
-            value={_qqNumber}
-            onInput={(e) => onQqChange(e.detail.value)}
-            adjustPosition={false}
-            holdKeyboard
-          />
-        </View>
-      </FormRow>
-      <FormRow label='手机号' onClick={() => {}}>
-        <View className={styles.contactInputWrapper}>
-          <Input
-            type='number'
-            placeholder='请输入手机号 (选填)'
-            value={_phoneNumber}
-            onInput={(e) => onPhoneChange(e.detail.value)}
-            adjustPosition={false}
-            holdKeyboard
-          />
-        </View>
-      </FormRow>
-    </View>
-  )
-})
+    return (
+      <View className={styles.contactInputs}>
+        <FormRow label="微信号" onClick={() => {}}>
+          <View className={styles.contactInputWrapper}>
+            <Input
+              type="text"
+              placeholder="请输入微信号 (选填)"
+              value={_wechatId}
+              onInput={(e) => onWechatChange(e.detail.value)}
+              adjustPosition={false}
+              holdKeyboard
+            />
+          </View>
+        </FormRow>
+        <FormRow label="QQ号" onClick={() => {}}>
+          <View className={styles.contactInputWrapper}>
+            <Input
+              type="number"
+              placeholder="请输入QQ号 (选填)"
+              value={_qqNumber}
+              onInput={(e) => onQqChange(e.detail.value)}
+              adjustPosition={false}
+              holdKeyboard
+            />
+          </View>
+        </FormRow>
+        <FormRow label="手机号" onClick={() => {}}>
+          <View className={styles.contactInputWrapper}>
+            <Input
+              type="number"
+              placeholder="请输入手机号 (选填)"
+              value={_phoneNumber}
+              onInput={(e) => onPhoneChange(e.detail.value)}
+              adjustPosition={false}
+              holdKeyboard
+            />
+          </View>
+        </FormRow>
+      </View>
+    )
+  }
+)
 
 const WarmTips: FC = React.memo(() => (
   <View className={styles.warmTips}>
@@ -281,8 +296,6 @@ const SecondHandPublishPage = () => {
     return true
   }, [title, content, selectedCategory, listingType, price])
 
-
-
   // 处理标签添加
   const handleAddTag = useCallback(() => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -316,7 +329,7 @@ const SecondHandPublishPage = () => {
         },
         fail: (_res) => {
           // 用户取消选择，不做任何操作
-        }
+        },
       })
     } else {
       // 分类数量超过6个，分批显示
@@ -327,7 +340,7 @@ const SecondHandPublishPage = () => {
         const endIndex = Math.min(startIndex + 6, categories.length)
         const pageCategories = categories.slice(startIndex, endIndex)
 
-        const options = pageCategories.map(cat => cat.name)
+        const options = pageCategories.map((cat) => cat.name)
         if (pageIndex < totalPages - 1) {
           options.push('下一页')
         }
@@ -357,7 +370,7 @@ const SecondHandPublishPage = () => {
           },
           fail: (_res) => {
             // 用户取消选择，不做任何操作
-          }
+          },
         })
       }
 
@@ -384,7 +397,7 @@ const SecondHandPublishPage = () => {
       fail: (_res) => {
         // 用户取消选择，不做任何操作
         // _res.errMsg 可能为 "showActionSheet:fail cancel"
-      }
+      },
     })
   }, [])
 
@@ -432,14 +445,31 @@ const SecondHandPublishPage = () => {
           },
           fail: (_navError) => {
             // 导航失败，静默处理
-          }
+          },
         })
       }, 300)
     } catch (publishError) {
       // 错误已在 slice 中统一处理
       setIsPublishing(false) // 发生错误时恢复状态
     }
-  }, [checkAuth, validateForm, isPublishing, title, content, selectedCategory, listingType, price, condition, location, tags, images, wechatId, qqNumber, phoneNumber, dispatch])
+  }, [
+    checkAuth,
+    validateForm,
+    isPublishing,
+    title,
+    content,
+    selectedCategory,
+    listingType,
+    price,
+    condition,
+    location,
+    tags,
+    images,
+    wechatId,
+    qqNumber,
+    phoneNumber,
+    dispatch,
+  ])
 
   const handleContactSwitch = (e: any) => {
     setIsPublicContact(e.detail.value)
@@ -472,7 +502,7 @@ const SecondHandPublishPage = () => {
 
   return (
     <View className={styles.pageContainer}>
-      <CustomHeader title='发布商品' />
+      <CustomHeader title="发布商品" />
       <View className={styles.scrollWrapper}>
         <ScrollView scrollY className={styles.scrollView}>
           <ActionTabs listingType={listingType} onTabClick={setListingType} />
@@ -481,21 +511,26 @@ const SecondHandPublishPage = () => {
               initialImages={images}
               maxCount={9}
               onChange={setImages}
-              uploadButtonText='上传图片'
+              uploadButtonText="上传图片"
             />
 
-            <FormInput placeholder='请输入商品标题 (必填)' value={title} onChange={setTitle} type='text' />
+            <FormInput
+              placeholder="请输入商品标题 (必填)"
+              value={title}
+              onChange={setTitle}
+              type="text"
+            />
 
             <FormInput
-              placeholder='请详细描述一下商品的成色、规格等信息... (必填)'
+              placeholder="请详细描述一下商品的成色、规格等信息... (必填)"
               value={content}
               onChange={setContent}
               isTextarea
             />
 
-            <FormRow label='¥' onClick={() => {}}>
+            <FormRow label="¥" onClick={() => {}}>
               <Input
-                type='number'
+                type="number"
                 placeholder={listingType === ListingType.SELL ? '设置价格' : '设置预算'}
                 value={price}
                 onInput={handlePriceInput}
@@ -505,12 +540,14 @@ const SecondHandPublishPage = () => {
               />
             </FormRow>
 
-            <FormRow label='商品分类' onClick={handleCategorySelect}>
-              <Text className={styles.pickerText}>{selectedCategory ? selectedCategory.name : '请选择分类'}</Text>
+            <FormRow label="商品分类" onClick={handleCategorySelect}>
+              <Text className={styles.pickerText}>
+                {selectedCategory ? selectedCategory.name : '请选择分类'}
+              </Text>
               <Text className={styles.arrow}> &gt;</Text>
             </FormRow>
 
-            <FormRow label='商品成色' onClick={handleConditionSelect}>
+            <FormRow label="商品成色" onClick={handleConditionSelect}>
               <Text className={styles.pickerText}>
                 {condition === ListingCondition.NEW && '全新'}
                 {condition === ListingCondition.LIKE_NEW && '九成新'}
@@ -521,9 +558,14 @@ const SecondHandPublishPage = () => {
               <Text className={styles.arrow}> &gt;</Text>
             </FormRow>
 
-            <FormInput placeholder='交易地点 (选填)' value={location} onChange={setLocation} type='text' />
+            <FormInput
+              placeholder="交易地点 (选填)"
+              value={location}
+              onChange={setLocation}
+              type="text"
+            />
 
-            <FormRow label='标签' onClick={() => {}}>
+            <FormRow label="标签" onClick={() => {}}>
               <TagList
                 tags={tags}
                 tagInput={tagInput}
@@ -542,15 +584,18 @@ const SecondHandPublishPage = () => {
               onPhoneChange={setPhoneNumber}
             />
 
-            <FormRow label='公开联系方式' onClick={() => {}}>
-              <Switch color='#4F46E5' checked={isPublicContact} onChange={handleContactSwitch} />
+            <FormRow label="公开联系方式" onClick={() => {}}>
+              <Switch color="#4F46E5" checked={isPublicContact} onChange={handleContactSwitch} />
             </FormRow>
           </View>
           <WarmTips />
           <View className={styles.safeAreaSpacer} />
         </ScrollView>
       </View>
-      <PublishButton isLoading={isPublishing || createLoading === 'pending'} onClick={handlePublish} />
+      <PublishButton
+        isLoading={isPublishing || createLoading === 'pending'}
+        onClick={handlePublish}
+      />
     </View>
   )
 }

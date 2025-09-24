@@ -1,11 +1,7 @@
-import { View } from "@tarojs/components";
+import { View } from '@tarojs/components'
 
 const RatingPage = () => {
-  return (
-    <View>
-      Rating Page
-    </View>
-  );
-};
+  return <View>Rating Page</View>
+}
 
-export default RatingPage;
+export default RatingPage

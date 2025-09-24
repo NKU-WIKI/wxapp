@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+
 import {
   getRatingItems,
   getRatingItemDetail,
@@ -11,7 +12,7 @@ import {
   searchRatingItems,
   getResourceRatings,
   getRatingTags,
-  createRatingItem as createRatingItemApi
+  createRatingItem as createRatingItemApi,
 } from '@/services/api/rating'
 import {
   RatingCategory,
@@ -24,7 +25,7 @@ import {
   RatingItemDetailResponse,
   RatingTagsInfo,
   GetResourceRatingsRequest,
-  ResourceRatingsResponse
+  ResourceRatingsResponse,
 } from '@/types/api/rating.d'
 
 // 注释：已移除 fetchRatingTypes，改为使用预定义的评分类型
@@ -32,7 +33,10 @@ import {
 // 异步action：获取资源评分列表
 export const fetchResourceRatings = createAsyncThunk(
   'rating/fetchResourceRatings',
-  async (params: { resourceType: string; resourceId: string } & GetResourceRatingsRequest, { rejectWithValue }) => {
+  async (
+    params: { resourceType: string; resourceId: string } & GetResourceRatingsRequest,
+    { rejectWithValue }
+  ) => {
     try {
       const { resourceType, resourceId, ...queryParams } = params
       const response = await getResourceRatings(resourceType, resourceId, queryParams)
@@ -87,12 +91,10 @@ export const createUserRating = createAsyncThunk(
   'rating/createRating',
   async (data: CreateRatingRequest, { rejectWithValue }) => {
     try {
-      
       const response = await createRating(data)
-      
+
       return response.data
     } catch (error: any) {
-      
       return rejectWithValue(error.message || '创建评分失败')
     }
   }
@@ -127,7 +129,10 @@ export const submitUserRating = createAsyncThunk(
 // 异步action：获取用户评分记录
 export const fetchUserRatings = createAsyncThunk(
   'rating/fetchUserRatings',
-  async (params: { userId?: string; itemId?: string; page?: number; pageSize?: number } = {}, { rejectWithValue }) => {
+  async (
+    params: { userId?: string; itemId?: string; page?: number; pageSize?: number } = {},
+    { rejectWithValue }
+  ) => {
     try {
       const response = await getUserRatings(params)
       return response.data
@@ -166,7 +171,10 @@ export const fetchPopularRatingItems = createAsyncThunk(
 // 异步action：搜索评分项目
 export const searchRatingItemsAction = createAsyncThunk(
   'rating/searchItems',
-  async (params: { keyword: string } & Omit<GetRatingItemsRequest, 'keyword'>, { rejectWithValue }) => {
+  async (
+    params: { keyword: string } & Omit<GetRatingItemsRequest, 'keyword'>,
+    { rejectWithValue }
+  ) => {
     try {
       const response = await searchRatingItems(params.keyword, params)
       return response.data
@@ -195,25 +203,25 @@ interface RatingState {
   // ratingTypes: RatingTypeInfo[]
   // ratingTypesLoading: boolean
   // ratingTypesError: string | null
-  
+
   // 资源评分列表
   resourceRatings: Record<string, ResourceRatingsResponse>
   resourceRatingsLoading: boolean
   resourceRatingsError: string | null
-  
+
   // 评分标签
   ratingTags: Record<string, RatingTagsInfo>
   ratingTagsLoading: boolean
   ratingTagsError: string | null
-  
+
   // 评分项目列表
   items: RatingItem[]
   itemsLoading: boolean
   itemsError: string | null
-  
+
   // 当前分类
   currentCategory: RatingCategory | null
-  
+
   // 分页信息
   pagination: {
     page: number
@@ -221,41 +229,41 @@ interface RatingState {
     total: number
     hasMore: boolean
   }
-  
+
   // 评分项目详情
   currentItem: RatingItemDetailResponse | null
   itemDetailLoading: boolean
   itemDetailError: string | null
-  
+
   // 用户评分记录
   userRatings: UserRating[]
   userRatingsLoading: boolean
   userRatingsError: string | null
-  
+
   // 评分统计
   statistics: Record<string, RatingStatistics>
   statisticsLoading: boolean
   statisticsError: string | null
-  
+
   // 热门项目
   popularItems: RatingItem[]
   popularItemsLoading: boolean
   popularItemsError: string | null
-  
+
   // 搜索结果
   searchResults: RatingItem[]
   searchLoading: boolean
   searchError: string | null
-  
+
   // 评分详情
   ratingDetail: UserRating | null
   ratingDetailLoading: boolean
   ratingDetailError: string | null
-  
+
   // 创建评分状态
   createRatingLoading: boolean
   createRatingError: string | null
-  
+
   // 创建评分项目状态
   createRatingItemLoading: boolean
   createRatingItemError: string | null
@@ -278,7 +286,7 @@ const initialState: RatingState = {
     page: 1,
     pageSize: 20,
     total: 0,
-    hasMore: true
+    hasMore: true,
   },
   currentItem: null,
   itemDetailLoading: false,
@@ -301,7 +309,7 @@ const initialState: RatingState = {
   createRatingLoading: false,
   createRatingError: null,
   createRatingItemLoading: false,
-  createRatingItemError: null
+  createRatingItemError: null,
 }
 
 // 创建slice
@@ -313,7 +321,7 @@ const ratingSlice = createSlice({
     setCurrentCategory: (state, action: PayloadAction<RatingCategory>) => {
       state.currentCategory = action.payload
     },
-    
+
     // 清空列表
     clearItems: (state) => {
       state.items = []
@@ -321,16 +329,16 @@ const ratingSlice = createSlice({
         page: 1,
         pageSize: 20,
         total: 0,
-        hasMore: true
+        hasMore: true,
       }
     },
-    
+
     // 清空搜索结果
     clearSearchResults: (state) => {
       state.searchResults = []
       state.searchError = null
     },
-    
+
     // 清空错误信息
     clearErrors: (state) => {
       state.itemsError = null
@@ -344,13 +352,13 @@ const ratingSlice = createSlice({
       state.resourceRatingsError = null
       state.ratingTagsError = null
     },
-    
+
     // 重置状态
-    reset: () => initialState
+    reset: () => initialState,
   },
   extraReducers: (builder) => {
     // 已移除评分类型列表相关的reducer
-    
+
     // 获取资源评分列表
     builder
       .addCase(fetchResourceRatings.pending, (state) => {
@@ -367,7 +375,7 @@ const ratingSlice = createSlice({
         state.resourceRatingsLoading = false
         state.resourceRatingsError = action.payload as string
       })
-    
+
     // 获取评分标签
     builder
       .addCase(fetchRatingTags.pending, (state) => {
@@ -383,7 +391,7 @@ const ratingSlice = createSlice({
         state.ratingTagsLoading = false
         state.ratingTagsError = action.payload as string
       })
-    
+
     // 获取评分项目列表
     builder
       .addCase(fetchRatingItems.pending, (state) => {
@@ -398,14 +406,14 @@ const ratingSlice = createSlice({
           page: page,
           pageSize: page_size,
           total: total,
-          hasMore: page * page_size < total
+          hasMore: page * page_size < total,
         }
       })
       .addCase(fetchRatingItems.rejected, (state, action) => {
         state.itemsLoading = false
         state.itemsError = action.payload as string
       })
-    
+
     // 获取评分项目详情
     builder
       .addCase(fetchRatingItemDetail.pending, (state) => {
@@ -414,13 +422,15 @@ const ratingSlice = createSlice({
       })
       .addCase(fetchRatingItemDetail.fulfilled, (state, action) => {
         state.itemDetailLoading = false
-        state.currentItem = (action.payload.data ? action.payload.data : action.payload) as RatingItemDetailResponse
+        state.currentItem = (
+          action.payload.data ? action.payload.data : action.payload
+        ) as RatingItemDetailResponse
       })
       .addCase(fetchRatingItemDetail.rejected, (state, action) => {
         state.itemDetailLoading = false
         state.itemDetailError = action.payload as string
       })
-    
+
     // 创建评分
     builder
       .addCase(createUserRating.pending, (state) => {
@@ -435,7 +445,7 @@ const ratingSlice = createSlice({
         state.createRatingLoading = false
         state.createRatingError = _action.payload as string
       })
-    
+
     // 创建评分项目
     builder
       .addCase(createRatingItem.pending, (state) => {
@@ -450,7 +460,7 @@ const ratingSlice = createSlice({
         state.createRatingItemLoading = false
         state.createRatingItemError = _action.payload as string
       })
-    
+
     // 获取评分详情
     builder
       .addCase(fetchRatingDetail.pending, (state) => {
@@ -459,13 +469,15 @@ const ratingSlice = createSlice({
       })
       .addCase(fetchRatingDetail.fulfilled, (state, action) => {
         state.ratingDetailLoading = false
-        state.ratingDetail = (action.payload.data ? action.payload.data.rating : action.payload) as UserRating
+        state.ratingDetail = (
+          action.payload.data ? action.payload.data.rating : action.payload
+        ) as UserRating
       })
       .addCase(fetchRatingDetail.rejected, (state, action) => {
         state.ratingDetailLoading = false
         state.ratingDetailError = action.payload as string
       })
-    
+
     // 获取用户评分记录
     builder
       .addCase(fetchUserRatings.pending, (state) => {
@@ -474,13 +486,15 @@ const ratingSlice = createSlice({
       })
       .addCase(fetchUserRatings.fulfilled, (state, action) => {
         state.userRatingsLoading = false
-        state.userRatings = (action.payload.data ? action.payload.data.items : (action.payload as any).items || []) as UserRating[]
+        state.userRatings = (
+          action.payload.data ? action.payload.data.items : (action.payload as any).items || []
+        ) as UserRating[]
       })
       .addCase(fetchUserRatings.rejected, (state, action) => {
         state.userRatingsLoading = false
         state.userRatingsError = action.payload as string
       })
-    
+
     // 获取评分统计
     builder
       .addCase(fetchRatingStatistics.pending, (state) => {
@@ -496,7 +510,7 @@ const ratingSlice = createSlice({
         state.statisticsLoading = false
         state.statisticsError = action.payload as string
       })
-    
+
     // 获取热门评分项目
     builder
       .addCase(fetchPopularRatingItems.pending, (state) => {
@@ -505,13 +519,15 @@ const ratingSlice = createSlice({
       })
       .addCase(fetchPopularRatingItems.fulfilled, (state, action) => {
         state.popularItemsLoading = false
-        state.popularItems = (action.payload.data ? action.payload.data : action.payload) as RatingItem[]
+        state.popularItems = (
+          action.payload.data ? action.payload.data : action.payload
+        ) as RatingItem[]
       })
       .addCase(fetchPopularRatingItems.rejected, (state, action) => {
         state.popularItemsLoading = false
         state.popularItemsError = action.payload as string
       })
-    
+
     // 搜索评分项目
     builder
       .addCase(searchRatingItemsAction.pending, (state) => {
@@ -526,36 +542,40 @@ const ratingSlice = createSlice({
         state.searchLoading = false
         state.searchError = action.payload as string
       })
-  }
+  },
 })
 
 // 导出actions
-export const {
-  setCurrentCategory,
-  clearItems,
-  clearSearchResults,
-  clearErrors,
-  reset
-} = ratingSlice.actions
+export const { setCurrentCategory, clearItems, clearSearchResults, clearErrors, reset } =
+  ratingSlice.actions
 
 // 导出reducer
 export default ratingSlice.reducer
 
 // 导出selectors
 // 已移除评分类型相关的selectors
-export const selectResourceRatings = (state: { rating: RatingState }) => state.rating.resourceRatings
-export const selectResourceRatingsLoading = (state: { rating: RatingState }) => state.rating.resourceRatingsLoading
-export const selectResourceRatingsError = (state: { rating: RatingState }) => state.rating.resourceRatingsError
+export const selectResourceRatings = (state: { rating: RatingState }) =>
+  state.rating.resourceRatings
+export const selectResourceRatingsLoading = (state: { rating: RatingState }) =>
+  state.rating.resourceRatingsLoading
+export const selectResourceRatingsError = (state: { rating: RatingState }) =>
+  state.rating.resourceRatingsError
 export const selectRatingTags = (state: { rating: RatingState }) => state.rating.ratingTags
-export const selectRatingTagsLoading = (state: { rating: RatingState }) => state.rating.ratingTagsLoading
-export const selectRatingTagsError = (state: { rating: RatingState }) => state.rating.ratingTagsError
+export const selectRatingTagsLoading = (state: { rating: RatingState }) =>
+  state.rating.ratingTagsLoading
+export const selectRatingTagsError = (state: { rating: RatingState }) =>
+  state.rating.ratingTagsError
 export const selectRatingItems = (state: { rating: RatingState }) => state.rating.items
-export const selectRatingItemsLoading = (state: { rating: RatingState }) => state.rating.itemsLoading
+export const selectRatingItemsLoading = (state: { rating: RatingState }) =>
+  state.rating.itemsLoading
 export const selectRatingItemsError = (state: { rating: RatingState }) => state.rating.itemsError
-export const selectCurrentCategory = (state: { rating: RatingState }) => state.rating.currentCategory
+export const selectCurrentCategory = (state: { rating: RatingState }) =>
+  state.rating.currentCategory
 export const selectPagination = (state: { rating: RatingState }) => state.rating.pagination
 export const selectCurrentItem = (state: { rating: RatingState }) => state.rating.currentItem
-export const selectItemDetailLoading = (state: { rating: RatingState }) => state.rating.itemDetailLoading
+export const selectItemDetailLoading = (state: { rating: RatingState }) =>
+  state.rating.itemDetailLoading
 export const selectUserRatings = (state: { rating: RatingState }) => state.rating.userRatings
-export const selectCreateRatingLoading = (state: { rating: RatingState }) => state.rating.createRatingLoading
+export const selectCreateRatingLoading = (state: { rating: RatingState }) =>
+  state.rating.createRatingLoading
 export const selectRatingDetail = (state: { rating: RatingState }) => state.rating.ratingDetail

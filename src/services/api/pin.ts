@@ -1,8 +1,11 @@
-import Taro from '@tarojs/taro';
-import type { PostPinRequest } from '@/types/api/pin.d';
-import type { Post as PostData } from '@/types/api/post.d';
-import type { BaseResponse } from '@/types/api/common.d';
-import request from '../request';
+import Taro from '@tarojs/taro'
+
+
+import type { BaseResponse } from '@/types/api/common.d'
+import type { PostPinRequest } from '@/types/api/pin.d'
+import type { Post as PostData } from '@/types/api/post.d'
+
+import request from '../request'
 
 /**
  * 置顶帖子
@@ -20,30 +23,30 @@ export const pinPost = async (
     is_global: isGlobal,
     ...(opts?.duration_hours ? { duration_hours: opts.duration_hours } : {}),
     ...(opts?.tokens ? { tokens: opts.tokens } : {}),
-  };
+  }
 
   // 前端调试信息（保持 confirmText 短以避免小程序限制）
   await Taro.showModal({
     title: '调试信息',
     content: `帖子ID: ${postId}\n请求体: ${JSON.stringify(data)}`,
     showCancel: false,
-    confirmText: '确定'
-  });
+    confirmText: '确定',
+  })
 
-  return request.post<any>(`/forums/posts/${postId}/pin`, data);
-};
+  return request.post<any>(`/forums/posts/${postId}/pin`, data)
+}
 
 /**
  * 取消置顶帖子
  * @param postId 帖子ID
  */
 export const unpinPost = async (postId: string): Promise<BaseResponse<any>> => {
-  return request.post<any>(`/forums/posts/${postId}/unpin`);
-};
+  return request.post<any>(`/forums/posts/${postId}/unpin`)
+}
 
 /**
  * 获取置顶帖子列表
  */
 export const getPinnedPosts = async (): Promise<BaseResponse<PostData[]>> => {
-  return request.get<PostData[]>('/forums/pinned-posts');
-};
+  return request.get<PostData[]>('/forums/pinned-posts')
+}

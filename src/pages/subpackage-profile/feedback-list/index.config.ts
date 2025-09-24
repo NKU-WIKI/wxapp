@@ -3,4 +3,4 @@ export default {
   enableShareTimeline: true,
   enableShareAppMessage: true,
   navigationStyle: 'default',
-}; 
+}

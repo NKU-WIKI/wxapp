@@ -4,74 +4,74 @@
  */
 
 // ==================== 主题色 ====================
-$theme-primary: #4F46E5;
+$theme-primary: #4f46e5;
 $theme-primary-light: #8a5cf6;
-$theme-primary-dark: #7C3AED;
+$theme-primary-dark: #7c3aed;
 
-$theme-accent: #8B5CF6;
-$theme-accent-light: #A78BFA;
+$theme-accent: #8b5cf6;
+$theme-accent-light: #a78bfa;
 
 // ==================== 状态色 ====================
-$status-success: #22C55E;
-$status-success-light: #4ADE80;
-$status-success-dark: #16A34A;
+$status-success: #22c55e;
+$status-success-light: #4ade80;
+$status-success-dark: #16a34a;
 
-$status-warning: #F59E0B;
-$status-warning-light: #FCD34D;
-$status-warning-dark: #D97706;
+$status-warning: #f59e0b;
+$status-warning-light: #fcd34d;
+$status-warning-dark: #d97706;
 
-$status-error: #EF4444;
-$status-error-light: #F87171;
-$status-error-dark: #DC2626;
+$status-error: #ef4444;
+$status-error-light: #f87171;
+$status-error-dark: #dc2626;
 
-$status-info: #3B82F6;
-$status-info-light: #60A5FA;
-$status-info-dark: #2563EB;
+$status-info: #3b82f6;
+$status-info-light: #60a5fa;
+$status-info-dark: #2563eb;
 
 // ==================== 背景色 ====================
-$bg-page: #F8F8F8;
-$bg-page-light: #FAFAFA;
-$bg-page-gray: #EEEEEE;
-$bg-page-cool: #F9FAFB;
+$bg-page: #f8f8f8;
+$bg-page-light: #fafafa;
+$bg-page-gray: #eee;
+$bg-page-cool: #f9fafb;
 
-$bg-card: #FFFFFF;
-$bg-card-hover: #F9FAFB;
+$bg-card: #fff;
+$bg-card-hover: #f9fafb;
 
-$bg-input: #F5F5F5;
-$bg-input-focus: #F3F4F6;
+$bg-input: #f5f5f5;
+$bg-input-focus: #f3f4f6;
 
 $bg-overlay: rgba(0, 0, 0, 0.5);
-$bg-modal: #FFFFFF;
+$bg-modal: #fff;
 
 // ==================== 文字颜色 ====================
-$text-primary: #333333;
+$text-primary: #333;
 $text-primary-dark: #111827;
-$text-primary-medium: #1F2937;
+$text-primary-medium: #1f2937;
 
-$text-secondary: #666666;
-$text-secondary-light: #888888;
-$text-secondary-gray: #9B9B9B;
+$text-secondary: #666;
+$text-secondary-light: #888;
+$text-secondary-gray: #9b9b9b;
 
-$text-helper: #999999;
-$text-helper-light: #6B7280;
-$text-helper-gray: #9CA3AF;
+$text-helper: #999;
+$text-helper-light: #6b7280;
+$text-helper-gray: #9ca3af;
 
-$text-placeholder: #C7C7C7;
-$text-disabled: #D1D5DB;
+$text-placeholder: #c7c7c7;
+$text-disabled: #d1d5db;
 
-$text-white: #FFFFFF;
-$text-inverse: #FFFFFF;
+$text-white: #fff;
+$text-inverse: #fff;
 
 // ==================== 边框颜色 ====================
-$border-base: #E5E5E5;
-$border-light: #F0F0F0;
-$border-gray: #E5E7EB;
-$border-cool: #F3F4F6;
+$border-base: #e5e5e5;
+$border-light: #f0f0f0;
+$border-gray: #e5e7eb;
+$border-cool: #f3f4f6;
 
-$border-divider: #F0F0F0;
-$border-separator: #E5E7EB;
+$border-divider: #f0f0f0;
+$border-separator: #e5e7eb;
 
-$border-input: #D1D5DB;
+$border-input: #d1d5db;
 $border-input-focus: $theme-primary;
 
 $border-error: $status-error;
@@ -151,7 +151,7 @@ $input-focus-border: $border-input-focus;
   background-color: $btn-primary-bg;
   color: $btn-primary-text;
   border: 1px solid $btn-primary-border;
-  
+
   &:hover {
     background-color: $btn-primary-hover;
   }
@@ -161,7 +161,7 @@ $input-focus-border: $border-input-focus;
   background-color: $btn-secondary-bg;
   color: $btn-secondary-text;
   border: 1px solid $btn-secondary-border;
-  
+
   &:hover {
     background-color: $btn-secondary-hover;
   }
@@ -172,11 +172,11 @@ $input-focus-border: $border-input-focus;
   background-color: $input-bg;
   color: $input-text;
   border: 1px solid $input-border;
-  
+
   &::placeholder {
     color: $input-placeholder;
   }
-  
+
   &:focus {
     border-color: $input-focus-border;
     outline: none;
@@ -203,4 +203,4 @@ $input-focus-border: $border-input-focus;
 
 @mixin shadow-modal {
   box-shadow: 0 4px 12px $shadow-modal;
-} 
+}

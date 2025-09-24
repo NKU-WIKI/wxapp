@@ -277,7 +277,8 @@ export class ActivityNotificationHelper {
   }) {
 
     try {
-      // 检查必要参�?      if (!params.activity?.id || !params.organizerId || !params.organizerNickname) {
+      // 检查必要参数
+      if (!params.activity?.id || !params.organizerId || !params.organizerNickname) {
       return;
     }
 
@@ -286,7 +287,6 @@ export class ActivityNotificationHelper {
 
     //   activityId: params.activity.id,
     //   recipientCount: recipientIds.length,
-    //   recipientIds
     // });
 
     if (recipientIds.length === 0) {

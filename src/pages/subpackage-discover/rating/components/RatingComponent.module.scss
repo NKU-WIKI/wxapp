@@ -52,19 +52,19 @@
   cursor: pointer;
   transition: all 0.2s ease;
   border-radius: 50%;
-  
+
   &:hover {
     background-color: rgba(255, 215, 0, 0.1);
     transform: scale(1.1);
   }
-  
+
   &:active {
     transform: scale(0.95);
   }
-  
+
   &.readonly {
     cursor: default;
-    
+
     &:hover {
       background-color: transparent;
       transform: none;
@@ -76,11 +76,11 @@
   font-size: 48px;
   color: #ddd;
   transition: color 0.2s ease;
-  
+
   .star.filled & {
     color: #ffd700;
   }
-  
+
   .star:hover & {
     color: #ffed4e;
   }
@@ -113,47 +113,47 @@
 }
 
 /* 响应式适配 */
-@media (max-width: 750px) {
+@media (width <= 750px) {
   .ratingComponent {
     padding: 24px;
     margin-bottom: 16px;
   }
-  
+
   .title {
     font-size: 28px;
   }
-  
+
   .description {
     font-size: 24px;
   }
-  
+
   .ratingContainer {
     flex-direction: column;
     gap: 20px;
     align-items: stretch;
   }
-  
+
   .starsContainer {
     justify-content: center;
   }
-  
+
   .star {
     width: 56px;
     height: 56px;
   }
-  
+
   .starIcon {
     font-size: 42px;
   }
-  
+
   .ratingValue {
     text-align: center;
   }
-  
+
   .ratingText {
     font-size: 26px;
   }
-  
+
   .hintText {
     font-size: 22px;
   }

@@ -107,40 +107,41 @@ function AdvancedSearchPage() {
 
 ### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `keyword` | `string` | `''` | 搜索关键词 |
-| `placeholder` | `string` | `'搜索...'` | 占位符文本 |
-| `readonly` | `boolean` | `false` | 是否只读（导航模式） |
-| `mode` | `string \| null` | `null` | 当前搜索模式 |
-| `modeDesc` | `string` | `''` | 模式描述 |
-| `showSuggestions` | `boolean` | `false` | 是否显示建议列表 |
-| `showDynamicSuggestions` | `boolean` | `false` | 是否显示动态建议 |
-| `suggestions` | `SearchSuggestion[]` | `[]` | 搜索建议列表 |
-| `dynamicSuggestions` | `string[]` | `[]` | 动态建议列表 |
-| `hotSearches` | `string[]` | `[]` | 热门搜索词 |
-| `onInput` | `(e: any) => void` | - | 输入回调 |
-| `onSearch` | `() => void` | - | 搜索回调 |
-| `onClear` | `() => void` | - | 清空回调 |
-| `onClick` | `() => void` | - | 点击回调 |
-| `onFocus` | `() => void` | - | 聚焦回调 |
-| `onBlur` | `() => void` | - | 失焦回调 |
-| `onSuggestionClick` | `(_suggestion: SearchSuggestion) => void` | - | 建议点击回调 |
-| `onDynamicSuggestionClick` | `(_suggestion: string) => void` | - | 动态建议点击回调 |
+| 属性                       | 类型                                      | 默认值      | 说明                 |
+| -------------------------- | ----------------------------------------- | ----------- | -------------------- |
+| `keyword`                  | `string`                                  | `''`        | 搜索关键词           |
+| `placeholder`              | `string`                                  | `'搜索...'` | 占位符文本           |
+| `readonly`                 | `boolean`                                 | `false`     | 是否只读（导航模式） |
+| `mode`                     | `string \| null`                          | `null`      | 当前搜索模式         |
+| `modeDesc`                 | `string`                                  | `''`        | 模式描述             |
+| `showSuggestions`          | `boolean`                                 | `false`     | 是否显示建议列表     |
+| `showDynamicSuggestions`   | `boolean`                                 | `false`     | 是否显示动态建议     |
+| `suggestions`              | `SearchSuggestion[]`                      | `[]`        | 搜索建议列表         |
+| `dynamicSuggestions`       | `string[]`                                | `[]`        | 动态建议列表         |
+| `hotSearches`              | `string[]`                                | `[]`        | 热门搜索词           |
+| `onInput`                  | `(e: any) => void`                        | -           | 输入回调             |
+| `onSearch`                 | `() => void`                              | -           | 搜索回调             |
+| `onClear`                  | `() => void`                              | -           | 清空回调             |
+| `onClick`                  | `() => void`                              | -           | 点击回调             |
+| `onFocus`                  | `() => void`                              | -           | 聚焦回调             |
+| `onBlur`                   | `() => void`                              | -           | 失焦回调             |
+| `onSuggestionClick`        | `(_suggestion: SearchSuggestion) => void` | -           | 建议点击回调         |
+| `onDynamicSuggestionClick` | `(_suggestion: string) => void`           | -           | 动态建议点击回调     |
 
 ### SearchSuggestion 接口
 
 ```typescript
 interface SearchSuggestion {
-  title: string        // 建议标题
-  desc?: string        // 建议描述
-  icon?: string        // 建议图标路径
+  title: string // 建议标题
+  desc?: string // 建议描述
+  icon?: string // 建议图标路径
 }
 ```
 
 ## 使用场景
 
 ### 场景 1：首页导航搜索
+
 ```tsx
 <SearchBar
   keyword=""
@@ -151,6 +152,7 @@ interface SearchSuggestion {
 ```
 
 ### 场景 2：商品搜索
+
 ```tsx
 <SearchBar
   keyword={searchKeyword}
@@ -162,6 +164,7 @@ interface SearchSuggestion {
 ```
 
 ### 场景 3：高级搜索界面
+
 ```tsx
 <SearchBar
   keyword={keyword}
@@ -211,5 +214,6 @@ interface SearchSuggestion {
 ## 示例项目
 
 查看以下页面了解完整用法：
+
 - `src/pages/home/index.tsx` - 导航模式示例
 - `src/pages/subpackage-commerce/pages/second-hand/home/index.tsx` - 简单搜索模式示例

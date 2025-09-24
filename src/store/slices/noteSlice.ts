@@ -88,10 +88,10 @@ const mockNotes: NoteListItem[] = [
     },
   {
     id: 'mock-6',
-    title: '摄影入门技巧分�?,
-      content: '分享一些摄影的基本技巧和后期处理方法，从构图到光线运�?..',
+    title: '摄影入门技巧分享',
+      content: '分享一些摄影的基本技巧和后期处理方法，从构图到光线运用...',
     category_id: 'hobby',
-    tags: ['摄影', '技�?],
+    tags: ['摄影', '技巧'],
       created_at: new Date(Date.now() - 18000000).toISOString(),
       updated_at: new Date(Date.now() - 18000000).toISOString(),
       is_public: true,

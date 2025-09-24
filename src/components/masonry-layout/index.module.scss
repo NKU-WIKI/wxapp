@@ -10,7 +10,7 @@
 
 .masonryContent {
   display: flex;
-  padding: 16px 8px 0 8px; /* 改为正常的顶部padding，移除负边距 */
+  padding: 16px 8px 0; /* 改为正常的顶部padding，移除负边距 */
   gap: 8px;
   min-height: 100%;
   width: 100%;
@@ -57,7 +57,9 @@
 }
 
 @keyframes loadingPulse {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(0.8);
     opacity: 0.5;
   }
@@ -105,16 +107,16 @@
 }
 
 /* 响应式适配 */
-@media (max-width: 375px) {
+@media (width <= 375px) {
   .masonryContent {
-    padding: 8px 6px 0 6px;
+    padding: 8px 6px 0;
     gap: 6px;
   }
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .masonryContent {
-    padding: 16px 12px 0 12px;
+    padding: 16px 12px 0;
     gap: 12px;
   }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+
 import { formatRelativeTime } from '@/utils/time'
 
 /**
@@ -39,7 +40,7 @@ export const useRelativeTime = (
   const {
     autoUpdate = true,
     updateInterval = 30000, // 30秒更新一次
-    formatFunction = formatRelativeTime
+    formatFunction = formatRelativeTime,
   } = options
 
   const [formattedTime, setFormattedTime] = useState<string>('')
@@ -74,7 +75,7 @@ export const useRelativeTime = (
   return {
     formattedTime,
     originalTime: timeString || '',
-    updateTime
+    updateTime,
   }
 }
 
@@ -88,16 +89,12 @@ export const useRelativeTimes = (
   timeStrings: (string | undefined | null)[],
   options: UseRelativeTimeOptions = {}
 ): string[] => {
-  const {
-    autoUpdate = true,
-    updateInterval = 30000,
-    formatFunction = formatRelativeTime
-  } = options
+  const { autoUpdate = true, updateInterval = 30000, formatFunction = formatRelativeTime } = options
 
   const [formattedTimes, setFormattedTimes] = useState<string[]>([])
 
   const updateTimes = useCallback(() => {
-    const formatted = timeStrings.map(timeString => {
+    const formatted = timeStrings.map((timeString) => {
       if (!timeString) return '时间未知'
       return formatFunction(timeString)
     })

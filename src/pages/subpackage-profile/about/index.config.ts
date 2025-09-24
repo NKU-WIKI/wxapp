@@ -7,4 +7,4 @@ export default definePageConfig({
   backgroundColor: '#ffffff',
   enablePullDownRefresh: false,
   disableScroll: false,
-}); 
+})

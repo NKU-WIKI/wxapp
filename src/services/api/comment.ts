@@ -1,15 +1,12 @@
-import {
-  Comment,
-  CreateCommentRequest,
-  CommentUpdate,
-  CommentRead,
-} from "@/types/api/comment.d";
-import { PaginationParams } from "@/types/api/common";
-import http from "../request";
+
+import { Comment, CreateCommentRequest, CommentUpdate, CommentRead } from '@/types/api/comment.d'
+import { PaginationParams } from '@/types/api/common'
+
+import http from '../request'
 
 export const createComment = (data: CreateCommentRequest) => {
-  return http.post<Comment>("/comments", data);
-};
+  return http.post<Comment>('/comments', data)
+}
 
 /**
  * 更新评论
@@ -18,8 +15,8 @@ export const createComment = (data: CreateCommentRequest) => {
  * @returns
  */
 export const updateComment = (commentId: string, data: CommentUpdate) => {
-  return http.put<Comment>(`/comments/${commentId}`, data);
-};
+  return http.put<Comment>(`/comments/${commentId}`, data)
+}
 
 /**
  * 删除评论
@@ -27,8 +24,8 @@ export const updateComment = (commentId: string, data: CommentUpdate) => {
  * @returns
  */
 export const deleteComment = (commentId: string) => {
-  return http.delete<any>(`/comments/${commentId}`);
-};
+  return http.delete<any>(`/comments/${commentId}`)
+}
 
 /**
  * 获取评论列表
@@ -36,19 +33,22 @@ export const deleteComment = (commentId: string) => {
  * @returns
  */
 export const getComments = (params: {
-  resource_id: string;
-  resource_type: string;
-  parent_id?: string;
-  skip?: number;
-  limit?: number;
-  sort_by?: string;
-  sort_desc?: boolean;
-  max_depth?: number;
-  limit_per_level?: number;
+  resource_id: string
+  resource_type: string
+  parent_id?: string
+  skip?: number
+  limit?: number
+  sort_by?: string
+  sort_desc?: boolean
+  max_depth?: number
+  limit_per_level?: number
 }) => {
-  const { resource_id, resource_type, parent_id, ...queryParams } = params;
-  return http.get<Comment[]>(`/comments/resource/${resource_type}/${resource_id}/trees`, queryParams);
-};
+  const { resource_id, resource_type, parent_id, ...queryParams } = params
+  return http.get<Comment[]>(
+    `/comments/resource/${resource_type}/${resource_id}/trees`,
+    queryParams
+  )
+}
 
 /**
  * 获取当前用户的评论列表
@@ -57,8 +57,11 @@ export const getComments = (params: {
  */
 export const getMyComments = (params?: PaginationParams) => {
   // 按 OpenAPI 使用 /comments/me；同时保留对可能出现的分页对象返回的兼容解析
-  return http.get<CommentRead[] | { items: CommentRead[]; total?: number; has_more?: boolean }>("/comments/me", params);
-};
+  return http.get<CommentRead[] | { items: CommentRead[]; total?: number; has_more?: boolean }>(
+    '/comments/me',
+    params
+  )
+}
 
 const commentApi = {
   createComment,
@@ -66,6 +69,6 @@ const commentApi = {
   deleteComment,
   getComments,
   getMyComments,
-};
+}
 
-export default commentApi;
+export default commentApi

@@ -1,4 +1,4 @@
-@use "../../../styles/variables.scss" as *;
+@use '../../../styles/variables.scss' as *;
 
 .content {
   flex: 1;
@@ -196,4 +196,4 @@
   &:hover {
     background-color: darken($theme-primary, 10%);
   }
-} 
+}

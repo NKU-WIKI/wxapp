@@ -3,6 +3,7 @@
 ## 📋 迁移目标
 
 将项目中所有硬编码的颜色值替换为统一的颜色常量，实现：
+
 - 统一的设计规范
 - 便于主题切换
 - 提高可维护性
@@ -13,10 +14,11 @@
 ### 旧颜色值 → 新常量映射
 
 #### 主题色
+
 ```scss
 // 旧版本 → 新常量
 #4F46E5 → $theme-primary
-#8B5CF6 → $theme-primary-light  
+#8B5CF6 → $theme-primary-light
 #7C3AED → $theme-primary-dark
 
 // 旧版本（移除）
@@ -24,6 +26,7 @@
 ```
 
 #### 背景色
+
 ```scss
 // 页面背景
 #F8F8F8 → $bg-page
@@ -41,6 +44,7 @@
 ```
 
 #### 文字颜色
+
 ```scss
 // 主要文字
 #333333 → $text-primary
@@ -62,6 +66,7 @@
 ```
 
 #### 边框颜色
+
 ```scss
 #E5E5E5 → $border-base
 #F0F0F0 → $border-light
@@ -71,6 +76,7 @@
 ```
 
 #### 状态色
+
 ```scss
 // 成功色
 #22C55E → $status-success
@@ -89,8 +95,9 @@
 ### 第一步：引入颜色变量
 
 在SCSS文件顶部添加导入：
+
 ```scss
-@import "../../styles/variables.scss";
+@import '../../styles/variables.scss';
 ```
 
 ### 第二步：替换硬编码颜色
@@ -98,9 +105,9 @@
 ```scss
 // ❌ 旧写法
 .container {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: #333333;
-  border: 1px solid #E5E5E5;
+  border: 1px solid #e5e5e5;
 }
 
 // ✅ 新写法
@@ -116,9 +123,9 @@
 ```scss
 // ❌ 旧写法
 .card {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: #333333;
-  border: 1px solid #F0F0F0;
+  border: 1px solid #f0f0f0;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
   border-radius: 8px;
 }
@@ -135,33 +142,39 @@
 // ❌ 旧写法
 const buttonStyle = {
   backgroundColor: '#4F46E5',
-  color: '#FFFFFF'
-};
+  color: '#FFFFFF',
+}
 
 // ✅ 新写法
-import { THEME_COLORS, TEXT_COLORS } from '@/constants/colors';
+import { THEME_COLORS, TEXT_COLORS } from '@/constants/colors'
 
 const buttonStyle = {
   backgroundColor: THEME_COLORS.PRIMARY,
-  color: TEXT_COLORS.WHITE
-};
+  color: TEXT_COLORS.WHITE,
+}
 ```
 
 ## 📝 迁移优先级
 
 ### 🔴 高优先级
+
 需要立即迁移的文件：
+
 - `src/pages/*/index.module.scss` - 所有页面样式
 - `src/components/*/index.module.scss` - 核心组件样式
 - `src/app.scss` - 全局样式
 
 ### 🟡 中优先级
+
 逐步迁移的文件：
+
 - `src/pages/*/components/*.module.scss` - 页面组件样式
 - `src/components/button/index.module.scss` - 基础组件样式
 
 ### 🟢 低优先级
+
 最后迁移的文件：
+
 - 临时样式文件
 - 测试用样式文件
 
@@ -188,6 +201,7 @@ const buttonStyle = {
 ### 验证工具
 
 检查是否还有遗漏的硬编码颜色：
+
 ```bash
 # 搜索十六进制颜色值
 grep -r "#[0-9A-Fa-f]{6}" src/ --include="*.scss"
@@ -223,7 +237,7 @@ grep -r "rgba\?\(" src/ --include="*.scss"
 }
 
 // 重构后
-@import "../../styles/variables.scss";
+@import '../../styles/variables.scss';
 
 .postCard {
   @include card-style;
@@ -237,14 +251,14 @@ grep -r "rgba\?\(" src/ --include="*.scss"
 ```scss
 // 重构前
 .loginButton {
-  background-color: #4A90E2;
+  background-color: #4a90e2;
   color: #fff;
   border-radius: 24px;
   border: none;
 }
 
 // 重构后
-@import "../../styles/variables.scss";
+@import '../../styles/variables.scss';
 
 .loginButton {
   @include button-primary;
@@ -263,7 +277,7 @@ grep -r "rgba\?\(" src/ --include="*.scss"
 }
 
 // 重构后
-@import "../../styles/variables.scss";
+@import '../../styles/variables.scss';
 
 .searchContainer {
   background-color: $bg-input;
@@ -283,4 +297,4 @@ grep -r "rgba\?\(" src/ --include="*.scss"
 
 - 颜色常量定义：`src/constants/colors.ts`
 - SCSS变量文件：`src/styles/variables.scss`
-- 全局样式文件：`src/app.scss` 
+- 全局样式文件：`src/app.scss`

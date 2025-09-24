@@ -1,4 +1,4 @@
-@import '@/styles/variables.scss';
+@import url('@/styles/variables.scss');
 
 .container {
   min-height: 100vh;
@@ -14,7 +14,7 @@
 }
 
 .content {
-  padding: 64rpx 32rpx 32rpx 32rpx;
+  padding: 64rpx 32rpx 32rpx;
 }
 
 .section {
@@ -184,7 +184,7 @@
 }
 
 // 响应式调整
-@media (max-width: 750rpx) {
+@media (width <= 750rpx) {
   .content {
     padding: 24rpx;
   }

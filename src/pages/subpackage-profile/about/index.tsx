@@ -1,9 +1,14 @@
-import React from 'react';
-import { View, Text, Image } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import AboutIcon from '@/components/about-icons';
-import { CompanyInfo, LinkType } from '@/types/about';
-import styles from './index.module.scss';
+import React from 'react'
+
+import { View, Text, Image } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
+
+import AboutIcon from '@/components/about-icons'
+import { CompanyInfo, LinkType } from '@/types/about'
+
+import styles from './index.module.scss'
+
 
 const AboutPage: React.FC = () => {
   // 公司信息数据
@@ -14,10 +19,8 @@ const AboutPage: React.FC = () => {
     email: 'support@nkuwiki.com',
     github: 'NKU-WIKI',
     teamName: 'nkuwiki team',
-    companyName: '沈阳最优解教育科技有限公司'
-  };
-
-
+    companyName: '沈阳最优解教育科技有限公司',
+  }
 
   // 处理链接点击
   const handleLinkClick = (type: LinkType) => {
@@ -28,35 +31,35 @@ const AboutPage: React.FC = () => {
           success: () => {
             Taro.showToast({
               title: '网址已复制',
-              icon: 'success'
-            });
-          }
-        });
-        break;
+              icon: 'success',
+            })
+          },
+        })
+        break
       case 'email':
         Taro.setClipboardData({
           data: companyInfo.email,
           success: () => {
             Taro.showToast({
               title: '邮箱已复制',
-              icon: 'success'
-            });
-          }
-        });
-        break;
+              icon: 'success',
+            })
+          },
+        })
+        break
       case 'github':
         Taro.setClipboardData({
           data: companyInfo.github,
           success: () => {
             Taro.showToast({
               title: 'GitHub已复制',
-              icon: 'success'
-            });
-          }
-        });
-        break;
+              icon: 'success',
+            })
+          },
+        })
+        break
     }
-  };
+  }
 
   return (
     <View className={styles.aboutPage}>
@@ -66,11 +69,7 @@ const AboutPage: React.FC = () => {
           {/* 应用信息区域 */}
           <View className={styles.appInfo}>
             <View className={styles.logo}>
-              <Image
-                src='/assets/logo.png'
-                className={styles.logoImage}
-                mode='aspectFit'
-              />
+              <Image src="/assets/logo.png" className={styles.logoImage} mode="aspectFit" />
             </View>
             <View className={styles.appTextContainer}>
               <Text className={styles.appName}>{companyInfo.appName}</Text>
@@ -93,48 +92,33 @@ const AboutPage: React.FC = () => {
           <View className={styles.section}>
             <Text className={styles.sectionTitle}>相关链接</Text>
             <View className={styles.linkList}>
-              <View 
-                className={styles.linkItem} 
-                onClick={() => handleLinkClick('website')}
-              >
+              <View className={styles.linkItem} onClick={() => handleLinkClick('website')}>
                 <View className={styles.linkIcon}>
-                  <AboutIcon type='globe' size={20} color='#4a99cf' />
+                  <AboutIcon type="globe" size={20} color="#4a99cf" />
                 </View>
-                <Text className={styles.linkText}>
-                  官方网站: {companyInfo.website}
-                </Text>
+                <Text className={styles.linkText}>官方网站: {companyInfo.website}</Text>
                 <View className={styles.linkArrow}>
-                  <AboutIcon type='arrow-right' size={16} color='#9B9B9B' />
+                  <AboutIcon type="arrow-right" size={16} color="#9B9B9B" />
                 </View>
               </View>
-              
-              <View 
-                className={styles.linkItem} 
-                onClick={() => handleLinkClick('email')}
-              >
+
+              <View className={styles.linkItem} onClick={() => handleLinkClick('email')}>
                 <View className={styles.linkIcon}>
-                  <AboutIcon type='email' size={20} color='#4a99cf' />
+                  <AboutIcon type="email" size={20} color="#4a99cf" />
                 </View>
-                <Text className={styles.linkText}>
-                  联系我们: {companyInfo.email}
-                </Text>
+                <Text className={styles.linkText}>联系我们: {companyInfo.email}</Text>
                 <View className={styles.linkArrow}>
-                  <AboutIcon type='arrow-right' size={16} color='#9B9B9B' />
+                  <AboutIcon type="arrow-right" size={16} color="#9B9B9B" />
                 </View>
               </View>
-              
-              <View 
-                className={styles.linkItem} 
-                onClick={() => handleLinkClick('github')}
-              >
+
+              <View className={styles.linkItem} onClick={() => handleLinkClick('github')}>
                 <View className={styles.linkIcon}>
-                  <AboutIcon type='github' size={20} color='#4a99cf' />
+                  <AboutIcon type="github" size={20} color="#4a99cf" />
                 </View>
-                <Text className={styles.linkText}>
-                  GitHub: {companyInfo.github}
-                </Text>
+                <Text className={styles.linkText}>GitHub: {companyInfo.github}</Text>
                 <View className={styles.linkArrow}>
-                  <AboutIcon type='arrow-right' size={16} color='#9B9B9B' />
+                  <AboutIcon type="arrow-right" size={16} color="#9B9B9B" />
                 </View>
               </View>
             </View>
@@ -165,21 +149,21 @@ const AboutPage: React.FC = () => {
                 onClick={async () => {
                   try {
                     // 测试租户ID获取
-                    const { getDefaultTenantId } = await import('@/services/request');
-                    const tenantId = getDefaultTenantId();
+                    const { getDefaultTenantId } = await import('@/services/request')
+                    const tenantId = getDefaultTenantId()
                     Taro.showModal({
                       title: '租户ID信息',
                       content: `当前租户ID: ${tenantId}`,
                       showCancel: false,
-                      confirmText: '确定'
-                    });
+                      confirmText: '确定',
+                    })
                   } catch (error) {
                     Taro.showModal({
                       title: '调试错误',
                       content: `获取租户ID失败: ${error}`,
                       showCancel: false,
-                      confirmText: '确定'
-                    });
+                      confirmText: '确定',
+                    })
                   }
                 }}
               >
@@ -191,21 +175,21 @@ const AboutPage: React.FC = () => {
                 onClick={async () => {
                   try {
                     // 测试搜索API
-                    const { default: searchApi } = await import('@/services/api/search');
-                    const hotQueries = await searchApi.getHotQueriesSimple();
+                    const { default: searchApi } = await import('@/services/api/search')
+                    const hotQueries = await searchApi.getHotQueriesSimple()
                     Taro.showModal({
                       title: '搜索API测试',
                       content: `热门搜索词数量: ${hotQueries.length}\n前3个: ${hotQueries.slice(0, 3).join(', ')}`,
                       showCancel: false,
-                      confirmText: '确定'
-                    });
+                      confirmText: '确定',
+                    })
                   } catch (error) {
                     Taro.showModal({
                       title: '搜索API错误',
                       content: `测试失败: ${error}`,
                       showCancel: false,
-                      confirmText: '确定'
-                    });
+                      confirmText: '确定',
+                    })
                   }
                 }}
               >
@@ -221,7 +205,7 @@ const AboutPage: React.FC = () => {
         </View>
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default AboutPage; 
+export default AboutPage

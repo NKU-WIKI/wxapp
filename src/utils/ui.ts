@@ -1,8 +1,8 @@
-import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro'
 
 interface ToastOptions {
-  type?: 'success' | 'error' | 'loading' | 'none' | 'info';
-  duration?: number;
+  type?: 'success' | 'error' | 'loading' | 'none' | 'info'
+  duration?: number
 }
 
 /**
@@ -11,16 +11,16 @@ interface ToastOptions {
  * @param options 配置项
  */
 export const showToast = (title: string, options: ToastOptions = {}) => {
-  const { type = 'none', duration = 2000 } = options;
+  const { type = 'none', duration = 2000 } = options
 
-  let iconType: 'success' | 'error' | 'loading' | 'none' = 'none';
+  let iconType: 'success' | 'error' | 'loading' | 'none' = 'none'
   if (type === 'success' || type === 'error' || type === 'loading') {
-    iconType = type;
+    iconType = type
   }
 
   Taro.showToast({
     title,
     icon: iconType,
     duration,
-  });
-}; 
+  })
+}

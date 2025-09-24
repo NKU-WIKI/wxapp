@@ -1,32 +1,33 @@
-import { store } from '@/store';
-import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro'
+
+import { store } from '@/store'
 
 /**
  * 检查文件上传权限
  * @returns {boolean} 是否允许上传文件
  */
 export const checkFileUploadPermission = (): boolean => {
-  const state = store.getState();
-  return state.settings.allowFileUpload;
-};
+  const state = store.getState()
+  return state.settings.allowFileUpload
+}
 
 /**
  * 检查文件上传权限并显示提示
  * @returns {boolean} 是否允许上传文件
  */
 export const checkFileUploadPermissionWithToast = (): boolean => {
-  const hasPermission = checkFileUploadPermission();
-  
+  const hasPermission = checkFileUploadPermission()
+
   if (!hasPermission) {
     Taro.showToast({
       title: '权限不够，请在设置中打开允许上传文件',
       icon: 'none',
-      duration: 2500
-    });
+      duration: 2500,
+    })
   }
-  
-  return hasPermission;
-};
+
+  return hasPermission
+}
 
 /**
  * 在上传文件前检查权限的高阶函数
@@ -38,8 +39,8 @@ export const withFileUploadPermission = <T extends any[], R>(
 ) => {
   return (...args: T): R | undefined => {
     if (!checkFileUploadPermissionWithToast()) {
-      return undefined;
+      return undefined
     }
-    return uploadFunction(...args);
-  };
-};
+    return uploadFunction(...args)
+  }
+}

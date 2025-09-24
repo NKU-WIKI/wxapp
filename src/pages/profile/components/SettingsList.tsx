@@ -2,20 +2,22 @@ import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
 // Import icons
-import heartIcon from '@/assets/heart-outline.svg';
-import messageSquareIcon from '@/assets/message-square.svg';
-import starIcon from '@/assets/star-filled.svg';
-import draftIcon from '@/assets/draft.png';
-import userIcon from '@/assets/user.svg';
-import settingsIcon from '@/assets/settings.svg';
-import historyIcon from '@/assets/history.svg';
-import feedbackIcon from '@/assets/feedback.svg';
-import aboutIcon from '@/assets/about.svg';
-import logoutIcon from '@/assets/logout.svg';
-import arrowRightIcon from '@/assets/arrow-right.svg';
+
+import aboutIcon from '@/assets/about.svg'
+import arrowRightIcon from '@/assets/arrow-right.svg'
+import draftIcon from '@/assets/draft.png'
+import feedbackIcon from '@/assets/feedback.svg'
+import heartIcon from '@/assets/heart-outline.svg'
+import historyIcon from '@/assets/history.svg'
+import logoutIcon from '@/assets/logout.svg'
+import messageSquareIcon from '@/assets/message-square.svg'
+import settingsIcon from '@/assets/settings.svg'
+import starIcon from '@/assets/star-filled.svg'
+import userIcon from '@/assets/user.svg'
+
+import styles from './SettingsList.module.scss'
 
 // Relative imports
-import styles from './SettingsList.module.scss';
 
 const SettingsList = () => {
   const menuItems = [
@@ -27,9 +29,14 @@ const SettingsList = () => {
     { icon: settingsIcon, text: '设置', link: '/pages/subpackage-profile/settings/index' },
     { icon: historyIcon, text: '浏览历史', link: '/pages/subpackage-profile/history/index' },
     { icon: feedbackIcon, text: '意见反馈', link: '/pages/subpackage-profile/feedback/index' },
-    { icon: aboutIcon, text: '关于我们', link: '/pages/subpackage-profile/about/index', extra: '版本 0.1.0' },
+    {
+      icon: aboutIcon,
+      text: '关于我们',
+      link: '/pages/subpackage-profile/about/index',
+      extra: '版本 0.1.0',
+    },
     { icon: logoutIcon, text: '退出登录', action: 'logout' },
-  ];
+  ]
 
   const handleItemClick = (item) => {
     if (item.action === 'logout') {
@@ -39,14 +46,13 @@ const SettingsList = () => {
         success: (res) => {
           if (res.confirm) {
             // Dispatch logout action here
-            
           }
-        }
-      });
+        },
+      })
     } else if (item.link) {
-      Taro.navigateTo({ url: item.link });
+      Taro.navigateTo({ url: item.link })
     }
-  };
+  }
 
   return (
     <View className={styles.settingsSection}>
@@ -69,4 +75,4 @@ const SettingsList = () => {
   )
 }
 
-export default SettingsList 
+export default SettingsList

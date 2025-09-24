@@ -1,32 +1,32 @@
-@use "@/styles/variables.scss" as *;
+@use '@/styles/variables.scss' as *;
 
 /* 评论区样式 */
 .commentsSection {
-  background-color: #FFFFFF;
+  background-color: #fff;
   padding: 16px 16px 16px 12px;
   margin: 0 12px 12px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  
+
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 16px; /* Add margin to separate from input */
     margin-bottom: 16px;
-    
+
     .title {
       font-size: 16px;
       font-weight: 600;
       color: #333;
     }
-    
+
     .sort {
       display: flex;
       align-items: center;
       color: #666;
       font-size: 14px;
-      
+
       .icon {
         width: 16px;
         height: 16px;
@@ -34,7 +34,7 @@
       }
     }
   }
-  
+
   .emptyComments {
     text-align: center;
     padding: 20px 0;
@@ -46,7 +46,7 @@
 /* 评论项样式 */
 .commentItem {
   margin-bottom: 20px;
-  
+
   .content {
     padding-left: 48px; /* 36px avatar width + 12px margin */
   }
@@ -57,25 +57,25 @@
     justify-content: space-between;
     margin-top: 8px;
   }
-  
+
   .commentRightSection {
     display: flex;
     align-items: center;
     margin-left: auto;
     gap: 12px;
   }
-  
+
   .commentTime {
     font-size: 11px;
-    color: #9CA3AF;
+    color: #9ca3af;
     white-space: nowrap;
   }
-  
+
   .toggleRepliesButton {
     display: flex;
     align-items: center;
     font-size: 13px;
-    color: #4F46E5;
+    color: #4f46e5;
     cursor: pointer;
   }
 
@@ -88,16 +88,17 @@
   .repliesContainer {
     margin-top: 12px;
     padding-left: 12px;
-    border-left: 2px solid #F0F0F0;
+    border-left: 2px solid #f0f0f0;
   }
 
-  .text, .subText {
+  .text,
+  .subText {
     font-size: 15px;
     line-height: 1.6;
     color: #333;
     white-space: pre-wrap;
   }
-  
+
   .subText {
     font-size: 14px;
   }
@@ -111,7 +112,7 @@
 /* 子评论项样式 */
 .subCommentItem {
   margin-top: 12px;
-  
+
   .subContent {
     padding-left: 42px; /* Adjust for smaller avatar */
   }
@@ -122,10 +123,10 @@
     justify-content: space-between;
     margin-top: 6px;
   }
-  
+
   .subCommentTime {
     font-size: 11px;
-    color: #9CA3AF;
+    color: #9ca3af;
     margin-left: auto;
     white-space: nowrap;
   }
@@ -137,11 +138,11 @@
   height: 18px;
 }
 .subIcon {
-    width: 16px;
-    height: 16px;
+  width: 16px;
+  height: 16px;
 }
 .activeText {
-    color: $theme-primary;
+  color: $theme-primary;
 }
 
 /* Comment Input Styles */
@@ -158,15 +159,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background: #F0F4F8;
-  border-bottom: 1px solid #E2E8F0;
-  
+  background: #f0f4f8;
+  border-bottom: 1px solid #e2e8f0;
+
   .replyText {
     font-size: 14px;
-    color: #4F46E5;
+    color: #4f46e5;
     font-weight: 500;
   }
-  
+
   .cancelReplyIcon {
     width: 16px;
     height: 16px;
@@ -187,9 +188,9 @@
 .input {
   flex: 1;
   height: 36px;
-  padding: 0px 12px;
+  padding: 0 12px;
   border-radius: 18px;
-  border: 1px solid #C3C3C3;
+  border: 1px solid #c3c3c3;
   font-size: 15px;
   background: $bg-input;
   margin-right: 10px;
@@ -200,11 +201,11 @@
   height: 32px;
   border-radius: 50%;
   background: $bg-card;
-  border: 1px solid #C3C3C3;
+  border: 1px solid #c3c3c3;
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &.disabled {
     opacity: 0.5;
     pointer-events: none;

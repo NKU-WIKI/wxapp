@@ -1,109 +1,108 @@
-import { useState, useEffect } from 'react';
-import { View, Image, Text, Checkbox, ScrollView } from '@tarojs/components';
-import { useDispatch } from 'react-redux';
-import Taro from '@tarojs/taro';
-import { AppDispatch } from '@/store';
-import { login } from '@/store/slices/userSlice';
-import CustomHeader from '@/components/custom-header';
-import styles from './index.module.scss';
+
+import { useState, useEffect } from 'react'
+
+import { View, Image, Text, Checkbox, ScrollView } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
+import { useDispatch } from 'react-redux'
+
+
+
+import CustomHeader from '@/components/custom-header'
+import { AppDispatch } from '@/store'
+import { login } from '@/store/slices/userSlice'
+
+import styles from './index.module.scss'
 
 // 图标路径
-const logo = '/assets/wiki-lc-green.png';
-const wechatIcon = '/assets/wechat.svg';
+const logo = '/assets/wiki-lc-green.png'
+const wechatIcon = '/assets/wechat.svg'
 
 export default function LoginPage() {
-  const dispatch = useDispatch<AppDispatch>();
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [redirectUrl, setRedirectUrl] = useState<string>('');
+  const dispatch = useDispatch<AppDispatch>()
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [redirectUrl, setRedirectUrl] = useState<string>('')
 
   // 获取页面参数
   useEffect(() => {
-    const router = Taro.getCurrentInstance().router;
+    const router = Taro.getCurrentInstance().router
     if (router?.params?.redirect) {
-      setRedirectUrl(decodeURIComponent(router.params.redirect));
+      setRedirectUrl(decodeURIComponent(router.params.redirect))
     }
-  }, []);
-
+  }, [])
 
   // 检查协议同意状态
   const checkAgreement = () => {
-
     if (!agreedToTerms) {
-
-      Taro.showToast({ title: '请先阅读并同意用户协议和隐私政策', icon: 'none' });
-      return false;
+      Taro.showToast({ title: '请先阅读并同意用户协议和隐私政策', icon: 'none' })
+      return false
     }
 
-    return true;
-  };
+    return true
+  }
 
   // 协议查看函数
   const handleViewUserAgreement = () => {
-    Taro.navigateTo({ url: '/pages/subpackage-profile/user-agreement/index' });
-  };
+    Taro.navigateTo({ url: '/pages/subpackage-profile/user-agreement/index' })
+  }
 
   const handleViewPrivacyPolicy = () => {
-    Taro.navigateTo({ url: '/pages/subpackage-profile/privacy-policy/index' });
-  };
-
+    Taro.navigateTo({ url: '/pages/subpackage-profile/privacy-policy/index' })
+  }
 
   const handleWechatLogin = async () => {
     if (!checkAgreement()) {
-      return;
+      return
     }
 
     try {
-      Taro.showLoading({ title: '正在登录...' });
+      Taro.showLoading({ title: '正在登录...' })
 
-      const res = await Taro.login();
+      const res = await Taro.login()
 
       if (!res.code) {
-        throw new Error("获取微信登录code失败");
+        throw new Error('获取微信登录code失败')
       }
 
-      await dispatch(login(res.code)).unwrap();
+      await dispatch(login(res.code)).unwrap()
 
-      Taro.hideLoading();
-      Taro.showToast({ title: '登录成功', icon: 'success' });
+      Taro.hideLoading()
+      Taro.showToast({ title: '登录成功', icon: 'success' })
 
       setTimeout(() => {
         if (redirectUrl) {
           // 如果有重定向URL，根据URL类型选择跳转方式
           if (redirectUrl.startsWith('/pages/')) {
-            Taro.navigateTo({ url: redirectUrl });
+            Taro.navigateTo({ url: redirectUrl })
           } else {
-            Taro.switchTab({ url: redirectUrl });
+            Taro.switchTab({ url: redirectUrl })
           }
         } else {
           // 默认跳转到首页
-          Taro.switchTab({ url: '/pages/home/index' });
+          Taro.switchTab({ url: '/pages/home/index' })
         }
-      }, 1500);
+      }, 1500)
     } catch (error) {
-      Taro.hideLoading();
+      Taro.hideLoading()
       Taro.showToast({
         title: `登录失败: ${error}`,
         icon: 'none',
-        duration: 3000
-      });
+        duration: 3000,
+      })
     }
-  };
+  }
 
   return (
     <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {/* 自定义导航栏，只显示返回按钮 */}
-      <CustomHeader
-        hideBack={false}
-        showNotificationIcon={false}
-        showWikiButton={false}
-      />
+      <CustomHeader hideBack={false} showNotificationIcon={false} showWikiButton={false} />
 
       {/* 页面主体内容 */}
       <View style={{ flex: 1, overflow: 'hidden' }}>
         <ScrollView scrollY style={{ height: '100%' }}>
           <View className={styles.loginContainer}>
             <View className={styles.header}>
-              <Image src={logo} className={styles.logo} mode='aspectFit' />
+              <Image src={logo} className={styles.logo} mode="aspectFit" />
               <Text className={styles.title}>开源·共治·普惠</Text>
               <Text className={styles.subtitle}>加入我们, 探索无限可能</Text>
             </View>
@@ -120,21 +119,17 @@ export default function LoginPage() {
               <View
                 className={styles.agreementRow}
                 onClick={() => {
-                  setAgreedToTerms(!agreedToTerms);
+                  setAgreedToTerms(!agreedToTerms)
                 }}
               >
-                <Checkbox
-                  value='agree'
-                  checked={agreedToTerms}
-                  className={styles.checkbox}
-                />
+                <Checkbox value="agree" checked={agreedToTerms} className={styles.checkbox} />
                 <Text className={styles.agreementText}>
                   我已仔细阅读并同意{' '}
                   <Text
                     className={styles.link}
                     onClick={(e) => {
-                      e.stopPropagation();
-                      handleViewUserAgreement();
+                      e.stopPropagation()
+                      handleViewUserAgreement()
                     }}
                   >
                     《用户服务协议》
@@ -143,8 +138,8 @@ export default function LoginPage() {
                   <Text
                     className={styles.link}
                     onClick={(e) => {
-                      e.stopPropagation();
-                      handleViewPrivacyPolicy();
+                      e.stopPropagation()
+                      handleViewPrivacyPolicy()
                     }}
                   >
                     《隐私政策》
@@ -156,5 +151,5 @@ export default function LoginPage() {
         </ScrollView>
       </View>
     </View>
-  );
+  )
 }

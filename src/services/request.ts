@@ -1,16 +1,13 @@
-import Taro from "@tarojs/taro";
-import {
-  NO_ERROR_TOAST_CODES,
-  RESPONSE_SUCCESS_CODE,
-  HEADER_BRANCH_KEY,
-} from "@/constants";
-import { BaseResponse } from "@/types/api/common";
+import Taro from '@tarojs/taro'
 
-const BASE_URL = process.env.BASE_URL;
+import { NO_ERROR_TOAST_CODES, RESPONSE_SUCCESS_CODE, HEADER_BRANCH_KEY } from '@/constants'
+import { BaseResponse } from '@/types/api/common'
+
+const BASE_URL = process.env.BASE_URL
 
 const getToken = () => {
-  return Taro.getStorageSync("token") || null;
-};
+  return Taro.getStorageSync('token') || null
+}
 
 /**
  * 获取默认租户ID
@@ -20,32 +17,33 @@ const getToken = () => {
 const getDefaultTenantId = () => {
   try {
     // 尝试从store中获取aboutInfo
-    const store = require("@/store").default;
-    const state = store.getState();
-    const aboutInfo = state.user.aboutInfo;
+    const store = require('@/store').default
+    const state = store.getState()
+    const aboutInfo = state.user.aboutInfo
 
     if (aboutInfo?.tenants) {
       // 使用南开大学租户
-      const tenantId = aboutInfo.tenants["南开大学"];
+      const tenantId = aboutInfo.tenants['南开大学']
       if (tenantId) {
-        return tenantId;
+        return tenantId
       }
     }
 
     // 如果store中没有，尝试从本地存储获取缓存的租户信息
-    const cachedAboutInfo = Taro.getStorageSync("aboutInfo");
+    const cachedAboutInfo = Taro.getStorageSync('aboutInfo')
     if (cachedAboutInfo?.tenants) {
-      const tenantId = cachedAboutInfo.tenants["南开大学"];
+      const tenantId = cachedAboutInfo.tenants['南开大学']
       if (tenantId) {
-        return tenantId;
+        return tenantId
       }
     }
 
     // 如果本地存储中也没有，尝试获取通用的default租户
     if (cachedAboutInfo?.tenants) {
-      const defaultTenantId = cachedAboutInfo.tenants["default"] || Object.values(cachedAboutInfo.tenants)[0];
+      const defaultTenantId =
+        cachedAboutInfo.tenants['default'] || Object.values(cachedAboutInfo.tenants)[0]
       if (defaultTenantId) {
-        return defaultTenantId;
+        return defaultTenantId
       }
     }
   } catch (_error) {
@@ -53,153 +51,141 @@ const getDefaultTenantId = () => {
   }
 
   // 如果都获取失败，使用硬编码的南开大学租户ID作为最后手段
-  const fallbackTenantId = "f6303899-a51a-460a-9cd8-fe35609151eb";
-  return fallbackTenantId;
-};
+  const fallbackTenantId = 'f6303899-a51a-460a-9cd8-fe35609151eb'
+  return fallbackTenantId
+}
 
 const _getCommonHeaders = () => {
-  const token = getToken();
-  const branch = process.env.NODE_ENV === "development" ? "dev" : "main";
-  const tenantId = getDefaultTenantId();
+  const token = getToken()
+  const branch = process.env.NODE_ENV === 'development' ? 'dev' : 'main'
+  const tenantId = getDefaultTenantId()
 
   const headers: Record<string, string> = {
     [HEADER_BRANCH_KEY]: branch,
-  };
+  }
 
   // 系统性处理租户标识：在没有token的情况下，所有请求都使用x-tenant-id头
   if (!token) {
     if (tenantId) {
-      headers["x-tenant-id"] = tenantId;
+      headers['x-tenant-id'] = tenantId
     }
   } else {
     // 如果有token，使用Authorization头
-    headers.Authorization = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`
   }
-  return headers;
+  return headers
 }
 
 const interceptor = (chain) => {
-  const requestParams = chain.requestParams;
-  const customHeader = requestParams.header || {};
+  const requestParams = chain.requestParams
+  const customHeader = requestParams.header || {}
 
   // 只在 header 中明确要求时才显示 loading
-  if (customHeader["X-Show-Loading"] === true) {
-    Taro.showLoading({ title: "加载中..." });
+  if (customHeader['X-Show-Loading'] === true) {
+    Taro.showLoading({ title: '加载中...' })
   }
 
   requestParams.header = {
     ...customHeader,
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     ..._getCommonHeaders(),
-  };
+  }
 
   // 移除自定义头，避免发送到服务器
-  const originalShowLoading = customHeader["X-Show-Loading"];
-  if (requestParams.header["X-Show-Loading"]) {
-    delete requestParams.header["X-Show-Loading"];
+  const originalShowLoading = customHeader['X-Show-Loading']
+  if (requestParams.header['X-Show-Loading']) {
+    delete requestParams.header['X-Show-Loading']
   }
 
   return chain.proceed(requestParams).then((res) => {
     if (originalShowLoading === true) {
-      Taro.hideLoading();
+      Taro.hideLoading()
     }
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
       // 特殊处理413错误（文件过大），不显示通用错误提示
       // 让业务层自己处理这种错误
       if (res.statusCode === 413) {
-        return Promise.reject(res);
+        return Promise.reject(res)
       }
-      
+
       Taro.showToast({
         title: `服务器错误: ${res.statusCode}`,
-        icon: "none",
+        icon: 'none',
         duration: 2000,
-      });
-      return Promise.reject(res);
+      })
+      return Promise.reject(res)
     }
 
-    const responseData = res.data;
+    const responseData = res.data
     if (responseData.code !== RESPONSE_SUCCESS_CODE) {
       if (!NO_ERROR_TOAST_CODES.includes(responseData.code)) {
         Taro.showToast({
-          title: responseData.msg || responseData.message || "请求失败",
-          icon: "none",
+          title: responseData.msg || responseData.message || '请求失败',
+          icon: 'none',
           duration: 2000,
-        });
+        })
       }
-      return Promise.reject(responseData);
+      return Promise.reject(responseData)
     }
 
-    return res;
-  });
-};
+    return res
+  })
+}
 
-Taro.addInterceptor(interceptor);
-Taro.addInterceptor(Taro.interceptors.timeoutInterceptor);
+Taro.addInterceptor(interceptor)
+Taro.addInterceptor(Taro.interceptors.timeoutInterceptor)
 
-type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
 const request = (
   method: HttpMethod,
   url: string,
   data?: object,
-  options?: Omit<Taro.request.Option, "url" | "data" | "method">
+  options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>
 ): Promise<Taro.request.SuccessCallbackResult<BaseResponse<any>>> => {
-  const finalUrl = `${BASE_URL}/api/v1${url}`;
-  
+  const finalUrl = `${BASE_URL}/api/v1${url}`
+
   return Taro.request({
     url: finalUrl,
     data,
     method,
     ...options,
-  });
-};
+  })
+}
 
 const http = {
   get: <T>(
     url: string,
     data?: object,
-    options?: Omit<Taro.request.Option, "url" | "data" | "method">
-  ) =>
-    request("GET", url, data, options).then(
-      (res) => res.data as BaseResponse<T>
-    ),
+    options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>
+  ) => request('GET', url, data, options).then((res) => res.data as BaseResponse<T>),
   post: <T>(
     url: string,
     data?: object,
-    options?: Omit<Taro.request.Option, "url" | "data" | "method">
-  ) =>
-    request("POST", url, data, options).then(
-      (res) => res.data as BaseResponse<T>
-    ),
+    options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>
+  ) => request('POST', url, data, options).then((res) => res.data as BaseResponse<T>),
   put: <T>(
     url: string,
     data?: object,
-    options?: Omit<Taro.request.Option, "url" | "data" | "method">
-  ) =>
-    request("PUT", url, data, options).then(
-      (res) => res.data as BaseResponse<T>
-    ),
+    options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>
+  ) => request('PUT', url, data, options).then((res) => res.data as BaseResponse<T>),
   delete: <T>(
     url: string,
     data?: object,
-    options?: Omit<Taro.request.Option, "url" | "data" | "method">
-  ) =>
-    request("DELETE", url, data, options).then(
-      (res) => res.data as BaseResponse<T>
-    ),
+    options?: Omit<Taro.request.Option, 'url' | 'data' | 'method'>
+  ) => request('DELETE', url, data, options).then((res) => res.data as BaseResponse<T>),
   uploadFile: <T>(
     url: string,
     filePath: string,
-    options?: Partial<Omit<Taro.uploadFile.Option, "url" | "filePath">>
+    options?: Partial<Omit<Taro.uploadFile.Option, 'url' | 'filePath'>>
   ) => {
-    const finalUrl = `${BASE_URL}/api/v1${url}`;
-    const header = _getCommonHeaders();
+    const finalUrl = `${BASE_URL}/api/v1${url}`
+    const header = _getCommonHeaders()
 
     // 不设置 Content-Type，让浏览器自动设置为 multipart/form-data
     // 删除可能存在的 Content-Type 头
-    delete header["Content-Type"];
+    delete header['Content-Type']
 
     return Taro.uploadFile({
       url: finalUrl,
@@ -212,32 +198,32 @@ const http = {
         // 特殊处理413错误（文件过大），不显示通用错误提示
         // 让业务层自己处理这种错误
         if (res.statusCode === 413) {
-          return Promise.reject(res);
+          return Promise.reject(res)
         }
         Taro.showToast({
           title: `上传失败: ${res.statusCode}`,
-          icon: "none",
+          icon: 'none',
           duration: 2000,
-        });
-        return Promise.reject(res);
+        })
+        return Promise.reject(res)
       }
 
-      const responseData = JSON.parse(res.data);
+      const responseData = JSON.parse(res.data)
       if (responseData.code !== RESPONSE_SUCCESS_CODE) {
         Taro.showToast({
-          title: responseData.msg || responseData.message || "上传失败",
-          icon: "none",
+          title: responseData.msg || responseData.message || '上传失败',
+          icon: 'none',
           duration: 2000,
-        });
-        return Promise.reject(responseData);
+        })
+        return Promise.reject(responseData)
       }
 
-      return responseData as BaseResponse<T>;
-    });
+      return responseData as BaseResponse<T>
+    })
   },
-};
+}
 
-export default http;
+export default http
 
 // 导出 getDefaultTenantId 函数供调试使用
-export { getDefaultTenantId };
+export { getDefaultTenantId }

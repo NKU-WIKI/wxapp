@@ -1,10 +1,10 @@
-@use "../../../styles/variables.scss" as *;
+@use '../../../styles/variables.scss' as *;
 
 .ragContainer {
-  padding: 0px 16px 16px 16px; // 移除上边距
+  padding: 0 16px 16px; // 移除上边距
   display: flex;
   flex-direction: column;
-  gap: 0px; // 移除AI回答和来源框之间的间隙
+  gap: 0; // 移除AI回答和来源框之间的间隙
 }
 
 // Markdown 样式
@@ -16,12 +16,12 @@
 
 .markdown-content {
   line-height: 1.6;
-  margin-top: 0px; // 移除与header的间距
+  margin-top: 0; // 移除与header的间距
   font-size: 13px; // 减小整体字体大小
 }
 
 .markdown-p {
-  margin: 0 0 8px 0; // 移除上边距，只保留下边距
+  margin: 0 0 8px; // 移除上边距，只保留下边距
   line-height: 1.6;
   font-size: 13px; // 减小段落字体大小
 }
@@ -32,17 +32,29 @@
 .markdown-h4,
 .markdown-h5,
 .markdown-h6 {
-  margin: 12px 0 6px 0; // 减少标题的上下边距
+  margin: 12px 0 6px; // 减少标题的上下边距
   font-weight: 600;
   color: $text-primary;
 }
 
-.markdown-h1 { font-size: 20px; } // 从24px减小到20px
-.markdown-h2 { font-size: 18px; } // 从20px减小到18px
-.markdown-h3 { font-size: 16px; } // 从18px减小到16px
-.markdown-h4 { font-size: 14px; } // 从16px减小到14px
-.markdown-h5 { font-size: 13px; } // 从14px减小到13px
-.markdown-h6 { font-size: 13px; } // 从14px减小到13px
+.markdown-h1 {
+  font-size: 20px;
+} // 从24px减小到20px
+.markdown-h2 {
+  font-size: 18px;
+} // 从20px减小到18px
+.markdown-h3 {
+  font-size: 16px;
+} // 从18px减小到16px
+.markdown-h4 {
+  font-size: 14px;
+} // 从16px减小到14px
+.markdown-h5 {
+  font-size: 13px;
+} // 从14px减小到13px
+.markdown-h6 {
+  font-size: 13px;
+} // 从14px减小到13px
 
 .markdown-list-item {
   display: block;
@@ -71,7 +83,7 @@
   background-color: rgba(0, 0, 0, 0.08);
   padding: 2px 4px;
   border-radius: 3px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-size: 12px; // 从14px减小到12px
   color: #e74c3c;
 }
@@ -82,7 +94,7 @@
   border-radius: 6px;
   margin: 8px 0;
   overflow-x: auto;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-size: 12px; // 从14px减小到12px
   line-height: 1.4;
 }
@@ -114,7 +126,7 @@
 }
 
 .card {
-  background: #ffffff;
+  background: #fff;
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -150,7 +162,6 @@
   font-size: 16px;
   color: $theme-primary;
   background: linear-gradient(135deg, $theme-primary, rgba(79, 70, 229, 0.8));
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
@@ -183,10 +194,12 @@
     left: 0;
     right: 0;
     height: 60px; // 增加遮罩高度适应更大的内容
-    background: linear-gradient(180deg,
+    background: linear-gradient(
+      180deg,
       rgba(255, 255, 255, 0) 0%,
       rgba(255, 255, 255, 0.6) 40%,
-      rgba(255, 255, 255, 0.9) 100%);
+      rgba(255, 255, 255, 0.9) 100%
+    );
     pointer-events: none;
     border-radius: 0 0 16px 16px;
   }
@@ -194,10 +207,12 @@
 
 .expandButton {
   padding: 6px 14px;
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     rgba(79, 70, 229, 0.1) 0%,
     rgba(79, 70, 229, 0.05) 50%,
-    rgba(79, 70, 229, 0.08) 100%);
+    rgba(79, 70, 229, 0.08) 100%
+  );
   border: 1px solid rgba(79, 70, 229, 0.2);
   border-radius: 18px;
   cursor: pointer;
@@ -207,10 +222,12 @@
 
   &:active {
     transform: scale(0.96) translateY(1px);
-    background: linear-gradient(135deg,
+    background: linear-gradient(
+      135deg,
       rgba(79, 70, 229, 0.15) 0%,
       rgba(79, 70, 229, 0.08) 50%,
-      rgba(79, 70, 229, 0.12) 100%);
+      rgba(79, 70, 229, 0.12) 100%
+    );
     border-color: rgba(79, 70, 229, 0.3);
     box-shadow: 0 1px 4px rgba(79, 70, 229, 0.15);
   }

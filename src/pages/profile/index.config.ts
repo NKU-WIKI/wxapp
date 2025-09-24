@@ -4,4 +4,4 @@ export default {
   enableShareAppMessage: true,
   enablePullDownRefresh: true,
   onReachBottomDistance: 50,
-}; 
+}

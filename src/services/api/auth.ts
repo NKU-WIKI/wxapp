@@ -1,13 +1,10 @@
-import {
-  LoginRequest,
-  UnifiedLoginRequest,
-  LoginResponse,
-  RegisterRequest,
-} from "@/types/api/auth";
-import { User } from "@/types/api/user";
+
+import { LoginRequest, UnifiedLoginRequest, LoginResponse, RegisterRequest } from '@/types/api/auth'
+import { User } from '@/types/api/user'
+
+import http from '../request'
 
 // Relative imports
-import http from "../request";
 
 /**
  * 用户登录（支持传统登录和微信小程序登录）
@@ -15,8 +12,8 @@ import http from "../request";
  * @returns 登录结果，包含访问令牌
  */
 export const login = (data: LoginRequest | UnifiedLoginRequest) => {
-  return http.post<LoginResponse>("/auth/login", data);
-};
+  return http.post<LoginResponse>('/auth/login', data)
+}
 
 /**
  * 用户注册
@@ -24,5 +21,5 @@ export const login = (data: LoginRequest | UnifiedLoginRequest) => {
  * @returns 注册成功的用户信息
  */
 export const register = (data: RegisterRequest) => {
-  return http.post<User>("/auth/register", data);
-};
+  return http.post<User>('/auth/register', data)
+}

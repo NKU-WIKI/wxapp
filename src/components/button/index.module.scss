@@ -1,4 +1,4 @@
-@use "../../styles/variables.scss" as *;
+@use '../../styles/variables.scss' as *;
 
 // Base button styles
 .custom-button {
@@ -7,11 +7,14 @@
   justify-content: center;
   white-space: nowrap;
   border-radius: 6px; // Corresponds to rounded-md
-  font-size: 14px;   // Corresponds to text-sm
+  font-size: 14px; // Corresponds to text-sm
   font-weight: 500; // Corresponds to font-medium
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out;
   border: 1px solid transparent; // Base border
-  
+
   // Reset default Taro button styles
   &::after {
     border: none;
@@ -87,4 +90,4 @@
   height: 40px;
   width: 40px;
   padding: 0;
-} 
+}

@@ -1,5 +1,5 @@
-@use "../../../../styles/variables.scss" as *;
-@use "sass:color";
+@use '../../../../styles/variables.scss' as *;
+@use 'sass:color';
 
 .ratingDetailPage {
   display: flex;
@@ -218,7 +218,7 @@
   height: 24px;
   cursor: pointer;
   transition: transform 0.1s ease;
-  
+
   &:active {
     transform: scale(0.9);
   }
@@ -245,7 +245,7 @@
   color: $text-primary;
   background-color: $bg-input;
   line-height: 1.4;
-  
+
   &::placeholder {
     color: $text-helper-gray;
   }
@@ -270,7 +270,7 @@
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &.checked {
     background-color: $theme-primary;
     border-color: $theme-primary;
@@ -290,12 +290,12 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:active {
     transform: scale(0.98);
     background-color: color.adjust($theme-primary, $lightness: -10%);
   }
-  
+
   &.disabled {
     background-color: $text-helper-gray;
     cursor: not-allowed;
@@ -326,7 +326,7 @@
 .reviewItem {
   padding: 16px 0;
   border-bottom: 1px solid $border-light;
-  
+
   &:last-child {
     border-bottom: none;
     padding-bottom: 0;
@@ -400,7 +400,7 @@
 }
 
 // 响应式调整
-@media (max-width: 375px) {
+@media (width <= 375px) {
   .resourceInfo,
   .ratingDistribution,
   .userRatingForm,
@@ -408,21 +408,21 @@
     margin: 8px;
     padding: 16px;
   }
-  
+
   .resourceImage {
     width: 60px;
     height: 60px;
   }
-  
+
   .scoreNumber {
     font-size: 28px;
   }
-  
+
   .starIcon {
     width: 16px;
     height: 16px;
   }
-  
+
   .starLarge {
     width: 20px;
     height: 20px;

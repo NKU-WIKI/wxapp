@@ -1,4 +1,4 @@
-@import '@/styles/variables.scss';
+@import url('@/styles/variables.scss');
 
 // 页面容器
 .container {
@@ -6,7 +6,7 @@
   width: 100%;
   max-width: 375px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #F8F9FF 0%, #F3F4F6 100%);
+  background: linear-gradient(135deg, #f8f9ff 0%, #f3f4f6 100%);
   position: relative;
 }
 
@@ -21,7 +21,6 @@
   height: 50px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(139, 92, 246, 0.1);
   z-index: 40;
   display: flex;
@@ -43,10 +42,10 @@
   align-items: center; // 文字居中对齐
   justify-content: center;
   padding: 0; // 移除额外padding
-  
+
   &.active {
     color: $theme-primary;
-    
+
     &::after {
       content: '';
       position: absolute;
@@ -59,15 +58,15 @@
       border-radius: 1px;
     }
   }
-  
+
   &:not(.active) {
     color: rgba(107, 114, 128, 0.8);
-    
+
     &:hover {
       color: $theme-primary;
     }
   }
-  
+
   &::after {
     border: none;
   }
@@ -79,7 +78,7 @@
   top: 50px; // 标签页50px
   left: 0;
   width: 100%;
-  background: linear-gradient(135deg, #F8F9FF 0%, #F3F4F6 100%);
+  background: linear-gradient(135deg, #f8f9ff 0%, #f3f4f6 100%);
   z-index: 30;
   padding: 16px;
   padding-bottom: 20px; // 增加底部内边距
@@ -89,10 +88,7 @@
 
 // 主要内容区域
 .main {
-  padding-top: 160px; // 增加上边距：标签页50px + 搜索区域约110px
-  padding-left: 16px;
-  padding-right: 16px;
-  padding-bottom: 60px;
+  padding: 160px 16px 60px; // 增加上边距：标签页50px + 搜索区域约110px
   min-height: 100vh;
 }
 
@@ -110,7 +106,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  
+
   .searchInputContainer {
     flex: 2;
     position: relative;
@@ -123,21 +119,20 @@
     padding: 0 12px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    
+
     &:focus-within {
       background: rgba(255, 255, 255, 1);
       border-color: $theme-primary;
       box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
     }
   }
-  
+
   .searchIcon {
     color: rgba(139, 92, 246, 0.6);
     font-size: 14px;
     margin-right: 8px;
   }
-  
+
   .searchInput {
     flex: 1;
     border: none;
@@ -145,7 +140,7 @@
     outline: none;
     font-size: 14px;
     color: $text-primary;
-    
+
     &::placeholder {
       color: rgba(107, 114, 128, 0.7);
     }
@@ -164,22 +159,22 @@
     align-items: center;
     justify-content: center;
     margin-left: 8px;
-    
+
     &:hover {
       background: rgba(139, 92, 246, 0.2);
     }
-    
+
     &::after {
       border: none;
     }
   }
-  
+
   .searchButton {
     flex-shrink: 0;
     width: 80px;
     height: 40px;
     background: linear-gradient(135deg, $theme-primary 0%, $theme-accent 100%);
-    color: #FFFFFF;
+    color: #fff;
     border: none;
     border-radius: 4px;
     font-size: 14px;
@@ -187,17 +182,17 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-    
+
     &:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
     }
-    
+
     &:active {
       transform: translateY(0);
       box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
     }
-    
+
     &::after {
       border: none;
     }
@@ -228,11 +223,11 @@
   border-bottom: 1px solid rgba(139, 92, 246, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 68px; // 设置最小高度
-  
+
   &:last-child {
     border-bottom: none;
   }
-  
+
   &:hover {
     background: rgba(139, 92, 246, 0.02);
     border-radius: 8px;
@@ -256,7 +251,7 @@
   border: 2px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
   margin-right: 12px;
-  
+
   image {
     width: 100%;
     height: 100%;
@@ -277,7 +272,6 @@
   color: $text-primary;
   margin-bottom: 4px; // 与bio的间距
   background: linear-gradient(135deg, $theme-primary 0%, $theme-accent 100%);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: 1.2; // 行高调整
@@ -303,36 +297,36 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
-  
+
   &.following {
     background: rgba(107, 114, 128, 0.1);
     color: rgba(107, 114, 128, 0.8);
     border: 1px solid rgba(107, 114, 128, 0.2);
-    
+
     &:hover {
       background: rgba(239, 68, 68, 0.1);
-      color: #EF4444;
+      color: #ef4444;
       border-color: rgba(239, 68, 68, 0.3);
     }
   }
-  
+
   &.followBack {
     background: linear-gradient(135deg, $theme-primary 0%, $theme-accent 100%);
-    color: #FFFFFF;
+    color: #fff;
     border: 1px solid transparent;
     box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
-    
+
     &:hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
     }
-    
+
     &:active {
       transform: translateY(0);
       box-shadow: 0 1px 4px rgba(139, 92, 246, 0.3);
     }
   }
-  
+
   &::after {
     border: none;
   }
@@ -374,7 +368,7 @@
   justify-content: center;
   align-items: center;
   padding: 40px;
-  
+
   .loadingText {
     color: rgba(139, 92, 246, 0.8);
     font-size: 14px;
@@ -394,7 +388,7 @@
 
 .errorIcon {
   font-size: 48px;
-  color: #EF4444;
+  color: #ef4444;
   margin-bottom: 16px;
 }
 
@@ -415,7 +409,7 @@
 .retryButton {
   padding: 8px 16px;
   background: linear-gradient(135deg, $theme-primary 0%, $theme-accent 100%);
-  color: #FFFFFF;
+  color: #fff;
   border: none;
   border-radius: 6px;
   font-size: 14px;
@@ -423,17 +417,17 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-  
+
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
   }
-  
+
   &:active {
     transform: translateY(0);
     box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
   }
-  
+
   &::after {
     border: none;
   }
@@ -452,7 +446,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   &:hover {
     background: rgba(139, 92, 246, 0.15);
     border-color: rgba(139, 92, 246, 0.3);

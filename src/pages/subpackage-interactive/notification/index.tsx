@@ -97,7 +97,8 @@ const NotificationPage = () => {
     return null;
   }, [userCache]);
 
-  // 刷新未读数量统计（使用Redux统一管理）  const refreshUnreadCounts = useCallback(async () => {
+  // 刷新未读数量统计（使用Redux统一管理）
+  const refreshUnreadCounts = useCallback(async () => {
   try {
     await dispatch(fetchUnreadCounts()).unwrap();
   } catch (_error) {
@@ -120,28 +121,26 @@ const parseNotificationDisplay = useCallback(async (notification: NotificationRe
     senderName = notification.sender?.nickname || notification.sender?.name || '系统';
     senderAvatar = notification.sender?.avatar || '/assets/profile.png';
   }
-}
 
     let action = '';
 let postContent = '';
 
 // 根据业务类型解析动作
-if (notification.type === NotificationType._Message) {
-  switch (notification.business_type) {
-    case 'like':
-      action = '赞了你的帖子'
-      break
-    case 'comment':
-      action = '评论了你'
-      break
-    case 'follow':
-      action = '关注了你'
-      break
-    case 'mention':
-      action = '在帖子中提及了你'
-      break
-    default:
-      action = '给你发来了消�?
+switch (notification.business_type) {
+  case 'like':
+    action = '赞了你的帖子'
+    break
+  case 'comment':
+    action = '评论了你'
+    break
+  case 'follow':
+    action = '关注了你'
+    break
+  case 'mention':
+    action = '在帖子中提及了你'
+    break
+  default:
+    action = '给你发来了消?
   }
 
   // 对于非关注类型，显示相关内容

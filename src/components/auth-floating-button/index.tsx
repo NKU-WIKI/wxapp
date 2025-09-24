@@ -1,25 +1,30 @@
-import React from 'react';
-import { View, Image, Text } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import styles from './index.module.scss';
+import React from 'react'
+
+import { View, Image, Text } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
+import { useSelector } from 'react-redux'
+
+import { RootState } from '@/store'
+
+import styles from './index.module.scss'
+
 
 interface AuthFloatingButtonProps {
   /** 按钮图标路径 */
-  iconSrc?: string;
+  iconSrc?: string
   /** 按钮类型（预设图标） */
-  variant?: 'plus' | 'custom';
+  variant?: 'plus' | 'custom'
   /** 点击时的回调函数（已登录状态下执行） */
-  onClick: () => void;
+  onClick: () => void
   /** 按钮位置样式类名 */
-  positionClass?: string;
+  positionClass?: string
   /** 自定义样式 */
-  style?: React.CSSProperties;
+  style?: React.CSSProperties
   /** 未登录时的提示消息 */
-  loginPrompt?: string;
+  loginPrompt?: string
   /** 登录成功后重定向的页面路径 */
-  redirectUrl?: string;
+  redirectUrl?: string
 }
 
 const AuthFloatingButton: React.FC<AuthFloatingButtonProps> = ({
@@ -29,9 +34,9 @@ const AuthFloatingButton: React.FC<AuthFloatingButtonProps> = ({
   positionClass = styles.floatingButton,
   style,
   loginPrompt = '您需要登录才能执行此操作，是否立即前往登录页面？',
-  redirectUrl
+  redirectUrl,
 }) => {
-  const { isLoggedIn, token } = useSelector((state: RootState) => state.user);
+  const { isLoggedIn, token } = useSelector((state: RootState) => state.user)
 
   const handleClick = () => {
     // 先检查鉴权
@@ -47,43 +52,36 @@ const AuthFloatingButton: React.FC<AuthFloatingButtonProps> = ({
             // 如果有重定向URL，传递给登录页面
             const loginUrl = redirectUrl
               ? `/pages/subpackage-profile/login/index?redirect=${encodeURIComponent(redirectUrl)}`
-              : '/pages/subpackage-profile/login/index';
-            Taro.navigateTo({ url: loginUrl });
+              : '/pages/subpackage-profile/login/index'
+            Taro.navigateTo({ url: loginUrl })
           }
           // 如果用户点击取消，不执行任何操作
         },
-      });
-      return;
+      })
+      return
     }
 
     // 已登录，执行自定义操作
-    onClick();
-  };
+    onClick()
+  }
 
   // 根据 variant 决定显示的图标
   const getIconSrc = () => {
     if (variant === 'plus') {
-      return '/assets/plus.svg';
+      return '/assets/plus.svg'
     }
-    return iconSrc || '/assets/plus.svg'; // 默认使用加号图标
-  };
+    return iconSrc || '/assets/plus.svg' // 默认使用加号图标
+  }
 
   return (
-    <View
-      className={positionClass}
-      style={style}
-      onClick={handleClick}
-    >
+    <View className={positionClass} style={style} onClick={handleClick}>
       {variant === 'plus' ? (
         <Text className={styles.plusIcon}>+</Text>
       ) : (
-        <Image
-          src={getIconSrc()}
-          className={styles.floatingIcon}
-        />
+        <Image src={getIconSrc()} className={styles.floatingIcon} />
       )}
     </View>
-  );
-};
+  )
+}
 
-export default AuthFloatingButton;
+export default AuthFloatingButton

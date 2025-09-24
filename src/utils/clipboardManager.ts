@@ -1,14 +1,15 @@
-import { store } from '@/store';
-import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro'
+
+import { store } from '@/store'
 
 /**
  * 检查剪切板访问权限
  * @returns {boolean} 是否允许访问剪切板
  */
 export const checkClipboardPermission = (): boolean => {
-  const state = store.getState();
-  return state.settings.allowClipboardAccess;
-};
+  const state = store.getState()
+  return state.settings.allowClipboardAccess
+}
 
 /**
  * 安全地读取剪切板内容
@@ -19,19 +20,19 @@ export const safeGetClipboardData = async (): Promise<string> => {
     Taro.showToast({
       title: '剪切板访问已禁用，请在设置中开启',
       icon: 'none',
-      duration: 2500
-    });
-    return '';
+      duration: 2500,
+    })
+    return ''
   }
 
   try {
-    const res = await Taro.getClipboardData();
-    return res.data || '';
+    const res = await Taro.getClipboardData()
+    return res.data || ''
   } catch (error) {
     // 静默处理错误，避免过多提示
-    return '';
+    return ''
   }
-};
+}
 
 /**
  * 安全地设置剪切板内容
@@ -43,19 +44,19 @@ export const safeSetClipboardData = async (data: string): Promise<boolean> => {
     Taro.showToast({
       title: '剪切板访问已禁用，请在设置中开启',
       icon: 'none',
-      duration: 2500
-    });
-    return false;
+      duration: 2500,
+    })
+    return false
   }
 
   try {
-    await Taro.setClipboardData({ data });
-    return true;
+    await Taro.setClipboardData({ data })
+    return true
   } catch (error) {
     Taro.showToast({
       title: '复制失败',
-      icon: 'none'
-    });
-    return false;
+      icon: 'none',
+    })
+    return false
   }
-};
+}

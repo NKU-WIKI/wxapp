@@ -1,4 +1,4 @@
-@use "../../../styles/variables" as *;
+@use '../../../styles/variables' as *;
 
 /* 评分页面样式 */
 .ratingPage {
@@ -10,7 +10,7 @@
 
 // 与活动广场一致的白色头部容器
 .fixedHeader {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 // 移除评分页自定义内部搜索框样式，使用通用 SearchBar 的默认样式
@@ -25,19 +25,19 @@
 
 .categoryScroll {
   white-space: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  
+  overflow: auto hidden;
+
   /* 隐藏滚动条但保持可滑动 */
   &::-webkit-scrollbar {
     display: none;
   }
+
   scrollbar-width: none; /* Firefox */
 }
 
 .categoryList {
   display: flex;
-  padding: 8px 16px 16px 16px; // 与其他模块一致
+  padding: 8px 16px 16px; // 与其他模块一致
   gap: 8px;
   min-width: max-content;
 }
@@ -88,6 +88,7 @@
 /* 评分卡片 */
 .ratingCard {
   @include card-style;
+
   display: flex;
   padding: 0;
   border-radius: 10px;
@@ -178,12 +179,12 @@
 }
 
 .starFull {
-  color: #FFD700;
+  color: #ffd700;
   font-size: 13px;
 }
 
 .starHalf {
-  color: #FFD700;
+  color: #ffd700;
   font-size: 13px;
   opacity: 0.5;
 }
@@ -225,8 +226,6 @@
   color: $text-helper;
 }
 
-
-
 .loadingState {
   display: flex;
   justify-content: center;
@@ -249,7 +248,7 @@
 
 .errorText {
   font-size: 16px;
-  color: #EF4444;
+  color: #ef4444;
 }
 
 /* 登录提示样式 */

@@ -1,16 +1,23 @@
-import { View, Text, Image, ScrollView, Input } from '@tarojs/components'
-import { useState, useEffect, useCallback } from 'react'
-import Taro, { useRouter } from '@tarojs/taro'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store'
-// import { createUserRating } from '@/store/slices/ratingSlice' // 未使用
-import { getResourceRatingsList, getResourceStatistics, createRating } from '@/services/api/rating'
-import CustomHeader from '@/components/custom-header'
 
-// 引入星星图标
+import { useState, useEffect, useCallback } from 'react'
+
+import { View, Text, Image, ScrollView, Input } from '@tarojs/components'
+import Taro, { useRouter } from '@tarojs/taro'
+
+import { useSelector } from 'react-redux'
+
+
 import starFilledIcon from '@/assets/star-filled.svg'
 import starOutlineIcon from '@/assets/star-outline.svg'
+import CustomHeader from '@/components/custom-header'
+import { getResourceRatingsList, getResourceStatistics, createRating } from '@/services/api/rating'
+import { RootState } from '@/store'
+
 import styles from './index.module.scss'
+// import { createUserRating } from '@/store/slices/ratingSlice' // 未使用
+
+// 引入星星图标
+
 
 interface ResourceInfo {
   id: string
@@ -27,11 +34,11 @@ interface RatingStatistics {
   total_ratings: number
   average_score: number
   score_distribution: {
-    "1": number
-    "2": number
-    "3": number
-    "4": number
-    "5": number
+    '1': number
+    '2': number
+    '3': number
+    '4': number
+    '5': number
   }
 }
 
@@ -58,91 +65,104 @@ const RatingDetailPage = () => {
   const isLoggedIn = userState.isLoggedIn
 
   // 加载页面数据
-  const loadData = useCallback(async (resourceType: string, resourceId: string, resourceName?: string) => {
-    try {
-      setLoading(true)
-      setError(null)
+  const loadData = useCallback(
+    async (resourceType: string, resourceId: string, resourceName?: string) => {
+      try {
+        setLoading(true)
+        setError(null)
 
+        // 并行加载资源评分列表和统计信息
+        const [ratingsResponse, statisticsResponse] = await Promise.all([
+          getResourceRatingsList(resourceType, resourceId, {
+            skip: 0,
+            limit: 50,
+            sort_by: 'created_at',
+            sort_order: 'desc',
+          }),
+          getResourceStatistics(resourceType, resourceId),
+        ])
 
-      // 并行加载资源评分列表和统计信息
-      const [ratingsResponse, statisticsResponse] = await Promise.all([
-        getResourceRatingsList(resourceType, resourceId, {
-          skip: 0,
-          limit: 50,
-          sort_by: 'created_at',
-          sort_order: 'desc'
-        }),
-        getResourceStatistics(resourceType, resourceId)
-      ])
+        // 处理评分列表数据
+        // 检查多种可能的数据结构
+        let ratingsData: any[] | null = null
+        if (ratingsResponse.data?.data?.items) {
+          ratingsData = ratingsResponse.data.data.items
+        } else if ((ratingsResponse.data as any)?.items) {
+          ratingsData = (ratingsResponse.data as any).items
+        } else if ((ratingsResponse as any)?.items) {
+          ratingsData = (ratingsResponse as any).items
+        }
 
-      // 处理评分列表数据
-      // 检查多种可能的数据结构
-      let ratingsData: any[] | null = null;
-      if (ratingsResponse.data?.data?.items) {
-        ratingsData = ratingsResponse.data.data.items;
-      } else if ((ratingsResponse.data as any)?.items) {
-        ratingsData = (ratingsResponse.data as any).items;
-      } else if ((ratingsResponse as any)?.items) {
-        ratingsData = (ratingsResponse as any).items;
-      }
+        if (ratingsData && Array.isArray(ratingsData)) {
+          setRatings(ratingsData)
 
-      if (ratingsData && Array.isArray(ratingsData)) {
-        setRatings(ratingsData)
+          // 检查当前用户是否已经评过分
+          if (isLoggedIn && userState.user?.id) {
+            const existingRating = ratingsData.find(
+              (rating) => rating.rater_id === userState.user?.id
+            )
+            if (existingRating) {
+              setUserExistingRating(existingRating)
+              // 预填充表单
+              setUserRating(existingRating.score)
+              setNewComment(existingRating.comment || '')
+              setIsAnonymous(existingRating.is_anonymous || false)
+            }
+          }
 
-        // 检查当前用户是否已经评过分
-        if (isLoggedIn && userState.user?.id) {
-          const existingRating = ratingsData.find(rating => rating.rater_id === userState.user?.id);
-          if (existingRating) {
-            setUserExistingRating(existingRating);
-            // 预填充表单
-            setUserRating(existingRating.score);
-            setNewComment(existingRating.comment || '');
-            setIsAnonymous(existingRating.is_anonymous || false);
+          // 从评分数据中构建资源信息（如果没有专门的资源详情接口）
+          const firstRating = ratingsData[0]
+
+          if (firstRating) {
+            const newResourceInfo = {
+              id: resourceId,
+              resource_name: firstRating.resource_name || resourceName || '未知资源',
+              title:
+                firstRating.resource_title ||
+                firstRating.resource_name ||
+                resourceName ||
+                '未知资源',
+              resource_type: resourceType,
+              image_url: firstRating.resource_image,
+              description: firstRating.resource_description,
+              average_score:
+                statisticsResponse.data?.data?.average_score ||
+                (statisticsResponse.data as any)?.average_score ||
+                0,
+              rating_count:
+                statisticsResponse.data?.data?.total_ratings ||
+                (statisticsResponse.data as any)?.total_ratings ||
+                0,
+            }
+            setResourceInfo(newResourceInfo)
+          } else {
+            // 如果没有评分数据，创建基础资源信息
+            const basicResourceInfo = {
+              id: resourceId,
+              resource_name: decodeURIComponent(resourceName || '未知资源'),
+              title: decodeURIComponent(resourceName || '未知资源'),
+              resource_type: resourceType,
+              average_score: 0,
+              rating_count: 0,
+            }
+            setResourceInfo(basicResourceInfo)
           }
         }
 
-        // 从评分数据中构建资源信息（如果没有专门的资源详情接口）
-        const firstRating = ratingsData[0]
-
-        if (firstRating) {
-          const newResourceInfo = {
-            id: resourceId,
-            resource_name: firstRating.resource_name || resourceName || '未知资源',
-            title: firstRating.resource_title || firstRating.resource_name || resourceName || '未知资源',
-            resource_type: resourceType,
-            image_url: firstRating.resource_image,
-            description: firstRating.resource_description,
-            average_score: statisticsResponse.data?.data?.average_score || (statisticsResponse.data as any)?.average_score || 0,
-            rating_count: statisticsResponse.data?.data?.total_ratings || (statisticsResponse.data as any)?.total_ratings || 0
-          };
-          setResourceInfo(newResourceInfo);
-        } else {
-          // 如果没有评分数据，创建基础资源信息
-          const basicResourceInfo = {
-            id: resourceId,
-            resource_name: decodeURIComponent(resourceName || '未知资源'),
-            title: decodeURIComponent(resourceName || '未知资源'),
-            resource_type: resourceType,
-            average_score: 0,
-            rating_count: 0
-          };
-          setResourceInfo(basicResourceInfo);
+        // 处理统计数据
+        if (statisticsResponse.data?.data) {
+          setStatistics(statisticsResponse.data.data)
+        } else if (statisticsResponse.data) {
+          setStatistics(statisticsResponse.data as any)
         }
+      } catch (err: any) {
+        setError(err.message || '加载失败')
+      } finally {
+        setLoading(false)
       }
-
-      // 处理统计数据
-      if (statisticsResponse.data?.data) {
-        setStatistics(statisticsResponse.data.data)
-      } else if (statisticsResponse.data) {
-        setStatistics(statisticsResponse.data as any)
-      }
-
-    } catch (err: any) {
-      setError(err.message || '加载失败')
-    } finally {
-      setLoading(false)
-    }
-  }, [isLoggedIn, userState.user?.id])
+    },
+    [isLoggedIn, userState.user?.id]
+  )
 
   // 页面初始化
   useEffect(() => {
@@ -188,7 +208,7 @@ const RatingDetailPage = () => {
             <View
               className={styles.starFillContainer}
               style={{
-                width: `${percentage}%`
+                width: `${percentage}%`,
               }}
             >
               <Image
@@ -236,7 +256,7 @@ const RatingDetailPage = () => {
     if (userRating === 0) {
       Taro.showToast({
         title: '请选择评分',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -244,7 +264,7 @@ const RatingDetailPage = () => {
     if (!newComment.trim()) {
       Taro.showToast({
         title: '请填写评价内容',
-        icon: 'none'
+        icon: 'none',
       })
       return
     }
@@ -265,21 +285,19 @@ const RatingDetailPage = () => {
         comment: newComment.trim(),
         is_anonymous: isAnonymous,
         tags: [], // 可以后续添加标签选择功能
-        evidence_urls: []
+        evidence_urls: [],
       }
-
-
 
       const response = await createRating(ratingData)
 
       // 检查响应是否成功 - 支持多种成功格式
-      const isSuccess = response?.code === 0 || response?.data?.code === 0 || response.data;
+      const isSuccess = response?.code === 0 || response?.data?.code === 0 || response.data
 
       if (isSuccess) {
         Taro.showToast({
           title: '评分提交成功',
           icon: 'success',
-          duration: 2000
+          duration: 2000,
         })
 
         // 重置表单
@@ -292,21 +310,19 @@ const RatingDetailPage = () => {
       } else {
         throw new Error(response?.message || response?.data?.message || '提交失败')
       }
-
     } catch (err: any) {
-
       // 处理409冲突错误（已评分）
       if (err.statusCode === 409 || err.code === 409) {
         Taro.showToast({
           title: '您已经对该条目做出过评价',
           icon: 'none',
-          duration: 2000
+          duration: 2000,
         })
       } else {
         Taro.showToast({
           title: err.message || '评分提交失败',
           icon: 'error',
-          duration: 2000
+          duration: 2000,
         })
       }
     } finally {
@@ -323,7 +339,7 @@ const RatingDetailPage = () => {
   if (loading) {
     return (
       <View className={styles.ratingDetailPage}>
-        <CustomHeader title='评分详情' />
+        <CustomHeader title="评分详情" />
         <View className={styles.loadingState}>
           <Text className={styles.loadingText}>加载中...</Text>
         </View>
@@ -334,7 +350,7 @@ const RatingDetailPage = () => {
   if (error || !resourceInfo) {
     return (
       <View className={styles.ratingDetailPage}>
-        <CustomHeader title='评分详情' />
+        <CustomHeader title="评分详情" />
         <View className={styles.errorState}>
           <Text className={styles.errorText}>加载失败: {error || '数据不存在'}</Text>
         </View>
@@ -353,7 +369,7 @@ const RatingDetailPage = () => {
             <Image
               src={resourceInfo.image_url || '/assets/placeholder.jpg'}
               className={styles.resourceImage}
-              mode='aspectFill'
+              mode="aspectFill"
             />
             <View className={styles.resourceDetails}>
               <Text className={styles.resourceTitle}>{resourceInfo.title}</Text>
@@ -381,17 +397,15 @@ const RatingDetailPage = () => {
           <View className={styles.ratingDistribution}>
             <Text className={styles.sectionTitle}>评分分布</Text>
             <View className={styles.distributionList}>
-              {[5, 4, 3, 2, 1].map(star => {
+              {[5, 4, 3, 2, 1].map((star) => {
                 const count = statistics.score_distribution[star.toString()] || 0
-                const percentage = statistics.total_ratings > 0 ? (count / statistics.total_ratings * 100) : 0
+                const percentage =
+                  statistics.total_ratings > 0 ? (count / statistics.total_ratings) * 100 : 0
                 return (
                   <View key={star} className={styles.distributionItem}>
                     <Text className={styles.starLabel}>{star}星</Text>
                     <View className={styles.progressBar}>
-                      <View
-                        className={styles.progressFill}
-                        style={{ width: `${percentage}%` }}
-                      />
+                      <View className={styles.progressFill} style={{ width: `${percentage}%` }} />
                     </View>
                     <Text className={styles.percentageText}>{percentage.toFixed(1)}%</Text>
                   </View>
@@ -403,25 +417,21 @@ const RatingDetailPage = () => {
 
         {/* 用户评分表单 */}
         <View className={styles.userRatingForm}>
-          <Text className={styles.sectionTitle}>
-            {userExistingRating ? '更新评价' : '写评价'}
-          </Text>
+          <Text className={styles.sectionTitle}>{userExistingRating ? '更新评价' : '写评价'}</Text>
           {userExistingRating && (
             <Text className={styles.updateHint}>您已评过分，可以更新您的评价</Text>
           )}
 
           <View className={styles.ratingInput}>
             <Text className={styles.ratingLabel}>评分:</Text>
-            <View className={styles.ratingStars}>
-              {renderRatingStars()}
-            </View>
+            <View className={styles.ratingStars}>{renderRatingStars()}</View>
           </View>
 
           <View className={styles.commentInput}>
             <Text className={styles.commentLabel}>评价:</Text>
             <Input
               className={styles.commentTextarea}
-              placeholder='分享你的使用体验...'
+              placeholder="分享你的使用体验..."
               value={newComment}
               onInput={(e) => setNewComment(e.detail.value)}
               maxlength={500}
@@ -443,12 +453,7 @@ const RatingDetailPage = () => {
             onClick={handleSubmitRating}
           >
             <Text className={styles.submitText}>
-              {submitting
-                ? '提交中...'
-                : userExistingRating
-                  ? '更新评价'
-                  : '发布评价'
-              }
+              {submitting ? '提交中...' : userExistingRating ? '更新评价' : '发布评价'}
             </Text>
           </View>
         </View>
@@ -459,25 +464,21 @@ const RatingDetailPage = () => {
 
           {ratings.length > 0 ? (
             <View className={styles.reviewsList}>
-              {ratings.map(rating => (
+              {ratings.map((rating) => (
                 <View key={rating.id} className={styles.reviewItem}>
                   <View className={styles.reviewHeader}>
                     <Image
                       src={rating.rater_avatar || '/assets/user.svg'}
                       className={styles.userAvatar}
-                      mode='aspectFill'
+                      mode="aspectFill"
                     />
                     <View className={styles.userInfo}>
                       <Text className={styles.username}>
                         {rating.is_anonymous ? '匿名用户' : rating.rater_nickname}
                       </Text>
-                      <View className={styles.reviewStars}>
-                        {renderStars(rating.score)}
-                      </View>
+                      <View className={styles.reviewStars}>{renderStars(rating.score)}</View>
                     </View>
-                    <Text className={styles.reviewDate}>
-                      {formatDate(rating.created_at)}
-                    </Text>
+                    <Text className={styles.reviewDate}>{formatDate(rating.created_at)}</Text>
                   </View>
 
                   <Text className={styles.reviewContent}>{rating.comment}</Text>
@@ -485,7 +486,9 @@ const RatingDetailPage = () => {
                   {rating.tags && rating.tags.length > 0 && (
                     <View className={styles.reviewTags}>
                       {rating.tags.map((tag: string) => (
-                        <Text key={tag} className={styles.reviewTag}>{tag}</Text>
+                        <Text key={tag} className={styles.reviewTag}>
+                          {tag}
+                        </Text>
                       ))}
                     </View>
                   )}

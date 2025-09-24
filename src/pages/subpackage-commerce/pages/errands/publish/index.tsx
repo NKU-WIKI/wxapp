@@ -1,15 +1,20 @@
-import { View, ScrollView, Text, Input, Textarea } from '@tarojs/components'
-import Taro from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
+
 import { useState, useCallback, useEffect } from 'react'
 
+import { View, ScrollView, Text, Input, Textarea } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
+import { useDispatch, useSelector } from 'react-redux'
+
+
 import CustomHeader from '@/components/custom-header'
-import { createErrand, clearError } from '@/store/slices/marketplaceSlice'
-import { RootState, AppDispatch } from '@/store'
-import { ErrandType } from '@/types/api/marketplace.d'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
+import { RootState, AppDispatch } from '@/store'
+import { createErrand, clearError } from '@/store/slices/marketplaceSlice'
+import { ErrandType } from '@/types/api/marketplace.d'
 
 import styles from './index.module.scss'
+
 
 const ErrandsPublishPage = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -82,14 +87,26 @@ const ErrandsPublishPage = () => {
           },
           fail: (_navError) => {
             // 导航失败，静默处理
-          }
+          },
         })
       }, 300)
     } catch (catchError) {
-      // 
+      //
       // 错误已经在slice中处理了，这里不需要额外处理
     }
-  }, [checkAuth, validateForm, title, content, errandType, reward, locationFrom, locationTo, deadline, contactInfo, dispatch])
+  }, [
+    checkAuth,
+    validateForm,
+    title,
+    content,
+    errandType,
+    reward,
+    locationFrom,
+    locationTo,
+    deadline,
+    contactInfo,
+    dispatch,
+  ])
 
   // 错误处理
   useEffect(() => {
@@ -124,7 +141,14 @@ const ErrandsPublishPage = () => {
   }
 
   // 表单输入组件
-  const FormInput = ({ label, placeholder, value, onChange, type = 'text' as const, isTextarea = false }) => (
+  const FormInput = ({
+    label,
+    placeholder,
+    value,
+    onChange,
+    type = 'text' as const,
+    isTextarea = false,
+  }) => (
     <View className={styles.formSection}>
       <Text className={styles.sectionTitle}>{label}</Text>
       {isTextarea ? (
@@ -154,8 +178,8 @@ const ErrandsPublishPage = () => {
         <Text className={styles.currencySymbol}>¥</Text>
         <Input
           className={styles.rewardInput}
-          type='digit'
-          placeholder='请输入金额'
+          type="digit"
+          placeholder="请输入金额"
           value={reward}
           onInput={(e) => setReward(e.detail.value)}
         />
@@ -177,7 +201,7 @@ const ErrandsPublishPage = () => {
 
   return (
     <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <CustomHeader title='发布需求' />
+      <CustomHeader title="发布需求" />
       <View style={{ flex: 1, overflow: 'hidden' }}>
         <ScrollView scrollY style={{ height: '100%' }} className={styles.pageContent}>
           <View className={styles.formSection}>
@@ -186,8 +210,8 @@ const ErrandsPublishPage = () => {
           </View>
 
           <FormInput
-            label='任务标题'
-            placeholder='请输入简洁的任务标题'
+            label="任务标题"
+            placeholder="请输入简洁的任务标题"
             value={title}
             onChange={setTitle}
           />
@@ -205,29 +229,29 @@ const ErrandsPublishPage = () => {
           <RewardInput />
 
           <FormInput
-            label='起始地点'
-            placeholder='请输入任务起始地点'
+            label="起始地点"
+            placeholder="请输入任务起始地点"
             value={locationFrom}
             onChange={setLocationFrom}
           />
 
           <FormInput
-            label='目的地点'
-            placeholder='请输入任务目的地点'
+            label="目的地点"
+            placeholder="请输入任务目的地点"
             value={locationTo}
             onChange={setLocationTo}
           />
 
           <FormInput
-            label='期望完成时间 (选填)'
-            placeholder='例如：今天下午3点前'
+            label="期望完成时间 (选填)"
+            placeholder="例如：今天下午3点前"
             value={deadline}
             onChange={setDeadline}
           />
 
           <FormInput
-            label='联系方式 (选填)'
-            placeholder='请输入您的联系方式'
+            label="联系方式 (选填)"
+            placeholder="请输入您的联系方式"
             value={contactInfo}
             onChange={setContactInfo}
           />

@@ -24,7 +24,6 @@ export const getStorage = <T>(key: string, defaultValue?: T): T | undefined => {
     const data = Taro.getStorageSync(key)
     return data || defaultValue
   } catch (error) {
-    
     return defaultValue
   }
 }

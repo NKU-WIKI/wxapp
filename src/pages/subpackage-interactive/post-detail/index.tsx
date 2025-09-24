@@ -143,22 +143,12 @@ setReplyTo({
   nickname: comment.author_nickname || '',
   replyToNickname: comment.author_nickname || '' // 保存被回复用户的昵称
 });
-  };
+};
 
-// 处理点赞状态更�?  const handleLikeUpdate = (_commentId: string, _isLiked: boolean, _likeCount: number) => {
+// 处理点赞状态更新
+const handleLikeUpdate = (_commentId: string, _isLiked: boolean, _likeCount: number) => {
 
-
-// 重新获取评论列表以同步状�?    if (postId) {
-
-dispatch(fetchComments({
-  resource_id: postId,
-  resource_type: 'post',
-  max_depth: 5,
-  limit_per_level: 10,
-  limit: 20
-}));
-    }
-  };
+};
 
 // 处理删除评论
 const handleDeleteComment = async (commentId: string) => {

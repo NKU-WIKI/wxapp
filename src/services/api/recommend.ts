@@ -1,7 +1,9 @@
-import { API } from "@/types/api/recommend";
+import { API } from '@/types/api/recommend'
+
+import { getRecommendPosts } from './post'
+
 
 // Relative imports
-import { getRecommendPosts } from "./post";
 
 /**
  * 获取推荐内容（帖子、用户等）
@@ -11,12 +13,12 @@ import { getRecommendPosts } from "./post";
 export const getRecommendations = async (params: API.RecommendParams) => {
   try {
     // 调用新的推荐帖子API
-    const response = await getRecommendPosts(params);
-    
+    const response = await getRecommendPosts(params)
+
     // 构造符合RecommendData结构的返回数据
     return {
       code: 0,
-      message: "success",
+      message: 'success',
       data: {
         hot_posts: response.data || [],
         new_posts: [],
@@ -25,19 +27,18 @@ export const getRecommendations = async (params: API.RecommendParams) => {
           total_hot_posts: response.data?.length || 0,
           total_new_posts: 0,
           total_recommended_posts: response.data?.length || 0,
-          data_sources: ["forums"],
+          data_sources: ['forums'],
           time_range: `${params.days || 7}天`,
           hot_weight: params.hot_weight || 0.7,
           new_weight: params.new_weight || 0.3,
-        }
-      }
-    };
+        },
+      },
+    }
   } catch (error) {
-    
     // 发生错误时返回空数据
     return {
       code: 0,
-      message: "success",
+      message: 'success',
       data: {
         hot_posts: [],
         new_posts: [],
@@ -47,17 +48,17 @@ export const getRecommendations = async (params: API.RecommendParams) => {
           total_new_posts: 0,
           total_recommended_posts: 0,
           data_sources: [],
-          time_range: "",
+          time_range: '',
           hot_weight: 0,
           new_weight: 0,
-        }
-      }
-    };
+        },
+      },
+    }
   }
-};
+}
 
 const recommendApi = {
   getRecommendations,
-};
+}
 
-export default recommendApi;
+export default recommendApi

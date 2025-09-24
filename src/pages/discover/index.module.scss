@@ -1,4 +1,4 @@
-@use "../../styles/variables.scss" as *;
+@use '../../styles/variables.scss' as *;
 
 .discoverPage {
   display: flex;
@@ -11,7 +11,7 @@
   flex: 1;
   width: 100%;
   height: calc(100vh - 80px); // 调整减去header高度，给更多滚动空间
-  
+
   // 隐藏滚动条
   ::-webkit-scrollbar {
     display: none;
@@ -44,7 +44,7 @@
 
 .hotspotItem {
   position: relative;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
@@ -102,7 +102,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 12px;
   height: 120px; // 从100px增加到120px，让方块变长
   padding: 16px 12px;
@@ -152,7 +152,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 12px;
   height: 120px;
   padding: 16px 12px;
@@ -205,7 +205,7 @@
 
 /* 热门帖子列表样式 */
 .hotPostsList {
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 16px;
   padding: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
@@ -264,7 +264,7 @@
 
 .pinnedBadge {
   font-size: 12px;
-  color: #ffffff;
+  color: #fff;
   background-color: #ff6b6b;
   padding: 2px 6px;
   border-radius: 4px;
@@ -374,7 +374,7 @@
 
 .moduleCard {
   flex: 1;
-  background: #ffffff;
+  background: #fff;
   border-radius: 8px;
   padding: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -401,12 +401,12 @@
       .moduleTitle {
         font-size: 16px;
         font-weight: bold;
-        color: #333333;
+        color: #333;
       }
 
       .moduleSubtitle {
         font-size: 12px;
-        color: #999999;
+        color: #999;
         margin-top: 2px;
       }
     }
@@ -460,14 +460,14 @@
 }
 
 .pinnedPostItem {
-  background: #ffffff;
+  background: #fff;
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
-  border-left: 4px solid #8B5CF6; // 紫色左边框表示置顶
+  border-left: 4px solid #8b5cf6; // 紫色左边框表示置顶
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:active {
     transform: scale(0.98);
     background: #fafafa;
@@ -491,7 +491,7 @@
   align-items: center;
   justify-content: center;
   background: rgba(139, 92, 246, 0.1);
-  color: #8B5CF6;
+  color: #8b5cf6;
   font-size: 12px;
   font-weight: 500;
   padding: 2px 8px;

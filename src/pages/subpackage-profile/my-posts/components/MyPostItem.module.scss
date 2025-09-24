@@ -7,7 +7,7 @@
   margin-bottom: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   position: relative;
-  
+
   &:active {
     background-color: #f8f8f8;
   }
@@ -39,7 +39,6 @@
 }
 
 .excerpt {
-  display: block;
   font-size: 14px;
   color: #666;
   line-height: 1.4;
@@ -71,8 +70,8 @@
   width: 20px;
   height: 20px;
   opacity: 0.6;
-  
+
   &:active {
     opacity: 1;
   }
-} 
+}

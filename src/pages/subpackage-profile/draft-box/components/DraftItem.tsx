@@ -1,13 +1,17 @@
-import { View, Image, Text } from '@tarojs/components';
-import { DraftPost } from '@/types/draft';
-import editIcon from '@/assets/pen-tool.svg';
-import deleteIcon from '@/assets/x.svg';
-import styles from './DraftItem.module.scss';
+import { View, Image, Text } from '@tarojs/components'
+
+
+import editIcon from '@/assets/pen-tool.svg'
+import deleteIcon from '@/assets/x.svg'
+import { DraftPost } from '@/types/draft'
+
+import styles from './DraftItem.module.scss'
+
 
 interface Props {
-  draft: DraftPost;
-  onEdit: () => void;
-  onDelete: () => void;
+  draft: DraftPost
+  onEdit: () => void
+  onDelete: () => void
 }
 
 const DraftItem = ({ draft, onEdit, onDelete }: Props) => {
@@ -33,16 +37,16 @@ const DraftItem = ({ draft, onEdit, onDelete }: Props) => {
         />
       </View>
     </View>
-  );
-};
-
-function formatTime(ts: number) {
-  const now = Date.now();
-  const diff = now - ts;
-  if (diff < 60 * 1000) return '刚刚';
-  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)} 分钟前`;
-  if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / 3600000)} 小时前`;
-  return `${Math.floor(diff / (24 * 3600000))} 天前`;
+  )
 }
 
-export default DraftItem; 
+function formatTime(ts: number) {
+  const now = Date.now()
+  const diff = now - ts
+  if (diff < 60 * 1000) return '刚刚'
+  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)} 分钟前`
+  if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / 3600000)} 小时前`
+  return `${Math.floor(diff / (24 * 3600000))} 天前`
+}
+
+export default DraftItem

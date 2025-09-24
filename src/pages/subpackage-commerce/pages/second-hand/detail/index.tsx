@@ -1,41 +1,52 @@
 // Third-party imports
-import { View, ScrollView, Text, Image } from '@tarojs/components'
-import Taro, { useRouter } from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useCallback } from 'react'
 
+
+import { View, ScrollView, Text, Image } from '@tarojs/components'
+import Taro, { useRouter } from '@tarojs/taro'
+
+import { useDispatch, useSelector } from 'react-redux'
+
 // Relative imports
+
+import locationIcon from '@/assets/map-pin.svg'
+import messageIcon from '@/assets/message-square.svg'
+import moreIcon from '@/assets/more-horizontal.svg'
+import placeholderImage from '@/assets/placeholder.jpg'
+import shareIcon from '@/assets/share.svg'
+import favoriteActiveIcon from '@/assets/star-filled.svg'
+import favoriteIcon from '@/assets/star-outline.svg'
+import ActionBar from '@/components/action-bar'
+import AuthorInfo from '@/components/author-info'
+import CommentSection from '@/components/comment-section'
 import CustomHeader from '@/components/custom-header'
-import { fetchListingDetail, deleteListing, clearError, updateListingState } from '@/store/slices/marketplaceSlice'
-import { RootState, AppDispatch } from '@/store'
-import { ListingRead } from '@/types/api/marketplace.d'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { useRelativeTime } from '@/hooks/useRelativeTime'
 import { useSharing } from '@/hooks/useSharing'
-import AuthorInfo from '@/components/author-info'
-import CommentSection from '@/components/comment-section'
-import { fetchCurrentUser } from '@/store/slices/userSlice'
+import { RootState, AppDispatch } from '@/store'
 import { fetchComments } from '@/store/slices/commentSlice'
-import ActionBar from '@/components/action-bar'
-
-// Assets imports
-import moreIcon from '@/assets/more-horizontal.svg'
-import locationIcon from '@/assets/map-pin.svg'
-import placeholderImage from '@/assets/placeholder.jpg'
-import messageIcon from '@/assets/message-square.svg'
-import favoriteIcon from '@/assets/star-outline.svg'
-import favoriteActiveIcon from '@/assets/star-filled.svg'
-import shareIcon from '@/assets/share.svg'
-
+import {
+  fetchListingDetail,
+  deleteListing,
+  clearError,
+  updateListingState,
+} from '@/store/slices/marketplaceSlice'
+import { fetchCurrentUser } from '@/store/slices/userSlice'
+import { ListingRead } from '@/types/api/marketplace.d'
 
 import styles from './index.module.scss'
+
+// Assets imports
+
 
 const SecondHandDetailPage = () => {
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
   const { checkAuth } = useAuthGuard()
 
-  const { currentListing, detailLoading, error } = useSelector((state: RootState) => state.marketplace)
+  const { currentListing, detailLoading, error } = useSelector(
+    (state: RootState) => state.marketplace
+  )
   const { comments } = useSelector((state: RootState) => state.comment)
   const userState = useSelector((state: RootState) => state.user)
   const currentUserId = useSelector((state: RootState) => state.user.user?.id)
@@ -48,24 +59,29 @@ const SecondHandDetailPage = () => {
   })
 
   // 获取商品详情和评论
-  const loadListingDetail = useCallback(async (id: string) => {
-    try {
-      await dispatch(fetchListingDetail(id)).unwrap()
+  const loadListingDetail = useCallback(
+    async (id: string) => {
+      try {
+        await dispatch(fetchListingDetail(id)).unwrap()
 
-      // 获取评论
-      await dispatch(fetchComments({
-        resource_id: id,
-        resource_type: 'listing',
-        skip: 0,
-        limit: 20,
-        max_depth: 3,
-        limit_per_level: 5
-      })).unwrap()
-    } catch (detailError) {
-      //
-      Taro.showToast({ title: '获取商品详情失败', icon: 'none' })
-    }
-  }, [dispatch])
+        // 获取评论
+        await dispatch(
+          fetchComments({
+            resource_id: id,
+            resource_type: 'listing',
+            skip: 0,
+            limit: 20,
+            max_depth: 3,
+            limit_per_level: 5,
+          })
+        ).unwrap()
+      } catch (detailError) {
+        //
+        Taro.showToast({ title: '获取商品详情失败', icon: 'none' })
+      }
+    },
+    [dispatch]
+  )
 
   // 处理删除商品
   const handleDelete = useCallback(async () => {
@@ -88,7 +104,7 @@ const SecondHandDetailPage = () => {
             Taro.showToast({ title: '删除失败', icon: 'none' })
           }
         }
-      }
+      },
     })
   }, [checkAuth, currentListing, dispatch])
 
@@ -99,7 +115,7 @@ const SecondHandDetailPage = () => {
 
     // 导航到商品编辑页面
     Taro.navigateTo({
-      url: `/pages/subpackage-commerce/pages/second-hand/publish/index?id=${currentListing.id}`
+      url: `/pages/subpackage-commerce/pages/second-hand/publish/index?id=${currentListing.id}`,
     }).catch(() => {
       Taro.showToast({ title: '编辑功能开发中', icon: 'none' })
     })
@@ -131,7 +147,7 @@ const SecondHandDetailPage = () => {
   const ProductInfo = ({ listing }: { listing: ListingRead }) => {
     const { formattedTime } = useRelativeTime(listing.created_at, {
       autoUpdate: true,
-      updateInterval: 60000 // 每分钟更新一次
+      updateInterval: 60000, // 每分钟更新一次
     })
 
     const listingOwnerId = listing.user_id || (listing as any).user?.id
@@ -140,24 +156,32 @@ const SecondHandDetailPage = () => {
     const handleMore = () => {
       if (!isOwner) return
       Taro.showActionSheet({
-        itemList: ['编辑商品', '删除商品']
-      }).then(res => {
-        if (res.tapIndex === 0) {
-          handleEdit()
-        } else if (res.tapIndex === 1) {
-          handleDelete()
-        }
-      }).catch(() => {})
+        itemList: ['编辑商品', '删除商品'],
+      })
+        .then((res) => {
+          if (res.tapIndex === 0) {
+            handleEdit()
+          } else if (res.tapIndex === 1) {
+            handleDelete()
+          }
+        })
+        .catch(() => {})
     }
 
     const getConditionText = (condition: string | undefined) => {
       switch (condition) {
-        case 'new': return '全新'
-        case 'like_new': return '九成新'
-        case 'good': return '八成新'
-        case 'acceptable': return '七成新'
-        case 'damaged': return '其他'
-        default: return '其他'
+        case 'new':
+          return '全新'
+        case 'like_new':
+          return '九成新'
+        case 'good':
+          return '八成新'
+        case 'acceptable':
+          return '七成新'
+        case 'damaged':
+          return '其他'
+        default:
+          return '其他'
       }
     }
 
@@ -186,9 +210,7 @@ const SecondHandDetailPage = () => {
         </View>
 
         <View className={styles.productMeta}>
-          <Text className={styles.productTime}>
-            发布时间: {formattedTime}
-          </Text>
+          <Text className={styles.productTime}>发布时间: {formattedTime}</Text>
           <Text className={styles.productCondition}>
             成色: {getConditionText(listing.condition)}
           </Text>
@@ -208,9 +230,7 @@ const SecondHandDetailPage = () => {
         {/* 商品分类信息 */}
         {listing.category && (
           <View className={styles.productCategory}>
-            <Text className={styles.categoryText}>
-              分类: {listing.category.name}
-            </Text>
+            <Text className={styles.categoryText}>分类: {listing.category.name}</Text>
           </View>
         )}
       </View>
@@ -219,16 +239,19 @@ const SecondHandDetailPage = () => {
 
   // 商品图片组件
   const ProductImages = ({ images }: { images?: string[] }) => {
-    const handleImagePreview = useCallback((currentIndex: number) => {
-      if (!images || images.length === 0) return
+    const handleImagePreview = useCallback(
+      (currentIndex: number) => {
+        if (!images || images.length === 0) return
 
-      Taro.previewImage({
-        current: images[currentIndex],
-        urls: images
-      })
-    }, [images])
+        Taro.previewImage({
+          current: images[currentIndex],
+          urls: images,
+        })
+      },
+      [images]
+    )
 
-    const validImages = images?.filter(img => img && img.trim()) || []
+    const validImages = images?.filter((img) => img && img.trim()) || []
 
     return (
       <View className={styles.productImages}>
@@ -238,16 +261,12 @@ const SecondHandDetailPage = () => {
               key={`image-${index}-${image}`}
               src={image}
               className={styles.productImage}
-              mode='aspectFill'
+              mode="aspectFill"
               onClick={() => handleImagePreview(index)}
             />
           ))
         ) : (
-          <Image
-            src={placeholderImage}
-            className={styles.productImage}
-            mode='aspectFill'
-          />
+          <Image src={placeholderImage} className={styles.productImage} mode="aspectFill" />
         )}
       </View>
     )
@@ -257,9 +276,7 @@ const SecondHandDetailPage = () => {
   const ProductDescription = ({ content }: { content?: string }) => (
     <View className={styles.productDescription}>
       <Text className={styles.descriptionTitle}>商品描述</Text>
-      <Text className={styles.descriptionContent}>
-        {content || '暂无描述'}
-      </Text>
+      <Text className={styles.descriptionContent}>{content || '暂无描述'}</Text>
     </View>
   )
 
@@ -267,7 +284,7 @@ const SecondHandDetailPage = () => {
   const ProductTags = ({ tags }: { tags?: string[] }) => {
     // 如果没有标签或标签数组为空，不渲染任何内容
     if (!tags || tags.length === 0) {
-      return null;
+      return null
     }
 
     return (
@@ -278,14 +295,14 @@ const SecondHandDetailPage = () => {
           </Text>
         ))}
       </View>
-    );
+    )
   }
 
   // 加载状态
   if (detailLoading === 'pending') {
     return (
       <View className={styles.pageContainer}>
-        <CustomHeader title='商品详情' />
+        <CustomHeader title="商品详情" />
         <View className={styles.loadingContainer}>
           <Text className={styles.loadingText}>加载中...</Text>
         </View>
@@ -297,7 +314,7 @@ const SecondHandDetailPage = () => {
   if (!currentListing) {
     return (
       <View className={styles.pageContainer}>
-        <CustomHeader title='商品详情' />
+        <CustomHeader title="商品详情" />
         <View className={styles.emptyContainer}>
           <Text className={styles.emptyText}>商品不存在或已下架</Text>
         </View>
@@ -308,21 +325,16 @@ const SecondHandDetailPage = () => {
   // 主页面内容
   return (
     <View className={styles.pageContainer}>
-      <CustomHeader title='商品详情' />
+      <CustomHeader title="商品详情" />
       <View className={styles.contentContainer}>
-        <ScrollView
-          scrollY
-          className={styles.scrollView}
-          enableFlex
-          scrollWithAnimation
-        >
+        <ScrollView scrollY className={styles.scrollView} enableFlex scrollWithAnimation>
           <ProductImages images={currentListing.images} />
           <ProductInfo listing={currentListing} />
           <ProductTags tags={currentListing.tags} />
           <ProductDescription content={currentListing.content} />
           <AuthorInfo
             userId={currentListing.user_id}
-            mode='expanded'
+            mode="expanded"
             showBio
             showFollowButton
             showStats
@@ -345,26 +357,26 @@ const SecondHandDetailPage = () => {
       <View className={styles.bottomActionBarContainer}>
         <ActionBar
           targetId={currentListing.id}
-          targetType='listing'
+          targetType="listing"
           initialStates={{
             'favorite-0': {
               isActive: currentListing.is_favorited || false,
-              count: currentListing.favorite_count || 0
+              count: currentListing.favorite_count || 0,
             },
             'comment-1': {
               isActive: false,
-              count: currentListing.comment_count || 0 // 使用商品的评论计数
+              count: currentListing.comment_count || 0, // 使用商品的评论计数
             },
             'share-2': {
               isActive: false,
-              count: currentListing.share_count || 0
-            }
+              count: currentListing.share_count || 0,
+            },
           }}
           buttons={[
             {
               type: 'favorite',
               icon: favoriteIcon,
-              activeIcon: favoriteActiveIcon
+              activeIcon: favoriteActiveIcon,
             },
             {
               type: 'comment',
@@ -372,20 +384,22 @@ const SecondHandDetailPage = () => {
             },
             {
               type: 'share',
-              icon: shareIcon
-            }
+              icon: shareIcon,
+            },
           ]}
           onStateChange={(type, isActive, count) => {
             // ActionBar 已经完全处理了操作，这里可以添加额外的业务逻辑
             if (type === 'favorite') {
               // 同步更新 Redux store 中的状态
-              dispatch(updateListingState({
-                id: currentListing.id,
-                data: {
-                  is_favorited: isActive,
-                  favorite_count: count
-                }
-              }));
+              dispatch(
+                updateListingState({
+                  id: currentListing.id,
+                  data: {
+                    is_favorited: isActive,
+                    favorite_count: count,
+                  },
+                })
+              )
             } else if (type === 'comment') {
               // 评论按钮被点击，聚焦到评论区域
               // 这里可以实现滚动到 CommentSection 的逻辑

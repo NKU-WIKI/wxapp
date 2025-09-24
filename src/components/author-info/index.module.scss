@@ -1,4 +1,4 @@
-@use "../../styles/variables.scss" as *;
+@use '../../styles/variables.scss' as *;
 
 .container {
   background-color: #fff;
@@ -212,8 +212,9 @@
 .loading {
   .loadingSkeleton {
     height: 120px;
-    background: linear-gradient(90deg, $bg-input 25%, transparent 25%),
-                linear-gradient(90deg, transparent 50%, $bg-input 50%);
+    background:
+      linear-gradient(90deg, $bg-input 25%, transparent 25%),
+      linear-gradient(90deg, transparent 50%, $bg-input 50%);
     background-size: 20px 100%;
     animation: loading 1.5s infinite;
   }
@@ -258,7 +259,7 @@
   border-radius: 18px;
   margin-right: 10px;
   flex-shrink: 0;
-  
+
   // 当传入exploreAvatar样式类时，应用小头像样式
   &.exploreAvatar {
     width: 24px; // explore页面专用的小头像尺寸
@@ -582,8 +583,6 @@
   padding: 8px 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
-
 
 .profileMenuItem {
   display: flex;

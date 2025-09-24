@@ -1,4 +1,4 @@
-@use "../../styles/variables.scss" as *;
+@use '../../styles/variables.scss' as *;
 
 .categoriesContainer {
   display: flex;
@@ -37,10 +37,6 @@
       mask-size: contain;
       mask-position: center;
       mask-repeat: no-repeat;
-      -webkit-mask-image: var(--icon-url);
-      -webkit-mask-size: contain;
-      -webkit-mask-position: center;
-      -webkit-mask-repeat: no-repeat;
     }
   }
 
@@ -58,4 +54,4 @@
     text-align: center;
     white-space: nowrap; // 防止换行
   }
-} 
+}

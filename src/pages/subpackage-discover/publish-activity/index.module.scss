@@ -1,15 +1,17 @@
 .publishActivityPage {
   padding: 16rpx 16rpx 24rpx;
-  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 60%, #ffffff 100%);
+  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 60%, #fff 100%);
   min-height: 100vh;
   box-sizing: border-box;
 }
 
 // 统一阴影 & 动画变量
 $card-radius: 20rpx;
-$card-shadow: 0 4rpx 14rpx rgba(15,23,42,0.06), 0 2rpx 4rpx rgba(15,23,42,0.04);
+$card-shadow:
+  0 4rpx 14rpx rgba(15, 23, 42, 0.06),
+  0 2rpx 4rpx rgba(15, 23, 42, 0.04);
 $primary: #4f46e5;
-$primary-grad: linear-gradient(135deg,#6366f1 0%,#4f46e5 55%,#4338ca 100%);
+$primary-grad: linear-gradient(135deg, #6366f1 0%, #4f46e5 55%, #4338ca 100%);
 $text-dark: #1e293b;
 $text-secondary: #64748b;
 
@@ -30,7 +32,7 @@ $text-secondary: #64748b;
   color: $text-dark;
   margin-bottom: 6rpx;
   font-weight: 600;
-  letter-spacing: .5rpx;
+  letter-spacing: 0.5rpx;
   display: flex;
   align-items: center;
   gap: 8rpx;
@@ -67,8 +69,11 @@ $text-secondary: #64748b;
   margin-left: 4rpx;
 }
 
-.input, .textarea, .picker, .selector {
-  background: #ffffff;
+.input,
+.textarea,
+.picker,
+.selector {
+  background: #fff;
   border: 2rpx solid #e2e8f0;
   border-radius: 14rpx;
   padding: 20rpx 18rpx;
@@ -83,7 +88,7 @@ $text-secondary: #64748b;
     // 移除焦点时的蓝色效果
     border-color: #e2e8f0;
     box-shadow: none;
-    background: #ffffff;
+    background: #fff;
     outline: none;
   }
   &::placeholder {
@@ -100,11 +105,14 @@ $text-secondary: #64748b;
 }
 
 // 标签输入微调
-.tagsInput { font-size: 26rpx; letter-spacing: .5rpx; }
+.tagsInput {
+  font-size: 26rpx;
+  letter-spacing: 0.5rpx;
+}
 
 // 选择器包装器样式
 .pickerWrapper {
-  background: #ffffff;
+  background: #fff;
   border: 2rpx solid #e2e8f0;
   border-radius: 14rpx;
   padding: 20rpx 18rpx;
@@ -127,7 +135,11 @@ $text-secondary: #64748b;
   font-weight: 600;
   transform: rotate(90deg);
 }
-.helper { font-size: 22rpx; color: #94a3b8; margin-top: 6rpx; }
+.helper {
+  font-size: 22rpx;
+  color: #94a3b8;
+  margin-top: 6rpx;
+}
 
 // 活动分类选择器样式
 .categorySelector {
@@ -147,7 +159,7 @@ $text-secondary: #64748b;
   position: relative;
   overflow: hidden;
   // 移除所有过渡动画和悬停效果以避免闪烁
-  box-shadow: 0 2rpx 4rpx rgba(15,23,42,0.04);
+  box-shadow: 0 2rpx 4rpx rgba(15, 23, 42, 0.04);
   flex-grow: 1;
   text-align: center;
   min-width: 30%;
@@ -162,7 +174,9 @@ $text-secondary: #64748b;
   background: $primary-grad;
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 4rpx 10rpx rgba(79,70,229,0.35),0 2rpx 4rpx rgba(79,70,229,0.25);
+  box-shadow:
+    0 4rpx 10rpx rgba(79, 70, 229, 0.35),
+    0 2rpx 4rpx rgba(79, 70, 229, 0.25);
 }
 
 .typeSelector {
@@ -183,7 +197,7 @@ $text-secondary: #64748b;
   position: relative;
   overflow: hidden;
   // 移除所有过渡动画和悬停效果以避免闪烁
-  box-shadow: 0 2rpx 4rpx rgba(15,23,42,0.04);
+  box-shadow: 0 2rpx 4rpx rgba(15, 23, 42, 0.04);
   flex: 1;
   text-align: center;
   max-width: 28%;
@@ -197,7 +211,9 @@ $text-secondary: #64748b;
   background: $primary-grad;
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 4rpx 10rpx rgba(79,70,229,0.35),0 2rpx 4rpx rgba(79,70,229,0.25);
+  box-shadow:
+    0 4rpx 10rpx rgba(79, 70, 229, 0.35),
+    0 2rpx 4rpx rgba(79, 70, 229, 0.25);
 }
 
 .submitBtn {
@@ -210,7 +226,9 @@ $text-secondary: #64748b;
   font-size: 32rpx;
   font-weight: 600;
   letter-spacing: 2rpx;
-  box-shadow: 0 8rpx 18rpx -4rpx rgba(79,70,229,0.55),0 4rpx 10rpx -2rpx rgba(79,70,229,0.35);
+  box-shadow:
+    0 8rpx 18rpx -4rpx rgba(79, 70, 229, 0.55),
+    0 4rpx 10rpx -2rpx rgba(79, 70, 229, 0.35);
   position: relative;
   overflow: hidden;
   // 移除过渡动画以避免闪烁
@@ -218,7 +236,7 @@ $text-secondary: #64748b;
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg,rgba(255,255,255,0.15),rgba(255,255,255,0));
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
     mix-blend-mode: overlay;
   }
   &:active {
@@ -228,8 +246,8 @@ $text-secondary: #64748b;
 }
 
 .disabledBtn {
-  opacity: .45;
-  filter: grayscale(.15);
+  opacity: 0.45;
+  filter: grayscale(0.15);
   box-shadow: none;
   pointer-events: none;
 }
@@ -308,7 +326,7 @@ $text-secondary: #64748b;
   align-items: center;
   justify-content: center;
   gap: 8rpx;
-  background: #ffffff;
+  background: #fff;
   border: 2rpx solid #e2e8f0;
   border-radius: 14rpx;
   padding: 20rpx 18rpx;
@@ -334,7 +352,7 @@ $text-secondary: #64748b;
 
 // 日期时间选择器样式
 .datetimePicker {
-  background: #ffffff;
+  background: #fff;
   border: 2rpx solid #e2e8f0;
   border-radius: 14rpx;
   padding: 20rpx 18rpx;
@@ -354,7 +372,7 @@ $text-secondary: #64748b;
     // 移除激活时的效果
     border-color: #e2e8f0;
     box-shadow: none;
-    background: #ffffff;
+    background: #fff;
   }
 
   // 确保文字不会影响点击事件
@@ -364,7 +382,7 @@ $text-secondary: #64748b;
 }
 
 .value {
-  color: #333333;
+  color: #333;
   flex: 1;
 }
 
@@ -384,7 +402,9 @@ $text-secondary: #64748b;
 
 // 轻量全局微调（限当前页面作用域）
 .publishActivityPage {
-  .formItem:last-of-type { margin-bottom: 4rpx; }
+  .formItem:last-of-type {
+    margin-bottom: 4rpx;
+  }
 }
 
 // 隐藏样式类 - 用于控制条件渲染的元素显示/隐藏
@@ -393,6 +413,9 @@ $text-secondary: #64748b;
 }
 
 // 响应式（大屏宽度兼容）
-@media screen and (min-width: 768px) {
-  .publishActivityPage { max-width: 850rpx; margin: 0 auto; }
+@media screen and (width >= 768px) {
+  .publishActivityPage {
+    max-width: 850rpx;
+    margin: 0 auto;
+  }
 }

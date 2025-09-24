@@ -1,6 +1,7 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
-import rootReducer from './rootReducer';
+import { configureStore } from '@reduxjs/toolkit'
+import { persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist'
+
+import rootReducer from './rootReducer'
 
 // Configure the store
 export const store = configureStore({
@@ -12,12 +13,12 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),
-});
+})
 
 // Create the persistor
-export const persistor = persistStore(store);
+export const persistor = persistStore(store)
 
-export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof store.getState>
 
-export default store;
+export default store

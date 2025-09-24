@@ -1,4 +1,4 @@
-@use "../../../styles/variables.scss" as *;
+@use '../../../styles/variables.scss' as *;
 
 .learningMaterialsPage {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -14,7 +14,7 @@
 
 /* 固定头部容器 */
 .fixedHeader {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 /* 内容滚动区域 */
@@ -25,7 +25,7 @@
 
 /* 标签栏 */
 .tagsContainer {
-  padding: 8px 16px 16px 16px; // 与其他模块一致
+  padding: 8px 16px 16px; // 与其他模块一致
   white-space: nowrap;
 }
 
@@ -53,8 +53,8 @@
 }
 
 .activeTag {
-  background: #4F46E5;
-  border: 1px solid #4F46E5;
+  background: #4f46e5;
+  border: 1px solid #4f46e5;
   transform: none;
   box-shadow: none;
 }
@@ -69,7 +69,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin: 16px 16px 32px 16px; // 添加左右间距，与整体布局保持一致
+  margin: 16px 16px 32px; // 添加左右间距，与整体布局保持一致
 }
 
 .categoryCard {
@@ -118,7 +118,7 @@
 
 /* 最新上传 */
 .latestUploads {
-  margin: 0 16px 80px 16px;
+  margin: 0 16px 80px;
   /* 添加左右间距，减少顶部间距，为浮动按钮留出空间 */
 }
 
@@ -134,7 +134,7 @@
   display: flex;
   align-items: center;
   background-color: #fff;
-  padding: 16px 16px;
+  padding: 16px;
   /* 增加内边距 */
   border-radius: 12px;
   /* 增加圆角 */

@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import url('@/styles/variables.scss');
 
 .page-container {
   display: flex;
@@ -40,7 +40,7 @@
   background-color: $bg-card;
   padding: 15px;
   border-radius: 8px;
-  
+
   .menuItem {
     position: relative;
     display: flex;
@@ -59,7 +59,7 @@
       position: absolute;
       top: -5px;
       right: 5px;
-      background-color: #EF4444; // error color
+      background-color: #ef4444; // error color
       color: #fff;
       border-radius: 50%;
       min-width: 18px;

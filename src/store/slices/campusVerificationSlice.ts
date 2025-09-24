@@ -38,17 +38,18 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
 
 
     // 如果没有申请记录，返回未认证状�?    if (!applications || applications.length === 0) {
-
-    return {
-      is_verified: false,
-      verification_status: undefined,
-      verification_info: undefined,
-    } as CampusVerificationInfo;
-  }
+      return {
+        is_verified: false,
+        verification_status: undefined,
+        verification_info: undefined,
+      } as CampusVerificationInfo;
+    }
 
     // 按提交时间倒序排序，获取最新的申请
-    const sortedApplications = applications.sort((a, b) =>
-      new Date(b.submitted_at || b.created_at).getTime() - new Date(a.submitted_at || a.created_at).getTime()
+    const sortedApplications = applications.sort(
+      (a, b) =>
+        new Date(b.submitted_at || b.created_at).getTime() -
+        new Date(a.submitted_at || a.created_at).getTime()
     );
 
     const latestApplication = sortedApplications[0];

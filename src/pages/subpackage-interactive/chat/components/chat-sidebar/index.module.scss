@@ -7,7 +7,7 @@
   flex-direction: column;
   width: 280px;
   height: 100vh; /* 使用 vh 确保占满整个视口高度 */
-  background-color: #ffffff;
+  background-color: #fff;
   border-right: 1px solid #e8e8e8;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
   /* 移除固定的padding-top，改为使用动态内联样式 */
@@ -16,8 +16,12 @@
 }
 
 @keyframes slideIn {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .header {
@@ -76,7 +80,9 @@
   margin: 4px 8px; /* 调整外边距 */
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 
   &:hover {
     background-color: #f0f0f0;
@@ -162,7 +168,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // 加载文本
@@ -207,6 +215,10 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

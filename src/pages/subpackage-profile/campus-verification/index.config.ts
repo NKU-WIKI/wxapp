@@ -3,5 +3,5 @@ export default {
   enableShareTimeline: true,
   enableShareAppMessage: true,
   enablePullDownRefresh: false,
-  backgroundTextStyle: 'dark'
-}; 
+  backgroundTextStyle: 'dark',
+}

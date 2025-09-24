@@ -1,10 +1,13 @@
-import { View, Image, Text } from "@tarojs/components";
-import { ReactNode } from "react";
-import styles from "./index.module.scss";
+import { ReactNode } from 'react'
+
+import { View, Image, Text } from '@tarojs/components'
+
+
+import styles from './index.module.scss'
 
 interface EmptyStateProps {
-  icon: string;
-  text: string | ReactNode;
+  icon: string
+  text: string | ReactNode
 }
 
 export default function EmptyState({ icon, text }: EmptyStateProps) {
@@ -13,5 +16,5 @@ export default function EmptyState({ icon, text }: EmptyStateProps) {
       <Image src={icon} className={styles.emptyIcon} />
       <Text className={styles.emptyText}>{text}</Text>
     </View>
-  );
+  )
 }

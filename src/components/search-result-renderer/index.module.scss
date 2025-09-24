@@ -1,4 +1,4 @@
-@import "../../styles/variables.scss";
+@import url('../../styles/variables.scss');
 
 /* 搜索结果渲染器样式 */
 .resultWrapper {
@@ -229,7 +229,7 @@
 }
 
 /* 响应式设计 */
-@media (max-width: 375px) {
+@media (width <= 375px) {
   .resultContent {
     padding: 12px;
   }

@@ -1,28 +1,29 @@
-import { HistoryItem } from '@/types/history';
-import { createViewHistory } from '@/services/api/user';
-import { CreateViewHistoryRequest } from '@/types/api/user';
+
+import { createViewHistory } from '@/services/api/user'
+import { CreateViewHistoryRequest } from '@/types/api/user'
+import { HistoryItem } from '@/types/history'
+
+import { getStorage, setStorage } from './storage'
 
 // Relative imports
-import { getStorage, setStorage } from './storage';
 
-const HISTORY_KEY = 'browse_history';
-const MAX_HISTORY = 200;
+const HISTORY_KEY = 'browse_history'
+const MAX_HISTORY = 200
 
 /**
  * 记录浏览历史到服务器
  * @param targetType 目标类型
  * @param targetId 目标ID
  */
-export async function recordViewHistory(targetType: "post" | "product" | "user", targetId: number) {
+export async function recordViewHistory(targetType: 'post' | 'product' | 'user', targetId: number) {
   try {
     const requestData: CreateViewHistoryRequest = {
       target_type: targetType,
-      target_id: targetId
-    };
-    
-    await createViewHistory(requestData);
+      target_id: targetId,
+    }
+
+    await createViewHistory(requestData)
   } catch (error) {
-    
     // 不抛出错误，避免影响用户体验
   }
 }
@@ -31,14 +32,14 @@ export async function recordViewHistory(targetType: "post" | "product" | "user",
  * 添加一条浏览历史（本地存储）
  */
 export function addHistory(item: HistoryItem) {
-  let history: HistoryItem[] = getStorage<HistoryItem[]>(HISTORY_KEY, []) || [];
+  let history: HistoryItem[] = getStorage<HistoryItem[]>(HISTORY_KEY, []) || []
   // 先移除同id的
-  history = history.filter(h => h.id !== item.id);
+  history = history.filter((h) => h.id !== item.id)
   // 插入到最前面
-  history.unshift(item);
+  history.unshift(item)
   // 限制最大条数
-  if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
-  setStorage(HISTORY_KEY, history);
+  if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY)
+  setStorage(HISTORY_KEY, history)
 }
 
 /**
@@ -49,12 +50,12 @@ export function addHistory(item: HistoryItem) {
  */
 export async function addHistoryWithServerSync(
   item: HistoryItem,
-  _targetType: "post" | "product" | "user",
+  _targetType: 'post' | 'product' | 'user',
   _targetId: number
 ) {
   // 先记录到本地
-  addHistory(item);
-  
+  addHistory(item)
+
   // 暂时注释掉服务器API调用，等后端开发完成后再启用
   // await recordViewHistory(targetType, targetId);
 }
@@ -65,24 +66,24 @@ export async function addHistoryWithServerSync(
  * @param pageSize 每页条数
  */
 export function getHistory(page = 1, pageSize = 20): HistoryItem[] {
-  const history: HistoryItem[] = getStorage<HistoryItem[]>(HISTORY_KEY, []) || [];
-  const start = (page - 1) * pageSize;
-  return history.slice(start, start + pageSize);
+  const history: HistoryItem[] = getStorage<HistoryItem[]>(HISTORY_KEY, []) || []
+  const start = (page - 1) * pageSize
+  return history.slice(start, start + pageSize)
 }
 
 /**
  * 删除单条历史
  */
 export function removeHistory(id: string) {
-  let history: HistoryItem[] = getStorage<HistoryItem[]>(HISTORY_KEY, []) || [];
-  history = history.filter(h => h.id !== id);
-  setStorage(HISTORY_KEY, history);
+  let history: HistoryItem[] = getStorage<HistoryItem[]>(HISTORY_KEY, []) || []
+  history = history.filter((h) => h.id !== id)
+  setStorage(HISTORY_KEY, history)
 }
 
 /**
  * 清空所有历史
  */
 export function clearHistory() {
-  setStorage(HISTORY_KEY, []);
+  setStorage(HISTORY_KEY, [])
 }
-// 调用 clearHistory() 可清空所有浏览历史 
+// 调用 clearHistory() 可清空所有浏览历史

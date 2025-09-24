@@ -1,4 +1,4 @@
-@use "../../styles/variables.scss" as *;
+@use '../../styles/variables.scss' as *;
 
 .explorePage {
   display: flex;
@@ -52,7 +52,7 @@
 // 这些样式已由SearchBar组件提供，不再需要
 
 .resultsContainer {
-  padding: 0px 16px 16px 16px; // 移除上边距
+  padding: 0 16px 16px; // 移除上边距
 }
 
 .resultItem {
@@ -99,10 +99,9 @@
   color: $text-secondary;
 }
 
-
 .loadingState,
 .errorState {
-  padding: 24px 16px 40px 16px; // 减少上边距，保持左右和下边距
+  padding: 24px 16px 40px; // 减少上边距，保持左右和下边距
   text-align: center;
   color: $text-helper-light;
 }
@@ -114,8 +113,6 @@
   gap: 8px;
   min-height: 200px;
 }
-
-
 
 .spinner {
   width: 16px;
@@ -136,11 +133,10 @@
   }
 }
 
-
 /* Fallback views */
 .searchSkillsContainer {
   flex: 1;
-  padding: 16px 16px 16px 16px; // 添加上边距，避免被搜索框遮挡
+  padding: 16px; // 添加上边距，避免被搜索框遮挡
   background-color: $bg-card;
   height: 100%;
 }
@@ -249,7 +245,7 @@
 }
 
 .masonryWrapper {
-  padding: 0px 12px 12px 12px;
+  padding: 0 12px 12px;
   /* 移除上边距，只保留左右下边距 */
 }
 
@@ -320,7 +316,6 @@
 .loginPromptButtonText {
   color: white;
 }
-
 
 /* 底部占位元素，防止内容被tab bar遮挡 */
 .bottomSpacer {
