@@ -11,6 +11,7 @@ import CustomHeader from "@/components/custom-header";
 import AuthFloatingButton from "@/components/auth-floating-button";
 import SearchBar from "@/components/search-bar";
 import HighlightText from "@/components/highlight-text";
+import RegistrationModal from "@/components/registration-modal";
 
 import styles from "./index.module.scss";
 
@@ -35,6 +36,10 @@ export default function ActivitySquare() {
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  // 弹窗相关状态
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<ActivityRead | null>(null);
 
   // 活动分类列表
   const categories = [
@@ -321,21 +326,33 @@ export default function ActivitySquare() {
         return;
       }
 
-          const result = await Taro.showModal({
-            title: '确认报名',
-            content: `确定要报名参加"${act.title}"吗？`,
-            confirmText: '确认',
-            cancelText: '取消'
-          });
+      // 打开弹窗
+      setSelectedActivity(act);
+      setIsModalOpen(true);
 
-      if (!result.confirm) {
-        return;
-      }
+    } catch (error) {
+      Taro.hideLoading();
+      Taro.showToast({
+        title: '网络错误，请重试',
+        icon: 'none'
+      });
+    }
+  };
 
+  const handleConfirmRegistration = async (name: string, studentId: string) => {
+    if (!selectedActivity) return;
+
+    setIsModalOpen(false);
+
+    try {
       Taro.showLoading({ title: '报名中...' });
 
       const response = await activityApi.joinActivity({
-        activity_id: act.id
+        activity_id: selectedActivity.id,
+        participant_info: {
+          name,
+          student_id: studentId,
+        }
       });
 
       Taro.hideLoading();
@@ -350,16 +367,16 @@ export default function ActivitySquare() {
           const participantNickname = currentUser.nickname || '用户';
 
           ActivityNotificationHelper.handleParticipantJoinSuccessNotification({
-            activity: act,
+            activity: selectedActivity,
             participantId: currentUser.id,
             participantNickname
           }).catch(_error => {
             // 通知发送失败不影响主流程
           });
 
-          if (act.organizer?.id) {
+          if (selectedActivity.organizer?.id) {
             ActivityNotificationHelper.handleActivityJoinedNotification({
-              activity: act,
+              activity: selectedActivity,
               participantId: currentUser.id,
               participantNickname
             }).catch(_error => {
@@ -772,6 +789,16 @@ export default function ActivitySquare() {
           <Text>{hasMore ? '上拉加载更多' : '已经到底了'}</Text>
         </View>
       </ScrollView>
+
+      {/* 报名信息填写弹窗 */}
+      {selectedActivity && (
+        <RegistrationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={handleConfirmRegistration}
+          activityTitle={selectedActivity.title}
+        />
+      )}
 
       {/* 带鉴权的悬浮发布活动按钮 */}
       <AuthFloatingButton
