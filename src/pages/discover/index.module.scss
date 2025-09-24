@@ -11,7 +11,7 @@
   flex: 1;
   width: 100%;
   height: calc(100vh - 80px); // 调整减去header高度，给更多滚动空间
-  
+
   // 隐藏滚动条
   ::-webkit-scrollbar {
     display: none;
@@ -249,46 +249,51 @@
 .rankWrapper {
   display: flex;
   align-items: center;
-  gap: 16px;
   flex: 1;
-  min-width: 0;
+  overflow: hidden; // 防止内容溢出
+}
+
+.titleAndScoreWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden; // 确保长标题能被截断
 }
 
 .titleWrapper {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
+  overflow: hidden; // 确保长标题能被截断
 }
 
 .pinnedBadge {
-  font-size: 12px;
+  font-size: 11px;
   color: #ffffff;
   background-color: #ff6b6b;
-  padding: 2px 6px;
+  padding: 1px 5px;
   border-radius: 4px;
   flex-shrink: 0;
-  font-weight: 500;
+  font-weight: 600;
+  margin-right: 8px;
 }
 
 .hotBadge {
-  font-size: 14px;
-  color: #ff6b35;
-  flex-shrink: 0;
+  margin-right: 8px;
+  font-size: 16px;
 }
 
 .rankNumber {
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
   background: transparent;
+  margin-right: 8px;
 
   &.rank1 {
     color: #ff4757;
@@ -309,20 +314,25 @@
 
 .hotPostTitle {
   font-size: 16px;
-  color: #2d3436;
-  line-height: 1.4;
+  color: #333;
+  font-weight: 500;
+  flex-shrink: 1; // 允许标题收缩
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+}
+
+.hotPostScore {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  margin-left: 0; // 取消固定左边距
 }
 
 /* 阅读量样式 - 优化右对齐 */
 .hotPostReadCount {
-  font-size: 14px;
-  color: #74b9ff;
+  font-size: 24px;
+  color: #999;
   font-weight: 700;
   flex-shrink: 0;
   margin-left: 16px;
@@ -467,7 +477,7 @@
   border-left: 4px solid #8B5CF6; // 紫色左边框表示置顶
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:active {
     transform: scale(0.98);
     background: #fafafa;

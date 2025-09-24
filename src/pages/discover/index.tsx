@@ -280,24 +280,23 @@ export default function Discover() {
                               {rank}
                             </Text>
                           )}
-                          <View className={styles.titleWrapper}>
-                            {isPinned ? (
-                              <Text className={styles.pinnedBadge}>顶</Text>
-                            ) : (
-                              rank <= 3 && <Text className={styles.hotBadge}>🔥</Text>
+                          <View className={styles.titleAndScoreWrapper}>
+                            <View className={styles.titleWrapper}>
+                              {isPinned && <Text className={styles.pinnedBadge}>顶</Text>}
+                              <Text className={styles.hotPostTitle} numberOfLines={1}>
+                                {post.title}
+                              </Text>
+                            </View>
+                            {!isPinned && (
+                              <Text className={styles.hotPostScore}>
+                                {post.hot_score && post.hot_score > 1000
+                                  ? `热度 ${(post.hot_score / 1000).toFixed(1)}K`
+                                  : `热度 ${post.hot_score || 0}`}
+                              </Text>
                             )}
-                            <Text className={styles.hotPostTitle} numberOfLines={1}>
-                              {post.title}
-                            </Text>
                           </View>
                         </View>
-                        {!isPinned && (
-                          <Text className={styles.hotPostReadCount}>
-                            {post.hot_score && post.hot_score > 1000
-                              ? `${(post.hot_score / 1000).toFixed(1)}K`
-                              : post.hot_score || 0}
-                          </Text>
-                        )}
+                        {!isPinned && rank <= 3 && <Text className={styles.hotBadge}>🔥</Text>}
                       </View>
                     </View>
                   );
