@@ -68,18 +68,20 @@ const SecondHandHomePage = () => {
   // 使用商品详情hook
   const { loadProductDetails, isLoadingDetails } = useProductDetails()
 
-  // 跟踪用户是否主动进行了筛选操�?  const userFilterChangedRef = useRef(false)
+  // 跟踪用户是否主动进行了筛选操作
+  const userFilterChangedRef = useRef(false);
 
 
 
-  // 获取商品列表 - 支持搜索关键�?  const loadListings = useCallback(async (params: { skip?: number; refresh?: boolean; keyword?: string }) => {
-  try {
-    if (params?.refresh) {
-      setIsRefreshing(true)
-    }
+  // 获取商品列表 - 支持搜索关键词
+  const loadListings = useCallback(async (params: { skip?: number; refresh?: boolean; keyword?: string }) => {
+    try {
+      if (params?.refresh) {
+        setIsRefreshing(true);
+      }
 
-    const keyword = params.keyword || ''
-    const skip = params?.skip || 0
+      const keyword = params.keyword || '';
+      const skip = params?.skip || 0;
 
     // 如果有搜索关键词，使用统一搜索接口
     if (keyword.trim()) {
@@ -196,14 +198,15 @@ const handleSearch = useCallback(async () => {
       filters: {}
     }
 
-    // 只在用户主动选择类型时才添加类型过滤�?      if (selectedType !== 'all') {
-    searchParams.filters = {
-      listing_type: selectedType === 'sell' ? 'sell' : 'buy'
-    }
-  }
+      // 只在用户主动选择类型时才添加类型过滤
+      if (selectedType !== 'all') {
+        searchParams.filters = {
+          listing_type: selectedType === 'sell' ? 'sell' : 'buy'
+        };
+      }
 
-      const response = await searchApi.search(searchParams)
-  if (response.code === 0 && response.data) {
+      const response = await searchApi.search(searchParams);
+      if (response.code === 0 && response.data) {
     // 将搜索结果转换为现有�?Redux store 格式
     const searchResults = response.data.items.map(item => {
       // 处理ID，提取真正的ID部分
