@@ -35,10 +35,6 @@ async function upload() {
     const desc = process.env.DESC || '自动构建上传';
     const robot = process.env.ROBOT || 1; // 机器人编号，1-30
 
-    console.log('开始上传小程序...');
-    console.log(`版本号: ${version}`);
-    console.log(`描述: ${desc}`);
-    console.log(`机器人: ${robot}`);
 
     // 上传代码
     const uploadResult = await ci.upload({
@@ -58,12 +54,9 @@ async function upload() {
       }
     });
 
-    console.log('上传成功!');
-    console.log('上传结果:', uploadResult);
 
     // 预览二维码（可选）
     if (process.env.GENERATE_PREVIEW === 'true') {
-      console.log('生成预览二维码...');
       const previewResult = await ci.preview({
         project,
         desc: `预览版本 ${version}`,
@@ -81,11 +74,9 @@ async function upload() {
         qrcodeOutputDest: path.resolve(__dirname, '../preview.jpg'),
         pagePath: 'pages/index/index'
       });
-      console.log('预览二维码已生成:', previewResult);
     }
 
   } catch (error) {
-    console.error('上传失败:', error.message);
     process.exit(1);
   }
 }

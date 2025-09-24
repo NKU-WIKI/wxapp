@@ -4,8 +4,8 @@ import { User } from '@/types/api/user'
 import { LevelInfo } from '@/types/api/level'
 import { getUserById, getActionStatus } from '@/services/api/user'
 import { RootState } from '@/store'
-import { useAuthGuard } from './useAuthGuard'
 import { convertLevelToRealm } from '@/utils/levelConverter'
+import { useAuthGuard } from './useAuthGuard'
 
 export interface AuthorInfo {
   user: User

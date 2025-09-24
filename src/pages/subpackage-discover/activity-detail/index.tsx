@@ -53,7 +53,7 @@ export default function ActivityDetail() {
         Taro.showToast({ title: '活动不存在', icon: 'none' });
         Taro.navigateBack();
       }
-    } catch (error) {
+    } catch (_error) {
       Taro.showToast({ title: '加载失败', icon: 'none' });
       Taro.navigateBack();
     } finally {
@@ -140,8 +140,8 @@ export default function ActivityDetail() {
               participantId: currentUser.id,
               participantNickname
             });
-          } catch (error) {
-            // 通知发送失败不影响主流程
+        } catch (_error) {
+          // 通知发送失败不影响主流程
           }
 
           // 2. 发送给组织者的通知
@@ -150,7 +150,7 @@ export default function ActivityDetail() {
               activity: activity,
               participantId: currentUser.id,
               participantNickname
-            }).catch(error => {
+            }).catch(_error => {
               // 通知发送失败不影响主流程
             });
           }
@@ -164,7 +164,7 @@ export default function ActivityDetail() {
           icon: 'none'
         });
       }
-    } catch (error) {
+    } catch (_error) {
       Taro.hideLoading();
       Taro.showToast({
         title: '网络错误，请重试',
@@ -239,7 +239,7 @@ export default function ActivityDetail() {
               participantId: currentUser.id,
               participantNickname
             });
-        } catch (error) {
+        } catch (_error) {
           // 通知发送失败不影响主流程
           }
 
@@ -249,7 +249,7 @@ export default function ActivityDetail() {
               activity: activity,
               participantId: currentUser.id,
               participantNickname
-            }).catch(error => {
+            }).catch(_error => {
               // 通知发送失败不影响主流程
             });
           }
@@ -263,7 +263,7 @@ export default function ActivityDetail() {
           icon: 'none'
         });
       }
-    } catch (error) {
+    } catch (_error) {
       Taro.hideLoading();
       // 记录错误信息以便调试
       Taro.showToast({

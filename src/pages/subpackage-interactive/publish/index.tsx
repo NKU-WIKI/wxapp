@@ -55,7 +55,7 @@ const categories = [
 
 // 简单 uuid 生成
 function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
@@ -133,7 +133,7 @@ export default function PublishPost() {
 
   // 添加调试日志，查看当前选中的标签
   useEffect(() => {
-    
+
   }, [selectedTags]);
 
   // 编辑草稿时初始化内容
@@ -151,7 +151,7 @@ export default function PublishPost() {
             const withSharp = tagTexts.map((t: string) => (t && t.startsWith('#') ? t : `#${t}`));
             setSelectedTags(withSharp);
           }
-        } catch {}
+        } catch { }
         if ((draft as any).category_id) {
           setSelectedCategory((draft as any).category_id);
         }
@@ -172,7 +172,7 @@ export default function PublishPost() {
           try {
             const res = await getPostDetail(postId);
             p = res?.data;
-          } catch {}
+          } catch { }
         }
         if (p) {
           setTitle(p?.title || '');
@@ -180,18 +180,18 @@ export default function PublishPost() {
           const imgs: string[] = Array.isArray(p?.images)
             ? p.images
             : Array.isArray(p?.image_urls)
-            ? p.image_urls
-            : (typeof p?.image === 'string' ? [p.image] : Array.isArray(p?.image) ? p.image : []);
+              ? p.image_urls
+              : (typeof p?.image === 'string' ? [p.image] : Array.isArray(p?.image) ? p.image : []);
           if (imgs?.length) setImages(imgs);
           // 同步草稿的标签与分类
           try {
             const rawTags: any[] = Array.isArray((p as any).tags) ? (p as any).tags : [];
             const tagTexts = rawTags.map((t: any) => (typeof t === 'string' ? t : (t?.name || ''))).filter((t: string) => !!t);
             if (tagTexts.length > 0) setSelectedTags(tagTexts.map(formatTagForState));
-          } catch {}
+          } catch { }
           if ((p as any).category_id) setSelectedCategory((p as any).category_id);
-          try { await deleteDraft(postId); } catch {}
-          try { Taro.removeStorageSync('tmp_server_draft'); } catch {}
+          try { await deleteDraft(postId); } catch { }
+          try { Taro.removeStorageSync('tmp_server_draft'); } catch { }
         }
       } catch (e) {
         // ignore
@@ -363,52 +363,52 @@ export default function PublishPost() {
   });
 
   const handleChooseImage = () => {
-  // 检查文件上传权限
-  if (!checkFileUploadPermissionWithToast()) {
-    return;
-  }
-  
-  if (isUploading) return;
-  const count = 9 - images.length;
-  if (count <= 0) {
-    Taro.showToast({ title: "最多上传9张图片", icon: "none" });
-    return;
-  }
-  Taro.chooseImage({
-    count,
-    sizeType: ["compressed"],
-    sourceType: ["album", "camera"],
-    success: async (res) => {
-      setIsUploading(true);
-      Taro.showLoading({ title: "上传中...", mask: true });
-      try {
-        const uploadPromises = res.tempFilePaths.map((path) =>
-          uploadApi.uploadImage(path)
-        );
-        const uploadedUrls = await Promise.all(uploadPromises);
-        setImages((prev) => [...prev, ...uploadedUrls]);
-        Taro.showToast({ title: "上传成功", icon: "success" });
-      } catch (error) {
-        
-        Taro.showToast({ title: "上传失败，请重试", icon: "none" });
-      } finally {
-        setIsUploading(false);
-        Taro.hideLoading();
-      }
-    },
-    fail: (err) => {
-      // 用户取消选择是正常行为，不需要显示错误提示
-      if (err.errMsg && err.errMsg.includes('cancel')) {
-        return;
-      }
-      // 只有真正的错误才显示提示
-      Taro.showToast({ 
-        title: "选择图片失败", 
-        icon: "none" 
-      });
+    // 检查文件上传权限
+    if (!checkFileUploadPermissionWithToast()) {
+      return;
     }
-  });
-};
+
+    if (isUploading) return;
+    const count = 9 - images.length;
+    if (count <= 0) {
+      Taro.showToast({ title: "最多上传9张图片", icon: "none" });
+      return;
+    }
+    Taro.chooseImage({
+      count,
+      sizeType: ["compressed"],
+      sourceType: ["album", "camera"],
+      success: async (res) => {
+        setIsUploading(true);
+        Taro.showLoading({ title: "上传中...", mask: true });
+        try {
+          const uploadPromises = res.tempFilePaths.map((path) =>
+            uploadApi.uploadImage(path)
+          );
+          const uploadedUrls = await Promise.all(uploadPromises);
+          setImages((prev) => [...prev, ...uploadedUrls]);
+          Taro.showToast({ title: "上传成功", icon: "success" });
+        } catch (error) {
+
+          Taro.showToast({ title: "上传失败，请重试", icon: "none" });
+        } finally {
+          setIsUploading(false);
+          Taro.hideLoading();
+        }
+      },
+      fail: (err) => {
+        // 用户取消选择是正常行为，不需要显示错误提示
+        if (err.errMsg && err.errMsg.includes('cancel')) {
+          return;
+        }
+        // 只有真正的错误才显示提示
+        Taro.showToast({
+          title: "选择图片失败",
+          icon: "none"
+        });
+      }
+    });
+  };
 
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
@@ -419,16 +419,16 @@ export default function PublishPost() {
     const cleaned = s.startsWith('#') ? s : `#${s}`;
     if (!cleaned) return;
 
-    
+
 
     if (selectedTags.includes(cleaned)) {
       const newTags = selectedTags.filter(t => t !== cleaned);
-      
+
       setSelectedTags(newTags);
     } else {
       if (selectedTags.length < 3) {
         const newTags = [...selectedTags, cleaned];
-        
+
         setSelectedTags(newTags);
       } else {
         Taro.showToast({ title: "最多选择3个话题", icon: "none" });
@@ -505,7 +505,7 @@ export default function PublishPost() {
     try {
       // 处理标签，去掉#前缀
       const processedTags = selectedTags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
-      
+
 
       await dispatch(
         createPost({
@@ -581,7 +581,6 @@ export default function PublishPost() {
       cancelText: '取消',
       success: async (res) => {
         if (res.confirm) {
-          const cleanedTag = tag.startsWith('#') ? tag.substring(1) : tag;
           const newTags = selectedTags.filter(t => t !== tag);
           setSelectedTags(newTags);
           Taro.showToast({ title: '话题已删除', icon: 'success' });
@@ -592,7 +591,7 @@ export default function PublishPost() {
 
 
   return (
-    <View 
+    <View
       className={styles.pageContainer}
       onClick={() => {
         if (isQuickActionActive) {
@@ -602,14 +601,14 @@ export default function PublishPost() {
       }}
     >
       {/* 顶部提示 */}
-       {/*<View style={{ background: '#FFFBEA', color: '#B7791F', padding: '8px 16px', fontSize: 13, textAlign: 'center' }}>
+      {/*<View style={{ background: '#FFFBEA', color: '#B7791F', padding: '8px 16px', fontSize: 13, textAlign: 'center' }}>
         返回请用左上角按钮，否则自动保存草稿
       </View> 顶部存在的空白，注释后更美观     */}
       <CustomHeader title='发布帖子' onLeftClick={handleBack} />
 
       <View className={styles.contentWrapper}>
-        <ScrollView 
-          scrollY 
+        <ScrollView
+          scrollY
           className={styles.scrollView}
           onClick={(e) => {
             // 阻止事件冒泡，避免触发容器的点击事件
@@ -654,14 +653,14 @@ export default function PublishPost() {
                 value={content}
                 onFocus={() => setIsInputFocused(true)}
                 onBlur={() => {
-              setIsInputFocused(false);
-              // 延迟关闭，给用户时间点击快捷操作栏
-              setTimeout(() => {
-                if (!isQuickActionActive) {
-                  setActiveMenu(null);
-                }
-              }, 100);
-            }}
+                  setIsInputFocused(false);
+                  // 延迟关闭，给用户时间点击快捷操作栏
+                  setTimeout(() => {
+                    if (!isQuickActionActive) {
+                      setActiveMenu(null);
+                    }
+                  }, 100);
+                }}
                 onInput={async (e) => {
                   const v = e.detail.value;
                   setContent(v);
@@ -673,7 +672,7 @@ export default function PublishPost() {
                       try {
                         // 使用热门搜索词作为知识建议的替代
                         const hotQueries = await searchApi.getHotQueriesSimple();
-                        
+
                         const items = hotQueries.slice(0, 6);
                         setRefSuggestions(items.map((t: string) => ({ type: 'knowledge', title: t })));
                         setShowRefPanel(true);
@@ -724,15 +723,15 @@ export default function PublishPost() {
             {selectedTags.length > 0 && (
               <View className={styles.inlineTopics}>
                 {selectedTags.map((tag) => (
-                  <View 
-                    key={tag} 
+                  <View
+                    key={tag}
                     className={styles.inlineTopicWrapper}
                     onLongPress={() => handleLongPressDelete(tag)}
                   >
                     <Text className={styles.inlineTopic}>
                       {tag}
                     </Text>
-                    <Text 
+                    <Text
                       className={styles.inlineTopicDelete}
                       onClick={() => handleTagToggle(tag)}
                     >
@@ -746,23 +745,23 @@ export default function PublishPost() {
             <View className={styles.imagePreviewContainer}>
               {/* 图片占位符 - 总是显示，但在达到9张时隐藏 */}
               {images.length < 9 && (
-                <View 
+                <View
                   className={styles.imagePlaceholder}
                   onClick={handleChooseImage}
                 >
                   <View className={styles.placeholderContent}>
-                    <Image 
-                      src={cameraIcon} 
+                    <Image
+                      src={cameraIcon}
                       className={styles.placeholderCameraIcon}
                     />
-                    <Image 
-                      src={plusIcon} 
+                    <Image
+                      src={plusIcon}
                       className={styles.placeholderPlusIcon}
                     />
                   </View>
                 </View>
               )}
-              
+
               {/* 已上传的图片 */}
               {images.map((url, index) => (
                 <View key={index} className={styles.imageWrapper}>
@@ -839,7 +838,7 @@ export default function PublishPost() {
             <View className={styles.topicAndVisibilityRow}>
               {/* 添加话题按钮 */}
               {selectedTags.length < 3 && !isAddingTag && (
-                <View 
+                <View
                   className={styles.addTopicButton}
                   onClick={() => {
                     if (selectedTags.length < 3) {
@@ -869,7 +868,7 @@ export default function PublishPost() {
               )}
 
               {/* 所有人可见选项 */}
-              <View 
+              <View
                 className={styles.visibleAll}
                 onClick={() => {
                   setIsQuickActionActive(true);
@@ -888,9 +887,8 @@ export default function PublishPost() {
               {categories.map((category) => (
                 <View
                   key={category.id}
-                  className={`${styles.categoryItem} ${
-                    selectedCategory === category.id ? styles.selected : ""
-                  }`}
+                  className={`${styles.categoryItem} ${selectedCategory === category.id ? styles.selected : ""
+                    }`}
                   onClick={() => setSelectedCategory(category.id)}
                 >
                   {/* <Image src={category.icon} className={styles.categoryIcon} /> */}
@@ -910,14 +908,14 @@ export default function PublishPost() {
       {/* 快捷操作栏 - 当输入框获得焦点或用户与快捷操作栏交互时显示 */}
       {(isInputFocused || isQuickActionActive) && (
         <>
-            <View 
-              className={styles.quickActionBar}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsQuickActionActive(true);
-              }}
-            >
-            <View 
+          <View
+            className={styles.quickActionBar}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsQuickActionActive(true);
+            }}
+          >
+            <View
               className={`${styles.quickActionItem} ${activeMenu === 'settings' ? styles.active : ''}`}
               onClick={() => {
                 setIsQuickActionActive(true);
@@ -928,20 +926,20 @@ export default function PublishPost() {
             </View>
 
           </View>
-          
+
           {/* 子菜单界面 */}
           {activeMenu && (
             <>
               {/* 页面遮罩层 */}
-              <View 
+              <View
                 className={styles.pageOverlay}
                 onClick={() => {
                   setActiveMenu(null);
                   setIsQuickActionActive(false);
                 }}
               />
-              
-              <View 
+
+              <View
                 className={styles.subMenuContainer}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -952,8 +950,8 @@ export default function PublishPost() {
                   <View className={styles.subMenu}>
                     <View className={styles.settingItem}>
                       <Text className={styles.settingLabel}>是否公开</Text>
-                      <Image 
-                        src={isPublic ? switchOnIcon : switchOffIcon} 
+                      <Image
+                        src={isPublic ? switchOnIcon : switchOffIcon}
                         className={styles.switchIcon}
                         onClick={() => {
                           setIsQuickActionActive(true);
@@ -963,8 +961,8 @@ export default function PublishPost() {
                     </View>
                     <View className={styles.settingItem}>
                       <Text className={styles.settingLabel}>允许评论</Text>
-                      <Image 
-                        src={allowComments ? switchOnIcon : switchOffIcon} 
+                      <Image
+                        src={allowComments ? switchOnIcon : switchOffIcon}
                         className={styles.switchIcon}
                         onClick={() => {
                           setIsQuickActionActive(true);
@@ -980,10 +978,10 @@ export default function PublishPost() {
         </>
       )}
       {/* 在发布按钮添加禁用状态 */}
-      <View 
-        className={styles.publishButton} 
+      <View
+        className={styles.publishButton}
         onClick={handlePublish}
-        style={{ 
+        style={{
           opacity: (!title.trim() || !content.trim()) ? 0.7 : 1,
           pointerEvents: (!title.trim() || !content.trim()) ? 'none' : 'auto'
         }}
@@ -998,7 +996,7 @@ export default function PublishPost() {
             <ScrollView scrollY className={styles.draftList}>
               {([...
                 serverDrafts.map((p) => ({ id: p.id, title: p.title, source: 'server' as const })),
-                ...draftList.map((d) => ({ id: d.id, title: d.title, source: 'local' as const }))
+              ...draftList.map((d) => ({ id: d.id, title: d.title, source: 'local' as const }))
               ] as Array<{ id: string; title: string; source: 'server' | 'local' }>)
                 .reduce((acc: any[], item) => {
                   const idx = acc.findIndex(x => x.id === item.id);
@@ -1014,18 +1012,19 @@ export default function PublishPost() {
                       try {
                         const draft = serverDrafts.find(p => p.id === item.id);
                         if (draft) Taro.setStorageSync('tmp_server_draft', draft);
-                      } catch {}
+                      } catch { }
                       Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?postId=${item.id}&isEdit=true` });
                     } else {
                       try {
                         const { removeDraft } = await import('@/utils/draft');
                         removeDraft(item.id);
-                      } catch {}
+                      } catch { }
                       Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?draftId=${item.id}` });
                     }
-                }}>
-                  <Text className={styles.draftItemTitle}>{(item.title || '').trim() || '无标题草稿'}</Text>
-                </View>
+                  }}
+                  >
+                    <Text className={styles.draftItemTitle}>{(item.title || '').trim() || '无标题草稿'}</Text>
+                  </View>
                 ))}
             </ScrollView>
             <View className={styles.newPostButton} onClick={() => setShowDraftPicker(false)}>

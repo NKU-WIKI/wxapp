@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
 import actionApi from '@/services/api/action';
 import { normalizeImageUrl } from '@/utils/image';
 import { checkLoginWithModal } from '@/utils/auth';
@@ -31,7 +29,6 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
   const [isLiking, setIsLiking] = useState(false);
   const [isLiked, setIsLiked] = useState(!!note.is_liked);
   const [likeCount, setLikeCount] = useState<number>(note.like_count || 0);
-  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
 
   // 同步外部交互状态到本地，确保加载后根据接口状态着色
   useEffect(() => {

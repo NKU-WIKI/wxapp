@@ -22,47 +22,45 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
   async () => {
     const response = await campusVerificationApi.getCampusVerificationInfo();
     const rawData = response.data;
-    
-    
-    
+
+
+
     let applications: any[] = [];
-    
+
     // 检查数据结构：可能是直接返回数组，也可能是包含applications属性的对象
     if (Array.isArray(rawData)) {
-      // 直接返回数组的情况
-      applications = rawData;
+      // 直接返回数组的情�?      applications = rawData;
     } else if (rawData && rawData.applications && Array.isArray(rawData.applications)) {
       // 包含applications属性的对象
       applications = rawData.applications;
     }
-    
-    
-    
-    // 如果没有申请记录，返回未认证状态
-    if (!applications || applications.length === 0) {
-      
-      return {
-        is_verified: false,
-        verification_status: undefined,
-        verification_info: undefined,
-      } as CampusVerificationInfo;
-    }
-    
+
+
+
+    // 如果没有申请记录，返回未认证状�?    if (!applications || applications.length === 0) {
+
+    return {
+      is_verified: false,
+      verification_status: undefined,
+      verification_info: undefined,
+    } as CampusVerificationInfo;
+  }
+
     // 按提交时间倒序排序，获取最新的申请
-    const sortedApplications = applications.sort((a, b) => 
+    const sortedApplications = applications.sort((a, b) =>
       new Date(b.submitted_at || b.created_at).getTime() - new Date(a.submitted_at || a.created_at).getTime()
     );
-    
+
     const latestApplication = sortedApplications[0];
-    
-    
+
+
     const verificationInfo: CampusVerificationInfo = {
-      is_verified: latestApplication.status === 'approved',
-      verification_status: latestApplication.status,
-      verification_info: latestApplication,
-    };
-    
-    return verificationInfo;
+  is_verified: latestApplication.status === 'approved',
+  verification_status: latestApplication.status,
+  verification_info: latestApplication,
+};
+
+return verificationInfo;
   }
 );
 
@@ -79,21 +77,19 @@ export const submitCampusVerification = createAsyncThunk(
     card_image: string;
   }, { rejectWithValue }) => {
     try {
-      
-      
-      // 先上传文件
-      
+
+
+      // 先上传文�?      
       const uploadResponse = await campusVerificationApi.uploadFile(data.card_image);
-      
-      
-      const fileUrl = (uploadResponse.data as any).url || (uploadResponse.data as any).file_url; // 兼容不同的返回格式
-      
-      
+
+
+      const fileUrl = (uploadResponse.data as any).url || (uploadResponse.data as any).file_url; // 兼容不同的返回格�?      
+
       if (!fileUrl) {
-        
+
         return rejectWithValue('文件上传失败，请重试');
       }
-      
+
       // 构建证件文档
       const document: VerificationDocumentLink = {
         document_type: 'student_id', // 固定为学生证
@@ -111,34 +107,32 @@ export const submitCampusVerification = createAsyncThunk(
         student_id: data.student_id,
         department: data.department,
         contact_phone: data.contact_phone,
-        documents: [document], // 至少需要一张证件照片
-      };
+        documents: [document], // 至少需要一张证件照�?      };
 
-      
-      const response = await campusVerificationApi.submitCampusVerification(verificationRequest);
-      
-      
-      return response.data;
-    } catch (error: any) {
-      
-      // console.error('错误详情:', {
-      //   message: error?.message,
-      //   statusCode: error?.statusCode,
-      //   data: error?.data,
-      //   msg: error?.msg
-      // });
-      
-      // 优化错误信息提取 - 处理409冲突错误
-      if (error?.statusCode === 409 && error?.data?.detail) {
-        
-        return rejectWithValue(error.data.detail);
+
+        const response = await campusVerificationApi.submitCampusVerification(verificationRequest);
+
+
+        return response.data;
+      } catch (error: any) {
+
+        //   message: error?.message,
+        //   statusCode: error?.statusCode,
+        //   data: error?.data,
+        //   msg: error?.msg
+        // });
+
+        // 优化错误信息提取 - 处理409冲突错误
+        if (error?.statusCode === 409 && error?.data?.detail) {
+
+          return rejectWithValue(error.data.detail);
+        }
+
+        // 处理其他错误
+        const errorMessage = error?.msg || error?.message || error?.data?.msg || '提交认证失败，请重试';
+        return rejectWithValue(errorMessage);
       }
-      
-      // 处理其他错误
-      const errorMessage = error?.msg || error?.message || error?.data?.msg || '提交认证失败，请重试';
-      return rejectWithValue(errorMessage);
     }
-  }
 );
 
 const campusVerificationSlice = createSlice({
@@ -172,15 +166,14 @@ const campusVerificationSlice = createSlice({
       })
       .addCase(submitCampusVerification.fulfilled, (state, _action) => {
         state.submitStatus = 'succeeded';
-        // 提交成功后更新认证状态为自动审核中
-        if (state.info) {
-          state.info.verification_status = 'auto_reviewing';
-        }
+        // 提交成功后更新认证状态为自动审核�?        if (state.info) {
+        state.info.verification_status = 'auto_reviewing';
+      }
       })
-      .addCase(submitCampusVerification.rejected, (state, action) => {
-        state.submitStatus = 'failed';
-        state.error = action.error.message || '提交认证失败';
-      });
+  .addCase(submitCampusVerification.rejected, (state, action) => {
+    state.submitStatus = 'failed';
+    state.error = action.error.message || '提交认证失败';
+  });
   },
 });
 

@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux'
 import { marketplaceApi } from '@/services/api/marketplace'
 
 interface UseProductDetailsOptions {
-  onLoadingChange?: (loading: boolean) => void
-  onError?: (error: Error) => void
+  onLoadingChange?: (_loading: boolean) => void
+  onError?: (_error: Error) => void
 }
 
 export const useProductDetails = (options: UseProductDetailsOptions = {}) => {
