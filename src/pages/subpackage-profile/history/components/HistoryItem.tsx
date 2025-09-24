@@ -2,13 +2,14 @@ import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
 // Type imports
+import styles from './HistoryItem.module.scss'
+
 import { ViewHistoryRead } from '@/types/history'
 
 // Utils imports
 import { formatRelativeTime } from '@/utils/time'
 
 // Relative imports
-import styles from './HistoryItem.module.scss'
 
 interface HistoryItemProps {
   item: ViewHistoryRead

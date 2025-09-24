@@ -1,5 +1,6 @@
-import { FileUploadRead } from '@/types/api/fileUpload'
 import http from '../request'
+
+import { FileUploadRead } from '@/types/api/fileUpload'
 
 /**
  * 上传文件到服务器

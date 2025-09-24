@@ -1,15 +1,18 @@
-import React, { useState, useCallback, useEffect } from 'react'
 import { View } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
+import classnames from 'classnames'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+
+import styles from './index.module.scss'
+
 import ActionButton, { ActionButtonProps } from '@/components/action-button'
 import { toggleAction } from '@/services/api/action'
 import { marketplaceApi } from '@/services/api/marketplace'
-import { BBSNotificationHelper } from '@/utils/notificationHelper'
-import { checkLoginWithModal } from '@/utils/auth'
 import { RootState } from '@/store'
-import Taro from '@tarojs/taro'
-import classnames from 'classnames'
-import styles from './index.module.scss'
+import { checkLoginWithModal } from '@/utils/auth'
+import { BBSNotificationHelper } from '@/utils/notificationHelper'
 
 export interface ActionButtonConfig {
   /**

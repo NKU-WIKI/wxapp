@@ -1,5 +1,6 @@
-import { normalizeImageUrl, compressImage, isImageFile } from '@/utils/image'
 import http from '../request'
+
+import { normalizeImageUrl, compressImage, isImageFile } from '@/utils/image'
 
 // 上传图片响应类型
 interface UploadImageResponse {

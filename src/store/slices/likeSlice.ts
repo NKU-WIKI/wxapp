@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { Post } from '@/types/api/post.d'
-import { Pagination } from '@/types/api/common.d'
+
 import { getUserLikedPosts, getUserLikedNotes } from '@/services/api/user'
+import { Pagination } from '@/types/api/common.d'
+import { Post } from '@/types/api/post.d'
 
 // 获取用户点赞列表的参数类型
 export interface GetLikesParams {

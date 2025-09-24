@@ -1,25 +1,27 @@
-import React, { useState, useEffect } from 'react'
 import { View, Text, Image, Input } from '@tarojs/components'
-import { useSelector, useDispatch } from 'react-redux'
 import Taro from '@tarojs/taro'
 
-import { CommentDetail } from '@/types/api/comment'
-import { AppDispatch, RootState } from '@/store'
-import { createComment } from '@/store/slices/commentSlice'
-import commentApi from '@/services/api/comment'
-import AuthorInfo from '@/components/author-info'
-import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
-import { checkLoginWithModal } from '@/utils/auth'
+import React, { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+
+
+import styles from './index.module.scss'
 
 import ChevronDownIcon from '@/assets/chevron-down.svg'
 import ChevronRightIcon from '@/assets/chevron-right.svg'
-import HeartIcon from '@/assets/heart-outline.svg'
 import HeartActiveIcon from '@/assets/heart-bold.svg'
+import HeartIcon from '@/assets/heart-outline.svg'
 import CloseIcon from '@/assets/x.svg'
+import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
+import AuthorInfo from '@/components/author-info'
+import commentApi from '@/services/api/comment'
+import { AppDispatch, RootState } from '@/store'
+import { CommentDetail } from '@/types/api/comment'
+import { createComment } from '@/store/slices/commentSlice'
+import { checkLoginWithModal } from '@/utils/auth'
 import SendIcon from '@/assets/sendcomment.svg'
 import { formatRelativeTime } from '@/utils/time'
 
-import styles from './index.module.scss'
 
 // 渲染带有@用户名高亮的评论内容
 const renderCommentContent = (content: string): React.ReactNode => {

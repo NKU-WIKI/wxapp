@@ -1,27 +1,30 @@
-import { useState, useEffect, useMemo } from 'react'
 import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
+
+import { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import styles from './index.module.scss'
+
 import type { Post as PostType } from '@/types/api/post.d'
-import { AppDispatch, RootState } from '@/store'
-import { fetchFeed, fetchForumPosts } from '@/store/slices/postSlice'
-import { fetchUnreadCounts } from '@/store/slices/notificationSlice'
-import { useMultipleFollowStatus } from '@/hooks/useFollowStatus'
-import { getRecommendedContent, collectUserInteraction } from '@/utils/contentRecommendation'
-import { Categories } from '@/constants/categories'
+
+import emptyIcon from '@/assets/empty.svg'
 import CustomHeader from '@/components/custom-header'
-import PostItemSkeleton from '@/components/post-item-skeleton'
 import EmptyState from '@/components/empty-state'
 import Post from '@/components/post'
+import PostItemSkeleton from '@/components/post-item-skeleton'
 import SearchBar from '@/components/search-bar'
+import { Categories } from '@/constants/categories'
+import { useMultipleFollowStatus } from '@/hooks/useFollowStatus'
+import { AppDispatch, RootState } from '@/store'
+import { fetchUnreadCounts } from '@/store/slices/notificationSlice'
+import { fetchFeed, fetchForumPosts } from '@/store/slices/postSlice'
+import { getRecommendedContent, collectUserInteraction } from '@/utils/contentRecommendation'
 import { usePageRefresh } from '@/utils/pageRefreshManager'
 
 // Assets imports
-import emptyIcon from '@/assets/empty.svg'
 
 // Relative imports
-import styles from './index.module.scss'
 
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>()

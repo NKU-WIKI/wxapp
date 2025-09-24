@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react'
 import { View, Text, Input, Button } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import userApi from '@/services/api/user'
+
+import { useState, useEffect } from 'react'
+
 import styles from './index.module.scss'
+
+import userApi from '@/services/api/user'
+
 
 interface UserProfile {
   phone?: string | null

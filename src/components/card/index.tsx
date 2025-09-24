@@ -1,6 +1,8 @@
-import React from 'react'
 import { View } from '@tarojs/components'
+
 import classnames from 'classnames'
+import React from 'react'
+
 import styles from './index.module.scss'
 
 const Card = React.forwardRef<any, React.ComponentProps<typeof View>>(

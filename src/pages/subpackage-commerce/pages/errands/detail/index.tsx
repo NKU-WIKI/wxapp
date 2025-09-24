@@ -1,24 +1,26 @@
 // Third-party imports
 import { View, ScrollView, Text, Image, Button } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
+
 import { useEffect, useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 // Relative imports
-import CustomHeader from '@/components/custom-header'
-import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
-import { fetchErrandDetail, clearError } from '@/store/slices/marketplaceSlice'
-import { RootState, AppDispatch } from '@/store'
-import { ListingRead, ErrandType } from '@/types/api/marketplace.d'
-import { useRelativeTime } from '@/hooks/useRelativeTime'
-import AuthorInfo from '@/components/author-info'
-import { fetchCurrentUser } from '@/store/slices/userSlice'
+import styles from './index.module.scss'
+
+import locationIcon from '@/assets/map-pin.svg'
 import moreIcon from '@/assets/more-horizontal.svg'
+import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
+import AuthorInfo from '@/components/author-info'
+import CustomHeader from '@/components/custom-header'
+import { useRelativeTime } from '@/hooks/useRelativeTime'
+import { RootState, AppDispatch } from '@/store'
+import { fetchErrandDetail, clearError } from '@/store/slices/marketplaceSlice'
+import { fetchCurrentUser } from '@/store/slices/userSlice'
+import { ListingRead, ErrandType } from '@/types/api/marketplace.d'
 
 // Assets imports
-import locationIcon from '@/assets/map-pin.svg'
 
-import styles from './index.module.scss'
 
 const ErrandsDetailPage = () => {
   const router = useRouter()

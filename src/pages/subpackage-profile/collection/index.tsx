@@ -1,16 +1,20 @@
-import React, { useEffect, useCallback, useMemo, useState } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro'
+
+import React, { useEffect, useCallback, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '@/store'
-import { fetchFavorites, FavoriteItem, setFavorites } from '@/store/slices/favoriteSlice'
-import { useMultipleFollowStatus } from '@/hooks/useFollowStatus'
-import { formatRelativeTime } from '@/utils/time'
+
+import styles from './index.module.scss'
+
+import starOutlineIcon from '@/assets/star-outline.svg'
 import CustomHeader from '@/components/custom-header'
 import EmptyState from '@/components/empty-state'
 import Post from '@/components/post'
-import starOutlineIcon from '@/assets/star-outline.svg'
-import styles from './index.module.scss'
+import { useMultipleFollowStatus } from '@/hooks/useFollowStatus'
+import { AppDispatch, RootState } from '@/store'
+import { fetchFavorites, FavoriteItem, setFavorites } from '@/store/slices/favoriteSlice'
+import { formatRelativeTime } from '@/utils/time'
+
 
 // 定义收藏类型
 type CollectionType = 'post' | 'note'

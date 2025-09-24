@@ -1,3 +1,5 @@
+import http from '../request'
+
 import {
   SearchRequest,
   SearchBundleRead,
@@ -5,7 +7,6 @@ import {
   ClearHistoryResponse,
 } from '@/types/api/search'
 import { ViewHistoryRead } from '@/types/history'
-import http from '../request'
 
 /**
  * 执行通用搜索

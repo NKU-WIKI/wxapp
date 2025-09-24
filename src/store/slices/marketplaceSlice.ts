@@ -1,4 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+
+import { marketplaceApi, bookingApi, categoryApi, errandApi } from '@/services/api/marketplace'
 import {
   ListingRead,
   ListingCreate,
@@ -12,7 +14,6 @@ import {
   ErrandListParams,
   BookingStatus,
 } from '@/types/api/marketplace.d'
-import { marketplaceApi, bookingApi, categoryApi, errandApi } from '@/services/api/marketplace'
 
 // 获取商品列表的 Thunk
 export const fetchListings = createAsyncThunk(

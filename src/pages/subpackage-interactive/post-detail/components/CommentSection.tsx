@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react'
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+
+import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 
-import { CommentDetail } from '@/types/api/comment'
-import { RootState } from '@/store'
-import AuthorInfo from '@/components/author-info'
-import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
-import { formatRelativeTime } from '@/utils/time'
+import styles from '../index.module.scss'
 
 import ChevronDownIcon from '@/assets/chevron-down.svg'
 import ChevronRightIcon from '@/assets/chevron-right.svg'
-import HeartIcon from '@/assets/heart-outline.svg'
 import HeartActiveIcon from '@/assets/heart-bold.svg'
+import HeartIcon from '@/assets/heart-outline.svg'
+import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
+import AuthorInfo from '@/components/author-info'
+import { RootState } from '@/store'
+import { CommentDetail } from '@/types/api/comment'
+import { formatRelativeTime } from '@/utils/time'
 
-import styles from '../index.module.scss'
 
 // 渲染带有@用户名高亮的评论内容
 const renderCommentContent = (content: string): React.ReactNode => {

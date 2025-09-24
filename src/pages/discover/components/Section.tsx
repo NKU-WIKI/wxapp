@@ -1,4 +1,5 @@
 import { View, Text } from '@tarojs/components'
+
 import styles from './Section.module.scss'
 
 interface SectionProps {

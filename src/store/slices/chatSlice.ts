@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+
+import agentApi from '@/services/api/agent'
 import { ChatMessage, ChatSession } from '@/types/chat'
 // TODO: 更新为新的search类型定义
 // import { SearchResultItem, SearchRequest } from "@/types/api/search";
 // import searchApi from '@/services/api/search';
-import agentApi from '@/services/api/agent'
 
 // 聊天状态接口
 interface ChatState {

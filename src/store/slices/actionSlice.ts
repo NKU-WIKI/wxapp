@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { ToggleActionRequest, ToggleActionResponse } from '@/types/api/action'
+
 import { toggleAction as toggleActionApi } from '@/services/api/action'
+import { ToggleActionRequest, ToggleActionResponse } from '@/types/api/action'
 
 // 通用交互动作 Thunk (点赞/收藏/关注)
 export const toggleAction = createAsyncThunk<

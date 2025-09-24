@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import Taro from '@tarojs/taro'
+
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 // 设置类型定义
 export interface SettingsState {

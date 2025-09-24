@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react'
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import actionApi from '@/services/api/action'
-import { normalizeImageUrl } from '@/utils/image'
-import { checkLoginWithModal } from '@/utils/auth'
-import { NoteListItem } from '@/types/api/note'
-import ActionButton from '@/components/action-button'
-// 图片资源使用字符串路径引用
+
+import { useState, useEffect } from 'react'
+
 import styles from './index.module.scss'
+
+import ActionButton from '@/components/action-button'
+import actionApi from '@/services/api/action'
+import { NoteListItem } from '@/types/api/note'
+import { checkLoginWithModal } from '@/utils/auth'
+import { normalizeImageUrl } from '@/utils/image'
+// 图片资源使用字符串路径引用
 
 // 扩展的笔记类型，包含交互状态
 interface NoteWithStatus extends NoteListItem {

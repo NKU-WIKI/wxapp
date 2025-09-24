@@ -1,7 +1,10 @@
-import { useState } from 'react'
 import { View, Text, Image } from '@tarojs/components'
 
+import { useState } from 'react'
+
 // Assets imports
+import styles from './RatingItem.module.scss'
+
 import starFilledIcon from '@/assets/star-filled.svg'
 import starOutlineIcon from '@/assets/star-outline.svg'
 
@@ -9,7 +12,6 @@ import starOutlineIcon from '@/assets/star-outline.svg'
 import HighlightText from '@/components/highlight-text'
 
 // Relative imports
-import styles from './RatingItem.module.scss'
 
 interface RatingItemProps {
   /**

@@ -1,21 +1,24 @@
-import { useEffect, useState, useCallback } from 'react'
 import { View, ScrollView } from '@tarojs/components'
 import Taro, { usePullDownRefresh } from '@tarojs/taro'
+
+import { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '@/store'
-import { DraftPost } from '@/types/draft'
-import { Post } from '@/types/api/post.d'
-import { getDrafts, clearDrafts } from '@/utils/draft'
-import { fetchDrafts } from '@/store/slices/postSlice'
+
+import DraftItem from './components/DraftItem'
+import styles from './index.module.scss'
+
+import Button from '@/components/button'
 import {
   deleteDraft as apiDeleteDraft,
   clearAllDrafts as apiClearAllDrafts,
 } from '@/services/api/post'
-import Button from '@/components/button'
+import { AppDispatch, RootState } from '@/store'
+import { fetchDrafts } from '@/store/slices/postSlice'
+import { Post } from '@/types/api/post.d'
+import { DraftPost } from '@/types/draft'
+import { getDrafts, clearDrafts } from '@/utils/draft'
 
 // Relative imports
-import DraftItem from './components/DraftItem'
-import styles from './index.module.scss'
 
 const DraftBox = () => {
   const dispatch = useDispatch<AppDispatch>()

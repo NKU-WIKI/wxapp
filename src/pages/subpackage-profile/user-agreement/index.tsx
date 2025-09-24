@@ -1,5 +1,6 @@
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+
 import styles from './index.module.scss'
 
 /**

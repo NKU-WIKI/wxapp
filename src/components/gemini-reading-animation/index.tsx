@@ -1,7 +1,10 @@
 import { View, Text, Image } from '@tarojs/components'
+
 import { useEffect, useState } from 'react'
-import { DocSource } from '@/types/api/agent.d'
+
 import styles from './index.module.scss'
+
+import { DocSource } from '@/types/api/agent.d'
 
 interface GeminiReadingAnimationProps {
   sources: DocSource[]

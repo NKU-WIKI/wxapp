@@ -1,9 +1,10 @@
-import { HistoryItem } from '@/types/history'
+import { getStorage, setStorage } from './storage'
+
 import { createViewHistory } from '@/services/api/user'
 import { CreateViewHistoryRequest } from '@/types/api/user'
+import { HistoryItem } from '@/types/history'
 
 // Relative imports
-import { getStorage, setStorage } from './storage'
 
 const HISTORY_KEY = 'browse_history'
 const MAX_HISTORY = 200

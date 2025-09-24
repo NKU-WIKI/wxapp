@@ -1,9 +1,11 @@
 import { View, Image, Text } from '@tarojs/components'
-import { normalizeImageUrl } from '@/utils/image'
+
+import styles from './NotificationItem.module.scss'
+
 import { NotificationRead } from '@/types/api/notification.d'
+import { normalizeImageUrl } from '@/utils/image'
 
 // Relative imports
-import styles from './NotificationItem.module.scss'
 
 // Define a more specific type for the notification item
 interface Notification {

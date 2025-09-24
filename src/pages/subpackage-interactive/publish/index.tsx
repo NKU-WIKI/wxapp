@@ -1,20 +1,20 @@
-import { useState, useEffect, useCallback } from 'react'
-import Taro, { useRouter, useUnload } from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
 import { View, Text, Input, Textarea, Image, ScrollView } from '@tarojs/components'
+import Taro, { useRouter, useUnload } from '@tarojs/taro'
+
+import { useState, useEffect, useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
+
 // Absolute imports (alphabetical order)
-import { AppDispatch, RootState } from '@/store'
-import CustomHeader from '@/components/custom-header'
-import { usePolish } from '@/hooks/usePolish'
-import searchApi from '@/services/api/search'
-import { uploadApi } from '@/services/api/upload'
-import { getPostDetail, getMyDrafts, deleteDraft } from '@/services/api/post'
-import { createPost } from '@/store/slices/postSlice'
+import styles from './index.module.scss'
+
+import type { Post } from '@/types/api/post.d'
+
+import { DraftPost } from '@/types/draft'
 import { normalizeImageUrl } from '@/utils/image'
 import { checkFileUploadPermissionWithToast } from '@/utils/permissionChecker'
-import { DraftPost } from '@/types/draft'
 import { saveDraft, getDrafts } from '@/utils/draft'
-import type { Post } from '@/types/api/post.d'
+
 
 // Asset imports
 import atSignIcon from '@/assets/at-sign.svg'
@@ -26,19 +26,23 @@ import hatIcon from '@/assets/hat.svg'
 import imageIcon from '@/assets/image.svg'
 import italicIcon from '@/assets/italic.svg'
 import plusIcon from '@/assets/plus.svg'
-
 import penToolIcon from '@/assets/pen-tool.svg'
 import studyIcon from '@/assets/school.svg'
 import starIcon from '@/assets/star2.svg'
 import usersGroupIcon from '@/assets/p2p-fill.svg'
 import xCircleIcon from '@/assets/x-circle.svg'
-
 import settingIcon from '@/assets/cog.svg'
 import switchOffIcon from '@/assets/switch-off.svg'
 import switchOnIcon from '@/assets/switch-on.svg'
+import CustomHeader from '@/components/custom-header'
+import { usePolish } from '@/hooks/usePolish'
+import { getPostDetail, getMyDrafts, deleteDraft } from '@/services/api/post'
+import searchApi from '@/services/api/search'
+import { uploadApi } from '@/services/api/upload'
+import { AppDispatch, RootState } from '@/store'
+import { createPost } from '@/store/slices/postSlice'
 
 // Relative imports
-import styles from './index.module.scss'
 
 const mockData = {
   styles: ['正式', '轻松', '幽默', '专业'],

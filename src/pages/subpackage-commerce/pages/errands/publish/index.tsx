@@ -1,15 +1,17 @@
 import { View, ScrollView, Text, Input, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
-import { useState, useCallback, useEffect } from 'react'
 
-import CustomHeader from '@/components/custom-header'
-import { createErrand, clearError } from '@/store/slices/marketplaceSlice'
-import { RootState, AppDispatch } from '@/store'
-import { ErrandType } from '@/types/api/marketplace.d'
-import { useAuthGuard } from '@/hooks/useAuthGuard'
+import { useState, useCallback, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import styles from './index.module.scss'
+
+import CustomHeader from '@/components/custom-header'
+import { useAuthGuard } from '@/hooks/useAuthGuard'
+import { RootState, AppDispatch } from '@/store'
+import { createErrand, clearError } from '@/store/slices/marketplaceSlice'
+import { ErrandType } from '@/types/api/marketplace.d'
+
 
 const ErrandsPublishPage = () => {
   const dispatch = useDispatch<AppDispatch>()

@@ -2,9 +2,10 @@
  * 图片保存权限控制工具
  */
 
-import { RootState } from '@/store/rootReducer'
-import store from '@/store'
 import Taro from '@tarojs/taro'
+
+import store from '@/store'
+import { RootState } from '@/store/rootReducer'
 
 /**
  * 检查当前用户是否允许图片被保存

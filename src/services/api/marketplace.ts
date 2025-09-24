@@ -1,6 +1,8 @@
 /**
  * 市场相关API服务
  */
+import http from '../request'
+
 import type {
   ListingCreate,
   ListingListParams,
@@ -24,7 +26,6 @@ import type {
 } from '@/types/api/marketplace.d'
 
 // Relative imports
-import http from '../request'
 
 /**
  * 过滤对象中的undefined值

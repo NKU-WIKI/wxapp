@@ -1,15 +1,18 @@
 import { View, Text, Input, Button, Image, ScrollView } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
+
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+import styles from './index.module.scss'
+
+import CustomHeader from '@/components/custom-header'
 import { AppDispatch, RootState } from '@/store'
 import {
   fetchCampusVerificationInfo,
   submitCampusVerification,
   resetSubmitStatus,
 } from '@/store/slices/campusVerificationSlice'
-import CustomHeader from '@/components/custom-header'
-import styles from './index.module.scss'
 
 const CampusVerification = () => {
   const dispatch = useDispatch<AppDispatch>()

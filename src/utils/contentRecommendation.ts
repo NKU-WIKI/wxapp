@@ -2,8 +2,8 @@
  * 个性化内容推荐工具
  */
 
-import { RootState } from '@/store/rootReducer'
 import store from '@/store'
+import { RootState } from '@/store/rootReducer'
 
 /**
  * 检查是否启用个性化推荐

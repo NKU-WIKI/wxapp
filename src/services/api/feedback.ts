@@ -1,13 +1,14 @@
+import http from '../request'
+
+import { PaginatedData } from '@/types/api/common'
 import {
   Feedback,
   CreateFeedbackParams,
   GetFeedbackListParams,
   CreateFeedbackResponse,
 } from '@/types/api/feedback.d'
-import { PaginatedData } from '@/types/api/common'
 
 // Relative imports
-import http from '../request'
 
 /**
  * 创建反馈

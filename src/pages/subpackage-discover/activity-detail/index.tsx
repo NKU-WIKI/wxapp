@@ -1,14 +1,20 @@
 import { View, Text, Image, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+
 import { useEffect, useState } from 'react'
-import activityApi from '@/services/api/activity'
-import { ActivityRead, ActivityType } from '@/types/api/activity.d'
-import { useSharing } from '@/hooks/useSharing'
-import { ActivityNotificationHelper } from '@/utils/notificationHelper'
 import { useSelector } from 'react-redux'
-import { RootState } from '@/store'
-import CustomHeader from '@/components/custom-header'
+
 import styles from './index.module.scss'
+
+import CustomHeader from '@/components/custom-header'
+import { useSharing } from '@/hooks/useSharing'
+import activityApi from '@/services/api/activity'
+import { RootState } from '@/store'
+import { ActivityRead, ActivityType } from '@/types/api/activity.d'
+import { ActivityNotificationHelper } from '@/utils/notificationHelper'
+
+
+
 
 export default function ActivityDetail() {
   // 从Redux store获取当前用户信息

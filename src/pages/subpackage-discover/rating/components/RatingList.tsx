@@ -1,5 +1,7 @@
 import { View, Text, ScrollView } from '@tarojs/components'
+
 import { useState } from 'react'
+
 import RatingComponent from './RatingComponent'
 import styles from './RatingList.module.scss'
 

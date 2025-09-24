@@ -1,8 +1,10 @@
 import Taro from '@tarojs/taro'
+
+import request from '../request'
+
+import type { BaseResponse } from '@/types/api/common.d'
 import type { PostPinRequest } from '@/types/api/pin.d'
 import type { Post as PostData } from '@/types/api/post.d'
-import type { BaseResponse } from '@/types/api/common.d'
-import request from '../request'
 
 /**
  * 置顶帖子

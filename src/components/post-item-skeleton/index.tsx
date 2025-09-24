@@ -1,4 +1,5 @@
 import { View } from '@tarojs/components'
+
 import styles from './index.module.scss'
 
 interface PostItemSkeletonProps {

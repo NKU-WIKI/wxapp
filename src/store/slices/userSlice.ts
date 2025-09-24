@@ -1,15 +1,17 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import Taro from '@tarojs/taro'
-import { login as loginApi, register as registerApi } from '@/services/api/auth'
+
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+
+import { DEFAULT_TENANT_NAME } from '@/constants'
 import { getAboutInfo } from '@/services/api/about'
-import { getMe, updateMeProfile, getMyStats, getUserById } from '@/services/api/user'
-import { getFollowersCount } from '@/services/api/followers'
+import { login as loginApi, register as registerApi } from '@/services/api/auth'
 import { getCollectionCount } from '@/services/api/collection'
+import { getFollowersCount } from '@/services/api/followers'
+import { getMe, updateMeProfile, getMyStats, getUserById } from '@/services/api/user'
+import { RootState } from '@/store'
+import { AboutInfo } from '@/types/about'
 import { UnifiedLoginRequest, RegisterRequest } from '@/types/api/auth'
 import { User, UpdateUserProfileRequest, UserStats } from '@/types/api/user'
-import { AboutInfo } from '@/types/about'
-import { RootState } from '@/store'
-import { DEFAULT_TENANT_NAME } from '@/constants'
 
 interface UserState {
   user: User | null

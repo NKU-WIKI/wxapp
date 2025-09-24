@@ -34,6 +34,8 @@ taro组件文档参考docs/TARO_COMPONENTS_GUIDE.md
 
 - **[项目总览](./.cursor/rules/overview.mdc)**
   - 了解项目目标、技术栈、目录结构和核心功能模块。
+- **[Linting 与代码格式化](./.cursor/rules/linting.mdc)**
+  - 学习项目的 ESLint, Prettier 和 Stylelint 配置，确保代码风格统一。
 - **[编码与UI规范](./.cursor/rules/style-guide.mdc)**
   - 遵循统一的命名、代码风格、颜色管理及组件开发规范。
 - **[开发实践与工作流](./.cursor/rules/practices.mdc)**

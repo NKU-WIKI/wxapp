@@ -10,14 +10,17 @@ import {
   Label,
   Button,
 } from '@tarojs/components'
-import { FileUploadRead, MAX_FILE_SIZE, getFileTypeDisplayName } from '@/types/api/fileUpload'
-import fileUploadApi from '@/services/api/fileUpload'
-import uploadApi from '@/services/api/upload'
-import { LearningMaterialService } from '@/services/api/learningMaterial'
-import { checkFileUploadPermissionWithToast } from '@/utils/permissionChecker'
 import Taro from '@tarojs/taro'
+
 import { useState, useEffect } from 'react'
+
 import styles from './index.module.scss'
+
+import fileUploadApi from '@/services/api/fileUpload'
+import { LearningMaterialService } from '@/services/api/learningMaterial'
+import uploadApi from '@/services/api/upload'
+import { FileUploadRead, MAX_FILE_SIZE, getFileTypeDisplayName } from '@/types/api/fileUpload'
+import { checkFileUploadPermissionWithToast } from '@/utils/permissionChecker'
 
 // eslint-disable-next-line import/no-unused-modules
 export default function UploadMaterial() {

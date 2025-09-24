@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react'
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { RootState } from '@/store'
+
 
 import styles from './index.module.scss'
+
+import { RootState } from '@/store'
 
 // 图标路径常量
 const backIcon = '/assets/arrow-left.svg'

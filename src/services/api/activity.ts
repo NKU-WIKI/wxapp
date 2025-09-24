@@ -1,4 +1,7 @@
 import Taro from '@tarojs/taro'
+
+import http from '../request'
+
 import {
   PostActivityCreateRequest,
   PostActivityCreateResponse,
@@ -11,7 +14,6 @@ import {
   DeleteCancelRegistrationsRequest,
   DeleteCancelRegistrationsResponse,
 } from '@/types/api/activity.d'
-import http from '../request'
 
 /**
  * 获取活动列表

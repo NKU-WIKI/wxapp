@@ -1,8 +1,21 @@
 ﻿import { View, Text, Image, Button, ScrollView } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
+
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+import styles from './index.module.scss'
+
+import CustomHeader from '@/components/custom-header'
+import PostItemSkeleton from '@/components/post-item-skeleton'
 import { AppDispatch, RootState } from '@/store'
+import { fetchUnreadCounts } from '@/store/slices/notificationSlice'
+import {
+  fetchUserPostCount,
+  fetchUserLikeCount,
+  resetUserPostCount,
+  resetUserLikeCount,
+} from '@/store/slices/userPostsSlice'
 import {
   fetchUserStats,
   fetchFollowersCount,
@@ -11,19 +24,10 @@ import {
   resetFollowersCount,
   resetCollectionCount,
 } from '@/store/slices/userSlice'
-import {
-  fetchUserPostCount,
-  fetchUserLikeCount,
-  resetUserPostCount,
-  resetUserLikeCount,
-} from '@/store/slices/userPostsSlice'
-import { fetchUnreadCounts } from '@/store/slices/notificationSlice'
-import CustomHeader from '@/components/custom-header'
-import PostItemSkeleton from '@/components/post-item-skeleton'
 import { normalizeImageUrl } from '@/utils/image'
 import { convertLevelToRealm } from '@/utils/levelConverter'
 import { usePageRefresh } from '@/utils/pageRefreshManager'
-import styles from './index.module.scss'
+
 
 // 登录提示组件
 const LoginPrompt = () => {

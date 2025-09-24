@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+
 import { getMe, getMyPosts } from '@/services/api/user'
-import { Post } from '@/types/api/post.d'
 import { PaginationParams } from '@/types/api/common'
+import { Post } from '@/types/api/post.d'
 
 // 获取用户帖子数量的参数类型
 export interface GetUserPostCountParams {

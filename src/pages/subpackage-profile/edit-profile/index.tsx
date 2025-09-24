@@ -1,15 +1,23 @@
+import { View, Text, Image, Input, Button, ScrollView, Picker } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
+import styles from './index.module.scss'
+
+import CustomHeader from '@/components/custom-header'
+import { uploadApi } from '@/services/api/upload'
+import userApi from '@/services/api/user'
 import { AppDispatch, RootState } from '@/store'
 import { updateUser } from '@/store/slices/userSlice'
 import { UpdateUserProfileRequest } from '@/types/api/user'
-import userApi from '@/services/api/user'
-import { uploadApi } from '@/services/api/upload'
 import { normalizeImageUrl } from '@/utils/image'
-import CustomHeader from '@/components/custom-header'
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { View, Text, Image, Input, Button, ScrollView, Picker } from '@tarojs/components'
-import { useDispatch, useSelector } from 'react-redux'
-import Taro from '@tarojs/taro'
-import styles from './index.module.scss'
+
+
+
+
+
 
 export default function EditProfilePage() {
   const dispatch = useDispatch<AppDispatch>()

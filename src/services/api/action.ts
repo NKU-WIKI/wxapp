@@ -1,5 +1,6 @@
-import { ToggleActionRequest, ToggleActionResponse } from '@/types/api/action'
 import http from '../request'
+
+import { ToggleActionRequest, ToggleActionResponse } from '@/types/api/action'
 
 /**
  * 切换用户交互状态 (点赞/收藏/关注)

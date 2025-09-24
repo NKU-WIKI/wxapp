@@ -1,7 +1,16 @@
-import { useState, useEffect } from 'react'
 import { View, Text, Textarea, Button } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
+import { useState, useEffect } from 'react'
+
+import styles from './index.module.scss'
+
+import uploadIcon from '@/assets/feedback.svg'
+import lightbulbIcon from '@/assets/lightbulb.svg'
+import messageCircleIcon from '@/assets/message-circle.svg'
+import moreIcon from '@/assets/more-horizontal.svg'
+import xCircleIcon from '@/assets/x-circle.svg'
+import { uploadImage } from '@/services/api/upload'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { submitFeedback } from '@/store/slices/feedbackSlice'
 
@@ -9,17 +18,10 @@ import { submitFeedback } from '@/store/slices/feedbackSlice'
 import { CreateFeedbackParams, DeviceInfo } from '@/types/api/feedback.d'
 
 // API imports
-import { uploadImage } from '@/services/api/upload'
 
 // Assets imports
-import uploadIcon from '@/assets/feedback.svg'
-import xCircleIcon from '@/assets/x-circle.svg'
-import messageCircleIcon from '@/assets/message-circle.svg'
-import lightbulbIcon from '@/assets/lightbulb.svg'
-import moreIcon from '@/assets/more-horizontal.svg'
 
 // Relative imports
-import styles from './index.module.scss'
 
 const FEEDBACK_TYPES = [
   { key: 'bug', label: '功能异常', icon: xCircleIcon },

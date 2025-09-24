@@ -1,8 +1,14 @@
 import { View, Text, ScrollView, Image, Input } from '@tarojs/components'
-import { useSelector, useDispatch } from 'react-redux'
-import { useState, useEffect } from 'react'
 import Taro from '@tarojs/taro'
-import { ChatSession } from '@/types/chat'
+
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+
+import styles from './index.module.scss'
+
+import CheckIcon from '@/assets/check-square.svg'
+import PlusIcon from '@/assets/plus.png'
+import AboutIcon from '@/components/about-icons'
 import { RootState, AppDispatch } from '@/store'
 import {
   createSession,
@@ -10,15 +16,12 @@ import {
   deleteSession,
   renameSession,
 } from '@/store/slices/chatSlice'
+import { ChatSession } from '@/types/chat'
 
 // Components imports
-import AboutIcon from '@/components/about-icons'
 
 // Assets imports (relative imports)
-import PlusIcon from '@/assets/plus.png'
-import CheckIcon from '@/assets/check-square.svg'
 
-import styles from './index.module.scss'
 
 interface ChatSidebarProps {
   onClose: () => void

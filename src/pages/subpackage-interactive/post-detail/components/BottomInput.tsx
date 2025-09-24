@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react'
 import { View, Input, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
+import React, { useState, useEffect } from 'react'
+
 // Absolute imports (alphabetical order)
-import { AppDispatch, RootState } from '@/store'
-import { createComment } from '@/store/slices/commentSlice'
-import CloseIcon from '@/assets/x.svg'
-import SendIcon from '@/assets/sendcomment.svg'
 import { useDispatch, useSelector } from 'react-redux'
 
 // Relative imports
 import styles from '../index.module.scss'
+
+import SendIcon from '@/assets/sendcomment.svg'
+import CloseIcon from '@/assets/x.svg'
+import { AppDispatch, RootState } from '@/store'
+import { createComment } from '@/store/slices/commentSlice'
 
 interface BottomInputProps {
   postId: string

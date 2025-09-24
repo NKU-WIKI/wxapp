@@ -2,20 +2,21 @@ import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
 // Import icons
-import heartIcon from '@/assets/heart-outline.svg'
-import messageSquareIcon from '@/assets/message-square.svg'
-import starIcon from '@/assets/star-filled.svg'
-import draftIcon from '@/assets/draft.png'
-import userIcon from '@/assets/user.svg'
-import settingsIcon from '@/assets/settings.svg'
-import historyIcon from '@/assets/history.svg'
-import feedbackIcon from '@/assets/feedback.svg'
+import styles from './SettingsList.module.scss'
+
 import aboutIcon from '@/assets/about.svg'
-import logoutIcon from '@/assets/logout.svg'
 import arrowRightIcon from '@/assets/arrow-right.svg'
+import draftIcon from '@/assets/draft.png'
+import feedbackIcon from '@/assets/feedback.svg'
+import heartIcon from '@/assets/heart-outline.svg'
+import historyIcon from '@/assets/history.svg'
+import logoutIcon from '@/assets/logout.svg'
+import messageSquareIcon from '@/assets/message-square.svg'
+import settingsIcon from '@/assets/settings.svg'
+import starIcon from '@/assets/star-filled.svg'
+import userIcon from '@/assets/user.svg'
 
 // Relative imports
-import styles from './SettingsList.module.scss'
 
 const SettingsList = () => {
   const menuItems = [

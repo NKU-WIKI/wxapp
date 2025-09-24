@@ -1,13 +1,10 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import Taro from '@tarojs/taro'
-import { PaginatedData } from '@/types/api/common'
-import {
-  Post,
-  GetForumPostsParams,
-  CreateForumPostRequest,
-  GetFeedParams,
-  PostUpdate,
-} from '@/types/api/post'
+
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+
+import { toggleAction } from './actionSlice' // 从 actionSlice 导入
+import { fetchAboutInfo } from './userSlice' // 从 userSlice 导入
+
 import {
   getForumPosts,
   createForumPost,
@@ -17,8 +14,15 @@ import {
   getMyDrafts,
   getPostDetail,
 } from '@/services/api/post'
-import { toggleAction } from './actionSlice' // 从 actionSlice 导入
-import { fetchAboutInfo } from './userSlice' // 从 userSlice 导入
+import { PaginatedData } from '@/types/api/common'
+import {
+  Post,
+  GetForumPostsParams,
+  CreateForumPostRequest,
+  GetFeedParams,
+  PostUpdate,
+} from '@/types/api/post'
+
 
 // 获取论坛帖子的 Thunk
 export const fetchForumPosts = createAsyncThunk(

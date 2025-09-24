@@ -1,5 +1,7 @@
-import React from 'react'
 import { View, Image } from '@tarojs/components'
+
+import React from 'react'
+
 import styles from './index.module.scss'
 
 interface IconProps {

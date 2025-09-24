@@ -1,5 +1,6 @@
-import { store } from '@/store'
 import Taro from '@tarojs/taro'
+
+import { store } from '@/store'
 
 /**
  * 检查文件上传权限

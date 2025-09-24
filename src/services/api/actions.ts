@@ -1,5 +1,6 @@
-import type { BaseResponse } from '@/types/api/common.d'
 import request from '../request'
+
+import type { BaseResponse } from '@/types/api/common.d'
 
 /**
  * 操作类型枚举

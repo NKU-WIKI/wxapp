@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro'
+
 import { DraftPost } from '@/types/draft'
 
 const DRAFT_KEY = 'draft_posts'

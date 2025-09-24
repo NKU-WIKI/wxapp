@@ -1,8 +1,17 @@
 import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
+import { useSelector } from 'react-redux'
+
+import styles from './index.module.scss'
+
+import AuthFloatingButton from '@/components/auth-floating-button'
+import CustomHeader from '@/components/custom-header'
+import HighlightText from '@/components/highlight-text'
+import SearchBar from '@/components/search-bar'
 import activityApi from '@/services/api/activity'
+import { RootState } from '@/store'
 import {
   ActivityRead,
   ActivityStatus,
@@ -10,15 +19,8 @@ import {
   GetActivityListRequest,
   RegistrationStatus,
 } from '@/types/api/activity.d'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store'
 import { ActivityNotificationHelper } from '@/utils/notificationHelper'
-import CustomHeader from '@/components/custom-header'
-import AuthFloatingButton from '@/components/auth-floating-button'
-import SearchBar from '@/components/search-bar'
-import HighlightText from '@/components/highlight-text'
 
-import styles from './index.module.scss'
 
 // eslint-disable-next-line import/no-unused-modules
 export default function ActivitySquare() {

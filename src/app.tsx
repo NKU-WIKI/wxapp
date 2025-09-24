@@ -1,14 +1,16 @@
-import { PropsWithChildren } from 'react'
 import Taro, { useLaunch } from '@tarojs/taro'
+
+import { PropsWithChildren } from 'react'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
+
 import 'taro-ui/dist/style/index.scss'
 import store, { persistor } from './store'
+import { fetchUnreadCounts } from './store/slices/notificationSlice'
+import { initializeSettings, applyFontSize, applyNightMode } from './store/slices/settingsSlice'
+import { fetchCurrentUser, fetchAboutInfo } from './store/slices/userSlice'
 import { initTabBarSync } from './utils/tabBarSync'
 import './app.scss'
-import { fetchCurrentUser, fetchAboutInfo } from './store/slices/userSlice'
-import { initializeSettings, applyFontSize, applyNightMode } from './store/slices/settingsSlice'
-import { fetchUnreadCounts } from './store/slices/notificationSlice'
 
 // AbortController polyfill for WeChat miniprogram
 if (typeof globalThis.AbortController === 'undefined') {

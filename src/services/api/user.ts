@@ -1,3 +1,8 @@
+import http from '../request'
+
+import { ActionRead } from '@/store/slices/favoriteSlice'
+import { PaginatedData, PaginationParams } from '@/types/api/common'
+import { Post } from '@/types/api/post.d'
 import {
   UserProfile,
   UpdateUserProfileRequest,
@@ -6,10 +11,7 @@ import {
   GetHistoryParams,
   User,
 } from '@/types/api/user'
-import { Post } from '@/types/api/post.d'
-import { PaginatedData, PaginationParams } from '@/types/api/common'
-import { ActionRead } from '@/store/slices/favoriteSlice'
-import http from '../request'
+
 
 /**
  * 获取当前登录用户的基本信息

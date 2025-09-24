@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+
 import { getAboutInfo } from '@/services/api/about'
 import { AboutInfo } from '@/types/about.d'
 

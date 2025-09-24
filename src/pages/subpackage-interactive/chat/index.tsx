@@ -1,22 +1,25 @@
-import { useState, useEffect, useRef } from 'react'
 import { View, ScrollView, Text, Textarea, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+
+import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { ChatMessage } from '@/types/chat'
-import { RootState, AppDispatch } from '@/store'
-import { addMessage, streamMessageFromAI, initializeChat } from '@/store/slices/chatSlice'
-import CustomHeader from '@/components/custom-header'
-
-// Assets imports
-import RobotAvatar from '@/assets/wiki.svg'
-import DefaultUserAvatar from '@/assets/profile.svg'
-import SendIcon from '@/assets/send.svg'
-import MenuIcon from '@/assets/more-horizontal.svg'
-
-// Relative imports
 import ChatSidebar from './components/chat-sidebar/index'
 import styles from './index.module.scss'
+
+import MenuIcon from '@/assets/more-horizontal.svg'
+import DefaultUserAvatar from '@/assets/profile.svg'
+import SendIcon from '@/assets/send.svg'
+import RobotAvatar from '@/assets/wiki.svg'
+import CustomHeader from '@/components/custom-header'
+import { RootState, AppDispatch } from '@/store'
+import { addMessage, streamMessageFromAI, initializeChat } from '@/store/slices/chatSlice'
+
+// Assets imports
+
+// Relative imports
+
+import { ChatMessage } from '@/types/chat'
 
 const Chat = () => {
   const dispatch = useDispatch<AppDispatch>()

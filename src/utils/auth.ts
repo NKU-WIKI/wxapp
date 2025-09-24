@@ -1,5 +1,6 @@
-import { store } from '@/store'
 import Taro from '@tarojs/taro'
+
+import { store } from '@/store'
 
 /**
  * 检查用户是否已登录

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSelector } from 'react-redux'
-import { RootState } from '@/store'
+
 import { getActionStatus } from '@/services/api/user'
+import { RootState } from '@/store'
 
 /**
  * 获取用户关注状态的hook

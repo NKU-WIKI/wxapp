@@ -1,5 +1,5 @@
-import { User } from './user'
 import { Pagination, BaseResponse } from './common'
+import { User } from './user'
 
 // 关注/粉丝关系类型
 export type FollowRelation = 'mutual' | 'following' | 'follow_back' | 'none'

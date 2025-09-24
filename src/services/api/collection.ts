@@ -1,10 +1,11 @@
+import http from '../request'
+
+import { getMyFavorites } from '@/services/api/user'
 import {
   GetCollectionParams,
   RemoveFromCollectionParams,
   CollectionResponse,
 } from '@/types/api/collection.d'
-import { getMyFavorites } from '@/services/api/user'
-import http from '../request'
 
 /**
  * 获取收藏列表

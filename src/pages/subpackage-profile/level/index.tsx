@@ -1,6 +1,14 @@
 ﻿import { View, Text, Image } from '@tarojs/components'
+
 import { useEffect, useMemo } from 'react'
 
+import styles from './index.module.scss'
+
+import checkinIcon from '@/assets/clock.svg'
+import noteIcon from '@/assets/file-text.svg'
+import commentIcon from '@/assets/message-circle.svg'
+import defaultAvatar from '@/assets/profile.png'
+import likeIcon from '@/assets/thumbs-up.svg'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
 // Store imports
@@ -11,14 +19,8 @@ import { normalizeImageUrl } from '@/utils/image'
 import { convertLevelToRealm } from '@/utils/levelConverter'
 
 // Assets imports
-import checkinIcon from '@/assets/clock.svg'
-import likeIcon from '@/assets/thumbs-up.svg'
-import commentIcon from '@/assets/message-circle.svg'
-import noteIcon from '@/assets/file-text.svg'
-import defaultAvatar from '@/assets/profile.png'
 
 // Relative imports
-import styles from './index.module.scss'
 
 const LEVELS = [
   { lv: 0, label: '炼气期', range: '0经验值' },

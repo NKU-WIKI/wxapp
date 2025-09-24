@@ -1,5 +1,7 @@
-import { useSelector } from 'react-redux'
 import Taro from '@tarojs/taro'
+
+import { useSelector } from 'react-redux'
+
 import { RootState } from '@/store'
 
 export const useAuthGuard = () => {

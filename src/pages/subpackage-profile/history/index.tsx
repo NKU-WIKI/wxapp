@@ -1,9 +1,13 @@
-import { useEffect, useState, useCallback } from 'react'
 import { View, ScrollView, Text } from '@tarojs/components'
 import Taro, { useReachBottom, usePullDownRefresh } from '@tarojs/taro'
 
-import CustomHeader from '@/components/custom-header'
+import { useEffect, useState, useCallback } from 'react'
+
+import HistoryItem from './components/HistoryItem'
+import styles from './index.module.scss'
+
 import Button from '@/components/button'
+import CustomHeader from '@/components/custom-header'
 
 // API imports
 import searchApi from '@/services/api/search'
@@ -12,8 +16,6 @@ import searchApi from '@/services/api/search'
 import { ViewHistoryRead } from '@/types/history'
 
 // Relative imports
-import HistoryItem from './components/HistoryItem'
-import styles from './index.module.scss'
 
 const PAGE_SIZE = 20
 

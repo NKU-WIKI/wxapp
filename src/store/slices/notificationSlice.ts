@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+
 import { getNotifications } from '@/services/api/notification'
 import { NotificationType } from '@/types/api/notification.d'
 

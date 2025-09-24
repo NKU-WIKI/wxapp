@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { CreateCommentRequest, Comment, CommentDetail, CommentUpdate } from '@/types/api/comment.d'
+
 import {
   createComment as createCommentApi,
   updateComment as updateCommentApi,
   deleteComment as deleteCommentApi,
   getComments,
 } from '@/services/api/comment'
+import { CreateCommentRequest, Comment, CommentDetail, CommentUpdate } from '@/types/api/comment.d'
 import { BBSNotificationHelper } from '@/utils/notificationHelper'
 // 由于后端暂无 /users/{id} 用户详情接口，不进行远程查询，使用本地回退
 

@@ -1,3 +1,5 @@
+import http from '../request'
+
 import {
   RatingCategory,
   RatingItem,
@@ -21,7 +23,6 @@ import {
 } from '@/types/api/rating.d'
 
 // Relative imports
-import http from '../request'
 
 // 已移除 getRatingTypes 函数，改为使用预定义的评分类型
 

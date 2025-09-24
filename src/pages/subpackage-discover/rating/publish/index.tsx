@@ -1,17 +1,21 @@
 import { View, Text, Image, Input, Textarea, ScrollView } from '@tarojs/components'
-import { useState } from 'react'
 import Taro from '@tarojs/taro'
+
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '@/store'
-import { createUserRating } from '@/store/slices/ratingSlice'
-import { RatingCategory } from '@/types/api/rating.d'
-import { uploadApi } from '@/services/api/upload'
-import CustomHeader from '@/components/custom-header'
-// 引入图标
+
+import styles from './index.module.scss'
+
 import cameraIcon from '@/assets/camera.svg'
 import starFilledIcon from '@/assets/star-filled.svg'
 import starOutlineIcon from '@/assets/star-outline.svg'
-import styles from './index.module.scss'
+import CustomHeader from '@/components/custom-header'
+import { uploadApi } from '@/services/api/upload'
+import { RootState, AppDispatch } from '@/store'
+import { createUserRating } from '@/store/slices/ratingSlice'
+import { RatingCategory } from '@/types/api/rating.d'
+// 引入图标
+
 
 // 评分类别数据
 const categories = [

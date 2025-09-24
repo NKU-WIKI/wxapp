@@ -1,10 +1,22 @@
 // Third-party imports
 import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
+
 import { useEffect, useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 // Relative imports
+import styles from './index.module.scss'
+
+import locationIcon from '@/assets/map-pin.svg'
+import messageIcon from '@/assets/message-square.svg'
+import moreIcon from '@/assets/more-horizontal.svg'
+import placeholderImage from '@/assets/placeholder.jpg'
+import shareIcon from '@/assets/share.svg'
+import favoriteActiveIcon from '@/assets/star-filled.svg'
+import favoriteIcon from '@/assets/star-outline.svg'
+import ActionBar from '@/components/action-bar'
+import AuthorInfo from '@/components/author-info'
 import CustomHeader from '@/components/custom-header'
 import {
   fetchListingDetail,
@@ -17,22 +29,12 @@ import { ListingRead } from '@/types/api/marketplace.d'
 import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { useRelativeTime } from '@/hooks/useRelativeTime'
 import { useSharing } from '@/hooks/useSharing'
-import AuthorInfo from '@/components/author-info'
 import CommentSection from '@/components/comment-section'
 import { fetchCurrentUser } from '@/store/slices/userSlice'
 import { fetchComments } from '@/store/slices/commentSlice'
-import ActionBar from '@/components/action-bar'
 
 // Assets imports
-import moreIcon from '@/assets/more-horizontal.svg'
-import locationIcon from '@/assets/map-pin.svg'
-import placeholderImage from '@/assets/placeholder.jpg'
-import messageIcon from '@/assets/message-square.svg'
-import favoriteIcon from '@/assets/star-outline.svg'
-import favoriteActiveIcon from '@/assets/star-filled.svg'
-import shareIcon from '@/assets/share.svg'
 
-import styles from './index.module.scss'
 
 const SecondHandDetailPage = () => {
   const router = useRouter()

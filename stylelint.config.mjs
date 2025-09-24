@@ -2,11 +2,11 @@
 export default {
   extends: ["stylelint-config-standard-scss", "stylelint-config-prettier"],
   rules: {
-    "scss/at-rule-no-unknown": true,
+    // "scss/at-rule-no-unknown": true, // This is already covered by standard-scss
     "property-no-unknown": [
       true,
       {
-        "ignoreProperties": ["/composes/"]
+        "ignoreProperties": ["composes"]
       }
     ],
     "selector-pseudo-class-no-unknown": [
@@ -15,6 +15,7 @@ export default {
             "ignorePseudoClasses": ["global"]
         }
     ],
-    "declaration-property-value-no-unknown": true
+    // Disable this rule because it incorrectly flags SCSS variables, functions and rpx units
+    "declaration-property-value-no-unknown": null
   }
 };

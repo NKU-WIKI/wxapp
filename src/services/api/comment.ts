@@ -1,6 +1,7 @@
+import http from '../request'
+
 import { Comment, CreateCommentRequest, CommentUpdate, CommentRead } from '@/types/api/comment.d'
 import { PaginationParams } from '@/types/api/common'
-import http from '../request'
 
 export const createComment = (data: CreateCommentRequest) => {
   return http.post<Comment>('/comments', data)

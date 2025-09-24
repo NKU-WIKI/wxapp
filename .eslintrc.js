@@ -1,19 +1,29 @@
 module.exports = {
-  extends: [
-    'taro/react',
-    'prettier'
-  ],
+  extends: ['taro/react', 'prettier'],
+  plugins: ['import'],
   rules: {
-    // 可以在这里添加或覆盖规则
-    'react/react-in-jsx-scope': 'off', // React 17+ 不需要导入React
+    'react/react-in-jsx-scope': 'off',
     'react-hooks/exhaustive-deps': 'error',
-    'no-unused-vars': ['error', {
-      'varsIgnorePattern': '^_',
-      'argsIgnorePattern': '^_',
-      'ignoreRestSiblings': true
-    }],
-    'no-console': 'error',
-    'import/first': 'error' // 确保绝对导入在相对导入之前
+    'no-unused-vars': [
+      'error',
+      {
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      },
+    ],
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'import/order': [
+      'error',
+      {
+        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type'],
+        'newlines-between': 'always',
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+      },
+    ],
   },
   parserOptions: {
     ecmaVersion: 2020,

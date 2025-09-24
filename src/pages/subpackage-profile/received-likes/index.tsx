@@ -1,14 +1,18 @@
-import React, { useEffect, useState, useCallback } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro'
+
+import React, { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '@/store'
-import { fetchUserPosts, resetUserPosts } from '@/store/slices/userPostsSlice'
+
+import styles from './index.module.scss'
+
+import heartIcon from '@/assets/heart.svg'
 import CustomHeader from '@/components/custom-header'
 import EmptyState from '@/components/empty-state'
 import Post from '@/components/post'
-import heartIcon from '@/assets/heart.svg'
-import styles from './index.module.scss'
+import { AppDispatch, RootState } from '@/store'
+import { fetchUserPosts, resetUserPosts } from '@/store/slices/userPostsSlice'
+
 
 const ReceivedLikesPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()

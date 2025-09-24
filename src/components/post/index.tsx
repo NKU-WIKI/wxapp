@@ -1,25 +1,27 @@
 import { View, Text, Image, ITouchEvent } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+
 import { useDispatch, useSelector } from 'react-redux'
+
+import styles from './index.module.scss'
+
+import heartActiveIcon from '@/assets/heart-bold.svg'
+import heartIcon from '@/assets/heart-outline.svg'
+import locationIcon from '@/assets/map-pin.svg'
+import commentIcon from '@/assets/message-circle.svg'
+import shareIcon from '@/assets/share.svg'
+import starActiveIcon from '@/assets/star-filled.svg'
+import starIcon from '@/assets/star-outline.svg'
+import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
+import AuthorInfo from '@/components/author-info'
 import { AppDispatch, RootState } from '@/store'
 import { Post as PostData } from '@/types/api/post.d'
 
 import { normalizeImageUrls } from '@/utils/image'
 import { deletePost } from '@/store/slices/postSlice'
-import AuthorInfo from '@/components/author-info'
-import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
 
 // 引入所有需要的图标
-import heartIcon from '@/assets/heart-outline.svg'
-import heartActiveIcon from '@/assets/heart-bold.svg'
-import commentIcon from '@/assets/message-circle.svg'
-import starIcon from '@/assets/star-outline.svg'
-import starActiveIcon from '@/assets/star-filled.svg'
-import shareIcon from '@/assets/share.svg'
 
-import locationIcon from '@/assets/map-pin.svg'
-
-import styles from './index.module.scss'
 
 export type PostMode = 'list' | 'detail'
 

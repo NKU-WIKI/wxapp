@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+
 import searchApi from '@/services/api/search'
 import { BaseResponse } from '@/types/api/common'
 import {

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { getMyFavorites } from '@/services/api/user'
+
 import { getPostByIdSilent } from '@/services/api/post'
+import { getMyFavorites } from '@/services/api/user'
 import { PaginationParams } from '@/types/api/common'
 
 // 收藏项的动作类型

@@ -1,0 +1,72 @@
+##  Linting & Formatting 规范
+
+为确保代码风格统一、规避潜在错误并提升代码质量，项目集成了 ESLint、Prettier 和 Stylelint。所有代码在提交前都必须通过这些工具的校验。
+
+### 核心原则
+
+- **ESLint**: 负责 JavaScript 和 TypeScript 的代码质量检查，发现潜在的 bug、不合理的写法，并执行部分编码规范。
+- **Prettier**: 负责代码格式化。它会以一种统一的风格重写你的代码，不关心代码质量，只关心格式（如缩进、分号、引号等）。
+- **Stylelint**: 负责 SCSS/CSS 的代码质量检查和格式化。
+
+这三者协同工作，其中 Prettier 的优先级最高。ESLint 和 Stylelint 中任何与 Prettier 冲突的格式化规则都已被禁用。
+
+### 配置文件
+
+- **ESLint**: `.eslintrc.js`
+- **Prettier**: `.prettierrc.js`
+- **Stylelint**: `stylelint.config.mjs`
+
+### 推荐的 VS Code 插件
+
+为获得最佳的开发体验，请安装以下 VS Code 插件：
+
+- `dbaeumer.vscode-eslint`
+- `esbenp.prettier-vscode`
+- `stylelint.vscode-stylelint`
+
+并建议在 VS Code 的 `settings.json` 中开启保存时自动格式化：
+
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.stylelint": true
+  }
+}
+```
+
+### 脚本命令
+
+- `npm run lint`: 检查 JS/TS 代码。
+- `npm run lint:fix`: 自动修复可修复的 JS/TS 问题。
+- `npm run stylelint`: 检查样式代码。
+- `npm run stylelint:fix`: 自动修复可修复的样式问题。
+- `npm run format`: 使用 Prettier 格式化所有支持的文件类型。
+
+### ESLint 核心规则 (`.eslintrc.js`)
+
+- **继承**: 继承自 `taro/react` 官方推荐配置。
+- **集成 Prettier**: 继承 `prettier` 配置，关闭与 Prettier 冲突的规则。
+- **React Hooks**: 强制执行 `react-hooks/exhaustive-deps` 规则，避免因依赖项缺失导致的 bug。
+- **未使用的变量**: 严格禁止未使用的变量，除非变量名或参数名以 `_` (下划线) 开头。
+- **导入顺序**: 通过 `import/first` 规则，强制要求绝对路径导入（如第三方库）必须在相对路径导入（项目内模块）之前。
+
+### Stylelint 核心规则 (`stylelint.config.mjs`)
+
+- **继承**: 继承自 `stylelint-config-standard-scss`，提供对 SCSS 的全面支持。
+- **集成 Prettier**: 继承 `stylelint-config-prettier`，关闭与 Prettier 冲突的规则。
+- **未知规则容错**:
+  - 允许 SCSS 特有的 `@` 规则（如 `@mixin`, `@include`）。
+  - 忽略小程序特有的 `:global` 伪类。
+  - 忽略 CSS Modules 使用的 `composes` 属性。
+- **禁止未知属性值**: 开启 `declaration-property-value-no-unknown` 以防止拼写错误，但需要注意，它无法原生识别 SCSS 变量和 `rpx` 单位，相关报错需开发者自行判断。
+
+### Prettier 核心规则 (`.prettierrc.js`)
+
+- **分号**: `semi: false` - 不使用分号。
+- **引号**: `singleQuote: true` - 使用单引号。
+- **尾随逗号**: `trailingComma: 'es5'` - 在 ES5 有效的尾随逗号（对象、数组等）。
+- **打印宽度**: `printWidth: 100` - 每行最大字符数。
+- **Tab 宽度**: `tabWidth: 2` - 使用 2 个空格进行缩进。

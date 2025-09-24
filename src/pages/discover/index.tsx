@@ -1,16 +1,24 @@
 import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
+
 import { useEffect, useState, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
-import postApi from '@/services/api/post'
+
+import CustomHeader from '../../components/custom-header'
+
+import Section from './components/Section'
+import styles from './index.module.scss'
+
+import type { Post as PostData } from '@/types/api/post.d'
+
 import { getPinnedPosts } from '@/services/api/pin'
+import postApi from '@/services/api/post'
 import { AppDispatch } from '@/store'
 import { fetchUnreadCounts } from '@/store/slices/notificationSlice'
-import type { Post as PostData } from '@/types/api/post.d'
 import { usePageRefresh } from '@/utils/pageRefreshManager'
-import styles from './index.module.scss'
-import CustomHeader from '../../components/custom-header'
-import Section from './components/Section'
+
+
+
 
 interface HotPost {
   id?: string | number

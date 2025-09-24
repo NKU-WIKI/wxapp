@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { CommentRead } from '@/types/api/comment.d'
+
 import { getMyComments } from '@/services/api/user' // 使用新的API
+import { CommentRead } from '@/types/api/comment.d'
 import { PaginationParams } from '@/types/api/common'
 
 // 获取用户评论列表的参数类型

@@ -1,9 +1,9 @@
-import RobotIcon from '../../assets/robot.svg'
-import TranslateIcon from '../../assets/translate.svg'
-import PlanIcon from '../../assets/plan.svg'
 import BookIcon from '../../assets/book.svg'
 import CodeIcon from '../../assets/code.svg'
 import MarketIcon from '../../assets/market.svg'
+import PlanIcon from '../../assets/plan.svg'
+import RobotIcon from '../../assets/robot.svg'
+import TranslateIcon from '../../assets/translate.svg'
 
 export const hotspots = [
   {

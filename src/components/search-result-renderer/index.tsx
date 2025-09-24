@@ -1,14 +1,17 @@
-import React from 'react'
 import { View, Text, Image } from '@tarojs/components'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/card'
-import { SearchResultItem as ApiSearchResultItem } from '@/types/api/search'
+
+import React from 'react'
+
+import styles from './index.module.scss'
+
 import AuthorInfo from '@/components/author-info'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/card'
 import Post from '@/components/post'
 import { Post as PostData } from '@/types/api/post.d'
+import { SearchResultItem as ApiSearchResultItem } from '@/types/api/search'
 
 // 图片资源使用字符串路径引用
 
-import styles from './index.module.scss'
 
 // 导出组件使用的类型（与API类型保持一致）
 export type SearchResultItem = ApiSearchResultItem

@@ -1,7 +1,8 @@
+import { getRecommendPosts } from './post'
+
 import { API } from '@/types/api/recommend'
 
 // Relative imports
-import { getRecommendPosts } from './post'
 
 /**
  * 获取推荐内容（帖子、用户等）
