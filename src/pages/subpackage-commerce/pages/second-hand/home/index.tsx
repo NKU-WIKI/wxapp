@@ -319,10 +319,13 @@ const handleClearSearch = useCallback(() => {
 }, [loadListings])
 
 // 处理筛选类型变化
-const handleTypeChange = useCallback((type: 'all' | 'sell' | 'buy') => {
-  userFilterChangedRef.current = true
-  setSelectedType(type)
-}, [])
+const handleTypeChange = useCallback(
+  (type: 'all' | 'sell' | 'buy') => {
+    userFilterChangedRef.current = true;
+    setSelectedType(type);
+  },
+  []
+);
 
 // 商品卡片组件
 const ProductCard = ({ product }: { product: ListingRead }) => {
