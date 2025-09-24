@@ -1,11 +1,11 @@
-import Taro from '@tarojs/taro';
+import Taro from "@tarojs/taro";
 
 // 定义 tabBar 页面路径
 export const TAB_BAR_PAGES = [
-  '/pages/home/index',
-  '/pages/explore/index',
-  '/pages/discover/index',
-  '/pages/profile/index'
+  "/pages/home/index",
+  "/pages/explore/index",
+  "/pages/discover/index",
+  "/pages/profile/index",
 ];
 
 // 全局状态管理
@@ -28,10 +28,10 @@ class TabBarSyncManager {
   // 通知所有监听器
   private notifyListeners(index: number) {
     this.currentSelectedIndex = index;
-    this.listeners.forEach(callback => {
+    this.listeners.forEach((callback) => {
       try {
         callback(index);
-      } catch (error) {
+      } catch {
         // 静默处理错误
       }
     });
@@ -42,13 +42,13 @@ class TabBarSyncManager {
     try {
       const pages = Taro.getCurrentPages();
       if (pages.length === 0) return 0;
-      
+
       const currentPage = pages[pages.length - 1];
       const currentPath = `/${currentPage.route}`;
-      
-      const index = TAB_BAR_PAGES.findIndex(path => path === currentPath);
+
+      const index = TAB_BAR_PAGES.findIndex((path) => path === currentPath);
       return index >= 0 ? index : this.currentSelectedIndex;
-    } catch (error) {
+    } catch {
       // 返回当前索引作为默认值
       return this.currentSelectedIndex;
     }
@@ -75,14 +75,14 @@ class TabBarSyncManager {
   // 安全的页面跳转方法
   navigateToPage(url: string) {
     // 提取页面路径（去除查询参数）
-    const pagePath = url.split('?')[0];
-    
+    const pagePath = url.split("?")[0];
+
     if (this.isTabBarPage(pagePath)) {
       // 如果是 tabBar 页面，使用 switchTab
       Taro.switchTab({ url: pagePath });
-      
+
       // 更新选中状态
-      const index = TAB_BAR_PAGES.findIndex(path => path === pagePath);
+      const index = TAB_BAR_PAGES.findIndex((path) => path === pagePath);
       if (index >= 0) {
         this.setSelectedIndex(index);
       }
@@ -106,7 +106,7 @@ export const initTabBarSync = () => {
   });
 
   // 监听页面切换（如果支持的话）
-  if (typeof Taro.onPageNotFound !== 'undefined') {
+  if (typeof Taro.onPageNotFound !== "undefined") {
     // 某些情况下可以监听页面变化
   }
 
@@ -122,6 +122,6 @@ export const useTabBarSync = (callback: (_index: number) => void) => {
     subscribe: () => tabBarSyncManager.addListener(callback),
     unsubscribe: () => tabBarSyncManager.removeListener(callback),
     getCurrentIndex: () => tabBarSyncManager.getCurrentSelectedIndex(),
-    navigateTo: (url: string) => tabBarSyncManager.navigateToPage(url)
+    navigateTo: (url: string) => tabBarSyncManager.navigateToPage(url),
   };
 };

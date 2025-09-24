@@ -1,11 +1,11 @@
-@import "@/styles/variables.scss";
+@import "@/styles/variables";
 
 // 主要内容区域
 .content {
+  box-sizing: border-box;
+  min-height: 100vh;
   padding: 16px;
   background-color: #f5f5f5;
-  min-height: 100vh;
-  box-sizing: border-box;
 }
 
 // 头像部分
@@ -29,26 +29,23 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%;
   border: 2px solid #e5e5e5;
+  border-radius: 50%;
 }
 
 .uploadingOverlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: rgb(0 0 0 / 50%);
+  border-radius: 50%;
 }
 
 .uploadingText {
-  color: white;
   font-size: 12px;
+  color: white;
 }
 
 .avatarTip {
@@ -59,28 +56,27 @@
 // 卡片样式
 // 卡片外的标题
 .sectionTitle {
-  font-size: 16px;
+  margin-top: 20px;margin-bottom  // 缩短与卡片的距离
+  font-size: 16px;font-size
   font-weight: 600;
   color: #4F46E5;
-  margin-bottom: 12px;  // 缩短与卡片的距离
-  margin-top: 20px;     // 缩短与上方内容的距离
 }
 
 .card {
+  margin-bottom: 16px; // 缩短卡片之间的距离
+  overflow: hidden;overflow
   background-color: white;
   border-radius: 8px;
-  margin-bottom: 16px; // 缩短卡片之间的距离
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 }
 
 .cardTitle {
+  display: none; // 隐藏卡片内的标题
+  padding: 16px 16px 0;padding
+  margin-bottom: 16px;
   font-size: 16px;
   font-weight: 600;
   color: #6366f1;
-  padding: 16px 16px 0 16px;
-  margin-bottom: 16px;
-  display: none; // 隐藏卡片内的标题
 }
 
 // 字段行样式
@@ -97,29 +93,29 @@
 }
 
 .fieldLabel {
+  flex-shrink: 0;
   font-size: 16px;
   color: #333;
-  flex-shrink: 0;
 }
 
 // 字段提示文字
 .fieldHint {
-  font-size: 12px;
-  color: #999;
-  margin-top: 4px;
-  padding-left: 16px;
   padding-right: 16px;
   padding-bottom: 8px;
+  padding-left: 16px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #999;
 }
 
 .fieldInput {
   flex: 1;
-  text-align: right;
-  border: none;
-  background: transparent;
   font-size: 16px;
   color: #333;
+  text-align: right;
   outline: none;
+  background: transparent;
+  border: none;
 
   &::placeholder {
     color: #999;
@@ -128,30 +124,30 @@
 
 // 输入框容器（用于支持字符计数）
 .fieldInputContainer {
-  flex: 1;
   display: flex;
-  align-items: center;
+  flex: 1;
   gap: 8px;
+  align-items: center;
 }
 
 // 字符计数样式
 .characterCount {
-  font-size: 12px;
-  color: #999;
   flex-shrink: 0;
   min-width: 35px;
+  font-size: 12px;
+  color: #999;
   text-align: right;
 }
 
 // 灰色提示文字样式的输入框（用于生日、学校、学院）
 .fieldInputGray {
   flex: 1;
-  text-align: right;
-  border: none;
-  background: transparent;
   font-size: 16px;
   color: #999; // 灰色文字
+  text-align: right;text-align
   outline: none;
+  background: transparent;
+  border: none;
 
   &::placeholder {
     color: #ccc;
@@ -164,16 +160,16 @@
 
 // 选择器样式
 .fieldSelect {
-  flex: 1;
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: flex-end;
   cursor: pointer;
 
   .fieldText {
+    margin-right: 8px;
     font-size: 16px;
     color: #999;
-    margin-right: 8px;
     text-align: right;
   }
 
@@ -190,9 +186,9 @@
 }
 
 .fieldText {
+  margin-right: 8px;
   font-size: 16px;
   color: #666;
-  margin-right: 8px;
 }
 
 .chevronRight {
@@ -205,11 +201,11 @@
   width: 100%;
   min-height: 60px;
   padding: 8px 0;
-  border: none;
   font-size: 14px;
   line-height: 1.4;
   color: #333;
   background: transparent;
+  border: none;
 
   &::placeholder {
     color: #999;
@@ -221,15 +217,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 20px 16px 24px 16px;  // 增加上下内边距
+  padding: 20px 16px 24px;  // 增加上下内边距
 }
 
 .interestTag {
   padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid #e5e5e5;
-  background-color: #f8f8f8;
   cursor: pointer;
+  background-color: #f8f8f8;
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
   transition: all 0.2s ease;
 }
 
@@ -249,22 +245,22 @@
 
 // 保存按钮容器
 .saveButtonContainer {
-  padding: 16px 16px; // 缩短上方间距
-  margin-bottom: 20px; // 缩短底部间距
+  padding: 16px; // 缩短上方间距
+  margin-bottom: 20px;margin-bottom // 缩短底部间距
 }
 
 .saveButton {
-  width: 100%;
-  height: 48px;
-  background-color: #6366f1;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 24px;
-  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #6366f1;
+  border: none;
+  border-radius: 24px;
   transition: all 0.2s ease;
 
   &::after {
@@ -277,16 +273,16 @@
   }
 
   &:disabled {
-    background-color: #ccc;
     color: #999;
+    background-color: #ccc;
   }
 }
 
 // 错误提示样式
 .errorText {
-  font-size: 12px;
-  color: #ff4d4f;
   margin-top: 4px;
   margin-left: 16px;
+  font-size: 12px;
   line-height: 1.4;
+  color: #ff4d4f;
 }

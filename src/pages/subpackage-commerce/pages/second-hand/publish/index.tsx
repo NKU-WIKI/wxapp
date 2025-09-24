@@ -40,6 +40,7 @@ const ActionTabs: FC<ActionTabsProps> = React.memo(({ listingType, onTabClick })
     </View>
   )
 })
+ActionTabs.displayName = 'ActionTabs'
 
 
 
@@ -87,6 +88,7 @@ const FormInput: FC<FormInputProps> = React.memo(({ placeholder: _placeholder, v
     </View>
   )
 })
+FormInput.displayName = 'FormInput'
 
 interface FormRowProps {
   label: string
@@ -99,6 +101,7 @@ const FormRow: FC<FormRowProps> = React.memo(({ label, children, onClick }) => (
     <View className={styles.content}>{children}</View>
   </View>
 ))
+FormRow.displayName = 'FormRow'
 
 interface TagListProps {
   tags: string[]
@@ -142,6 +145,7 @@ const TagList: FC<TagListProps> = React.memo(({ tags: _tags, tagInput: _tagInput
     </View>
   )
 })
+TagList.displayName = 'TagList'
 
 interface ContactInputsProps {
   wechatId: string
@@ -208,6 +212,7 @@ const ContactInputs: FC<ContactInputsProps> = React.memo(({
     </View>
   )
 })
+ContactInputs.displayName = 'ContactInputs'
 
 const WarmTips: FC = React.memo(() => (
   <View className={styles.warmTips}>
@@ -218,6 +223,7 @@ const WarmTips: FC = React.memo(() => (
     <Text className={styles.tipItem}>建议上传清晰的商品照片</Text>
   </View>
 ))
+WarmTips.displayName = 'WarmTips'
 
 interface PublishButtonProps {
   isLoading: boolean
@@ -233,6 +239,7 @@ const PublishButton: FC<PublishButtonProps> = React.memo(({ isLoading, onClick }
     </Text>
   </View>
 ))
+PublishButton.displayName = 'PublishButton'
 
 // #endregion
 /* eslint-enable @typescript-eslint/no-unused-vars */
@@ -435,7 +442,7 @@ const SecondHandPublishPage = () => {
           }
         })
       }, 300)
-    } catch (publishError) {
+    } catch {
       // 错误已在 slice 中统一处理
       setIsPublishing(false) // 发生错误时恢复状态
     }

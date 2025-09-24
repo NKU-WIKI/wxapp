@@ -1,102 +1,108 @@
 .publishActivityPage {
-  padding: 16rpx 16rpx 24rpx;
-  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 60%, #ffffff 100%);
-  min-height: 100vh;
   box-sizing: border-box;
+  min-height: 100vh;
+  padding: 16rpx 16rpx 24rpx;
+  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 60%, #fff 100%);
 }
 
 // 统一阴影 & 动画变量
-$card-radius: 20rpx;
-$card-shadow: 0 4rpx 14rpx rgba(15,23,42,0.06), 0 2rpx 4rpx rgba(15,23,42,0.04);
+$card-radius: 20rpx;$card-radius
+$card-shadow: 0 4rpx 14rpx rgb(15 23 42 / 6%), 0 2rpx 4rpx rgb(15 23 42 / 4%);
 $primary: #4f46e5;
 $primary-grad: linear-gradient(135deg,#6366f1 0%,#4f46e5 55%,#4338ca 100%);
 $text-dark: #1e293b;
 $text-secondary: #64748b;
 
 .formItem {
-  margin-bottom: 12rpx;
+  position: relative;
   display: flex;
   flex-direction: column;
-  background: transparent;
   padding: 12rpx 12rpx 14rpx;
-  border-radius: $card-radius;
-  position: relative;
+  margin-bottom: 12rpx;
   overflow: hidden;
+  background: transparent;
+  border-radius: $card-radius;
+
   // 移除所有渐变装饰和过渡动画以避免闪烁
 }
 
 .label {
-  font-size: 30rpx;
-  color: $text-dark;
-  margin-bottom: 6rpx;
-  font-weight: 600;
-  letter-spacing: .5rpx;
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
   position: relative;
+  display: flex;
+  gap: 8rpx;
+  align-items: center;
+  margin-bottom: 6rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $text-dark;
+  letter-spacing: .5rpx;
+
   // 移除左侧蓝色竖线
 }
 
 // 标签容器样式（用于包含标签和字符计数）
 .labelContainer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 6rpx;
 }
 
 // 字符计数样式
 .charCount {
   font-size: 24rpx;
-  color: #94a3b8;
   font-weight: 400;
+  color: #94a3b8;
 }
 
 // 错误提示文本样式
 .errorText {
-  font-size: 24rpx;
-  color: #ef4444;
   margin-top: 8rpx;
   margin-left: 4rpx;
+  font-size: 24rpx;
+  color: #ef4444;
 }
 
 // 必填项星号样式
 .required {
-  color: #ff4757;
   margin-left: 4rpx;
+  color: #ff4757;
 }
 
 .input, .textarea, .picker, .selector {
-  background: #ffffff;
-  border: 2rpx solid #e2e8f0;
-  border-radius: 14rpx;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 76rpx;
   padding: 20rpx 18rpx;
   font-size: 28rpx;
   line-height: 1.4;
-  min-height: 76rpx;
-  width: 100%;
-  box-sizing: border-box;
+  background: #fff;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 14rpx;
+
   // 移除过渡动画和焦点效果以避免闪烁
-  box-shadow: none;
+  box-shadow: none;box-shadow
+
   &:focus {
-    // 移除焦点时的蓝色效果
-    border-color: #e2e8f0;
-    box-shadow: none;
-    background: #ffffff;
     outline: none;
+    background: #fff;
+
+    // 移除焦点时的蓝色效果
+    border-color: #e2e8f0;border-color
+    box-shadow: none;
   }
+
   &::placeholder {
     color: #94a3b8;
   }
 }
 
 .textarea {
-  min-height: 200rpx;
-  resize: none;
-  line-height: 1.6;
-  width: 100%;
   box-sizing: border-box;
+  width: 100%;
+  min-height: 200rpx;
+  line-height: 1.6;
+  resize: none;
 }
 
 // 标签输入微调
@@ -104,134 +110,140 @@ $text-secondary: #64748b;
 
 // 选择器包装器样式
 .pickerWrapper {
-  background: #ffffff;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 76rpx;
+  padding: 20rpx 18rpx;
+  background: #fff;
   border: 2rpx solid #e2e8f0;
   border-radius: 14rpx;
-  padding: 20rpx 18rpx;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 76rpx;
-  box-sizing: border-box;
 }
 
 .pickerText {
+  flex: 1;
   font-size: 28rpx;
   color: #1e293b;
-  flex: 1;
 }
 
 .pickerArrow {
   font-size: 32rpx;
-  color: #94a3b8;
   font-weight: 600;
+  color: #94a3b8;
   transform: rotate(90deg);
 }
-.helper { font-size: 22rpx; color: #94a3b8; margin-top: 6rpx; }
+.helper { margin-top: 6rpx; font-size: 22rpx; color: #94a3b8; }
 
 // 活动分类选择器样式
 .categorySelector {
   display: flex;
-  gap: 12rpx;
   flex-wrap: wrap;
+  gap: 12rpx;
   width: 100%;
 }
 
 .categoryOption {
-  padding: 12rpx 20rpx;
-  border: 2rpx solid #cbd5e1;
-  border-radius: 40rpx;
-  font-size: 24rpx;
-  color: #475569;
-  background: rgba(255, 255, 255, 0.6);
   position: relative;
-  overflow: hidden;
-  // 移除所有过渡动画和悬停效果以避免闪烁
-  box-shadow: 0 2rpx 4rpx rgba(15,23,42,0.04);
   flex-grow: 1;
-  text-align: center;
   min-width: 30%;
   max-width: 32%;
+  padding: 12rpx 20rpx;
+  overflow: hidden;
+  font-size: 24rpx;
+  color: #475569;
+  text-align: center;
+  background: rgb(255 255 255 / 60%);
+  border: 2rpx solid #cbd5e1;
+  border-radius: 40rpx;
+
+  // 移除所有过渡动画和悬停效果以避免闪烁
+  box-shadow: 0 2rpx 4rpx rgb(15 23 42 / 4%);box-shadow
+
   &:active {
     // 移除缩放效果
-    transform: none;
+    transform: none;transform
   }
 }
 
 .categoryOptionActive {
-  background: $primary-grad;
   color: #fff;
+  background: $primary-grad;
   border-color: transparent;
-  box-shadow: 0 4rpx 10rpx rgba(79,70,229,0.35),0 2rpx 4rpx rgba(79,70,229,0.25);
+  box-shadow: 0 4rpx 10rpx rgb(79 70 229 / 35%),0 2rpx 4rpx rgb(79 70 229 / 25%);
 }
 
 .typeSelector {
   display: flex;
-  gap: 24rpx;
   flex-wrap: wrap;
+  gap: 24rpx;
   justify-content: space-between;
   width: 100%;
 }
 
 .typeOption {
+  position: relative;
+  flex: 1;
+  max-width: 28%;
   padding: 10rpx 24rpx;
-  border: 2rpx solid #cbd5e1;
-  border-radius: 40rpx;
+  overflow: hidden;
   font-size: 26rpx;
   color: #475569;
-  background: rgba(255, 255, 255, 0.6);
-  position: relative;
-  overflow: hidden;
-  // 移除所有过渡动画和悬停效果以避免闪烁
-  box-shadow: 0 2rpx 4rpx rgba(15,23,42,0.04);
-  flex: 1;
   text-align: center;
-  max-width: 28%;
+  background: rgb(255 255 255 / 60%);
+  border: 2rpx solid #cbd5e1;
+  border-radius: 40rpx;
+
+  // 移除所有过渡动画和悬停效果以避免闪烁
+  box-shadow: 0 2rpx 4rpx rgb(15 23 42 / 4%);box-shadow
+
   &:active {
     // 移除缩放效果
-    transform: none;
+    transform: none;transform
   }
 }
 
 .typeOptionActive {
-  background: $primary-grad;
   color: #fff;
+  background: $primary-grad;
   border-color: transparent;
-  box-shadow: 0 4rpx 10rpx rgba(79,70,229,0.35),0 2rpx 4rpx rgba(79,70,229,0.25);
+  box-shadow: 0 4rpx 10rpx rgb(79 70 229 / 35%),0 2rpx 4rpx rgb(79 70 229 / 25%);
 }
 
 .submitBtn {
-  margin-top: 20rpx;
-  background: $primary-grad;
-  color: #fff;
+  position: relative;
   padding: 28rpx 0;
-  text-align: center;
-  border-radius: 18rpx;
+  margin-top: 20rpx;
+  overflow: hidden;
   font-size: 32rpx;
   font-weight: 600;
+  color: #fff;
+  text-align: center;
   letter-spacing: 2rpx;
-  box-shadow: 0 8rpx 18rpx -4rpx rgba(79,70,229,0.55),0 4rpx 10rpx -2rpx rgba(79,70,229,0.35);
-  position: relative;
-  overflow: hidden;
+  background: $primary-grad;
+  border-radius: 18rpx;
+  box-shadow: 0 8rpx 18rpx -4rpx rgb(79 70 229 / 55%),0 4rpx 10rpx -2rpx rgb(79 70 229 / 35%);
+
   // 移除过渡动画以避免闪烁
   &::before {
-    content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg,rgba(255,255,255,0.15),rgba(255,255,255,0));
+    content: '';
+    background: linear-gradient(90deg,rgb(255 255 255 / 15%),rgb(255 255 255 / 0%));
     mix-blend-mode: overlay;
   }
+
   &:active {
     // 移除移动效果
-    transform: none;
+    transform: none;transform
   }
 }
 
 .disabledBtn {
+  pointer-events: none;
+  box-shadow: none;
   opacity: .45;
   filter: grayscale(.15);
-  box-shadow: none;
-  pointer-events: none;
 }
 
 // 时间行布局
@@ -242,119 +254,123 @@ $text-secondary: #64748b;
 }
 
 .timeItem {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
 }
 
 .timeLabel {
-  font-size: 24rpx;
-  color: $text-secondary;
   margin-bottom: 8rpx;
+  font-size: 24rpx;
   font-weight: 500;
+  color: $text-secondary;
 }
 
 // 人数计数器样式
 .participantCounterWrapper {
   display: flex;
-  align-items: center;
   gap: 16rpx;
+  align-items: center;
   width: 100%;
 }
 
 .counterButton {
-  width: 76rpx;
-  height: 76rpx;
-  border: 2rpx solid #cbd5e1;
-  border-radius: 8rpx;
-  background: transparent;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  // 移除所有过渡动画和悬停效果以避免闪烁
-  cursor: pointer;
+  width: 76rpx;
+  height: 76rpx;
   pointer-events: auto;
-  position: relative;
+
+  // 移除所有过渡动画和悬停效果以避免闪烁
+  cursor: pointer;cursor
+  background: transparent;
+  border: 2rpx solid #cbd5e1;
+  border-radius: 8rpx;
 
   &:active {
-    // 移除激活时的效果
-    transform: none;
     border-color: #cbd5e1;
+
+    // 移除激活时的效果
+    transform: none;transform
   }
 
   &:hover {
-    // 移除悬停时的效果
-    border-color: #cbd5e1;
     background: transparent;
+
+    // 移除悬停时的效果
+    border-color: #cbd5e1;border-color
   }
 }
 
 .counterButtonText {
-  color: #64748b;
   font-size: 24rpx;
   font-weight: 600;
   line-height: 1;
+  color: #64748b;
   pointer-events: none;
 
   .counterButton:hover & {
     // 移除悬停时的文字效果
-    color: #64748b;
+    color: #64748b;color
   }
 }
 
 .counterDisplay {
-  flex: 1;
+  box-sizing: border-box;
   display: flex;
+  flex: 1;
+  gap: 8rpx;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
-  background: #ffffff;
+  min-height: 76rpx;
+  padding: 20rpx 18rpx;
+  pointer-events: none;
+  background: #fff;
   border: 2rpx solid #e2e8f0;
   border-radius: 14rpx;
-  padding: 20rpx 18rpx;
-  min-height: 76rpx;
-  box-sizing: border-box;
-  pointer-events: none;
 }
 
 .counterNumber {
   font-size: 28rpx;
   font-weight: 600;
-  color: $text-dark;
   line-height: 1;
+  color: $text-dark;
   pointer-events: none;
 }
 
 .counterUnit {
   font-size: 24rpx;
-  color: $text-secondary;
   font-weight: 500;
+  color: $text-secondary;
   pointer-events: none;
 }
 
 // 日期时间选择器样式
 .datetimePicker {
-  background: #ffffff;
-  border: 2rpx solid #e2e8f0;
-  border-radius: 14rpx;
+  position: relative;box-sizing
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 76rpx;
   padding: 20rpx 18rpx;
   font-size: 28rpx;
   line-height: 1.4;
-  min-height: 76rpx;
-  width: 100%;
-  box-sizing: border-box;
-  // 移除过渡动画和激活效果以避免闪烁
-  box-shadow: none;
-  display: flex;
-  align-items: center;
   cursor: pointer;
-  position: relative; // 确保点击事件能正确传递
+  background: #fff;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 14rpx;
+
+  // 移除过渡动画和激活效果以避免闪烁
+  box-shadow: none;box-shadow
 
   &:active {
+    background: #fff;
+
     // 移除激活时的效果
-    border-color: #e2e8f0;
+    border-color: #e2e8f0;border-color
     box-shadow: none;
-    background: #ffffff;
   }
 
   // 确保文字不会影响点击事件
@@ -364,19 +380,20 @@ $text-secondary: #64748b;
 }
 
 .value {
-  color: #333333;
   flex: 1;
+  color: #333;
 }
 
 .placeholder {
-  color: #94a3b8;
   flex: 1;
+  color: #94a3b8;
 }
 
 // picker group style
 .pickerGroup {
   display: flex;
   gap: 8rpx;
+
   .datetimePicker {
     flex: 1;
   }
@@ -393,6 +410,6 @@ $text-secondary: #64748b;
 }
 
 // 响应式（大屏宽度兼容）
-@media screen and (min-width: 768px) {
+@media screen and (width >= 768px) {
   .publishActivityPage { max-width: 850rpx; margin: 0 auto; }
 }

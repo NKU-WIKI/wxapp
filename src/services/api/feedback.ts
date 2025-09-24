@@ -33,7 +33,8 @@ export const getMyFeedbacks = (params: GetFeedbackListParams) => {
 };
 
 // 兼容旧调用：getFeedbackList -> getMyFeedbacks
-export const getFeedbackList = (params: GetFeedbackListParams) => getMyFeedbacks(params);
+export const getFeedbackList = (params: GetFeedbackListParams) =>
+  getMyFeedbacks(params);
 
 // 详情与删除（若后端暂未提供，可保留占位或后续根据文档调整）
 export const getFeedback = (feedbackId: number) => {
@@ -49,11 +50,16 @@ const feedbackApi = {
   getMyFeedbacks,
   getFeedbackList,
   // 兼容旧调用：简单上报一个反馈记录
-  sendThumbFeedback: (data: { scope: string; action: 'up' | 'down'; title?: string; extra?: any }) =>
+  sendThumbFeedback: (data: {
+    scope: string;
+    action: "up" | "down";
+    title?: string;
+    extra?: Record<string, unknown>;
+  }) =>
     createFeedback({
-      content: `[thumb-${data.action}] ${data.title || ''}`.trim(),
-      type: 'suggest',
-    } as any),
+      content: `[thumb-${data.action}] ${data.title || ""}`.trim(),
+      type: "suggest",
+    }),
 };
 
-export default feedbackApi; 
+export default feedbackApi;

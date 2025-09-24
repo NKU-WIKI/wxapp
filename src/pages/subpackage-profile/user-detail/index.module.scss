@@ -1,4 +1,4 @@
-@import '../../../styles/variables.scss';
+@import '../../../styles/variables';
 
 .container {
   display: flex;
@@ -9,39 +9,39 @@
 
 .content {
   flex: 1;
-  overflow: hidden;
   padding: 20px;
+  overflow: hidden;
 }
 
 .loading,
 .error {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 200px;
   color: #666;
 }
 
 .userInfo {
   display: flex;
-  align-items: flex-start;
   gap: 16px;
-  background-color: white;
+  align-items: flex-start;
   padding: 20px;
-  border-radius: 12px;
   margin-bottom: 20px;
+  background-color: white;
+  border-radius: 12px;
 }
 
 .avatar {
   width: 80px;
   height: 80px;
-  border-radius: 40px;
   background-color: #f0f0f0;
+  border-radius: 40px;
 }
 
 .userDetails {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 8px;
 }
@@ -53,36 +53,36 @@
 }
 
 .levelBadge {
-  background-color: #fef08a;
-  color: #854d0e;
+  align-self: flex-start;
   padding: 4px 12px;
-  border-radius: 8px;
   font-size: 12px;
   font-weight: 500;
-  align-self: flex-start;
+  color: #854d0e;
+  background-color: #fef08a;
+  border-radius: 8px;
 }
 
 .bio {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.4;
   margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #666;
 }
 
 .stats {
   display: flex;
   justify-content: space-around;
-  background-color: white;
   padding: 20px;
-  border-radius: 12px;
   margin-bottom: 20px;
+  background-color: white;
+  border-radius: 12px;
 }
 
 .statItem {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 4px;
+  align-items: center;
 }
 
 .statNumber {
@@ -103,18 +103,18 @@
 }
 
 .followButton {
-  background-color: #6366f1;
-  color: white;
-  border: none;
-  border-radius: 8px;
   padding: 12px 32px;
   font-size: 16px;
   font-weight: 500;
+  color: white;
+  background-color: #6366f1;
+  border: none;
+  border-radius: 8px;
   transition: all 0.2s;
   
   &.following {
-    background-color: #e5e7eb;
     color: #6b7280;
+    background-color: #e5e7eb;
   }
   
   &:active {

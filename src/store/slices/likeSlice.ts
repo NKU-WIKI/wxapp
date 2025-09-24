@@ -42,7 +42,7 @@ export const fetchLikes = createAsyncThunk<
       getUserLikedNotes(paginationParams)
     ]);
 
-    let allItems: LikeItem[] = [];
+    const allItems: LikeItem[] = [];
     let totalCount = 0;
 
     // 处理帖子响应
@@ -57,7 +57,8 @@ export const fetchLikes = createAsyncThunk<
         totalCount += postsData.pagination?.total || 0;
       }
     } else {
-      
+      // 处理错误情况
+      console.warn('Failed to fetch posts');
     }
 
     // 处理笔记响应
@@ -72,7 +73,8 @@ export const fetchLikes = createAsyncThunk<
         totalCount += notesData.pagination?.total || 0;
       }
     } else {
-      
+      // 处理错误情况
+      console.warn('Failed to fetch notes');
     }
 
     // 按创建时间倒序排列

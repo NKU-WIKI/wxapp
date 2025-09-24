@@ -19,51 +19,55 @@ interface UploadImageResponse {
 export const uploadImage = async (
   filePath: string,
   options: {
-    compress?: 'smart' | boolean;
+    compress?: "smart" | boolean;
     maxSizeKB?: number;
     quality?: number;
-  } = {}
+  } = {},
 ): Promise<string> => {
   let finalFilePath = filePath;
 
   // 如果是图片格式且需要压缩，则先进行压缩
-  const {
-    compress = true,
-    maxSizeKB = 1024,
-    quality = 0.85
-  } = options;
+  const { compress = true, maxSizeKB = 1024, quality = 0.85 } = options;
 
   if (compress && isImageFile(filePath)) {
     try {
-      if (compress === 'smart') {
+      if (compress === "smart") {
         // 使用智能压缩
-        const { smartCompressImage } = await import('@/utils/image');
+        const { smartCompressImage } = await import("@/utils/image");
         finalFilePath = await smartCompressImage(filePath, maxSizeKB, quality);
       } else {
         // 使用传统压缩
         finalFilePath = await compressImage(filePath, quality);
       }
-    } catch (error) {
+    } catch {
       // 压缩失败时使用原文件
       finalFilePath = filePath;
     }
   }
 
   try {
-    const response = await http.uploadFile<UploadImageResponse>("/tools/uploads/file", finalFilePath);
+    const response = await http.uploadFile<UploadImageResponse>(
+      "/tools/uploads/file",
+      finalFilePath,
+    );
 
     if (response.data?.url) {
       let imageUrl = response.data.url;
-      if (imageUrl.startsWith('https:')) {
-        imageUrl = imageUrl.replace('https:', 'http:');
+      if (imageUrl.startsWith("https:")) {
+        imageUrl = imageUrl.replace("https:", "http:");
       }
       return normalizeImageUrl(imageUrl);
     } else {
       throw new Error(response.msg || response.message || "上传失败");
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // 特殊处理413错误（文件过大）
-    if (error.statusCode === 413) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "statusCode" in error &&
+      error.statusCode === 413
+    ) {
       throw new Error("文件大小超过限制");
     }
     throw error;

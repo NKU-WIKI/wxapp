@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import { getActionStatus } from '@/services/api/user';
+import { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { getActionStatus } from "@/services/api/user";
 
 /**
  * 获取用户关注状态的hook
@@ -21,7 +21,7 @@ export const useFollowStatus = (userId: string | undefined) => {
 
     try {
       setLoading(true);
-      const response = await getActionStatus(userId, 'user', 'follow');
+      const response = await getActionStatus(userId, "user", "follow");
       setIsFollowing(response.data.is_active);
     } catch {
       setIsFollowing(false);
@@ -47,7 +47,9 @@ export const useFollowStatus = (userId: string | undefined) => {
  * @returns 关注状态映射表和更新函数
  */
 export const useMultipleFollowStatus = (userIds: string[]) => {
-  const [followStatusMap, setFollowStatusMap] = useState<Record<string, boolean>>({});
+  const [followStatusMap, setFollowStatusMap] = useState<
+    Record<string, boolean>
+  >({});
   const [loading, setLoading] = useState<boolean>(false);
   const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
 
@@ -56,26 +58,24 @@ export const useMultipleFollowStatus = (userIds: string[]) => {
       setFollowStatusMap({});
       return;
     }
-    
+
     try {
       setLoading(true);
       const statusMap: Record<string, boolean> = {};
-      
+
       // 并发请求所有用户的关注状态
       const promises = userIds.map(async (userId) => {
         try {
-          const response = await getActionStatus(userId, 'user', 'follow');
+          const response = await getActionStatus(userId, "user", "follow");
           statusMap[userId] = response.data.is_active;
-        } catch (error) {
-          
+        } catch {
           statusMap[userId] = false;
         }
       });
 
       await Promise.all(promises);
       setFollowStatusMap(statusMap);
-    } catch (error) {
-      
+    } catch {
       setFollowStatusMap({});
     } finally {
       setLoading(false);
@@ -84,15 +84,17 @@ export const useMultipleFollowStatus = (userIds: string[]) => {
 
   useEffect(() => {
     refreshFollowStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userIds.length > 0 ? userIds.join(',') : '', isLoggedIn]); // 添加isLoggedIn依赖
+  }, [refreshFollowStatus]);
 
-  const updateFollowStatus = useCallback((userId: string, newStatus: boolean) => {
-    setFollowStatusMap(prev => ({
-      ...prev,
-      [userId]: newStatus
-    }));
-  }, []);
+  const updateFollowStatus = useCallback(
+    (userId: string, newStatus: boolean) => {
+      setFollowStatusMap((prev) => ({
+        ...prev,
+        [userId]: newStatus,
+      }));
+    },
+    [],
+  );
 
   return { followStatusMap, loading, refreshFollowStatus, updateFollowStatus };
 };

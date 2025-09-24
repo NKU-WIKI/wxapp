@@ -1,19 +1,19 @@
-import { useEffect, useState, useCallback } from 'react';
-import { View, ScrollView, Text } from '@tarojs/components';
-import Taro, { useReachBottom, usePullDownRefresh } from '@tarojs/taro';
+import { useEffect, useState, useCallback } from "react";
+import { View, ScrollView, Text } from "@tarojs/components";
+import Taro, { useReachBottom, usePullDownRefresh } from "@tarojs/taro";
 
-import CustomHeader from '@/components/custom-header';
-import Button from '@/components/button';
+import CustomHeader from "@/components/custom-header";
+import Button from "@/components/button";
 
 // API imports
-import searchApi from '@/services/api/search';
+import searchApi from "@/services/api/search";
 
 // Type imports
-import { ViewHistoryRead } from '@/types/history';
+import { ViewHistoryRead } from "@/types/history";
 
 // Relative imports
-import HistoryItem from './components/HistoryItem';
-import styles from './index.module.scss';
+import HistoryItem from "./components/HistoryItem";
+import styles from "./index.module.scss";
 
 const PAGE_SIZE = 20;
 
@@ -23,34 +23,40 @@ const HistoryPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [skip, setSkip] = useState(0);
 
-  const loadHistory = useCallback(async (reset = false) => {
-    if (loading) return;
-    
-    try {
-      setLoading(true);
-      const currentSkip = reset ? 0 : skip;
-      
-      const response = await searchApi.getMyViewHistory(currentSkip, PAGE_SIZE);
-      const data = response.data || [];
-      
-      if (reset) {
-        setHistory(data);
-        setSkip(PAGE_SIZE);
-      } else {
-        setHistory(prev => [...prev, ...data]);
-        setSkip(currentSkip + PAGE_SIZE);
+  const loadHistory = useCallback(
+    async (reset = false) => {
+      if (loading) return;
+
+      try {
+        setLoading(true);
+        const currentSkip = reset ? 0 : skip;
+
+        const response = await searchApi.getMyViewHistory(
+          currentSkip,
+          PAGE_SIZE,
+        );
+        const data = response.data || [];
+
+        if (reset) {
+          setHistory(data);
+          setSkip(PAGE_SIZE);
+        } else {
+          setHistory((prev) => [...prev, ...data]);
+          setSkip(currentSkip + PAGE_SIZE);
+        }
+
+        setHasMore(data.length === PAGE_SIZE);
+      } catch {
+        Taro.showToast({
+          title: "加载失败",
+          icon: "none",
+        });
+      } finally {
+        setLoading(false);
       }
-      
-      setHasMore(data.length === PAGE_SIZE);
-    } catch (error) {
-      Taro.showToast({
-        title: '加载失败',
-        icon: 'none'
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [skip, loading]);
+    },
+    [skip, loading],
+  );
 
   useEffect(() => {
     loadHistory(true);
@@ -70,15 +76,15 @@ const HistoryPage = () => {
 
   const handleDelete = (id: string) => {
     Taro.showModal({
-      title: '确认操作',
-      content: '确定要删除该条浏览历史吗？',
+      title: "确认操作",
+      content: "确定要删除该条浏览历史吗？",
       success: (res) => {
         if (res.confirm) {
           // TODO: 实现删除API调用
-          setHistory(prev => prev.filter(item => item.id !== id));
+          setHistory((prev) => prev.filter((item) => item.id !== id));
           Taro.showToast({
-            title: '删除成功',
-            icon: 'success'
+            title: "删除成功",
+            icon: "success",
           });
         }
       },
@@ -87,8 +93,8 @@ const HistoryPage = () => {
 
   const handleClearAll = () => {
     Taro.showModal({
-      title: '确认操作',
-      content: '确定要清空所有浏览历史吗？',
+      title: "确认操作",
+      content: "确定要清空所有浏览历史吗？",
       success: (res) => {
         if (res.confirm) {
           // TODO: 实现清空API调用
@@ -96,8 +102,8 @@ const HistoryPage = () => {
           setSkip(0);
           setHasMore(false);
           Taro.showToast({
-            title: '清空成功',
-            icon: 'success'
+            title: "清空成功",
+            icon: "success",
           });
         }
       },
@@ -106,7 +112,7 @@ const HistoryPage = () => {
 
   return (
     <View className={styles.container}>
-      <CustomHeader title='浏览历史' hideBack={false} />
+      <CustomHeader title="浏览历史" hideBack={false} />
       <ScrollView scrollY className={styles.scroll}>
         {history.length === 0 && !loading ? (
           <View className={styles.empty}>暂无浏览历史</View>
@@ -119,9 +125,7 @@ const HistoryPage = () => {
                 onDelete={() => handleDelete(item.id)}
               />
             ))}
-            {loading && (
-              <Text className={styles.loading}>加载中...</Text>
-            )}
+            {loading && <Text className={styles.loading}>加载中...</Text>}
             {!hasMore && history.length > 0 && (
               <Text className={styles.noMore}>没有更多了</Text>
             )}
@@ -131,7 +135,7 @@ const HistoryPage = () => {
       <View className={styles.bottomBar}>
         <Button
           className={styles.clearBtn}
-          type='primary'
+          type="primary"
           onClick={handleClearAll}
         >
           清空所有浏览历史
@@ -141,4 +145,4 @@ const HistoryPage = () => {
   );
 };
 
-export default HistoryPage; 
+export default HistoryPage;

@@ -46,7 +46,7 @@ export const chatAPI = (data: ChatRequest) => {
 
 // AI聊天（SSE流式）
 export const chatStream = (data: ChatRequest) => {
-  return http.post<any>("/agent/chat/stream", data);
+  return http.post<ApiResponse_ChatResponse_>("/agent/chat/stream", data);
 };
 
 // 保留原有函数以兼容现有代码
@@ -155,7 +155,7 @@ export const textPolish = (data: TextPolishRequest) => {
 };
 
 // ragSearch API不在文档中，暂时返回空数组
-export const ragSearch = (_params: any) => {
+export const ragSearch = (_params: RagRequest) => {
   // 注意：这个API不在官方文档中
   return Promise.resolve({ code: 200, data: [] });
 };

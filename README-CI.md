@@ -1,159 +1,65 @@
-# 微信小程序 CI/CD 配置说明
+# CI/CD 集成指南
 
-## 概述
+为了确保代码库的长期健康和高质量，我们强烈建议将代码质量检查集成到您的持续集成/持续部署 (CI/CD) 流程中。
 
-本项目已配置完整的 CI/CD 流水线，支持自动构建、测试和部署微信小程序到体验版。
+## 核心检查流程
 
-## 配置步骤
+我们的项目已经通过 `husky` 和 `lint-staged` 配置了 `pre-commit` 钩子。这意味着在每次代码提交到 Git 仓库之前，都会在本地对暂存文件进行自动的 lint 检查和格式化。
 
-### 1. 获取微信小程序私钥
+然而，为了防止任何未经检查的代码被意外推送到远程仓库（例如，通过 `git commit --no-verify`），在 CI/CD 流程中增加一个服务器端的检查步骤是至关重要的。
 
-1. 登录[微信公众平台](https://mp.weixin.qq.com/)
-2. 进入"开发" -> "开发管理" -> "开发设置"
-3. 在"小程序代码上传"部分，下载代码上传密钥
-4. 保存私钥文件（通常是 `private.wxe0c82418cb888db0.key`）
+## 在 CI/CD 中集成 Lint 检查
 
-### 2. 配置 GitHub Secrets
+我们已经在 `package.json` 中提供了一个专门为 CI 环境设计的、更严格的 lint 脚本：`lint:ci`。
 
-在 GitHub 仓库中设置以下 Secrets：
-
-1. 进入仓库 -> Settings -> Secrets and variables -> Actions
-2. 添加以下 Repository secrets：
-
-```
-WECHAT_APP_ID=wxe0c82418cb888db0
-WECHAT_PRIVATE_KEY=私钥文件的完整内容
-```
-
-**重要**: `WECHAT_PRIVATE_KEY` 应该包含私钥文件的完整内容，包括 `-----BEGIN PRIVATE KEY-----` 和 `-----END PRIVATE KEY-----`。
-
-### 3. 工作流触发方式
-
-#### 自动触发
-- **推送到 main 分支**: 自动部署到生产环境（机器人1）
-- **推送到 dev 分支**: 自动部署到开发环境（机器人2）
-- **Pull Request**: 仅构建和测试，不部署
-
-#### 手动触发
-1. 进入 GitHub 仓库 -> Actions -> Deploy WeChat Mini Program
-2. 点击 "Run workflow"
-3. 填写参数：
-   - **版本号**: 如 `1.0.0`
-   - **版本描述**: 如 `新功能发布`
-   - **机器人编号**: 1-30（不同机器人对应不同的体验版）
-   - **生成预览二维码**: 可选
-
-## 本地使用
-
-### 环境配置
-
-1. 复制环境变量文件：
-```bash
-cp .env.example .env
-```
-
-2. 编辑 `.env` 文件，填入实际配置
-
-3. 将私钥文件放在项目根目录，命名为 `private.key`
-
-### 本地命令
-
-```bash
-# 构建项目
-npm run build:weapp
-
-# 上传到微信小程序（需要先配置环境变量）
-npm run upload
-
-# 生成预览二维码
-npm run preview
-```
-
-## 工作流程说明
-
-### Build 阶段
-1. 检出代码
-2. 安装 Node.js 和依赖
-3. 运行代码检查（ESLint + StyleLint）
-4. 构建项目
-5. 上传构建产物
-
-### Deploy 阶段
-1. 下载构建产物
-2. 配置微信小程序私钥
-3. 根据分支/手动输入设置版本信息
-4. 上传到微信小程序平台
-5. 可选：生成预览二维码
-6. 清理敏感文件
-
-## 版本管理
-
-### 自动版本号
-- 格式：`YYYY.MM.DD.{commit_hash}`
-- 例如：`2023.12.25.a1b2c3d`
-
-### 手动版本号
-- 支持语义化版本号
-- 例如：`1.0.0`, `1.2.3-beta.1`
-
-## 机器人配置
-
-不同的机器人编号对应不同的体验版：
-- **机器人1**: 生产环境（main 分支默认）
-- **机器人2**: 开发环境（dev 分支默认）
-- **机器人3-30**: 可用于功能分支或特殊版本
-
-## 安全注意事项
-
-1. **私钥安全**: 私钥文件绝对不能提交到代码仓库
-2. **GitHub Secrets**: 确保 Secrets 只有必要的人员能访问
-3. **权限控制**: 建议只允许特定分支触发部署
-4. **日志清理**: 工作流程会自动清理包含敏感信息的临时文件
-
-## 故障排除
-
-### 常见错误
-
-1. **私钥格式错误**
-   - 确保私钥内容完整，包含头尾标识
-   - 检查是否有多余的空格或换行
-
-2. **AppID 不匹配**
-   - 确认 `WECHAT_APP_ID` 与项目配置一致
-
-3. **权限不足**
-   - 确认小程序账号已开启代码上传功能
-   - 检查私钥是否正确绑定到对应的 AppID
-
-4. **构建失败**
-   - 检查代码是否通过 lint 检查
-   - 确认所有依赖都已正确安装
-
-### 调试方法
-
-1. 查看 GitHub Actions 日志
-2. 在本地使用相同的环境变量测试
-3. 检查微信开发者工具的上传历史
-
-## 更多配置
-
-### 自定义构建设置
-
-可以在 `scripts/upload.js` 中修改构建设置：
-
-```javascript
-setting: {
-  es6: true,
-  es7: true,
-  minifyJS: true,
-  minifyWXML: true,
-  minifyWXSS: true,
-  minify: true,
-  codeProtect: false,  // 是否开启代码保护
-  autoPrefixWXSS: true
+```json
+"scripts": {
+  // ...
+  "lint:ci": "eslint src --max-warnings 0"
 }
 ```
 
-### 添加钉钉/企业微信通知
+这个脚本与本地的 `lint` 命令有两个关键区别：
 
-可以在工作流中添加通知步骤，在部署成功/失败时发送消息通知。
+1.  它会检查 `src` 目录下的所有文件，而不仅仅是暂存文件。
+2.  它使用了 `--max-warnings 0` 标志，这意味着**任何 ESLint 警告都会被视为错误**，从而导致检查失败。这对于逐步消除代码中的 `any` 类型等技术债非常有帮助。
+
+### GitHub Actions 示例配置
+
+您可以在您的 GitHub Actions 工作流中添加一个新的 `job` 来执行这个检查。这是一个示例配置，您可以将其添加到您的 `.github/workflows/main.yml` (或类似) 文件中：
+
+```yaml
+jobs:
+  lint:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # 确保这里的版本与项目开发环境一致
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint check
+        run: npm run lint:ci
+
+      - name: Run Stylelint check
+        run: npm run stylelint
+```
+
+**工作流说明**:
+
+1.  **Checkout repository**: 拉取最新的代码。
+2.  **Set up Node.js**: 设置 Node.js 环境，并启用 `npm` 缓存以加快依赖安装速度。
+3.  **Install dependencies**: 安装项目所需的所有依赖。
+4.  **Run ESLint check**: 执行我们严格的 `lint:ci` 脚本。如果发现任何错误或警告，这个步骤将会失败，从而阻止后续的构建或部署流程。
+5.  **Run Stylelint check**: 执行 Stylelint 检查，确保样式代码的规范性。
+
+通过将这些检查集成到您的 CI 流程中，您可以确保所有合并到主分支的代码都始终符合项目设定的最高质量标准。

@@ -2,7 +2,7 @@
  * 缓存管理工具
  */
 
-import Taro from '@tarojs/taro';
+import Taro from "@tarojs/taro";
 
 /**
  * 获取当前缓存大小（估算）
@@ -16,34 +16,35 @@ export const getCacheSize = (): string => {
 
     // 需要计算的缓存keys（排除重要数据）
     const preserveKeys = [
-      'token',
-      'persist:user',
-      'persist:settings',
+      "token",
+      "persist:user",
+      "persist:settings",
       // 设置相关的所有keys
-      'settings_message_notification',
-      'settings_push_notification', 
-      'settings_private_message',
-      'settings_font_size',
-      'settings_night_mode',
-      'settings_who_can_message',
-      'settings_who_can_comment',
-      'settings_who_can_view_posts',
-      'settings_personalized_recommendation',
-      'settings_allow_file_upload',
-      'settings_allow_clipboard_access',
+      "settings_message_notification",
+      "settings_push_notification",
+      "settings_private_message",
+      "settings_font_size",
+      "settings_night_mode",
+      "settings_who_can_message",
+      "settings_who_can_comment",
+      "settings_who_can_view_posts",
+      "settings_personalized_recommendation",
+      "settings_allow_file_upload",
+      "settings_allow_clipboard_access",
     ];
 
     // 只计算非重要数据的大小
     for (const key of keys) {
-      if (!preserveKeys.includes(key) && !key.startsWith('persist:')) {
+      if (!preserveKeys.includes(key) && !key.startsWith("persist:")) {
         try {
           const data = Taro.getStorageSync(key);
           if (data) {
             // 粗略估算数据大小（字符长度 * 2字节）
-            const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
+            const dataStr =
+              typeof data === "string" ? data : JSON.stringify(data);
             totalSize += dataStr.length * 2;
           }
-        } catch (error) {
+        } catch {
           // 忽略单个存储项的错误
         }
       }
@@ -57,9 +58,9 @@ export const getCacheSize = (): string => {
     } else {
       return `${Math.round(totalSize / (1024 * 1024))}MB`;
     }
-  } catch (error) {
+  } catch {
     // 如果获取失败，返回0
-    return '0KB';
+    return "0KB";
   }
 };
 
@@ -71,34 +72,34 @@ export const clearCache = (): void => {
   try {
     const storageInfo = Taro.getStorageInfoSync();
     const keys = storageInfo.keys;
-    
+
     // 需要保留的关键数据
     const preserveKeys = [
-      'token',
-      'persist:user',
-      'persist:settings',
+      "token",
+      "persist:user",
+      "persist:settings",
       // 设置相关的所有keys
-      'settings_message_notification',
-      'settings_push_notification', 
-      'settings_private_message',
-      'settings_font_size',
-      'settings_night_mode',
-      'settings_who_can_message',
-      'settings_who_can_comment',
-      'settings_who_can_view_posts',
-      'settings_personalized_recommendation',
-      'settings_allow_file_upload',
-      'settings_allow_clipboard_access',
+      "settings_message_notification",
+      "settings_push_notification",
+      "settings_private_message",
+      "settings_font_size",
+      "settings_night_mode",
+      "settings_who_can_message",
+      "settings_who_can_comment",
+      "settings_who_can_view_posts",
+      "settings_personalized_recommendation",
+      "settings_allow_file_upload",
+      "settings_allow_clipboard_access",
     ];
 
     let deletedCount = 0;
     // 清除非关键缓存数据
     for (const key of keys) {
-      if (!preserveKeys.includes(key) && !key.startsWith('persist:')) {
+      if (!preserveKeys.includes(key) && !key.startsWith("persist:")) {
         try {
           Taro.removeStorageSync(key);
           deletedCount++;
-        } catch (error) {
+        } catch {
           // 忽略单个删除失败的情况
         }
       }
@@ -108,16 +109,16 @@ export const clearCache = (): void => {
     try {
       const fileManager = Taro.getFileSystemManager();
       const tempFilePath = `${Taro.env.USER_DATA_PATH}/temp`;
-      
+
       // 检查临时目录是否存在
       try {
         fileManager.accessSync(tempFilePath);
         // 如果存在，删除临时文件夹
         fileManager.rmdirSync(tempFilePath, true);
-      } catch (error) {
+      } catch {
         // 目录不存在或删除失败，忽略
       }
-    } catch (error) {
+    } catch {
       // 文件系统操作失败，忽略
     }
 
@@ -125,9 +126,8 @@ export const clearCache = (): void => {
     if (deletedCount === 0) {
       // 这是正常情况，不抛异常
     }
-
-  } catch (error) {
-    throw new Error('清除缓存失败，请重试');
+  } catch {
+    throw new Error("清除缓存失败，请重试");
   }
 };
 
@@ -139,19 +139,23 @@ export const clearImageCache = (): void => {
     // 微信小程序会自动管理图片缓存，我们只能清除本地存储的图片相关数据
     const storageInfo = Taro.getStorageInfoSync();
     const keys = storageInfo.keys;
-    
+
     // 查找并删除图片相关的缓存key
     for (const key of keys) {
-      if (key.includes('image') || key.includes('photo') || key.includes('pic')) {
+      if (
+        key.includes("image") ||
+        key.includes("photo") ||
+        key.includes("pic")
+      ) {
         try {
           Taro.removeStorageSync(key);
-        } catch (error) {
+        } catch {
           // 忽略单个删除失败
         }
       }
     }
-  } catch (error) {
-    throw new Error('清除图片缓存失败');
+  } catch {
+    throw new Error("清除图片缓存失败");
   }
 };
 
@@ -162,25 +166,26 @@ export const getCacheDetails = () => {
   try {
     const storageInfo = Taro.getStorageInfoSync();
     const cacheSize = getCacheSize();
-    
+
     return {
       totalSize: cacheSize,
       itemCount: storageInfo.keys.length,
       currentSize: storageInfo.currentSize,
       limitSize: storageInfo.limitSize,
-      keys: storageInfo.keys.filter(key => 
-        !key.startsWith('persist:') && 
-        !key.startsWith('settings_') && 
-        key !== 'token'
-      )
+      keys: storageInfo.keys.filter(
+        (key) =>
+          !key.startsWith("persist:") &&
+          !key.startsWith("settings_") &&
+          key !== "token",
+      ),
     };
-  } catch (error) {
+  } catch {
     return {
-      totalSize: '128KB',
+      totalSize: "128KB",
       itemCount: 0,
       currentSize: 0,
       limitSize: 10240, // 10MB 默认限制
-      keys: []
+      keys: [],
     };
   }
 };

@@ -24,7 +24,7 @@ alwaysApply: true
 - **平台插件**: `@tarojs/plugin-platform-weapp`
 - **CLI 工具**: `@tarojs/cli`
 - **Babel 预设**: `babel-preset-taro` (处理 TSX/JSX 语法)
-- **代码检查与格式化**: `ESLint`, `Prettier`, `stylelint`
+- **代码检查与格式化**: `ESLint`, `Prettier`, `stylelint` (通过 `eslint.config.js`, `stylelint.config.mjs`, `.prettierrc.mjs` 配置)
 - **Git工作流**: `Husky`, `lint-staged`, `commitizen`
 
 ## 📁 项目结构
@@ -33,55 +33,34 @@ alwaysApply: true
 
 ```
 .
+├── .cursor/rules/           # Cursor AI 规范文档
+│   ├── overview.mdc
+│   ├── practices.mdc
+│   └── style-guide.mdc
 ├── config                   # Taro 编译配置目录
 │   ├── dev.ts
-│   ├── index.ts             # 默认配置文件 (推荐使用 .ts)
+│   ├── index.ts
 │   └── prod.ts
 ├── src                      # 源码目录
-│   ├── app.config.ts        # 全局配置文件
-│   ├── app.scss             # 全局样式文件
-│   ├── app.tsx              # 入口组件
-│   ├── assets               # 静态资源 (图片、字体等)
-│   ├── components           # 全局可复用组件
-│   ├── constants            # 全局常量
-│   ├── pages                # 页面目录
-│   │   ├── home             # 主包页面
-│   │   ├── explore          # ...
-│   │   ├── discover
-│   │   ├── profile
-│   │   ├── subpackage-interactive # 分包-互动
-│   │   │   └── chat         # 聊天页面
-│   │   │       ├── index.config.ts
-│   │   │       ├── index.module.scss
-│   │   │       └── index.tsx
-│   │   └── subpackage-profile   # 分包-个人中心
-│   │       └── ...
-│   ├── services             # API 请求服务
-│   │   ├── api              # 按模块划分的 API
-│   │   ├── mock.ts
-│   │   └── request.ts
-│   ├── store                # Redux store
-│   │   ├── slices           # Redux Toolkit Slices
-│   │   ├── rootReducer.ts   # Root Reducer
-│   │   └── index.ts         # Store 配置
-│   └── types                # TypeScript 类型定义 (业务)
-│       └── api              # API 相关类型
-├── types                    # TypeScript 类型定义 (全局)
-│   └── global.d.ts
-├── .cursorrules             # Cursor AI 配置文件
-├── .editorconfig            # 编辑器配置文件
-├── .eslintrc                # ESLint 配置文件
-├── .gitignore               # Git 忽略文件配置
-├── .npmrc                   # NPM 配置文件
+│   ├── app.config.ts
+│   ├── app.scss
+│   ├── app.tsx
+│   ├── assets
+│   ├── components
+│   ├── constants
+│   ├── pages
+│   ├── services
+│   ├── store
+│   └── types
+├── .cursorrules             # Cursor AI 配置文件入口
+├── .prettierrc.mjs          # Prettier 配置文件
 ├── babel.config.js          # Babel 配置文件
-├── commitlint.config.mjs    # Commitlint 配置文件
-├── package.json             # 项目依赖与脚本
-├── project.config.json      # 小程序项目配置文件
-├── stylelint.config.mjs     # Stylelint 配置文件
-└── tsconfig.json            # TypeScript 配置文件
+├── eslint.config.js         # ESLint 配置文件 (Flat Config)
+├── package.json
+├── project.config.json
+├── stylelint.config.mjs
+└── tsconfig.json
 ```
-
-> **注意**: 推荐使用 `config/index.ts` 并配合 `defineConfig` 工具函数来获得类型提示与校验，提升配置代码的健壮性。
 
 ## 核心功能模块
 
@@ -96,18 +75,9 @@ alwaysApply: true
 本项目在开发过程中，积极参考了以下优秀的开源项目作为最佳实践范例：
 
 1.  **[lsqy/taro-music](https://github.com/lsqy/taro-music)**
-    - **学习重点**:
-        - **Redux 状态管理**: 深入学习其在复杂应用中（如音乐播放器）的 Redux `store` 设计、`actions` 和 `reducers` 的组织方式。
-        - **组件封装**: 参考其对 `Taro UI` 的深度使用和自定义业务组件（如歌词、播放器）的封装思路。
-        - **项目结构**: 借鉴其清晰的目录划分，如 `services`、`utils`、`constants` 等。
-
+    - **学习重点**: Redux 状态管理, 组件封装, 项目结构。
 2.  **[kala888/tixwork](https://github.com/kala888/tixwork)**
-    - **学习重点**:
-        - **业务逻辑与数据流**: 分析其在协作工具场景下，如何处理复杂的业务逻辑和多模块间的数据流转。
-        - **DVA 状态管理**: 了解 DVA（基于 Redux 和 a-router）在项目中的应用模式，作为 Redux 实践的补充和对比。
-        - **工程化实践**: 参考其在大型项目中可能包含的更全面的工程化配置和代码规范。
-
-通过对这些项目的研究，我们可以更好地遵循社区的最佳实践，编写出高质量、可维护的代码。
+    - **学习重点**: 复杂业务逻辑与数据流, DVA 状态管理, 工程化实践。
 
 ## 🔧 开发环境信息
 
@@ -115,20 +85,3 @@ alwaysApply: true
 - **Node.js版本**: 20.x (推荐使用 nvm 管理)
 - **包管理器**: npm
 - **IDE**: Cursor AI (推荐)
-
-## 📊 API 接口文档
-
-项目使用的后端API接口文档：
-
-- **API文档**: [kjxwr6px14.apifox.cn](https://kjxwr6px14.apifox.cn)
-- **OpenAPI规范**: [nkuwiki.com/openapi.json](https://nkuwiki.com/openapi.json)
-- **租户模式**: 支持多租户架构，主要面向南开大学用户
-
-### 测试账号（仅本地开发）
-
-- **南开大学租户** (tenant_id = f6303899-a51a-460a-9cd8-fe35609151eb)
-  - username: nankai_user
-  - password: Test@1234
-  - token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-**注意**: 测试token会有过期时间，过期后请通过 `/api/v1/auth/login` 接口重新获取。

@@ -1,4 +1,4 @@
-import Taro from '@tarojs/taro'
+import Taro from "@tarojs/taro";
 
 /**
  * 存储数据到本地
@@ -7,11 +7,11 @@ import Taro from '@tarojs/taro'
  */
 export const setStorage = <T>(key: string, data: T): void => {
   try {
-    Taro.setStorageSync(key, data)
-  } catch (error) {
+    Taro.setStorageSync(key, data);
+  } catch {
     // 静默处理存储错误
   }
-}
+};
 
 /**
  * 从本地获取数据
@@ -21,13 +21,12 @@ export const setStorage = <T>(key: string, data: T): void => {
  */
 export const getStorage = <T>(key: string, defaultValue?: T): T | undefined => {
   try {
-    const data = Taro.getStorageSync(key)
-    return data || defaultValue
-  } catch (error) {
-    
-    return defaultValue
+    const data = Taro.getStorageSync(key);
+    return data || defaultValue;
+  } catch {
+    return defaultValue;
   }
-}
+};
 
 /**
  * 从本地删除数据
@@ -35,19 +34,19 @@ export const getStorage = <T>(key: string, defaultValue?: T): T | undefined => {
  */
 export const removeStorage = (key: string): void => {
   try {
-    Taro.removeStorageSync(key)
-  } catch (error) {
+    Taro.removeStorageSync(key);
+  } catch {
     // 静默处理存储错误
   }
-}
+};
 
 /**
  * 清除所有本地存储
  */
 export const clearStorage = (): void => {
   try {
-    Taro.clearStorageSync()
-  } catch (error) {
+    Taro.clearStorageSync();
+  } catch {
     // 静默处理存储错误
   }
-}
+};

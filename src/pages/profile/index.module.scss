@@ -9,10 +9,10 @@
 
 /* 页面整体布局 */
 .profile-page {
-  height: 100vh;
-  background-color: $bg-page-gray;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  background-color: $bg-page-gray;
 }
 
 /* 内容区域 */
@@ -27,9 +27,9 @@
 
 /* 头部样式 */
 .header {
-  background-color: white;
-  text-align: center;
   padding: 12px 0;
+  text-align: center;
+  background-color: white;
   border-bottom: 1px solid #f5f5f5;
 }
 
@@ -41,9 +41,9 @@
 
 /* 用户信息卡片 */
 .userCard {
-  background-color: white;
   padding: 24px;
   margin-bottom: 0;
+  background-color: white;
 }
 
 .userInfoRow {
@@ -55,8 +55,8 @@
 
 .avatarContainer {
   display: flex;
-  align-items: flex-start;
   gap: 12px;
+  align-items: flex-start;
 }
 
 .avatarWrapper {
@@ -66,53 +66,55 @@
 .avatar {
   width: 64px;
   height: 64px;
-  border-radius: 50%;
   border: 2px solid #4F46E5;
+  border-radius: 50%;
 }
 
 .userDetails {
-  flex: 1;
-  margin-left: 12px;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  justify-content: flex-start;
   align-items: flex-start;
+  justify-content: flex-start;
+  margin-left: 12px;
 }
 
 .nickname {
-  color: #374151;
-  font-weight: bold;
-  font-size: 17px; /* 微调增大昵称字号 */
-  margin-bottom: 4px;
   display: block;
   width: 100%;
+  max-width: 100px; /* 设置最大宽度（收紧） */
+  margin-bottom: 4px;
+
   /* 防止昵称过长影响布局 */
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 17px; /* 微调增大昵称字号 */
+  font-weight: bold;
+  color: #374151;
   white-space: nowrap;
-  max-width: 100px; /* 设置最大宽度（收紧） */
 }
 
 .userBio {
-  color: #6B7280;
-  font-size: 13px;
-  margin-top: 0;
   display: block;
   width: 100%; /* 占据整行宽度 */
+  margin-top: 0;
+  font-size: 13px;
   line-height: 1.4;
+  color: #6B7280;
+
   /* 允许Bio在一行内根据容器宽度自适应，取消限制 */
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .levelBadge {
-  background-color: rgba(255, 193, 7, 0.2);
-  padding: 2px 8px; /* 缩小徽章尺寸 */
-  border-radius: 9999px;
   display: flex;
-  align-items: center;
   gap: 3px; /* 略缩小间距 */
+  align-items: center;
+  padding: 2px 8px; /* 缩小徽章尺寸 */
   margin-right: 12px;
+  background-color: rgb(255 193 7 / 20%);
+  border-radius: 9999px;
 }
 
 .starIcon {
@@ -120,20 +122,20 @@
 }
 
 .levelText {
-  color: #FFC107;
   font-size: 12px; /* 缩小徽章文字 */
+  color: #FFC107;
 }
 
 .editButton {
   display: flex;
-  align-items: center;
   gap: 4px;
-  background-color: #4F46E5;
-  color: white;
+  align-items: center;
   padding: 4px 10px; /* 缩小编辑按钮尺寸 */
-  border-radius: 4px;
   font-size: 12px; /* 缩小按钮文字 */
+  color: white;
+  background-color: #4F46E5;
   border: none;
+  border-radius: 4px;
 
   &::after {
     border: none;
@@ -149,9 +151,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  border-top: 1px solid #f0f0f0;
   padding-top: 16px;
   margin-top: 16px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .statsRow {
@@ -161,68 +163,68 @@
 }
 
 .statItem {
+  padding: 8px;
   text-align: center;
   cursor: pointer;
-  padding: 8px;
   border-radius: 8px;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: rgba(123, 104, 238, 0.05);
+    background-color: rgb(123 104 238 / 5%);
     transform: translateY(-1px);
   }
 
   &:active {
+    background-color: rgb(123 104 238 / 10%);
     transform: translateY(0);
-    background-color: rgba(123, 104, 238, 0.1);
   }
 }
 
 .statValue {
-  color: #374151;
+  margin-bottom: 4px;
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 4px;
+  color: #374151;
 }
 
 .statLabelRow {
-  color: #374151;
   display: flex;
+  gap: 4px;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   font-size: 14px;
+  color: #374151;
 }
 
 .statIcon {
-  color: #7B68EE;
   font-size: 12px;
+  color: #7B68EE;
 }
 
 .statLabel {
-  color: #374151;
   font-size: 14px;
+  color: #374151;
 }
 
 /* 菜单卡片 */
 .menuCard {
-  background-color: white;
-  border-radius: 0;
-  margin: 0;
   padding: 16px 24px;
+  margin: 0;
+  background-color: white;
   border-top: 1px solid #f0f0f0;
+  border-radius: 0;
 }
 
 .menuList {
-  border-radius: 12px;
   overflow: hidden;
+  border-radius: 12px;
 }
 
 .menuItem {
-  padding: 16px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 16px 8px;
 
   &:not(:last-child) {
     border-bottom: 1px solid #f5f5f5;
@@ -235,54 +237,54 @@
 
 .menuLeft {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
 }
 
 .menuIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 24px;
   height: 24px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 16px;
 }
 
 .menuText {
-  color: #44359B;
   font-size: 16px;
+  color: #44359B;
 }
 
 .verifiedBadge {
+  padding: 2px 8px;
+  margin-left: 8px;
   font-size: 12px;
   color: #22C55E;
-  background-color: rgba(34, 197, 94, 0.1);
-  padding: 2px 8px;
+  background-color: rgb(34 197 94 / 10%);
   border-radius: 12px;
-  margin-left: 8px;
 }
 
 .chevron {
-  color: #9CA3AF;
   font-size: 16px;
+  color: #9CA3AF;
 }
 
 /* 退出登录 */
 .logoutSection {
-  margin: 12px 16px 12px 16px;
+  margin: 12px 16px;
 }
 
 .logoutButton {
-  width: 100%;
-  background-color: #EF4444;
-  color: white;
-  padding: 10px 0;
-  border-radius: 4px;
   display: flex;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  width: 100%;
+  padding: 10px 0;
+  color: white;
+  background-color: #EF4444;
   border: none;
+  border-radius: 4px;
 
   &::after {
     border: none;
@@ -299,26 +301,26 @@
 
 /* 未登录状态样式 */
 .loginPromptContainer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 24px;
   box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
 .promptCard {
-  width: 100%;
-  max-width: 380px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 380px;
+  padding: 32px 24px;
+  text-align: center;
   background-color: $bg-card;
   border-radius: 16px;
-  padding: 32px 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  text-align: center;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
 }
 
 .logo {
@@ -328,18 +330,18 @@
 }
 
 .mainText {
+  margin-bottom: 12px;
   font-size: 18px;
   font-weight: 500;
-  color: $text-primary;
-  margin-bottom: 12px;
   line-height: 1.5;
+  color: $text-primary;
 }
 
 .subText {
-  font-size: 14px;
-  color: $text-secondary;
   margin-bottom: 24px;
+  font-size: 14px;
   line-height: 1.6;
+  color: $text-secondary;
 }
 
 .actions {
@@ -353,8 +355,8 @@
 .actionItem {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 8px;
+  align-items: center;
   font-size: 13px;
   color: $text-secondary;
 }
@@ -369,12 +371,12 @@
   width: 100%;
   max-width: 300px;
   padding: 12px 0;
-  border-radius: 9999px;
-  background-color: $theme-primary;
-  color: white;
   font-size: 16px;
   font-weight: 500;
+  color: white;
+  background-color: $theme-primary;
   border: none;
+  border-radius: 9999px;
   transition: background-color 0.2s;
 
   &::after {
@@ -383,7 +385,7 @@
 
   &:hover {
     // 避免使用已弃用的 darken()，直接使用固定色值以保持一致
-    background-color: #4338ca;
+    background-color: #4338ca; // darken
   }
 }
 

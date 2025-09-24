@@ -28,37 +28,37 @@ export default function NoteDetailPage() {
   const router = useRouter();
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
   
-  // ×´Ì¬¹ÜÀí
+  // ×´Ì¬ï¿½ï¿½ï¿½ï¿½
   const [note, setNote] = useState<NoteDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [commentText, setCommentText] = useState('');
   
-  // ÆÀÂÛÏà¹Ø×´Ì¬
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
   const [comments, setComments] = useState<CommentTreeRead[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
   
-  // ½»»¥×´Ì¬
+  // ï¿½ï¿½ï¿½ï¿½×´Ì¬
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [shareCount, setShareCount] = useState(0);
   
-  // »ñÈ¡±Ê¼ÇIDºÍÓÃ»§ID
+  // ï¿½ï¿½È¡ï¿½Ê¼ï¿½IDï¿½ï¿½ï¿½Ã»ï¿½ID
   const noteId = router?.params?.id;
-  const userId = router?.params?.userId; // ·¢ÌûÈËµÄID
+  const userId = router?.params?.userId; // ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ID
 
-  // Ê¹ÓÃ·ÖÏí Hook
+  // Ê¹ï¿½Ã·ï¿½ï¿½ï¿½ Hook
   useSharing({
-    title: note?.title || '·ÖÏí±Ê¼Ç',
+    title: note?.title || 'ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½',
     path: `/pages/subpackage-interactive/note-detail/index?id=${noteId}${userId ? `&userId=${userId}` : ''}`,
     imageUrl: note?.images?.[0] ? normalizeImageUrl(note.images[0]) : undefined,
   });
 
-  // ¼ÓÔØÆÀÂÛÁÐ±í
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
   const loadComments = useCallback(async () => {
     if (!noteId) return;
     
@@ -74,7 +74,7 @@ export default function NoteDetailPage() {
       });
       
       if (response.code === 0 && Array.isArray(response.data)) {
-        // ½« Comment[] ×ª»»Îª CommentTreeRead[] ¸ñÊ½
+        // ï¿½ï¿½ Comment[] ×ªï¿½ï¿½Îª CommentTreeRead[] ï¿½ï¿½Ê½
         const commentTreeData = response.data.map(comment => ({
           ...comment,
           tenant_id: comment.tenant_id || '',
@@ -89,16 +89,17 @@ export default function NoteDetailPage() {
         })) as CommentTreeRead[];
         setComments(commentTreeData);
       }
-    } catch (_error) {
+    } catch {
+      // é™é»˜å¤„ç†è¯„è®ºåŠ è½½é”™è¯¯
     } finally {
       setCommentsLoading(false);
     }
   }, [noteId]);
 
-  // ¼ÓÔØ±Ê¼ÇÏêÇé
+  // ï¿½ï¿½ï¿½Ø±Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½
   const loadNoteDetail = useCallback(async () => {
     if (!noteId) {
-      setError('±Ê¼ÇID²»´æÔÚ');
+      setError('ï¿½Ê¼ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
       setLoading(false);
       return;
     }
@@ -108,15 +109,15 @@ export default function NoteDetailPage() {
       setError(null);
 
       if (userId) {
-        // Èç¹ûÓÐuserId£¬Ê¹ÓÃÓÃ»§±Ê¼ÇÁÐ±í½Ó¿Ú»ñÈ¡¸ÃÓÃ»§µÄ±Ê¼ÇÁÐ±í
+        // ï¿½ï¿½ï¿½ï¿½ï¿½userIdï¿½ï¿½Ê¹ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ê¼ï¿½ï¿½Ð±ï¿½ï¿½Ó¿Ú»ï¿½È¡ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ä±Ê¼ï¿½ï¿½Ð±ï¿½
         const response = await getNoteDetail(noteId, userId);
 
         if (response.code === 0 && response.data) {
-          // ´ÓÓÃ»§±Ê¼ÇÁÐ±íÖÐÉ¸Ñ¡³öÌØ¶¨±Ê¼Ç
+          // ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ê¼ï¿½ï¿½Ð±ï¿½ï¿½ï¿½É¸Ñ¡ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½Ê¼ï¿½
           const userNotes = response.data as NoteRead[];
 
           if (!Array.isArray(userNotes)) {
-            setError('API·µ»ØÊý¾Ý¸ñÊ½´íÎó');
+            setError('APIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¸ï¿½Ê½ï¿½ï¿½ï¿½ï¿½');
             setLoading(false);
             return;
           }
@@ -124,12 +125,12 @@ export default function NoteDetailPage() {
           const noteData = userNotes.find((noteItem: NoteRead) => noteItem.id === noteId);
 
           if (!noteData) {
-            setError('±Ê¼Ç²»´æÔÚ»òÒÑ±»É¾³ý');
+            setError('ï¿½Ê¼Ç²ï¿½ï¿½ï¿½ï¿½Ú»ï¿½ï¿½Ñ±ï¿½É¾ï¿½ï¿½');
             setLoading(false);
             return;
           }
 
-          // ½«NoteRead×ª»»ÎªNoteDetail¸ñÊ½
+          // ï¿½ï¿½NoteRead×ªï¿½ï¿½ÎªNoteDetailï¿½ï¿½Ê½
           const noteDetailData: NoteDetail = {
             id: noteData.id,
             title: noteData.title,
@@ -177,89 +178,90 @@ export default function NoteDetailPage() {
           };
 
           setNote(noteDetailData);
-          // ÉèÖÃ½»»¥×´Ì¬ºÍ¼ÆÊý
+          // ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½×´Ì¬ï¿½Í¼ï¿½ï¿½ï¿½
           setIsLiked(Boolean(noteData.is_liked));
           setIsBookmarked(Boolean(noteData.is_favorited));
           setLikeCount(noteData.like_count || 0);
           setFavoriteCount(noteData.favorite_count || 0);
           setShareCount(noteData.share_count || 0);
         } else {
-          setError(response.message || '¼ÓÔØÊ§°Ü');
+          setError(response.message || 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½');
         }
       } else {
-        // Èç¹ûÃ»ÓÐuserId£¬Ö±½ÓÊ¹ÓÃnoteId»ñÈ¡±Ê¼ÇÏêÇé£¨Ïòºó¼æÈÝ£©
+        // ï¿½ï¿½ï¿½Ã»ï¿½ï¿½userIdï¿½ï¿½Ö±ï¿½ï¿½Ê¹ï¿½ï¿½noteIdï¿½ï¿½È¡ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½é£¨ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½
         const response = await getNoteDetail(noteId);
 
         if (response.code === 0 && response.data) {
           const noteData = response.data as unknown as NoteDetail;
 
           setNote(noteData);
-          // ¼ì²éÊÇ·ñÒÑµãÔÞºÍÊÕ²Ø
+          // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ñµï¿½ï¿½Þºï¿½ï¿½Õ²ï¿½
           setIsLiked(noteData.is_liked || false);
           setIsBookmarked(noteData.is_favorited || false);
-          // ÉèÖÃ¼ÆÊý
+          // ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½
           setLikeCount(noteData.like_count || 0);
           setFavoriteCount(noteData.favorite_count || 0);
           setShareCount(noteData.share_count || 0);
         } else {
-          setError(response.message || '¼ÓÔØÊ§°Ü');
+          setError(response.message || 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½');
         }
       }
 
-      // ¼ÓÔØÆÀÂÛÁÐ±í
+      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
       await loadComments();
       
-      // Èç¹ûÓÃ»§ÒÑµÇÂ¼£¬Ö÷¶¯²éÑ¯ÓÃ»§µÄµãÔÞÊÕ²Ø×´Ì¬
+      // ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ñµï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯ï¿½Ã»ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½Õ²ï¿½×´Ì¬
       if (isLoggedIn && noteId) {
         try {
-          // ²éÑ¯µãÔÞ×´Ì¬
+          // ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½×´Ì¬
           const likeResponse = await getActionStatus(noteId, 'note', 'like');
           
           if (likeResponse.code === 0 && likeResponse.data) {
             setIsLiked(likeResponse.data.is_active);
             setLikeCount(likeResponse.data.count || 0);
           }
-        } catch (_error) {
-          // Èç¹û²éÑ¯Ê§°Ü£¬±£³ÖÔ­ÓÐ×´Ì¬
+        } catch {
+          // é™é»˜å¤„ç†ç‚¹èµžçŠ¶æ€æŸ¥è¯¢é”™è¯¯ï¼Œä¿æŒåŽŸæœ‰çŠ¶æ€
         }
 
         try {
-          // ²éÑ¯ÊÕ²Ø×´Ì¬
+          // ï¿½ï¿½Ñ¯ï¿½Õ²ï¿½×´Ì¬
           const favoriteResponse = await getActionStatus(noteId, 'note', 'favorite');
           
           if (favoriteResponse.code === 0 && favoriteResponse.data) {
             setIsBookmarked(favoriteResponse.data.is_active);
             setFavoriteCount(favoriteResponse.data.count || 0);
           }
-        } catch (_error) {
-          // Èç¹û²éÑ¯Ê§°Ü£¬±£³ÖÔ­ÓÐ×´Ì¬
+        } catch {
+          // é™é»˜å¤„ç†æ”¶è—çŠ¶æ€æŸ¥è¯¢é”™è¯¯ï¼Œä¿æŒåŽŸæœ‰çŠ¶æ€
         }
       }
-    } catch (err) {
-      setError('ÍøÂç´íÎó£¬ÇëÖØÊÔ');
+    } catch {
+      // é™é»˜å¤„ç†ç¬”è®°è¯¦æƒ…åŠ è½½é”™è¯¯
+      setError('ç½‘ç»œé”™è¯¯æˆ–æœåŠ¡å¼‚å¸¸');
     } finally {
       setLoading(false);
     }
   }, [noteId, userId, isLoggedIn, loadComments]);
   
-  // Ò³ÃæÏÔÊ¾Ê±¼ÓÔØÊý¾Ý
+  // Ò³ï¿½ï¿½ï¿½ï¿½Ê¾Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   useDidShow(() => {
     if (noteId) {
       loadNoteDetail();
     }
   });
   
-  // ´¦ÀíÍ¼Æ¬ÂÖ²¥±ä»¯
+  // ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½Ö²ï¿½ï¿½ä»¯
   const handleImageChange = (e: any) => {
     setCurrentImageIndex(e.detail.current);
   };
 
-  // ´¦ÀíÍ¼Æ¬Ô¤ÀÀ
+  // ï¿½ï¿½ï¿½ï¿½Í¼Æ¬Ô¤ï¿½ï¿½
   const handleImagePreview = (imageUrl: string, index: number) => {
     const images = note?.images || [];
     Taro.previewImage({
-      urls: images, // ´«ÈëËùÓÐÍ¼Æ¬URLÊý×é
-      current: index, // µ±Ç°Í¼Æ¬Ë÷Òý
+      urls: images, // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬URLï¿½ï¿½ï¿½ï¿½
+      current: index, // ï¿½ï¿½Ç°Í¼Æ¬ï¿½ï¿½ï¿½ï¿½
       success: () => {
       },
       fail: (_err) => {
@@ -267,11 +269,11 @@ export default function NoteDetailPage() {
     });
   };
 
-  // ´¦ÀíÆÀÂÛÌá½»
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á½»
   const handleCommentSubmit = async () => {
     if (!commentText.trim()) {
       Taro.showToast({
-        title: 'ÇëÊäÈëÆÀÂÛÄÚÈÝ',
+        title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
         icon: 'none'
       });
       return;
@@ -279,7 +281,7 @@ export default function NoteDetailPage() {
     
     if (!isLoggedIn) {
       Taro.showToast({
-        title: 'ÇëÏÈµÇÂ¼',
+        title: 'ï¿½ï¿½ï¿½Èµï¿½Â¼',
         icon: 'none'
       });
       return;
@@ -287,7 +289,7 @@ export default function NoteDetailPage() {
     
     if (!noteId) {
       Taro.showToast({
-        title: '±Ê¼ÇID²»´æÔÚ',
+        title: 'ï¿½Ê¼ï¿½IDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
         icon: 'none'
       });
       return;
@@ -306,18 +308,18 @@ export default function NoteDetailPage() {
       
       if (response.code === 0) {
         Taro.showToast({
-          title: 'ÆÀÂÛ³É¹¦',
+          title: 'ï¿½ï¿½ï¿½Û³É¹ï¿½',
           icon: 'success'
         });
         setCommentText('');
-        // ÖØÐÂ¼ÓÔØÆÀÂÛÁÐ±í
+        // ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
         await loadComments();
       } else {
-        throw new Error(response.message || 'ÆÀÂÛÊ§°Ü');
+        throw new Error(response.message || 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½');
       }
     } catch (_error: any) {
       Taro.showToast({
-        title: _error.message || 'ÆÀÂÛÊ§°Ü£¬ÇëÖØÊÔ',
+        title: _error.message || 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',
         icon: 'none'
       });
     } finally {
@@ -325,30 +327,30 @@ export default function NoteDetailPage() {
     }
   };
 
-  // äÖÈ¾¼ÓÔØ×´Ì¬
+  // ï¿½ï¿½È¾ï¿½ï¿½ï¿½ï¿½×´Ì¬
   if (loading) {
     return (
       <View className={styles.container}>
-        <CustomHeader title='±Ê¼ÇÏêÇé' />
+        <CustomHeader title='ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½' />
         <View className={styles.content}>
           <View className={styles.loadingContainer}>
-            <Text className={styles.loadingText}>¼ÓÔØÖÐ...</Text>
+            <Text className={styles.loadingText}>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...</Text>
           </View>
         </View>
       </View>
     );
   }
 
-  // äÖÈ¾´íÎó×´Ì¬
+  // ï¿½ï¿½È¾ï¿½ï¿½ï¿½ï¿½×´Ì¬
   if (error || !note) {
     return (
       <View className={styles.container}>
-        <CustomHeader title='±Ê¼ÇÏêÇé' />
+        <CustomHeader title='ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½' />
         <View className={styles.content}>
           <View className={styles.errorContainer}>
-            <Text className={styles.errorText}>{error || '±Ê¼Ç²»´æÔÚ'}</Text>
+            <Text className={styles.errorText}>{error || 'ï¿½Ê¼Ç²ï¿½ï¿½ï¿½ï¿½ï¿½'}</Text>
             <View className={styles.retryButton} onClick={loadNoteDetail}>
-              <Text>ÖØÐÂ¼ÓÔØ</Text>
+              <Text>ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½</Text>
             </View>
           </View>
         </View>
@@ -356,13 +358,13 @@ export default function NoteDetailPage() {
     );
   }
   
-  // »ñÈ¡Í¼Æ¬Êý×é
+  // ï¿½ï¿½È¡Í¼Æ¬ï¿½ï¿½ï¿½ï¿½
   const images: string[] = note.images || [];
   const hasImages = images.length > 0;
 
   return (
     <View className={styles.container}>
-      <CustomHeader title='±Ê¼ÇÏêÇé' />
+      <CustomHeader title='ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½' />
       
       <View className={styles.content}>
         <ScrollView
@@ -370,9 +372,9 @@ export default function NoteDetailPage() {
           className={styles.scrollView}
           enableBackToTop
         >
-          {/* ±Ê¼ÇÍ·²¿ÐÅÏ¢ */}
+          {/* ï¿½Ê¼ï¿½Í·ï¿½ï¿½ï¿½ï¿½Ï¢ */}
           <View className={styles.noteHeader}>
-            {/* ×Ô¶¨Òå×÷ÕßÐÅÏ¢²¼¾Ö */}
+            {/* ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ */}
             {note.user && (
               <View className={styles.authorSection}>
                 <View className={styles.customAuthorInfo}>
@@ -383,7 +385,7 @@ export default function NoteDetailPage() {
                   />
                   <View className={styles.authorDetails}>
                     <View className={styles.nameAndLevel}>
-                      <Text className={styles.authorName}>{note.user.nickname || 'ÄäÃûÓÃ»§'}</Text>
+                      <Text className={styles.authorName}>{note.user.nickname || 'ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½'}</Text>
                       <Text className={styles.authorLevel}>{convertLevelToRealm(note.author?.level || 1)}</Text>
                     </View>
                     {note.user.bio && (
@@ -391,21 +393,21 @@ export default function NoteDetailPage() {
                     )}
                   </View>
                   <View className={styles.authorActions}>
-                    {/* Ö»ÓÐµ±Ç°ÓÃ»§²»ÊÇ±Ê¼Ç×÷ÕßÊ±²ÅÏÔÊ¾¹Ø×¢°´Å¥ */}
+                    {/* Ö»ï¿½Ðµï¿½Ç°ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ç±Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½×¢ï¿½ï¿½Å¥ */}
                     {note.user && note.user.id !== userId && (
                       <View className={styles.followButton}>
-                        <Text className={styles.followText}>¹Ø×¢</Text>
+                        <Text className={styles.followText}>ï¿½ï¿½×¢</Text>
                       </View>
                     )}
                     <Text className={styles.publicationTime}>
-                      {note.created_at ? formatPostDate(note.created_at) : 'Ê±¼äÎ´Öª'}
+                      {note.created_at ? formatPostDate(note.created_at) : 'Ê±ï¿½ï¿½Î´Öª'}
                     </Text>
                   </View>
                 </View>
               </View>
             )}
             
-            {/* ±êÇ© */}
+            {/* ï¿½ï¿½Ç© */}
             {note.tags && note.tags.length > 0 && (
               <View className={styles.tagsContainer}>
                 {note.tags.map((tag, index) => (
@@ -418,7 +420,7 @@ export default function NoteDetailPage() {
             )}
           </View>
           
-          {/* Í¼Æ¬ÂÖ²¥ */}
+          {/* Í¼Æ¬ï¿½Ö²ï¿½ */}
           {hasImages && (
             <View className={styles.imageSection}>
               <Swiper
@@ -439,12 +441,12 @@ export default function NoteDetailPage() {
                 ))}
               </Swiper>
               
-              {/* Í¼Æ¬¼ÆÊýÆ÷ */}
+              {/* Í¼Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */}
               <Text className={styles.imageCounter}>
                 {currentImageIndex + 1}/{images.length}
               </Text>
               
-              {/* Í¼Æ¬Ö¸Ê¾µã */}
+              {/* Í¼Æ¬Ö¸Ê¾ï¿½ï¿½ */}
               <View className={styles.imageDots}>
                 {images.map((_, index) => (
                   <View 
@@ -456,7 +458,7 @@ export default function NoteDetailPage() {
             </View>
           )}
           
-          {/* ±Ê¼ÇÄÚÈÝ */}
+          {/* ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ */}
           <View className={styles.noteContent}>
             <Text className={styles.noteTitle}>{note.title}</Text>
             <Text className={styles.contentText}>{note.content}</Text>
@@ -464,16 +466,16 @@ export default function NoteDetailPage() {
           
 
           
-          {/* ÆÀÂÛÇøÓò */}
+          {/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */}
           <View className={styles.commentSection}>
             <View className={styles.commentHeader}>
-              <Text className={styles.commentCount}>ÆÀÂÛ {comments.length}</Text>
+              <Text className={styles.commentCount}>ï¿½ï¿½ï¿½ï¿½ {comments.length}</Text>
             </View>
             
-            {/* ÆÀÂÛÁÐ±í */}
+            {/* ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ */}
             {commentsLoading ? (
               <View className={styles.commentLoading}>
-                <Text className={styles.loadingText}>¼ÓÔØÆÀÂÛÖÐ...</Text>
+                <Text className={styles.loadingText}>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...</Text>
               </View>
             ) : comments.length > 0 ? (
               <View className={styles.commentList}>
@@ -486,11 +488,11 @@ export default function NoteDetailPage() {
                     />
                     <View className={styles.commentContent}>
                       <Text className={styles.commentAuthor}>
-                        {comment.user?.nickname || 'ÄäÃûÓÃ»§'}
+                        {comment.user?.nickname || 'ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½'}
                       </Text>
                       <Text className={styles.commentText}>{comment.content}</Text>
                       <Text className={styles.commentTime}>
-                        {comment.created_at ? formatPostDate(comment.created_at) : 'Ê±¼äÎ´Öª'}
+                        {comment.created_at ? formatPostDate(comment.created_at) : 'Ê±ï¿½ï¿½Î´Öª'}
                       </Text>
                     </View>
                   </View>
@@ -498,17 +500,17 @@ export default function NoteDetailPage() {
               </View>
             ) : (
               <View className={styles.emptyComments}>
-                <Text className={styles.emptyText}>ÔÝÎÞÆÀÂÛ£¬¿ìÀ´·¢±íµÚÒ»ÌõÆÀÂÛ°É£¡</Text>
+                <Text className={styles.emptyText}>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Û°É£ï¿½</Text>
               </View>
             )}
             
-            {/* ÆÀÂÛÊäÈë¿ò */}
+            {/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */}
             <View className={styles.commentInput}>
               <Input
                 className={styles.inputField}
                 value={commentText}
                 onInput={(e) => setCommentText(e.detail.value)}
-                placeholder='Ð´ÏÂÄãµÄÆÀÂÛ...'
+                placeholder='Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...'
                 maxlength={500}
                 disabled={submittingComment}
               />
@@ -517,7 +519,7 @@ export default function NoteDetailPage() {
                 onClick={handleCommentSubmit}
               >
                 {submittingComment ? (
-                  <Text className={styles.sendingText}>·¢ËÍÖÐ...</Text>
+                  <Text className={styles.sendingText}>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...</Text>
                 ) : (
                   <Image className={styles.sendIcon} src={sendIcon} />
                 )}
@@ -527,7 +529,7 @@ export default function NoteDetailPage() {
         </ScrollView>
       </View>
       
-      {/* µ×²¿²Ù×÷À¸ */}
+      {/* ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */}
       <View className={styles.bottomBar}>
         <ActionBar
           targetId={noteId || ''}
@@ -559,7 +561,7 @@ export default function NoteDetailPage() {
             }
           ]}
           onStateChange={(type, isActive, count) => {
-            // ActionBar ÒÑ¾­´¦ÀíÁË²Ù×÷£¬ÕâÀï¿ÉÒÔÌí¼Ó¶îÍâµÄÒµÎñÂß¼­
+            // ActionBar ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½ï¿½ß¼ï¿½
             if (type === 'like') {
               setIsLiked(isActive);
               setLikeCount(count);
@@ -567,10 +569,10 @@ export default function NoteDetailPage() {
               setIsBookmarked(isActive);
               setFavoriteCount(count);
             } else if (type === 'comment') {
-              // ÆÀÂÛ°´Å¥±»µã»÷£¬¾Û½¹µ½ÆÀÂÛÊäÈë¿ò
-              // ÕâÀï¿ÉÒÔÊµÏÖ¹ö¶¯µ½ÆÀÂÛÇøÓò²¢¾Û½¹ÊäÈë¿òµÄÂß¼­
+              // ï¿½ï¿½ï¿½Û°ï¿½Å¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+              // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò²¢¾Û½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
             } else if (type === 'share') {
-              // ·ÖÏí²Ù×÷Íê³Éºó£¬Ôö¼Ó·ÖÏí¼ÆÊý
+              // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Éºï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
               setShareCount(prev => prev + 1);
             }
           }}

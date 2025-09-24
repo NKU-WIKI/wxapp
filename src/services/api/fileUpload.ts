@@ -9,23 +9,18 @@ import http from "../request";
  * @returns Promise<any>
  */
 export const uploadFileSimple = async (
-  filePath: string, 
-  category: string = 'general', 
-  isPublic: boolean = false
+  filePath: string,
+  category: string = "general",
+  isPublic: boolean = false,
 ) => {
-  try {
-    const result = await http.uploadFile("/tools/uploads/file", filePath, {
-      formData: {
-        category,
-        is_public: isPublic.toString()
-      }
-    });
+  const result = await http.uploadFile("/tools/uploads/file", filePath, {
+    formData: {
+      category,
+      is_public: isPublic.toString(),
+    },
+  });
 
-    return result;
-  } catch (error) {
-    // 简化的错误处理
-    throw error;
-  }
+  return result;
 };
 
 /**
@@ -34,8 +29,9 @@ export const uploadFileSimple = async (
  * @returns Promise<FileUploadRead>
  */
 export const getFileInfo = (fileId: string): Promise<FileUploadRead> => {
-  return http.get<FileUploadRead>(`/tools/uploads/${fileId}`)
-    .then(res => res.data as FileUploadRead);
+  return http
+    .get<FileUploadRead>(`/tools/uploads/${fileId}`)
+    .then((res) => res.data as FileUploadRead);
 };
 
 /**
@@ -46,25 +42,26 @@ export const getFileInfo = (fileId: string): Promise<FileUploadRead> => {
  * @returns Promise<FileUploadRead>
  */
 export const uploadFile = (
-  filePath: string, 
-  category: string = 'general', 
-  isPublic: boolean = false
+  filePath: string,
+  category: string = "general",
+  isPublic: boolean = false,
 ): Promise<FileUploadRead> => {
-  const formData: any = {
+  const formData: Record<string, string> = {
     category,
-    is_public: isPublic.toString()
+    is_public: isPublic.toString(),
   };
-  
-  return http.uploadFile<FileUploadRead>("/tools/uploads/file", filePath, {
-    formData
-  })
-    .then(res => {
+
+  return http
+    .uploadFile<FileUploadRead>("/tools/uploads/file", filePath, {
+      formData,
+    })
+    .then((res) => {
       // http.uploadFile 返回的是 BaseResponse<FileUploadRead> 格式
       // 所以我们需要访问 res.data 来获取实际的文件数据
       if (res.data) {
         return res.data;
       }
-      throw new Error('上传响应数据为空');
+      throw new Error("上传响应数据为空");
     });
 };
 

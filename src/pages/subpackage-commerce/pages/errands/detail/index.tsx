@@ -32,7 +32,7 @@ const ErrandsDetailPage = () => {
   const loadErrandDetail = useCallback(async (id: string) => {
     try {
       await dispatch(fetchErrandDetail(id)).unwrap()
-    } catch (detailError) {
+    } catch {
       //
       Taro.showToast({ title: '获取任务详情失败', icon: 'none' })
     }
@@ -94,7 +94,7 @@ const ErrandsDetailPage = () => {
                 try {
                   // TODO: 实现删除任务API
                   Taro.showToast({ title: '删除功能开发中', icon: 'none' })
-                } catch (deleteError) {
+                } catch {
                   Taro.showToast({ title: '删除失败', icon: 'none' })
                 }
               }

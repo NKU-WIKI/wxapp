@@ -308,7 +308,7 @@ export const fetchNoteFeed = createAsyncThunk(
       // 无论是否登录都尝试调用笔记推荐流接口（可选认证）
       const response = await noteApi.getNoteFeed(params);
       return response;
-    } catch (error: any) {
+    } catch {
       try {
         const fallbackParams = {
           skip: params.skip || 0,
@@ -318,7 +318,7 @@ export const fetchNoteFeed = createAsyncThunk(
         };
         const fallbackResponse = await noteApi.getNotes(fallbackParams);
         return fallbackResponse;
-      } catch (fallbackError: any) {
+      } catch {
         // 如果所有API都失败，使用模拟数据作为最后的后备方案
         const mockData = createMockNotes();
         const skip = params.skip || 0;
@@ -347,7 +347,7 @@ export const createNote = createAsyncThunk<
       const response = await noteApi.createNote(noteData);
 
       return response;
-    } catch (error: any) {
+    } catch {
 
       return rejectWithValue(error.message || '创建笔记失败');
     }
@@ -362,7 +362,7 @@ export const loadMoreNotes = createAsyncThunk(
       // 无论是否登录都尝试调用笔记推荐流接口（可选认证）
       const response = await noteApi.getNoteFeed(params);
       return response;
-    } catch (error: any) {
+    } catch {
       try {
         const fallbackParams = {
           skip: params.skip || 0,
@@ -372,7 +372,7 @@ export const loadMoreNotes = createAsyncThunk(
         };
         const fallbackResponse = await noteApi.getNotes(fallbackParams);
         return fallbackResponse;
-      } catch (fallbackError: any) {
+      } catch {
         // 如果所有API都失败，使用模拟数据作为最后的后备方案
         const mockData = createMockNotes();
         const skip = params.skip || 0;
@@ -441,7 +441,7 @@ export const fetchNotesInteractionStatus = createAsyncThunk(
       });
 
       return statusMap;
-    } catch (error) {
+    } catch {
       return {};
     }
   }

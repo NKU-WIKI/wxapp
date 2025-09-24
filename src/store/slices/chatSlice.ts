@@ -96,7 +96,9 @@ export const streamMessageFromAI = createAsyncThunk(
     //   if (Array.isArray(searchResult?.data) && searchResult.data.length > 0) {
     //     references = searchResult.data;
     //   }
-    // } catch {}
+    // } catch {
+    //   // 静默处理搜索结果获取错误
+    // }
 
     const initialMessage: ChatMessage = {
       id: messageId,

@@ -61,7 +61,7 @@ const SecondHandDetailPage = () => {
         max_depth: 3,
         limit_per_level: 5
       })).unwrap()
-    } catch (detailError) {
+    } catch {
       //
       Taro.showToast({ title: '获取商品详情失败', icon: 'none' })
     }
@@ -84,7 +84,7 @@ const SecondHandDetailPage = () => {
             setTimeout(() => {
               Taro.navigateBack()
             }, 1500)
-          } catch (deleteError) {
+          } catch {
             Taro.showToast({ title: '删除失败', icon: 'none' })
           }
         }

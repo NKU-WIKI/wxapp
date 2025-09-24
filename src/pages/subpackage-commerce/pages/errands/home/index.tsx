@@ -15,7 +15,7 @@ import { RootState, AppDispatch } from '@/store'
 import { ErrandType } from '@/types/api/marketplace.d'
 
 // Relative imports
-import ErrandsTabBar from '../../../components/ErrandsTabBar'
+import ErrandsTabBar from '../../../components/errands-tab-bar'
 
 import styles from './index.module.scss'
 
@@ -52,7 +52,7 @@ const ErrandsHomePage = () => {
       }
 
       await dispatch(fetchErrands(queryParams)).unwrap()
-    } catch (fetchError) {
+    } catch {
       //
       Taro.showToast({ title: '获取任务列表失败', icon: 'none' })
     } finally {
@@ -129,7 +129,7 @@ const handleSearch = useCallback(async () => {
   try {
     // 这里可以添加搜索逻辑，如果需要的�?      const keywords = searchKeyword.trim().split(/\s+/).filter(k => k.length > 0)
     setSearchKeywords(keywords)
-  } catch (searchError) {
+  } catch {
     Taro.showToast({ title: '搜索失败', icon: 'none' })
   }
 }, [searchKeyword])

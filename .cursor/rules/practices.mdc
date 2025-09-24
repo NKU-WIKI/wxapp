@@ -2,161 +2,116 @@
 alwaysApply: true
 ---
 
-
 ## ✅ 最佳实践
 
 - **跨端兼容**:
-    - 优先使用 Taro 提供的跨端组件和 API。
-    - 需要条件编译时，使用 `process.env.TARO_ENV` 变量。
+  - 优先使用 Taro 提供的跨端组件和 API。
+  - 需要条件编译时，使用 `process.env.TARO_ENV` 变量。
 - **性能优化**:
-    - **分包加载**: 对非核心页面和资源使用 `subPackages` 配置。
-    - **图片资源**: 统一存放于 `src/assets` 并压缩。对于小于 10KB 的图片，可配置 `url-loader` 将其转换为 Base64 编码，以减少网络请求。
-    - **虚拟列表**: 对于长列表，考虑使用虚拟列表技术。
-    - **包体积分析**: 使用 `webpack-bundle-analyzer` 定期分析项目打包后的体积，识别并优化过大的模块。
-    - **移除console**: 在生产环境中，配置 `babel-plugin-transform-remove-console` 自动移除代码中的 `console` 调用。
-    - **lodash 按需加载**: 若项目中使用 `lodash`，配合 `babel-plugin-lodash` 和 `lodash-webpack-plugin` 实现按需加载，减小打包体积。
+  - **分包加载**: 对非核心页面和资源使用 `subPackages` 配置。
+  - **图片资源**: 统一存放于 `src/assets` 并压缩。
+  - **虚拟列表**: 对于长列表，考虑使用虚拟列表技术。
+  - **包体积分析**: 使用 `webpack-bundle-analyzer` (`npm run analyze:weapp`) 定期分析项目打包后的体积，识别并优化过大的模块。
 - **自定义导航栏适配**: 在实现自定义顶部导航栏时，必须通过 `Taro.getWindowInfo()` 和 `Taro.getMenuButtonBoundingClientRect()` API 精确计算导航栏尺寸，并封装为统一的 `<CustomHeader>` 组件。所有使用该组件的页面，必须在 `index.config.ts` 中设置 `navigationStyle: 'custom'`。
 - **⚠️ 页面布局核心规范 (强制性)**
- 所有页面**必须**遵循以下“防内容遮挡”的顶级布局结构，这是一个从实践中总结的、不可违反的硬性规定。
+  所有页面**必须**遵循以下“防内容遮挡”的顶级布局结构，这是一个从实践中总结的、不可违反的硬性规定。
+
   ```tsx
-  <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
+  <View style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
     {/* 1. 顶部必须是统一的自定义导航栏 */}
     <CustomHeader />
     {/* 2. 页面主体内容必须包裹在这个 View 和 ScrollView 中 */}
-    <View style={{ flex: 1, overflow: 'hidden' }}>
-      <ScrollView scrollY style={{ height: '100%' }}>
+    <View style={{ flex: 1, overflow: "hidden" }}>
+      <ScrollView scrollY style={{ height: "100%" }}>
         {/* 页面所有可滚动内容都放在这里 */}
       </ScrollView>
     </View>
   </View>
   ```
- 在 `index.config.ts` 中，也**必须**设置 `navigationStyle: 'custom'`。
+
+  在 `index.config.ts` 中，也**必须**设置 `navigationStyle: 'custom'`。
 
 - **⚠️ 右上角安全区域规范 (强制性)**
- **禁止**在自定义导航栏 (`<CustomHeader>`) 的右上角区域放置任何可交互的控件（如“发布”、“保存”、“菜单”等按钮）。该区域在刘海屏、水滴屏、挖孔屏等异形屏手机上，极易与前置摄像头或系统状态栏（时间、电量）重叠，导致用户无法点击。所有页面级别的主操作按钮，**必须**统一放置在页面底部的操作栏中（参考“编辑资料”和“发布”页面的实现）。此规范旨在保证应用在所有设备上的可用性和交互一致性。
+  **禁止**在自定义导航栏 (`<CustomHeader>`) 的右上角区域放置任何可交互的控件。该区域在异形屏手机上极易与系统状态栏重叠。所有页面级别的主操作按钮，**必须**统一放置在页面底部的操作栏中。
 
-- **全局盒模型**: 为从根源上解决布局偏移问题（如内容偏右），建议在全局样式文件 `src/app.scss` 中为通用容器或页面根元素设置 `box-sizing: border-box;`。
-- **代码检查**: 集成 ESLint, Prettier 和 Stylelint, 并配置 `husky` 和 `lint-staged` 在 `pre-commit` 钩子中自动检查和格式化暂存区代码，保证代码质量。
-- **移动端调试**: 在开发阶段，可以集成 `vconsole-webpack-plugin`，它会在开发包中注入一个轻量级的移动端调试面板，方便在真机上查看日志、网络请求等信息。
+- **代码检查**: 集成 ESLint, Prettier 和 Stylelint, 并配置 `husky` 和 `lint-staged` 在 `pre-commit` 钩子中自动检查和格式化暂存区代码。
 
 ## Git 规范
 
 - **分支模型**: 采用 `Git Flow`。
-    - `main`: 主分支，用于发布。
-    - `dev`: 开发主分支。
-    - `feat-xxx`: 功能分支，开发新功能。
-    - `fix-xxx`: Bug 修复分支。
-    - `realease/0.0.9`: 发布版本归档。
-- **Commit Message**: 遵循 `Angular` 提交规范，格式为 `<type>(<scope>): <subject>`。
-    - `type`: feat, fix, docs, style, refactor, test, chore
-    - `scope`: 可选，表示影响范围 (如: `home`, `profile`)
-    - `subject`: 简短描述。
+- **Commit Message**: 遵循 `Angular` 提交规范 (`<type>(<scope>): <subject>`)。
 - **自动化规范**:
-    - **Commitizen**: 推荐团队成员使用 `commitizen` 工具（通过 `npm run commit`）来规范化提交信息的格式。
-    - **Husky + commitlint**: 配置 `husky` 的 `commit-msg` 钩子，结合 `commitlint` 自动校验提交信息是否符合规范。
-    - **Husky + lint-staged**: 配置 `husky` 的 `pre-commit` 钩子，结合 `lint-staged` 对暂存区的代码文件自动执行 `ESLint` 校验和 `Prettier` 格式化，确保入库代码的质量。
-
-## 代码测试
-
-- **测试框架**: 项目采用 `Jest`作为单元测试和集成测试的框架。
-- **测试工具**: 配合 `@tarojs/test-utils-react` 来辅助测试 Taro 组件。
-- **测试文件**: 测试文件应与被测试文件放在同一目录下，并以 `.spec.ts` 或 `.test.ts` 结尾（例如 `button.test.ts`）。
-- **测试覆盖率**: 鼓励编写测试用例，并关注核心业务逻辑的测试覆盖率。
-
-## 持续集成 (CI/CD)
-
-- **自动化部署**: 推荐使用 Taro 官方提供的 `@tarojs/plugin-mini-ci` 插件，实现小程序的自动化上传、预览等功能。
-- **配置**: 在项目根目录的 `config` 文件夹下创建 `ci.config.js` 用于存放小程序密钥及机器人等配置信息。
-- **脚本**: 在 `package.json` 的 `scripts` 中添加相应的 `upload` 和 `preview` 命令，即可通过命令行一键完成部署操作。
-- **钩子**: CI 插件支持钩子函数，可以在部署的不同阶段执行自定义脚本，例如将预览二维码发送到飞书或钉钉群。
-
-## AI 功能集成
-
-- **服务封装**: AI 相关的功能（如内容润色、AI 助手）应封装在独立的 `services` 或 `hooks` 中。
-- **按需加载**: AI 功能组件或逻辑应尽可能按需加载，避免影响应用启动性能。
-- **用户反馈**: 为 AI 生成的内容提供明确的标识，并设置用户反馈机制（如"生成得不错"、"重新生成"）。
+  - **Commitizen**: 使用 `npm run commit` 来规范化提交信息。
+  - **Husky + commitlint**: 在 `commit-msg` 钩子中自动校验提交信息。
+  - **Husky + lint-staged**: 在 `pre-commit` 钩子中自动执行代码检查和格式化。
 
 ## 数据管理 (State Management)
 
-- **状态管理库**: 项目选用 `Redux` 作为全局状态管理方案。强烈推荐使用 `Redux Toolkit (RTK)` 来简化 Redux 开发，它集成了 `Immer`、`Reselect` 和 `Redux Thunk`，能够有效减少模板代码。
-- **开发中间件**: 在开发环境下，推荐引入 `redux-logger` 中间件，它可以清晰地在控制台打印出每一次 `action` 的派发、`action` 内容、变更前后的 `state` 以及 `state` 的变更内容，极大地提升了开发调试效率。
-- **数据流**: 遵循 Redux 单向数据流原则。
-- **目录结构**: 使用 RTK 时，推荐将 `actions`, `reducers`, `constants` 合b并到 `slice` 文件中，并按业务模块进行组织。
+- **状态管理库**: 项目选用 `Redux Toolkit (RTK)`。
+- **目录结构**:
   - `src/store/slices`: 存放各业务模块的 `slice.ts` 文件。
   - `src/store/index.ts`: 组合 `slice` 并创建 Store。
-- **数据持久化**: 对于需要持久化的数据（如用户 Token），考虑使用 `redux-persist` 配合 `Taro.setStorage` 进行处理。
-- **接口请求**: 在 `src/services` 目录中统一管理 API 请求，返回的数据通过 `createAsyncThunk` (RTK 提供) 的流程更新到 `store`。
-- **开发阶段数据模拟**: 在联调前，所有页面和组件所需的数据结构和模拟内容应在 `src/types` 和 `src/services/mock.ts` 中统一定义。这有助于前后端并行开发，并确保了组件间数据消费的一致性。
+- **数据持久化**: 对于用户 Token 等数据，使用 `redux-persist` 配合 `Taro.setStorage` 进行处理。
+- **接口请求**: 在 `src/services` 目录中统一管理 API 请求，返回的数据通过 `createAsyncThunk` 更新到 `store`。
 
 ## 📡 API 对接工作流
 
-为了保证与后端接口的高效、规范对接，所有涉及网络请求的代码都必须遵循以下工作流。这是一个**强制性规范**，旨在从根源上杜绝路径错误、参数不匹配和数据解析失败等问题。
+为了保证与后端接口的高效、规范对接，所有涉及网络请求的代码都必须遵循以下**强制性规范**：
 
-1.  **第一步：定义类型 (Types)**
-    -   在 `src/types/api/` 目录下为模块创建或更新类型定义文件（例如 `post.d.ts`）。
-    -   定义请求参数 `interface` 和响应数据 `interface`。
-
-2.  **第二步：创建或更新 API 服务 (Service)**
-    -   在 `src/services/api/` 目录下创建或更新对应的服务文件（例如 `post.ts`）。
-    -   所有请求**必须**使用 `src/services/request.ts` 中导出的 `http` 对象 (`http.get` 或 `http.post`)。
-    -   在这一层，负责将前端的驼峰式参数 (`camelCase`) 转换为后端需要的蛇形参数 (`snake_case`)。
-
-3.  **第三步：创建或更新 Redux Thunk (Slice)**
-    -   在 `src/store/slices/` 中创建或更新对应的 `slice.ts` 文件。
-    -   使用 `createAsyncThunk` 创建异步 action。
-    -   **关键**：在 `asyncThunk` 的 `payloadCreator` 函数中，调用 API service 后，**必须**对返回的响应体进行转换，将其适配为前端 Redux store 需要的统一数据结构（例如，将 `{ data: [...], pagination: {...} }` 转换为统一的 `PaginatedData` 对象）。
-
-4.  **第四步：组件中使用**
-    -   在组件中通过 `useDispatch` 派发异步 action。
-    -   通过 `useSelector` 从 store 中获取数据并渲染。
+1.  **第一步：定义类型 (Types)** - 在 `src/types/api/` 目录下为模块创建或更新类型定义文件。
+2.  **第二步：创建或更新 API 服务 (Service)** - 在 `src/services/api/` 目录下创建或更新对应的服务文件。所有请求**必须**使用 `src/services/request.ts` 中导出的 `http` 对象。
+3.  **第三步：创建或更新 Redux Thunk (Slice)** - 在 `src/store/slices/` 中使用 `createAsyncThunk` 创建异步 action。
+4.  **第四步：组件中使用** - 通过 `useDispatch` 派发 action，通过 `useSelector` 获取数据。
 
 ### 🔗 网络请求规范
 
 - **统一封装**: 在 `src/services/request.ts` 中封装 `Taro.request`，统一处理请求头、错误等。
-- **加载提示 (Loading)**:
-    - **完全静默 (默认)**：为了提供极致的流畅感，所有API请求，**包括页面跳转，默认都不显示**全局的“加载中”提示。应用的UI层应自行处理加载状态（如显示骨架屏）。
-    - **按需开启 (特殊情况)**：如果遇到极特殊的、需要强制用户等待的长时间操作，可以通过以下方式手动开启加载提示。
-      ```typescript
-      // 示例：在 API service 中为某个请求开启加载提示
-      http.post('/some/long/task', data, {
-        header: {
-          'X-Show-Loading': true,
-        },
-      });
-      ```
+- **加载提示 (Loading)**: 默认**不显示**全局加载提示。对于需要强制用户等待的长时间操作，可通过在请求头中设置 `'X-Show-Loading': true` 来手动开启。
 - **API 管理**: 在 `src/services/api/` 目录下按模块统一管理所有接口。
-- **环境配置**: 在 `config/dev.js` 和 `config/prod.js` 中管理项目的基础配置，如 `baseUrl` 等。
-- **路径别名**: 在 `config/index.ts` 中配置 `@` 作为 `src` 目录的别名，简化模块导入路径。
+- **路径别名**: 在 `config/index.ts` 中配置 `@` 作为 `src` 目录的别名。
 
 ## 项目特定实践
 
-### 多租户架构支持
+### 图片资源管理
 
-- **租户标识**: 项目采用多租户架构，主要面向南开大学用户
-- **自动租户处理**: 系统在 `src/services/request.ts` 中自动处理租户标识，无需手动添加
-- **测试环境**: 默认使用南开大学租户 (f6303899-a51a-460a-9cd8-fe35609151eb)
+- **图片资源引用 (强制)**: 为规避 Webpack `url-loader` 可能导致的图片资源损坏问题，所有静态图片资源（如 `.png`, `.jpg`）**严禁使用 `import` 方式引入**。所有图片必须通过**字符串路径**的方式在组件中引用。
+  - **✅ 正确做法 (字符串路径)**:
+    ```tsx
+    const myLogo = "/assets/logo.png";
+    <Image src={myLogo} />;
+    ```
+  - **❌ 错误做法 (模块导入)**:
+    ```tsx
+    import myLogo from "@/assets/logo.png";
+    <Image src={myLogo} />;
+    ```
 
-### 开发环境配置
+## 🛡️ 代码质量与常见陷阱
 
-- **环境变量**: 通过 `config/dev.ts` 和 `config/prod.ts` 管理不同环境的配置
-- **路径别名**: 配置 `@` 作为 `src` 目录的别名，简化模块导入
-- **热重载**: 开发时使用 `npm run dev:weapp`，支持热重载和实时预览
+为了保持代码库的整洁和高质量，本项目执行严格的静态代码检查。以下是在本次代码库大规模审查和修复过程中总结的常见问题及其解决方案，所有开发者都应熟悉并遵守。
 
-### 性能优化实践
+### ESLint 常见错误修复指南
 
-- **分包策略**: 将功能模块分为主包和分包，提高加载性能
-- **图片优化**: 使用 `url-loader` 处理小图片，减少网络请求
-- **状态持久化**: 使用 `redux-persist` 持久化关键用户数据
-- **按需加载**: AI 功能和复杂组件采用按需加载策略
+1.  **未使用的变量 (`no-unused-vars`)**
+    - **问题**: 函数参数或 `catch` 块中的 `error` 对象被声明但从未使用。
+    - **解决方案**:
+      - 对于确实不需要使用的变量（尤其是 `catch` 块中的 `error`），请**直接移除变量声明**，改为 `catch {}`。
+      - 如果因为函数签名等原因必须保留参数，请在变量名前添加下划线前缀，例如 `_unusedParam`。我们的 ESLint 配置 (`varsIgnorePattern: "^_"`) 会自动忽略以下划线开头的变量。
 
-### 错误处理机制
+2.  **不必要的 `try/catch` 包装 (`no-useless-catch`)**
+    - **问题**: `catch` 块中唯一的逻辑就是 `throw error;`。这种包装是多余的，它既没有处理错误，也没有添加任何上下文信息。
+    - **解决方案**: **直接移除 `try/catch` 语句**，让错误自然地向上冒泡。
 
-- **统一错误处理**: 在 `src/services/request.ts` 中统一处理 API 错误
-- **用户友好的提示**: 使用 Taro 的 `showToast` 显示错误信息
-- **优雅降级**: 为网络异常等情况提供合理的降级处理
+3.  **空接口定义 (`no-empty-object-type`)**
+    - **问题**: 定义了一个空的接口，例如 `interface MyProps {}`，或者一个只继承了父接口但没有添加任何新属性的接口，例如 `interface MyProps extends BaseProps {}`。
+    - **解决方案**:
+      - 如果接口确实不需要任何属性，请考虑是否真的需要这个接口。
+      - 对于继承而来的空接口，应使用类型别名（`type`）代替，例如 `type MyProps = BaseProps;`。
 
-### 版本控制实践
+4.  **`switch` 中的词法声明 (`no-case-declarations`)**
+    - **问题**: 在 `switch` 语句的 `case` 子句中直接声明变量（如 `let`, `const`, `function`, `class`）。
+    - **解决方案**: 将每个 `case` 子句的内容用花括号 `{}` 包裹起来，为其创建一个块级作用域。
 
-- **分支策略**: 采用 Git Flow 工作流
-- **提交规范**: 使用 Angular 提交规范，通过 `commitizen` 工具规范化
-- **代码检查**: 通过 Husky 和 lint-staged 在提交前自动检查代码质量
+5.  **禁止使用 `require` (`no-require-imports`)**
+    - **问题**: 项目中混用了 `require` (CommonJS) 和 `import` (ESM) 两种模块导入方式。
+    - **解决方案**: **统一使用 `import` 语句**。对于需要动态导入的场景，请使用 `await import()`。

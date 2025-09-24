@@ -87,7 +87,7 @@ export default function Discover() {
       } else {
         setHotPosts([]);
       }
-    } catch (error) {
+    } catch {
 
       setHotPosts([]);
     } finally {
@@ -106,7 +106,7 @@ export default function Discover() {
       } else {
         setPinnedPosts([]);
       }
-    } catch (error) {
+    } catch {
       setPinnedPosts([]);
     }
   }, []);

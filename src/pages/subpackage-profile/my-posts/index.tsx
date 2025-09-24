@@ -1,29 +1,34 @@
-import React, { useEffect, useCallback, useState } from 'react';
-import { View, Text, ScrollView } from '@tarojs/components';
-import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useCallback, useState } from "react";
+import { View, Text, ScrollView } from "@tarojs/components";
+import Taro, { usePullDownRefresh, useReachBottom } from "@tarojs/taro";
+import { useDispatch, useSelector } from "react-redux";
 
-import { AppDispatch, RootState } from '@/store';
-import { fetchUserPosts, resetUserPosts } from '@/store/slices/userPostsSlice';
-import { deletePost } from '@/store/slices/postSlice';
-import EmptyState from '@/components/empty-state';
-import Post from '@/components/post';
-import penToolIcon from '@/assets/pen-tool.svg';
+import { AppDispatch, RootState } from "@/store";
+import { fetchUserPosts, resetUserPosts } from "@/store/slices/userPostsSlice";
+import { deletePost } from "@/store/slices/postSlice";
+import EmptyState from "@/components/empty-state";
+import Post from "@/components/post";
+import penToolIcon from "@/assets/pen-tool.svg";
 
-import { togglePostPin } from '../../../services/api/actions';
+import { togglePostPin } from "../../../services/api/actions";
 
 // Relative imports
-import styles from './index.module.scss';
+import styles from "./index.module.scss";
 
 const MyPostsPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { items: posts, loading, error: userPostsError, pagination } = useSelector((state: RootState) => state.userPosts);
+  const {
+    items: posts,
+    loading,
+    error: userPostsError,
+    pagination,
+  } = useSelector((state: RootState) => state.userPosts);
   const userState = useSelector((state: RootState) => state.user);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // 弹窗状态管理
   const [showActionSheet, setShowActionSheet] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState<string>('');
+  const [selectedPostId, setSelectedPostId] = useState<string>("");
   const [pinnedPostIds, setPinnedPostIds] = useState<Set<string>>(new Set()); // 跟踪置顶帖子ID
 
   // 使用 ref 保存 pagination 的最新值，避免依赖循环
@@ -31,29 +36,33 @@ const MyPostsPage: React.FC = () => {
   paginationRef.current = pagination;
 
   // 加载我的帖子
-  const loadMyPosts = useCallback(async (isRefresh = false) => {
-    try {
-      // 从 ref 获取最新的 pagination 状态
-      const currentPagination = paginationRef.current;
-      const params = {
-        skip: isRefresh ? 0 : currentPagination.skip + currentPagination.limit,
-        limit: 20,
-        isAppend: !isRefresh
-      };
-      
-      if (isRefresh) {
-        dispatch(resetUserPosts());
+  const loadMyPosts = useCallback(
+    async (isRefresh = false) => {
+      try {
+        // 从 ref 获取最新的 pagination 状态
+        const currentPagination = paginationRef.current;
+        const params = {
+          skip: isRefresh
+            ? 0
+            : currentPagination.skip + currentPagination.limit,
+          limit: 20,
+          isAppend: !isRefresh,
+        };
+
+        if (isRefresh) {
+          dispatch(resetUserPosts());
+        }
+
+        await dispatch(fetchUserPosts(params)).unwrap();
+      } catch {
+        Taro.showToast({
+          title: String(err) || "加载失败",
+          icon: "none",
+        });
       }
-      
-      await dispatch(fetchUserPosts(params)).unwrap();
-    } catch (err) {
-      
-      Taro.showToast({
-        title: String(err) || '加载失败',
-        icon: 'none'
-      });
-    }
-  }, [dispatch]); // 只依赖 dispatch
+    },
+    [dispatch],
+  ); // 只依赖 dispatch
 
   // 处理三个点点击 - 显示操作选项
   const handleMoreClick = useCallback((postId: string) => {
@@ -70,14 +79,14 @@ const MyPostsPage: React.FC = () => {
       const response = await togglePostPin(selectedPostId);
       if (response.code === 0) {
         const isNowPinned = response.data?.is_active || false;
-        
+
         Taro.showToast({
-          title: isNowPinned ? '置顶成功' : '取消置顶成功',
-          icon: 'success'
+          title: isNowPinned ? "置顶成功" : "取消置顶成功",
+          icon: "success",
         });
-        
+
         // 更新置顶帖子ID列表
-        setPinnedPostIds(prev => {
+        setPinnedPostIds((prev) => {
           const newSet = new Set(prev);
           if (isNowPinned) {
             newSet.add(selectedPostId);
@@ -86,16 +95,16 @@ const MyPostsPage: React.FC = () => {
           }
           return newSet;
         });
-        
+
         // 刷新我的帖子列表
         loadMyPosts(true);
       } else {
-        throw new Error(response.message || '置顶操作失败');
+        throw new Error(response.message || "置顶操作失败");
       }
-    } catch (error) {
+    } catch {
       Taro.showToast({
-        title: '置顶操作失败',
-        icon: 'none'
+        title: "置顶操作失败",
+        icon: "none",
       });
     }
   }, [selectedPostId, loadMyPosts]);
@@ -104,26 +113,26 @@ const MyPostsPage: React.FC = () => {
   const handleDeletePost = useCallback(() => {
     setShowActionSheet(false);
     Taro.showModal({
-      title: '确认删除',
-      content: '确定要删除这条帖子吗？',
+      title: "确认删除",
+      content: "确定要删除这条帖子吗？",
       success: async (res) => {
         if (res.confirm && selectedPostId) {
           try {
             await dispatch(deletePost(selectedPostId)).unwrap();
             Taro.showToast({
-              title: '删除成功',
-              icon: 'success'
+              title: "删除成功",
+              icon: "success",
             });
             // 刷新列表
             loadMyPosts(true);
-          } catch (error) {
+          } catch {
             Taro.showToast({
-              title: '删除失败，请重试',
-              icon: 'none'
+              title: "删除失败，请重试",
+              icon: "none",
             });
           }
         }
-      }
+      },
     });
   }, [dispatch, selectedPostId, loadMyPosts]);
 
@@ -131,12 +140,12 @@ const MyPostsPage: React.FC = () => {
   useEffect(() => {
     if (!userState.isLoggedIn) {
       Taro.showToast({
-        title: '请先登录',
-        icon: 'none'
+        title: "请先登录",
+        icon: "none",
       });
       return;
     }
-    
+
     if (!isInitialized) {
       setIsInitialized(true);
       loadMyPosts(true);
@@ -151,13 +160,13 @@ const MyPostsPage: React.FC = () => {
 
   // 上拉加载更多
   useReachBottom(async () => {
-    if (pagination.has_more && loading !== 'pending') {
+    if (pagination.has_more && loading !== "pending") {
       await loadMyPosts(false);
     }
   });
 
   // 渲染加载状态
-  if (loading === 'pending' && posts.length === 0) {
+  if (loading === "pending" && posts.length === 0) {
     return (
       <View className={styles.container}>
         <View className={styles.loadingContainer}>
@@ -168,12 +177,14 @@ const MyPostsPage: React.FC = () => {
   }
 
   // 渲染错误状态
-  if (loading === 'failed' && posts.length === 0) {
+  if (loading === "failed" && posts.length === 0) {
     return (
       <View className={styles.container}>
         <View className={styles.errorContainer}>
-          <Text className={styles.errorText}>{userPostsError || '加载失败，请重试'}</Text>
-          <View 
+          <Text className={styles.errorText}>
+            {userPostsError || "加载失败，请重试"}
+          </Text>
+          <View
             className={styles.retryButton}
             onClick={() => loadMyPosts(true)}
           >
@@ -198,11 +209,11 @@ const MyPostsPage: React.FC = () => {
           }
         />
         <View className={styles.actionContainer}>
-          <View 
+          <View
             className={styles.createButton}
             onClick={() => {
               Taro.navigateTo({
-                url: '/pages/subpackage-post/create/index'
+                url: "/pages/subpackage-post/create/index",
               });
             }}
           >
@@ -215,7 +226,6 @@ const MyPostsPage: React.FC = () => {
 
   return (
     <View className={styles.container}>
-      
       <ScrollView
         className={styles.scrollView}
         scrollY
@@ -225,22 +235,22 @@ const MyPostsPage: React.FC = () => {
         <View className={styles.postsContainer}>
           {posts.map((post) => (
             <View key={post.id} className={styles.postWrapper}>
-              <Post 
+              <Post
                 post={post}
-                mode='list'
+                mode="list"
                 enableNavigation
                 onMoreClick={handleMoreClick}
               />
             </View>
           ))}
-          
+
           {/* 加载更多指示器 */}
-          {loading === 'pending' && posts.length > 0 && (
+          {loading === "pending" && posts.length > 0 && (
             <View className={styles.loadMore}>
               <Text className={styles.loadMoreText}>加载中...</Text>
             </View>
           )}
-          
+
           {/* 没有更多数据提示 */}
           {!pagination.has_more && posts.length > 0 && (
             <View className={styles.noMore}>
@@ -252,22 +262,26 @@ const MyPostsPage: React.FC = () => {
 
       {/* ActionSheet - 底部弹出的操作选项 */}
       {showActionSheet && (
-        <View className={styles.actionSheetOverlay} onClick={() => setShowActionSheet(false)}>
-          <View className={styles.actionSheet} onClick={(e) => e.stopPropagation()}>
+        <View
+          className={styles.actionSheetOverlay}
+          onClick={() => setShowActionSheet(false)}
+        >
+          <View
+            className={styles.actionSheet}
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* 置顶/取消置顶选项 - 使用同一个函数，API会自动切换 */}
-            <View 
-              className={styles.actionOption}
-              onClick={handleTogglePin}
-            >
+            <View className={styles.actionOption} onClick={handleTogglePin}>
               <Text className={styles.actionOptionText}>
-                {pinnedPostIds.has(selectedPostId) ? '取消置顶' : '置顶帖子'}
+                {pinnedPostIds.has(selectedPostId) ? "取消置顶" : "置顶帖子"}
               </Text>
             </View>
-            <View 
-              className={styles.actionOption}
-              onClick={handleDeletePost}
-            >
-              <Text className={`${styles.actionOptionText} ${styles.deleteText}`}>删除帖子</Text>
+            <View className={styles.actionOption} onClick={handleDeletePost}>
+              <Text
+                className={`${styles.actionOptionText} ${styles.deleteText}`}
+              >
+                删除帖子
+              </Text>
             </View>
           </View>
         </View>

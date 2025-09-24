@@ -426,7 +426,7 @@ export default function EditProfilePage() {
         initializeLocationSelection(locationInfo);
         setInterests(profile.interest_tags || []);
       }
-    } catch (error) {
+    } catch {
       Taro.showToast({ title: "加载资料失败", icon: "none" });
       // 如果加载失败，使用本地用户信息作为备选
       if (userInfo) {
@@ -472,7 +472,7 @@ export default function EditProfilePage() {
           const uploadedUrl = await uploadApi.uploadImage(tempFilePath);
           setAvatar(uploadedUrl);
           Taro.showToast({ title: "头像上传成功", icon: "success" });
-        } catch (error) {
+        } catch {
           
           Taro.showToast({ title: "头像上传失败", icon: "none" });
           setAvatar(userInfo?.avatar || "");
@@ -541,7 +541,7 @@ export default function EditProfilePage() {
         Taro.navigateBack();
       }, 1500);
       
-    } catch (error) {
+    } catch {
       Taro.showToast({ title: "保存失败", icon: "none" });
     } finally {
       setIsSaving(false);

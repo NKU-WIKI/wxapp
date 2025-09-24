@@ -12,7 +12,7 @@ export const getRecommendations = async (params: API.RecommendParams) => {
   try {
     // 调用新的推荐帖子API
     const response = await getRecommendPosts(params);
-    
+
     // 构造符合RecommendData结构的返回数据
     return {
       code: 0,
@@ -29,11 +29,10 @@ export const getRecommendations = async (params: API.RecommendParams) => {
           time_range: `${params.days || 7}天`,
           hot_weight: params.hot_weight || 0.7,
           new_weight: params.new_weight || 0.3,
-        }
-      }
+        },
+      },
     };
-  } catch (error) {
-    
+  } catch {
     // 发生错误时返回空数据
     return {
       code: 0,
@@ -50,8 +49,8 @@ export const getRecommendations = async (params: API.RecommendParams) => {
           time_range: "",
           hot_weight: 0,
           new_weight: 0,
-        }
-      }
+        },
+      },
     };
   }
 };

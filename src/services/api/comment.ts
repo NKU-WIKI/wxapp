@@ -27,7 +27,7 @@ export const updateComment = (commentId: string, data: CommentUpdate) => {
  * @returns
  */
 export const deleteComment = (commentId: string) => {
-  return http.delete<any>(`/comments/${commentId}`);
+  return http.delete<unknown>(`/comments/${commentId}`);
 };
 
 /**
@@ -46,8 +46,11 @@ export const getComments = (params: {
   max_depth?: number;
   limit_per_level?: number;
 }) => {
-  const { resource_id, resource_type, parent_id, ...queryParams } = params;
-  return http.get<Comment[]>(`/comments/resource/${resource_type}/${resource_id}/trees`, queryParams);
+  const { resource_id, resource_type, ...queryParams } = params;
+  return http.get<Comment[]>(
+    `/comments/resource/${resource_type}/${resource_id}/trees`,
+    queryParams,
+  );
 };
 
 /**
@@ -57,7 +60,9 @@ export const getComments = (params: {
  */
 export const getMyComments = (params?: PaginationParams) => {
   // 按 OpenAPI 使用 /comments/me；同时保留对可能出现的分页对象返回的兼容解析
-  return http.get<CommentRead[] | { items: CommentRead[]; total?: number; has_more?: boolean }>("/comments/me", params);
+  return http.get<
+    CommentRead[] | { items: CommentRead[]; total?: number; has_more?: boolean }
+  >("/comments/me", params);
 };
 
 const commentApi = {

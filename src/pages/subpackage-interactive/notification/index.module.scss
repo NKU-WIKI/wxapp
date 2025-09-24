@@ -2,40 +2,40 @@
 
 // 标签页导航容器
 .tabsContainer {
+  padding: 0 14px;
   background-color: $bg-card;
   border-bottom: 1px solid $border-light;
-  padding: 0 14px;
 }
 
 // 自定义标签页样式 - 参考设计稿的圆角按钮风格
 .customTabs {
   display: flex;
+  gap: 0;
+  align-items: center;
+  height: 49px;
+  padding: 4px;
+  margin: 10.5px 0;
   background-color: $bg-input-focus;
   border-radius: 9999px;
-  padding: 4px;
-  gap: 0;
-  height: 49px;
-  align-items: center;
-  margin: 10.5px 0;
 }
 
 .tabItem {
   position: relative;
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 5.25px 14px;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background-color: transparent;
   min-height: 28px;
+  padding: 5.25px 14px;
+  cursor: pointer;
+  background-color: transparent;
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   
   &.active {
     background-color: $theme-primary;
-    box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 1px 2px rgb(79 70 229 / 20%);
   }
 }
 
@@ -54,28 +54,28 @@
   position: absolute;
   top: -2px;
   right: 6px;
-  min-width: 16px;
-  height: 16px;
-  background-color: $status-error;
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 16px;
+  height: 16px;
   padding: 0 4px;
+  background-color: $status-error;
   border: 2px solid $text-white;
+  border-radius: 8px;
 }
 
 .badgeText {
   font-size: 10px;
-  color: $text-white;
   font-weight: 600;
   line-height: 1;
+  color: $text-white;
 }
 
 // 内容容器
 .contentContainer {
-  padding: 16px 16px 80px 16px; // 底部添加padding为底部按钮留空间
-  background-color: $bg-page;
+  padding: 16px 16px 80px; // 底部添加padding为底部按钮留空间
+  background-color: $bg-page;底部添加padding为底部按钮留空间background-color
 }
 
 // 通知列表
@@ -98,8 +98,8 @@
 }
 
 .loadingText {
-  color: $text-helper-gray;
   font-size: 14px;
+  color: $text-helper-gray;
 }
 
 // 错误状态设计
@@ -113,35 +113,35 @@
 }
 
 .errorIcon {
-  font-size: 48px;
   margin-bottom: 16px;
+  font-size: 48px;
   opacity: 0.6;
 }
 
 .errorText {
-  font-size: 16px;
-  color: $status-error;
-  font-weight: 500;
   margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: $status-error;
 }
 
 .retryButton {
   padding: 8px 20px;
+  cursor: pointer;
   background-color: $theme-primary;
   border-radius: 20px;
-  cursor: pointer;
   transition: all 0.2s ease;
   
   &:active {
-    transform: scale(0.95);
     background-color: #4338CA;
+    transform: scale(0.95);
   }
 }
 
 .retryText {
   font-size: 14px;
-  color: $text-white;
   font-weight: 500;
+  color: $text-white;
 }
 
 // 空状态
@@ -155,22 +155,22 @@
 }
 
 .emptyIcon {
-  font-size: 48px;
   margin-bottom: 16px;
+  font-size: 48px;
   opacity: 0.6;
 }
 
 .emptyText {
-  font-size: 16px;
-  color: $text-secondary;
-  font-weight: 500;
   margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: $text-secondary;
 }
 
 .emptySubText {
   font-size: 14px;
-  color: $text-helper-gray;
   line-height: 1.4;
+  color: $text-helper-gray;
 }
 
 // 更多图标
@@ -188,14 +188,14 @@
 // 底部操作区域
 .footer {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
+  z-index: 100;
   padding: 16px;
   background-color: $bg-card;
   border-top: 1px solid $border-light;
-  z-index: 100;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 8px rgb(0 0 0 / 10%);
 }
 
 .markAllReadButton {
@@ -208,8 +208,8 @@
   transition: all 0.2s ease;
   
   &:active {
-    transform: scale(0.98);
     background-color: #4338CA;
+    transform: scale(0.98);
   }
 }
 

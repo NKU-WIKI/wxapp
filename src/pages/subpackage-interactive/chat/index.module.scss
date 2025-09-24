@@ -8,10 +8,10 @@
 
 /* 聊天内容区域 */
 .chatContainer {
+  box-sizing: border-box;
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  box-sizing: border-box;
 }
 
 /* 欢迎界面 */
@@ -21,8 +21,8 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  text-align: center;
   color: #5f6368;
+  text-align: center;
 
   .welcomeLogo {
     width: 60px;
@@ -31,10 +31,10 @@
   }
 
   .welcomeTitle {
+    margin-bottom: 8px;
     font-size: 24px;
     font-weight: 600;
     color: #1f1f1f;
-    margin-bottom: 8px;
   }
 
   .welcomeTip {
@@ -46,14 +46,14 @@
 /* 消息项 */
 .messageItem {
   display: flex;
-  margin-bottom: 20px;
   max-width: 85%;
+  margin-bottom: 20px;
 
   .avatar {
+    flex-shrink: 0;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    flex-shrink: 0;
   }
 
   .messageContent {
@@ -63,19 +63,19 @@
   }
 
   .messageBubble {
+    position: relative;
     padding: 12px 16px;
-    border-radius: 18px;
     font-size: 16px;
     line-height: 1.5;
     word-break: break-word;
-    position: relative;
+    border-radius: 18px;
   }
 }
 
 /* 用户消息 */
 .userMessage {
-  align-self: flex-end;
   flex-direction: row-reverse;
+  align-self: flex-end;
   max-width: 95%; // 用户消息占更大宽度，减少右边距
 
   .messageContent {
@@ -83,8 +83,8 @@
   }
 
   .userBubble {
-    background-color: #e6d8ff; // 柔和的紫色，符合南开大学校色
     color: #1f1f1f;
+    background-color: #e6d8ff; // 柔和的紫色，符合南开大学校色
     border-top-right-radius: 4px;
   }
 }
@@ -94,10 +94,10 @@
   align-self: flex-start;
 
   .assistantBubble {
-    background-color: #ffffff;
     color: #1f1f1f;
+    background-color: #fff;
     border-top-left-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
   }
 }
 
@@ -106,10 +106,10 @@
   display: inline-block;
   width: 8px;
   height: 16px;
+  margin-left: 4px;
+  vertical-align: text-bottom;
   background-color: #000;
   animation: blink 1s infinite;
-  vertical-align: text-bottom;
-  margin-left: 4px;
 }
 
 @keyframes blink {
@@ -117,6 +117,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
@@ -127,21 +128,21 @@
   display: flex;
   align-items: flex-end;
   padding: 12px 20px;
-  background-color: #ffffff;
+  background-color: #fff;
   border-top: 1px solid #e0e0e0;
 
   .inputField {
     flex: 1;
     min-height: 24px;
-    max-height: 120px; // 限制最大高度
-    padding: 10px 16px;
-    border-radius: 22px;
-    background-color: #f0f2f5;
-    border: none;
+    max-height: 120px;
+    padding: 12px 18px;
     font-size: 16px;
     line-height: 1.5;
-    outline: none;
     resize: none; // 禁止用户调整大小
+    outline: none;
+    background-color: #f0f2f5;
+    border: none;
+    border-radius: 22px;
   }
 
   .sendButton {
@@ -151,9 +152,9 @@
     width: 44px;
     height: 44px;
     margin-left: 12px;
-    border-radius: 50%;
-    background-color: #1a73e8; // Google 蓝色
     cursor: pointer;
+    background-color: #1a73e8; // Google 蓝色
+    border-radius: 50%;
     transition: background-color 0.2s;
 
     .sendIcon {
@@ -167,8 +168,8 @@
   }
 
   .sendButtonDisabled {
-    background-color: #a0c3ff;
     cursor: not-allowed;
+    background-color: #a0c3ff;
   }
 }
 
@@ -180,18 +181,20 @@
   .dot {
     width: 8px;
     height: 8px;
-    border-radius: 50%;
-    background-color: #909090;
     margin: 0 2px;
+    background-color: #909090;
+    border-radius: 50%;
     animation: typing 1.4s infinite both;
   }
 
   .dot1 {
     animation-delay: 0s;
   }
+
   .dot2 {
     animation-delay: 0.2s;
   }
+
   .dot3 {
     animation-delay: 0.4s;
   }
@@ -199,9 +202,9 @@
 
 /* 搜索知识库提示 */
 .searchingText {
+  margin-top: 8px;
   font-size: 12px;
   color: #666;
-  margin-top: 8px;
   text-align: center;
 }
 
@@ -209,9 +212,11 @@
   0% {
     transform: scale(0);
   }
+
   40% {
     transform: scale(1);
   }
+
   80%,
   100% {
     transform: scale(0);
@@ -220,10 +225,10 @@
 
 /* 错误提示 */
 .errorText {
-  color: red;
-  text-align: center;
   padding: 10px;
   font-size: 14px;
+  color: red;
+  text-align: center;
 }
 
 /* 加载状态容器 */
@@ -239,11 +244,11 @@
 .loadingSpinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top-color: #1890ff;
-  animation: spin 1s ease-in-out infinite;
   margin-bottom: 16px;
+  border: 4px solid rgb(0 0 0 / 10%);
+  border-top-color: #1890ff;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
 }
 
 @keyframes spin {
@@ -260,61 +265,61 @@
 
 /* 参考资料样式 */
 .referencesContainer {
+  position: relative;
   margin-top: 16px;
-  border-radius: 16px;
+  overflow: hidden;
   background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
   border: 1px solid #e1e8ff;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(26, 115, 232, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgb(26 115 232 / 12%);
   backdrop-filter: blur(10px);
-  position: relative;
 
   &::before {
-    content: "";
     position: absolute;
     top: 0;
-    left: 0;
     right: 0;
+    left: 0;
     height: 2px;
+    content: "";
     background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   }
 }
 
 .referencesToggle {
-  padding: 16px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  padding: 16px 20px;
   overflow: hidden;
+  cursor: pointer;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &::before {
-    content: "";
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
+    content: "";
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.25),
+      rgb(255 255 255 / 25%),
       transparent
     );
     transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &::after {
-    content: "";
     position: absolute;
     top: 50%;
     right: 20px;
-    transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-left: 6px solid #ffffff;
+    content: "";
     border-top: 4px solid transparent;
     border-bottom: 4px solid transparent;
+    border-left: 6px solid #fff;
+    transform: translateY(-50%);
     transition: transform 0.3s ease;
   }
 
@@ -323,8 +328,8 @@
   }
 
   &:hover {
+    box-shadow: 0 8px 24px rgb(102 126 234 / 40%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
   }
 
   &:active {
@@ -341,37 +346,37 @@
 }
 
 .referencesToggleText {
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 600;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
   letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 20%);
 
   &::before {
-    content: "📚";
     margin-right: 10px;
     font-size: 18px;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    content: "📚";
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 10%));
   }
 }
 
 .referencesList {
-  padding: 12px;
-  background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
-  border-top: 1px solid #e1e8ff;
   position: relative;
-  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 12px;
+  background: linear-gradient(135deg, #fff 0%, #fafbff 100%);
+  border-top: 1px solid #e1e8ff;
   transform-origin: top;
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &::before {
-    content: "";
     position: absolute;
     top: 0;
-    left: 12px;
     right: 12px;
+    left: 12px;
     height: 1px;
+    content: "";
     background: linear-gradient(90deg, transparent 0%, #e1e8ff 50%, transparent 100%);
   }
 }
@@ -381,6 +386,7 @@
     opacity: 0;
     transform: translateY(-10px) scaleY(0.8);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scaleY(1);
@@ -392,6 +398,7 @@
     opacity: 0;
     transform: translateY(20px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -399,16 +406,16 @@
 }
 
 .referenceItem {
-  display: flex;
-  margin-bottom: 12px;
-  padding: 14px;
-  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
-  border-radius: 12px;
-  border: 1px solid #e8f0fe;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  display: flex;
+  padding: 14px;
+  margin-bottom: 12px;
   overflow: hidden;
+  background: linear-gradient(135deg, #fff 0%, #f8faff 100%);
+  border: 1px solid #e8f0fe;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 4%);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
 
   &:nth-child(1) { animation-delay: 0.1s; }
@@ -418,34 +425,34 @@
   &:nth-child(5) { animation-delay: 0.5s; }
 
   &::before {
-    content: "";
     position: absolute;
-    left: 0;
     top: 0;
+    left: 0;
     width: 5px;
     height: 100%;
+    content: "";
     background: linear-gradient(180deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     border-radius: 0 3px 3px 0;
-    box-shadow: 2px 0 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 2px 0 8px rgb(102 126 234 / 30%);
   }
 
   &::after {
-    content: "";
     position: absolute;
     top: -50%;
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(102, 126, 234, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+    content: "";
+    background: radial-gradient(circle, rgb(102 126 234 / 3%) 0%, transparent 70%);
     opacity: 0;
     transition: opacity 0.3s ease;
-    pointer-events: none;
   }
 
   &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
     border-color: #c8d6ff;
+    box-shadow: 0 12px 32px rgb(102 126 234 / 20%);
+    transform: translateY(-4px) scale(1.02);
 
     &::after {
       opacity: 1;
@@ -462,31 +469,31 @@
 }
 
 .referenceIndex {
+  position: relative;
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   min-width: 26px;
   height: 26px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
+  margin-right: 12px;
+  overflow: hidden;
   font-size: 12px;
   font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 20%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 50%;
-  margin-right: 12px;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 2px 8px rgb(102 126 234 / 30%);
 
   &::before {
-    content: "";
     position: absolute;
     top: -50%;
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+    content: "";
+    background: linear-gradient(45deg, transparent 30%, rgb(255 255 255 / 30%) 50%, transparent 70%);
     transform: rotate(-45deg);
     transition: transform 0.6s ease;
   }
@@ -497,35 +504,34 @@
 }
 
 .referenceContent {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 6px;
 }
 
 .referenceTitle {
+  position: relative;
+  margin-bottom: 4px;
   font-size: 15px;
   font-weight: 700;
-  color: #1a1a1a;
   line-height: 1.3;
-  margin-bottom: 4px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  position: relative;
+  color: #1a1a1a;
   letter-spacing: 0.2px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 
   &::after {
-    content: "";
     position: absolute;
     bottom: -2px;
     left: 0;
     width: 0;
     height: 2px;
+    content: "";
     background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.3s ease;
     border-radius: 1px;
+    transition: width 0.3s ease;
   }
 
   &:hover::after {
@@ -534,61 +540,61 @@
 }
 
 .referenceText {
-  font-size: 13px;
-  color: #4a5568;
-  line-height: 1.5;
-  margin-bottom: 6px;
+  position: relative;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  padding: 8px 10px;
+  margin-bottom: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #4a5568;
   background: linear-gradient(135deg, #f8faff 0%, transparent 100%);
-  padding: 8px 10px;
-  border-radius: 6px;
   border-left: 2px solid #e1e8ff;
-  position: relative;
+  border-radius: 6px;
+  -webkit-box-orient: vertical;
 
   &::before {
-    content: "";
     position: absolute;
     top: 8px;
     left: 8px;
-    font-size: 20px;
-    color: #c8d6ff;
     font-family: serif;
+    font-size: 20px;
     line-height: 1;
+    color: #c8d6ff;
+    content: "";
   }
 }
 
 .referenceLink {
-  font-size: 12px;
-  color: #667eea;
-  font-weight: 600;
   display: flex;
   align-items: center;
-  padding: 6px 10px;
-  background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
-  border-radius: 16px;
-  border: 1px solid #e1e8ff;
-  transition: all 0.3s ease;
   width: fit-content;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #667eea;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+  border: 1px solid #e1e8ff;
+  border-radius: 16px;
+  transition: all 0.3s ease;
 
   &::before {
-    content: "🌐";
     margin-right: 4px;
     font-size: 12px;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    content: "🌐";
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 10%));
   }
 
   &:hover {
+    color: #fff;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #ffffff;
+    box-shadow: 0 4px 12px rgb(102 126 234 / 30%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 
     &::before {
-      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+      filter: drop-shadow(0 1px 2px rgb(0 0 0 / 20%));
     }
   }
 }

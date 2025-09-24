@@ -173,7 +173,7 @@ const AboutPage: React.FC = () => {
                       showCancel: false,
                       confirmText: '确定'
                     });
-                  } catch (error) {
+                  } catch {
                     Taro.showModal({
                       title: '调试错误',
                       content: `获取租户ID失败: ${error}`,
@@ -199,7 +199,7 @@ const AboutPage: React.FC = () => {
                       showCancel: false,
                       confirmText: '确定'
                     });
-                  } catch (error) {
+                  } catch {
                     Taro.showModal({
                       title: '搜索API错误',
                       content: `测试失败: ${error}`,

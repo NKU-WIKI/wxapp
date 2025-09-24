@@ -1,4 +1,4 @@
-@import '@/styles/variables.scss';
+@import '@/styles/variables';
 
 .container {
   min-height: 100vh;
@@ -7,14 +7,14 @@
 
 .loading {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 200rpx;
   color: $text-secondary;
 }
 
 .content {
-  padding: 64rpx 32rpx 32rpx 32rpx;
+  padding: 64rpx 32rpx 32rpx;
 }
 
 .section {
@@ -26,17 +26,17 @@
 }
 
 .sectionTitle {
+  padding-left: 8rpx;
+  margin-bottom: 24rpx;
   font-size: 28rpx;
   font-weight: 500;
   color: $text-primary;
-  margin-bottom: 24rpx;
-  padding-left: 8rpx;
 }
 
 .card {
+  overflow: hidden;
   background-color: $bg-card;
   border-radius: 16rpx;
-  overflow: hidden;
 }
 
 .fieldRow {
@@ -58,24 +58,24 @@
 
 .fieldLabel {
   font-size: 30rpx;
-  color: $text-primary;
   font-weight: 500;
+  color: $text-primary;
 }
 
 .fieldValue {
+  flex: 1;
+  margin-right: 16rpx;
   font-size: 28rpx;
   color: $text-secondary;
-  flex: 1;
   text-align: right;
-  margin-right: 16rpx;
 }
 
 .fieldPlaceholder {
+  flex: 1;
+  margin-right: 16rpx;
   font-size: 28rpx;
   color: $text-placeholder;
-  flex: 1;
   text-align: right;
-  margin-right: 16rpx;
 }
 
 .editIcon {
@@ -86,32 +86,32 @@
 
 .editContainer {
   padding: 24rpx;
+  margin-bottom: 16rpx;
   background-color: $bg-card;
   border-radius: 16rpx;
-  margin-bottom: 16rpx;
 }
 
 .editLabel {
-  font-size: 28rpx;
-  color: $text-primary;
   margin-bottom: 16rpx;
+  font-size: 28rpx;
   font-weight: 500;
+  color: $text-primary;
 }
 
 .editInput {
+  box-sizing: border-box;
   width: 100%;
   padding: 24rpx;
-  border: 2rpx solid $border-base;
-  border-radius: 12rpx;
+  margin-bottom: 24rpx;
   font-size: 30rpx;
   color: $text-primary;
   background-color: $bg-card;
-  box-sizing: border-box;
-  margin-bottom: 24rpx;
+  border: 2rpx solid $border-base;
+  border-radius: 12rpx;
 
   &:focus {
-    border-color: $theme-primary;
     outline: none;
+    border-color: $theme-primary;
   }
 }
 
@@ -122,12 +122,12 @@
 }
 
 .cancelButton {
-  background-color: $bg-card-hover;
+  padding: 16rpx 32rpx;
+  font-size: 26rpx;
   color: $text-secondary;
+  background-color: $bg-card-hover;
   border: none;
   border-radius: 8rpx;
-  font-size: 26rpx;
-  padding: 16rpx 32rpx;
 
   &:active {
     background-color: $bg-input;
@@ -135,12 +135,12 @@
 }
 
 .saveButton {
-  background-color: $theme-primary;
+  padding: 16rpx 32rpx;
+  font-size: 26rpx;
   color: $text-white;
+  background-color: $theme-primary;
   border: none;
   border-radius: 8rpx;
-  font-size: 26rpx;
-  padding: 16rpx 32rpx;
 
   &:active {
     background-color: $theme-primary-dark;
@@ -149,8 +149,8 @@
 
 .verifiedStatus {
   display: flex;
-  align-items: center;
   gap: 8rpx;
+  align-items: center;
 }
 
 .verifiedIcon {
@@ -161,8 +161,8 @@
 
 .verifiedText {
   font-size: 28rpx;
-  color: $status-success;
   font-weight: 500;
+  color: $status-success;
 }
 
 .unverifiedText {
@@ -171,12 +171,12 @@
 }
 
 .verifyButton {
-  background-color: $theme-primary;
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
   color: $text-white;
+  background-color: $theme-primary;
   border: none;
   border-radius: 8rpx;
-  font-size: 24rpx;
-  padding: 12rpx 24rpx;
 
   &:active {
     background-color: $theme-primary-dark;
@@ -184,7 +184,7 @@
 }
 
 // 响应式调整
-@media (max-width: 750rpx) {
+@media (width <= 750rpx) {
   .content {
     padding: 24rpx;
   }

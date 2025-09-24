@@ -6,20 +6,25 @@ import styles from "./index.module.scss";
 interface RegistrationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (name: string, studentId: string) => void;
+  onConfirm: (_name: string, _studentId: string) => void;
   activityTitle: string;
 }
 
-const RegistrationModal = ({ isOpen, onClose, onConfirm, activityTitle }: RegistrationModalProps) => {
-  const [name, setName] = useState("");
-  const [studentId, setStudentId] = useState("");
+const RegistrationModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  activityTitle,
+}: RegistrationModalProps) => {
+  const [_name, setName] = useState("");
+  const [_studentId, setStudentId] = useState("");
 
   const handleConfirm = () => {
-    if (!name || !studentId) {
-      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+    if (!_name || !_studentId) {
+      Taro.showToast({ title: "请填写完整信息", icon: "none" });
       return;
     }
-    onConfirm(name, studentId);
+    onConfirm(_name, _studentId);
   };
 
   if (!isOpen) {
@@ -33,21 +38,27 @@ const RegistrationModal = ({ isOpen, onClose, onConfirm, activityTitle }: Regist
         <Text className={styles.activityTitle}>活动: {activityTitle}</Text>
         <Input
           className={styles.input}
-          placeholder='请输入您的姓名'
-          value={name}
+          placeholder="请输入您的姓名"
+          value={_name}
           onInput={(e) => setName(e.detail.value)}
         />
         <Input
           className={styles.input}
-          placeholder='请输入您的学号'
-          value={studentId}
+          placeholder="请输入您的学号"
+          value={_studentId}
           onInput={(e) => setStudentId(e.detail.value)}
         />
         <View className={styles.buttonContainer}>
-          <Button className={`${styles.button} ${styles.cancelButton}`} onClick={onClose}>
+          <Button
+            className={`${styles.button} ${styles.cancelButton}`}
+            onClick={onClose}
+          >
             取消
           </Button>
-          <Button className={`${styles.button} ${styles.confirmButton}`} onClick={handleConfirm}>
+          <Button
+            className={`${styles.button} ${styles.confirmButton}`}
+            onClick={handleConfirm}
+          >
             确认报名
           </Button>
         </View>

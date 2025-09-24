@@ -1,41 +1,45 @@
 @use "../../styles/variables.scss" as *;
 
 .explorePage {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100vh;
   background-color: $bg-page;
-  position: relative;
 }
 
 /* 固定搜索区域 - 位于导航栏下方，始终可见 */
 .fixedSearchArea {
   position: fixed;
   top: 0;
-  left: 0;
   right: 0;
+  left: 0;
   z-index: 100;
+  overflow: hidden;
   background-color: $bg-card;
-  /* 改为与子元素一致的卡片背景色 */
-  /* 添加底部阴影，明确区分与内容的分界 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-bottom-right-radius: 12px;
+
   /* 添加底部圆角，与整体设计保持一致 */
   border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  overflow: hidden;
+
+  /* 改为与子元素一致的卡片背景色 */
+
+  /* 添加底部阴影，明确区分与内容的分界 */
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+
   /* 确保子元素不超出圆角 */
 }
 
 /* 内容滚动容器 */
 .contentScrollContainer {
-  flex: 1;
   position: relative;
+  flex: 1;
   overflow: hidden;
 }
 
 .contentScrollView {
-  height: 100%;
   width: 100%;
+  height: 100%;
 }
 
 .contentArea {
@@ -44,7 +48,9 @@
 
 .searchBarWrapper {
   padding: 0;
+
   /* 移除所有内边距，让SearchBar组件的margin生效 */
+
   /* 移除背景色，继承父容器的背景 */
   backdrop-filter: blur(10px);
 }
@@ -52,17 +58,17 @@
 // 这些样式已由SearchBar组件提供，不再需要
 
 .resultsContainer {
-  padding: 0px 16px 16px 16px; // 移除上边距
+  padding: 0 16px 16px; // 移除上边距
 }
 
 .resultItem {
-  background: #fff;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 12px;
   display: flex;
-  align-items: flex-start;
   gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #fff;
+  border-radius: 8px;
 }
 
 .resultIcon {
@@ -77,14 +83,14 @@
 }
 
 .resultTitle {
-  font-weight: bold;
   margin-bottom: 4px;
+  font-weight: bold;
 }
 
 .resultContent {
   font-size: 14px;
-  color: #666;
   line-height: 1.5;
+  color: #666;
 }
 
 .thumbRow {
@@ -102,16 +108,16 @@
 
 .loadingState,
 .errorState {
-  padding: 24px 16px 40px 16px; // 减少上边距，保持左右和下边距
-  text-align: center;
+  padding: 24px 16px 40px; // 减少上边距，保持左右和下边距
   color: $text-helper-light;
+  text-align: center;
 }
 
 .ragLoading {
   display: flex;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   min-height: 200px;
 }
 
@@ -140,9 +146,9 @@
 /* Fallback views */
 .searchSkillsContainer {
   flex: 1;
-  padding: 16px 16px 16px 16px; // 添加上边距，避免被搜索框遮挡
-  background-color: $bg-card;
   height: 100%;
+  padding: 16px; // 添加上边距，避免被搜索框遮挡
+  background-color: $bg-card;
 }
 
 .skillsHeader {
@@ -154,9 +160,9 @@
 .skillsTitleDecorator {
   width: 4px;
   height: 20px;
+  margin-right: 8px;
   background-color: $theme-primary-light;
   border-radius: 9999px;
-  margin-right: 8px;
 }
 
 .skillsTitle {
@@ -172,33 +178,33 @@
 }
 
 .skillCard {
-  background-color: $bg-card;
-  border-radius: 8px;
-  border: 1px solid $border-cool;
-  padding: 16px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  align-items: center;
+  padding: 16px;
+  text-align: center;
   cursor: pointer;
+  background-color: $bg-card;
+  border: 1px solid $border-cool;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 
   &:active {
-    transform: scale(0.96);
     background-color: $alpha-primary-10;
     border-color: $theme-primary;
+    transform: scale(0.96);
   }
 }
 
 .skillIconContainer {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 48px;
+  height: 48px;
   background-color: $alpha-primary-10;
+  border-radius: 50%;
 }
 
 .skillIcon {
@@ -220,8 +226,10 @@
 
 .sourceNav {
   padding: 12px 16px;
+
   /* 移除背景色，继承父容器的背景 */
   border-top: 1px solid $border-light;
+
   /* 移除 border-bottom，由父容器的阴影效果替代 */
 }
 
@@ -233,10 +241,10 @@
 
 .sourceItem {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
   flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
 }
 
 .sourceIcon {
@@ -249,7 +257,8 @@
 }
 
 .masonryWrapper {
-  padding: 0px 12px 12px 12px;
+  padding: 0 12px 12px;
+
   /* 移除上边距，只保留左右下边距 */
 }
 
@@ -263,14 +272,14 @@
 }
 
 .contentCard {
+  overflow: hidden;
   background-color: $bg-card;
   border-radius: 8px;
-  overflow: hidden;
 }
 
 .contentImage {
-  width: 100%;
   display: block;
+  width: 100%;
 }
 
 .contentTitle {
@@ -289,32 +298,32 @@
 }
 
 .loginPromptIcon {
-  font-size: 48px;
   margin-bottom: 16px;
+  font-size: 48px;
   opacity: 0.8;
 }
 
 .loginPromptTitle {
+  margin-bottom: 8px;
   font-size: 18px;
   font-weight: 600;
   color: $text-primary;
-  margin-bottom: 8px;
 }
 
 .loginPromptDesc {
-  font-size: 14px;
-  color: $text-secondary;
   margin-bottom: 24px;
+  font-size: 14px;
   line-height: 1.5;
+  color: $text-secondary;
 }
 
 .loginPromptButton {
-  background-color: $theme-primary;
-  color: white;
   padding: 12px 24px;
-  border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
+  color: white;
+  background-color: $theme-primary;
+  border-radius: 20px;
 }
 
 .loginPromptButtonText {
@@ -325,5 +334,6 @@
 /* 底部占位元素，防止内容被tab bar遮挡 */
 .bottomSpacer {
   height: 80px;
+
   /* 为底部tab bar预留足够空间 */
 }

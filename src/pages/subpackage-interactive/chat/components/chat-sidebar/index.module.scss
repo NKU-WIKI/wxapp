@@ -7,10 +7,12 @@
   flex-direction: column;
   width: 280px;
   height: 100vh; /* 使用 vh 确保占满整个视口高度 */
-  background-color: #ffffff;
+  background-color: #fff;
   border-right: 1px solid #e8e8e8;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 2px 0 5px rgb(0 0 0 / 5%);
+
   /* 移除固定的padding-top，改为使用动态内联样式 */
+
   /* 添加动画效果 */
   animation: slideIn 0.3s ease-in-out;
 }
@@ -21,12 +23,12 @@
 }
 
 .header {
+  display: flex;
+  flex-shrink: 0; /* 防止 header 被压缩 */
+  align-items: center;
+  justify-content: space-between;
   padding: 16px;
   border-bottom: 1px solid #e8e8e8;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0; /* 防止 header 被压缩 */
 
   .title {
     font-size: 20px;
@@ -36,16 +38,16 @@
 
   .newChatButton {
     display: flex;
-    align-items: center;
     gap: 6px; /* 使用 gap 替代 margin */
+    align-items: center;
     padding: 8px 12px;
-    background-color: #f0f0f0;
-    border: none;
-    border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
     color: #333;
     cursor: pointer;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 8px;
     transition: background-color 0.2s;
 
     &:hover {
@@ -61,21 +63,22 @@
 
 .sessionList {
   flex: 1;
-  overflow-y: auto;
+  max-height: 70vh; /* 限制最大高度 */
   padding: 8px 0;
+
   /* 添加底部安全区域内边距，避免内容被底部操作栏遮挡 */
   padding-bottom: 20px;
-  max-height: 70vh; /* 限制最大高度 */
+  overflow-y: auto;
 }
 
 .sessionItem {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 10px 16px; /* 减小内边距 */
   margin: 4px 8px; /* 调整外边距 */
-  border-radius: 8px;
   cursor: pointer;
+  border-radius: 8px;
   transition: background-color 0.2s, color 0.2s;
 
   &:hover {
@@ -83,9 +86,9 @@
   }
 
   &.active {
-    background-color: #e8f0fe;
-    color: #1a73e8;
     font-weight: 500;
+    color: #1a73e8;
+    background-color: #e8f0fe;
 
     .sessionTitle {
       color: #1a73e8;
@@ -95,29 +98,29 @@
 
 .sessionTitle {
   flex: 1;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #3c4043;
   font-size: 14px;
+  color: #3c4043;
+  white-space: nowrap;
 }
 
 .renameInput {
   flex: 1;
-  border: 1px solid #1a73e8;
   padding: 6px 8px;
-  border-radius: 6px;
-  background-color: #fff;
   font-size: 14px;
   color: #3c4043;
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
   outline: none;
+  background-color: #fff;
+  border: 1px solid #1a73e8;
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px rgb(26 115 232 / 20%);
 }
 
 .actions {
   display: flex;
-  align-items: center;
   gap: 8px; /* 使用 gap 替代 margin */
+  align-items: center;
   opacity: 0.7; /* 默认稍微透明 */
   transition: opacity 0.2s;
 
@@ -127,13 +130,13 @@
 }
 
 .actionIcon {
+  display: block;
   width: 18px !important;
   height: 18px !important;
-  cursor: pointer;
-  color: #5f6368;
-  transition: color 0.2s;
   padding: 0;
-  display: block;
+  color: #5f6368;
+  cursor: pointer;
+  transition: color 0.2s;
 
   &:hover {
     color: #1a73e8;
@@ -146,19 +149,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 200px;
   width: 100%;
+  height: 200px;
 }
 
 // 加载动画
 .loadingSpinner {
   width: 30px;
   height: 30px;
-  border: 3px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top-color: #1890ff;
-  animation: spin 1s ease-in-out infinite;
   margin-bottom: 12px;
+  border: 3px solid rgb(0 0 0 / 10%);
+  border-top-color: #1890ff;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
 }
 
 @keyframes spin {
@@ -177,15 +180,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 200px;
   width: 100%;
+  height: 200px;
   padding: 0 20px;
 }
 
 .emptyText {
+  margin-bottom: 8px;
   font-size: 16px;
   color: #333;
-  margin-bottom: 8px;
 }
 
 .emptyTip {
@@ -198,10 +201,11 @@
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 999; /* 确保在 sidebar 之下 */
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 999; /* 确保在 sidebar 之下 */
+  background-color: rgb(0 0 0 / 40%);
+
   /* 添加动画效果 */
   animation: fadeIn 0.2s ease-in-out;
 }

@@ -19,10 +19,10 @@ class PageRefreshManager {
   triggerPageRefresh(pagePath: string) {
     const callbacks = this.listeners.get(pagePath);
     if (callbacks) {
-      callbacks.forEach(callback => {
+      callbacks.forEach((callback) => {
         try {
           callback();
-        } catch (error) {
+        } catch {
           // 静默处理错误
         }
       });
@@ -44,18 +44,23 @@ class PageRefreshManager {
 export const pageRefreshManager = new PageRefreshManager();
 
 // 便捷的页面刷新钩子
-export const usePageRefresh = (pagePath: string, refreshCallback: () => void) => {
+export const usePageRefresh = (
+  pagePath: string,
+  refreshCallback: () => void,
+) => {
   return {
-    subscribe: () => pageRefreshManager.addRefreshListener(pagePath, refreshCallback),
-    unsubscribe: () => pageRefreshManager.removeRefreshListener(pagePath, refreshCallback),
-    triggerRefresh: () => pageRefreshManager.triggerPageRefresh(pagePath)
+    subscribe: () =>
+      pageRefreshManager.addRefreshListener(pagePath, refreshCallback),
+    unsubscribe: () =>
+      pageRefreshManager.removeRefreshListener(pagePath, refreshCallback),
+    triggerRefresh: () => pageRefreshManager.triggerPageRefresh(pagePath),
   };
 };
 
 // 常用页面路径常量
 export const PAGE_PATHS = {
-  DISCOVER: '/pages/discover/index',
-  EXPLORE: '/pages/explore/index',
-  PROFILE: '/pages/profile/index',
-  HOME: '/pages/home/index'
+  DISCOVER: "/pages/discover/index",
+  EXPLORE: "/pages/explore/index",
+  PROFILE: "/pages/profile/index",
+  HOME: "/pages/home/index",
 } as const;

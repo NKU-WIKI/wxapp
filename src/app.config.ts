@@ -53,7 +53,7 @@ export default {
         "publish/index",
         "chat/index",
         "note-detail/index",
-        "note-publish/note_publish/index",
+        "note-publish/note-publish/index",
       ]
     },
     {

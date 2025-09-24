@@ -20,37 +20,37 @@
 }
 
 .contentContainer {
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   min-height: 100%;
+  padding: 16px;
   padding-bottom: 80px; /* 增加底部padding从40px到80px，确保最后的内容可见 */
 }
 
 /* 校园热点 */
 .hotspotsScrollContainer {
   width: 100%;
-  white-space: nowrap;
   margin-bottom: 16px; // 增加校园热点区域的底部间距，让AI助手往下移
+  white-space: nowrap; // 增加校园热点区域的底部间距，让AI助手往下移
 }
 
 .hotspotsContainer {
   display: flex;
   gap: 12px;
-  padding: 0 4px;
   width: max-content;
+  padding: 0 4px;
 }
 
 .hotspotItem {
   position: relative;
-  background-color: #ffffff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-  width: 200px;
   flex-shrink: 0;
+  width: 200px;
+  overflow: hidden;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgb(0 0 0 / 10%);
+  transition: transform 0.2s ease;
 
   &:active {
     transform: scale(0.98);
@@ -65,28 +65,28 @@
 
 .hotspotOverlay {
   position: absolute;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
   padding: 16px 12px 12px;
   color: white;
+  background: linear-gradient(to top, rgb(0 0 0 / 70%), transparent);
 }
 
 .description {
-  font-size: 24rpx;
-  color: #9ca3af;
   display: -webkit-box;
-  -webkit-box-orient: vertical;
+  margin-top: 12rpx;
+  overflow: hidden;
   -webkit-line-clamp: 2;
   line-clamp: 2; /* 添加标准属性 */
-  overflow: hidden;
-  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #9ca3af;
+  -webkit-box-orient: vertical;
 }
 
 .hotspotDiscussions {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgb(255 255 255 / 90%);
 }
 
 /* AI 助手 */
@@ -102,29 +102,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff;
-  border-radius: 12px;
   height: 120px; // 从100px增加到120px，让方块变长
-  padding: 16px 12px;
+  padding: 16px 12px; // 从100px增加到120px，让方块变长
   text-align: center;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%);
   transition: all 0.2s ease;
 
   &:active {
-    transform: scale(0.98);
     background-color: #f8fafc;
+    transform: scale(0.98);
   }
 }
 
 .aiIconWrapper {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 48px;
+  height: 48px;
   margin-bottom: 8px;
+  background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+  border-radius: 50%;
 }
 
 .aiAssistantIcon {
@@ -152,29 +152,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff;
-  border-radius: 12px;
   height: 120px;
   padding: 16px 12px;
   text-align: center;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%);
   transition: all 0.2s ease;
 
   &:active {
-    transform: scale(0.98);
     background-color: #f8fafc;
+    transform: scale(0.98);
   }
 }
 
 .resourceIcon {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 48px;
+  height: 48px;
   margin-bottom: 8px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 50%;
 }
 
 .resourceIconImage {
@@ -186,8 +186,8 @@
 .resourceInfo {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 2px;
+  align-items: center;
 }
 
 .resourceTitle {
@@ -205,12 +205,12 @@
 
 /* 热门帖子列表样式 */
 .hotPostsList {
-  background-color: #ffffff;
-  border-radius: 16px;
   padding: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   margin-top: -8px;
   margin-bottom: 16px;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 6%);
 }
 
 .hotPostItem {
@@ -218,24 +218,24 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
-  transition: all 0.3s ease;
+  padding-right: 8px;
+  padding-left: 8px;
+  margin: 0 -8px;
   cursor: pointer;
   border-radius: 12px;
-  margin: 0 -8px;
-  padding-left: 8px;
-  padding-right: 8px;
+  transition: all 0.3s ease;
 
   &:not(:last-child) {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    border-bottom: 1px solid rgb(0 0 0 / 4%);
   }
 
   &:active {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: rgb(0 0 0 / 2%);
     transform: scale(0.995);
   }
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.01);
+    background-color: rgb(0 0 0 / 1%);
   }
 }
 
@@ -248,15 +248,15 @@
 
 .rankWrapper {
   display: flex;
-  align-items: center;
   flex: 1;
+  align-items: center;
   overflow: hidden; // 防止内容溢出
 }
 
 .titleAndScoreWrapper {
   display: flex;
-  flex-direction: column;
   flex: 1;
+  flex-direction: column;
   overflow: hidden; // 确保长标题能被截断
 }
 
@@ -267,14 +267,14 @@
 }
 
 .pinnedBadge {
-  font-size: 11px;
-  color: #ffffff;
-  background-color: #ff6b6b;
-  padding: 1px 5px;
-  border-radius: 4px;
   flex-shrink: 0;
-  font-weight: 600;
+  padding: 1px 5px;
   margin-right: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #ff6b6b;
+  border-radius: 4px;
 }
 
 .hotBadge {
@@ -283,17 +283,17 @@
 }
 
 .rankNumber {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
   font-size: 14px;
   font-weight: 700;
-  flex-shrink: 0;
   background: transparent;
-  margin-right: 8px;
+  border-radius: 6px;
 
   &.rank1 {
     color: #ff4757;
@@ -313,40 +313,40 @@
 }
 
 .hotPostTitle {
-  font-size: 16px;
-  color: #333;
-  font-weight: 500;
   flex-shrink: 1; // 允许标题收缩
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
 }
 
 .hotPostScore {
-  font-size: 12px;
-  color: #999;
   margin-top: 4px;
   margin-left: 0; // 取消固定左边距
+  font-size: 12px;
+  color: #999;
 }
 
 /* 阅读量样式 - 优化右对齐 */
 .hotPostReadCount {
-  font-size: 24px;
-  color: #999;
-  font-weight: 700;
   flex-shrink: 0;
-  margin-left: 16px;
-  padding: 6px 12px;
   min-width: 50px;
+  padding: 6px 12px;
+  margin-left: 16px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #999;
   text-align: center;
 }
 
 /* 空状态 */
 .emptyState {
   padding: 40px 16px;
-  text-align: center;
-  color: #64748b;
   font-size: 14px;
+  color: #64748b;
+  text-align: center;
 }
 
 /* 底部间距 */
@@ -356,17 +356,17 @@
 
 /* 底部提示 */
 .bottomTip {
-  text-align: center;
   padding: 64px;
-  color: #9ca3af;
   font-size: 14px;
+  color: #9ca3af;
+  text-align: center;
   background-color: transparent;
 }
 
 .hotPostSource {
   font-size: 12px;
-  color: #3b82f6;
   font-weight: 500;
+  color: #3b82f6;
 }
 
 /* 模块网格样式 */
@@ -384,10 +384,10 @@
 
 .moduleCard {
   flex: 1;
-  background: #ffffff;
-  border-radius: 8px;
   padding: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
 
   &.placeholder {
     background: transparent;
@@ -411,13 +411,13 @@
       .moduleTitle {
         font-size: 16px;
         font-weight: bold;
-        color: #333333;
+        color: #333;
       }
 
       .moduleSubtitle {
-        font-size: 12px;
-        color: #999999;
         margin-top: 2px;
+        font-size: 12px;
+        color: #999;
       }
     }
   }
@@ -432,33 +432,33 @@
 }
 
 .moduleIcon {
+  flex-shrink: 0;
   width: 80rpx; /* 从64rpx增加到80rpx */
   height: 80rpx;
   margin-bottom: 16rpx;
   border-radius: 12rpx;
-  flex-shrink: 0;
 }
 
 .moduleTextWrapper {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* 改为左对齐 */
   gap: 8rpx;
+  align-items: flex-start; /* 改为左对齐 */
   width: 100%;
 }
 
 .moduleTitle {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1e293b;
   line-height: 1.2;
+  color: #1e293b;
   text-align: left; /* 改为左对齐 */
 }
 
 .moduleSubtitle {
   font-size: 22rpx;
-  color: #64748b;
   line-height: 1.3;
+  color: #64748b;
   text-align: left; /* 改为左对齐 */
 }
 
@@ -470,17 +470,17 @@
 }
 
 .pinnedPostItem {
-  background: #ffffff;
-  border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
-  border-left: 4px solid #8B5CF6; // 紫色左边框表示置顶
   cursor: pointer;
+  background: #fff;
+  border-left: 4px solid #8B5CF6; // 紫色左边框表示置顶
+  border-radius: 12px;border-radius
+  box-shadow: 0 2px 8px 0 rgb(0 0 0 / 8%);
   transition: all 0.2s ease;
 
   &:active {
-    transform: scale(0.98);
     background: #fafafa;
+    transform: scale(0.98);
   }
 }
 
@@ -499,34 +499,34 @@
 .pinnedLabel {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   justify-content: center;
-  background: rgba(139, 92, 246, 0.1);
-  color: #8B5CF6;
+  padding: 2px 8px;
   font-size: 12px;
   font-weight: 500;
-  padding: 2px 8px;
+  color: #8B5CF6;
+  background: rgb(139 92 246 / 10%);
   border-radius: 4px;
-  align-self: flex-start;
 }
 
 .pinnedTitle {
+  margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1e293b;
   line-height: 1.4;
-  margin: 0;
+  color: #1e293b;
 }
 
 .pinnedMeta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 }
 
 .pinnedAuthor {
   font-size: 14px;
-  color: #64748b;
   font-weight: 500;
+  color: #64748b;
 }
 
 .pinnedStats {

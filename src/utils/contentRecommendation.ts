@@ -2,8 +2,8 @@
  * 个性化内容推荐工具
  */
 
-import { RootState } from '@/store/rootReducer';
-import store from '@/store';
+import { RootState } from "@/store/rootReducer";
+import store from "@/store";
 
 /**
  * 检查是否启用个性化推荐
@@ -21,7 +21,7 @@ export const isPersonalizedRecommendationEnabled = (): boolean => {
  */
 export const getRecommendedContent = <T>(
   defaultContent: T[],
-  personalizedContent: T[]
+  personalizedContent: T[],
 ): T[] => {
   if (isPersonalizedRecommendationEnabled()) {
     return personalizedContent;
@@ -34,9 +34,9 @@ export const getRecommendedContent = <T>(
  * 只有在用户开启个性化推荐时才收集数据
  */
 export const collectUserInteraction = (
-  __actionType: 'view' | 'like' | 'share' | 'comment',
+  __actionType: "view" | "like" | "share" | "comment",
   __contentId: string,
-  __contentType: 'post' | 'user' | 'topic'
+  __contentType: "post" | "user" | "topic",
 ): void => {
   if (!isPersonalizedRecommendationEnabled()) {
     return; // 用户关闭了个性化推荐，不收集数据
@@ -47,13 +47,11 @@ export const collectUserInteraction = (
   try {
     // 模拟数据收集 - 实际使用中会发送到分析服务
     // 数据包含：actionType, contentId, contentType, timestamp, userId
-
     // 可以存储到本地或发送到服务器
     // 生产环境中应该发送到分析服务
-
     // TODO: 实际实现时可以调用后端API
     // await api.post('/analytics/user-interaction', _interactionData);
-  } catch (error) {
+  } catch {
     // 静默处理错误，不影响用户体验
   }
 };
@@ -69,5 +67,5 @@ export const getUserInterestTags = (): string[] => {
 
   // 这里应该从后端获取用户的兴趣标签
   // 现在返回模拟数据
-  return ['技术', '生活', '学习', '娱乐'];
+  return ["技术", "生活", "学习", "娱乐"];
 };

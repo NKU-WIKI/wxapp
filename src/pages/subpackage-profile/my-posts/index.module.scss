@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import "@/styles/variables";
 
 .container {
   display: flex;
@@ -13,7 +13,7 @@
 }
 
 .postsContainer {
-  padding: 20px 16px 40px 16px; /* 增加顶部内边距，因为没有标题栏了 */
+  padding: 20px 16px 40px; /* 增加顶部内边距，因为没有标题栏了 */
 }
 
 .postWrapper {
@@ -26,8 +26,8 @@
 
 .loadingContainer {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 60px 20px;
 }
 
@@ -46,17 +46,17 @@
 }
 
 .errorText {
-  font-size: 16px;
-  color: $text-secondary-gray;
   margin-bottom: 20px;
+  font-size: 16px;
   line-height: 1.5;
+  color: $text-secondary-gray;
 }
 
 .retryButton {
   padding: 12px 24px;
+  cursor: pointer;
   background: $theme-primary;
   border-radius: 8px;
-  cursor: pointer;
   
   &:active {
     background: $theme-primary-dark;
@@ -64,22 +64,22 @@
 }
 
 .retryText {
-  color: $text-white;
   font-size: 16px;
   font-weight: 500;
+  color: $text-white;
 }
 
 .actionContainer {
-  padding: 20px 16px;
   display: flex;
   justify-content: center;
+  padding: 20px 16px;
 }
 
 .createButton {
   padding: 12px 24px;
+  cursor: pointer;
   background: $theme-primary;
   border-radius: 8px;
-  cursor: pointer;
   
   &:active {
     background: $theme-primary-dark;
@@ -87,15 +87,15 @@
 }
 
 .createButtonText {
-  color: $text-white;
   font-size: 16px;
   font-weight: 500;
+  color: $text-white;
 }
 
 .loadMore {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 
@@ -106,8 +106,8 @@
 
 .noMore {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 
@@ -119,23 +119,20 @@
 // ActionSheet 样式
 .actionSheetOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  inset: 0;
   z-index: 1000;
   display: flex;
-  justify-content: center;
   align-items: flex-end;
+  justify-content: center;
+  background: rgb(0 0 0 / 30%);
 }
 
 .actionSheet {
-  background: $bg-card;
-  border-radius: 16px 16px 0 0;
   width: 100%;
   max-width: 400px;
-  padding: 20px 0 40px 0;
+  padding: 20px 0 40px;
+  background: $bg-card;
+  border-radius: 16px 16px 0 0;
   animation: slideUp 0.3s ease-out;
 }
 
@@ -143,6 +140,7 @@
   from {
     transform: translateY(100%);
   }
+
   to {
     transform: translateY(0);
   }
@@ -150,8 +148,8 @@
 
 .actionOption {
   padding: 16px 20px;
-  border-bottom: 1px solid $border-light;
   cursor: pointer;
+  border-bottom: 1px solid $border-light;
   
   &:last-child {
     border-bottom: none;
@@ -175,31 +173,28 @@
 // PinModal 样式
 .pinModalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  inset: 0;
   z-index: 1001;
   display: flex;
-  justify-content: center;
   align-items: flex-end;
+  justify-content: center;
+  background: rgb(0 0 0 / 30%);
 }
 
 .pinModal {
-  background: $bg-card;
-  border-radius: 16px 16px 0 0;
   width: 100%;
   max-width: 400px;
+  background: $bg-card;
+  border-radius: 16px 16px 0 0;
   animation: slideUp 0.3s ease-out;
 }
 
 .pinModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
   border-bottom: 1px solid $border-light;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .pinModalTitle {
@@ -213,16 +208,15 @@
 }
 
 .pinOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 16px 20px;
   margin-bottom: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.3); // 浅蓝色边框
-  border-radius: 8px; // 圆角
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s ease;
   background: $bg-card;
+  border: 1px solid rgb(59 130 246 / 30%);border-radius // 圆角
+  transition: all 0.2s ease;transition
   
   &:last-child {
     margin-bottom: 0;
@@ -233,8 +227,8 @@
   }
   
   &.pinOptionSelected {
-    background: rgba(139, 92, 246, 0.1); // 浅紫色选中效果
-    border-color: rgba(139, 92, 246, 0.5); // 选中时边框变为紫色
+    background: rgb(139 92 246 / 10%); // 浅紫色选中效果
+    border-color: rgb(139 92 246 / 50%);border-color // 选中时边框变为紫色
   }
 }
 
@@ -245,8 +239,8 @@
 
 .pinOptionCost {
   display: flex;
-  align-items: center;
   gap: 4px;
+  align-items: center;
 }
 
 .coinIcon {
@@ -267,15 +261,15 @@
 }
 
 .confirmButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   padding: 14px 20px;
+  cursor: pointer;
   background: $theme-primary;
   border-radius: 8px;
-  cursor: pointer;
   transition: all 0.2s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   
   &:active {
     background: $theme-primary-dark;
@@ -283,8 +277,8 @@
   }
   
   &.confirmButtonDisabled {
-    background: $bg-page-gray;
     cursor: not-allowed;
+    background: $bg-page-gray;
     
     &:active {
       background: $bg-page-gray;
@@ -294,9 +288,9 @@
 }
 
 .confirmButtonText {
-  color: $text-white;
   font-size: 16px;
   font-weight: 500;
+  color: $text-white;
   
   .confirmButtonDisabled & {
     color: $text-secondary-gray;

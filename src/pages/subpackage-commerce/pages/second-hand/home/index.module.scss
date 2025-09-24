@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import "@/styles/variables";
 
 .page-container {
   display: flex;
@@ -9,24 +9,24 @@
 
 .customHeader {
   // 仅为占位，实际由全局组件提供
-  padding: 40px 15px 10px;
-  background-color: #fff;
+  padding: 40px 15px 10px;padding
   font-size: 18px;
   font-weight: bold;
   text-align: center;
+  background-color: #fff;
 }
 
 .fixedHeader {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 .searchContainer {
   display: flex;
   align-items: center;
+  padding: 8px 12px;
+  margin: 16px 16px 8px;
   background-color: $bg-input;
   border-radius: 18px;
-  padding: 8px 12px;
-  margin: 16px 16px 8px 16px;
 }
 
 .searchIcon {
@@ -38,30 +38,30 @@
 
 .searchInput {
   flex: 1;
-  border: none;
-  background-color: transparent;
-  font-size: 14px;
   padding: 0;
+  font-size: 14px;
+  background-color: transparent;
+  border: none;
 }
 
 .filterTabs {
   display: flex;
-  padding: 8px 16px 16px 16px; // 与其他模块一致
-  background-color: #fff;
   gap: 8px;
+  padding: 8px 16px 16px; // 与其他模块一致
+  background-color: #fff;background-color
 
   .tab {
     padding: 6px 12px;
-    border-radius: 12px;
-    background-color: $bg-input;
-    color: $text-primary;
     font-size: 12px;
+    color: $text-primary;
+    background-color: $bg-input;
+    border-radius: 12px;
     transition: all 0.2s ease;
 
     &.active {
-      background-color: $theme-primary;
-      color: #fff;
       font-weight: 600;
+      color: #fff;
+      background-color: $theme-primary;
     }
   }
 }
@@ -74,11 +74,11 @@
 }
 
 .productCard {
-  background-color: $bg-card;
-  border-radius: 8px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  background-color: $bg-card;
+  border-radius: 8px;
 
   .imageWrapper {
     position: relative;
@@ -91,28 +91,28 @@
 
   .conditionBadge {
     position: absolute;
-    left: 6px;
     top: 6px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background-color: rgba($theme-primary, 0.92);
-    color: #fff;
+    left: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 2px 6px;
+    color: #fff;
+    background-color: rgba($theme-primary, 0.92);
+    border-radius: 4px;
   }
 
   // 状态标签 - 出闲置/收二手
   .statusBadge {
     position: absolute;
-    right: 6px;
     top: 6px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: #fff;
+    right: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 2px 6px;
+    color: #fff;
+    border-radius: 4px;
   }
 
   .badgeText {
@@ -151,28 +151,28 @@
   }
 
   .productTitle {
-    font-size: 14px;
-    color: $text-primary;
+    display: -webkit-box;
     padding: 8px;
     overflow: hidden;
-    display: -webkit-box;
     -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     line-clamp: 2;
+    font-size: 14px;
     line-height: 1.4;
+    color: $text-primary;
+    -webkit-box-orient: vertical;
   }
 
   .productFooter {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     padding: 0 8px 8px;
   }
 
   .productPrice {
     font-size: 16px;
-    color: #ff4d4f; // 价格红色，建议加入颜色规范
     font-weight: bold;
+    color: #ff4d4f; // 价格红色，建议加入颜色规范
   }
 
   .productTime {

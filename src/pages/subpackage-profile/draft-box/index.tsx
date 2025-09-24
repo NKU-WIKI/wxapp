@@ -47,7 +47,9 @@ const DraftBox = () => {
       const { removeDraft } = await import('@/utils/draft');
       removeDraft(draft.id);
       setLocalDrafts(getDrafts());
-    } catch {}
+    } catch {
+      // 静默处理草稿移除错误
+    }
     Taro.navigateTo({ url: `/pages/subpackage-interactive/publish/index?draftId=${draft.id}` });
   };
 
@@ -56,7 +58,9 @@ const DraftBox = () => {
     try {
       // 不再提前删除，避免发布页 GET 404；仅缓存以便发布页兜底使用
       Taro.setStorageSync('tmp_server_draft', draft);
-    } catch {}
+    } catch {
+      // 静默处理存储设置错误
+    }
     Taro.navigateTo({ url: `/pages/subpackage-interactive/publish/index?postId=${draft.id}&isEdit=true` });
   };
 
@@ -106,7 +110,9 @@ const DraftBox = () => {
           // 服务端
           apiClearAllDrafts()
             .then(() => dispatch(fetchDrafts()))
-            .catch(() => {});
+            .catch((error) => {
+              console.error('清理服务端草稿时出现错误:', error);
+            });
         }
       },
     });

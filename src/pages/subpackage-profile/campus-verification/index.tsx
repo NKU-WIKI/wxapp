@@ -133,8 +133,8 @@ const CampusVerification = () => {
         contact_phone: contactPhone.trim() || undefined,
         card_image: cardImage
       })).unwrap();
-    } catch (error) {
-      
+    } catch {
+      // 静默处理认证提交错误
     } finally {
       setIsSubmitting(false);
     }

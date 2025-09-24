@@ -6,17 +6,27 @@ alwaysApply: true
 
 - **目录和非组件文件**: 使用 `kebab-case` (小写短横线连接)。例如: `user-list`, `request.ts`。
 - **页面/组件**:
-    - 文件夹: `kebab-case`。例如: `src/pages/user-list`。
-    - React 组件文件: `PascalCase`。例如: `UserList.tsx`。如果目录内只有一个组件，可命名为 `index.tsx`。
+  - 文件夹: `kebab-case`。例如: `src/pages/user-list`。
+  - React 组件文件: `PascalCase`。例如: `UserList.tsx`。如果目录内只有一个组件，可命名为 `index.tsx`。
 - **变量**: `camelCase` (小驼峰)。例如: `const userName = 'Taro';`。
 - **常量**: `UPPER_SNAKE_CASE` (大写下划线连接)。例如: `const MAX_COUNT = 10;`。
 - **函数/方法**: `camelCase`。例如: `function getUserInfo() {}`。
 - **CSS 类名**: `kebab-case` 或 BEM 规范。推荐使用 CSS Modules，在 `*.module.scss` 文件中编写。
 - **推荐库**:
-    - `classnames`: 便捷地、有条件地组合 CSS 类名。
-    - `lodash`: 提供大量实用的工具函数，按需引入。
+  - `classnames`: 便捷地、有条件地组合 CSS 类名。
+  - `lodash`: 提供大量实用的工具函数，按需引入。
 
 ## ✍️ 代码风格与规范
+
+### Linter 与 Formatter
+
+项目已配置 ESLint, Stylelint 和 Prettier，以强制执行统一的代码风格和质量标准。
+
+- **ESLint**: 使用 `eslint.config.js` 进行配置，集成了 TypeScript 和 React 的最佳实践规则。
+- **Stylelint**: 使用 `stylelint.config.mjs` 进行配置，集成了 SCSS 标准和属性排序规则。
+- **Prettier**: 使用 `.prettierrc.mjs` 进行配置，负责代码的自动格式化。
+
+所有代码在提交前都应通过 `husky` 和 `lint-staged` 的自动校验。
 
 ### TypeScript
 
@@ -28,12 +38,12 @@ alwaysApply: true
 
 - **函数式组件优先**: 全面使用函数式组件和 Hooks (`useState`, `useEffect`, `useContext` 等)。
 - **Hooks**:
-    - 使用 `useMemo` 和 `useCallback` 进行性能优化，避免不必要的重渲染。
-    - 自定义 Hooks 应用于封装可复用的逻辑，应以 `use` 开头。推荐将项目通用的 Hooks 抽离至 `src/core/hooks` 中，例如封装一个 `useList` 来处理通用列表加载逻辑。
+  - 使用 `useMemo` 和 `useCallback` 进行性能优化，避免不必要的重渲染。
+  - 自定义 Hooks 应用于封装可复用的逻辑，应以 `use` 开头。推荐将项目通用的 Hooks 抽离至 `src/hooks` 中。
 - **组件封装**:
-    - 组件应保持功能单一。
-    - 超过 100 行的组件建议拆分。
-    - 避免使用匿名函数作为组件属性，如 `<View onClick={() => {}} />`。
+  - 组件应保持功能单一。
+  - 超过 100 行的组件建议拆分。
+  - 避免使用匿名函数作为组件属性，如 `<View onClick={() => {}} />`。
 
 ### 样式 (SCSS) 与颜色管理
 
@@ -43,224 +53,36 @@ alwaysApply: true
 
 #### 🎨 颜色管理规范 (强制)
 
-**严禁使用硬编码颜色值**，必须使用项目统一的颜色常量系统：
+**严禁使用硬编码颜色值**，必须使用项目统一的颜色常量系统。
 
 ##### SCSS 中使用颜色变量
 
-```scss
-// ✅ 正确写法：使用预定义变量
-@import "../../styles/variables.scss";
-
-.container {
-  background-color: $bg-card;           // 卡片背景
-  color: $text-primary;                 // 主要文字
-  border: 1px solid $border-base;       // 基础边框
-}
-
-// ❌ 错误写法：硬编码颜色
-.container {
-  background-color: #FFFFFF;
-  color: #333333;
-  border: 1px solid #E5E5E5;
-}
-```
+所有颜色值都应从 `src/styles/variables.scss` 中引入。
 
 ##### TypeScript 中使用颜色常量
 
-```typescript
-// ✅ 正确写法：导入颜色常量
-import { THEME_COLORS, TEXT_COLORS, BACKGROUND_COLORS } from '@/constants/colors';
-
-const buttonStyle = {
-  backgroundColor: THEME_COLORS.PRIMARY,
-  color: TEXT_COLORS.WHITE
-};
-
-// ❌ 错误写法：硬编码颜色
-const buttonStyle = {
-  backgroundColor: '#4F46E5',
-  color: '#FFFFFF'
-};
-```
-
-##### 核心颜色变量对照表
-
-| 用途类别 | SCSS 变量 | TypeScript 常量 | 颜色值 | 使用场景 |
-|---------|-----------|----------------|--------|----------|
-| **主题色** | `$theme-primary` | `THEME_COLORS.PRIMARY` | #4F46E5 | 主要按钮、链接、选中状态 |
-| **文字色** | `$text-primary` | `TEXT_COLORS.PRIMARY` | #333333 | 主要文字内容 |
-| | `$text-secondary` | `TEXT_COLORS.SECONDARY` | #666666 | 次要文字内容 |
-| | `$text-helper-gray` | `TEXT_COLORS.HELPER_GRAY` | #9CA3AF | 辅助文字、图标 |
-| **背景色** | `$bg-card` | `BACKGROUND_COLORS.CARD` | #FFFFFF | 卡片、模态框背景 |
-| | `$bg-page` | `BACKGROUND_COLORS.PAGE` | #F8F8F8 | 页面主背景 |
-| | `$bg-input` | `BACKGROUND_COLORS.INPUT` | #F5F5F5 | 输入框背景 |
-| **边框色** | `$border-base` | `BORDER_COLORS.BASE` | #E5E5E5 | 基础边框 |
-| | `$border-light` | `BORDER_COLORS.LIGHT` | #F0F0F0 | 分割线 |
-| **状态色** | `$status-success` | `STATUS_COLORS.SUCCESS` | #22C55E | 成功状态 |
-| | `$status-error` | `STATUS_COLORS.ERROR` | #EF4444 | 错误状态 |
-| | `$status-warning` | `STATUS_COLORS.WARNING` | #F59E0B | 警告状态 |
-
-##### 颜色常量文件结构
-
-- **定义文件**: `src/constants/colors.ts` - TypeScript 颜色常量
-- **SCSS 变量**: `src/styles/variables.scss` - SCSS 颜色变量
-- **迁移指南**: `src/constants/colorMigrationGuide.md` - 硬编码颜色替换指南
-
-##### 迁移检查清单
-
-在每个 SCSS 文件中：
-- [ ] 已添加 `@import "../../styles/variables.scss"`
-- [ ] 已替换所有硬编码的十六进制颜色值 (#XXXXXX)
-- [ ] 已替换所有硬编码的 rgba/rgb 值
-- [ ] 使用了语义化的颜色变量名称
-- [ ] 在浏览器中验证视觉效果无差异
-
-##### 批量迁移工具
-
-使用 VS Code 正则表达式批量替换：
-```regex
-查找: #4F46E5  替换: $theme-primary
-查找: #FFFFFF  替换: $bg-card
-查找: #333333  替换: $text-primary
-查找: #F8F8F8  替换: $bg-page
-```
-
-验证是否还有遗漏：
-```bash
-# 搜索十六进制颜色值
-grep -r "#[0-9A-Fa-f]{6}" src/ --include="*.scss"
-# 搜索 rgba 值
-grep -r "rgba\?\(" src/ --include="*.scss"
-```
-
-#### 新兴方案
-
-- 可关注 `UnoCSS` 或 `TailwindCSS` 等原子化 CSS 方案，它们通过提供大量原子类来快速构建界面，可能会在特定场景下提升开发效率。
+所有颜色值都应从 `src/constants/colors.ts` 中导入。
 
 ## 组件化开发
 
 - **UI组件库**: 优先使用微信小程序原生组件库（如 WeUI），其次是 `Taro UI`。
-- **按需引入**: 在 `config/index.ts` 中配置 `taro-ui` 的按需引入，或在 `app.scss` 中全局引入样式。推荐按需引入以减小包体积。
-  ```typescript
-  // app.scss
-  @import "~taro-ui/dist/style/index.scss";
-  ```
-  同时，为确保 `Taro UI` 能够被正确编译，需在 `config/index.ts` 中进行如下配置：
-  ```typescript
-  // config/index.ts
-  const config = {
-    // ...
-    weapp: {
-      esnextModules: ['taro-ui']
-    },
-    h5: {
-      esnextModules: ['taro-ui']
-    }
-  }
-  ```
 - **自定义组件**: 对于 `Taro UI` 未提供的组件，或无法满足业务需求的场景，可在 `src/components` 目录下创建自定义组件。
 - **原子组件**: 在 `src/components` 目录下，创建可复用的原子组件，如 `Button`, `Tag`, `Avatar`, `Card` 等。
 - **业务组件**: 针对特定业务场景，封装业务组件，如 `PostItem` (帖子列表项), `CommentList` (评论列表) 等。
-- **组件文档**: 建议为核心组件编写简单的使用文档或注释，说明其 `props` 和用法。
-- **样式**: 组件样式优先使用 CSS Modules (`.module.scss`)，避免全局污染。
 
 ## UI/UX 规范
 
 - **设计风格**: 简洁、卡片式布局，多采用圆角、留白和阴影。
-- **色彩规范**:
-    - 主色调: 蓝色 (#4A90E2)
-    - 辅助色: 灰色 (#9B9B9B), 红色 (#D0021B)
-    - 背景色: 浅灰 (#F5F5F5), 白色 (#FFFFFF)
-- **字体规范**:
-    - 标题: 18px, Bold
-    - 正文: 16px, Regular
-    - 辅助文字/标签: 14px, Regular
-- **组件设计**:
-    - **按钮**: 主要按钮使用主色调填充，次要按钮使用描边或灰色样式。所有按钮均带有圆角。
-    - **列表**: 列表项之间保持足够间距，增加分割线以区分。
-    - **图标**: 采用线性图标 (Line Icon)，风格统一。推荐从 [Iconify Solar](https://api.iconify.design/solar/) 下载 `SVG` 格式图标，并存储在 `src/assets/` 目录下。
+- **图标**: 采用线性图标 (Line Icon)，风格统一。推荐从 [Iconify Solar](https://api.iconify.design/solar/) 下载 `SVG` 格式图标，并存储在 `src/assets/` 目录下。
 
 ### 🚨 SVG 图标尺寸问题排查指南
 
 在开发中，可能会遇到 SVG 图标的尺寸无法通过 SCSS 的 `width` 和 `height` 属性进行有效控制的问题。当图标显示过大时，请遵循以下步骤进行排查：
 
 1.  **第一步：检查 SVG 文件源码**
-    -   打开表现异常的 `.svg` 文件。
-    -   检查其根 `<svg>` 标签是否包含 `width="..."` 和 `height="..."` 属性。
-    -   **解决方案**：如果存在这些属性，请**务必将其移除**。这些内联属性的优先级高于外部样式表，是导致问题的主要原因。
-    
-    ```diff
-    - <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-    + <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-    ```
+    - 打开表现异常的 `.svg` 文件。
+    - 检查其根 `<svg>` 标签是否包含 `width="..."` 和 `height="..."` 属性。
+    - **解决方案**：如果存在这些属性，请**务必将其移除**。这些内联属性的优先级高于外部样式表。
 
 2.  **第二步：使用内联样式强制覆盖**
-    -   如果移除 SVG 内部属性后问题依旧存在，这可能意味着有其他更复杂的样式冲突。
-    -   **最终解决方案**：为了确保样式被强制应用，可以直接在 Taro 的 `<Image>` 组件上使用**内联样式（inline style）**。这是优先级最高的样式定义方式。
-    
-    ```tsx
-    import myIcon from '@/assets/my-icon.svg';
-
-    // ...
-
-    <Image 
-      src={myIcon} 
-      className={styles.iconClass} // 外部样式类可能失效
-      style={{ width: '18px', height: '18px' }} // 使用内联样式强制定义尺寸
-    />
-    ```
-
-遵循以上两步，通常可以解决绝大部分的 SVG 图标尺寸问题，确保 UI 的一致性和可控性。
-
-## 项目特定规范
-
-### 图片资源管理
-
-- **图片资源引用 (强制)**: 为规避 Webpack `url-loader` 可能导致的图片资源损坏（渲染为色块）问题，所有静态图片资源（如 `.png`, `.jpg`）**严禁使用 `import` 方式引入**。所有图片必须通过**字符串路径**的方式在组件中引用。
-    - **✅ 正确做法 (字符串路径)**:
-      ```tsx
-      // 直接定义字符串路径
-      const myLogo = '/assets/logo.png';
-
-      // 在组件中使用
-      <Image src={myLogo} />
-      ```
-    - **❌ 错误做法 (模块导入)**:
-      ```tsx
-      // 严禁使用 import 引入图片
-      import myLogo from '@/assets/logo.png';
-
-      <Image src={myLogo} />
-      ```
-
-### 自定义导航栏适配
-
-- **CustomHeader 组件 (强制)**: 项目使用自定义导航栏，所有页面必须遵循统一的布局结构：
-    ```tsx
-    <View style={{display: 'flex', flexDirection: 'column', height: '100vh'}}>
-      {/* 1. 顶部必须是统一的自定义导航栏 */}
-      <CustomHeader />
-      {/* 2. 页面主体内容必须包裹在这个 View 和 ScrollView 中 */}
-      <View style={{ flex: 1, overflow: 'hidden' }}>
-        <ScrollView scrollY style={{ height: '100%' }}>
-          {/* 页面所有可滚动内容都放在这里 */}
-        </ScrollView>
-      </View>
-    </View>
-    ```
-    同时在 `index.config.ts` 中必须设置 `navigationStyle: 'custom'`。
-
-### 状态管理规范
-
-- **Redux Toolkit 使用**: 项目使用 RTK 进行状态管理，遵循以下模式：
-    - 每个业务模块创建独立的 `slice`
-    - 使用 `createAsyncThunk` 处理异步操作
-    - 在组件中通过 `useSelector` 和 `useDispatch` 进行状态访问和更新
-    - 关键数据通过 `redux-persist` 进行持久化存储
-
-### API 请求规范
-
-- **统一请求封装**: 所有 API 请求必须通过 `src/services/request.ts` 中的 `http` 对象
-- **参数转换**: 前端驼峰命名转换为后端蛇形命名
-- **租户支持**: 系统自动处理多租户标识，无需手动添加 `/api/v1` 前缀
-
+    - 如果移除 SVG 内部属性后问题依旧存在，可以使用 Taro `<Image>` 组件的**内联样式（inline style）**来强制定义尺寸。

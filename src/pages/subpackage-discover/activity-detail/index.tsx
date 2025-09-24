@@ -53,7 +53,7 @@ export default function ActivityDetail() {
         Taro.showToast({ title: '活动不存在', icon: 'none' });
         Taro.navigateBack();
       }
-    } catch (_error) {
+    } catch {
       Taro.showToast({ title: '加载失败', icon: 'none' });
       Taro.navigateBack();
     } finally {
@@ -140,7 +140,7 @@ export default function ActivityDetail() {
               participantId: currentUser.id,
               participantNickname
             });
-        } catch (_error) {
+        } catch {
           // 通知发送失败不影响主流程
           }
 
@@ -164,7 +164,7 @@ export default function ActivityDetail() {
           icon: 'none'
         });
       }
-    } catch (_error) {
+    } catch {
       Taro.hideLoading();
       Taro.showToast({
         title: '网络错误，请重试',
@@ -239,7 +239,7 @@ export default function ActivityDetail() {
               participantId: currentUser.id,
               participantNickname
             });
-        } catch (_error) {
+        } catch {
           // 通知发送失败不影响主流程
           }
 
@@ -263,7 +263,7 @@ export default function ActivityDetail() {
           icon: 'none'
         });
       }
-    } catch (_error) {
+    } catch {
       Taro.hideLoading();
       // 记录错误信息以便调试
       Taro.showToast({
@@ -329,7 +329,7 @@ export default function ActivityDetail() {
           <View className={styles.activityInfo}>
             {/* 时间信息 - 开始时间和结束时间在一行 */}
             <View className={styles.infoItem}>
-              <Image src={require("@/assets/date.png")} className={styles.infoDateIcon} />
+              <Image src="/assets/date.png" className={styles.infoDateIcon} />
               <View className={styles.infoContent}>
                 <View className={styles.timeRow}>
                   <Text className={styles.timeValue}>{formatDateTime(activity.start_time)}</Text>
@@ -342,7 +342,7 @@ export default function ActivityDetail() {
             {/* 截止时间 */}
             {activity.registration_deadline && (
               <View className={styles.infoItem}>
-                <Image src={require("@/assets/clock-red.png")} className={styles.infoDateIcon} />
+                <Image src="/assets/clock-red.png" className={styles.infoDateIcon} />
                 <View className={styles.infoContent}>
                   <Text className={styles.deadlineValue}>报名截止: {formatDateTime(activity.registration_deadline)}</Text>
                 </View>
@@ -352,7 +352,7 @@ export default function ActivityDetail() {
             {/* 地点或链接 */}
             {activity.activity_type !== ActivityType.Online && activity.location && (
               <View className={styles.infoItem}>
-                <Image src={require("@/assets/location-green.png")} className={styles.infoLocationIcon} />
+                <Image src="/assets/location-green.png" className={styles.infoLocationIcon} />
                 <View className={styles.infoContent}>
                   <Text className={styles.infoLocation}>{activity.location}</Text>
                 </View>
@@ -361,7 +361,7 @@ export default function ActivityDetail() {
 
             {activity.activity_type !== ActivityType.Offline && activity.online_url && (
               <View className={styles.infoItem}>
-                <Image src={require("@/assets/globe.svg")} className={styles.infoDateIcon} />
+                <Image src="/assets/globe.svg" className={styles.infoDateIcon} />
                 <View className={styles.infoContent}>
                   <Text className={styles.infoLabel}>活动链接</Text>
                   <Text className={styles.infoValue}>{activity.online_url}</Text>
@@ -371,7 +371,7 @@ export default function ActivityDetail() {
 
             {/* 参与人数 */}
             <View className={styles.infoItem}>
-              <Image src={require("@/assets/people.png")} className={styles.infoPeopleIcon} />
+              <Image src="/assets/people.png" className={styles.infoPeopleIcon} />
               <View className={styles.infoContent}>
                 <Text className={styles.participantsValue}>
                   已报名
@@ -397,7 +397,7 @@ export default function ActivityDetail() {
                 onClick={() => Taro.navigateTo({ url: `/pages/subpackage-profile/profile-detail/index?userId=${activity.organizer.id}` })}
               >
                 <Image
-                  src={activity.organizer.avatar || require("@/assets/placeholder.jpg")}
+                  src={activity.organizer.avatar || "/assets/placeholder.jpg"}
                   className={styles.organizerAvatar}
                 />
                 <View className={styles.infoContent}>
@@ -410,7 +410,7 @@ export default function ActivityDetail() {
             {/* 联系人 */}
             {activity.contact_name && (
               <View className={styles.infoItem}>
-                <Image src={require("@/assets/profile.svg")} className={styles.infoIcon} />
+                <Image src="/assets/profile.svg" className={styles.infoIcon} />
                 <View className={styles.infoContent}>
                   <Text className={styles.infoValue}>联系人: {activity.contact_name}</Text>
                 </View>
@@ -420,7 +420,7 @@ export default function ActivityDetail() {
             {/* 联系方式 */}
             {activity.contact_info && (
               <View className={styles.infoItem}>
-                <Image src={require("@/assets/message-square.svg")} className={styles.infoIcon} />
+                <Image src="/assets/message-square.svg" className={styles.infoIcon} />
                 <View className={styles.infoContent}>
                   <Text className={styles.infoValue}>联系方式: {activity.contact_info}</Text>
                 </View>
@@ -459,15 +459,15 @@ export default function ActivityDetail() {
         {/* 左侧统计信息 */}
         <View className={styles.statsContainer}>
           <View className={styles.statItem}>
-            <Image src={require("@/assets/eye.png")} className={styles.statIconEye} />
+            <Image src="/assets/eye.png" className={styles.statIconEye} />
             <Text className={styles.statText}>{activity.view_count}</Text>
           </View>
           <View className={styles.statItem}>
-            <Image src={require("@/assets/heart-outline.svg")} className={styles.statIcon} />
+            <Image src="/assets/heart-outline.svg" className={styles.statIcon} />
             <Text className={styles.statText}>{activity.favorite_count}</Text>
           </View>
           <View className={styles.statItem}>
-            <Image src={require("@/assets/share.svg")} className={styles.statIcon} />
+            <Image src="/assets/share.svg" className={styles.statIcon} />
             <Text className={styles.statText}>{activity.share_count}</Text>
           </View>
         </View>

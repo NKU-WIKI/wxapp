@@ -226,7 +226,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
       const allReplies = await fetchAllNestedRepliesRecursive(normalizedReplies, parentComment.author_nickname);
       const updatedComment = { ...parentComment, children: allReplies };
       _onUpdateComment(parentComment.id, updatedComment);
-    } catch (error) {
+    } catch {
       //静默处理
     }
   };
@@ -249,7 +249,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           }));
           const deeperReplies = await fetchAllNestedRepliesRecursive(nestedReplies, reply.author_nickname);
           allReplies.push(...deeperReplies);
-        } catch (error) {
+        } catch {
           //静默处理
         }
       }
@@ -397,7 +397,7 @@ const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuth
       if (onCancelReply) {
         onCancelReply();
       }
-    } catch (error) {
+    } catch {
       //静默处理
     } finally {
       setIsSubmitting(false);
@@ -556,7 +556,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
         Taro.showToast({ title: '删除成功', icon: 'success' });
       }
-    } catch (error) {
+    } catch {
       Taro.showToast({ title: '删除失败', icon: 'none' });
     }
   };

@@ -2,13 +2,13 @@
 // 只引入项目中实际使用的组件样式
 
 // 引入必要的变量和 mixins
-@import '../../node_modules/taro-ui/dist/style/variables/default.scss';
-@import '../../node_modules/taro-ui/dist/style/mixins/index.scss';
+@import '../../node_modules/taro-ui/dist/style/variables/default';
+@import '../../node_modules/taro-ui/dist/style/mixins/index';
 
 // 引入图标字体（必需）
 @font-face {
   font-family: iconfont;
-  src: url(data:application/x-font-woff;charset=utf-8;base64,d09GRgABAAAAACzsAAsAAAAASZgAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAADMAAABCsP6z7U9TLzIAAAE8AAAARAAAAFY/d0tZY21hcAAAAYAAAAIiAAAG8vi5tr1nbHlmAAADpAAAI/IAADeY7eoYuGhlYWQAACeYAAAALwAAADYSVnjKaGhlYQAAJ8gAAAAcAAAAJAfeA+VobXR4AAAn5AAAABEAAAGQkAAAAGxvY2EAACf4AAAAygAAAMqKgH2CbWF4cAAAKMQAAAAfAAAAIAF8AK1uYW1lAAAo5AAAAUUAAAJtPlT+fXBvc3QAACosAAACwAAABGw/XD2l) format("woff");
+  src: url("data:application/x-font-woff;charset=utf-8;base64,d09GRgABAAAAACzsAAsAAAAASZgAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAADMAAABCsP6z7U9TLzIAAAE8AAAARAAAAFY/d0tZY21hcAAAAYAAAAIiAAAG8vi5tr1nbHlmAAADpAAAI/IAADeY7eoYuGhlYWQAACeYAAAALwAAADYSVnjKaGhlYQAAJ8gAAAAcAAAAJAfeA+VobXR4AAAn5AAAABEAAAGQkAAAAGxvY2EAACf4AAAAygAAAMqKgH2CbWF4cAAAKMQAAAAfAAAAIAF8AK1uYW1lAAAo5AAAAUUAAAJtPlT+fXBvc3QAACosAAACwAAABGw/XD2l") format("woff");
 }
 
 .at-icon {
@@ -17,11 +17,11 @@
   font-style: normal;
   font-weight: 400;
   font-variant: normal;
+  line-height: 1;
+  vertical-align: middle;
   text-transform: none;
   text-rendering: auto;
-  line-height: 1;
   -webkit-font-smoothing: antialiased;
-  vertical-align: middle;
 }
 
 // 只引入 Tabs 组件样式
@@ -38,16 +38,16 @@ $at-tabs-pane-min-height: 100px;
     position: relative;
     flex: 1;
     padding: $spacing-v-lg $spacing-h-lg;
-    color: $at-tabs-color;
-    font-size: $at-tabs-font-size;
-    text-overflow: ellipsis;
     overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: $at-tabs-font-size;
+    color: $at-tabs-color;
 
     &-underline {
-      display: block;
       position: absolute;
-      left: 0;
       bottom: 0;
+      left: 0;
+      display: block;
       width: 100%;
       height: $at-tabs-line-height;
       background-color: $at-tabs-color-active;
@@ -66,13 +66,13 @@ $at-tabs-pane-min-height: 100px;
 
   &__header {
     position: relative;
+    box-sizing: border-box;
     display: flex;
     width: 100%;
+    overflow: -moz-scrollbars-none;
     text-align: center;
     white-space: nowrap;
     background-color: $at-tabs-bg-color;
-    box-sizing: border-box;
-    overflow: -moz-scrollbars-none;
 
     &::-webkit-scrollbar {
       display: none;
@@ -85,19 +85,16 @@ $at-tabs-pane-min-height: 100px;
   &__body {
     display: block;
     width: 100%;
+    overflow: visible;
     white-space: nowrap;
     transition: all 0.3s;
     will-change: transform, left, top;
-    overflow: visible;
   }
 
   &__underline {
-    display: block;
     position: absolute;
-    top: 0;
-    left: 0;
-    bottom: auto;
-    right: auto;
+    inset: 0 auto auto 0;
+    display: block;
     width: 600%;
     height: $at-tabs-line-height;
     background-color: $at-tabs-underline-color;
@@ -125,14 +122,14 @@ $at-tabs-pane-min-height: 100px;
     #{$component}__body {
       display: inline-block;
       flex: 1;
-      height: $at-tabs-pane-min-height;
       width: auto;
+      height: $at-tabs-pane-min-height;
     }
 
     #{$component}__underline {
       top: 0;
-      left: 0;
       bottom: auto;
+      left: 0;
       width: $at-tabs-line-height;
       height: 100%;
     }
@@ -144,16 +141,13 @@ $at-tabs-pane-min-height: 100px;
 
     #{$component}__item {
       display: flex;
+      align-items: center;
       justify-content: center;
       width: auto;
-      align-items: center;
 
       &-underline {
+        inset: 0 0 auto auto;
         display: block;
-        top: 0;
-        right: 0;
-        bottom: auto;
-        left: auto;
         width: $at-tabs-line-height;
         height: 100%;
         transform: scaleY(0);
@@ -169,11 +163,11 @@ $at-tabs-pane-min-height: 100px;
 }
 
 .at-tabs-pane {
+  box-sizing: border-box;
   display: inline-block;
   width: 100%;
-  box-sizing: border-box;
-  white-space: initial;
   vertical-align: top;
+  white-space: initial;
 
   /* modifiers */
   &--active {

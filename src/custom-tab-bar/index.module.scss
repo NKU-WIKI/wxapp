@@ -1,24 +1,23 @@
 .tabBar {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
-  height: 60px; // 调整高度
-  background: white;
   display: flex;
-  justify-content: space-around;
-  align-items: flex-start; // 顶部对齐
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.08);
+  align-items: flex-start;
+  justify-content: center;
+  height: 60px; // 调整高度
   padding-top: 10px;
-  padding-bottom: constant(safe-area-inset-bottom);
   padding-bottom: env(safe-area-inset-bottom);
+  background: white;
+  box-shadow: 0 -2px 5px rgb(0 0 0 / 8%);
 
   .tabBarItem {
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 1;
     text-align: center;
     cursor: pointer;
 
@@ -40,20 +39,21 @@
     .publishButton {
       position: relative;
       bottom: 25px; // 向上偏移
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background-color: #4F46E5;
+      z-index: 10;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
-      z-index: 10;
+      width: 50px;
+      height: 50px;
+      background-color: #4F46E5;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgb(79 70 229 / 40%);
 
       .publishIcon {
+        z-index: 11;
         width: 28px;
         height: 28px;
-        z-index: 11;
+
         /* 若图片为黑色可加滤镜变白色: filter: brightness(0) invert(1); */
       }
     }
@@ -63,12 +63,9 @@
 // 灰色滤镜遮罩
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
   z-index: 98;
+  background: rgb(0 0 0 / 50%);
 }
 
 // 子菜单容器
@@ -76,13 +73,13 @@
   position: fixed;
   bottom: 100px;
   left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  padding: 15px;
   z-index: 1001;
   min-width: 280px;
+  padding: 15px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
+  transform: translateX(-50%);
   animation: slideUpIn 0.3s ease-out;
 }
 
@@ -93,12 +90,12 @@
   justify-content: space-between;
   width: 100%;
   padding: 15px;
-  border-radius: 8px;
   margin-bottom: 15px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-decoration: none;
   color: #000;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
 
   &:last-child {
     margin-bottom: 0;
@@ -110,9 +107,9 @@
   }
 
   .text {
+    margin-bottom: 5px;
     font-size: 18px;
     font-weight: 600;
-    margin-bottom: 5px;
   }
 
   .desc {
@@ -121,13 +118,13 @@
   }
 
   .icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 40px;
+    height: 40px;
     font-size: 24px;
+    border-radius: 8px;
   }
 
   &.postItem {
@@ -147,19 +144,20 @@
   }
 
   &:hover {
+    box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
     transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 }
 
 // 动画效果
 @keyframes slideUpIn {
   from {
-    transform: translateX(-50%) translateY(100%);
     opacity: 0;
+    transform: translateX(-50%) translateY(100%);
   }
+
   to {
-    transform: translateX(-50%) translateY(0);
     opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 }

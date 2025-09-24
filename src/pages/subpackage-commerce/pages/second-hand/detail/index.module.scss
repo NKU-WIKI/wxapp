@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import "@/styles/variables";
 
 .pageContainer {
   display: flex;
@@ -9,41 +9,41 @@
 
 .contentContainer {
   flex: 1;
+  padding-bottom: 0; /* 移除为旧输入框留出的空间 */
   overflow: hidden;
   background-color: #f8f8f8;
-  padding-bottom: 0; /* 移除为旧输入框留出的空间 */
 }
 
 .scrollView {
   height: 100%;
   padding-bottom: 120rpx; // 为底部操作按钮留出空间
-  background-color: #f8f8f8;
+  background-color: #f8f8f8;background-color
 }
 
 // 商品图片区域
 .productImages {
   position: relative;
-  background-color: #fff;
   margin-bottom: 12px;
+  background-color: #fff;
 
   .productImage {
+    display: block;
     width: 100%;
     height: 375px; // 固定高度，确保图片显示一致
-    object-fit: cover;
-    display: block;
+    object-fit: cover;object-fit
   }
 }
 
 // 商品信息区域
 .productInfo {
-  background-color: #fff;
   padding: 16px;
+  background-color: #fff;
 
   .productHeader {
-    margin-bottom: 12px;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    margin-bottom: 12px;
 
     .productHeaderMain {
       flex: 1;
@@ -51,9 +51,9 @@
     }
 
     .productHeaderActions {
-      padding-left: 8px;
       display: flex;
       align-items: center;
+      padding-left: 8px;
     }
 
     .moreIcon {
@@ -70,30 +70,30 @@
     }
 
     .productTitle {
-      font-size: 18px;
-      font-weight: 600;
-      color: $text-primary;
-      line-height: 1.4;
       flex: 1;
       min-width: 0;
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: $text-primary;
     }
 
     // 状态标签 - 出闲置/收二手
     .statusBadge {
-      padding: 4px 8px;
-      border-radius: 6px;
-      color: #fff;
       display: flex;
+      flex-shrink: 0;
       align-items: center;
       justify-content: center;
+      padding: 4px 8px;
       margin-left: 8px;
-      flex-shrink: 0;
+      color: #fff;
+      border-radius: 6px;
     }
 
     .statusBadgeText {
       font-size: 12px;
-      line-height: 1;
       font-weight: 500;
+      line-height: 1;
     }
 
     // 状态标签颜色 - 橙色表示出，蓝色表示收
@@ -101,17 +101,17 @@
     .status_buy { background-color: rgba($status-info, 0.9); }
 
     .productPrice {
+      display: block;
       font-size: 20px;
       font-weight: 700;
       color: $status-error;
-      display: block;
     }
   }
 
   .productMeta {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 12px;
 
     .productTime {
@@ -120,10 +120,10 @@
     }
 
     .productCondition {
+      padding: 4px 8px;
       font-size: 12px;
       color: $theme-primary;
       background-color: rgba($theme-primary, 0.1);
-      padding: 4px 8px;
       border-radius: 4px;
     }
   }
@@ -163,48 +163,48 @@
 
 // 商品描述区域
 .productDescription {
-  background-color: #fff;
-  margin-top: 8px; // 与上一个组件保持一致的间隙
   padding: 16px;
+  margin-top: 8px; // 与上一个组件保持一致的间隙
+  background-color: #fff;background-color
 
   .descriptionTitle {
+    display: block;
+    margin-bottom: 8px;
     font-size: 16px;
     font-weight: 600;
     color: $text-primary;
-    margin-bottom: 8px;
-    display: block;
   }
 
   .descriptionContent {
     font-size: 14px;
-    color: $text-secondary;
     line-height: 1.6;
+    color: $text-secondary;
   }
 }
 
 // 标签区域
 .productTags {
-  background-color: #fff;
-  margin-top: 8px; // 减少与商品信息的间隙
   padding: 16px;
+  margin-top: 8px; // 减少与商品信息的间隙
+  background-color: #fff;background-color
 
   .tag {
     display: inline-block;
-    background-color: $bg-input;
-    color: $text-secondary;
-    font-size: 12px;
     padding: 4px 8px;
-    border-radius: 4px;
     margin-right: 8px;
     margin-bottom: 8px;
+    font-size: 12px;
+    color: $text-secondary;
+    background-color: $bg-input;
+    border-radius: 4px;
   }
 }
 
 // 卖家信息区域
 .sellerInfo {
-  background-color: #fff;
-  margin-top: 12px;
   padding: 16px;
+  margin-top: 12px;
+  background-color: #fff;
 
   .sellerHeader {
     display: flex;
@@ -212,59 +212,59 @@
     margin-bottom: 12px;
 
     .sellerAvatar {
-      border-radius: 50%;
       margin-right: 12px;
+      border-radius: 50%;
     }
 
     .sellerDetails {
       flex: 1;
 
       .sellerName {
+        display: block;
+        margin-bottom: 4px;
         font-size: 16px;
         font-weight: 600;
         color: $text-primary;
-        display: block;
-        margin-bottom: 4px;
       }
 
       .sellerBio {
-        font-size: 12px;
-        color: $text-helper-gray;
         display: block;
         margin-bottom: 2px;
+        font-size: 12px;
+        color: $text-helper-gray;
       }
 
       .sellerLocation {
+        display: block;
         font-size: 12px;
         color: $text-helper-gray;
-        display: block;
       }
     }
   }
 
   .sellerDescription {
     font-size: 14px;
-    color: $text-secondary;
     line-height: 1.5;
+    color: $text-secondary;
   }
 
   .sellerPlaceholder {
-    text-align: center;
-    color: $text-helper-gray;
     font-size: 14px;
+    color: $text-helper-gray;
+    text-align: center;
   }
 }
 
 // ActionBar 样式
 .actionBar {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
+  z-index: 100;
+  padding: 12px 16px;
   background-color: #fff;
   border-top: 1px solid $border-light;
-  padding: 12px 16px;
-  z-index: 100;
 }
 
 .favoriteButton {
@@ -290,8 +290,8 @@
 
 // 评论系统样式
 .commentSystem {
-  margin-top: 16px;
   padding: 0 16px;
+  margin-top: 16px;
 }
 
 .fixedBottomInput {
@@ -306,18 +306,17 @@
 
 .bottomActionBarContainer {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
-  background-color: #ffffff;
-  padding: 12px 16px;
-  padding-bottom: calc(12px + constant(safe-area-inset-bottom));
-  padding-bottom: calc(12px + env(safe-area-inset-bottom));
-  border-top: 1px solid $border-light;
   z-index: 100;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background-color: #fff;
+  border-top: 1px solid $border-light;
 
   :global(.action-button_action-button__-L5_V) {
     flex: 1;
@@ -332,25 +331,26 @@
     }
 
     &:last-child {
-      background-color: $theme-primary;
       color: #fff;
+      background-color: $theme-primary;
 
       // 使用 :global 覆盖子组件的样式
       :global(.action-button_text__3l_uS) {
-        color: #fff;
-        font-weight: 500;
         font-size: 16px;
+        font-weight: 500;
+        color: #fff;
       }
 
        :global(.action-button_icon__1-s_m) {
         // 在这里应用 filter
-        filter: brightness(0) invert(1);
+        filter: brightness(0) invert(1);filterfilter
       }
     }
 
     &:active {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: rgb(0 0 0 / 5%);
     }
+
      &:last-child:active {
       background-color: darken($theme-primary, 5%);
     }

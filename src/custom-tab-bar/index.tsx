@@ -2,7 +2,8 @@ import { View, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { FC, useEffect, useState, useCallback, useMemo } from "react";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
-import plusIcon from "@/assets/plus.svg"; // 使用新的白色+号SVG图标
+// 使用字符串路径导入图标
+const plusIcon = "/assets/plus.svg"; // 使用新的白色+号SVG图标
 import { useTabBarSync, TAB_BAR_PAGES } from "../utils/tabBarSync";
 import { pageRefreshManager } from "../utils/pageRefreshManager";
 import styles from "./index.module.scss";
@@ -79,7 +80,7 @@ const CustomTabBar: FC = () => {
       Taro.navigateTo({ url: '/pages/subpackage-interactive/publish/index' });
     } else if (type === 'note') {
       // 发布笔记功能
-      Taro.navigateTo({ url: '/pages/subpackage-interactive/note-publish/note_publish/index' });
+      Taro.navigateTo({ url: '/pages/subpackage-interactive/note-publish/note-publish/index' });
     }
   };
 

@@ -142,7 +142,7 @@ export const fetchFavorites = createAsyncThunk<
           // 对于其他类型，暂时保留但没有详细内容
           favoriteItems.push(favoriteItem);
         }
-      } catch (error: any) {
+      } catch {
         // 静默处理其他意外错误
         filteredCount++;
       }
@@ -153,7 +153,7 @@ export const fetchFavorites = createAsyncThunk<
     
     // 如果有被过滤的项目，输出提示信息
     if (filteredCount > 0) {
-      
+      console.info(`已过滤 ${filteredCount} 个不可访问的收藏项`);
     }
     
     return {

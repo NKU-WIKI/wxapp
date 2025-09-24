@@ -158,7 +158,7 @@ export default function PublishActivity() {
         // 重新启用自动跳转，发布成功后返回上一页
         setTimeout(() => { Taro.navigateBack(); }, 1000);
       }
-    } catch (e) {
+    } catch {
       // 错误已由拦截器处理
     } finally {
       setSubmitting(false);

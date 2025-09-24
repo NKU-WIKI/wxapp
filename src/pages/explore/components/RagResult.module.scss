@@ -1,29 +1,30 @@
 @use "../../../styles/variables.scss" as *;
 
 .ragContainer {
-  padding: 0px 16px 16px 16px; // 移除上边距
   display: flex;
   flex-direction: column;
-  gap: 0px; // 移除AI回答和来源框之间的间隙
+  gap: 0; // 移除AI回答和来源框之间的间隙
+  padding: 0 16px 16px; // 移除AI回答和来源框之间的间隙，移除上边距
 }
 
 // Markdown 样式
 .responseText {
+  font-size: 13px; // 减小默认字体大小
   line-height: 1.6;
   color: $text-primary;
-  font-size: 13px; // 减小默认字体大小
 }
 
 .markdown-content {
-  line-height: 1.6;
-  margin-top: 0px; // 移除与header的间距
+  // 移除与header的间距
+  margin-top: 0;
   font-size: 13px; // 减小整体字体大小
+  line-height: 1.6;
 }
 
 .markdown-p {
-  margin: 0 0 8px 0; // 移除上边距，只保留下边距
-  line-height: 1.6;
+  margin: 0 0 8px;
   font-size: 13px; // 减小段落字体大小
+  line-height: 1.6;
 }
 
 .markdown-h1,
@@ -32,7 +33,7 @@
 .markdown-h4,
 .markdown-h5,
 .markdown-h6 {
-  margin: 12px 0 6px 0; // 减少标题的上下边距
+  margin: 12px 0 6px; // 减少标题的上下边距
   font-weight: 600;
   color: $text-primary;
 }
@@ -46,20 +47,19 @@
 
 .markdown-list-item {
   display: block;
-  margin: 2px 0; // 紧凑的上下间距
-  line-height: 1.4; // 适当的行高
-  font-size: 13px; // 与整体字体大小一致
+  margin: 2px 0;
+  line-height: 1.5; // 适当的行高
   color: $text-primary;
 }
 
 .markdown-blockquote {
-  margin: 12px 0;
   padding: 8px 12px;
-  background-color: rgba(0, 0, 0, 0.04);
-  border-left: 4px solid $theme-primary;
-  border-radius: 0 4px 4px 0;
+  margin: 12px 0;
   font-style: italic;
   color: $text-secondary;
+  background-color: rgb(0 0 0 / 4%);
+  border-left: 4px solid $theme-primary;
+  border-radius: 0 4px 4px 0;
 }
 
 .markdown-a {
@@ -68,103 +68,101 @@
 }
 
 .markdown-code {
-  background-color: rgba(0, 0, 0, 0.08);
   padding: 2px 4px;
-  border-radius: 3px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-size: 12px; // 从14px减小到12px
-  color: #e74c3c;
+  color: #e74c3c; // 从14px减小到12px
+  background-color: rgb(0 0 0 / 8%);
+  border-radius: 3px;
 }
 
 .code-block {
-  background-color: rgba(0, 0, 0, 0.08);
   padding: 12px;
-  border-radius: 6px;
   margin: 8px 0;
   overflow-x: auto;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-size: 12px; // 从14px减小到12px
-  line-height: 1.4;
+  line-height: 1.4; // 从14px减小到12px
+  background-color: rgb(0 0 0 / 8%);
+  border-radius: 6px;
 }
 
 .markdown-table {
   width: 100%;
-  border-collapse: collapse;
   margin: 12px 0;
+  border-collapse: collapse;
 }
 
 .markdown-th,
 .markdown-td {
-  border: 1px solid rgba(0, 0, 0, 0.1);
   padding: 8px 12px;
   text-align: left;
+  border: 1px solid rgb(0 0 0 / 10%);
 }
 
 .markdown-th {
-  background-color: rgba(0, 0, 0, 0.04);
   font-weight: 600;
+  background-color: rgb(0 0 0 / 4%);
 }
 
 .markdown-hr {
-  border: none;
-  height: 1px;
-  background-color: rgba(0, 0, 0, 0.12);
-  margin: 16px 0;
   width: 100%;
+  height: 1px;
+  margin: 16px 0;
+  background-color: rgb(0 0 0 / 12%);
+  border: none;
 }
 
 .card {
-  background: #ffffff;
-  border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: #fff;
+  border: 1px solid rgb(255 255 255 / 80%);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 8%);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
 .card:hover {
+  box-shadow: 0 8px 30px rgb(0 0 0 / 12%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 .header {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
   margin-bottom: 2px; // 最小化与正文的间距
-  padding-bottom: 2px; // 最小化底部内边距
-  border-bottom: 2px solid linear-gradient(90deg, $theme-primary, rgba(79, 70, 229, 0.3));
+  border-bottom: 2px solid $theme-primary;
 }
 
 .avatar {
   width: 36px;
   height: 36px;
+  border: 3px solid rgb(79 70 229 / 20%);
   border-radius: 50%;
-  border: 3px solid rgba(79, 70, 229, 0.2);
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 2px 8px rgb(79 70 229 / 15%);
 }
 
 .title {
-  font-weight: 700;
   font-size: 16px;
+  font-weight: 700;
   color: $theme-primary;
-  background: linear-gradient(135deg, $theme-primary, rgba(79, 70, 229, 0.8));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, $theme-primary, rgb(79 70 229 / 80%));
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .responseText {
-  color: $text-primary;
+  position: relative;
+  margin-bottom: 16px;
   font-size: 15px;
   line-height: 1.7;
-  white-space: pre-wrap;
+  color: $text-primary;
+  text-align: justify;
   word-break: break-word;
   overflow-wrap: anywhere;
-  margin-bottom: 16px;
-  text-align: justify;
-  position: relative;
+  white-space: pre-wrap;
 }
 
 .contentWrapper {
@@ -172,65 +170,65 @@
 }
 
 .collapsed {
-  max-height: var(--max-height, 120px); // 使用CSS变量，默认120px
-  overflow: hidden;
   position: relative;
+  max-height: var(--max-height, 120px); // 使用CSS变量，默认120px
+  overflow: hidden; // 使用CSS变量，默认120px
 
   &::after {
-    content: '';
     position: absolute;
+    right: 0;
     bottom: 0;
     left: 0;
-    right: 0;
     height: 60px; // 增加遮罩高度适应更大的内容
-    background: linear-gradient(180deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.6) 40%,
-      rgba(255, 255, 255, 0.9) 100%);
     pointer-events: none;
+    content: '';
+    background: linear-gradient(180deg,
+      rgb(255 255 255 / 0%) 0%,
+      rgb(255 255 255 / 60%) 40%,
+      rgb(255 255 255 / 90%) 100%);
     border-radius: 0 0 16px 16px;
   }
 }
 
 .expandButton {
   padding: 6px 14px;
-  background: linear-gradient(135deg,
-    rgba(79, 70, 229, 0.1) 0%,
-    rgba(79, 70, 229, 0.05) 50%,
-    rgba(79, 70, 229, 0.08) 100%);
-  border: 1px solid rgba(79, 70, 229, 0.2);
-  border-radius: 18px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+  background: linear-gradient(135deg,
+    rgb(79 70 229 / 10%) 0%,
+    rgb(79 70 229 / 5%) 50%,
+    rgb(79 70 229 / 8%) 100%);
+  border: 1px solid rgb(79 70 229 / 20%);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgb(79 70 229 / 10%);
   backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:active {
-    transform: scale(0.96) translateY(1px);
     background: linear-gradient(135deg,
-      rgba(79, 70, 229, 0.15) 0%,
-      rgba(79, 70, 229, 0.08) 50%,
-      rgba(79, 70, 229, 0.12) 100%);
-    border-color: rgba(79, 70, 229, 0.3);
-    box-shadow: 0 1px 4px rgba(79, 70, 229, 0.15);
+      rgb(79 70 229 / 15%) 0%,
+      rgb(79 70 229 / 8%) 50%,
+      rgb(79 70 229 / 12%) 100%);
+    border-color: rgb(79 70 229 / 30%);
+    box-shadow: 0 1px 4px rgb(79 70 229 / 15%);
+    transform: scale(0.96) translateY(1px);
   }
 }
 
 .expandButtonContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 16px;
   position: relative;
   z-index: 2; // 确保在渐变遮罩之上
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
 }
 
 .expandText {
-  color: $theme-primary;
   font-size: 12px;
   font-weight: 600;
+  color: $theme-primary;
   letter-spacing: 0.3px;
-  text-shadow: 0 1px 2px rgba(79, 70, 229, 0.1);
+  text-shadow: 0 1px 2px rgb(79 70 229 / 10%);
 }
 
 .sourcesSection {
@@ -238,104 +236,104 @@
 }
 
 .sourcesHeader {
-  font-weight: 700;
-  font-size: 16px;
-  color: $theme-primary;
-  margin-bottom: 16px;
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: $theme-primary;
 }
 
 .sourcesCount {
-  background: linear-gradient(135deg, $theme-primary, rgba(79, 70, 229, 0.8));
-  color: white;
-  font-size: 12px;
   padding: 4px 8px;
-  border-radius: 12px;
+  font-size: 12px;
   font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, $theme-primary, rgb(79 70 229 / 80%));
+  border-radius: 12px;
 }
 
 .sourceItem {
+  position: relative;
   display: flex;
   gap: 12px;
   align-items: flex-start;
   padding: 16px;
   margin-bottom: 12px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(248, 250, 252, 0.6), rgba(241, 245, 249, 0.6));
-  border: 1px solid rgba(79, 70, 229, 0.1);
-  transition: all 0.3s ease;
-  position: relative;
   overflow: hidden;
+  background: linear-gradient(135deg, rgb(248 250 252 / 60%), rgb(241 245 249 / 60%));
+  border: 1px solid rgb(79 70 229 / 10%);
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
 .sourceItem::before {
-  content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 4px;
   height: 100%;
-  background: linear-gradient(180deg, $theme-primary, rgba(79, 70, 229, 0.3));
+  content: '';
+  background: linear-gradient(180deg, $theme-primary, rgb(79 70 229 / 30%));
 }
 
 .sourceItem:hover {
+  border-color: rgb(79 70 229 / 20%);
+  box-shadow: 0 4px 15px rgb(79 70 229 / 15%);
   transform: translateX(4px);
-  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.15);
-  border-color: rgba(79, 70, 229, 0.2);
 }
 
 .platformIcon {
+  flex-shrink: 0;
   width: 20px;
   height: 20px;
-  margin-top: 4px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: white;
   padding: 2px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
 }
 
 .sourceContent {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
 }
 
 .sourceTitle {
   font-size: 15px;
   font-weight: 600;
-  color: $text-primary;
   line-height: 1.4;
+  color: $text-primary;
 }
 
 .sourceContentText {
-  font-size: 14px;
-  color: $text-secondary;
-  line-height: 1.5;
-  margin-bottom: 8px;
   display: -webkit-box;
+  margin-bottom: 8px;
+  overflow: hidden;
   -webkit-line-clamp: 3;
   line-clamp: 3;
+  font-size: 14px;
+  line-height: 1.5;
+  color: $text-secondary;
   -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .sourceMeta {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
+  align-items: center;
   font-size: 12px;
   color: $text-helper-gray;
-  flex-wrap: wrap;
 }
 
 .metaItem {
   display: flex;
-  align-items: center;
   gap: 4px;
+  align-items: center;
 }
 
 .metaIcon {
@@ -345,12 +343,12 @@
 }
 
 .sourceUrl {
-  color: $theme-primary;
-  font-size: 12px;
-  word-break: break-all;
-  margin-top: 4px;
   padding: 8px;
-  background: rgba(79, 70, 229, 0.05);
-  border-radius: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: $theme-primary;
+  word-break: break-all;
+  background: rgb(79 70 229 / 5%);
   border-left: 3px solid $theme-primary;
+  border-radius: 6px;
 }

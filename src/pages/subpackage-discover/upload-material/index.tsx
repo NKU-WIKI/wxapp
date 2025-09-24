@@ -27,7 +27,7 @@ export default function UploadMaterial() {
       if (isUploading) {
         try {
           Taro.hideLoading();
-        } catch (e) {
+        } catch {
           // 忽略错误
         }
       }
@@ -312,7 +312,7 @@ export default function UploadMaterial() {
             title: '收款码上传成功',
             icon: 'success'
           });
-        } catch (error) {
+        } catch {
           Taro.showToast({
             title: error?.message || '收款码上传失败',
             icon: 'none'
@@ -509,7 +509,7 @@ export default function UploadMaterial() {
       // 确保隐藏加载状态
       try {
         Taro.hideLoading();
-      } catch (e) {
+      } catch {
         // 忽略 hideLoading 的错误
       }
       
@@ -547,7 +547,7 @@ export default function UploadMaterial() {
       // 最终确保 loading 状态被清理
       try {
         Taro.hideLoading();
-      } catch (e) {
+      } catch {
         // 忽略错误
       }
     }
@@ -558,7 +558,7 @@ export default function UploadMaterial() {
       {/* 顶部导航栏 */}
       <View className={styles.navbar}>
         <View className={styles.backButton} onClick={handleBack}>
-          <Image src={require("@/assets/arrow-left.svg")} className={styles.backIcon} />
+          <Image src={"/assets/arrow-left.svg"} className={styles.backIcon} />
         </View>
         <Text className={styles.pageTitle}>上传资料</Text>
       </View>

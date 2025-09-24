@@ -26,7 +26,7 @@ export default function AccountInfo() {
         if (response?.data) {
           setProfile(response.data);
         }
-      } catch (error) {
+      } catch {
         Taro.showToast({
           title: '获取资料失败',
           icon: 'none'
@@ -80,7 +80,7 @@ export default function AccountInfo() {
         title: '修改成功',
         icon: 'success'
       });
-    } catch (error) {
+    } catch {
       Taro.showToast({
         title: '修改失败',
         icon: 'none'

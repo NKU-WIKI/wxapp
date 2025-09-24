@@ -7,23 +7,23 @@
 }
 
 .sectionTitle {
+  padding: 0 16px;
   font-size: 16px;
   font-weight: 600;
   color: $text-primary-dark;
-  padding: 0 16px;
 }
 
 .settingsList {
+  overflow: hidden;
   background-color: $bg-card;
   border-radius: 8px;
   box-shadow: 0 1px 2px 0 $shadow-light;
-  overflow: hidden;
 }
 
 .settingsItem {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 16px;
 
   // Use adjacent sibling selector to add a border to all but the first item
@@ -38,8 +38,8 @@
 
 .itemLeft, .itemRight {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
 }
 
 .itemIcon {

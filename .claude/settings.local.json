@@ -20,7 +20,19 @@
       "Bash(export:*)",
       "Bash(npm install)",
       "Bash(npm run lint:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(timeout 120s npm run lint:fix)",
+      "Bash(awk:*)",
+      "Read(//g/**)",
+      "Bash(xargs sed:*)",
+      "Read(//g//**)",
+      "Bash(npm run stylelint:fix:*)",
+      "Bash(npm run analyze:weapp:*)",
+      "Bash(git stash:*)",
+      "Bash(npm run stylelint:*)",
+      "Bash(npx stylelint:*)",
+      "Bash(find:*)",
+      "Bash(git rebase:*)"
     ],
     "deny": [],
     "ask": []

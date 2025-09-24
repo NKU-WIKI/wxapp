@@ -79,7 +79,7 @@ const RatingPublishPage = () => {
           } else {
             throw new Error('上传结果格式错误: ' + JSON.stringify(uploadResult))
           }
-        } catch (error) {
+        } catch {
           
           Taro.showToast({ title: '上传失败，请重试', icon: 'none' })
         } finally {
@@ -169,7 +169,7 @@ const RatingPublishPage = () => {
       } else {
         throw new Error('发布失败')
       }
-    } catch (error) {
+    } catch {
       
       Taro.showToast({ title: '发布失败', icon: 'none' })
     }

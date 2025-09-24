@@ -196,7 +196,7 @@ export default function ActivitySquare() {
           top: 0,
           animated: true
         });
-      } catch (error) {
+      } catch {
         // 兼容处理，如果scrollTo不可用，则忽略错误
       }
     }
@@ -330,7 +330,7 @@ export default function ActivitySquare() {
       setSelectedActivity(act);
       setIsModalOpen(true);
 
-    } catch (error) {
+    } catch {
       Taro.hideLoading();
       Taro.showToast({
         title: '网络错误，请重试',
@@ -393,7 +393,7 @@ export default function ActivitySquare() {
           icon: 'none'
         });
       }
-    } catch (error) {
+    } catch {
       Taro.hideLoading();
       Taro.showToast({
         title: '网络错误，请重试',
@@ -460,7 +460,7 @@ export default function ActivitySquare() {
           icon: 'none'
         });
       }
-    } catch (error) {
+    } catch {
       Taro.hideLoading();
       Taro.showToast({
         title: '网络错误，请重试',
@@ -676,7 +676,7 @@ export default function ActivitySquare() {
                     </View>
                     <View className={styles.activityDetails}>
                       <View className={styles.activityDetailItem}>
-                        <Image src={require("@/assets/clock.svg")} className={styles.detailIcon} />
+                        <Image src={"/assets/clock.svg"} className={styles.detailIcon} />
                         <Text className={styles.activityDetail}>
                           {act.start_time ? new Date(act.start_time).toLocaleString() : '待定'}
                         </Text>
@@ -686,19 +686,19 @@ export default function ActivitySquare() {
                         {act.activity_type === ActivityType.Online ? (
                           // 线上活动显示链接
                           <>
-                            <Image src={require("@/assets/globe.svg")} className={styles.detailIcon} />
+                            <Image src={"/assets/globe.svg"} className={styles.detailIcon} />
                             <Text className={styles.activityDetail}>{act.online_url || '线上活动'}</Text>
                           </>
                         ) : act.activity_type === ActivityType.Offline ? (
                           // 线下活动显示地点
                           <>
-                            <Image src={require("@/assets/map-pin.svg")} className={styles.detailIcon} />
+                            <Image src={"/assets/map-pin.svg"} className={styles.detailIcon} />
                             <Text className={styles.activityDetail}>{act.location || '待定'}</Text>
                           </>
                         ) : (
                           // 混合活动显示地点
                           <>
-                            <Image src={require("@/assets/map-pin.svg")} className={styles.detailIcon} />
+                            <Image src={"/assets/map-pin.svg"} className={styles.detailIcon} />
                             <Text className={styles.activityDetail}>{act.location || '待定'}</Text>
                           </>
                         )}
@@ -706,7 +706,7 @@ export default function ActivitySquare() {
                       {/* 混合活动额外显示线上链接 */}
                       {act.activity_type === ActivityType.Hybrid && act.online_url && (
                         <View className={styles.activityDetailItem}>
-                          <Image src={require("@/assets/globe.svg")} className={styles.detailIcon} />
+                          <Image src={"/assets/globe.svg"} className={styles.detailIcon} />
                           <Text className={styles.activityDetail}>{act.online_url}</Text>
                         </View>
                       )}
@@ -726,7 +726,7 @@ export default function ActivitySquare() {
                           onClick={(e) => toggleExpanded(act.id || '', e)}
                         >
                           <Image
-                            src={require("@/assets/chevron-down.svg")}
+                            src={"/assets/chevron-down.svg"}
                             className={`${styles.expandIcon} ${isExpanded ? styles.expanded : ''}`}
                           />
                         </View>
@@ -771,7 +771,7 @@ export default function ActivitySquare() {
             })
           ) : (
             <View className={styles.emptyState}>
-              <Image src={require("@/assets/empty.svg")} className={styles.emptyIcon} />
+              <Image src={"/assets/empty.svg"} className={styles.emptyIcon} />
               <Text className={styles.emptyText}>暂无活动</Text>
               <Text className={styles.emptySubText}>快来发布第一个活动吧</Text>
             </View>

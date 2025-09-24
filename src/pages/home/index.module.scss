@@ -6,27 +6,27 @@
 }
 
 .fixedContainer {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 
 .categoriesContainer {
-  background-color: #ffffff;
-  padding: 12px 0;
-  margin: 0 16px 8px 16px; // 减少顶部margin，让categories更靠近search
   display: flex;
-  justify-content: center; // 添加居中对齐
+  justify-content: center;
+  padding: 16px;
+  margin: 0 16px 8px; // 减少顶部margin，让categories更靠近search
+  background-color: #fff; // 减少顶部margin，让categories更靠近search
 }
 
 .categoryItem {
   display: inline-flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
-  flex: 1;
-  margin-right: 8px; // 减少右边距，从16rpx改为8px
-  cursor: pointer;
-  user-select: none;
   padding: 8px 4px;
+  margin-right: 8px; // 减少右边距，从16rpx改为8px
+  cursor: pointer; // 减少右边距，从16rpx改为8px
+  user-select: none;
   border-radius: 8px;
   transition: all 0.3s ease;
 
@@ -42,21 +42,21 @@
 
   // 选中状态的方框效果
   &.selected {
-    background-color: rgba(79, 70, 229, 0.1);
+    background-color: rgb(79 70 229 / 10%);
     border: 2px solid #4f46e5;
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 2px 8px rgb(79 70 229 / 20%);
   }
 }
 
 .categoryIconContainer {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
   margin-bottom: 4px; // 移除左右margin，只保留底部margin
+  background-color: #FFF; // 移除左右margin，只保留底部margin
+  border-radius: 50%;
 }
 
 .categoryIcon {
@@ -79,8 +79,8 @@
 }
 
 .categoryNameSelected {
-  color: #4f46e5;
   font-weight: 600;
+  color: #4f46e5;
 }
 
 .postScrollContainer {
@@ -99,9 +99,9 @@
 }
 
 .postList {
-  padding: 0 18px 32px 14px; // 增加底部padding，确保触底检测准确
   display: flex;
   flex-direction: column;
+  padding: 0 18px 32px 14px; // 增加底部padding，确保触底检测准确
 }
 
 .postListItem {
@@ -111,11 +111,11 @@
 }
 
 .noMoreTip {
-  text-align: center;
   padding: 16px 0; // 减少padding
+  margin: 12px 0; // 增加底部margin
+  font-size: 14px; // 增加底部margin
   color: #999;
-  font-size: 14px;
-  margin: 8px 0 48px 0; // 增加底部margin
+  text-align: center;
   background-color: #f9f9f9;
   border-radius: 8px;
 
@@ -124,25 +124,26 @@
     display: none;
   }
 }
+
 .fab {
   position: fixed;
   right: 16px;
   bottom: 80px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: #6d28d9;
-  color: white;
+  z-index: 50;
   display: flex;
   justify-content: center;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  z-index: 50;
+  width: 56px;
+  height: 56px;
+  color: white;
+  background-color: #6d28d9;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -2px rgb(0 0 0 / 10%);
 }
 
 .fabIcon {
   font-size: 32px;
-  line-height: 100rpx;
   font-weight: 300;
+  line-height: 100rpx;
 }
 
 /* 底部占位元素，防止内容被tab bar遮挡 */

@@ -140,7 +140,9 @@ export default function ExplorePage() {
         setIsSearchActive(true);
         Taro.removeStorageSync('explore_focus');
       }
-    } catch { }
+    } catch {
+      // 静默处理存储访问错误
+    }
   });
 
   // SearchBar的focus处理
@@ -317,7 +319,7 @@ export default function ExplorePage() {
           Taro.showToast({ title: '搜索失败', icon: 'none' });
           setErrorMsg('搜索失败');
         }
-      } catch (e) {
+      } catch {
         Taro.showToast({ title: '搜索失败', icon: 'none' });
         setErrorMsg('搜索失败');
       } finally {

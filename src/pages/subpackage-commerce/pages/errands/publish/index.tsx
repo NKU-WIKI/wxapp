@@ -85,7 +85,7 @@ const ErrandsPublishPage = () => {
           }
         })
       }, 300)
-    } catch (catchError) {
+    } catch {
       // 
       // 错误已经在slice中处理了，这里不需要额外处理
     }

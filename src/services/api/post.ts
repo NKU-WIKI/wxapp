@@ -3,10 +3,12 @@ import {
   Post,
   GetForumPostsParams,
   CreateForumPostRequest,
-  GetFeedParams, GetHotPostsParams, PostHotRanking,
+  GetHotPostsParams,
+  PostHotRanking,
 } from "@/types/api/post.d";
 import { API } from "@/types/api/recommend";
 import http from "../request";
+import store from "@/store";
 
 /**
  * 获取论坛帖子列表
@@ -22,7 +24,7 @@ export const getForumPosts = (params: GetForumPostsParams) => {
  * @param params 包含分页参数
  * @returns
  */
-export const getPosts = (params: any) => {
+export const getPosts = (params: GetForumPostsParams) => {
   return http.get<Post[]>("/forums/posts", params);
 };
 
@@ -39,103 +41,120 @@ export const getPostById = (postId: string) => {
  * 完全绕过Taro拦截器，避免404错误在控制台显示
  */
 export const getPostByIdSilent = (postId: string) => {
-  return new Promise<{ code: number; data?: Post; message?: string }>((resolve) => {
-    // 使用微信小程序原生API，完全绕过Taro拦截器
-    if (typeof wx !== 'undefined') {
-      const BASE_URL = process.env.BASE_URL;
-      const getToken = () => Taro.getStorageSync("token") || null;
+  return new Promise<{ code: number; data?: Post; message?: string }>(
+    (resolve) => {
+      // 使用微信小程序原生API，完全绕过Taro拦截器
+      if (typeof wx !== "undefined") {
+        const BASE_URL = process.env.BASE_URL;
+        const getToken = () => Taro.getStorageSync("token") || null;
 
-      // 获取默认租户ID的函数
-      const getDefaultTenantId = () => {
-        try {
-          const store = require("@/store").default;
-          const state = store.getState();
-          const aboutInfo = state.user.aboutInfo;
+        // 获取默认租户ID的函数
+        const getDefaultTenantId = () => {
+          try {
+            const state = store.getState();
+            const aboutInfo = state.user.aboutInfo;
 
-          if (aboutInfo?.tenants) {
-            const tenantId = aboutInfo.tenants["南开大学"];
-            if (tenantId) return tenantId;
+            if (aboutInfo?.tenants) {
+              const tenantId = aboutInfo.tenants["南开大学"];
+              if (tenantId) return tenantId;
+            }
+
+            const cachedAboutInfo = Taro.getStorageSync("aboutInfo");
+            if (cachedAboutInfo?.tenants) {
+              const tenantId = cachedAboutInfo.tenants["南开大学"];
+              if (tenantId) return tenantId;
+            }
+
+            return "f6303899-a51a-460a-9cd8-fe35609151eb"; // 默认南开大学租户ID
+          } catch {
+            return "f6303899-a51a-460a-9cd8-fe35609151eb";
           }
+        };
 
-          const cachedAboutInfo = Taro.getStorageSync("aboutInfo");
-          if (cachedAboutInfo?.tenants) {
-            const tenantId = cachedAboutInfo.tenants["南开大学"];
-            if (tenantId) return tenantId;
-          }
+        const token = getToken();
+        const headers: Record<string, string> = {
+          "content-type": "application/json",
+          "X-Branch": "dev",
+        };
 
-          return "f6303899-a51a-460a-9cd8-fe35609151eb"; // 默认南开大学租户ID
-        } catch (error) {
-          return "f6303899-a51a-460a-9cd8-fe35609151eb";
+        if (!token) {
+          headers["x-tenant-id"] = getDefaultTenantId();
+        } else {
+          headers["Authorization"] = `Bearer ${token}`;
         }
-      };
 
-      const token = getToken();
-      const headers: Record<string, string> = {
-        'content-type': 'application/json',
-        'X-Branch': 'dev'
-      };
+        const finalUrl = `${BASE_URL}/api/v1/forums/posts/${postId}`;
 
-      if (!token) {
-        headers['x-tenant-id'] = getDefaultTenantId();
+        // 使用微信小程序原生request API，完全绕过拦截器
+        wx.request({
+          url: finalUrl,
+          method: "GET",
+          header: headers,
+          success: (res: WechatMiniprogram.RequestSuccessCallbackResult) => {
+            if (res.statusCode === 200) {
+              const responseData = res.data as {
+                code: number;
+                msg?: string;
+                message?: string;
+                data?: Post;
+              };
+              if (responseData.code === 0) {
+                resolve({ code: 0, data: responseData.data });
+              } else {
+                resolve({
+                  code: responseData.code,
+                  message: responseData.msg || responseData.message,
+                });
+              }
+            } else if (res.statusCode === 404) {
+              // 静默处理404，不输出任何错误信息
+              resolve({ code: 404, message: "Post not found" });
+            } else {
+              // 其他HTTP错误也静默处理
+              resolve({ code: res.statusCode, message: "Request failed" });
+            }
+          },
+          fail: () => {
+            // 静默处理网络错误
+            resolve({ code: 500, message: "Network error" });
+          },
+        });
       } else {
-        headers['Authorization'] = `Bearer ${token}`;
+        // 如果不在微信小程序环境中，降级使用Taro请求（开发环境）
+        const finalUrl = `/forums/posts/${postId}`;
+
+        Taro.request({
+          url: `${process.env.BASE_URL}/api/v1${finalUrl}`,
+          method: "GET",
+          success: (res) => {
+            if (res.statusCode === 200) {
+              const responseData = res.data as {
+                code: number;
+                msg?: string;
+                message?: string;
+                data?: Post;
+              };
+              if (responseData.code === 0) {
+                resolve({ code: 0, data: responseData.data });
+              } else {
+                resolve({
+                  code: responseData.code,
+                  message: responseData.msg || responseData.message,
+                });
+              }
+            } else if (res.statusCode === 404) {
+              resolve({ code: 404, message: "Post not found" });
+            } else {
+              resolve({ code: res.statusCode, message: "Request failed" });
+            }
+          },
+          fail: () => {
+            resolve({ code: 500, message: "Network error" });
+          },
+        });
       }
-
-      const finalUrl = `${BASE_URL}/api/v1/forums/posts/${postId}`;
-
-      // 使用微信小程序原生request API，完全绕过拦截器
-      wx.request({
-        url: finalUrl,
-        method: 'GET',
-        header: headers,
-        success: (res: any) => {
-          if (res.statusCode === 200) {
-            const responseData = res.data;
-            if (responseData.code === 0) {
-              resolve(responseData);
-            } else {
-              resolve({ code: responseData.code, message: responseData.msg || responseData.message });
-            }
-          } else if (res.statusCode === 404) {
-            // 静默处理404，不输出任何错误信息
-            resolve({ code: 404, message: 'Post not found' });
-          } else {
-            // 其他HTTP错误也静默处理
-            resolve({ code: res.statusCode, message: 'Request failed' });
-          }
-        },
-        fail: () => {
-          // 静默处理网络错误
-          resolve({ code: 500, message: 'Network error' });
-        }
-      });
-    } else {
-      // 如果不在微信小程序环境中，降级使用Taro请求（开发环境）
-      const finalUrl = `/forums/posts/${postId}`;
-
-      Taro.request({
-        url: `${process.env.BASE_URL}/api/v1${finalUrl}`,
-        method: 'GET',
-        success: (res) => {
-          if (res.statusCode === 200) {
-            const responseData = res.data as any;
-            if (responseData.code === 0) {
-              resolve(responseData);
-            } else {
-              resolve({ code: responseData.code, message: responseData.msg || responseData.message });
-            }
-          } else if (res.statusCode === 404) {
-            resolve({ code: 404, message: 'Post not found' });
-          } else {
-            resolve({ code: res.statusCode, message: 'Request failed' });
-          }
-        },
-        fail: () => {
-          resolve({ code: 500, message: 'Network error' });
-        }
-      });
-    }
-  });
+    },
+  );
 };
 
 /**
@@ -160,7 +179,8 @@ export const createForumPost = (data: CreateForumPostRequest) => {
  * @param data 要更新的数据
  * @returns
  */
-export const updatePost = (postId: string, data: any) => { // Using 'any' for PostUpdate type temporarily
+export const updatePost = (postId: string, data: Partial<Post>) => {
+  // Using 'any' for PostUpdate type temporarily
   return http.put<Post>(`/forums/posts/${postId}`, data);
 };
 
@@ -170,7 +190,7 @@ export const updatePost = (postId: string, data: any) => { // Using 'any' for Po
  * @returns
  */
 export const deletePost = (postId: string) => {
-  return http.delete<any>(`/forums/posts/${postId}`); // Assuming standard success response
+  return http.delete<unknown>(`/forums/posts/${postId}`); // Assuming standard success response
 };
 
 /**
@@ -178,13 +198,15 @@ export const deletePost = (postId: string) => {
  * @returns
  */
 export const getMyDrafts = () => {
-  return http.get<Post[]>("/forums/me/drafts").then(response => {
+  return http.get<Post[]>("/forums/me/drafts").then((response) => {
     if (Array.isArray(response?.data)) {
       // 过滤出真正的草稿
-      const drafts = response.data.filter((item: any) => item?.status === 'draft');
+      const drafts = response.data.filter(
+        (item: Post) => item?.status === "draft",
+      );
       return {
         ...response,
-        data: drafts
+        data: drafts,
       };
     }
     return response;
@@ -196,19 +218,21 @@ export const getMyDrafts = () => {
  * 使用统一的帖子删除接口，因为草稿和帖子使用相同的数据结构
  */
 export const deleteDraft = (draftId: string) => {
-  return http.delete<any>(`/forums/posts/${draftId}`);
+  return http.delete<unknown>(`/forums/posts/${draftId}`);
 };
 /**
  * 给帖子添加一个标签
  */
 export const addPostTag = (postId: string, tagName: string) => {
-  return http.post<any>(`/forums/posts/${postId}/tags`, { tag_name: tagName });
+  return http.post<unknown>(`/forums/posts/${postId}/tags`, {
+    tag_name: tagName,
+  });
 };
 /**
  * 获取某个帖子的标签列表
  */
 export const getPostTags = (postId: string) => {
-  return http.get<any[]>(`/forums/posts/${postId}/tags`);
+  return http.get<unknown[]>(`/forums/posts/${postId}/tags`);
 };
 /**
  * 删除所有草稿
@@ -219,10 +243,12 @@ export const clearAllDrafts = () => {
     const list = Array.isArray(resp.data) ? resp.data : [];
     for (const d of list) {
       try {
-        await deleteDraft((d as any).id);
-      } catch {}
+        await deleteDraft((d as Post).id);
+      } catch {
+        // Ignore individual deletion errors
+      }
     }
-    return { code: 0 } as any;
+    return { code: 0 } as { code: number };
   });
 };
 
@@ -231,7 +257,7 @@ export const clearAllDrafts = () => {
  * @param params 分页参数
  * @returns
  */
-export const getFeed = (params: GetFeedParams) => {
+export const getFeed = (params: PaginationParams) => {
   // 使用相同的forums/posts端点获取信息流
   return http.get<Post[]>("/forums/posts", params);
 };
@@ -241,7 +267,7 @@ export const getFeed = (params: GetFeedParams) => {
  * @param params 分页参数
  * @returns 帖子Feed列表
  */
-export const getPostsFeed = (params: GetFeedParams) => {
+export const getPostsFeed = (params: PaginationParams) => {
   return http.get<Post[]>("/forums/posts/feed", params);
 };
 
@@ -269,11 +295,11 @@ export const getRecommendPosts = (params: API.RecommendParams) => {
  * @returns 热门帖子列表
  */
 export const getHotPostList = (params?: GetHotPostsParams) => {
-  const raw = Taro.getStorageSync('token');
-  const token = raw ? raw.replace(/^Bearer\s+/i, '') : '';
-  
-  return http.get<PostHotRanking[]>("/forums/hot-posts", params,{
-    header: token ? { Authorization: `Bearer ${token}` } : {}
+  const raw = Taro.getStorageSync("token");
+  const token = raw ? raw.replace(/^Bearer\s+/i, "") : "";
+
+  return http.get<PostHotRanking[]>("/forums/hot-posts", params, {
+    header: token ? { Authorization: `Bearer ${token}` } : {},
   });
 };
 
@@ -295,7 +321,7 @@ const postApi = {
   getPostsFeed,
   generatePostsFeed,
   getRecommendPosts,
-  getHotPostList
+  getHotPostList,
 };
 
 export default postApi;

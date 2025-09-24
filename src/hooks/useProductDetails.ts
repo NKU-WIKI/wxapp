@@ -23,7 +23,7 @@ export const useProductDetails = (options: UseProductDetailsOptions = {}) => {
         try {
           const response = await marketplaceApi.getListingDetail(id)
           return { id, data: response.data }
-        } catch (error) {
+        } catch {
           return null
         }
       })
@@ -40,7 +40,7 @@ export const useProductDetails = (options: UseProductDetailsOptions = {}) => {
       })
 
       return validResults
-    } catch (error) {
+    } catch {
       options.onError?.(error as Error)
       return []
     } finally {

@@ -106,8 +106,8 @@ export default function Home() {
       } else {
         await dispatch(fetchFeed(params)).unwrap();
       }
-    } catch (error) {
-      
+    } catch {
+      // 静默处理错误
     } finally {
       setIsRefreshing(false);
     }
@@ -128,8 +128,8 @@ export default function Home() {
       } else {
         await dispatch(fetchFeed(params)).unwrap();
       }
-    } catch (error) {
-      
+    } catch {
+      // 静默处理错误
     }
   };
 
@@ -245,7 +245,9 @@ export default function Home() {
             try {
               Taro.setStorageSync('explore_focus', 'true');
               Taro.switchTab({ url: '/pages/explore/index' });
-            } catch {}
+            } catch {
+              // 静默处理页面跳转错误
+            }
           }}
         />
         {/* 分类区域 - 固定 */}

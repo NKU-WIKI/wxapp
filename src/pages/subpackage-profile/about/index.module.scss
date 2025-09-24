@@ -1,13 +1,13 @@
 .aboutPage {
   min-height: 100vh;
-  background-color: #ffffff;
   padding: 0;
   margin: 0;
+  background-color: #fff;
 }
 
 .container {
-  padding: 0 20px;
   max-width: 375px;
+  padding: 0 20px;
   margin: 0 auto;
 }
 
@@ -19,28 +19,28 @@
 }
 
 .appInfo {
-  text-align: center;
   padding: 40px 0 32px;
+  text-align: center;
 }
 
 .appTextContainer {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 8px;
+  align-items: center;
 }
 
 .logo {
-  width: 120px;
-  height: 120px;
-  border-radius: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 120px;
+  height: 120px;
   margin: 0 auto 16px;
-  background-color: #ffffff;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  background-color: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 10%);
 }
 
 .logoImage {
@@ -50,22 +50,22 @@
 }
 
 .appName {
+  margin: 0;
   font-size: 24px;
   font-weight: 600;
-  color: #000000;
-  margin: 0;
+  color: #000;
 }
 
 .version {
+  margin: 0;
   font-size: 14px;
   color: #9b9b9b;
-  margin: 0;
 }
 
 .subtitle {
-  font-size: 16px;
-  color: #000000;
   margin: 0;
+  font-size: 16px;
+  color: #000;
 }
 
 .section {
@@ -73,10 +73,10 @@
 }
 
 .sectionTitle {
+  margin: 0 0 16px;
   font-size: 18px;
   font-weight: 600;
-  color: #000000;
-  margin: 0 0 16px;
+  color: #000;
 }
 
 .visionContainer {
@@ -85,25 +85,25 @@
 }
 
 .visionText {
+  margin: 0;
   font-size: 14px;
   line-height: 1.6;
-  color: #000000;
-  margin: 0;
+  color: #000;
   text-align: left;
 }
 
 .linkList {
-  list-style: none;
   padding: 0;
   margin: 0;
+  list-style: none;
 }
 
 .linkItem {
   display: flex;
   align-items: center;
   padding: 16px 0;
-  border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .linkItem:last-child {
@@ -111,28 +111,28 @@
 }
 
 .linkIcon {
-  width: 20px;
-  height: 20px;
-  margin-right: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
 }
 
 .linkText {
   flex: 1;
-  font-size: 14px;
-  color: #000000;
   margin: 0;
+  font-size: 14px;
+  color: #000;
 }
 
 .linkArrow {
-  width: 16px;
-  height: 16px;
-  color: #9b9b9b;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: #9b9b9b;
 }
 
 .teamContainer {
@@ -141,9 +141,9 @@
 }
 
 .teamName {
-  font-size: 14px;
-  color: #000000;
   margin: 0;
+  font-size: 14px;
+  color: #000;
 }
 
 .companyContainer {
@@ -152,35 +152,35 @@
 }
 
 .companyName {
-  font-size: 14px;
-  color: #000000;
   margin: 0;
+  font-size: 14px;
+  color: #000;
 }
 
 .debugSection {
-  margin-bottom: 32px;
   padding: 16px;
+  margin-bottom: 32px;
   background-color: #f8f9fa;
-  border-radius: 8px;
   border: 1px solid #e9ecef;
+  border-radius: 8px;
 }
 
 .debugTitle {
+  margin: 0 0 16px;
   font-size: 16px;
   font-weight: 600;
-  color: #000000;
-  margin: 0 0 16px;
+  color: #000;
   text-align: center;
 }
 
 .debugButton {
-  background-color: #007bff;
-  color: #ffffff;
-  border-radius: 6px;
   padding: 12px 16px;
   margin-bottom: 8px;
+  color: #fff;
   text-align: center;
   cursor: pointer;
+  background-color: #007bff;
+  border-radius: 6px;
   transition: background-color 0.2s;
 
   &:active {
@@ -193,19 +193,19 @@
 }
 
 .debugButtonText {
+  margin: 0;
   font-size: 14px;
   font-weight: 500;
-  margin: 0;
 }
 
 .footer {
-  text-align: center;
   padding: 20px 0;
   margin-top: 40px;
+  text-align: center;
 }
 
 .copyright {
+  margin: 0;
   font-size: 12px;
   color: #9b9b9b;
-  margin: 0;
 } 

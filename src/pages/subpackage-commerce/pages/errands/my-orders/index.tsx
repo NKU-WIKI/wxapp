@@ -1,6 +1,6 @@
 import { View, ScrollView, Text } from '@tarojs/components'
 import CustomHeader from '@/components/custom-header'
-import ErrandsTabBar from '../../../components/ErrandsTabBar'
+import ErrandsTabBar from '../../../components/errands-tab-bar'
 import styles from './index.module.scss'
 
 // 模拟的订单数据

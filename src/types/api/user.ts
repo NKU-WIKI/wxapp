@@ -1,6 +1,4 @@
-import { PaginatedData, PaginationParams } from "./common";
-
-
+import { PaginatedData } from "./common";
 
 /**
  * @description API 返回的用户基础信息结构
@@ -76,7 +74,7 @@ export interface UpdateUserProfileRequest {
 /**
  * @description 粉丝/关注列表中的用户项
  */
-export interface Follower extends User {}
+export type Follower = User;
 
 /**
  * @description 粉丝/关注列表的分页数据结构
@@ -110,11 +108,6 @@ export interface HistoryItem {
  * @description 浏览历史的分页数据结构
  */
 export type HistoryList = PaginatedData<HistoryItem>;
-
-/**
- * @description 获取浏览历史的查询参数
- */
-export interface GetHistoryParams extends PaginationParams {}
 
 /**
  * @description 用户标签项 (基于 UserTagRead)
@@ -209,4 +202,3 @@ export interface TagUpsertRequest {
   tag: string;
   weight?: number;
 }
-

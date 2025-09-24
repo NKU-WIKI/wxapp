@@ -2,18 +2,18 @@
 
 .notificationItem {
   position: relative;
-  background-color: $bg-card;
-  border-radius: 12px;
   padding: 12px;
   margin-bottom: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid $border-light;
-  transition: all 0.2s ease;
   cursor: pointer;
+  background-color: $bg-card;
+  border: 1px solid $border-light;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 5%);
+  transition: all 0.2s ease;
   
   &:active {
-    transform: scale(0.98);
     background-color: $bg-input;
+    transform: scale(0.98);
   }
 }
 
@@ -24,12 +24,12 @@
   position: absolute;
   top: 12px;
   right: 12px;
+  z-index: 2;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
   background-color: $status-error;
-  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
-  z-index: 2;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgb(239 68 68 / 40%);
 }
 
 // 第一行：头像、昵称、时间
@@ -42,52 +42,52 @@
 
 .userLeft {
   display: flex;
-  align-items: center;
-  gap: 10px;
   flex: 1;
+  gap: 10px;
+  align-items: center;
   min-width: 0;
 }
 
 .avatar {
+  flex-shrink: 0;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  border: 1px solid $border-light;
-  flex-shrink: 0;
   object-fit: cover;
+  border: 1px solid $border-light;
+  border-radius: 50%;
 }
 
 .userActionContainer {
   display: flex;
-  align-items: baseline;
-  gap: 4px;
   flex: 1;
+  gap: 4px;
+  align-items: baseline;
   min-width: 0;
 }
 
 .username {
+  flex-shrink: 0;
   font-size: 15px;
   font-weight: 600;
   color: $text-primary;
-  flex-shrink: 0;
 }
 
 .actionText {
-  font-size: 14px;
-  color: $text-secondary;
-  line-height: 1.4;
-  font-weight: 400;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: $text-secondary;
   white-space: nowrap;
-  flex: 1;
 }
 
 .time {
-  font-size: 12px;
-  color: $text-helper-gray;
   flex-shrink: 0;
   margin-left: 8px;
+  font-size: 12px;
+  color: $text-helper-gray;
 }
 
 // 移除第二行，动作描述已移至第一行
@@ -98,15 +98,15 @@
 }
 
 .postContent {
-  font-size: 13px;
-  color: $text-helper-gray;
-  background-color: $bg-input;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border-left: 3px solid $theme-primary;
-  line-height: 1.4;
   display: block;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: $text-helper-gray;
   word-break: break-all;
+  background-color: $bg-input;
+  border-left: 3px solid $theme-primary;
+  border-radius: 8px;
 }
 
 // 移除复杂的活动通知样式，保持简洁统一

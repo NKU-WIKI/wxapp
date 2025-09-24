@@ -216,9 +216,8 @@ const handleDeleteComment = async (commentId: string) => {
     }));
   }
 
-} catch (error: any) {
-
-
+} catch {
+  // 静默处理删除评论错误
   // 隐藏加载提示
   Taro.hideLoading();
 
@@ -246,9 +245,9 @@ const handleRefresh = async () => {
       }))
       ]);
 
-    } catch (error) {
-
-} finally {
+    } catch {
+      // 静默处理刷新错误
+    } finally {
   setRefreshing(false);
 }
   };

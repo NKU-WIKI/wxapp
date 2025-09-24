@@ -8,8 +8,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
   z-index: 1000;
+  width: 100%;
   background-color: $theme-primary;
   transition: background-color 0.2s;
 }
@@ -24,8 +24,8 @@
 .left,
 .right {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
 }
 
 .left {
@@ -42,13 +42,13 @@
 }
 
 .title {
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 17px;
   font-weight: 600;
   color: $text-primary;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 400px;
 }
 
 .iconWrapper {
@@ -56,15 +56,16 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+
   // 移除 padding，由 gap 控制间距
 }
 
 .wikiButton {
   display: flex;
-  align-items: center;
   gap: 4px;
-  background-color: #f3f4f6; // 浅灰色背景
+  align-items: center;
   padding: 4px 8px;
+  background-color: #f3f4f6; // 浅灰色背景
   border-radius: 9999px; // 圆角
 }
 
@@ -108,23 +109,23 @@
   position: absolute;
   top: -4px;
   right: -6px;
-  min-width: 16px;
-  height: 16px;
-  background-color: $status-error;
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 16px;
+  height: 16px;
   padding: 0 4px;
-  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
+  background-color: $status-error;
   border: 1px solid $bg-card;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgb(239 68 68 / 40%);
 }
 
 .badgeText {
+  min-width: 8px;
   font-size: 10px;
   font-weight: 600;
-  color: $text-white;
   line-height: 1;
-  min-width: 8px;
+  color: $text-white;
   text-align: center;
 }

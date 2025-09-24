@@ -1,10 +1,10 @@
 /* 评分组件样式 */
 .ratingComponent {
-  background-color: white;
-  border-radius: 12px;
   padding: 32px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
 /* 头部信息 */
@@ -13,18 +13,18 @@
 }
 
 .title {
+  display: block;
+  margin-bottom: 8px;
   font-size: 32px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 8px;
-  display: block;
 }
 
 .description {
-  font-size: 26px;
-  color: #666;
-  line-height: 1.5;
   display: block;
+  font-size: 26px;
+  line-height: 1.5;
+  color: #666;
 }
 
 /* 评分容器 */
@@ -38,8 +38,8 @@
 /* 星星容器 */
 .starsContainer {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
 }
 
 /* 单个星星 */
@@ -50,11 +50,11 @@
   width: 64px;
   height: 64px;
   cursor: pointer;
-  transition: all 0.2s ease;
   border-radius: 50%;
+  transition: all 0.2s ease;
   
   &:hover {
-    background-color: rgba(255, 215, 0, 0.1);
+    background-color: rgb(255 215 0 / 10%);
     transform: scale(1.1);
   }
   
@@ -88,11 +88,11 @@
 
 /* 评分数值显示 */
 .ratingValue {
-  background-color: #f8f9fa;
-  padding: 12px 20px;
-  border-radius: 8px;
   min-width: 120px;
+  padding: 12px 20px;
   text-align: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
 .ratingText {
@@ -103,8 +103,8 @@
 
 /* 评分提示 */
 .ratingHint {
-  text-align: center;
   margin-top: 16px;
+  text-align: center;
 }
 
 .hintText {
@@ -113,7 +113,7 @@
 }
 
 /* 响应式适配 */
-@media (max-width: 750px) {
+@media (width <= 750px) {
   .ratingComponent {
     padding: 24px;
     margin-bottom: 16px;
@@ -164,9 +164,11 @@
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.2);
   }
+
   100% {
     transform: scale(1);
   }

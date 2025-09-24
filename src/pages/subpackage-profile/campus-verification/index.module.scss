@@ -6,10 +6,10 @@
 }
 
 .formContainer {
+  padding: 24px;
   background-color: $bg-card;
   border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 }
 
 .inputGroup {
@@ -22,54 +22,54 @@
 
 .label {
   display: block;
+  margin-bottom: 8px;
   font-size: 16px;
   font-weight: 500;
   color: $text-primary;
-  margin-bottom: 8px;
 
   // 星号样式 - 标红必填字段的星号
   :global(.required-asterisk) {
-    color: $status-error;
     margin-left: 2px;
+    color: $status-error;
   }
 }
 
 .input {
+  box-sizing: border-box;
   width: 100%;
   height: 48px;
   padding: 0 16px;
-  border: 1px solid $border-base;
-  border-radius: 8px;
-  background-color: $bg-card;
   font-size: 16px;
   color: $text-primary;
-  box-sizing: border-box;
+  background-color: $bg-card;
+  border: 1px solid $border-base;
+  border-radius: 8px;
 
   &::placeholder {
     color: $text-helper-gray;
   }
 
   &:focus {
-    border-color: $theme-primary;
     outline: none;
+    border-color: $theme-primary;
   }
 }
 
 .uploadArea {
-  width: 100%;
-  min-height: 120px;
-  border: 2px dashed $border-base;
-  border-radius: 8px;
-  background-color: $bg-card;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-height: 120px;
   cursor: pointer;
+  background-color: $bg-card;
+  border: 2px dashed $border-base;
+  border-radius: 8px;
   transition: all 0.2s ease;
 
   &:hover {
+    background-color: rgb(79 70 229 / 2%);
     border-color: $theme-primary;
-    background-color: rgba(79, 70, 229, 0.02);
   }
 }
 
@@ -90,49 +90,49 @@
 
 .uploadText {
   font-size: 14px;
+  line-height: 1.4;
   color: $text-secondary;
   text-align: center;
-  line-height: 1.4;
 }
 
 .uploadedImage {
   width: 100%;
   height: 120px;
-  border-radius: 6px;
   object-fit: cover;
+  border-radius: 6px;
 }
 
 .uploadTip {
   display: block;
-  font-size: 12px;
-  color: $text-helper-gray;
   margin-top: 8px;
+  font-size: 12px;
   line-height: 1.4;
+  color: $text-helper-gray;
 }
 
 .submitButton {
-  width: 100%;
-  height: 48px;
-  background-color: $theme-primary;
-  color: $text-white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  width: 100%;
+  height: 48px;
   margin-top: 32px;
+  font-size: 16px;
+  font-weight: 500;
+  color: $text-white;
+  cursor: pointer;
+  background-color: $theme-primary;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 
   &:hover {
     background-color: darken($theme-primary, 10%);
   }
 
   &:disabled {
-    background-color: $text-helper-gray;
     cursor: not-allowed;
+    background-color: $text-helper-gray;
   }
 }
 
@@ -149,48 +149,48 @@
 }
 
 .statusContainer {
-  background-color: $bg-card;
-  border-radius: 12px;
-  padding: 40px 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 40px 24px;
   text-align: center;
+  background-color: $bg-card;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 }
 
 .statusIcon {
-  font-size: 48px;
   margin-bottom: 16px;
+  font-size: 48px;
 }
 
 .statusTitle {
+  margin-bottom: 8px;
   font-size: 20px;
   font-weight: 600;
   color: $text-primary;
-  margin-bottom: 8px;
 }
 
 .statusText {
-  font-size: 14px;
-  color: $text-secondary;
-  line-height: 1.5;
   margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: $text-secondary;
 }
 
 .resubmitButton {
-  width: 120px;
-  height: 40px;
-  background-color: $theme-primary;
-  color: $text-white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 120px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-white;
   cursor: pointer;
+  background-color: $theme-primary;
+  border: none;
+  border-radius: 8px;
   transition: all 0.2s ease;
 
   &:hover {

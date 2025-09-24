@@ -1,14 +1,15 @@
 .postContainer {
   padding: 16px;
+  margin-bottom: 12px;
   background: #fff;
   border-radius: 12px;
-  margin-bottom: 12px;
+
   /* 移除 min-height 以避免空白区域 */
 }
 
 .postContainer.detail {
+  padding: 16px 16px 25px;
   border-radius: 0;
-  padding: 16px 16px 25px 16px;
 }
 
 .titleSection {
@@ -36,57 +37,59 @@
 .avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
   margin-right: 10px;
+  border-radius: 50%;
 }
 
 .authorDetails {}
 
 .authorMainRow { display: flex; align-items: center; }
-.authorName { 
-  font-size: 16px; 
-  font-weight: 500; 
-  color: #222; 
+
+.authorName {
+  max-width: 120px; /* 适合post模式的最大宽度 */ 
+
   /* 防止昵称过长影响布局 */
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; 
+  font-size: 16px; 
+  font-weight: 500; 
+  color: #222;
   white-space: nowrap;
-  max-width: 120px; /* 适合post模式的最大宽度 */
 }
-.levelBadge { margin-left: 6px; padding: 0 6px; height: 18px; border-radius: 9px; background: #f0f0f0; display: flex; align-items: center; }
-.followButton { margin-left: 8px; padding: 0 8px; height: 24px; border-radius: 12px; background: #7baae8; color: #fff; font-size: 12px; display:flex; align-items: center; }
-.followButton.followed { background: #f5f5f5; color: #666; }
-.authorBio { font-size: 12px; color: #888; margin-top: 4px; }
-.meta { font-size: 12px; color: #666; margin-top: 2px; }
+.levelBadge { display: flex; align-items: center; height: 18px; padding: 0 6px; margin-left: 6px; background: #f0f0f0; border-radius: 9px; }
+.followButton { display:flex; align-items: center; height: 24px; padding: 0 8px; margin-left: 8px; font-size: 12px; color: #fff; background: #7baae8; border-radius: 12px; }
+.followButton.followed { color: #666; background: #f5f5f5; }
+.authorBio { margin-top: 4px; font-size: 12px; color: #888; }
+.meta { margin-top: 2px; font-size: 12px; color: #666; }
 
 .headerActions { display:flex; align-items: center; }
-.postTime { font-size: 12px; color: #999; margin-left: 8px; }
-.moreButton { width: 24px; height: 24px; display:flex; align-items: center; justify-content: center; }
+.postTime { margin-left: 8px; font-size: 12px; color: #999; }
+.moreButton { display:flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
 .moreIcon { width: 18px; height: 18px; }
 
 .content { margin-top: 10px; }
-.text { font-size: 14px; color: #333; line-height: 1.7; white-space: pre-wrap; }
+.text { font-size: 14px; line-height: 1.7; color: #333; white-space: pre-wrap; }
 .postContent { margin-top: 12px; }
 
 /* 新增：列表内容标题与正文样式 */
-.contentTitle { font-size: 16px; font-weight: 600; color: #111; line-height: 1.5; display: block; }
-.contentText { font-size: 14px; color: #333; line-height: 1.7; margin-top: 6px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+.contentTitle { display: block; font-size: 16px; font-weight: 600; line-height: 1.5; color: #111; }
+.contentText { display: -webkit-box; margin-top: 6px; overflow: hidden; -webkit-line-clamp: 3; font-size: 14px; line-height: 1.7; color: #333; word-break: break-word; white-space: normal; -webkit-box-orient: vertical; }
 
 .images { display: grid; gap: 6px; margin-top: 8px; }
 .singleImage { grid-template-columns: 1fr; }
 .doubleImage { grid-template-columns: 1fr 1fr; }
 .gridImage { grid-template-columns: 1fr 1fr 1fr; }
-.postImage { width: 100%; height: 100px; border-radius: 8px; background: #f5f5f5; }
+.postImage { width: 100%; height: 100px; background: #f5f5f5; border-radius: 8px; }
 
-.tagsSection { display:flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-.tag { background: #f7f7f7; border-radius: 12px; padding: 2px 8px; }
+.tagsSection { display:flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.tag { padding: 2px 8px; background: #f7f7f7; border-radius: 12px; }
 .tagText { font-size: 12px; color: #666; }
-.locationTag { background: #eef5ff; display:flex; align-items: center; gap: 4px; border-radius: 12px; padding: 2px 8px; }
+.locationTag { display:flex; gap: 4px; align-items: center; padding: 2px 8px; background: #eef5ff; border-radius: 12px; }
 .locationIcon { width: 14px; height: 14px; }
 
-.footer { margin-top: 12px; display:flex; align-items: center; justify-content: space-between; }
-.actions { display:flex; align-items: center; gap: 20px; }
-.actionButton { display:flex; align-items: center; gap: 6px; }
+.footer { display:flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+.actions { display:flex; gap: 20px; align-items: center; }
+.actionButton { display:flex; gap: 6px; align-items: center; }
 .actionIcon { width: 20px; height: 20px; }
 .actionCount { font-size: 13px; color: #666; }
 .activeIcon {}

@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import "@/styles/variables";
 
 .container {
   display: flex;
@@ -9,51 +9,51 @@
 
 .scroll {
   flex: 1;
+  padding: 0 0 16px;
   overflow: hidden;
-  padding: 0 0 16px 0;
 }
 
 .empty {
-  text-align: center;
-  color: $text-secondary-gray;
-  font-size: 16px;
   margin-top: 48px;
+  font-size: 16px;
+  color: $text-secondary-gray;
+  text-align: center;
 }
 
 .loading {
-  text-align: center;
-  color: $text-secondary-gray;
-  font-size: 14px;
   padding: 20px;
+  font-size: 14px;
+  color: $text-secondary-gray;
+  text-align: center;
 }
 
 .noMore {
-  text-align: center;
-  color: $text-secondary-gray;
-  font-size: 12px;
   padding: 20px;
+  font-size: 12px;
+  color: $text-secondary-gray;
+  text-align: center;
 }
 
 .bottomBar {
-  padding: 12px 16px 20px 16px;
+  padding: 12px 16px 20px;
   background: $bg-card;
   box-shadow: 0 -2px 8px $shadow-light;
 }
 
 .clearBtn {
-  width: 100%;
-  height: 44px;
-  background: $theme-primary !important;
-  color: $text-white !important;
-  font-size: 16px;
-  border-radius: 10px;
-  font-weight: bold;
-  letter-spacing: 1px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 44px;
   padding: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: $text-white !important;
+  letter-spacing: 1px;
+  background: $theme-primary !important;
   border: none;
+  border-radius: 10px;
 
   &:active {
     background: $theme-primary-dark !important;

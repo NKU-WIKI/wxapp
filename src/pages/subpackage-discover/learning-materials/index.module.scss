@@ -1,20 +1,20 @@
 @use "../../../styles/variables.scss" as *;
 
 .learningMaterialsPage {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f9fafc;
-  min-height: 100vh;
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100vh;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f9fafc;
 }
 
 // 使用全局 CustomHeader，移除本地导航栏样式
 
 /* 固定头部容器 */
 .fixedHeader {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 /* 内容滚动区域 */
@@ -25,43 +25,43 @@
 
 /* 标签栏 */
 .tagsContainer {
-  padding: 8px 16px 16px 16px; // 与其他模块一致
-  white-space: nowrap;
+  padding: 8px 16px 16px; // 与其他模块一致
+  white-space: nowrap;white-space
 }
 
 .tagsWrapper {
   display: flex;
   gap: 8px;
-  padding: 0;
   width: max-content;
+  padding: 0;
 }
 
 .tag {
   padding: 6px 12px;
-  border-radius: 12px;
-  background-color: #f5f5f5;
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.2s ease;
+  background-color: #f5f5f5;
   border: 1px solid transparent;
+  border-radius: 12px;
+  transition: all 0.2s ease;
 }
 
 .tagText {
   font-size: 12px;
-  color: #666;
   font-weight: 500;
+  color: #666;
 }
 
 .activeTag {
   background: #4F46E5;
   border: 1px solid #4F46E5;
-  transform: none;
   box-shadow: none;
+  transform: none;
 }
 
 .activeTag .tagText {
-  color: #fff;
   font-weight: 600;
+  color: #fff;
 }
 
 /* 分类卡片区域 */
@@ -69,45 +69,48 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin: 16px 16px 32px 16px; // 添加左右间距，与整体布局保持一致
+  margin: 16px 16px 32px; // 添加左右间距，与整体布局保持一致
 }
 
 .categoryCard {
-  background-color: #fff;
-  padding: 20px 16px;
-  /* 增加内边距 */
-  border-radius: 16px;
-  /* 增加圆角 */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   /* 增强阴影 */
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 20px 16px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  background-color: #fff;
   border: 1px solid #f0f0f0;
+
+  /* 增加内边距 */
+  border-radius: 16px;
+
+  /* 增加圆角 */
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+  transition: all 0.3s ease;
 }
 
 .categoryCard:active {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
   transform: scale(0.98);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .cardIcon {
-  font-size: 36px;
   /* 从48px减小到36px */
   margin-bottom: 12px;
+  font-size: 36px;
   line-height: 1;
 }
 
 /* 移除所有背景相关的样式 */
+
 /* .cardnotes, .cardexam, .cardbook, .cardgraduate 类已移除 */
 
 .cardTitle {
+  margin-bottom: 4px;
   font-size: 16px;
   font-weight: 500;
-  margin-bottom: 4px;
   color: #1a1a1a;
 }
 
@@ -118,14 +121,16 @@
 
 /* 最新上传 */
 .latestUploads {
-  margin: 0 16px 80px 16px;
+  margin: 0 16px 80px;
+
   /* 添加左右间距，减少顶部间距，为浮动按钮留出空间 */
 }
 
 .sectionTitle {
+  margin-bottom: 28px;
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 28px;
+
   /* 从20px增加到28px */
   color: #1a1a1a;
 }
@@ -133,16 +138,20 @@
 .uploadItem {
   display: flex;
   align-items: center;
-  background-color: #fff;
-  padding: 16px 16px;
-  /* 增加内边距 */
-  border-radius: 12px;
+  padding: 16px;
+
   /* 增加圆角 */
   margin-bottom: 16px;
-  /* 增加间距 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
   /* 增强阴影效果 */
   cursor: pointer;
+  background-color: #fff;
+
+  /* 增加内边距 */
+  border-radius: 12px;
+
+  /* 增加间距 */
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
   transition: transform 0.2s ease;
 }
 
@@ -151,14 +160,16 @@
 }
 
 .itemIcon {
-  font-size: 24px;
-  /* emoji字体大小 */
-  margin-right: 16px;
-  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
+
+  /* emoji字体大小 */
+  margin-right: 16px;
+  font-size: 24px;
+  line-height: 1;
+
   /* 保持一定的宽度以对齐 */
 }
 
@@ -167,18 +178,18 @@
 }
 
 .itemDescription {
-  font-size: 12px;
-  color: #999;
   margin-top: 2px;
   margin-bottom: 4px;
+  font-size: 12px;
   line-height: 1.3;
+  color: #999;
 }
 
 .itemTitle {
-  font-size: 16px;
   margin-bottom: 4px;
-  color: #1a1a1a;
+  font-size: 16px;
   font-weight: 500;
+  color: #1a1a1a;
 }
 
 .itemMeta {
@@ -197,14 +208,14 @@
 /* 空状态 */
 .emptyState {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 40px 20px;
   text-align: center;
 }
 
 .emptyText {
   font-size: 16px;
-  color: #999;
   line-height: 1.5;
+  color: #999;
 }

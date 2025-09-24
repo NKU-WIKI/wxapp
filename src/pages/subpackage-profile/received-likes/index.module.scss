@@ -1,4 +1,4 @@
-@import "../../../styles/variables.scss";
+@import "../../../styles/variables";
 
 .container {
   display: flex;
@@ -19,52 +19,52 @@
 }
 
 .postWrapper {
+  overflow: hidden;
   background-color: $bg-card;
   border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
 .loadingContainer {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 200px;
 }
 
 .loadingText {
-  color: $text-secondary;
   font-size: 16px;
+  color: $text-secondary;
 }
 
 .errorContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
   gap: 16px;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
 }
 
 .errorText {
-  color: $status-error;
   font-size: 16px;
+  color: $status-error;
   text-align: center;
 }
 
 .retryButton {
-  background-color: $theme-primary;
-  color: white;
   padding: 12px 24px;
-  border-radius: 8px;
-  border: none;
   font-size: 14px;
+  color: white;
   cursor: pointer;
+  background-color: $theme-primary;
+  border: none;
+  border-radius: 8px;
 }
 
 .retryText {
-  color: white;
   font-size: 14px;
+  color: white;
 }
 
 .actionContainer {
@@ -74,49 +74,49 @@
 }
 
 .publishButton {
-  background-color: $theme-primary;
-  color: white;
   padding: 16px 32px;
-  border-radius: 12px;
-  border: none;
   font-size: 16px;
   font-weight: 600;
+  color: white;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  background-color: $theme-primary;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgb(79 70 229 / 30%);
   transition: all 0.3s ease;
 
   &:active {
+    box-shadow: 0 2px 8px rgb(79 70 229 / 30%);
     transform: translateY(2px);
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
   }
 }
 
 .publishButtonText {
-  color: white;
   font-size: 16px;
   font-weight: 600;
+  color: white;
 }
 
 .loadMore {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 
 .loadMoreText {
-  color: $text-secondary;
   font-size: 14px;
+  color: $text-secondary;
 }
 
 .noMore {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 
 .noMoreText {
-  color: $text-helper-gray;
   font-size: 14px;
+  color: $text-helper-gray;
 } 

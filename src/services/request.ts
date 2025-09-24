@@ -5,6 +5,7 @@ import {
   HEADER_BRANCH_KEY,
 } from "@/constants";
 import { BaseResponse } from "@/types/api/common";
+import store from "@/store";
 
 const BASE_URL = process.env.BASE_URL;
 
@@ -20,7 +21,6 @@ const getToken = () => {
 const getDefaultTenantId = () => {
   try {
     // 尝试从store中获取aboutInfo
-    const store = require("@/store").default;
     const state = store.getState();
     const aboutInfo = state.user.aboutInfo;
 
@@ -48,7 +48,7 @@ const getDefaultTenantId = () => {
         return defaultTenantId;
       }
     }
-  } catch (_error) {
+  } catch {
     // 静默处理错误，确保在任何情况下函数都能返回一个值
   }
 

@@ -1,11 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Taro from "@tarojs/taro";
-import { PaginatedData } from "@/types/api/common";
+import { PaginatedData, PaginationParams } from "@/types/api/common";
 import {
   Post,
   GetForumPostsParams,
   CreateForumPostRequest,
-  GetFeedParams,
   PostUpdate,
 } from "@/types/api/post";
 import {
@@ -23,30 +22,35 @@ import { fetchAboutInfo } from "./userSlice"; // 从 userSlice 导入
 // 获取论坛帖子的 Thunk
 export const fetchForumPosts = createAsyncThunk(
   "posts/fetchForumPosts",
-  async (params: GetForumPostsParams, { rejectWithValue, dispatch, getState }) => {
+  async (
+    params: GetForumPostsParams,
+    { rejectWithValue, dispatch, getState },
+  ) => {
     try {
       // 确保在调用帖子接口前先获取about信息（包含租户信息）
-      const state = getState() as any;
+      const state = getState() as { user: { aboutInfo: unknown } };
       if (!state.user.aboutInfo) {
         try {
           await dispatch(fetchAboutInfo());
-        } catch (error) {
-          
+        } catch {
+          // ignore
         }
       }
 
       const response = await getForumPosts(params);
       const rawItems = Array.isArray(response.data) ? response.data : [];
       const items = rawItems
-        .filter((p: any) => p?.status === 'published')
-        .map((p: any) => {
+        .filter((p: Post) => p?.status === "published")
+        .map((p: Post) => {
           if ((!Array.isArray(p?.tags) || p.tags.length === 0) && p?.id) {
             try {
-              const map = Taro.getStorageSync('post_tags_map') || {};
+              const map = Taro.getStorageSync("post_tags_map") || {};
               if (Array.isArray(map[p.id]) && map[p.id].length > 0) {
                 p.tags = map[p.id];
               }
-            } catch {}
+            } catch {
+              // 静默处理标签缓存读取错误
+            }
           }
           return p;
         });
@@ -59,39 +63,43 @@ export const fetchForumPosts = createAsyncThunk(
           has_more: items.length === (params.limit || 20), // Has more if returned count equals limit
         },
       };
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to fetch forum posts");
+    } catch (error: unknown) {
+      return rejectWithValue(
+        (error as Error).message || "Failed to fetch forum posts",
+      );
     }
-  }
+  },
 );
 
 // 获取社区动态信息流的 Thunk
 export const fetchFeed = createAsyncThunk(
   "posts/fetchFeed",
-  async (params: GetFeedParams, { rejectWithValue, dispatch, getState }) => {
+  async (params: PaginationParams, { rejectWithValue, dispatch, getState }) => {
     try {
       // 确保在调用帖子接口前先获取about信息（包含租户信息）
-      const state = getState() as any;
+      const state = getState() as { user: { aboutInfo: unknown } };
       if (!state.user.aboutInfo) {
         try {
           await dispatch(fetchAboutInfo());
-        } catch (error) {
-          
+        } catch {
+          // ignore
         }
       }
 
       const response = await getFeed(params);
       const rawItems = Array.isArray(response.data) ? response.data : [];
       const items = rawItems
-        .filter((p: any) => p?.status === 'published')
-        .map((p: any) => {
+        .filter((p: Post) => p?.status === "published")
+        .map((p: Post) => {
           if ((!Array.isArray(p?.tags) || p.tags.length === 0) && p?.id) {
             try {
-              const map = Taro.getStorageSync('post_tags_map') || {};
+              const map = Taro.getStorageSync("post_tags_map") || {};
               if (Array.isArray(map[p.id]) && map[p.id].length > 0) {
                 p.tags = map[p.id];
               }
-            } catch {}
+            } catch {
+              // 静默处理标签缓存读取错误
+            }
           }
           return p;
         });
@@ -104,10 +112,12 @@ export const fetchFeed = createAsyncThunk(
           has_more: items.length === (params.limit || 20),
         },
       };
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to fetch feed");
+    } catch (error: unknown) {
+      return rejectWithValue(
+        (error as Error).message || "Failed to fetch feed",
+      );
     }
-  }
+  },
 );
 
 // 创建论坛帖子的 Thunk
@@ -117,23 +127,30 @@ export const createPost = createAsyncThunk(
     try {
       const response = await createForumPost(postData);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to create post");
+    } catch (error: unknown) {
+      return rejectWithValue(
+        (error as Error).message || "Failed to create post",
+      );
     }
-  }
+  },
 );
 
 // 更新帖子的 Thunk
 export const updatePost = createAsyncThunk(
   "posts/updatePost",
-  async ({ postId, data }: { postId: string; data: PostUpdate }, { rejectWithValue }) => {
+  async (
+    { postId, data }: { postId: string; data: PostUpdate },
+    { rejectWithValue },
+  ) => {
     try {
       const response = await updatePostApi(postId, data);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to update post");
+    } catch (error: unknown) {
+      return rejectWithValue(
+        (error as Error).message || "Failed to update post",
+      );
     }
-  }
+  },
 );
 
 // 删除帖子的 Thunk
@@ -143,10 +160,12 @@ export const deletePost = createAsyncThunk(
     try {
       await deletePostApi(postId);
       return postId; // Return the id to remove from the list
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to delete post");
+    } catch (error: unknown) {
+      return rejectWithValue(
+        (error as Error).message || "Failed to delete post",
+      );
     }
-  }
+  },
 );
 
 // 获取帖子详情的 Thunk
@@ -156,10 +175,12 @@ export const fetchPostDetail = createAsyncThunk(
     try {
       const response = await getPostDetail(postId);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to fetch post detail");
+    } catch (error: unknown) {
+      return rejectWithValue(
+        (error as Error).message || "Failed to fetch post detail",
+      );
     }
-  }
+  },
 );
 
 // 获取草稿箱的 Thunk
@@ -168,12 +189,16 @@ export const fetchDrafts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getMyDrafts();
-      const list = Array.isArray(response.data) ? response.data.filter((p: any) => p?.status === 'draft') : [];
+      const list = Array.isArray(response.data)
+        ? response.data.filter((p: Post) => p?.status === "draft")
+        : [];
       return list;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to fetch drafts");
+    } catch (error: unknown) {
+      return rejectWithValue(
+        (error as Error).message || "Failed to fetch drafts",
+      );
     }
-  }
+  },
 );
 
 export interface PostsState {
@@ -183,7 +208,7 @@ export interface PostsState {
   loading: "idle" | "pending" | "succeeded" | "failed";
   detailLoading: "idle" | "pending" | "succeeded" | "failed";
   draftsLoading: "idle" | "pending" | "succeeded" | "failed";
-  error: any;
+  error: unknown;
 }
 
 const initialState: PostsState = {
@@ -258,23 +283,40 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPostDetail.fulfilled, (state, action) => {
         state.detailLoading = "succeeded";
-        const payload: any = action.payload || {};
-        const inList = state.list.find(p => p.id === payload.id) as any;
-        if ((!Array.isArray(payload.tags) || payload.tags.length === 0) && Array.isArray(inList?.tags) && inList.tags.length > 0) {
+        const payload: Post | null = action.payload || null;
+        if (!payload) {
+          state.currentPost = null;
+          return;
+        }
+        const inList = state.list.find((p) => p.id === payload.id);
+        if (
+          (!Array.isArray(payload.tags) || payload.tags.length === 0) &&
+          Array.isArray(inList?.tags) &&
+          inList.tags.length > 0
+        ) {
           payload.tags = inList.tags;
         }
-        if ((!Array.isArray(payload.images) || payload.images.length === 0) && Array.isArray(inList?.images) && inList.images.length > 0) {
+        if (
+          (!Array.isArray(payload.images) || payload.images.length === 0) &&
+          Array.isArray(inList?.images) &&
+          inList.images.length > 0
+        ) {
           payload.images = inList.images;
         }
         // 本地映射兜底
         try {
-          if ((!Array.isArray(payload.tags) || payload.tags.length === 0) && payload?.id) {
-            const map = Taro.getStorageSync('post_tags_map') || {};
+          if (
+            (!Array.isArray(payload.tags) || payload.tags.length === 0) &&
+            payload?.id
+          ) {
+            const map = Taro.getStorageSync("post_tags_map") || {};
             if (Array.isArray(map[payload.id]) && map[payload.id].length > 0) {
               payload.tags = map[payload.id];
             }
           }
-        } catch {}
+        } catch {
+          // 静默处理标签缓存读取错误
+        }
         state.currentPost = payload;
       })
       .addCase(fetchPostDetail.rejected, (state, action) => {
@@ -289,24 +331,33 @@ const postsSlice = createSlice({
       .addCase(createPost.fulfilled, (state, action) => {
         state.loading = "succeeded";
         const req = action.meta?.arg as CreateForumPostRequest | undefined;
-        const payload: any = action.payload || {};
+        const payload: Post | null = action.payload || null;
+        if (!payload) return;
         // 将发布时选择的 tags/images 回填到新帖子（后端当前未回传）
-        if ((!Array.isArray(payload?.tags) || payload.tags.length === 0) && Array.isArray(req?.tags)) {
+        if (
+          (!Array.isArray(payload?.tags) || payload.tags.length === 0) &&
+          Array.isArray(req?.tags)
+        ) {
           payload.tags = req?.tags;
         }
-        if ((!Array.isArray(payload?.images) || payload.images.length === 0) && Array.isArray(req?.images)) {
+        if (
+          (!Array.isArray(payload?.images) || payload.images.length === 0) &&
+          Array.isArray(req?.images)
+        ) {
           payload.images = req?.images;
         }
         // 记录标签映射，供后续拉取时兜底
         try {
           if (payload?.id && Array.isArray(payload?.tags)) {
-            const map = Taro.getStorageSync('post_tags_map') || {};
+            const map = Taro.getStorageSync("post_tags_map") || {};
             map[payload.id] = payload.tags;
-            Taro.setStorageSync('post_tags_map', map);
+            Taro.setStorageSync("post_tags_map", map);
           }
-        } catch {}
+        } catch {
+          // 静默处理标签映射存储错误
+        }
         // 仅当为已发布帖子时才插入到当前列表，避免草稿短暂出现在首页
-        if ((payload as any)?.status === 'published') {
+        if ((payload as Post)?.status === "published") {
           state.list.unshift(payload);
         }
       })
@@ -316,7 +367,7 @@ const postsSlice = createSlice({
       })
       // Update Post
       .addCase(updatePost.fulfilled, (state, action) => {
-        const index = state.list.findIndex(p => p.id === action.payload.id);
+        const index = state.list.findIndex((p) => p.id === action.payload.id);
         if (index !== -1) {
           state.list[index] = action.payload;
         }
@@ -326,7 +377,7 @@ const postsSlice = createSlice({
       })
       // Delete Post
       .addCase(deletePost.fulfilled, (state, action) => {
-        state.list = state.list.filter(p => p.id !== action.payload);
+        state.list = state.list.filter((p) => p.id !== action.payload);
         if (state.currentPost && state.currentPost.id === action.payload) {
           state.currentPost = null;
         }
@@ -366,7 +417,8 @@ const postsSlice = createSlice({
                 post.favorite_count = count;
               } else {
                 // 手动计算收藏数量
-                post.favorite_count = (post.favorite_count || 0) + (is_active ? 1 : -1);
+                post.favorite_count =
+                  (post.favorite_count || 0) + (is_active ? 1 : -1);
               }
             }
           }

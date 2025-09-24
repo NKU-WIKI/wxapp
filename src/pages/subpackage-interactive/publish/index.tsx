@@ -56,7 +56,7 @@ const categories = [
 // 简单 uuid 生成
 function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
 }
@@ -151,7 +151,9 @@ export default function PublishPost() {
             const withSharp = tagTexts.map((t: string) => (t && t.startsWith('#') ? t : `#${t}`));
             setSelectedTags(withSharp);
           }
-        } catch { }
+        } catch {
+          // 静默处理标签解析错误
+        }
         if ((draft as any).category_id) {
           setSelectedCategory((draft as any).category_id);
         }
@@ -172,7 +174,9 @@ export default function PublishPost() {
           try {
             const res = await getPostDetail(postId);
             p = res?.data;
-          } catch { }
+          } catch {
+            // 静默处理帖子详情获取错误
+          }
         }
         if (p) {
           setTitle(p?.title || '');
@@ -188,12 +192,18 @@ export default function PublishPost() {
             const rawTags: any[] = Array.isArray((p as any).tags) ? (p as any).tags : [];
             const tagTexts = rawTags.map((t: any) => (typeof t === 'string' ? t : (t?.name || ''))).filter((t: string) => !!t);
             if (tagTexts.length > 0) setSelectedTags(tagTexts.map(formatTagForState));
-          } catch { }
+          } catch {
+            // 静默处理标签解析错误
+          }
           if ((p as any).category_id) setSelectedCategory((p as any).category_id);
-          try { await deleteDraft(postId); } catch { }
-          try { Taro.removeStorageSync('tmp_server_draft'); } catch { }
+          try { await deleteDraft(postId); } catch {
+            // 静默处理草稿删除错误
+          }
+          try { Taro.removeStorageSync('tmp_server_draft'); } catch {
+            // 静默处理缓存清理错误
+          }
         }
-      } catch (e) {
+      } catch {
         // ignore
       }
     };
@@ -271,7 +281,7 @@ export default function PublishPost() {
                   Taro.navigateBack();
                 }, 500);
                 return;
-              } catch (e) {
+              } catch {
                 // fallthrough to local save
               }
             }
@@ -337,7 +347,7 @@ export default function PublishPost() {
               await dispatch(createPost(payloadForDraft)).unwrap();
               Taro.showToast({ title: '已保存到草稿箱', icon: 'success' });
               return;
-            } catch (e) {
+            } catch {
               // fallthrough to local save
             }
           }
@@ -388,7 +398,7 @@ export default function PublishPost() {
           const uploadedUrls = await Promise.all(uploadPromises);
           setImages((prev) => [...prev, ...uploadedUrls]);
           Taro.showToast({ title: "上传成功", icon: "success" });
-        } catch (error) {
+        } catch {
 
           Taro.showToast({ title: "上传失败，请重试", icon: "none" });
         } finally {
@@ -568,7 +578,7 @@ export default function PublishPost() {
       // 开启打字机动画，动画完成后会显示接受/拒绝选项
       await polishTextWithAnimation(content, selectedStyle);
       // 动画完成后会自动显示选项，不需要额外操作
-    } catch (error) {
+    } catch {
       // 错误已在hook中处理
     }
   };
@@ -1012,13 +1022,17 @@ export default function PublishPost() {
                       try {
                         const draft = serverDrafts.find(p => p.id === item.id);
                         if (draft) Taro.setStorageSync('tmp_server_draft', draft);
-                      } catch { }
+                      } catch {
+                        // 静默处理草稿缓存设置错误
+                      }
                       Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?postId=${item.id}&isEdit=true` });
                     } else {
                       try {
                         const { removeDraft } = await import('@/utils/draft');
                         removeDraft(item.id);
-                      } catch { }
+                      } catch {
+                        // 静默处理草稿移除错误
+                      }
                       Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?draftId=${item.id}` });
                     }
                   }}

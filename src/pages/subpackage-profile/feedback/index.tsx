@@ -55,8 +55,8 @@ export default function FeedbackPage() {
         
         const accountInfo = await Taro.getAccountInfoSync();
         setAppVersion(accountInfo.miniProgram?.version || '1.0.0');
-      } catch (_systemError) {
-
+      } catch {
+        // 静默处理获取系统信息错误
       }
     };
     
@@ -82,7 +82,7 @@ export default function FeedbackPage() {
       
       const newFiles = res.tempFiles || res.tempFilePaths.map(path => ({ path }));
       setFiles([...files, ...newFiles]);
-    } catch (error) {
+    } catch {
       // 检查是否是用户取消操作
       if (error && typeof error === 'object' && 'errMsg' in error) {
         const errMsg = (error as any).errMsg;
@@ -135,8 +135,8 @@ export default function FeedbackPage() {
       
       Taro.showToast({ title: '反馈成功，感谢您的付出', icon: 'success' });
       setTimeout(() => Taro.navigateBack(), 1200);
-    } catch (_submitError) {
-
+    } catch {
+      // 静默处理提交反馈错误
       Taro.showToast({
         title: '反馈失败',
         icon: 'none'

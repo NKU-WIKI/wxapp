@@ -13,24 +13,24 @@
 }
 
 .scrollView {
-  height: 100%;
   box-sizing: border-box;
+  height: 100%;
   padding: 16px;
 }
 
 .quickActionBar {
   position: fixed;
+  right: 0;
   bottom: 90rpx;
   left: 0;
-  right: 0;
-  height: 30px;
-  background: $bg-page-gray;
+  z-index: 100;
   display: flex;
+  gap: 12px;
   align-items: center;
   justify-content: flex-start;
+  height: 30px;
   padding-left: 16px;
-  gap: 12px;
-  z-index: 100;
+  background: $bg-page-gray;
 }
 
 .quickActionItem {
@@ -39,10 +39,10 @@
   justify-content: center;
   width: 30px;
   height: 30px;
+  cursor: pointer;
   background: $bg-page-gray;
   border-radius: 4px;
   transition: all 0.3s ease;
-  cursor: pointer;
 
   &:hover {
     background-color: $bg-page-gray;
@@ -65,46 +65,44 @@
 
 .subMenuContainer {
   position: fixed;
+  right: 16px;
   bottom: 120rpx;
   left: 16px;
-  right: 16px;
-  background: $bg-card;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   z-index: 1000;
   max-height: 200px;
   overflow-y: auto;
+  background: $bg-card;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
+  backdrop-filter: blur(10px);
   transform: translateY(0);
   transition: all 0.3s ease;
   animation: slideUpIn 0.25s ease-out;
-  backdrop-filter: blur(10px);
   
   &:hover {
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 30%);
     transform: translateY(-2px);
   }
 }
 
 @keyframes slideUpIn {
   0% {
-    transform: translateY(100%);
     opacity: 0;
+    transform: translateY(100%);
   }
+
   100% {
-    transform: translateY(0);
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 // 页面遮罩层，当设置弹窗显示时页面变灰
 .pageOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  inset: 0;
   z-index: 999;
+  background-color: rgb(0 0 0 / 40%);
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -112,6 +110,7 @@
   0% {
     opacity: 0;
   }
+
   100% {
     opacity: 1;
   }
@@ -134,8 +133,8 @@
   
   .settingLabel {
     font-size: 16px;
-    color: $text-primary;
     font-weight: 500;
+    color: $text-primary;
   }
   
   .switchIcon {
@@ -167,25 +166,25 @@
   }
   
   &:hover {
-    background-color: $bg-input;
-    margin: 0 -8px;
     padding: 12px 8px;
+    margin: 0 -8px;
+    background-color: $bg-input;
     border-radius: 6px;
   }
 }
 
 .settingLabel {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
   font-size: 15px;
-  color: $text-primary;
   font-weight: 500;
+  color: $text-primary;
   
   &::before {
-    content: '';
     width: 16px;
     height: 16px;
+    content: '';
     background-color: $text-secondary;
     opacity: 0.6;
   }
@@ -208,9 +207,9 @@
 
 .footer {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
   display: flex;
   justify-content: center;
   padding: 12px 16px;
@@ -221,79 +220,82 @@
 .publishButton {
   width: 100%;
   max-width: 200px;
-  margin: 0 auto;
-  @include button-primary;
-  border-radius: 25px;
   padding: 10px 32px;
+  margin: 0 auto;
   font-size: 16px;
   font-weight: 500;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  border-radius: 25px;
+  box-shadow: 0 4px 12px rgb(79 70 229 / 20%);
   transition: all 0.2s ease;
+
+  @include button-primary;
   
   &:hover {
+    box-shadow: 0 6px 16px rgb(79 70 229 / 30%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
   }
   
   &:active {
+    box-shadow: 0 2px 8px rgb(79 70 229 / 20%);
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
   }
 }
 
 // Card for publish page
 .publishCard {
   @include card-style;
+
   padding: 8px 20px;
   margin-bottom: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   overflow: visible;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
 }
 
 .titleSection {
   display: flex;
+  gap: 8px;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
 }
 
 .titleCount {
+  flex-shrink: 0;
   font-size: 12px;
   color: $text-secondary;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .separator {
   height: 1px;
-  background-color: $border-light;
   margin: 10px 0;
+  background-color: $border-light;
 }
 
 .titleInput,
 .contentInput {
-  border: none;
+  box-sizing: border-box;
   width: 100%;
   font-size: 16px;
-  box-sizing: border-box;
   background-color: transparent;
+  border: none;
+
   &:focus {
     outline: none;
   }
 }
 
 .titleInput {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 0;
   font-size: 18px;
   font-weight: 500;
   line-height: 1.5;
-  min-height: 40px;
-  padding: 8px 0;
   color: $text-primary;
-  display: flex;
-  align-items: center;
-  flex: 1;
   
   &::placeholder {
     color: $text-placeholder;
@@ -303,11 +305,11 @@
 .contentInput {
   min-height: 120px;
   max-height: 300px;
-  resize: none;
-  line-height: 1.5;
-  overflow-y: auto;
   padding: 0;
+  overflow-y: auto;
+  line-height: 1.5;
   color: $text-secondary;
+  resize: none;
   
   &::placeholder {
     color: $text-placeholder;
@@ -316,16 +318,17 @@
 
 .refPanel {
   margin-top: 8px;
+  overflow: hidden;
+  background: $bg-card;
   border: 1px solid $border-light;
   border-radius: 8px;
-  background: $bg-card;
-  overflow: hidden;
 }
+
 .refItem {
   display: flex;
   gap: 8px;
-  padding: 10px 12px;
   align-items: center;
+  padding: 10px 12px;
   &:not(:last-child) { border-bottom: 1px solid $border-light; }
 }
 .refType { font-size: 12px; color: $theme-primary; }
@@ -340,15 +343,15 @@
 
 .imagePlaceholder {
   position: relative;
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  background-color: $bg-input;
-  border: 2px dashed $border-base;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 80px;
+  height: 80px;
   cursor: pointer;
+  background-color: $bg-input;
+  border: 2px dashed $border-base;
+  border-radius: 8px;
   transition: all 0.2s ease;
   
   &:hover {
@@ -380,13 +383,13 @@
 
 .placeholderPlusIcon {
   position: absolute;
-  bottom: -2px;
   right: -2px;
+  bottom: -2px;
   width: 16px;
   height: 16px;
+  padding: 2px;
   background-color: $theme-primary;
   border-radius: 50%;
-  padding: 2px;
   opacity: 0.9;
   
   .imagePlaceholder:hover & {
@@ -399,9 +402,9 @@
   position: relative;
   width: 80px;
   height: 80px;
-  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
   transition: transform 0.2s ease;
   
   &:hover {
@@ -412,24 +415,24 @@
 .previewImage {
   width: 100%;
   height: 100%;
-  border-radius: 8px;
   object-fit: cover;
+  border-radius: 8px;
 }
 
 .deleteIcon {
   position: absolute;
   top: -6px;
   right: -6px;
-  width: 24px;
-  height: 24px;
-  background-color: $status-error;
-  border-radius: 50%;
-  color: $text-white;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: $text-white;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: $status-error;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   transition: all 0.2s ease;
   
   &:hover {
@@ -445,19 +448,19 @@
 /* Toolbar */
 .toolbar {
   display: flex;
+  gap: 12px;
   align-items: center;
   justify-content: flex-start;
+  padding: 8px 0 16px;
   margin-top: 16px;
-  padding: 8px 0 16px 0;
   border-top: 1px solid $border-light;
   border-bottom: 1px solid $border-light;
-  gap: 12px;
 }
 
 .leftTools {
   display: flex;
-  align-items: center;
   gap: 16px;
+  align-items: center;
 }
 
 .toolbarIcon {
@@ -469,8 +472,8 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: $alpha-primary-10;
     color: $theme-primary;
+    background-color: $alpha-primary-10;
   }
 
   &:active {
@@ -482,8 +485,8 @@
 /* 润色工具组 */
 .polishGroup {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
   margin-left: auto;
 }
 
@@ -494,17 +497,17 @@
 
 .styleButton {
   display: flex;
-  align-items: center;
   gap: 4px;
-  background-color: $bg-input;
-  color: $text-secondary;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  border: 1px solid $border-light;
-  min-width: 70px;
+  align-items: center;
   justify-content: center;
+  min-width: 70px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: $text-secondary;
+  cursor: pointer;
+  background-color: $bg-input;
+  border: 1px solid $border-light;
+  border-radius: 8px;
   transition: all 0.2s ease;
 
   &:hover {
@@ -526,9 +529,9 @@
 .arrow {
   width: 0;
   height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
   border-top: 4px solid $text-secondary;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
   transition: transform 0.2s ease;
 }
 
@@ -544,13 +547,13 @@
   position: absolute;
   top: 100%;
   right: 0;
+  z-index: 1000;
+  min-width: 80px;
+  margin-top: 4px;
   background-color: $bg-card;
   border: 1px solid $border-light;
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 80px;
-  z-index: 1000;
-  margin-top: 4px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
 }
 
 .styleOption {
@@ -564,9 +567,9 @@
   }
 
   &.selected {
-    background-color: $alpha-primary-10;
-    color: $theme-primary;
     font-weight: 500;
+    color: $theme-primary;
+    background-color: $alpha-primary-10;
   }
 
   &:first-child {
@@ -575,40 +578,40 @@
   }
 
   &:last-child {
-    border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
   }
 }
 
 /* 润色按钮 */
 .wikiBtn {
   display: flex;
-  align-items: center;
   gap: 4px;
-  background-color: $alpha-primary-10;
-  color: $theme-primary;
+  align-items: center;
   padding: 6px 12px;
-  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
+  color: $theme-primary;
   cursor: pointer;
+  background-color: $alpha-primary-10;
   border: 1px solid $alpha-primary-20;
+  border-radius: 8px;
   transition: all 0.2s ease;
 
   &:hover {
     background-color: $alpha-primary-20;
+    box-shadow: 0 2px 4px rgb(79 70 229 / 20%);
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
   }
 
   &:active {
-    transform: scale(0.98) translateY(0);
     background-color: $alpha-primary-20;
+    transform: scale(0.98) translateY(0);
   }
 
   &.loading {
-    opacity: 0.7;
     pointer-events: none;
+    opacity: 0.7;
   }
 }
 
@@ -619,74 +622,74 @@
 
 /* 打字机动画样式 */
 .typingContainer {
+  position: relative;
+  min-height: 120px;
+  padding: 12px;
   background-color: $bg-card;
   border: 1px solid $border-light;
   border-radius: 8px;
-  padding: 12px;
-  min-height: 120px;
-  position: relative;
 }
 
 .typingText {
-  font-size: 15px;
-  color: $theme-primary;
-  line-height: 1.5;
-  font-weight: 500;
   margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: $theme-primary;
 }
 
 .typing {
-  color: $theme-primary;
   font-weight: 600;
+  color: $theme-primary;
   animation: pulse 1.5s infinite;
 }
 
 .cursor {
-  animation: blink 1s infinite;
-  color: $theme-primary;
-  font-weight: bold;
   font-size: 16px;
+  font-weight: bold;
+  color: $theme-primary;
+  animation: blink 1s infinite;
 }
 
 /* 接受/拒绝按钮样式 */
 .polishActions {
   display: flex;
-  justify-content: center;
   gap: 16px;
+  justify-content: center;
   margin-top: 12px;
 }
 
 .acceptBtn {
-  background-color: $status-success;
-  color: $text-white;
   padding: 8px 20px;
-  border-radius: 20px;
   font-size: 14px;
   font-weight: 600;
+  color: $text-white;
   cursor: pointer;
-  transition: all 0.2s ease;
+  background-color: $status-success;
   border: none;
+  border-radius: 20px;
+  transition: all 0.2s ease;
 
   &:active {
-    transform: scale(0.95);
     background-color: $status-success-dark;
+    transform: scale(0.95);
   }
 }
 
 .rejectBtn {
-  background-color: $status-error;
-  color: $text-white;
   padding: 8px 20px;
-  border-radius: 20px;
   font-size: 14px;
   font-weight: 600;
+  color: $text-white;
   cursor: pointer;
-  transition: all 0.2s ease;
+  background-color: $status-error;
   border: none;
+  border-radius: 20px;
+  transition: all 0.2s ease;
 
   &:active {
-    transform: scale(0.95);
     background-color: $status-error-dark;
+    transform: scale(0.95);
   }
 }
 
@@ -703,21 +706,21 @@
 
 
 .sectionTitle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 16px;
   color: $text-primary;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   
   &::before {
-    content: '';
     width: 16px;
     height: 16px;
+    content: '';
     background-color: $theme-primary;
-    opacity: 0.8;
     border-radius: 2px;
+    opacity: 0.8;
   }
 }
 
@@ -725,65 +728,65 @@
 .visibleAll {
   display: inline-flex;
   align-items: center;
-  background-color: transparent;
-  color: $text-secondary;
   padding: 8px 0;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 400;
-  cursor: pointer;
   line-height: 1.4;
+  color: $text-secondary;
   letter-spacing: 0.5px;
   white-space: nowrap;
-  font-family: inherit;
+  cursor: pointer;
+  background-color: transparent;
   
-  &:before {
-    content: '';
+  &::before {
     display: inline-block;
     width: 16px;
     height: 16px;
+    margin-right: 4px;
+    vertical-align: middle;
+    content: '';
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>');
     background-size: contain;
     opacity: 0.6;
-    margin-right: 4px;
-    vertical-align: middle;
   }
 }
 
 .visibleAllText {
+  font-family: inherit;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
+  color: inherit;
   letter-spacing: 0.5px;
   white-space: nowrap;
-  font-family: inherit;
-  color: inherit;
 }
 
 // 添加话题和可见性设置在同一行
 .topicAndVisibilityRow {
   display: flex;
+  flex-wrap: nowrap;
+  gap: 24px;
   align-items: center;
   justify-content: space-between;
-  margin: 16px 0 8px 0;
-  gap: 24px;
-  flex-wrap: nowrap;
+  margin: 16px 0 8px;
 }
 
 // 添加话题按钮样式
 .addTopicButton {
   display: inline-flex;
   align-items: center;
-  background-color: transparent;
-  color: $text-secondary;
   padding: 8px 0;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 400;
-  cursor: pointer;
-  transition: color 0.2s ease;
   line-height: 1.4;
+  color: $text-secondary;
   letter-spacing: 0.5px;
   white-space: nowrap;
-  font-family: inherit;
+  cursor: pointer;
+  background-color: transparent;
+  transition: color 0.2s ease;
   
   &:hover {
     color: $theme-primary;
@@ -795,41 +798,41 @@
 }
 
 .addTopicText {
-  color: inherit;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
+  color: inherit;
   letter-spacing: 0.5px;
   white-space: nowrap;
-  font-family: inherit;
 }
 
 // 话题输入框容器样式
 .topicInputContainer {
   display: inline-flex;
-  align-items: center;
-  background-color: transparent;
-  padding: 8px 0;
-  min-width: 120px;
   gap: 4px;
+  align-items: center;
+  min-width: 120px;
+  padding: 8px 0;
   white-space: nowrap;
+  background-color: transparent;
 }
 
 .topicInputPrefix {
-  color: $theme-primary;
-  font-weight: bold;
-  font-size: 14px;
   margin-right: 2px;
+  font-size: 14px;
+  font-weight: bold;
+  color: $theme-primary;
 }
 
 .topicInput {
   flex: 1;
-  font-size: 14px;
-  height: 20px;
   min-width: 80px;
-  border: none;
-  background: transparent;
+  height: 20px;
+  font-size: 14px;
   color: $theme-primary;
+  background: transparent;
+  border: none;
   
   &:focus {
     outline: none;
@@ -842,13 +845,13 @@
 
 // 新增标签输入相关样式
 .selectedTagsContainer {
-  margin: 16px 0 8px 0;
+  margin: 16px 0 8px;
 }
 
 .selectedTagsTitle {
+  margin-bottom: 8px;
   font-size: 14px;
   color: $text-secondary;
-  margin-bottom: 8px;
 }
 
 .selectedTagsList {
@@ -859,15 +862,15 @@
 
 .selectedTag {
   display: inline-flex;
-  align-items: center;
   gap: 4px;
-  background-color: $alpha-primary-10;
-  color: $theme-primary;
+  align-items: center;
   padding: 6px 12px;
-  border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
+  color: $theme-primary;
+  background-color: $alpha-primary-10;
   border: 1px solid $alpha-primary-20;
+  border-radius: 20px;
   transition: all 0.2s ease;
   
   &:hover {
@@ -876,8 +879,8 @@
 }
 
 .removeTag {
-  font-size: 14px;
   margin-left: 4px;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   opacity: 0.7;
@@ -909,14 +912,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: $bg-input;
+  min-height: 48px;
   padding: 12px 8px;
-  border-radius: 8px;
-  border: 1px solid $border-light;
-  transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
-  min-height: 48px;
+  background-color: $bg-input;
+  border: 1px solid $border-light;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 
   &:hover {
     background-color: $bg-input-focus;
@@ -928,10 +931,10 @@
   }
 
   &.selected {
+    color: $text-white;
     background-color: $theme-primary;
     border-color: $theme-primary;
-    color: $text-white;
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 2px 8px rgb(79 70 229 / 20%);
   }
 }
 
@@ -948,21 +951,21 @@
 
 .categoryName {
   font-size: 14px;
-  color: $text-secondary;
   font-weight: 500;
+  color: $text-secondary;
   text-align: center;
 
   .categoryItem.selected & {
-    color: $text-white;
     font-weight: 500;
+    color: $text-white;
   }
 }
 
 .publishSettings {
   .settingLabel {
     display: flex;
-    align-items: center;
     gap: 4px;
+    align-items: center;
     color: $theme-primary;
   }
 
@@ -972,42 +975,42 @@
 }
 
 .publishButton {
-  height: 44px;
-  border-radius: 8px;
-  border: 1px solid $theme-primary;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 44px;
+  border: 1px solid $theme-primary;
+  border-radius: 8px;
 }
 
 /* 草稿选择弹窗样式 */
 .draftOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  background: rgb(0 0 0 / 50%);
 }
 
 .draftModal {
+  display: flex;
+  flex-direction: column;
   width: 86vw;
   max-width: 520px;
   max-height: 70vh;
+  padding: 16px;
   background: $bg-card;
   border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 20%);
 }
 
 .draftTitle {
+  margin-bottom: 12px;
   font-size: 16px;
   font-weight: 600;
   color: $text-primary;
-  margin-bottom: 12px;
 }
 
 .draftList {
@@ -1017,10 +1020,10 @@
 
 .draftItem {
   padding: 12px;
-  border: 1px solid $border-light;
-  border-radius: 8px;
   margin-bottom: 10px;
   background: $bg-input;
+  border: 1px solid $border-light;
+  border-radius: 8px;
 }
 
 .draftItemTitle {
@@ -1029,11 +1032,12 @@
 }
 
 .newPostButton {
-  margin-top: 12px;
-  @include button-secondary;
-  text-align: center;
   padding: 10px 0;
+  margin-top: 12px;
+  text-align: center;
   border-radius: 8px;
+
+  @include button-secondary;
 }
 
 // 话题标签直接显示在内容后面，内联样式
@@ -1043,10 +1047,10 @@
 }
 
 .inlineTopicWrapper {
+  position: relative;
   display: inline-flex;
   align-items: center;
   margin-right: 8px;
-  position: relative;
   transition: all 0.2s ease;
   
   &:active {
@@ -1055,21 +1059,21 @@
   
   // 长按提示
   &::after {
-    content: '长按删除';
     position: absolute;
     bottom: -20px;
     left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    font-size: 12px;
+    z-index: 1000;
     padding: 4px 8px;
+    font-size: 12px;
+    color: white;
+    white-space: nowrap;
+    pointer-events: none;
+    content: '长按删除';
+    background-color: rgb(0 0 0 / 80%);
     border-radius: 4px;
     opacity: 0;
-    pointer-events: none;
+    transform: translateX(-50%);
     transition: opacity 0.3s ease;
-    white-space: nowrap;
-    z-index: 1000;
   }
   
   &:hover::after {
@@ -1079,23 +1083,23 @@
 
 .inlineTopic {
   display: inline;
-  color: $theme-primary;
-  font-weight: 500;
   font-size: 14px;
+  font-weight: 500;
   line-height: 1.4;
+  color: $theme-primary;
   letter-spacing: 0.5px;
 }
 
 .inlineTopicDelete {
   display: inline;
-  color: $theme-primary;
+  margin-left: 4px;
   font-size: 12px;
   font-weight: bold;
-  margin-left: 4px;
+  color: $theme-primary;
   cursor: pointer;
+  user-select: none;
   opacity: 0.7;
   transition: opacity 0.2s ease;
-  user-select: none;
   
   &:hover {
     opacity: 1;

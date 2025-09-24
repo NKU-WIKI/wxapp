@@ -20,8 +20,4 @@ export interface CompanyInfo {
   companyName: string;
 }
 
-export interface AboutPageProps {
-  // 预留扩展属性
-}
-
-export type LinkType = 'website' | 'email' | 'github'; 
+export type LinkType = "website" | "email" | "github";

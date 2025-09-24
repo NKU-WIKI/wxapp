@@ -158,7 +158,7 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
                   : (nextActive ? likeCount + 1 : Math.max(0, likeCount - 1));
                 setIsLiked(nextActive);
                 setLikeCount(nextCount);
-              } catch (_e) {
+              } catch {
                 Taro.showToast({ title: '操作失败，请稍后重试', icon: 'none' });
               } finally {
                 setIsLiking(false);

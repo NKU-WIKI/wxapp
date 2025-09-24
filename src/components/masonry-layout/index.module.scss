@@ -9,31 +9,31 @@
 }
 
 .masonryContent {
-  display: flex;
-  padding: 16px 8px 0 8px; /* 改为正常的顶部padding，移除负边距 */
-  gap: 8px;
-  min-height: 100%;
-  width: 100%;
   box-sizing: border-box;
+  display: flex;
+  gap: 8px;
   align-items: flex-start; /* 确保列从顶部对齐 */
+  width: 100%;
+  min-height: 100%;
+  padding: 16px 8px 0; /* 改为正常的顶部padding，移除负边距 */
 }
 
 .column {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
+  align-items: stretch; /* 确保卡片宽度填满列宽 */
   width: calc(50% - 4px); /* 确保两列宽度相等，减去gap的一半 */
   max-width: calc(50% - 4px);
-  align-items: stretch; /* 确保卡片宽度填满列宽 */
 }
 
 /* 加载动画 */
 .loadingContainer {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
   gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .loadingDot {
@@ -58,36 +58,37 @@
 
 @keyframes loadingPulse {
   0%, 80%, 100% {
-    transform: scale(0.8);
     opacity: 0.5;
+    transform: scale(0.8);
   }
+
   40% {
-    transform: scale(1);
     opacity: 1;
+    transform: scale(1);
   }
 }
 
 /* 没有更多数据提示 */
 .noMoreContainer {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 30px 20px;
 }
 
 .noMoreText {
-  color: #999;
-  font-size: 14px;
   position: relative;
+  font-size: 14px;
+  color: #999;
 }
 
 .noMoreText::before,
 .noMoreText::after {
-  content: '';
   position: absolute;
   top: 50%;
   width: 40px;
   height: 1px;
+  content: '';
   background-color: #ddd;
 }
 
@@ -105,16 +106,16 @@
 }
 
 /* 响应式适配 */
-@media (max-width: 375px) {
+@media (width <= 375px) {
   .masonryContent {
-    padding: 8px 6px 0 6px;
     gap: 6px;
+    padding: 8px 6px 0;
   }
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .masonryContent {
-    padding: 16px 12px 0 12px;
     gap: 12px;
+    padding: 16px 12px 0;
   }
 }

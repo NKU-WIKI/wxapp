@@ -1,4 +1,4 @@
-@import '@/styles/variables.scss';
+@import '@/styles/variables';
 
 .container {
   display: flex;
@@ -8,27 +8,27 @@
 }
 
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   padding: 16px;
   background-color: $bg-card;
   border-bottom: 1px solid $border-light;
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
 .backBtn {
-  color: $theme-primary;
-  font-size: 16px;
   margin-right: 16px;
+  font-size: 16px;
+  color: $theme-primary;
 }
 
 .title {
+  flex: 1;
   font-size: 18px;
   font-weight: bold;
   color: $text-primary;
-  flex: 1;
   text-align: center;
 }
 
@@ -42,28 +42,28 @@
 }
 
 .sectionTitle {
+  display: block;
+  margin-bottom: 12px;
   font-size: 16px;
   font-weight: bold;
   color: $text-primary;
-  margin-bottom: 12px;
-  display: block;
 }
 
 .sectionContent {
-  font-size: 14px;
-  color: $text-secondary;
-  line-height: 1.6;
-  margin-bottom: 8px;
   display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: $text-secondary;
 }
 
 .listItem {
-  font-size: 14px;
-  color: $text-secondary;
-  line-height: 1.6;
+  display: block;
   margin-bottom: 4px;
   margin-left: 16px;
-  display: block;
+  font-size: 14px;
+  line-height: 1.6;
+  color: $text-secondary;
 }
 
 .footer {

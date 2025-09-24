@@ -5,7 +5,7 @@ import http from "../request";
  * @returns
  */
 export const getScenarios = () => {
-  return http.get<any[]>("/persona/scenarios");
+  return http.get<unknown[]>("/persona/scenarios");
 };
 
 /**
@@ -18,7 +18,7 @@ export const createScenario = (data: {
   name: string;
   description?: string;
 }) => {
-  return http.post<any>("/persona/scenarios", data);
+  return http.post<unknown>("/persona/scenarios", data);
 };
 
 /**
@@ -26,7 +26,7 @@ export const createScenario = (data: {
  * @returns
  */
 export const getMyScenarioPreferences = () => {
-  return http.get<any[]>("/persona/me/scenario-preferences");
+  return http.get<unknown[]>("/persona/me/scenario-preferences");
 };
 
 /**
@@ -39,7 +39,7 @@ export const upsertMyScenarioPreference = (data: {
   scenario_code?: string;
   weight?: number;
 }) => {
-  return http.post<any>("/persona/me/scenario-preferences", data);
+  return http.post<unknown>("/persona/me/scenario-preferences", data);
 };
 
 // persona API对象

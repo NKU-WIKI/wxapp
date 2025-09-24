@@ -101,7 +101,7 @@ const Profile = () => {
           icon: 'success',
           duration: 1000
         });
-      } catch (error) {
+      } catch {
 
         Taro.showToast({
           title: '刷新失败',

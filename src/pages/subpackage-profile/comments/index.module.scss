@@ -7,6 +7,8 @@
 
 // 自定义导航栏
 .navbar {
+  position: relative;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -14,8 +16,6 @@
   padding: 0 16px;
   background-color: #fff;
   border-bottom: 1px solid #e5e5e5;
-  position: relative;
-  z-index: 100;
 }
 
 .navLeft {
@@ -33,12 +33,12 @@
 }
 
 .navCenter {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: absolute;
   left: 50%;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
   transform: translateX(-50%);
 }
 
@@ -64,22 +64,22 @@
 }
 
 .commentsList {
-  padding: 16px 14px 32px;
   display: flex;
   flex-direction: column;
+  padding: 16px 14px 32px;
 }
 
 .commentItem {
-  background-color: #fff;
-  border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
   border-left: 4px solid transparent;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
   transition: all 0.2s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
     transform: translateY(-1px);
   }
 }
@@ -96,8 +96,8 @@
 
 .commentMeta {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
   margin-bottom: 12px;
 }
 
@@ -117,26 +117,26 @@
 }
 
 .resourceInfo {
-  background-color: #f8f9fa;
-  border-radius: 8px;
   padding: 12px;
   margin-bottom: 8px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
 .resourceHeader {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
   margin-bottom: 6px;
 }
 
 .resourceType {
+  padding: 2px 6px;
   font-size: 11px;
   font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background-color: #e3f2fd;
   color: #1976d2;
+  background-color: #e3f2fd;
+  border-radius: 4px;
 }
 
 .resourceAuthor {
@@ -146,22 +146,22 @@
 
 .resourceTitle {
   font-size: 13px;
-  color: #555;
   line-height: 1.4;
+  color: #555;
 }
 
 .replyInfo {
-  background-color: #f0f8ff;
-  border-radius: 6px;
   padding: 8px;
+  background-color: #f0f8ff;
   border-left: 3px solid #4285f4;
+  border-radius: 6px;
 }
 
 .replyLabel {
-  font-size: 11px;
-  color: #4285f4;
-  font-weight: 500;
   margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #4285f4;
 }
 
 .replyTarget {
@@ -171,29 +171,29 @@
 
 .loading {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 40px 20px;
-  color: #666;
   font-size: 14px;
+  color: #666;
 }
 
 .loadingMore {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
-  color: #666;
   font-size: 13px;
+  color: #666;
 }
 
 .noMore {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
-  color: #999;
   font-size: 12px;
+  color: #999;
 }
 
 .errorContainer {
@@ -205,19 +205,19 @@
 }
 
 .errorText {
-  color: #f56565;
-  font-size: 14px;
   margin-bottom: 16px;
+  font-size: 14px;
+  color: #f56565;
   text-align: center;
 }
 
 .retryButton {
-  background-color: #4285f4;
-  color: white;
   padding: 8px 16px;
-  border-radius: 6px;
   font-size: 13px;
+  color: white;
   cursor: pointer;
+  background-color: #4285f4;
+  border-radius: 6px;
   
   &:hover {
     background-color: #3367d6;
@@ -229,40 +229,40 @@
 }
 
 .typeTag {
+  display: inline-block;
+  padding: 3px 8px;
   font-size: 11px;
   font-weight: 600;
-  padding: 3px 8px;
   border-radius: 12px;
-  display: inline-block;
 }
 
 .postTag {
-  background-color: #E0F2FE;
   color: #0369A1;
+  background-color: #E0F2FE;
   border: 1px solid #BAE6FD;
 }
 
 .replyTag {
-  background-color: #F0FDF4;
   color: #15803D;
+  background-color: #F0FDF4;
   border: 1px solid #BBF7D0;
 }
 
 .commentContent {
+  margin-bottom: 12px;
   font-size: 16px;
   line-height: 1.5;
   color: #333;
-  margin-bottom: 12px;
   word-wrap: break-word;
 }
 
 .commentMeta {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
   font-size: 12px;
   color: #999;
-  margin-bottom: 12px;
 }
 
 .commentTime {
@@ -275,134 +275,135 @@
 }
 
 .originalLabel {
-  font-size: 12px;
-  color: #666;
   margin-bottom: 4px;
+  font-size: 12px;
   font-weight: 500;
+  color: #666;
 }
 
 .postInfo {
   .postTitle {
+    display: -webkit-box;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
     font-size: 14px;
     font-weight: 500;
     color: #333;
-    margin-bottom: 4px;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
     -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .postContent {
-    font-size: 12px;
-    color: #666;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 12px;
+    color: #666;
+    -webkit-box-orient: vertical;
   }
 }
 
 .postInfoCard {
-  background: #F0F9FF;
   padding: 10px 14px;
-  border-radius: 8px;
-  border-left: 3px solid #38BDF8;
   margin-top: 6px;
   margin-bottom: 2px;
-  box-shadow: 0 1px 3px rgba(56, 189, 248, 0.06);
+  background: #F0F9FF;
+  border-left: 3px solid #38BDF8;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgb(56 189 248 / 6%);
   
   .postTitle {
+    display: block;
+    margin-bottom: 4px;
     font-size: 13px;
     font-weight: 600;
     color: #0369A1;
-    margin-bottom: 4px;
-    display: block;
   }
+
   .postContent {
-    font-size: 12px;
-    color: #64748B;
-    line-height: 1.4;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #64748B;
+    -webkit-box-orient: vertical;
   }
 }
 
 .parentCommentInfo {
-  background: #F8FAFC;
   padding: 8px 12px;
-  border-radius: 8px;
+  background: #F8FAFC;
   border-left: 3px solid #10B981;
+  border-radius: 8px;
   
   .parentAuthor {
+    display: block;
+    margin-bottom: 4px;
     font-size: 13px;
     font-weight: 600;
     color: #374151;
-    margin-bottom: 4px;
-    display: block;
   }
   
   .parentContent {
-    font-size: 12px;
-    color: #6B7280;
-    line-height: 1.4;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #6B7280;
+    -webkit-box-orient: vertical;
   }
   
   .parentPlaceholder {
     .parentHint {
-      font-size: 11px;
-      color: #9CA3AF;
-      font-style: italic;
-      opacity: 0.8;
       margin-bottom: 2px;
+      font-size: 11px;
+      font-style: italic;
+      color: #9CA3AF;
+      opacity: 0.8;
     }
     
     .parentId {
+      font-family: monospace;
       font-size: 10px;
       color: #6B7280;
-      font-family: monospace;
     }
   }
 }
 
 .loading {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 100px;
-  color: #666;
   font-size: 14px;
+  color: #666;
 }
 
 .loadingMore {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 60px;
-  color: #666;
   font-size: 14px;
+  color: #666;
 }
 
 .noMore {
-  text-align: center;
   padding: 16px 0;
-  color: #999;
+  margin: 8px 0 48px;
   font-size: 14px;
-  margin: 8px 0 48px 0;
+  color: #999;
+  text-align: center;
   background-color: #f9f9f9;
   border-radius: 8px;
 }
@@ -410,26 +411,26 @@
 .errorContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 200px;
   padding: 20px;
 }
 
 .errorText {
-  color: #ff4d4f;
-  font-size: 14px;
   margin-bottom: 16px;
+  font-size: 14px;
+  color: #ff4d4f;
   text-align: center;
 }
 
 .retryButton {
-  background-color: #4285f4;
-  color: white;
   padding: 8px 16px;
-  border-radius: 6px;
   font-size: 13px;
+  color: white;
   cursor: pointer;
+  background-color: #4285f4;
+  border-radius: 6px;
   
   &:hover {
     background-color: #3367d6;

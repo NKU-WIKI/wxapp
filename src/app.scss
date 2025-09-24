@@ -1,5 +1,5 @@
 // 全量引入 taro-ui 样式
-@use "taro-ui/dist/style/index.scss";
+@use "taro-ui/dist/style/index";
 @use "./styles/variables.scss" as *;
 
 /* CSS 自定义属性定义 */
@@ -10,9 +10,9 @@
   --app-font-size-large: 18px;
   
   /* 浅色主题变量 */
-  --app-bg-color: #ffffff;
-  --app-text-color: #333333;
-  --app-card-bg: #ffffff;
+  --app-bg-color: #fff;
+  --app-text-color: #333;
+  --app-card-bg: #fff;
   --app-border-color: #e2e8f0;
   --app-primary-color: #4f46e5;
   --app-secondary-color: #6b7280;
@@ -24,7 +24,7 @@
 /* 深色主题变量 */
 :root.dark-theme {
   --app-bg-color: #1a1a1a;
-  --app-text-color: #ffffff;
+  --app-text-color: #fff;
   --app-card-bg: #2d2d2d;
   --app-border-color: #404040;
   --app-primary-color: #5a67d8;
@@ -36,13 +36,13 @@
 
 /* 根节点样式 */
 page {
-  background-color: var(--app-bg-color);
-  color: var(--app-text-color);
-  font-size: var(--app-font-size);
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
-    Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB',
-    'Microsoft Yahei', sans-serif;
   box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    "Segoe UI", Arial, Roboto, 'PingFang SC', miui, 'Hiragino Sans GB',
+    'Microsoft Yahei', sans-serif;
+  font-size: var(--app-font-size);
+  color: var(--app-text-color);
+  background-color: var(--app-bg-color);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -83,9 +83,9 @@ image {
 
 /* 通用样式 */
 .page-container {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 .page-content {
@@ -98,11 +98,11 @@ image {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
   font-weight: 500;
-  transition: all 0.15s ease-in-out;
-  border: none;
   outline: none;
+  border: none;
+  border-radius: 6px;
+  transition: all 0.15s ease-in-out;
   
   &::after {
     border: none;
@@ -120,9 +120,10 @@ image {
 /* 输入框样式 */
 .input {
   @include input-style;
-  border-radius: 6px;
+
   padding: 8px 12px;
   font-size: 14px;
+  border-radius: 6px;
 }
 
 /* 卡片样式 */
@@ -210,7 +211,7 @@ image {
 }
 
 /* 响应式设计 */
-@media (max-width: 480px) {
+@media (width <= 480px) {
   page {
     font-size: 14px;
   }

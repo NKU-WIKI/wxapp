@@ -1,4 +1,4 @@
-import Taro from '@tarojs/taro';
+import Taro from "@tarojs/taro";
 
 // 创建一个适用于 Taro 环境的 redux-persist 存储适配器
 const persistStorage = {
@@ -6,7 +6,7 @@ const persistStorage = {
     try {
       const value = Taro.getStorageSync(key);
       return Promise.resolve(value || null);
-    } catch (error) {
+    } catch {
       // 静默处理存储错误
       return Promise.resolve(null);
     }
@@ -15,7 +15,7 @@ const persistStorage = {
     try {
       Taro.setStorageSync(key, value);
       return Promise.resolve();
-    } catch (error) {
+    } catch {
       // 静默处理存储错误
       return Promise.resolve();
     }
@@ -24,11 +24,11 @@ const persistStorage = {
     try {
       Taro.removeStorageSync(key);
       return Promise.resolve();
-    } catch (error) {
+    } catch {
       // 静默处理存储错误
       return Promise.resolve();
     }
-  }
+  },
 };
 
 export default persistStorage;

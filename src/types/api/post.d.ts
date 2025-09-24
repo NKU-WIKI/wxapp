@@ -65,11 +65,6 @@ export interface PostUpdate {
   status?: "published" | "draft" | "archived";
 }
 
-/**
- * @description 获取社区动态信息流的查询参数
- */
-export interface GetFeedParams extends PaginationParams {}
-
 export interface GetHotPostsParams {
   /**
    * Limit，排行榜长度（1-50）
@@ -77,7 +72,6 @@ export interface GetHotPostsParams {
   limit?: number;
   [property: string]: any;
 }
-
 
 /**
  * ApiResponse[List[PostHotRanking]]

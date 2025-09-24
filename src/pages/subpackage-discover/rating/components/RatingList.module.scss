@@ -1,24 +1,24 @@
 /* 评分列表组件样式 */
 .ratingList {
-  width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 /* 列表头部 */
 .listHeader {
   padding: 32px 0 24px;
-  border-bottom: 1px solid #eee;
   margin-bottom: 24px;
+  border-bottom: 1px solid #eee;
 }
 
 .listTitle {
+  display: block;
   font-size: 40px;
   font-weight: bold;
   color: #333;
   text-align: center;
-  display: block;
 }
 
 /* 列表内容 */
@@ -47,41 +47,41 @@
 }
 
 .emptyIcon {
-  font-size: 120px;
   margin-bottom: 32px;
+  font-size: 120px;
 }
 
 .emptyTitle {
+  display: block;
+  margin-bottom: 16px;
   font-size: 36px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 16px;
-  display: block;
 }
 
 .emptyDescription {
-  font-size: 28px;
-  color: #666;
-  line-height: 1.5;
   display: block;
+  font-size: 28px;
+  line-height: 1.5;
+  color: #666;
 }
 
 /* 总分区域 */
 .totalSection {
-  border-top: 2px solid #eee;
   padding: 32px 0 0;
   margin-top: 32px;
+  border-top: 2px solid #eee;
 }
 
 .totalContainer {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
-  padding: 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 32px;
   color: white;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(102 126 234 / 30%);
 }
 
 .totalLabel {
@@ -91,8 +91,8 @@
 
 .totalScore {
   display: flex;
-  align-items: baseline;
   gap: 8px;
+  align-items: baseline;
 }
 
 .totalValue {
@@ -106,8 +106,8 @@
 }
 
 .totalPercentage {
-  background-color: rgba(255, 255, 255, 0.2);
   padding: 12px 20px;
+  background-color: rgb(255 255 255 / 20%);
   border-radius: 12px;
   backdrop-filter: blur(10px);
 }
@@ -118,7 +118,7 @@
 }
 
 /* 响应式适配 */
-@media (max-width: 750px) {
+@media (width <= 750px) {
   .listHeader {
     padding: 24px 0 16px;
     margin-bottom: 16px;
@@ -141,13 +141,13 @@
   }
   
   .emptyIcon {
-    font-size: 100px;
     margin-bottom: 24px;
+    font-size: 100px;
   }
   
   .emptyTitle {
-    font-size: 32px;
     margin-bottom: 12px;
+    font-size: 32px;
   }
   
   .emptyDescription {
@@ -160,9 +160,9 @@
   }
   
   .totalContainer {
-    padding: 24px;
     flex-direction: column;
     gap: 16px;
+    padding: 24px;
     text-align: center;
   }
   
@@ -193,6 +193,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

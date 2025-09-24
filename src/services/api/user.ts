@@ -3,7 +3,7 @@ import {
   UpdateUserProfileRequest,
   CreateViewHistoryRequest,
   HistoryList,
-  GetHistoryParams,
+  _GetHistoryParams,
   User,
 } from "@/types/api/user";
 import { Post } from "@/types/api/post.d";
@@ -21,16 +21,20 @@ export const getMe = () => {
 
 /**
  * 获取用户对特定目标的操作状态
- * @param targetId 目标ID  
+ * @param targetId 目标ID
  * @param targetType 目标类型
  * @param actionType 操作类型
  * @returns
  */
-export const getActionStatus = (targetId: string, targetType: 'user' | 'post' | 'comment' | 'knowledge' | 'note', actionType: 'like' | 'favorite' | 'follow') => {
+export const getActionStatus = (
+  targetId: string,
+  targetType: "user" | "post" | "comment" | "knowledge" | "note",
+  actionType: "like" | "favorite" | "follow",
+) => {
   return http.get<{ is_active: boolean; count: number }>("/actions/status", {
     target_id: targetId,
     target_type: targetType,
-    action_type: actionType
+    action_type: actionType,
   });
 };
 
@@ -65,29 +69,24 @@ export const createViewHistory = (data: CreateViewHistoryRequest) => {
  * @param params
  * @returns
  */
-export const getMyHistory = (params: GetHistoryParams) => {
+export const getMyHistory = (params: PaginationParams) => {
   return http.get<HistoryList>("/users/me/history", params);
-}; 
+};
 
 /**
  * 获取当前用户的标签列表
  * @returns
  */
 export const getMyTags = () => {
-  return http.get<any>("/persona/me/tags");
-}; 
+  return http.get<unknown>("/persona/me/tags");
+};
 
 /**
  * 获取当前用户统计画像
  * @returns
  */
 export const getMyStats = () => {
-  return http.get<any>("/persona/me/stats").then(response => {
-    return response;
-  }).catch(error => {
-    
-    throw error;
-  });
+  return http.get<unknown>("/persona/me/stats");
 };
 
 /**
@@ -95,7 +94,7 @@ export const getMyStats = () => {
  * @returns
  */
 export const getMyLevel = () => {
-  return http.get<any>("/persona/me/level");
+  return http.get<unknown>("/persona/me/level");
 };
 
 /**
@@ -103,8 +102,11 @@ export const getMyLevel = () => {
  * @param params 分页参数
  * @returns
  */
-export const getMyExperienceRecords = (params?: { page?: number; size?: number }) => {
-  return http.get<any>("/persona/me/experience-records", params);
+export const getMyExperienceRecords = (params?: {
+  page?: number;
+  size?: number;
+}) => {
+  return http.get<unknown>("/persona/me/experience-records", params);
 };
 
 /**
@@ -112,7 +114,7 @@ export const getMyExperienceRecords = (params?: { page?: number; size?: number }
  * @returns
  */
 export const getExpRules = () => {
-  return http.get<any>("/persona/exp-rules");
+  return http.get<unknown>("/persona/exp-rules");
 };
 
 /**
@@ -121,14 +123,14 @@ export const getExpRules = () => {
  * @returns
  */
 export const upsertMyTag = (data: { tag: string; weight?: number }) => {
-  return http.post<any>("/persona/me/tags", data);
-}; 
+  return http.post<unknown>("/persona/me/tags", data);
+};
 
 /**
  * 获取用户收藏列表
  * 注意：这个API在文档中缺失，可能需要通过其他方式实现
  */
-export const getUserFavorites = (_params: any) => {
+export const getUserFavorites = (_params: unknown) => {
   // 由于API文档中没有获取用户收藏的端点，暂时返回空数组
   return Promise.resolve({ code: 200, data: [] });
 };
@@ -148,7 +150,7 @@ export const getUserLikedPosts = (params?: PaginationParams) => {
  * @returns 用户点赞的笔记列表
  */
 export const getUserLikedNotes = (params?: PaginationParams) => {
-  return http.get<PaginatedData<any>>("/users/me/liked-notes", params);
+  return http.get<PaginatedData<unknown>>("/users/me/liked-notes", params);
 };
 
 /**
@@ -156,7 +158,7 @@ export const getUserLikedNotes = (params?: PaginationParams) => {
  * OpenAPI 指定为 /comments/me
  */
 export const getUserComments = (params?: { skip?: number; limit?: number }) => {
-  return http.get<any>("/comments/me", params);
+  return http.get<unknown>("/comments/me", params);
 };
 
 /**
@@ -164,7 +166,7 @@ export const getUserComments = (params?: { skip?: number; limit?: number }) => {
  * OpenAPI 指定为 /users/me/comments
  */
 export const getMyComments = (params?: PaginationParams) => {
-  return http.get<any>("/users/me/comments", params);
+  return http.get<unknown>("/users/me/comments", params);
 };
 
 /**
@@ -186,15 +188,10 @@ export const getUserPosts = (userId: string, params?: PaginationParams) => {
   // 确保参数在合理范围内
   const safeParams = {
     skip: Math.max(0, params?.skip || 0),
-    limit: Math.min(100, Math.max(1, params?.limit || 20))
+    limit: Math.min(100, Math.max(1, params?.limit || 20)),
   };
-  
-  return http.get<Post[]>(`/users/${userId}/posts`, safeParams).then(response => {
-    return response;
-  }).catch(error => {
-    
-    throw error;
-  });
+
+  return http.get<Post[]>(`/users/${userId}/posts`, safeParams);
 };
 
 /**
@@ -206,15 +203,10 @@ export const getMyPosts = (params?: PaginationParams) => {
   // 确保参数在合理范围内
   const safeParams = {
     skip: Math.max(0, params?.skip || 0),
-    limit: Math.min(100, Math.max(1, params?.limit || 20))
+    limit: Math.min(100, Math.max(1, params?.limit || 20)),
   };
-  
-  return http.get<Post[]>("/users/me/posts", safeParams).then(response => {
-    return response;
-  }).catch(error => {
-    
-    throw error;
-  });
+
+  return http.get<Post[]>(`/users/me/posts`, safeParams);
 };
 
 /**
@@ -228,15 +220,14 @@ export const getMyPostCount = async () => {
     const response = await http.get<Post[]>("/forums/posts", { limit: 1000 });
     if (response.code === 0 && response.data) {
       // 过滤出当前用户的帖子
-      const myPosts = response.data.filter((post: any) => {
+      const myPosts = response.data.filter((post: Post) => {
         // 检查帖子是否属于当前用户
         return post.user_id || post.author_info?.id;
       });
       return myPosts.length;
     }
     return 0;
-  } catch (error) {
-    
+  } catch {
     return 0;
   }
 };
@@ -266,13 +257,15 @@ export const getMyLikes = (params?: PaginationParams) => {
  */
 export const getUserPostCount = async (userId: string) => {
   try {
-    const response = await http.get<Post[]>(`/users/${userId}/posts`, { skip: 0, limit: 100 });
+    const response = await http.get<Post[]>(`/users/${userId}/posts`, {
+      skip: 0,
+      limit: 100,
+    });
     if (response.code === 0 && response.data) {
       return response.data.length;
     }
     return 0;
-  } catch (error) {
-    
+  } catch {
     return 0;
   }
 };
@@ -284,13 +277,15 @@ export const getUserPostCount = async (userId: string) => {
  */
 export const getUserFollowersCount = async (userId: string) => {
   try {
-    const response = await http.get<any>(`/users/${userId}/followers`, { skip: 0, limit: 100 });
+    const response = await http.get<User[]>(`/users/${userId}/followers`, {
+      skip: 0,
+      limit: 100,
+    });
     if (response.code === 0 && response.data) {
       return response.data.length;
     }
     return 0;
-  } catch (error) {
-    
+  } catch {
     return 0;
   }
 };
@@ -302,13 +297,15 @@ export const getUserFollowersCount = async (userId: string) => {
  */
 export const getUserFollowingCount = async (userId: string) => {
   try {
-    const response = await http.get<any>(`/users/${userId}/following`, { skip: 0, limit: 100 });
+    const response = await http.get<User[]>(`/users/${userId}/following`, {
+      skip: 0,
+      limit: 100,
+    });
     if (response.code === 0 && response.data) {
       return response.data.length;
     }
     return 0;
-  } catch (error) {
-    
+  } catch {
     return 0;
   }
 };

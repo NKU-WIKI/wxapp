@@ -3,11 +3,11 @@
 // 页面整体布局
 .postDetailPage {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100vh;
   background: #F8FAFC;
-  display: flex;
-  flex-direction: column;
 }
 
 .contentWrapper {
@@ -28,75 +28,75 @@
 
 .loading {
   padding: 20px;
-  text-align: center;
   color: #999;
+  text-align: center;
 }
 
 .error {
   padding: 20px;
-  text-align: center;
   color: #EF4444;
+  text-align: center;
 }
 
 // 固定底部输入框
 .fixedBottomInput {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
   z-index: 1000;
-  background: #FFFFFF;
+  background: #FFF;
   border-top: 1px solid #E5E5E5;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 8px rgb(0 0 0 / 10%);
 }
 
 // 帖子详情样式
 .postWrapper {
-  background-color: #FFFFFF;
   padding: 16px;
-  margin: 12px 12px;
+  margin: 12px;
+  background-color: #FFF;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
 }
 
 // 标题部分
 .titleSection {
   position: relative;
-  margin-bottom: 12px;
-  padding-left: 12px;
   padding-top: 5px;
+  padding-left: 12px;
+  margin-bottom: 12px;
   
   .title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    line-height: 1.4;
     width: 343px;
     min-height: 38px;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.4;
+    color: #333;
   }
   
   &::after {
-    content: '';
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     bottom: -10px;
+    left: 50%;
     width: 340px;
-    height: 0px;
+    height: 0;
+    content: '';
     border-bottom: 1px solid #D8D8D8;
+    transform: translateX(-50%);
   }
 }
 
 // 用户信息部分
 .userInfo {
+  position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
-  padding-top: 10px;
-  padding-left: 8px;
-  padding-right: 16px;
   height: 48px;
-  position: relative;
+  padding-top: 10px;
+  padding-right: 16px;
+  padding-left: 8px;
+  margin-bottom: 12px;
   
   .authorInfo {
     display: flex;
@@ -108,8 +108,8 @@
   .avatar {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
     margin-right: 12px;
+    border-radius: 50%;
   }
   
   .userMeta {
@@ -124,29 +124,29 @@
   }
   
   .authorName {
-    font-weight: 600;
-    font-size: 15px;
-    color: #333;
     margin-right: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
   }
   
   .levelTag {
-    background-color: #fef08a;
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 500;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-left: 4px;
     height: 18px;
+    padding: 2px 8px;
+    margin-left: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    background-color: #fef08a;
+    border-radius: 6px;
     
     .levelText {
       font-size: 11px;
-      color: #854d0e;
       font-weight: 500;
       line-height: 1;
+      color: #854d0e;
     }
   }
   
@@ -157,38 +157,38 @@
   
   .followButton {
     position: absolute;
-    right: 32px;
     top: 8px;
-    background-color: transparent;
-    color: #4F46E5;
-    padding: 2px 10px;
-    border-radius: 6px;
-    border: 1px solid #4F46E5;
+    right: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 2px 10px;
+    color: #4F46E5;
+    background-color: transparent;
+    border: 1px solid #4F46E5;
+    border-radius: 6px;
     
-    Text {
-      color: #4F46E5;
+    text {
       font-size: 12px;
+      color: #4F46E5;
     }
   }
 }
 
 // 帖子内容
 .postContent {
-  margin-bottom: 16px;
-  padding-left: 12px;
-  padding-right: 16px;
   position: relative;
+  padding-right: 16px;
+  padding-left: 12px;
+  margin-bottom: 16px;
   
   .text {
+    width: 343px;
+    height: auto;
     font-size: 15px;
     line-height: 1.6;
     color: #333;
     white-space: pre-wrap;
-    width: 343px;
-    height: auto;
     opacity: 1;
   }
 }
@@ -197,15 +197,15 @@
 .imagesGrid {
   display: grid;
   gap: 8px;
-  margin-bottom: 16px;
-  padding-left: 12px;
   padding-right: 16px;
+  padding-left: 12px;
+  margin-bottom: 16px;
   
   .postImage {
     width: 100%;
     height: 160px;
-    border-radius: 8px;
     object-fit: cover;
+    border-radius: 8px;
   }
 }
 
@@ -234,31 +234,31 @@
 
 // 标签部分
 .tagsSection {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
-  margin-bottom: 16px;
-  padding-left: 12px;
-  padding-right: 16px;
-  position: relative;
   width: 343px;
   height: auto;
   min-height: 24px;
+  padding-right: 16px;
+  padding-left: 12px;
+  margin-top: 8px;
+  margin-bottom: 16px;
   
   .tag {
     position: relative;
-    left: 0px;
-    top: 0px;
-    height: 24px;
-    border-radius: 12px;
-    opacity: 1;
-    background: #F3F4F6;
-    padding: 0 12px;
+    top: 0;
+    left: 0;
     display: flex;
     flex-direction: row;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 12px;
+    background: #F3F4F6;
+    border-radius: 12px;
+    opacity: 1;
     
     .tagText {
       font-size: 12px;
@@ -270,10 +270,10 @@
   .locationTag {
     display: flex;
     align-items: center;
-    background-color: #F3F4F6;
-    padding: 0 12px;
-    border-radius: 12px;
     height: 24px;
+    padding: 0 12px;
+    background-color: #F3F4F6;
+    border-radius: 12px;
     
     .locationIcon {
       width: 12px;
@@ -290,25 +290,23 @@
 
 // 操作栏
 .actionBar {
-  position: relative; // 改为相对定位，使其跟随内容流
-  width: 100%;
-  height: 50px; // 减小高度
-  opacity: 1;
+  position: relative;box-sizing
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  background-color: #FFFFFF;
-  box-sizing: border-box;
+  justify-content: space-around;
+  width: 100%;
+  height: 50px;margin-top // 与上方内容保持一定间距
+  background-color: #FFF;background-color
   border-top: 1px solid #C3C3C3;
   border-bottom: 1px solid #C3C3C3;
-  margin-top: 16px; // 与上方内容保持一定间距
+  opacity: 1;
   
   .actionButton {
     display: flex;
-    align-items: center;
-    justify-content: center;
     flex: 1;
     gap: 4px;
+    align-items: center;
+    justify-content: center;
     
     .actionIcon {
       width: 20px;
@@ -328,16 +326,16 @@
 
 /* 评论区样式 */
 .commentsSection {
-  background-color: #FFFFFF;
   padding: 16px 16px 16px 12px;
   margin: 0 12px 12px;
+  background-color: #FFF;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
   
   .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 16px;
     
     .title {
@@ -349,8 +347,8 @@
     .sort {
       display: flex;
       align-items: center;
-      color: #666;
       font-size: 14px;
+      color: #666;
       
       .icon {
         width: 16px;
@@ -361,32 +359,32 @@
   }
   
   .emptyComments {
-    text-align: center;
     padding: 20px 0;
-    color: #999;
     font-size: 14px;
+    color: #999;
+    text-align: center;
   }
   
   .loading {
-    text-align: center;
     padding: 20px 0;
-    color: #999;
     font-size: 14px;
+    color: #999;
+    text-align: center;
   }
 }
 
 /* 错误容器样式 */
 .errorContainer {
-  background-color: #FFFFFF;
   padding: 16px;
   margin: 0 12px 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   text-align: center;
+  background-color: #FFF;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
   
   .errorText {
-    color: #EF4444;
     font-size: 14px;
+    color: #EF4444;
   }
 }
 
@@ -407,9 +405,9 @@
   
   .commentRightSection {
     display: flex;
+    gap: 12px;
     align-items: center;
     margin-left: auto;
-    gap: 12px;
   }
   
   .commentTime {
@@ -435,9 +433,9 @@
   }
   
   .subCommentTime {
+    margin-left: auto;
     font-size: 11px;
     color: #9CA3AF;
-    margin-left: auto;
     white-space: nowrap;
   }
 }
@@ -447,61 +445,58 @@
   align-items: center;
   padding: 4px 8px;
   margin-left: 8px;
+  cursor: pointer;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
-  cursor: pointer;
   transition: all 0.3s ease;
   
   &:hover {
+    box-shadow: 0 4px 12px rgb(102 126 234 / 30%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   }
   
   text {
-    color: white;
     font-size: 12px;
     font-weight: 500;
+    color: white;
   }
 }
 
 .topBar {
-  position: absolute;
-  left: 0px;
-  top: 0px;
+  
+  /* 添加伪元素作为备用边框 */
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: row wrap;
+  gap: 10px;
+  align-content: flex-start;
   width: 375px;
   height: 62px;
-  border-radius: 10px 10px 0px 0px;
-  opacity: 1;
-  display: flex;
-  flex-direction: row;
   padding: 10px;
-  gap: 10px 10px;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  background: #FFFFFF;
-  box-sizing: border-box;
+  background: #FFF;
   
   /* 移除旧的边框样式 */
   border: none;
   
   /* 使用多种方法确保边框显示 */
   border-bottom: 2px solid #C3C3C3 !important;
-  
-  /* 添加伪元素作为备用边框 */
-  position: relative;
+  border-radius: 10px 10px 0 0;
+  opacity: 1;
   
   &::after {
-    content: '';
     position: absolute;
     bottom: 0;
     left: 0;
+    z-index: 11;
     width: 100%;
     height: 1px;
+    content: '';
     background-color: #C3C3C3;
-    z-index: 11;
   }
-  
-  z-index: 10;
 }
 
 .bottomInputWrapper {
@@ -519,8 +514,8 @@
   
   .replyText {
     font-size: 14px;
-    color: #4F46E5;
     font-weight: 500;
+    color: #4F46E5;
   }
   
   .cancelReplyIcon {
@@ -532,87 +527,83 @@
 
 .bottomInput {
   position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: row wrap;
+  gap: 10px;
+  align-content: flex-start;
   width: 100%;
   height: 62px;
+  padding: 10px;
+  background: $bg-card;
   border-radius: 0;
   opacity: 1;
-  display: flex;
-  flex-direction: row;
-  padding: 10px;
-  gap: 10px 10px;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  background: $bg-card;
-  box-sizing: border-box;
 }
 
 .input {
   position: absolute;
-  left: 15px;
   top: 13px;
-  width: 301px;
-  height: 36px;
-  opacity: 1;
+  left: 15px;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  padding: 0px 12px;
-  z-index: 1;
-  border-radius: 18px; /* 增加圆角 */
-  border: 1px solid #C3C3C3;
+  width: 301px;
+  height: 36px;
+  padding: 0 12px;
   font-size: 15px;
   background: $bg-input;
+  border: 1px solid #C3C3C3;
+  border-radius: 18px; /* 增加圆角 */
+  opacity: 1;
 }
 
 .sendButton {
   position: absolute;
-  right: 18px;
   top: 15px;
-  width: 32px;
-  height: 32px;
-  border-radius: 80px;
-  opacity: 1;
-  background: $bg-card;
+  right: 18px;
+  z-index: 30;
   box-sizing: border-box;
-  border: 1px solid #C3C3C3;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 30;
+  width: 32px;
+  height: 32px;
+  background: $bg-card;
+  border: 1px solid #C3C3C3;
+  border-radius: 80px;
+  opacity: 1;
   
   &.disabled {
-    opacity: 0.5;
     pointer-events: none;
+    opacity: 0.5;
   }
 }
 
 .sendIcon {
+  display: block;
   width: 14px;
   height: 14px;
-  display: block;
 } 
 
 // 子评论回复模态框样式
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  background: rgb(0 0 0 / 50%);
 }
 
 .modalContent {
-  background: white;
-  border-radius: 16px;
   width: 90%;
   max-width: 400px;
   max-height: 80vh;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 10%);
 }
 
 .modalHeader {
@@ -620,8 +611,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #E5E7EB;
   background: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB;
 }
 
 .modalTitle {
@@ -631,19 +622,19 @@
 }
 
 .modalClose {
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: #F3F4F6;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
+  background: #F3F4F6;
+  border-radius: 50%;
   
   text {
     font-size: 20px;
-    color: #6B7280;
     font-weight: 300;
+    color: #6B7280;
   }
   
   &:hover {
@@ -652,48 +643,48 @@
 }
 
 .modalBody {
-  padding: 20px;
   max-height: 60vh;
+  padding: 20px;
   overflow-y: auto;
 }
 
 .originalComment {
-  background: #F3F4F6;
   padding: 12px 16px;
-  border-radius: 8px;
   margin-bottom: 16px;
+  background: #F3F4F6;
   border-left: 3px solid #3B82F6;
+  border-radius: 8px;
 }
 
 .originalAuthor {
+  margin-right: 8px;
   font-weight: 600;
   color: #374151;
-  margin-right: 8px;
 }
 
 .originalContent {
-  color: #6B7280;
   font-size: 14px;
+  color: #6B7280;
 }
 
 .repliesSection {
   .repliesTitle {
+    display: block;
+    margin-bottom: 12px;
     font-size: 14px;
     font-weight: 600;
     color: #374151;
-    margin-bottom: 12px;
-    display: block;
   }
 }
 
 .subRepliesLoading,
 .subRepliesEmpty {
-  text-align: center;
   padding: 40px 20px;
+  text-align: center;
   
   text {
-    color: #9CA3AF;
     font-size: 14px;
+    color: #9CA3AF;
   }
 }
 
@@ -727,8 +718,8 @@
   
   .subReplyContent {
     font-size: 14px;
-    color: #6B7280;
     line-height: 1.5;
+    color: #6B7280;
   }
 }
 
@@ -742,8 +733,8 @@
       .likeButton {
         display: flex;
         align-items: center;
-        color: #666;
         padding: 2px 6px;
+        color: #666;
         border-radius: 4px;
         transition: all 0.2s ease;
         
@@ -762,8 +753,8 @@
       .subLikeButton {
         display: flex;
         align-items: center;
-        color: #6B7280;
         padding: 2px 4px;
+        color: #6B7280;
         border-radius: 4px;
         transition: all 0.2s ease;
         
@@ -778,10 +769,10 @@
           vertical-align: middle;
         }
         
-        Text {
-          color: #6B7280;
+        text {
           font-size: 12px;
           font-weight: 500;
+          color: #6B7280;
         }
       }
 

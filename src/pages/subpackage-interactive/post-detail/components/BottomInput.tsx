@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Input, Image, Text } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import React, { useState, useEffect } from "react";
+import { View, Input, Image, Text } from "@tarojs/components";
+import Taro from "@tarojs/taro";
 
 // Absolute imports (alphabetical order)
-import { AppDispatch, RootState } from '@/store';
-import { createComment } from '@/store/slices/commentSlice';
-import CloseIcon from '@/assets/x.svg';
-import SendIcon from '@/assets/sendcomment.svg';
-import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from "@/store";
+import { createComment } from "@/store/slices/commentSlice";
+import CloseIcon from "@/assets/x.svg";
+import SendIcon from "@/assets/sendcomment.svg";
+import { useDispatch, useSelector } from "react-redux";
 
 // Relative imports
-import styles from '../index.module.scss';
+import styles from "../index.module.scss";
 
 interface BottomInputProps {
   postId: string;
@@ -25,14 +25,21 @@ interface BottomInputProps {
   allowComments?: boolean;
 }
 
-const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthorId, replyTo, onCancelReply, allowComments = true }) => {
-  const [comment, setComment] = useState('');
+const BottomInput: React.FC<BottomInputProps> = ({
+  postId,
+  postTitle,
+  postAuthorId,
+  replyTo,
+  onCancelReply,
+  allowComments = true,
+}) => {
+  const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userState = useSelector((state: RootState) => state.user);
   const token = userState?.token || null;
   const isLoggedIn = userState?.isLoggedIn || false;
   const dispatch = useDispatch<AppDispatch>();
-  
+
   // 当回复目标改变时，自动聚焦输入框
   useEffect(() => {
     if (replyTo) {
@@ -42,7 +49,7 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthor
       }, 100);
     }
   }, [replyTo]);
-  
+
   const handleSendComment = async () => {
     if (!comment.trim() || isSubmitting) {
       return;
@@ -51,9 +58,9 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthor
     // 检查是否允许评论
     if (!allowComments) {
       Taro.showToast({
-        title: '作者已关闭评论',
-        icon: 'none',
-        duration: 2000
+        title: "作者已关闭评论",
+        icon: "none",
+        duration: 2000,
       });
       return;
     }
@@ -61,50 +68,52 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthor
     // 检查是否登录
     if (!token || !isLoggedIn) {
       Taro.showModal({
-        title: '提示',
-        content: '您尚未登录，是否前往登录？',
+        title: "提示",
+        content: "您尚未登录，是否前往登录？",
         success: (res) => {
           if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
+            Taro.navigateTo({ url: "/pages/subpackage-profile/login/index" });
           }
-        }
+        },
       });
       return;
     }
-    
+
     try {
       setIsSubmitting(true);
-      
+
       // 构建评论参数
       let finalContent = comment.trim();
-      
+
       // 如果是回复评论，在内容前添加 @ 用户名格式
       if (replyTo && replyTo.nickname) {
         finalContent = `@${replyTo.nickname} ${finalContent}`;
       }
-      
+
       const commentParams = {
         resource_id: postId, // 保持原始postId（string UUID）
-        resource_type: 'post' as const,
+        resource_type: "post" as const,
         content: finalContent,
         // 新增两个字段用于通知创建
         post_title: postTitle,
         post_author_id: postAuthorId,
-        ...(replyTo ? { 
-          parent_id: replyTo.commentId,
-          parent_author_nickname: replyTo.nickname
-        } : {})
+        ...(replyTo
+          ? {
+              parent_id: replyTo.commentId,
+              parent_author_nickname: replyTo.nickname,
+            }
+          : {}),
       };
-      
+
       // 发送评论 - createComment 内部会自动刷新评论列表
       await dispatch(createComment(commentParams)).unwrap();
-      
+
       // 发送成功，清空输入框和回复状态
-      setComment('');
+      setComment("");
       if (onCancelReply) {
         onCancelReply();
       }
-    } catch (error) {
+    } catch {
       // 移除弹窗提示，静默处理错误
     } finally {
       setIsSubmitting(false);
@@ -118,10 +127,10 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthor
   };
 
   const placeholder = !allowComments
-    ? '作者已关闭评论'
+    ? "作者已关闭评论"
     : replyTo
       ? `回复 @${replyTo.nickname}...`
-      : '说点什么...';
+      : "说点什么...";
 
   return (
     <View className={styles.bottomInputWrapper}>
@@ -129,14 +138,14 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthor
       {replyTo && (
         <View className={styles.replyIndicator}>
           <Text className={styles.replyText}>回复 @{replyTo.nickname}</Text>
-          <Image 
-            src={CloseIcon} 
+          <Image
+            src={CloseIcon}
             className={styles.cancelReplyIcon}
             onClick={handleCancelReply}
           />
         </View>
       )}
-      
+
       {/* 输入区域 */}
       <View className={styles.bottomInput}>
         <Input
@@ -148,13 +157,10 @@ const BottomInput: React.FC<BottomInputProps> = ({ postId, postTitle, postAuthor
           focus={!!replyTo}
         />
         <View
-          className={`${styles.sendButton} ${(isSubmitting || !allowComments) ? styles.disabled : ''}`}
+          className={`${styles.sendButton} ${isSubmitting || !allowComments ? styles.disabled : ""}`}
           onClick={handleSendComment}
         >
-          <Image 
-            src={SendIcon} 
-            className={styles.sendIcon}
-          />
+          <Image src={SendIcon} className={styles.sendIcon} />
         </View>
       </View>
     </View>

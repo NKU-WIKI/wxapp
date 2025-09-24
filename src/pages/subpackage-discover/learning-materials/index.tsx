@@ -258,7 +258,7 @@ export default function LearningMaterials() {
           title: '文件已打开',
           icon: 'success'
         });
-      } catch (openError) {
+      } catch {
         // 如果无法打开，询问是否保存到相册（仅限图片）
         if (material.fileType === 'Image') {
           const saveRes = await Taro.showModal({
@@ -278,7 +278,7 @@ export default function LearningMaterials() {
           });
         }
       }
-    } catch (error) {
+    } catch {
       // 错误已在downloadFile中处理
     }
   };
@@ -324,7 +324,7 @@ export default function LearningMaterials() {
           confirmText: '知道了'
         });
       }
-    } catch (error) {
+    } catch {
       Taro.hideLoading();
       Taro.showToast({
         title: '获取信息失败',

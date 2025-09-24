@@ -109,7 +109,7 @@ const Post = ({ post, className = "", mode = "list", enableNavigation = true, on
       try {
         const locationObj = JSON.parse(displayPost.location);
         return locationObj.name;
-      } catch (error) {
+      } catch {
 
         return null;
       }

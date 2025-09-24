@@ -2,22 +2,22 @@
   display: flex;
   gap: 12px;
   padding: 16px;
+  margin: 16px;
   background-color: #fff;
   border-radius: 8px;
-  margin: 16px;
 }
 
 .settingItem {
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  border-radius: 20px;
   background-color: #f5f5f5;
+  border-radius: 20px;
   transition: background-color 0.2s ease-in-out;
 
   &.active {
-    background-color: #333;
     color: #fff;
+    background-color: #333;
 
     .icon {
       filter: brightness(0) invert(1);

@@ -102,7 +102,7 @@ const FollowersPage = () => {
 
         throw new Error((response as any).msg || (response as any).message || '获取用户列表失败')
       }
-    } catch (err) {
+    } catch {
 
       setError(err instanceof Error ? err.message : '网络错误')
     } finally {
@@ -155,7 +155,7 @@ const FollowersPage = () => {
 
           });
         } else {
-
+          // 暂无其他处理逻辑
         }
 
         // 更新Redux store中的用户信息，确保主页的粉丝数量实时更新
@@ -163,7 +163,7 @@ const FollowersPage = () => {
       } else {
         throw new Error(response.message || '操作失败');
       }
-    } catch (err) {
+    } catch {
 
       Taro.showToast({
         title: err instanceof Error ? err.message : '操作失败',
@@ -262,7 +262,7 @@ const FollowersPage = () => {
         } else {
           throw new Error((response as any).msg || (response as any).message || '获取用户列表失败')
         }
-      } catch (err) {
+      } catch {
 
         setError(err instanceof Error ? err.message : '网络错误')
       } finally {

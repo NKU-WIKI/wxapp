@@ -79,7 +79,7 @@ export default function LoginPage() {
           Taro.switchTab({ url: '/pages/home/index' });
         }
       }, 1500);
-    } catch (error) {
+    } catch {
       Taro.hideLoading();
       Taro.showToast({
         title: `登录失败: ${error}`,

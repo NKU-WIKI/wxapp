@@ -3,8 +3,11 @@
  * 用于�?BBS 相关操作中自动创建通知
  */
 
-import { createBBSNotification, createActivityNotification } from '@/services/api/notification';
-import { ActivityRead } from '@/types/api/activity.d';
+import {
+  createBBSNotification,
+  createActivityNotification,
+} from "@/services/api/notification";
+import { ActivityRead } from "@/types/api/activity.d";
 
 /**
  * BBS 操作通知创建�? */
@@ -21,11 +24,11 @@ export class BBSNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.currentUserId || params.currentUserId.trim() === '') {
+      if (!params.currentUserId || params.currentUserId.trim() === "") {
         return;
       }
 
-      if (!params.postAuthorId || params.postAuthorId.trim() === '') {
+      if (!params.postAuthorId || params.postAuthorId.trim() === "") {
         return;
       }
 
@@ -35,12 +38,12 @@ export class BBSNotificationHelper {
           recipient_id: params.postAuthorId,
           sender_id: params.currentUserId,
           post_id: params.postId,
-          post_title: params.postTitle
+          post_title: params.postTitle,
         });
 
         return result;
       }
-    } catch (error) {
+    } catch {
       // 不影响主要的点赞操作
     }
   }
@@ -57,11 +60,11 @@ export class BBSNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.currentUserId || params.currentUserId.trim() === '') {
+      if (!params.currentUserId || params.currentUserId.trim() === "") {
         return;
       }
 
-      if (!params.postAuthorId || params.postAuthorId.trim() === '') {
+      if (!params.postAuthorId || params.postAuthorId.trim() === "") {
         return;
       }
 
@@ -72,12 +75,12 @@ export class BBSNotificationHelper {
           sender_id: params.currentUserId,
           post_id: params.postId,
           post_title: params.postTitle,
-          comment_content: params.commentContent
+          comment_content: params.commentContent,
         });
 
         return result;
       }
-    } catch (error) {
+    } catch {
       // 不影响主要的评论操作
     }
   }
@@ -93,11 +96,11 @@ export class BBSNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.currentUserId || params.currentUserId.trim() === '') {
+      if (!params.currentUserId || params.currentUserId.trim() === "") {
         return;
       }
 
-      if (!params.targetUserId || params.targetUserId.trim() === '') {
+      if (!params.targetUserId || params.targetUserId.trim() === "") {
         return;
       }
 
@@ -106,12 +109,12 @@ export class BBSNotificationHelper {
         const result = await createBBSNotification.follow({
           recipient_id: params.targetUserId,
           sender_id: params.currentUserId,
-          sender_nickname: params.currentUserNickname
+          sender_nickname: params.currentUserNickname,
         });
 
         return result;
       }
-    } catch (error) {
+    } catch {
       // 不影响主要的关注操作
     }
   }
@@ -128,11 +131,11 @@ export class BBSNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.currentUserId || params.currentUserId.trim() === '') {
+      if (!params.currentUserId || params.currentUserId.trim() === "") {
         return;
       }
 
-      if (!params.postAuthorId || params.postAuthorId.trim() === '') {
+      if (!params.postAuthorId || params.postAuthorId.trim() === "") {
         return;
       }
 
@@ -142,13 +145,13 @@ export class BBSNotificationHelper {
           recipient_id: params.postAuthorId,
           sender_id: params.currentUserId,
           post_id: params.postId,
-          post_title: params.postTitle
+          post_title: params.postTitle,
         });
 
         return result;
       }
-    } catch (error) {
-      console.error('Failed to handle collect notification:', error);
+    } catch {
+      // console error removed to satisfy no-console; non-blocking failure
     }
   }
 }
@@ -175,31 +178,41 @@ export const debugNotification = {
   /**
    * 强制发送报名通知（测试用）
    */
-  forceSendJoinNotification: async (activityId: string, activityTitle: string, organizerId: string, participantId: string, participantNickname: string) => {
-    const { createActivityNotification } = await import('@/services/api/notification');
+  forceSendJoinNotification: async (
+    activityId: string,
+    activityTitle: string,
+    organizerId: string,
+    participantId: string,
+    participantNickname: string,
+  ) => {
+    const { createActivityNotification: activityNotificationAPI } =
+      await import("@/services/api/notification");
 
-    try {
-      const result = await createActivityNotification.joined({
-        activity_id: activityId,
-        activity_title: activityTitle,
-        organizer_id: organizerId,
-        participant_id: participantId,
-        participant_nickname: participantNickname
-      });
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    const result = await activityNotificationAPI.joined({
+      activity_id: activityId,
+      activity_title: activityTitle,
+      organizer_id: organizerId,
+      participant_id: participantId,
+      participant_nickname: participantNickname,
+    });
+    return result;
   },
 
   /**
    * 测试活动报名通知（绕过所有检查）
    */
-  testJoinNotificationDirect: async (activityId: string, activityTitle: string, organizerId: string) => {
-    const { store } = await import('@/store');
-    const { createActivityNotification } = await import('@/services/api/notification');
-    const { incrementUnreadCount } = await import('@/store/slices/notificationSlice');
-    const { NotificationType } = await import('@/types/api/notification.d');
+  testJoinNotificationDirect: async (
+    activityId: string,
+    activityTitle: string,
+    organizerId: string,
+  ) => {
+    const { store } = await import("@/store");
+    const { createActivityNotification: activityNotificationAPI } =
+      await import("@/services/api/notification");
+    const { incrementUnreadCount } = await import(
+      "@/store/slices/notificationSlice"
+    );
+    const { NotificationType } = await import("@/types/api/notification.d");
 
     const state = store.getState();
     const currentUser = state.user.user;
@@ -208,66 +221,61 @@ export const debugNotification = {
       return;
     }
 
-    try {
-      const result = await createActivityNotification.joined({
-        activity_id: activityId,
-        activity_title: activityTitle,
-        organizer_id: organizerId,
-        participant_id: currentUser.id,
-        participant_nickname: currentUser.nickname || '测试用户'
-      });
+    const result = await activityNotificationAPI.joined({
+      activity_id: activityId,
+      activity_title: activityTitle,
+      organizer_id: organizerId,
+      participant_id: currentUser.id,
+      participant_nickname: currentUser.nickname || "测试用户",
+    });
 
-      // 更新未读数量
-      store.dispatch(incrementUnreadCount({ type: NotificationType._Activity, count: 1 }));
+    // 更新未读数量
+    store.dispatch(
+      incrementUnreadCount({ type: NotificationType._Activity, count: 1 }),
+    );
 
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    return result;
   },
 
   /**
    * 测试通知创建
    */
-  testNotification: async (type: 'join' | 'cancel' | 'publish') => {
-    const { createActivityNotification } = await import('@/services/api/notification');
+  testNotification: async (type: "join" | "cancel" | "publish") => {
+    const { createActivityNotification: activityNotificationAPI } =
+      await import("@/services/api/notification");
 
     const testData = {
-      activity_id: 'test-' + Date.now(),
-      activity_title: '测试活动 ' + new Date().toLocaleTimeString(),
-      organizer_id: 'test-organizer',
-      participant_id: 'test-participant',
-      participant_nickname: '测试用户'
+      activity_id: "test-" + Date.now(),
+      activity_title: "测试活动 " + new Date().toLocaleTimeString(),
+      organizer_id: "test-organizer",
+      participant_id: "test-participant",
+      participant_nickname: "测试用户",
     };
 
-    try {
-      let result;
-      switch (type) {
-        case 'join':
-          result = await createActivityNotification.joined(testData);
-          break;
-        case 'cancel':
-          result = await createActivityNotification.cancelRegistration(testData);
-          break;
-        case 'publish':
-          result = await createActivityNotification.published({
-            ...testData,
-            activity_category: '测试分类',
-            organizer_nickname: '测试组织者',
-            recipient_id: testData.organizer_id
-          });
-          break;
-      }
-      return result;
-    } catch (error) {
-      throw error;
+    let result;
+    switch (type) {
+      case "join":
+        result = await activityNotificationAPI.joined(testData);
+        break;
+      case "cancel":
+        result = await activityNotificationAPI.cancelRegistration(testData);
+        break;
+      case "publish":
+        result = await activityNotificationAPI.published({
+          ...testData,
+          activity_category: "测试分类",
+          organizer_nickname: "测试组织者",
+          recipient_id: testData.organizer_id,
+        });
+        break;
     }
-  }
+    return result;
+  },
 };
 
 // 挂载到全局对象，方便控制台调试
-if (typeof window !== 'undefined') {
-  (window as any).debugNotification = debugNotification;
+if (typeof window !== "undefined") {
+  window.debugNotification = debugNotification;
 }
 
 export class ActivityNotificationHelper {
@@ -281,12 +289,20 @@ export class ActivityNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.activity?.id || !params.organizerId || !params.organizerNickname) {
+      if (
+        !params.activity?.id ||
+        !params.organizerId ||
+        !params.organizerNickname
+      ) {
         return;
       }
 
       // 获取需要通知的用户列表（这里可以根据业务逻辑获取关注者、感兴趣用户等）
-      const recipientIds = await ActivityNotificationHelper.getActivityPublishRecipients(params.activity, params.organizerId);
+      const recipientIds =
+        await ActivityNotificationHelper.getActivityPublishRecipients(
+          params.activity,
+          params.organizerId,
+        );
 
       if (recipientIds.length === 0) {
         return;
@@ -300,12 +316,11 @@ export class ActivityNotificationHelper {
           activity_category: params.activity.category,
           organizer_id: params.organizerId,
           organizer_nickname: params.organizerNickname,
-          recipient_id: recipientId
+          recipient_id: recipientId,
         });
       }
-    } catch (error) {
+    } catch {
       // 不影响主要的活动发布操作
-      console.error('Failed to handle activity published notification:', error);
     }
   }
 
@@ -320,12 +335,19 @@ export class ActivityNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.activity?.id || !params.organizerId || !params.organizerNickname) {
+      if (
+        !params.activity?.id ||
+        !params.organizerId ||
+        !params.organizerNickname
+      ) {
         return;
       }
 
       // 获取需要通知的用户列表（已报名的用户）
-      const recipientIds = await ActivityNotificationHelper.getActivityParticipants(params.activity.id);
+      const recipientIds =
+        await ActivityNotificationHelper.getActivityParticipants(
+          params.activity.id,
+        );
 
       if (recipientIds.length === 0) {
         return;
@@ -338,13 +360,10 @@ export class ActivityNotificationHelper {
         organizer_id: params.organizerId,
         organizer_nickname: params.organizerNickname,
         recipient_ids: recipientIds,
-        cancel_reason: params.cancelReason
+        cancel_reason: params.cancelReason,
       });
-    } catch (error) {
-      console.error('Failed to handle activity cancelled notification:', {
-        activityId: params.activity?.id,
-        error: error
-      });
+    } catch {
+      // console removed; non-blocking
       // 不影响主要的活动取消操作
     }
   }
@@ -360,12 +379,20 @@ export class ActivityNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.activity?.id || !params.organizerId || !params.organizerNickname || !params.updateSummary) {
+      if (
+        !params.activity?.id ||
+        !params.organizerId ||
+        !params.organizerNickname ||
+        !params.updateSummary
+      ) {
         return;
       }
 
       // 获取需要通知的用户列表（已报名的用户）
-      const recipientIds = await ActivityNotificationHelper.getActivityParticipants(params.activity.id);
+      const recipientIds =
+        await ActivityNotificationHelper.getActivityParticipants(
+          params.activity.id,
+        );
 
       if (recipientIds.length === 0) {
         return;
@@ -378,11 +405,10 @@ export class ActivityNotificationHelper {
         organizer_id: params.organizerId,
         organizer_nickname: params.organizerNickname,
         recipient_ids: recipientIds,
-        update_summary: params.updateSummary
+        update_summary: params.updateSummary,
       });
-    } catch (error) {
+    } catch {
       // 不影响主要的活动更新操作
-      console.error('Failed to handle activity updated notification:', error);
     }
   }
 
@@ -397,14 +423,19 @@ export class ActivityNotificationHelper {
     try {
       // 检查必要参数
       const organizerId = params.activity?.organizer?.id;
-      if (!params.activity?.id || !params.participantId || !params.participantNickname || !organizerId) {
+      if (
+        !params.activity?.id ||
+        !params.participantId ||
+        !params.participantNickname ||
+        !organizerId
+      ) {
         return;
       }
 
       // 不给自己发通知（测试环境允许）
       if (params.participantId === organizerId) {
         // 在测试环境中允许自己给自己发通知，方便调试
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env.NODE_ENV === "production") {
           return;
         }
       }
@@ -414,16 +445,11 @@ export class ActivityNotificationHelper {
         activity_title: params.activity.title,
         organizer_id: organizerId,
         participant_id: params.participantId,
-        participant_nickname: params.participantNickname
+        participant_nickname: params.participantNickname,
       });
 
       return result;
-    } catch (error) {
-      console.error('Failed to handle activity joined notification:', {
-        error,
-        activityId: params.activity?.id,
-        participantId: params.participantId
-      });
+    } catch {
       // 不影响主要的活动参与操作
     }
   }
@@ -439,14 +465,19 @@ export class ActivityNotificationHelper {
     try {
       // 检查必要参数
       const organizerId = params.activity?.organizer?.id;
-      if (!params.activity?.id || !params.participantId || !params.participantNickname || !organizerId) {
+      if (
+        !params.activity?.id ||
+        !params.participantId ||
+        !params.participantNickname ||
+        !organizerId
+      ) {
         return;
       }
 
       // 不给自己发通知（测试环境允许）
       if (params.participantId === organizerId) {
         // 在测试环境中允许自己给自己发通知，方便调试
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env.NODE_ENV === "production") {
           return;
         }
       }
@@ -456,16 +487,11 @@ export class ActivityNotificationHelper {
         activity_title: params.activity.title,
         organizer_id: organizerId,
         participant_id: params.participantId,
-        participant_nickname: params.participantNickname
+        participant_nickname: params.participantNickname,
       });
 
       return result;
-    } catch (error) {
-      console.error('Failed to handle activity cancel registration notification:', {
-        error,
-        activityId: params.activity?.id,
-        participantId: params.participantId
-      });
+    } catch {
       // 不影响主要的活动取消报名操作
     }
   }
@@ -483,14 +509,9 @@ export class ActivityNotificationHelper {
         activity_id: params.activity.id,
         activity_title: params.activity.title,
         participant_id: params.participantId,
-        participant_nickname: params.participantNickname
+        participant_nickname: params.participantNickname,
       });
-    } catch (error) {
-      console.error('Failed to handle participant join success notification:', {
-        error,
-        activityId: params.activity.id,
-        participantId: params.participantId
-      });
+    } catch {
       // 不影响主要的报名操作
     }
   }
@@ -508,14 +529,9 @@ export class ActivityNotificationHelper {
         activity_id: params.activity.id,
         activity_title: params.activity.title,
         participant_id: params.participantId,
-        participant_nickname: params.participantNickname
+        participant_nickname: params.participantNickname,
       });
-    } catch (error) {
-      console.error('Failed to handle participant cancel success notification:', {
-        error,
-        activityId: params.activity.id,
-        participantId: params.participantId
-      });
+    } catch {
       // 不影响主要的取消报名操作
     }
   }
@@ -524,12 +540,14 @@ export class ActivityNotificationHelper {
    * 获取活动发布时需要通知的用户列表
    * 活动发布通知通常只发送给组织者自己，确认发布成功
    */
-  private static async getActivityPublishRecipients(_activity: ActivityRead, organizerId: string): Promise<string[]> {
+  private static async getActivityPublishRecipients(
+    _activity: ActivityRead,
+    organizerId: string,
+  ): Promise<string[]> {
     try {
       // 活动发布通知只发送给组织者自己，确认发布成功
       return [organizerId];
-    } catch (error) {
-      console.error('Failed to get activity publish recipients:', error);
+    } catch {
       return [];
     }
   }
@@ -537,15 +555,16 @@ export class ActivityNotificationHelper {
   /**
    * 获取活动参与者列表
    */
-  private static async getActivityParticipants(_activityId: string): Promise<string[]> {
+  private static async getActivityParticipants(
+    _activityId: string,
+  ): Promise<string[]> {
     try {
       // TODO: 这里应该调用后端API获取活动的参与者列表
       // 例如: GET /api/v1/activities/{activityId}/participants
 
       // 目前先返回空数组，后续需要实现获取参与者的API
       return [];
-    } catch (error) {
-      console.error('Failed to get activity participants:', error);
+    } catch {
       return [];
     }
   }

@@ -1,10 +1,10 @@
-@import '@/styles/variables.scss';
+@import '@/styles/variables';
 
 .page {
-  background: #fff;
-  min-height: 100vh;
-  padding: 0 16px 40px 16px;
   box-sizing: border-box;
+  min-height: 100vh;
+  padding: 0 16px 40px;
+  background: #fff;
 }
 
 .section {
@@ -12,11 +12,11 @@
 }
 
 .sectionTitle {
-  font-size: 16px;
-  color: $text-primary;
-  font-weight: 500;
-  margin-bottom: 12px;
   display: block;
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: $text-primary;
 }
 
 .typeGrid {
@@ -31,117 +31,121 @@
   align-items: center;
   justify-content: center;
   height: 72px;
-  border-radius: 8px;
-  background: #f7f7fa;
-  color: $text-primary;
   font-size: 15px;
-  transition: transform 0.1s;
-  border: 1.5px solid transparent;
+  color: $text-primary;
   cursor: pointer;
   user-select: none;
+  background: #f7f7fa;
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+  transition: transform 0.1s;
+
   &:active {
     transform: scale(0.97);
   }
 }
+
 .selected {
-  border-color: $theme-primary;
   color: $theme-primary;
   background: #f3f4ff;
+  border-color: $theme-primary;
 }
+
 .typeIcon {
   width: 28px;
   height: 28px;
   margin-bottom: 6px;
   background-color: $theme-primary;
   mask-image: var(--icon-url);
-  mask-size: contain;
-  mask-position: center;
   mask-repeat: no-repeat;
-  -webkit-mask-image: var(--icon-url);
-  -webkit-mask-size: contain;
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
 }
 
 .textarea {
+  box-sizing: border-box;
   width: 100%;
   min-height: 160px;
-  border-radius: 8px;
-  border: 1px solid $border-light;
-  background: #fafbfc;
-  font-size: 15px;
   padding: 12px;
   margin-top: 8px;
-  box-sizing: border-box;
+  font-size: 15px;
+  background: #fafbfc;
+  border: 1px solid $border-light;
+  border-radius: 8px;
 }
 
 .uploadBox {
-  border: 1.5px dashed $border-light;
-  border-radius: 8px;
-  height: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  height: 100px;
   margin-top: 8px;
-  background: #fafbfc;
   cursor: pointer;
+  background: #fafbfc;
+  border: 1.5px dashed $border-light;
+  border-radius: 8px;
   transition: box-shadow 0.15s;
+
   &:hover {
-    box-shadow: 0 2px 8px rgba(79,70,229,0.08);
+    box-shadow: 0 2px 8px rgb(79 70 229 / 8%);
   }
 }
+
 .uploadIcon {
   width: 32px;
   height: 32px;
   margin-bottom: 6px;
   background-color: $theme-primary;
   mask-image: var(--icon-url);
-  mask-size: contain;
-  mask-position: center;
   mask-repeat: no-repeat;
-  -webkit-mask-image: var(--icon-url);
-  -webkit-mask-size: contain;
-  -webkit-mask-position: center;
-  -webkit-mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
 }
+
 .uploadText {
-  color: $text-helper-gray;
   font-size: 14px;
+  color: $text-helper-gray;
 }
+
 .fileList {
   margin-top: 8px;
 }
+
 .fileItem {
   display: flex;
   align-items: center;
+  margin-bottom: 4px;
   font-size: 14px;
   color: $text-primary;
-  margin-bottom: 4px;
 }
+
 .removeFile {
-  color: $status-error;
   margin-left: 8px;
+  color: $status-error;
   cursor: pointer;
 }
+
 .uploadTip {
-  color: $text-helper-gray;
-  font-size: 13px;
   margin-top: 4px;
+  font-size: 13px;
+  color: $text-helper-gray;
 }
+
 .submitBtn {
+  display: block;
   width: 343px;
   height: 48px;
-  border-radius: 24px;
-  background: $theme-primary;
-  color: #fff;
+  margin: 0 auto;
+  margin-top: 40px;
   font-size: 17px;
   font-weight: 600;
-  margin: 0 auto;
-  display: block;
-  margin-top: 40px;
-  box-shadow: 0 2px 8px rgba(79,70,229,0.08);
+  color: #fff;
+  background: $theme-primary;
+  border-radius: 24px;
+  box-shadow: 0 2px 8px rgb(79 70 229 / 8%);
   transition: transform 0.1s;
+
   &:active {
     transform: scale(0.97);
   }

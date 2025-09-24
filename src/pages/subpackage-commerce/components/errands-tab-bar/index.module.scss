@@ -1,23 +1,22 @@
-@import "@/styles/variables.scss";
+@import "@/styles/variables";
 
 .tabBarContainer {
   display: flex;
   justify-content: space-around;
-  background-color: #fff;
   padding-top: 10px;
-  padding-bottom: constant(safe-area-inset-bottom);
   padding-bottom: env(safe-area-inset-bottom);
+  background-color: #fff;
   border-top: 1px solid $border-light;
 }
 
 .tabItem {
-  text-align: center;
-  color: $text-secondary;
-  font-size: 14px;
   flex: 1;
+  font-size: 14px;
+  color: $text-secondary;
+  text-align: center;
 
   &.active {
-    color: $theme-primary;
     font-weight: bold;
+    color: $theme-primary;
   }
 }

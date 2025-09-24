@@ -1,4 +1,4 @@
-@import "@/styles/variables.scss";
+@import "@/styles/variables";
 
 .pageContainer {
   display: flex;
@@ -8,9 +8,9 @@
 }
 
 .contentContainer {
+  position: relative;
   flex: 1;
   overflow: hidden;
-  position: relative;
 }
 
 .scrollView {
@@ -20,15 +20,15 @@
 
 // 任务信息区域
 .taskInfo {
-  background-color: #fff;
   padding: 16px;
   margin-bottom: 12px;
+  background-color: #fff;
 
   .taskHeader {
-    margin-bottom: 12px;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    margin-bottom: 12px;
 
     .taskHeaderMain {
       flex: 1;
@@ -36,10 +36,10 @@
     }
 
     .taskHeaderActions {
-      margin-left: 12px;
       padding: 8px;
-      border-radius: 6px;
+      margin-left: 12px;
       background-color: $bg-input;
+      border-radius: 6px;
 
       .moreIcon {
         width: 20px;
@@ -50,11 +50,11 @@
   }
 
   .taskTitle {
+    margin-bottom: 8px;
     font-size: 18px;
     font-weight: 600;
-    color: $text-primary;
     line-height: 1.4;
-    margin-bottom: 8px;
+    color: $text-primary;
     word-break: break-word;
   }
 
@@ -65,10 +65,10 @@
   }
 
   .taskMeta {
-    margin-bottom: 12px;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    margin-bottom: 12px;
 
     .taskTime {
       font-size: 14px;
@@ -83,8 +83,8 @@
 
   .taskRoute {
     display: flex;
-    align-items: center;
     gap: 6px;
+    align-items: center;
     margin-bottom: 12px;
 
     .locationIcon {
@@ -92,9 +92,9 @@
     }
 
     .routeText {
+      flex: 1;
       font-size: 14px;
       color: $text-primary;
-      flex: 1;
     }
   }
 
@@ -108,42 +108,42 @@
   .taskDeadline {
     display: flex;
     align-items: center;
-    margin-bottom: 12px;
     padding: 8px 12px;
+    margin-bottom: 12px;
     background-color: $bg-input;
     border-radius: 6px;
 
     .deadlineLabel {
+      margin-right: 8px;
       font-size: 14px;
       color: $text-secondary;
-      margin-right: 8px;
     }
 
     .deadlineText {
+      flex: 1;
       font-size: 14px;
       color: $text-primary;
-      flex: 1;
     }
   }
 }
 
 // 任务描述区域
 .taskDescription {
-  background-color: #fff;
   padding: 16px;
   margin-bottom: 12px;
+  background-color: #fff;
 
   .descriptionTitle {
+    margin-bottom: 12px;
     font-size: 16px;
     font-weight: 600;
     color: $text-primary;
-    margin-bottom: 12px;
   }
 
   .descriptionContent {
     font-size: 14px;
-    color: $text-primary;
     line-height: 1.6;
+    color: $text-primary;
     word-break: break-word;
   }
 }
@@ -151,29 +151,29 @@
 // 操作按钮区域
 .actionButtons {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
-  background-color: #fff;
-  border-top: 1px solid $border-light;
-  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 12px 16px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background-color: #fff;
+  border-top: 1px solid $border-light;
 
   .leftArea {
     .iconButton {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background-color: transparent;
-      border: 1px solid $border-base;
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 44px;
+      height: 44px;
       padding: 0;
       margin: 0;
+      background-color: transparent;
+      border: 1px solid $border-base;
+      border-radius: 50%;
 
       &.active {
         background-color: $status-error;
@@ -196,18 +196,18 @@
     gap: 12px;
 
     .secondaryButton {
-      flex: 1;
-      height: 44px;
-      border-radius: 6px;
-      background-color: $bg-input;
-      border: 1px solid $border-base;
-      color: $text-primary;
-      font-size: 14px;
       display: flex;
+      flex: 1;
+      gap: 6px;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      height: 44px;
       padding: 0;
+      font-size: 14px;
+      color: $text-primary;
+      background-color: $bg-input;
+      border: 1px solid $border-base;
+      border-radius: 6px;
 
       .secondaryIcon {
         flex-shrink: 0;
@@ -217,12 +217,12 @@
     .primaryButton {
       flex: 1;
       height: 44px;
-      border-radius: 6px;
-      background-color: $theme-primary;
-      border: none;
-      color: #fff;
       font-size: 14px;
       font-weight: 600;
+      color: #fff;
+      background-color: $theme-primary;
+      border: none;
+      border-radius: 6px;
     }
   }
 }

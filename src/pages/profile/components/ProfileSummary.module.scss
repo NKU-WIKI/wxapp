@@ -1,66 +1,67 @@
 @use "../../../styles/variables.scss" as *;
 
 .profileSummary {
-  background-color: $bg-card;
-  padding: 16px;
-  border-bottom: 1px solid $border-gray;
-  box-shadow: 0 1px 2px 0 $shadow-light;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 16px;
+  background-color: $bg-card;
+  border-bottom: 1px solid $border-gray;
+  box-shadow: 0 1px 2px 0 $shadow-light;
 }
 
 .userInfoRow {
   display: flex;
-  align-items: center;
   gap: 16px;
+  align-items: center;
 }
 
 .avatar {
   width: 80px;
   height: 80px;
-  border-radius: 50%;
   border: 2px solid $theme-primary;
+  border-radius: 50%;
 }
 
 .userDetails {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 4px;
 }
 
 .nameRow {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
 }
 
 .nickname {
-  font-size: 20px;
-  font-weight: bold;
-  color: $text-primary-dark;
+  max-width: 120px; /* 适合ProfileSummary模式的最大宽度（收紧） */
+
   /* 防止昵称过长影响布局 */
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 20px;
+  font-weight: bold;
+  color: $text-primary-dark;
   white-space: nowrap;
-  max-width: 120px; /* 适合ProfileSummary模式的最大宽度（收紧） */
 }
 
 .levelBadge {
-  background-color: $theme-primary;
-  color: $text-white;
-  font-size: 14px;
   padding: 2px 8px;
+  font-size: 14px;
+  color: $text-white;
+  background-color: $theme-primary;
   border-radius: 9999px;
 }
 
 .levelLink {
   display: flex;
-  align-items: center;
   gap: 4px;
-  color: $theme-primary;
+  align-items: center;
   font-size: 14px;
+  color: $theme-primary;
 }
 
 .levelIcon {
@@ -79,12 +80,12 @@
 }
 
 .editButton {
-  margin-left: 8px;
   padding: 8px 16px;
-  border-radius: 9999px;
+  margin-left: 8px;
+  font-size: 14px;
   color: $theme-primary;
   border: 1px solid $theme-primary;
-  font-size: 14px;
+  border-radius: 9999px;
 }
 
 .statsGrid {
@@ -101,8 +102,8 @@
   transition: all 0.3s ease;
   
   &.clickable {
-    cursor: pointer;
     padding: 8px;
+    cursor: pointer;
     border-radius: 8px;
     
     &:hover {
@@ -111,8 +112,8 @@
     }
     
     &:active {
-      transform: translateY(0);
       background: rgba($theme-primary, 0.1);
+      transform: translateY(0);
     }
   }
 }

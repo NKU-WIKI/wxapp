@@ -26,7 +26,7 @@ export default function FeedbackListPage() {
   const loadFeedbacks = useCallback(async () => {
     try {
       await dispatch(getFeedbackList({ page: 1, page_size: 20 })).unwrap();
-    } catch (error) {
+    } catch {
 
       Taro.showToast({ title: '获取反馈列表失败', icon: 'none' });
     }

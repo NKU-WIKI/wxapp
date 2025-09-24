@@ -1,11 +1,11 @@
 @use "../../styles/variables.scss" as *;
 
 .container {
-  background-color: #fff;
   padding: 16px;
   margin: 12px 0;
+  background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
 
   &.clickable {
     cursor: pointer;
@@ -19,9 +19,9 @@
   &.compact {
     padding: 0;
     margin: 0;
+    background-color: transparent;
     border-radius: 0;
     box-shadow: none;
-    background-color: transparent;
   }
 
   // 详细模式样式（保持原有样式不变）
@@ -35,11 +35,11 @@
 }
 
 .avatar {
+  flex-shrink: 0;
   width: 56px;
   height: 56px;
-  border-radius: 28px;
   margin-right: 12px;
-  flex-shrink: 0;
+  border-radius: 28px;
 }
 
 .userInfo {
@@ -54,35 +54,36 @@
 }
 
 .userName {
-  font-size: 16px;
-  font-weight: 600;
-  color: $text-primary;
+  max-width: 100px; /* 适合expanded模式的最大宽度（收紧） */
   margin-right: 8px;
+
   /* 防止昵称过长影响布局 */
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
   white-space: nowrap;
-  max-width: 100px; /* 适合expanded模式的最大宽度（收紧） */
 }
 
 // 关闭截断时使用的样式修饰符
 .noTruncate {
+  max-width: none;
   overflow: visible;
   text-overflow: clip;
   white-space: normal;
-  max-width: none;
 }
 
 // 等级徽章
 .levelBadge {
   display: flex;
   align-items: center;
-  background-color: $theme-primary;
-  color: #fff;
   padding: 2px 6px;
-  border-radius: 8px;
   font-size: 11px;
   font-weight: 500;
+  color: #fff;
+  background-color: $theme-primary;
+  border-radius: 8px;
 
   .levelIcon {
     margin-right: 2px;
@@ -91,10 +92,10 @@
 }
 
 .userSchool {
+  display: block;
+  margin-bottom: 4px;
   font-size: 12px;
   color: $text-helper-gray;
-  margin-bottom: 4px;
-  display: block;
 }
 
 // 位置信息
@@ -114,38 +115,38 @@
 
   // 时间信息
   .userTime {
+    margin-top: 4px;
     font-size: 12px;
     color: $text-helper-gray;
-    margin-top: 4px;
   }
 }
 
 // 关注按钮
 .followButton {
-  margin-left: 8px;
-  padding: 0 8px;
-  height: 24px;
-  border-radius: 12px;
-  background: #7baae8;
-  color: #fff;
-  font-size: 12px;
   display: flex;
-  align-items: center;
   flex-shrink: 0;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  margin-left: 8px;
+  font-size: 12px;
+  color: #fff;
+  background: #7baae8;
+  border-radius: 12px;
 
   &.following {
-    background: #f5f5f5;
     color: #666;
+    background: #f5f5f5;
   }
 }
 
 // 用户简介
 .userBio {
-  font-size: 14px;
-  color: $text-secondary;
-  line-height: 1.5;
-  margin-bottom: 12px;
   display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: $text-secondary;
 }
 
 // 用户统计信息
@@ -158,9 +159,9 @@
 
 .statItem {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
-  flex: 1;
 
   .statIcon {
     margin-bottom: 4px;
@@ -168,10 +169,10 @@
   }
 
   .statValue {
+    margin-bottom: 2px;
     font-size: 16px;
     font-weight: 600;
     color: $text-primary;
-    margin-bottom: 2px;
   }
 
   .statLabel {
@@ -187,13 +188,14 @@
   .progressBar {
     width: 100%;
     height: 4px;
-    background-color: $bg-input;
-    border-radius: 2px;
     margin-bottom: 6px;
     overflow: hidden;
+    background-color: $bg-input;
+    border-radius: 2px;
 
     .progressFill {
       height: 100%;
+
       // 使用更兼容的双色梯度，避免使用已弃用的 lighten()
       background: linear-gradient(90deg, $theme-primary 0%, $theme-primary 60%, #6b7cff 100%);
       border-radius: 2px;
@@ -223,6 +225,7 @@
   0% {
     background-position: 0 0;
   }
+
   100% {
     background-position: 20px 0;
   }
@@ -230,10 +233,10 @@
 
 // 错误状态
 .errorText {
-  text-align: center;
-  color: $status-error;
-  font-size: 14px;
   padding: 20px;
+  font-size: 14px;
+  color: $status-error;
+  text-align: center;
 }
 
 // ==================== 简洁模式样式 ====================
@@ -246,35 +249,35 @@
 
 .compactUserInfoLeft {
   display: flex;
+  flex-shrink: 0; /* Prevent the user info from shrinking */
   align-items: center;
   min-width: 0;
   margin-right: 12px; /* Add a small gutter between info and actions */
-  flex-shrink: 0; /* Prevent the user info from shrinking */
 }
 
 .compactAvatar {
+  flex-shrink: 0;
   width: 36px; // 恢复原始尺寸
   height: 36px;
-  border-radius: 18px;
   margin-right: 10px;
-  flex-shrink: 0;
+  border-radius: 18px;
   
   // 当传入exploreAvatar样式类时，应用小头像样式
   &.exploreAvatar {
     width: 24px; // explore页面专用的小头像尺寸
     height: 24px;
-    border-radius: 12px;
     margin-right: 6px; // 相应减少右边距
+    border-radius: 12px;
   }
 }
 
 // 为explore页面专门的小头像样式
 .compactAvatarSmall {
+  flex-shrink: 0;
   width: 24px; // explore页面专用的小头像尺寸
   height: 24px;
-  border-radius: 12px;
   margin-right: 6px; // 相应减少右边距
-  flex-shrink: 0;
+  border-radius: 12px;
 }
 
 .compactUserDetails {
@@ -289,35 +292,36 @@
 }
 
 .compactUserName {
-  font-size: 14px;
-  font-weight: 500;
-  color: $text-primary;
+  max-width: 80px; /* 适合compact模式的最大宽度（收紧） */
   margin-right: 6px;
+
   /* 防止昵称过长影响布局 */
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
   white-space: nowrap;
-  max-width: 80px; /* 适合compact模式的最大宽度（收紧） */
 }
 
 // 在需要完整展示昵称的场景下（如帖子详情的评论区），去除截断
 .noTruncate {
+  max-width: none;
   overflow: visible;
   text-overflow: clip;
   white-space: normal;
-  max-width: none;
 }
 
 // 简洁模式等级徽章
 .compactLevelBadge {
-  padding: 1px 4px;
-  border-radius: 6px;
-  background-color: $theme-primary;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 500;
   display: flex;
   align-items: center;
+  padding: 1px 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #fff;
+  background-color: $theme-primary;
+  border-radius: 6px;
 }
 
 // 简洁模式不需要图标，纯文字显示
@@ -341,77 +345,77 @@
 
 // 简洁模式时间信息 (移动到评论区操作栏)
 .compactTime {
-  font-size: 11px;
-  color: $text-helper-gray;
-  margin-right: 8px;
   display: flex;
   align-items: center;
+  margin-right: 8px;
+  font-size: 11px;
+  color: $text-helper-gray;
 }
 
 // 简洁模式简介
 .compactBio {
-  font-size: 12px;
-  color: $text-secondary;
   margin-top: 2px;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 12px;
+  color: $text-secondary;
   white-space: nowrap;
 }
 
 .compactActions {
   display: flex;
+  gap: 8px;
   align-items: center;
   margin-left: auto; /* push whole actions group to far right */
-  gap: 8px;
 }
 
 // 关注按钮容器
 .compactFollowContainer {
   display: flex;
-  align-items: center;
   flex-shrink: 0;
+  align-items: center;
   margin-right: 8px;
 }
 
 // 时间和更多按钮的容器 (移除时间显示，只保留更多按钮)
 .compactTimeActions {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
 }
 
 // 简洁模式关注按钮
 .compactFollowButton {
-  margin-left: 6px;
-  padding: 0 6px;
-  height: 20px;
-  border-radius: 10px;
-  background: #7baae8;
-  color: #fff;
-  font-size: 11px;
   display: flex;
-  align-items: center;
   flex-shrink: 0;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 6px;
+  font-size: 11px;
+  color: #fff;
+  background: #7baae8;
+  border-radius: 10px;
 
   &.following {
-    background: #f5f5f5;
     color: #666;
+    background: #f5f5f5;
   }
 }
 
 // 简洁模式更多按钮
 .moreButton {
-  width: 20px;
-  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
   border-radius: 50%;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgb(0 0 0 / 5%);
   }
 }
 
@@ -424,19 +428,19 @@
 /* ========== Profile 模式样式 ========== */
 .profile {
   width: 100%;
-  background: #fff;
-  border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
 }
 
 /* 用户信息行 */
 .profileUserInfoRow {
+  position: relative;
   display: flex;
   align-items: center;
   margin-bottom: 16px;
-  position: relative;
 }
 
 .profileAvatarContainer {
@@ -446,9 +450,9 @@
 .profileAvatarWrapper {
   width: 60px;
   height: 60px;
-  border-radius: 50%;
   overflow: hidden;
   border: 2px solid #f0f0f0;
+  border-radius: 50%;
 }
 
 .profileAvatar {
@@ -458,38 +462,39 @@
 }
 
 .profileUserDetails {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 4px;
 }
 
 .profileNickname {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
+  max-width: 110px; /* 适合profile模式的最大宽度（收紧） */
+
   /* 防止昵称过长影响布局 */
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
   white-space: nowrap;
-  max-width: 110px; /* 适合profile模式的最大宽度（收紧） */
 }
 
 .profileBio {
   font-size: 14px;
-  color: #666;
   line-height: 1.4;
+  color: #666;
 }
 
 /* 等级徽章 */
 .profileLevelBadge {
   display: flex;
-  align-items: center;
   gap: 4px;
+  align-items: center;
   padding: 4px 12px;
+  margin-right: 8px;
   background: linear-gradient(135deg, #fef3c7, #fbbf24);
   border-radius: 16px;
-  margin-right: 8px;
 }
 
 .profileStarIcon {
@@ -505,14 +510,14 @@
 /* 编辑按钮 */
 .profileEditButton {
   display: flex;
-  align-items: center;
   gap: 4px;
+  align-items: center;
   padding: 6px 12px;
-  background: #4f46e5;
-  color: #fff;
-  border-radius: 8px;
   font-size: 12px;
   font-weight: 500;
+  color: #fff;
+  background: #4f46e5;
+  border-radius: 8px;
 
   &:hover {
     background: #4338ca;
@@ -540,10 +545,10 @@
 
 .profileStatItem {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   flex: 1;
+  flex-direction: column;
   gap: 4px;
+  align-items: center;
   padding: 8px;
   border-radius: 8px;
   transition: background-color 0.2s;
@@ -561,8 +566,8 @@
 
 .profileStatLabelRow {
   display: flex;
-  align-items: center;
   gap: 4px;
+  align-items: center;
 }
 
 .profileStatIcon {
@@ -571,16 +576,16 @@
 
 .profileStatLabel {
   font-size: 12px;
-  color: #666;
   font-weight: 500;
+  color: #666;
 }
 
 /* 菜单卡片 */
 .profileMenuCard {
+  padding: 8px 0;
   background: #fff;
   border-radius: 12px;
-  padding: 8px 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 }
 
 
@@ -603,8 +608,8 @@
 
 .profileMenuLeft {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
 }
 
 .profileMenuIcon {
@@ -613,22 +618,22 @@
 
 .profileMenuText {
   font-size: 16px;
-  color: #333;
   font-weight: 500;
+  color: #333;
 }
 
 .profileVerifiedBadge {
+  padding: 2px 6px;
+  margin-left: 8px;
   font-size: 10px;
+  font-weight: 500;
   color: #059669;
   background: #dcfce7;
-  padding: 2px 6px;
   border-radius: 8px;
-  margin-left: 8px;
-  font-weight: 500;
 }
 
 .profileChevron {
   font-size: 16px;
-  color: #ccc;
   font-weight: bold;
+  color: #ccc;
 }

@@ -34,11 +34,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
             
             setPostInfo(null);
           } else {
-            
+            console.warn('获取帖子信息失败:', response);
           }
         })
-        .catch(_error => {
-          
+        .catch(error => {
+          console.error('获取帖子信息时出现错误:', error);
         })
         .finally(() => {
           setLoading(false);
@@ -186,7 +186,7 @@ const CommentsPage: React.FC = () => {
               // 其他错误，保留评论但会显示"未知"信息
               validComments.push(comment);
             }
-          } catch (validationError) {
+          } catch {
             // 网络错误等，保留评论
             
             validComments.push(comment);
@@ -199,7 +199,7 @@ const CommentsPage: React.FC = () => {
       
       // 如果有被过滤的评论，输出提示信息
       if (filteredCount > 0) {
-        
+        console.info(`已过滤 ${filteredCount} 个已删除的帖子评论`);
       }
 
       const totalFromApi = Array.isArray(raw) ? undefined : raw?.total;

@@ -10,54 +10,53 @@
 
 // 与活动广场一致的白色头部容器
 .fixedHeader {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 
 // 移除评分页自定义内部搜索框样式，使用通用 SearchBar 的默认样式
 
 /* 分类标签栏 */
 .categoryContainer {
+  padding: 0;
   background-color: $bg-card;
   border-top: 1px solid $border-light;
   border-bottom: 1px solid $border-light;
-  padding: 0;
 }
 
 .categoryScroll {
+  overflow: auto hidden;
   white-space: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
   
   /* 隐藏滚动条但保持可滑动 */
   &::-webkit-scrollbar {
     display: none;
   }
-  scrollbar-width: none; /* Firefox */
 }
 
 .categoryList {
   display: flex;
-  padding: 8px 16px 16px 16px; // 与其他模块一致
   gap: 8px;
   min-width: max-content;
+  padding: 8px 16px 16px; // 与其他模块一致
 }
 
 .categoryItem {
-  padding: 6px 12px;
-  border-radius: 12px;
-  background-color: $bg-input;
-  border: 1px solid $border-base;
-  transition: all 0.2s ease;
   flex-shrink: 0;
   min-width: fit-content;
+  padding: 6px 12px;
+  background-color: $bg-input;
+  border: 1px solid $border-base;
+  border-radius: 12px;
+  transition: all 0.2s ease;
 
   &.active {
     background-color: $theme-primary;
     border-color: $theme-primary;
 
     .categoryText {
-      color: $text-white;
       font-weight: 600;
+      color: $text-white;
     }
   }
 }
@@ -79,32 +78,33 @@
 }
 
 .ratingList {
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 16px;
 }
 
 /* 评分卡片 */
 .ratingCard {
   @include card-style;
+
   display: flex;
   padding: 0;
-  border-radius: 10px;
   overflow: hidden;
+  border-radius: 10px;
   transition: all 0.2s ease;
 
   &:active {
-    transform: scale(0.98);
     box-shadow: 0 2px 8px $shadow-medium;
+    transform: scale(0.98);
   }
 
 }
 
 .cardImage {
+  flex-shrink: 0;
   width: 90px;
   height: 90px;
-  flex-shrink: 0;
 }
 
 .itemImage {
@@ -114,11 +114,11 @@
 }
 
 .cardContent {
-  flex: 1;
-  padding: 12px;
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: space-between;
+  padding: 12px;
 }
 
 .cardHeader {
@@ -126,10 +126,10 @@
 }
 
 .itemTitle {
+  margin-bottom: 3px;
   font-size: 16px;
   font-weight: 600;
   color: $text-primary;
-  margin-bottom: 3px;
 }
 
 .itemLocation {
@@ -142,14 +142,14 @@
 }
 
 .itemDescription {
-  font-size: 13px;
-  color: $text-secondary;
-  line-height: 1.3;
+  display: -webkit-box;
   margin-bottom: 8px;
   overflow: hidden;
-  display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
+  font-size: 13px;
+  line-height: 1.3;
+  color: $text-secondary;
   -webkit-box-orient: vertical;
 }
 
@@ -162,8 +162,8 @@
 
 .ratingScore {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
 }
 
 .scoreNumber {
@@ -174,24 +174,24 @@
 
 .stars {
   display: flex;
-  align-items: center;
   gap: 1px;
+  align-items: center;
 }
 
 .starFull {
-  color: #FFD700;
   font-size: 13px;
+  color: #FFD700;
 }
 
 .starHalf {
-  color: #FFD700;
   font-size: 13px;
+  color: #FFD700;
   opacity: 0.5;
 }
 
 .starEmpty {
-  color: $border-base;
   font-size: 13px;
+  color: $border-base;
 }
 
 .reviewCount {
@@ -210,15 +210,15 @@
 }
 
 .emptyIcon {
-  font-size: 48px;
   margin-bottom: 16px;
+  font-size: 48px;
   opacity: 0.6;
 }
 
 .emptyText {
+  margin-bottom: 8px;
   font-size: 16px;
   color: $text-secondary;
-  margin-bottom: 8px;
 }
 
 .emptySubText {
@@ -230,8 +230,8 @@
 
 .loadingState {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 40px 20px;
 }
 
@@ -242,8 +242,8 @@
 
 .errorState {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 40px 20px;
   text-align: center;
 }
@@ -263,31 +263,31 @@
 }
 
 .loginPromptIcon {
-  font-size: 48px;
   margin-bottom: 16px;
+  font-size: 48px;
   opacity: 0.8;
 }
 
 .loginPromptTitle {
+  margin-bottom: 8px;
   font-size: 18px;
   font-weight: 600;
   color: $text-primary;
-  margin-bottom: 8px;
 }
 
 .loginPromptDesc {
-  font-size: 14px;
-  color: $text-secondary;
   margin-bottom: 24px;
+  font-size: 14px;
   line-height: 1.5;
+  color: $text-secondary;
 }
 
 .loginPromptButton {
-  background-color: $theme-primary;
-  color: white;
   padding: 12px 24px;
-  border-radius: 20px;
+  color: white;
   cursor: pointer;
+  background-color: $theme-primary;
+  border-radius: 20px;
   transition: background-color 0.2s ease;
 
   &:active {
@@ -296,27 +296,27 @@
 }
 
 .loginPromptButtonText {
-  color: white;
   font-size: 14px;
   font-weight: 500;
+  color: white;
 }
 
 /* 悬浮发布按钮 */
 .floatingButton {
   position: fixed;
-  bottom: 80px;
   right: 20px;
-  width: 56px;
-  height: 56px;
-  background-color: $theme-primary;
-  border-radius: 50%;
+  bottom: 80px;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 56px;
+  height: 56px;
   cursor: pointer;
+  background-color: $theme-primary;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
   transition: all 0.2s ease;
-  z-index: 100;
 
   &:active {
     background-color: $theme-primary-dark;
@@ -325,8 +325,8 @@
 }
 
 .floatingButtonText {
-  color: white;
   font-size: 24px;
   font-weight: 300;
   line-height: 1;
+  color: white;
 }
