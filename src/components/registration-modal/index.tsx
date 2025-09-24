@@ -1,4 +1,5 @@
-import { View, Text, Modal, Input, Button } from "@tarojs/components";
+import { View, Text, Input, Button } from "@tarojs/components";
+import Taro from "@tarojs/taro";
 import { useState } from "react";
 import styles from "./index.module.scss";
 
@@ -15,7 +16,7 @@ const RegistrationModal = ({ isOpen, onClose, onConfirm, activityTitle }: Regist
 
   const handleConfirm = () => {
     if (!name || !studentId) {
-      // Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
       return;
     }
     onConfirm(name, studentId);
@@ -32,13 +33,13 @@ const RegistrationModal = ({ isOpen, onClose, onConfirm, activityTitle }: Regist
         <Text className={styles.activityTitle}>活动: {activityTitle}</Text>
         <Input
           className={styles.input}
-          placeholder="请输入您的姓名"
+          placeholder='请输入您的姓名'
           value={name}
           onInput={(e) => setName(e.detail.value)}
         />
         <Input
           className={styles.input}
-          placeholder="请输入您的学号"
+          placeholder='请输入您的学号'
           value={studentId}
           onInput={(e) => setStudentId(e.detail.value)}
         />
@@ -56,4 +57,3 @@ const RegistrationModal = ({ isOpen, onClose, onConfirm, activityTitle }: Regist
 };
 
 export default RegistrationModal;
-
