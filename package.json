@@ -15,10 +15,20 @@
     "build:weapp": "taro build --type weapp",
     "dev:weapp": "npm run build:weapp -- --watch",
     "analyze:weapp": "cross-env ANALYZE=true npm run build:weapp",
-    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
-    "stylelint": "stylelint 'src/**/*.{scss,css}'",
-    "stylelint:fix": "stylelint 'src/**/*.{scss,css}' --fix"
+    
+    "lint": "npm run lint:eslint && npm run lint:stylelint && npm run lint:prettier && npm run lint:types",
+    "lint:eslint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint:eslint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
+    "lint:stylelint": "stylelint 'src/**/*.{scss,css}'",
+    "lint:stylelint:fix": "stylelint 'src/**/*.{scss,css}' --fix",
+    "lint:prettier": "prettier --check 'src/**/*.{js,jsx,ts,tsx,scss,css,json}'",
+    "lint:prettier:fix": "prettier --write 'src/**/*.{js,jsx,ts,tsx,scss,css,json}'",
+    "lint:types": "tsc --noEmit",
+    
+    "fix": "npm run lint:eslint:fix && npm run lint:stylelint:fix && npm run lint:prettier:fix",
+    "format": "npm run lint:prettier:fix",
+    
+    "precommit": "lint-staged"
   },
   "browserslist": [
     "last 3 versions",
