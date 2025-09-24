@@ -542,10 +542,16 @@ export interface PageActivityRead {
 
 export interface PostJoinActivityRequest {
   /**
-   * Activity Id，活动ID
+   * Activity ID，活动ID
    */
   activity_id: string;
-  [property: string]: any;
+  /**
+   * Participant Info, 报名信息
+   */
+  participant_info?: {
+    name: string;
+    student_id: string;
+  };
 }
 
 /**
@@ -845,4 +851,3 @@ export interface DeleteCancelRegistrationsResponse {
   message?: string;
   [property: string]: any;
 }
-

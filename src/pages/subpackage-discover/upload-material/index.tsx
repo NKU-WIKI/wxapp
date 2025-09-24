@@ -2,6 +2,7 @@ import { View, Text, Image, Input, Textarea, Picker, RadioGroup, Radio, Label, B
 import { FileUploadRead, MAX_FILE_SIZE, getFileTypeDisplayName } from "@/types/api/fileUpload";
 import fileUploadApi from "@/services/api/fileUpload";
 import uploadApi from "@/services/api/upload";
+import { LearningMaterialService } from "@/services/api/learningMaterial";
 import { checkFileUploadPermissionWithToast } from "@/utils/permissionChecker";
 import Taro from "@tarojs/taro";
 import { useState, useEffect } from "react";
@@ -371,6 +372,14 @@ export default function UploadMaterial() {
       return;
     }
 
+    if (description.trim().length > 200) {
+      Taro.showToast({
+        title: '资料说明不能超过200字',
+        icon: 'none'
+      });
+      return;
+    }
+
     if (!selectedCollege) {
       Taro.showToast({
         title: '请选择所属学院',
@@ -399,10 +408,34 @@ export default function UploadMaterial() {
       
       // 如果有选择文件，先上传文件
       if (selectedFile) {
-        fileUploadResult = await fileUploadApi.uploadFileSimple(selectedFile.path);
+        // 根据学科分类决定文件分类
+        const category = selectedSubject.includes('计算机') || selectedSubject.includes('软件') ? 'code' : 'document';
+        
+        fileUploadResult = await fileUploadApi.uploadFileSimple(
+          selectedFile.path,
+          category,
+          false // 默认不公开
+        );
         
         if (fileUploadResult && fileUploadResult.data) {
           setUploadedFile(fileUploadResult.data as FileUploadRead);
+          
+          // 创建学习资料记录
+          const materialData = {
+            description: description.trim(),
+            college: selectedCollege,
+            subject: selectedSubject,
+            signature_type: signatureType,
+            file_url: fileUploadResult.data.file_url,
+            server_file_name: fileUploadResult.data.file_name,
+            original_file_name: selectedFile.name,
+            netdisk_link: netdiskLink.trim(),
+            file_size: selectedFile.size,
+            link_id: fileUploadResult.data.id
+          };
+          
+          // 添加到学习资料列表
+          LearningMaterialService.addMaterial(materialData);
           
           // 更新加载提示
           Taro.hideLoading();
@@ -412,25 +445,24 @@ export default function UploadMaterial() {
         } else {
           throw new Error('文件上传失败');
         }
+      } else if (netdiskLink.trim()) {
+        // 只有网盘链接的情况，也需要创建学习资料记录
+        const materialData = {
+          description: description.trim(),
+          college: selectedCollege,
+          subject: selectedSubject,
+          signature_type: signatureType,
+          file_url: '',
+          server_file_name: '',
+          original_file_name: netdiskLink.trim(), // 使用网盘链接作为标题
+          netdisk_link: netdiskLink.trim(),
+          file_size: 0,
+          link_id: ''
+        };
+        
+        // 添加到学习资料列表
+        LearningMaterialService.addMaterial(materialData);
       }
-
-      // 准备提交数据
-      const uploadData = {
-        file_url: fileUploadResult?.data?.url || '',
-        file_name: originalFileName || fileUploadResult?.data?.filename || '',
-        original_file_name: originalFileName,
-        server_file_name: fileUploadResult?.data?.filename || '',
-        netdisk_link: netdiskLink,
-        description: description,
-        college: selectedCollege,
-        subject: selectedSubject,
-        signature_type: signatureType,
-        qr_code_url: qrCodeImage
-      };
-
-      // TODO: 这里后续会调用真正的提交API
-      // 临时存储数据用于调试
-      Taro.setStorageSync('uploadMaterialData', uploadData);
 
       // 隐藏加载状态
       Taro.hideLoading();
@@ -588,12 +620,16 @@ export default function UploadMaterial() {
 
       {/* 资料说明文本域 */}
       <View className={styles.formGroup}>
-        <Text className={styles.formLabel}>资料说明</Text>
+        <View className={styles.labelRow}>
+          <Text className={styles.formLabel}>资料说明</Text>
+          <Text className={styles.charCount}>{description.length}/200</Text>
+        </View>
         <Textarea
-          placeholder='请输入资料说明'
+          placeholder='请输入资料说明（最多200字）'
           className={styles.descriptionTextarea}
           value={description}
           onInput={handleDescriptionInput}
+          maxlength={200}
         />
       </View>
 

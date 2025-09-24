@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux'
 import { marketplaceApi } from '@/services/api/marketplace'
 
 interface UseProductDetailsOptions {
-  onLoadingChange?: (loading: boolean) => void
-  onError?: (error: Error) => void
+  onLoadingChange?: (_loading: boolean) => void
+  onError?: (_error: Error) => void
 }
 
 export const useProductDetails = (options: UseProductDetailsOptions = {}) => {
@@ -24,7 +24,6 @@ export const useProductDetails = (options: UseProductDetailsOptions = {}) => {
           const response = await marketplaceApi.getListingDetail(id)
           return { id, data: response.data }
         } catch (error) {
-          console.warn(`获取商品 ${id} 详情失败:`, error)
           return null
         }
       })
@@ -42,7 +41,6 @@ export const useProductDetails = (options: UseProductDetailsOptions = {}) => {
 
       return validResults
     } catch (error) {
-      console.error('批量获取商品详情失败:', error)
       options.onError?.(error as Error)
       return []
     } finally {

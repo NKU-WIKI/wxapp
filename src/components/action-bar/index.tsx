@@ -179,6 +179,15 @@ const ActionBar: React.FC<ActionBarProps> = ({
   const handleComment = useCallback((buttonIndex: number) => {
     const key = `comment-${buttonIndex}`;
 
+    // 如果是帖子类型，直接跳转到帖子详情页
+    if (targetType === 'post') {
+      Taro.navigateTo({
+        url: `/pages/subpackage-interactive/post-detail/index?id=${targetId}`
+      });
+      return;
+    }
+
+    // 其他类型的评论处理（例如活动等）
     // 切换评论状态（表示用户正在评论或已评论）
     setLocalStates(prev => {
       const currentState = prev[key] || { isActive: false, count: 0 };
@@ -193,7 +202,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
 
     // 调用外部回调，通知需要聚焦到评论区
     onStateChange?.('comment', true, 0);
-  }, [onStateChange]);
+  }, [onStateChange, targetType, targetId]);
 
   // 判断按钮是否需要登录权限
   const requiresAuth = useCallback((button: ActionButtonConfig): boolean => {
@@ -324,7 +333,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
     } finally {
       setLoadingStates(prev => ({ ...prev, [key]: false }));
     }
-  }, [targetId, targetType, localStates, loadingStates, onStateChange, handleComment, checkLogin, isButtonDisabled, requiresAuth]);
+  }, [targetId, targetType, localStates, loadingStates, onStateChange, handleComment, checkLogin, isButtonDisabled, requiresAuth, authConfig.loginPrompt, currentUser?.id, isLoggedIn, postInfo]);
 
   if (!buttons || buttons.length === 0) {
     return null;

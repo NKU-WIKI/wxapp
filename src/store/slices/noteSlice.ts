@@ -24,7 +24,7 @@ const createMockNotes = (): NoteListItem[] => {
       user_id: 'user-001' // 新增：用户ID
     },
     {
-      id: 'mock-2', 
+      id: 'mock-2',
       title: '南开大学校园生活指南',
       content: '作为南开新生，这里整理了一些实用的校园生活小贴士，包括食堂推荐、图书馆使用指南、选课技巧等...',
       category_id: 'life',
@@ -35,7 +35,7 @@ const createMockNotes = (): NoteListItem[] => {
       view_count: 89,
       like_count: 15,
       comment_count: 5,
-      author_name: '李小红',
+      author_name: '李小明',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li',
       user_id: 'user-002' // 新增：用户ID
     },
@@ -58,7 +58,7 @@ const createMockNotes = (): NoteListItem[] => {
     {
       id: 'mock-4',
       title: '天津美食探店记录',
-      content: '记录了在天津吃过的各种美食，从街边小吃到高档餐厅，每一家都有详细的评价和推荐...',
+      content: '记录了在天津吃过的各种美食，从街边小吃到高档餐厅，每一家都有详细的评价和推荐。',
       category_id: 'food',
       tags: ['美食', '天津', '探店'],
       created_at: new Date(Date.now() - 10800000).toISOString(),
@@ -90,7 +90,7 @@ const createMockNotes = (): NoteListItem[] => {
     {
       id: 'mock-6',
       title: '摄影入门技巧分享',
-      content: '分享一些摄影的基本技巧和后期处理方法，从构图到光线运用...',
+      content: '分享一些摄影的基本技巧和后期处理方法，从构图到光线运用。',
       category_id: 'hobby',
       tags: ['摄影', '技巧'],
       created_at: new Date(Date.now() - 18000000).toISOString(),
@@ -99,14 +99,14 @@ const createMockNotes = (): NoteListItem[] => {
       view_count: 128,
       like_count: 29,
       comment_count: 11,
-      author_name: '摄影师小明',
+      author_name: '摄影师小赵',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=photo',
       user_id: 'user-006' // 新增：用户ID
     },
     {
       id: 'mock-7',
       title: 'TypeScript 进阶指南',
-      content: '深入理解TypeScript的高级特性，包括泛型、装饰器、模块系统等内容，提升代码质量和开发效率',
+      content: '深入理解TypeScript的高级特性，包括泛型、装饰器、模块系统等内容，提升代码质量和开发效率。',
       category_id: 'tech',
       tags: ['TypeScript', '进阶'],
       created_at: new Date(Date.now() - 21600000).toISOString(),
@@ -138,7 +138,7 @@ const createMockNotes = (): NoteListItem[] => {
     {
       id: 'mock-9',
       title: '健身入门完全指南',
-      content: '从零开始的健身指南，包括基础动作、训练计划、饮食搭配等方面的详细介绍',
+      content: '从零开始的健身指南，包括基础动作、训练计划、饮食搭配等方面的详细介绍。',
       category_id: 'health',
       tags: ['健身', '运动', '健康'],
       created_at: new Date(Date.now() - 28800000).toISOString(),
@@ -186,7 +186,7 @@ const createMockNotes = (): NoteListItem[] => {
     {
       id: 'mock-12',
       title: '前端面试经验总结',
-      content: '整理了前端面试中的常见问题和答题技巧，包括HTML、CSS、JavaScript、React等',
+      content: '整理了前端面试中的常见问题和答题技巧，包括HTML、CSS、JavaScript、React。',
       category_id: 'tech',
       tags: ['前端', '面试', '经验'],
       created_at: new Date(Date.now() - 39600000).toISOString(),
@@ -202,7 +202,7 @@ const createMockNotes = (): NoteListItem[] => {
     {
       id: 'mock-13',
       title: '咖啡入门指南',
-      content: '从咖啡豆的选择到冲泡技巧，带你进入咖啡的世界',
+      content: '从咖啡豆的选择到冲泡技巧，带你进入咖啡的世界。',
       category_id: 'lifestyle',
       tags: ['咖啡', '生活', '品味'],
       created_at: new Date(Date.now() - 43200000).toISOString(),
@@ -218,7 +218,7 @@ const createMockNotes = (): NoteListItem[] => {
     {
       id: 'mock-14',
       title: '英语学习方法分享',
-      content: '提高英语口语和听力的实用方法，包括学习资源推荐',
+      content: '提高英语口语和听力的实用方法，包括学习资源推荐。',
       category_id: 'study',
       tags: ['英语', '学习方法', '口语'],
       created_at: new Date(Date.now() - 46800000).toISOString(),
@@ -296,38 +296,19 @@ const createMockNotes = (): NoteListItem[] => {
       user_id: 'user-018' // 新增：用户ID
     }
   ];
-  
+
   return mockNotes;
 };
 
 // 异步thunk - 获取笔记动态
 export const fetchNoteFeed = createAsyncThunk(
   'note/fetchNoteFeed',
-  async (params: { skip?: number; limit?: number } = {}) => {
-    // 不再需要检查登录状态，因为API支持可选认证
-    
+  async (params: { skip?: number; limit?: number } = {}, { rejectWithValue }) => {
     try {
       // 无论是否登录都尝试调用笔记推荐流接口（可选认证）
       const response = await noteApi.getNoteFeed(params);
-
-      // 详细检查可能的用户ID字段
-      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-        const firstNote = response.data[0];
-
-        // 检查整个笔记对象的结构
-
-        // 检查后端数据是否完整（是否有用户信息）
-        const hasUserInfo = firstNote.user_id || firstNote.author_id || firstNote.creator_id ||
-                           firstNote.user || firstNote.author || firstNote.creator;
-
-        if (!hasUserInfo) {
-          // console.warn('⚠️ 后端API数据不完整：缺少用户信息');
-        }
-      }
-
       return response;
     } catch (error: any) {
-      // Fallback到普通笔记列表接口
       try {
         const fallbackParams = {
           skip: params.skip || 0,
@@ -335,7 +316,6 @@ export const fetchNoteFeed = createAsyncThunk(
           sort_by: 'created_at',
           sort_order: 'desc' as const
         };
-
         const fallbackResponse = await noteApi.getNotes(fallbackParams);
         return fallbackResponse;
       } catch (fallbackError: any) {
@@ -345,11 +325,11 @@ export const fetchNoteFeed = createAsyncThunk(
         const limit = params.limit || 20;
         const slicedMockData = mockData.slice(skip, skip + limit);
 
-        return {
+        return rejectWithValue({
           code: 0,
           message: 'success',
           data: slicedMockData
-        };
+        });
       }
     }
   }
@@ -363,12 +343,12 @@ export const createNote = createAsyncThunk<
   'note/createNote',
   async (noteData: CreateNoteRequest, { rejectWithValue }) => {
     try {
-      
+
       const response = await noteApi.createNote(noteData);
-      
+
       return response;
     } catch (error: any) {
-      
+
       return rejectWithValue(error.message || '创建笔记失败');
     }
   }
@@ -377,16 +357,12 @@ export const createNote = createAsyncThunk<
 // 异步thunk - 加载更多笔记
 export const loadMoreNotes = createAsyncThunk(
   'note/loadMoreNotes',
-  async (params: { skip?: number; limit?: number } = {}) => {
-    // 不再需要检查登录状态，因为API支持可选认证
-    
+  async (params: { skip?: number; limit?: number } = {}, { rejectWithValue }) => {
     try {
       // 无论是否登录都尝试调用笔记推荐流接口（可选认证）
       const response = await noteApi.getNoteFeed(params);
       return response;
     } catch (error: any) {
-
-      // Fallback到普通笔记列表接口
       try {
         const fallbackParams = {
           skip: params.skip || 0,
@@ -394,22 +370,20 @@ export const loadMoreNotes = createAsyncThunk(
           sort_by: 'created_at',
           sort_order: 'desc' as const
         };
-
         const fallbackResponse = await noteApi.getNotes(fallbackParams);
         return fallbackResponse;
       } catch (fallbackError: any) {
-
         // 如果所有API都失败，使用模拟数据作为最后的后备方案
         const mockData = createMockNotes();
         const skip = params.skip || 0;
         const limit = params.limit || 20;
         const slicedMockData = mockData.slice(skip, skip + limit);
 
-        return {
+        return rejectWithValue({
           code: 0,
           message: 'success',
           data: slicedMockData
-        };
+        });
       }
     }
   }
@@ -421,7 +395,7 @@ export const fetchNotesInteractionStatus = createAsyncThunk(
   async (noteIds: string[], { getState }) => {
     const state = getState() as any;
     const isLoggedIn = state.user?.isLoggedIn || false;
-    
+
     if (!isLoggedIn || noteIds.length === 0) {
       return {};
     }
@@ -450,15 +424,15 @@ export const fetchNotesInteractionStatus = createAsyncThunk(
       ]);
 
       const results = await Promise.all(statusPromises);
-      
+
       // 组织返回数据
       const statusMap: Record<string, { is_liked: boolean; is_favorited: boolean }> = {};
-      
+
       results.forEach(result => {
         if (!statusMap[result.noteId]) {
           statusMap[result.noteId] = { is_liked: false, is_favorited: false };
         }
-        
+
         if (result.type === 'like') {
           statusMap[result.noteId].is_liked = result.status;
         } else if (result.type === 'favorite') {
@@ -530,7 +504,7 @@ const noteSlice = createSlice({
         state.refreshing = false;
         // action.payload 现在是完整的API响应
         const response = action.payload;
-        
+
         if (response.code === 0 && Array.isArray(response.data)) {
           state.notes = response.data;
           state.hasMore = response.data.length >= state.pageSize;
@@ -554,7 +528,7 @@ const noteSlice = createSlice({
         state.loading = false;
         // action.payload 现在是完整的API响应
         const response = action.payload;
-        
+
         if (response.code === 0 && Array.isArray(response.data)) {
           // 去重并追加新笔记
           const existingIds = new Set(state.notes.map(note => note.id));
@@ -579,7 +553,7 @@ const noteSlice = createSlice({
       .addCase(createNote.fulfilled, (state, action) => {
         state.creating = false;
         const response = action.payload;
-        
+
         if (response.code === 0 && response.data) {
           // 将新创建的笔记添加到列表顶部
           const newNote: NoteListItem = {
@@ -594,7 +568,7 @@ const noteSlice = createSlice({
             view_count: 0,
             like_count: 0,
             comment_count: 0,
-            author_name: response.data.author?.nickname || '我',
+            author_name: response.data.author?.nickname || '匿名用户',
             author_avatar: response.data.author?.avatar || ''
           };
           state.notes = [newNote, ...state.notes];
@@ -610,7 +584,7 @@ const noteSlice = createSlice({
       // 批量查询交互状态
       .addCase(fetchNotesInteractionStatus.fulfilled, (state, action) => {
         const statusMap = action.payload;
-        
+
         // 更新笔记的交互状态
         state.notes = state.notes.map(note => ({
           ...note,
@@ -619,9 +593,9 @@ const noteSlice = createSlice({
           interaction_loading: false
         }));
       })
-      .addCase(fetchNotesInteractionStatus.pending, (state, _action) => {
+      .addCase(fetchNotesInteractionStatus.pending, (state, action) => {
         // 标记正在查询交互状态的笔记
-        const noteIds = _action.meta.arg;
+        const noteIds = action.meta.arg;
         state.notes = state.notes.map(note => ({
           ...note,
           interaction_loading: noteIds.includes(note.id) ? true : note.interaction_loading

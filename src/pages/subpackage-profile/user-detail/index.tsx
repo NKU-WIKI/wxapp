@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { fetchUserProfile, fetchCurrentUser } from '../../../store/slices/userSlice';
-import { getActionStatus, getUserPostCount, getUserFollowersCount, getUserFollowingCount } from '../../../services/api/user';
-import { followAction } from '../../../services/api/followers';
 import { BBSNotificationHelper } from '@/utils/notificationHelper';
-import { useSharing } from '../../../hooks/useSharing';
-import CustomHeader from '../../../components/custom-header';
-import AuthorInfo from '../../../components/author-info';
-import ActionBar from '../../../components/action-bar';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchUserProfile, fetchCurrentUser } from '@/store/slices/userSlice';
+import { getActionStatus, getUserPostCount, getUserFollowersCount, getUserFollowingCount } from '@/services/api/user';
+import { followAction } from '@/services/api/followers';
+import { useSharing } from '@/hooks/useSharing';
+import CustomHeader from '@/components/custom-header';
+import AuthorInfo from '@/components/author-info';
+import ActionBar from '@/components/action-bar';
 import styles from './index.module.scss';
 
 const UserDetail: React.FC = () => {
@@ -71,8 +71,7 @@ const UserDetail: React.FC = () => {
             following_count: followingCount
           }));
         } catch (error) {
-
-          // 如果API调用失败，保持默认值0
+          // 如果API调用失败，保持默认值
         }
 
         // 获取关注状态
@@ -81,19 +80,14 @@ const UserDetail: React.FC = () => {
             const statusResponse = await getActionStatus(userId, 'user', 'follow');
             setIsFollowing(statusResponse.data.is_active);
           } catch (error: any) {
-
-
             // 特别处理422错误（OpenAPI文档target_id类型定义错误）
             if (error?.statusCode === 422) {
-
               // 暂时使用默认值，等待后端修复OpenAPI文档
             }
-
             setIsFollowing(false);
           }
         }
       } catch (error) {
-
         Taro.showToast({
           title: '获取用户信息失败',
           icon: 'none'
@@ -109,7 +103,6 @@ const UserDetail: React.FC = () => {
   useEffect(() => {
     if (userId) {
       // 重新获取用户信息
-      // console.log('重新获取用户信息', userId)
       if (currentUserId && userId === currentUserId) {
         // 查看自己的资料，使用当前用户信息
         dispatch(fetchCurrentUser());
@@ -159,7 +152,7 @@ const UserDetail: React.FC = () => {
 
         }
 
-        // 重新获取真实的粉丝数量
+        // 重新获取真实的粉丝数据
         try {
           const newFollowersCount = await getUserFollowersCount(userId);
           setTargetUser(prev => ({
@@ -167,8 +160,7 @@ const UserDetail: React.FC = () => {
             follower_count: newFollowersCount
           }));
         } catch (error) {
-
-          // 如果获取失败，使用简单的加减逻辑作为备选
+          // 如果获取失败，使用简单的加减逻辑作为备用
           if (targetUser) {
             setTargetUser({
               ...targetUser,
@@ -197,7 +189,7 @@ const UserDetail: React.FC = () => {
       <View className={styles.container}>
         <CustomHeader title='用户资料' />
         <View className={styles.loading}>
-          <Text>加载中...</Text>
+          <Text>加载�?..</Text>
         </View>
       </View>
     );

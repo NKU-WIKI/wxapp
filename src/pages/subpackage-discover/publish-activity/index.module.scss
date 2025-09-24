@@ -38,6 +38,29 @@ $text-secondary: #64748b;
   // 移除左侧蓝色竖线
 }
 
+// 标签容器样式（用于包含标签和字符计数）
+.labelContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6rpx;
+}
+
+// 字符计数样式
+.charCount {
+  font-size: 24rpx;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+// 错误提示文本样式
+.errorText {
+  font-size: 24rpx;
+  color: #ef4444;
+  margin-top: 8rpx;
+  margin-left: 4rpx;
+}
+
 // 必填项星号样式
 .required {
   color: #ff4757;

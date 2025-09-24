@@ -1,4 +1,4 @@
-import { View, Text, Button, Image, Input } from '@tarojs/components'
+import { View, Text, Button } from '@tarojs/components'
 import { useState, useEffect, useCallback } from 'react'
 import Taro from '@tarojs/taro'
 import { useDispatch } from 'react-redux'
@@ -16,7 +16,6 @@ import { getFollowers, followAction } from '@/services/api/followers'
 
 // Utils imports
 import { BBSNotificationHelper } from '@/utils/notificationHelper'
-import { normalizeImageUrl } from '@/utils/image'
 
 // Component imports
 import AuthorInfo from '@/components/author-info'
@@ -30,7 +29,7 @@ type TabType = 'following' | 'followers';
 
 const FollowersPage = () => {
   const dispatch = useDispatch<AppDispatch>()
-  
+
   // 从URL参数获取目标用户ID和初始标签页
   const [targetUserId] = useState<string>(() => {
     const pages = Taro.getCurrentPages();
@@ -38,7 +37,7 @@ const FollowersPage = () => {
     const options = currentPage.options;
     return options.userId || '';
   })
-  
+
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const pages = Taro.getCurrentPages();
     const currentPage = pages[pages.length - 1];
@@ -52,15 +51,14 @@ const FollowersPage = () => {
   const [users, setUsers] = useState<any[]>([])
   const [searchKeyword, setSearchKeyword] = useState('')
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]) // 用于高亮的关键词列表
-  const [allUsers, setAllUsers] = useState<any[]>([]) // 存储所有用户数据用于搜索
-
-  // 获取用户列表的核心函数（不使用useCallback避免循环依赖）
+  const [allUsers, setAllUsers] = useState<any[]>([]) // 存储所有用户数据用于搜�?
+  // 获取用户列表的核心函数（不使用useCallback避免循环依赖�?
   const fetchUsers = async (isRefresh = false) => {
     if (loading && !isRefresh) return
-    
+
     setLoading(true)
     setError(null)
-    
+
     try {
       const params: GetFollowersParams = {
         type: activeTab,
@@ -68,15 +66,15 @@ const FollowersPage = () => {
         page_size: 20,
         target_user_id: targetUserId
       }
-      
+
       const response = await getFollowers(params)
-      
+
       // 根据OpenAPI文档，标准响应格式为 ApiResponse<User[]>
       if (response.code === 0 && response.data !== undefined) {
-        // 处理API响应格式 - data是用户对象数组
+        // 处理API响应格式 - data是用户对象数�?
         let newUsers: any[] = [];
         const responseData = response.data as any[];
-        
+
         if (Array.isArray(responseData)) {
           // 为每个用户添加关注状态
           newUsers = responseData.map((user: any) => ({
@@ -85,101 +83,96 @@ const FollowersPage = () => {
             relation: activeTab === 'following' ? 'following' : 'none'
           }));
         } else {
-          
+
           newUsers = [];
         }
-        
+
         if (isRefresh) {
           setUsers(newUsers)
-          setAllUsers(newUsers) // 保存所有用户数据用于搜索
+          setAllUsers(newUsers) // 保存所有用户数据用于搜�
           setCurrentPage(2)
         } else {
           setUsers(prev => [...prev, ...newUsers])
           setAllUsers(prev => [...prev, ...newUsers]) // 也保存到allUsers
           setCurrentPage(prev => prev + 1)
         }
-        
+
         setHasMore(newUsers.length >= 20)
       } else {
-        
+
         throw new Error((response as any).msg || (response as any).message || '获取用户列表失败')
       }
     } catch (err) {
-      
+
       setError(err instanceof Error ? err.message : '网络错误')
     } finally {
       setLoading(false)
     }
   }
 
-  // 处理关注/取消关注
-  const handleFollowAction = useCallback(async (userId: string, relation: FollowRelation) => {
+  // 关注/取关操作
+  const handleFollowToggle = useCallback(async (userId: string, relation: FollowRelation) => {
     try {
       const params: FollowActionParams = {
         target_user_id: userId,
         action: relation === 'none' ? 'follow' : 'unfollow'
       }
-      
+
       const response = await followAction(params)
-      
+
       // 根据OpenAPI文档，标准响应格式为 ApiResponse
       if (response.code === 0) {
         const responseData = response.data as any;
         const isActive = responseData?.is_active;
-        
-        
-        
-        // 更新本地状态 - 不论在哪个tab都只更新关注状态，不删除用户
-        setUsers(prev => prev.map(user => 
-          user.id === userId 
+        // 更新本地状?- 不论在哪个tab都只更新关注状态，不删除用?
+        setUsers(prev => prev.map(user =>
+          user.id === userId
             ? { ...user, relation: isActive ? 'following' : 'none' as FollowRelation }
             : user
         ))
-        setAllUsers(prev => prev.map(user => 
-          user.id === userId 
+        setAllUsers(prev => prev.map(user =>
+          user.id === userId
             ? { ...user, relation: isActive ? 'following' : 'none' as FollowRelation }
             : user
         )) // 同时更新allUsers
-        
+
         // 如果操作成功且状态变为激活（关注），创建通知
         if (isActive) {
-          
-          
+
+
           // 获取当前用户信息
-          const currentUser = (window as any).g_app?.$app?.globalData?.userInfo || 
-                             JSON.parse(Taro.getStorageSync('userInfo') || '{}');
-          
+          const currentUser = (window as any).g_app?.$app?.globalData?.userInfo ||
+            JSON.parse(Taro.getStorageSync('userInfo') || '{}');
+
           BBSNotificationHelper.handleFollowNotification({
             targetUserId: userId,
             currentUserId: currentUser?.id || '',
             currentUserNickname: currentUser?.nickname || currentUser?.name || '用户',
             isFollowing: isActive
           }).then(() => {
-            
+
           }).catch((_error) => {
-            
+
           });
         } else {
-          
+
         }
-        
+
         // 更新Redux store中的用户信息，确保主页的粉丝数量实时更新
-        dispatch(fetchUserProfile())
+        dispatch(fetchUserProfile({userId: targetUserId}));
       } else {
-        throw new Error(response.message || '操作失败')
+        throw new Error(response.message || '操作失败');
       }
     } catch (err) {
-      
+
       Taro.showToast({
         title: err instanceof Error ? err.message : '操作失败',
         icon: 'error'
-      })
+      });
     }
-  }, [dispatch])
+  }, [dispatch, targetUserId]);
 
-
-
-  // 切换标签页
+  // 切换标签�?
   const handleTabSwitch = (tab: TabType) => {
     if (tab !== activeTab) {
       setActiveTab(tab)
@@ -188,7 +181,7 @@ const FollowersPage = () => {
       setCurrentPage(1)
       setHasMore(true)
       setError(null)
-      setSearchKeyword('') // 重置搜索关键词
+      setSearchKeyword('') // 重置搜索关键�?
     }
   }
 
@@ -207,7 +200,7 @@ const FollowersPage = () => {
       )
       setUsers(filteredUsers)
 
-      // 设置关键词用于高亮
+      // 设置关键词用于高�?
       const keywords = value.trim().split(/\s+/).filter(k => k.length > 0)
       setSearchKeywords(keywords)
     }
@@ -229,15 +222,6 @@ const FollowersPage = () => {
     setUsers(allUsers)
   }, [allUsers])
 
-  // 获取关注按钮文本和样式
-  const getFollowButtonInfo = (relation: FollowRelation) => {
-    switch (relation) {
-      case 'following':
-        return { text: '已关注', className: styles.following }
-      default:
-        return { text: '+关注', className: styles.followBack }
-    }
-  }
 
   // 页面初始化和依赖更新
   useEffect(() => {
@@ -248,8 +232,7 @@ const FollowersPage = () => {
       setAllUsers([]) // 重置allUsers
       setCurrentPage(1)
       setHasMore(true)
-      setSearchKeyword('') // 重置搜索关键词
-      
+      setSearchKeyword('') // 重置搜索关键�?
       try {
         const params: GetFollowersParams = {
           type: activeTab,
@@ -257,51 +240,50 @@ const FollowersPage = () => {
           page_size: 20,
           target_user_id: targetUserId
         }
-        
+
         const response = await getFollowers(params)
-        
-        // 修复：API返回code为0表示成功，不是200
+
+        // 修复：API返回code�?表示成功，不�?00
         if ((response.code === 200 || response.code === 0) && response.data !== undefined) {
           let newUsers: any[] = [];
           const responseData = response.data as any;
-          
+
           if (Array.isArray(responseData)) {
             newUsers = responseData.map((user: any) => ({
               ...user,
               relation: activeTab === 'following' ? 'following' : 'none'
             }));
           }
-          
+
           setUsers(newUsers)
-          setAllUsers(newUsers) // 保存所有用户数据
+          setAllUsers(newUsers) // 保存所有用户数�
           setCurrentPage(2)
           setHasMore(newUsers.length >= 20)
         } else {
           throw new Error((response as any).msg || (response as any).message || '获取用户列表失败')
         }
       } catch (err) {
-        
+
         setError(err instanceof Error ? err.message : '网络错误')
       } finally {
         setLoading(false)
       }
     }
-    
-    loadInitialData()
-  }, [activeTab, targetUserId]) // 只依赖activeTab，fetchUsers在组件内部定义
 
+    loadInitialData()
+  }, [activeTab, targetUserId]) // 只依赖activeTab，fetchUsers在组件内部定�?
   return (
     <View className={styles.container}>
 
-      {/* 标签页导航 */}
+      {/* 标签页导�?*/}
       <View className={styles.tabsContainer}>
-        <Button 
+        <Button
           className={`${styles.tabButton} ${activeTab === 'following' ? styles.active : ''}`}
           onClick={() => handleTabSwitch('following')}
         >
           关注
         </Button>
-        <Button 
+        <Button
           className={`${styles.tabButton} ${activeTab === 'followers' ? styles.active : ''}`}
           onClick={() => handleTabSwitch('followers')}
         >
@@ -309,7 +291,7 @@ const FollowersPage = () => {
         </Button>
       </View>
 
-      {/* 固定搜索和统计区域 */}
+      {/* 固定搜索和统计区�?*/}
       <View className={styles.fixedSearchArea}>
         {/* 搜索区域 */}
         <View className={styles.searchSection}>
@@ -326,12 +308,12 @@ const FollowersPage = () => {
         {/* 统计信息 */}
         {!loading && !error && (
           <Text className={styles.countInfo}>
-            共 {users.length} 位{activeTab === 'following' ? '关注' : '粉丝'}
+            �?{users.length} 位{activeTab === 'following' ? '关注' : '粉丝'}
           </Text>
         )}
       </View>
 
-      {/* 主要内容区域 - 只包含可滚动的用户列表 */}
+      {/* 主要内容区域 - 只包含可滚动的用户列�?*/}
       <View className={styles.main}>
         {/* 用户列表 */}
         {error ? (
@@ -351,8 +333,8 @@ const FollowersPage = () => {
                 暂无{activeTab === 'following' ? '关注' : '粉丝'}
               </Text>
               <Text className={styles.emptyDescription}>
-                {activeTab === 'following' 
-                  ? '快去关注一些有趣的用户吧' 
+                {activeTab === 'following'
+                  ? '快去关注一些有趣的用户吧'
                   : '分享精彩内容，吸引更多粉丝'
                 }
               </Text>
@@ -366,12 +348,13 @@ const FollowersPage = () => {
                   <AuthorInfo
                     userId={user.id}
                     mode='compact'
-                    showBio={true}
+                    showBio
                     showFollowButton={activeTab === 'following' || user.relation === 'none'}
                     showStats={false}
-                    showLevel={true}
+                    showLevel
+                    onFollowToggle={handleFollowToggle}
                   />
-                  {/* 搜索关键词高亮提示 */}
+                  {/* 搜索关键词高亮提�?*/}
                   {searchKeywords.length > 0 && user.nickname && (
                     <View className={styles.searchHighlight}>
                       <Text className={styles.highlightText}>
@@ -388,10 +371,10 @@ const FollowersPage = () => {
           </View>
         )}
 
-        {/* 加载状态 */}
+        {/* 加载状�?*/}
         {loading && (
           <View className={styles.loading}>
-            <Text className={styles.loadingText}>加载中...</Text>
+            <Text className={styles.loadingText}>加载�?..</Text>
           </View>
         )}
 

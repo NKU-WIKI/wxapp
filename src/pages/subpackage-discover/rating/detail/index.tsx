@@ -1,5 +1,5 @@
 import { View, Text, Image, ScrollView, Input } from '@tarojs/components'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
@@ -38,7 +38,7 @@ interface RatingStatistics {
 const RatingDetailPage = () => {
   const router = useRouter()
   // const dispatch = useDispatch<AppDispatch>() // 未使用
-  
+
   // 状态管理
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -46,40 +46,24 @@ const RatingDetailPage = () => {
   const [ratings, setRatings] = useState<any[]>([])
   const [statistics, setStatistics] = useState<RatingStatistics | null>(null)
   const [userExistingRating, setUserExistingRating] = useState<any | null>(null)
-  
+
   // 用户评分表单状态
   const [newComment, setNewComment] = useState('')
   const [userRating, setUserRating] = useState(0)
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  
+
   // 获取用户状态
   const userState = useSelector((state: RootState) => state.user)
   const isLoggedIn = userState.isLoggedIn
 
-  // 页面初始化
-  useEffect(() => {
-    const { resourceId, resourceType, resourceName } = router.params
-    
-    
-    
-    
-    if (!resourceId || !resourceType) {
-      setError('缺少必要的参数')
-      setLoading(false)
-      return
-    }
-
-    loadData(resourceType, resourceId, resourceName)
-  }, [router.params])
-
   // 加载页面数据
-  const loadData = async (resourceType: string, resourceId: string, resourceName?: string) => {
+  const loadData = useCallback(async (resourceType: string, resourceId: string, resourceName?: string) => {
     try {
       setLoading(true)
       setError(null)
-      
-      
+
+
       // 并行加载资源评分列表和统计信息
       const [ratingsResponse, statisticsResponse] = await Promise.all([
         getResourceRatingsList(resourceType, resourceId, {
@@ -90,7 +74,7 @@ const RatingDetailPage = () => {
         }),
         getResourceStatistics(resourceType, resourceId)
       ])
-      
+
       // 处理评分列表数据
       // 检查多种可能的数据结构
       let ratingsData: any[] | null = null;
@@ -101,10 +85,10 @@ const RatingDetailPage = () => {
       } else if ((ratingsResponse as any)?.items) {
         ratingsData = (ratingsResponse as any).items;
       }
-      
+
       if (ratingsData && Array.isArray(ratingsData)) {
         setRatings(ratingsData)
-        
+
         // 检查当前用户是否已经评过分
         if (isLoggedIn && userState.user?.id) {
           const existingRating = ratingsData.find(rating => rating.rater_id === userState.user?.id);
@@ -116,12 +100,12 @@ const RatingDetailPage = () => {
             setIsAnonymous(existingRating.is_anonymous || false);
           }
         }
-        
+
         // 从评分数据中构建资源信息（如果没有专门的资源详情接口）
         const firstRating = ratingsData[0]
-        
+
         if (firstRating) {
-          const resourceInfo = {
+          const newResourceInfo = {
             id: resourceId,
             resource_name: firstRating.resource_name || resourceName || '未知资源',
             title: firstRating.resource_title || firstRating.resource_name || resourceName || '未知资源',
@@ -131,7 +115,7 @@ const RatingDetailPage = () => {
             average_score: statisticsResponse.data?.data?.average_score || (statisticsResponse.data as any)?.average_score || 0,
             rating_count: statisticsResponse.data?.data?.total_ratings || (statisticsResponse.data as any)?.total_ratings || 0
           };
-          setResourceInfo(resourceInfo);
+          setResourceInfo(newResourceInfo);
         } else {
           // 如果没有评分数据，创建基础资源信息
           const basicResourceInfo = {
@@ -145,28 +129,41 @@ const RatingDetailPage = () => {
           setResourceInfo(basicResourceInfo);
         }
       }
-      
+
       // 处理统计数据
       if (statisticsResponse.data?.data) {
         setStatistics(statisticsResponse.data.data)
       } else if (statisticsResponse.data) {
         setStatistics(statisticsResponse.data as any)
       }
-      
+
     } catch (err: any) {
       setError(err.message || '加载失败')
     } finally {
       setLoading(false)
     }
-  }
+  }, [isLoggedIn, userState.user?.id])
+
+  // 页面初始化
+  useEffect(() => {
+    const { resourceId, resourceType, resourceName } = router.params
+
+    if (!resourceId || !resourceType) {
+      setError('缺少必要的参数')
+      setLoading(false)
+      return
+    }
+
+    loadData(resourceType, resourceId, resourceName)
+  }, [router.params, loadData])
 
   // 渲染星级评分（支持精确百分比）
   const renderStars = (score: number, size: 'large' | 'small' = 'small') => {
     const stars: JSX.Element[] = []
-    
+
     for (let i = 0; i < 5; i++) {
       const starScore = Math.max(0, Math.min(1, score - i))
-      
+
       if (starScore >= 1) {
         // 完整的星星
         stars.push(
@@ -188,7 +185,7 @@ const RatingDetailPage = () => {
               style={{ opacity: 0.3 }}
             />
             {/* 覆盖的实心星星，使用渐变遮罩 */}
-            <View 
+            <View
               className={styles.starFillContainer}
               style={{
                 width: `${percentage}%`
@@ -213,7 +210,7 @@ const RatingDetailPage = () => {
         )
       }
     }
-    
+
     return stars
   }
 
@@ -257,42 +254,41 @@ const RatingDetailPage = () => {
 
     try {
       setSubmitting(true)
-      
-      // 如果用户已有评分，则更新；否则创建新评分
-      if (userExistingRating) {
-        // 更新现有评分
-        const updateData = {
-          score: userRating,
-          comment: newComment.trim(),
-          is_anonymous: isAnonymous,
-          tags: [], // 可以后续添加标签选择功能
-          evidence_urls: []
-        }
-        
-        console.log('更新评分请求数据:', {
-          ratingId: userExistingRating.id,
-          updateData
+
+      const ratingData = {
+        resource_type: resourceType,
+        resource_name: resourceInfo.resource_name,
+        resource_title: resourceInfo.title,
+        resource_description: resourceInfo.description,
+        resource_image: resourceInfo.image_url,
+        score: userRating,
+        comment: newComment.trim(),
+        is_anonymous: isAnonymous,
+        tags: [], // 可以后续添加标签选择功能
+        evidence_urls: []
+      }
+
+
+
+      const response = await createRating(ratingData)
+
+      // 检查响应是否成功 - 支持多种成功格式
+      const isSuccess = response?.code === 0 || response?.data?.code === 0 || response.data;
+
+      if (isSuccess) {
+        Taro.showToast({
+          title: '评分提交成功',
+          icon: 'success',
+          duration: 2000
         })
-        
-        const response = await updateRating(userExistingRating.id, updateData)
-        
-        console.log('更新评分响应:', response)
-        
-        // 检查响应是否成功
-        const isSuccess = response?.code === 0 || response?.data?.code === 0 || response.data;
-        
-        if (isSuccess) {
-          Taro.showToast({
-            title: '评价更新成功',
-            icon: 'success',
-            duration: 2000
-          })
-          
-          // 重新加载数据
-          loadData(resourceType, resourceId, resourceInfo.resource_name)
-        } else {
-          throw new Error(response?.message || response?.data?.message || '更新失败')
-        }
+
+        // 重置表单
+        setUserRating(0)
+        setNewComment('')
+        setIsAnonymous(false)
+
+        // 重新加载数据
+        loadData(resourceType, resourceId, resourceInfo.resource_name)
       } else {
         // 创建新评分
         const ratingData = {
@@ -326,16 +322,8 @@ const RatingDetailPage = () => {
           throw new Error(response?.message || response?.data?.message || '提交失败')
         }
       }
-      
+
     } catch (err: any) {
-      console.error('评分操作错误详情:', {
-        statusCode: err.statusCode,
-        code: err.code,
-        message: err.message,
-        data: err.data,
-        fullError: err
-      })
-      
       // 处理409冲突错误（已评分）
       if (err.statusCode === 409 || err.code === 409) {
         Taro.showToast({
@@ -392,13 +380,13 @@ const RatingDetailPage = () => {
   return (
     <View className={styles.ratingDetailPage}>
       <CustomHeader title={resourceInfo.title} />
-      
+
       <ScrollView scrollY className={styles.contentScroll}>
         {/* 资源基本信息 */}
         <View className={styles.resourceInfo}>
           <View className={styles.resourceHeader}>
-            <Image 
-              src={resourceInfo.image_url || '/assets/placeholder.jpg'} 
+            <Image
+              src={resourceInfo.image_url || '/assets/placeholder.jpg'}
               className={styles.resourceImage}
               mode='aspectFill'
             />
@@ -410,7 +398,7 @@ const RatingDetailPage = () => {
               )}
             </View>
           </View>
-          
+
           {/* 总体评分 */}
           <View className={styles.overallRating}>
             <View className={styles.ratingScore}>
@@ -435,8 +423,8 @@ const RatingDetailPage = () => {
                   <View key={star} className={styles.distributionItem}>
                     <Text className={styles.starLabel}>{star}星</Text>
                     <View className={styles.progressBar}>
-                      <View 
-                        className={styles.progressFill} 
+                      <View
+                        className={styles.progressFill}
                         style={{ width: `${percentage}%` }}
                       />
                     </View>
@@ -456,61 +444,61 @@ const RatingDetailPage = () => {
           {userExistingRating && (
             <Text className={styles.updateHint}>您已评过分，可以更新您的评价</Text>
           )}
-            
-            <View className={styles.ratingInput}>
-              <Text className={styles.ratingLabel}>评分:</Text>
-              <View className={styles.ratingStars}>
-                {renderRatingStars()}
-              </View>
-            </View>
 
-            <View className={styles.commentInput}>
-              <Text className={styles.commentLabel}>评价:</Text>
-              <Input
-                className={styles.commentTextarea}
-                placeholder='分享你的使用体验...'
-                value={newComment}
-                onInput={(e) => setNewComment(e.detail.value)}
-                maxlength={500}
-              />
-            </View>
-
-            <View className={styles.anonymousOption}>
-              <Text 
-                className={`${styles.checkbox} ${isAnonymous ? styles.checked : ''}`}
-                onClick={() => setIsAnonymous(!isAnonymous)}
-              >
-                {isAnonymous ? '✓' : ''}
-              </Text>
-              <Text className={styles.anonymousText}>匿名发布</Text>
-            </View>
-
-            <View 
-              className={`${styles.submitButton} ${submitting ? styles.disabled : ''}`}
-              onClick={handleSubmitRating}
-            >
-              <Text className={styles.submitText}>
-                {submitting 
-                  ? '提交中...' 
-                  : userExistingRating 
-                    ? '更新评价' 
-                    : '发布评价'
-                }
-              </Text>
+          <View className={styles.ratingInput}>
+            <Text className={styles.ratingLabel}>评分:</Text>
+            <View className={styles.ratingStars}>
+              {renderRatingStars()}
             </View>
           </View>
+
+          <View className={styles.commentInput}>
+            <Text className={styles.commentLabel}>评价:</Text>
+            <Input
+              className={styles.commentTextarea}
+              placeholder='分享你的使用体验...'
+              value={newComment}
+              onInput={(e) => setNewComment(e.detail.value)}
+              maxlength={500}
+            />
+          </View>
+
+          <View className={styles.anonymousOption}>
+            <Text
+              className={`${styles.checkbox} ${isAnonymous ? styles.checked : ''}`}
+              onClick={() => setIsAnonymous(!isAnonymous)}
+            >
+              {isAnonymous ? '✓' : ''}
+            </Text>
+            <Text className={styles.anonymousText}>匿名发布</Text>
+          </View>
+
+          <View
+            className={`${styles.submitButton} ${submitting ? styles.disabled : ''}`}
+            onClick={handleSubmitRating}
+          >
+            <Text className={styles.submitText}>
+              {submitting
+                ? '提交中...'
+                : userExistingRating
+                  ? '更新评价'
+                  : '发布评价'
+              }
+            </Text>
+          </View>
+        </View>
 
         {/* 评价列表 */}
         <View className={styles.reviewsSection}>
           <Text className={styles.sectionTitle}>用户评价 {ratings.length}</Text>
-          
+
           {ratings.length > 0 ? (
             <View className={styles.reviewsList}>
               {ratings.map(rating => (
                 <View key={rating.id} className={styles.reviewItem}>
                   <View className={styles.reviewHeader}>
-                    <Image 
-                      src={rating.rater_avatar || '/assets/user.svg'} 
+                    <Image
+                      src={rating.rater_avatar || '/assets/user.svg'}
                       className={styles.userAvatar}
                       mode='aspectFill'
                     />
@@ -526,9 +514,9 @@ const RatingDetailPage = () => {
                       {formatDate(rating.created_at)}
                     </Text>
                   </View>
-                  
+
                   <Text className={styles.reviewContent}>{rating.comment}</Text>
-                  
+
                   {rating.tags && rating.tags.length > 0 && (
                     <View className={styles.reviewTags}>
                       {rating.tags.map((tag: string) => (

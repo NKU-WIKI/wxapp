@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { View, ScrollView, Text } from '@tarojs/components';
 import { useRouter } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,10 +28,10 @@ const PostDetailPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentPost, detailLoading, error } = useSelector((state: RootState) => state.post as PostsState);
   const { comments, fetchStatus: commentsLoading, error: commentsError } = useSelector((state: RootState) => state.comment as CommentState);
-  
+
   // 从路由参数中获取帖子ID
   const postId = router.params.id;
-  
+
   useEffect(() => {
     if (postId) {
       // 获取帖子详情
@@ -53,17 +53,16 @@ const PostDetailPage = () => {
       // 记录到本地和服务器
       // 注意：post.id是string类型（UUID），但服务器API需要number类型
       const numericId = parseInt(String(currentPost.id)) || 0;
-      
-      // 获取头像：优先使用 user.avatar，兼容 author_info.avatar
+
+      // 获取头像：优先使�?user.avatar，兼�?author_info.avatar
       const author = currentPost.user || currentPost.author_info;
       const avatarUrl = author?.avatar || '';
-      
-      // 获取时间：优先使用 created_at，兼容 create_time，如果没有则使用当前时间
+
+      // 获取时间：优先使�?created_at，兼�?create_time，如果没有则使用当前时间
       const createTime = currentPost.created_at || currentPost.create_time || new Date().toISOString();
       const viewTime = new Date().toISOString();
-      
+
       // 调试日志
-      // console.log('调试日志:', {
       //   postId: currentPost.id,
       //   title: currentPost.title,
       //   avatarUrl: avatarUrl,
@@ -73,7 +72,7 @@ const PostDetailPage = () => {
       //   postCreateTime: currentPost.create_time,
       //   postData: currentPost
       // });
-      
+
       addHistoryWithServerSync(
         {
           id: String(currentPost.id),
@@ -93,7 +92,7 @@ const PostDetailPage = () => {
     if (detailLoading === 'pending') {
       return <View className={styles.loading}>加载中...</View>;
     }
-    
+
     if (detailLoading === 'failed' || !currentPost) {
       return (
         <EmptyState
@@ -102,11 +101,11 @@ const PostDetailPage = () => {
         />
       );
     }
-    
+
     return (
       <>
         <Post post={currentPost} mode='detail' />
-        
+
         {commentsError ? (
           <View className={styles.errorContainer}>
             <Text className={styles.errorText}>评论加载失败: {commentsError}</Text>
@@ -115,7 +114,7 @@ const PostDetailPage = () => {
           <View className={styles.commentsContainer}>
             <Text className={styles.commentsTitle}>评论 ({comments?.length || 0})</Text>
             {commentsLoading === 'pending' ? (
-              <Text>加载评论中...</Text>
+              <Text>加载评论�?..</Text>
             ) : (
               comments?.map((comment, index) => (
                 <View key={comment.id || index} className={styles.commentItem}>

@@ -34,9 +34,9 @@ export const getRecommendedContent = <T>(
  * 只有在用户开启个性化推荐时才收集数据
  */
 export const collectUserInteraction = (
-  actionType: 'view' | 'like' | 'share' | 'comment',
-  contentId: string,
-  contentType: 'post' | 'user' | 'topic'
+  __actionType: 'view' | 'like' | 'share' | 'comment',
+  __contentId: string,
+  __contentType: 'post' | 'user' | 'topic'
 ): void => {
   if (!isPersonalizedRecommendationEnabled()) {
     return; // 用户关闭了个性化推荐，不收集数据
@@ -46,17 +46,11 @@ export const collectUserInteraction = (
   // 例如发送到后端分析服务
   try {
     // 模拟数据收集 - 实际使用中会发送到分析服务
-    const _interactionData = {
-      actionType,
-      contentId,
-      contentType,
-      timestamp: new Date().toISOString(),
-      userId: store.getState().user.user?.id || 'anonymous'
-    };
-    
+    // 数据包含：actionType, contentId, contentType, timestamp, userId
+
     // 可以存储到本地或发送到服务器
     // 生产环境中应该发送到分析服务
-    
+
     // TODO: 实际实现时可以调用后端API
     // await api.post('/analytics/user-interaction', _interactionData);
   } catch (error) {

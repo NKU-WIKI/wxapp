@@ -1,0 +1,142 @@
+name: Deploy WeChat Mini Program
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (如: 1.0.0)'
+        required: true
+        default: '1.0.0'
+      desc:
+        description: '版本描述'
+        required: false
+        default: '手动触发构建'
+      robot:
+        description: '机器人编号 (1-30)'
+        required: false
+        default: '1'
+      generate_preview:
+        description: '生成预览二维码'
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run linting
+      run: |
+        npm run lint
+        npm run stylelint
+
+    - name: Build project
+      run: npm run build:weapp
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-output
+        path: dist/
+        retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-output
+        path: dist/
+
+    - name: Create private key file
+      run: |
+        echo "${{ secrets.WECHAT_PRIVATE_KEY }}" > private.key
+      env:
+        WECHAT_PRIVATE_KEY: ${{ secrets.WECHAT_PRIVATE_KEY }}
+
+    - name: Set version variables
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          echo "DESC=${{ github.event.inputs.desc }}" >> $GITHUB_ENV
+          echo "ROBOT=${{ github.event.inputs.robot }}" >> $GITHUB_ENV
+          echo "GENERATE_PREVIEW=${{ github.event.inputs.generate_preview }}" >> $GITHUB_ENV
+        else
+          # 自动生成版本号：日期 + commit hash
+          VERSION="$(date +'%Y.%m.%d').${GITHUB_SHA::7}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "DESC=Production build from main branch" >> $GITHUB_ENV
+            echo "ROBOT=1" >> $GITHUB_ENV
+          else
+            echo "DESC=Development build from dev branch" >> $GITHUB_ENV
+            echo "ROBOT=2" >> $GITHUB_ENV
+          fi
+          echo "GENERATE_PREVIEW=false" >> $GITHUB_ENV
+        fi
+
+    - name: Upload to WeChat
+      run: node scripts/upload.js
+      env:
+        APP_ID: ${{ secrets.WECHAT_APP_ID }}
+        PRIVATE_KEY_PATH: ./private.key
+        VERSION: ${{ env.VERSION }}
+        DESC: ${{ env.DESC }}
+        ROBOT: ${{ env.ROBOT }}
+        GENERATE_PREVIEW: ${{ env.GENERATE_PREVIEW }}
+
+    - name: Upload preview QR code
+      if: env.GENERATE_PREVIEW == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: preview-qrcode
+        path: preview.jpg
+        retention-days: 7
+
+    - name: Clean up
+      if: always()
+      run: rm -f private.key
+
+    - name: Notify deployment result
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ 微信小程序部署成功！版本号: ${{ env.VERSION }}"
+        else
+          echo "❌ 微信小程序部署失败！"
+        fi

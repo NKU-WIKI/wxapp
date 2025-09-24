@@ -72,10 +72,10 @@ export const checkLoginWithToast = (): boolean => {
  * @returns 包装后的函数
  */
 export const withLoginCheck = <T extends any[], R>(
-    fn: (...args: T) => R,
+    _fn: (..._args: T) => R,
     useModal: boolean = true
 ) => {
-    return async (...args: T): Promise<R | undefined> => {
+    return async (..._args: T): Promise<R | undefined> => {
         const hasLogin = useModal
             ? await checkLoginWithModal()
             : checkLoginWithToast();

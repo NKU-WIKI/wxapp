@@ -20,7 +20,7 @@ interface Notification {
 
 interface NotificationItemProps {
   item: Notification;
-  onItemClick?: (item: Notification, originalNotification?: NotificationRead) => void;
+  onItemClick?: (_item: Notification, _originalNotification?: NotificationRead) => void;
 }
 
 const NotificationItem = ({ item, onItemClick }: NotificationItemProps) => {

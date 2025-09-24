@@ -4,6 +4,7 @@ import { FC, useEffect, useState, useCallback, useMemo } from "react";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import plusIcon from "@/assets/plus.svg"; // 使用新的白色+号SVG图标
 import { useTabBarSync, TAB_BAR_PAGES } from "../utils/tabBarSync";
+import { pageRefreshManager } from "../utils/pageRefreshManager";
 import styles from "./index.module.scss";
 
 // 引入本地图标 - 使用字符串路径
@@ -56,7 +57,19 @@ const CustomTabBar: FC = () => {
         setShowSubMenu(true);
       }
     } else {
+      // 检查是否点击的是当前已经激活的tab
+      const isCurrentTab = selected === uiIndex;
+      
+      // 执行页面跳转
       Taro.switchTab({ url });
+      
+      // 如果点击的是当前tab，触发页面刷新
+      if (isCurrentTab) {
+        // 使用setTimeout确保页面跳转完成后再触发刷新
+        setTimeout(() => {
+          pageRefreshManager.triggerPageRefresh(url);
+        }, 100);
+      }
     }
   };
 
