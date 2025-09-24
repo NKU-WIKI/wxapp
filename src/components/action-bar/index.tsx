@@ -177,32 +177,21 @@ const ActionBar: React.FC<ActionBarProps> = ({
 
   // 处理评论功能
   const handleComment = useCallback((buttonIndex: number) => {
-    const key = `comment-${buttonIndex}`;
-
-    // 如果是帖子类型，直接跳转到帖子详情页
+    // 评论按钮点击应该导航到帖子详情页面
     if (targetType === 'post') {
-      Taro.navigateTo({
-        url: `/pages/subpackage-interactive/post-detail/index?id=${targetId}`
+      Taro.navigateTo({ 
+        url: `/pages/subpackage-interactive/post-detail/index?id=${targetId}` 
+      }).catch(() => {
+        Taro.showToast({
+          title: '跳转失败',
+          icon: 'none'
+        });
       });
-      return;
+    } else {
+      // 对于其他类型，调用外部回调，通知需要聚焦到评论区
+      onStateChange?.('comment', true, 0);
     }
-
-    // 其他类型的评论处理（例如活动等）
-    // 切换评论状态（表示用户正在评论或已评论）
-    setLocalStates(prev => {
-      const currentState = prev[key] || { isActive: false, count: 0 };
-      return {
-        ...prev,
-        [key]: {
-          ...currentState,
-          isActive: !currentState.isActive // 切换激活状态
-        }
-      };
-    });
-
-    // 调用外部回调，通知需要聚焦到评论区
-    onStateChange?.('comment', true, 0);
-  }, [onStateChange, targetType, targetId]);
+  }, [targetId, targetType, onStateChange]);
 
   // 判断按钮是否需要登录权限
   const requiresAuth = useCallback((button: ActionButtonConfig): boolean => {
@@ -355,7 +344,9 @@ const ActionBar: React.FC<ActionBarProps> = ({
 
         const currentText = button.type === 'custom'
           ? (button.text || '')
-          : (localState?.count?.toString() ?? '0');
+          : button.type === 'comment'
+            ? (initialStates[key]?.count?.toString() ?? '0') // 评论数量使用初始状态中的数量，不使用本地状态
+            : (localState?.count?.toString() ?? '0');
 
         const actionButtonProps: ActionButtonProps = {
           icon: button.icon,
