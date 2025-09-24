@@ -1,0 +1,15 @@
+dist/
+lib/
+node_modules/
+*.min.js
+*.min.css
+coverage/
+.vscode/
+.idea/
+*.log
+*.md
+package-lock.json
+yarn.lock
+.gitignore
+.eslintignore
+.prettierignore

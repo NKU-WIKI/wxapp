@@ -428,26 +428,31 @@ export const fetchNotesInteractionStatus = createAsyncThunk(
 
     try {
       // 并发查询所有笔记的点赞和收藏状态
-      const statusPromises = noteIds.flatMap(noteId => [
-        getActionStatus(noteId, 'note', 'like').then(res => ({
-          noteId,
-          type: 'like' as const,
-          status: res.data?.is_active || false
-        })).catch(() => ({
-          noteId,
-          type: 'like' as const,
-          status: false
-        })),
-        getActionStatus(noteId, 'note', 'favorite').then(res => ({
-          noteId,
-          type: 'favorite' as const,
-          status: res.data?.is_active || false
-        })).catch(() => ({
-          noteId,
-          type: 'favorite' as const,
-          status: false
-        }))
-      ]);
+      const statusPromises: Promise<any>[] = [];
+      noteIds.forEach(noteId => {
+        statusPromises.push(
+          getActionStatus(noteId, 'note', 'like').then(res => ({
+            noteId,
+            type: 'like' as const,
+            status: res.data?.is_active || false
+          })).catch(() => ({
+            noteId,
+            type: 'like' as const,
+            status: false
+          }))
+        );
+        statusPromises.push(
+          getActionStatus(noteId, 'note', 'favorite').then(res => ({
+            noteId,
+            type: 'favorite' as const,
+            status: res.data?.is_active || false
+          })).catch(() => ({
+            noteId,
+            type: 'favorite' as const,
+            status: false
+          }))
+        );
+      });
 
       const results = await Promise.all(statusPromises);
       
