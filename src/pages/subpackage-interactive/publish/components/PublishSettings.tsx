@@ -2,10 +2,11 @@ import { View, Text, Image } from '@tarojs/components'
 
 import classnames from 'classnames'
 
-import styles from './PublishSettings.module.scss'
 
 import globeIcon from '@/assets/globe.svg'
 import messageCircleIcon from '@/assets/message-circle.svg'
+
+import styles from './PublishSettings.module.scss'
 
 // Relative imports
 

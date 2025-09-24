@@ -1,6 +1,7 @@
+import { API } from '@/types/api/recommend'
+
 import { getRecommendPosts } from './post'
 
-import { API } from '@/types/api/recommend'
 
 // Relative imports
 

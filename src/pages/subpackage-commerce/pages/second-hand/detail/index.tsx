@@ -1,12 +1,13 @@
 // Third-party imports
+import { useEffect, useCallback } from 'react'
+
+
 import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 
-import { useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 // Relative imports
-import styles from './index.module.scss'
 
 import locationIcon from '@/assets/map-pin.svg'
 import messageIcon from '@/assets/message-square.svg'
@@ -17,21 +18,23 @@ import favoriteActiveIcon from '@/assets/star-filled.svg'
 import favoriteIcon from '@/assets/star-outline.svg'
 import ActionBar from '@/components/action-bar'
 import AuthorInfo from '@/components/author-info'
+import CommentSection from '@/components/comment-section'
 import CustomHeader from '@/components/custom-header'
+import { useAuthGuard } from '@/hooks/useAuthGuard'
+import { useRelativeTime } from '@/hooks/useRelativeTime'
+import { useSharing } from '@/hooks/useSharing'
+import { RootState, AppDispatch } from '@/store'
+import { fetchComments } from '@/store/slices/commentSlice'
 import {
   fetchListingDetail,
   deleteListing,
   clearError,
   updateListingState,
 } from '@/store/slices/marketplaceSlice'
-import { RootState, AppDispatch } from '@/store'
-import { ListingRead } from '@/types/api/marketplace.d'
-import { useAuthGuard } from '@/hooks/useAuthGuard'
-import { useRelativeTime } from '@/hooks/useRelativeTime'
-import { useSharing } from '@/hooks/useSharing'
-import CommentSection from '@/components/comment-section'
 import { fetchCurrentUser } from '@/store/slices/userSlice'
-import { fetchComments } from '@/store/slices/commentSlice'
+import { ListingRead } from '@/types/api/marketplace.d'
+
+import styles from './index.module.scss'
 
 // Assets imports
 

@@ -1,9 +1,10 @@
 import Taro from '@tarojs/taro'
 
-import request from '../request'
 
 import type { BaseResponse } from '@/types/api/common.d'
 import type { DownloadInfo } from '@/types/api/download.d'
+
+import request from '../request'
 
 /**
  * 获取文件下载信息

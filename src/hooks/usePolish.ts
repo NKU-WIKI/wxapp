@@ -1,10 +1,11 @@
-import Taro from '@tarojs/taro'
-
 import { useState } from 'react'
 
-import type { ChatRequest } from '@/types/api/agent.d'
+import Taro from '@tarojs/taro'
+
 
 import agentApi from '@/services/api/agent'
+import type { ChatRequest } from '@/types/api/agent.d'
+
 
 
 /**

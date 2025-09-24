@@ -2,8 +2,6 @@ import Taro from '@tarojs/taro'
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-import { toggleAction } from './actionSlice' // 从 actionSlice 导入
-import { fetchAboutInfo } from './userSlice' // 从 userSlice 导入
 
 import {
   getForumPosts,
@@ -22,6 +20,9 @@ import {
   GetFeedParams,
   PostUpdate,
 } from '@/types/api/post'
+
+import { toggleAction } from './actionSlice' // 从 actionSlice 导入
+import { fetchAboutInfo } from './userSlice' // 从 userSlice 导入
 
 
 // 获取论坛帖子的 Thunk

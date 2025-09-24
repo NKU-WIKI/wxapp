@@ -1,10 +1,11 @@
+
+import { useState } from 'react'
+
 import { View, Text, Image, Input, Textarea, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import cameraIcon from '@/assets/camera.svg'
 import starFilledIcon from '@/assets/star-filled.svg'
@@ -14,6 +15,8 @@ import { uploadApi } from '@/services/api/upload'
 import { RootState, AppDispatch } from '@/store'
 import { createUserRating } from '@/store/slices/ratingSlice'
 import { RatingCategory } from '@/types/api/rating.d'
+
+import styles from './index.module.scss'
 // 引入图标
 
 

@@ -1,6 +1,5 @@
 import Taro from '@tarojs/taro'
 
-import http from '../request'
 
 import {
   Post,
@@ -11,6 +10,8 @@ import {
   PostHotRanking,
 } from '@/types/api/post.d'
 import { API } from '@/types/api/recommend'
+
+import http from '../request'
 
 /**
  * 获取论坛帖子列表

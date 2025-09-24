@@ -1,10 +1,11 @@
-import http from '../request'
-
 import {
   CampusVerificationRequest,
   CampusVerificationResponse,
   CampusVerificationApplicationsResponse,
 } from '@/types/api/campus-verification'
+
+import http from '../request'
+
 
 // Relative imports
 

@@ -1,15 +1,17 @@
-import { View, Text, Image } from '@tarojs/components'
-import Taro from '@tarojs/taro'
 
 import { useState, useEffect } from 'react'
 
-import styles from './index.module.scss'
+import { View, Text, Image } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
 
 import ActionButton from '@/components/action-button'
 import actionApi from '@/services/api/action'
 import { NoteListItem } from '@/types/api/note'
 import { checkLoginWithModal } from '@/utils/auth'
 import { normalizeImageUrl } from '@/utils/image'
+
+import styles from './index.module.scss'
 // 图片资源使用字符串路径引用
 
 // 扩展的笔记类型，包含交互状态

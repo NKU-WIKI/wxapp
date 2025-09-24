@@ -1,7 +1,8 @@
-import http from '../request'
 
 import { LoginRequest, UnifiedLoginRequest, LoginResponse, RegisterRequest } from '@/types/api/auth'
 import { User } from '@/types/api/user'
+
+import http from '../request'
 
 // Relative imports
 

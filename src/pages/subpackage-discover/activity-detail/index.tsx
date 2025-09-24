@@ -1,10 +1,11 @@
+
+import { useEffect, useState } from 'react'
+
 import { View, Text, Image, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import CustomHeader from '@/components/custom-header'
 import { useSharing } from '@/hooks/useSharing'
@@ -12,6 +13,8 @@ import activityApi from '@/services/api/activity'
 import { RootState } from '@/store'
 import { ActivityRead, ActivityType } from '@/types/api/activity.d'
 import { ActivityNotificationHelper } from '@/utils/notificationHelper'
+
+import styles from './index.module.scss'
 
 
 

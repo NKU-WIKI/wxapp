@@ -1,12 +1,12 @@
+
+import { useState, useEffect, useMemo } from 'react'
+
 import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 
-import { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
-import type { Post as PostType } from '@/types/api/post.d'
 
 import emptyIcon from '@/assets/empty.svg'
 import CustomHeader from '@/components/custom-header'
@@ -19,8 +19,11 @@ import { useMultipleFollowStatus } from '@/hooks/useFollowStatus'
 import { AppDispatch, RootState } from '@/store'
 import { fetchUnreadCounts } from '@/store/slices/notificationSlice'
 import { fetchFeed, fetchForumPosts } from '@/store/slices/postSlice'
+import type { Post as PostType } from '@/types/api/post.d'
 import { getRecommendedContent, collectUserInteraction } from '@/utils/contentRecommendation'
 import { usePageRefresh } from '@/utils/pageRefreshManager'
+
+import styles from './index.module.scss'
 
 // Assets imports
 

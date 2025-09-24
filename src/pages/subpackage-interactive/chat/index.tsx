@@ -1,11 +1,11 @@
+
+import { useState, useEffect, useRef } from 'react'
+
 import { View, ScrollView, Text, Textarea, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import ChatSidebar from './components/chat-sidebar/index'
-import styles from './index.module.scss'
 
 import MenuIcon from '@/assets/more-horizontal.svg'
 import DefaultUserAvatar from '@/assets/profile.svg'
@@ -20,6 +20,9 @@ import { addMessage, streamMessageFromAI, initializeChat } from '@/store/slices/
 // Relative imports
 
 import { ChatMessage } from '@/types/chat'
+
+import ChatSidebar from './components/chat-sidebar/index'
+import styles from './index.module.scss'
 
 const Chat = () => {
   const dispatch = useDispatch<AppDispatch>()

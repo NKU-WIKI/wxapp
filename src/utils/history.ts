@@ -1,8 +1,9 @@
-import { getStorage, setStorage } from './storage'
 
 import { createViewHistory } from '@/services/api/user'
 import { CreateViewHistoryRequest } from '@/types/api/user'
 import { HistoryItem } from '@/types/history'
+
+import { getStorage, setStorage } from './storage'
 
 // Relative imports
 

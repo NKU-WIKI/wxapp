@@ -1,10 +1,11 @@
+
+import React, { useState, useCallback, useEffect, FC } from 'react'
+
 import { View, ScrollView, Text, Input, Textarea, Switch } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import React, { useState, useCallback, useEffect, FC } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import CustomHeader from '@/components/custom-header'
 import ImageUploader from '@/components/image-uploader'
@@ -12,6 +13,8 @@ import { useAuthGuard } from '@/hooks/useAuthGuard'
 import { RootState, AppDispatch } from '@/store'
 import * as marketplaceSlice from '@/store/slices/marketplaceSlice'
 import { ListingType, ListingCondition, CategoryRead } from '@/types/api/marketplace.d'
+
+import styles from './index.module.scss'
 
 
 // #region Sub-components

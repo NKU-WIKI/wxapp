@@ -3,7 +3,6 @@ import Taro from '@tarojs/taro'
 
 import { useDispatch, useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import heartActiveIcon from '@/assets/heart-bold.svg'
 import heartIcon from '@/assets/heart-outline.svg'
@@ -15,10 +14,11 @@ import starIcon from '@/assets/star-outline.svg'
 import ActionBar, { ActionButtonConfig } from '@/components/action-bar'
 import AuthorInfo from '@/components/author-info'
 import { AppDispatch, RootState } from '@/store'
-import { Post as PostData } from '@/types/api/post.d'
-
-import { normalizeImageUrls } from '@/utils/image'
 import { deletePost } from '@/store/slices/postSlice'
+import { Post as PostData } from '@/types/api/post.d'
+import { normalizeImageUrls } from '@/utils/image'
+
+import styles from './index.module.scss'
 
 // 引入所有需要的图标
 

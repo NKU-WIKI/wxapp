@@ -1,8 +1,9 @@
-import http from '../request'
 
 import { PaginationParams } from '@/types/api/common'
 import { GetFollowersParams, FollowActionParams } from '@/types/api/followers'
 import { User } from '@/types/api/user'
+
+import http from '../request'
 
 /**
  * 获取关注/粉丝列表（支持当前用户）

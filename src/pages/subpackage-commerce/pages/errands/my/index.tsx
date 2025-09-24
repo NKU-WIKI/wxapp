@@ -1,10 +1,11 @@
 import { View, ScrollView, Text, Image } from '@tarojs/components'
 
-import ErrandsTabBar from '../../../components/ErrandsTabBar'
+import CustomHeader from '@/components/custom-header'
 
 import styles from './index.module.scss'
+import ErrandsTabBar from '../../../components/ErrandsTabBar'
 
-import CustomHeader from '@/components/custom-header'
+
 
 const mockStats = {
   totalIncome: '2,358.00',

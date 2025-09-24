@@ -1,11 +1,11 @@
 // Icon imports
 
-import { View, Text, Image, RichText } from '@tarojs/components'
-import Taro from '@tarojs/taro'
 
 import { useState, useEffect } from 'react'
 
-import styles from './RagResult.module.scss'
+import { View, Text, Image, RichText } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
 
 import clockIcon from '@/assets/clock.svg'
 import fileTextIcon from '@/assets/file-text.svg'
@@ -15,6 +15,8 @@ import websiteIcon from '@/assets/website.png'
 import wechatIcon from '@/assets/wechat.svg'
 import { RAG_CONTENT_COLLAPSE_THRESHOLD, RAG_CONTENT_MAX_HEIGHT } from '@/constants'
 import { markdownToHtml } from '@/utils/markdown'
+
+import styles from './RagResult.module.scss'
 
 interface RagSourceItem {
   title: string

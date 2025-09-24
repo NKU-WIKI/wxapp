@@ -1,10 +1,11 @@
 import { View, ScrollView, Text } from '@tarojs/components'
 
-import ErrandsTabBar from '../../../components/ErrandsTabBar'
+import CustomHeader from '@/components/custom-header'
 
 import styles from './index.module.scss'
+import ErrandsTabBar from '../../../components/ErrandsTabBar'
 
-import CustomHeader from '@/components/custom-header'
+
 
 // 模拟的订单数据
 const mockOrders = [

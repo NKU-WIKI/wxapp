@@ -1,15 +1,18 @@
+
+import { useState, useEffect } from 'react'
+
 import { View, Image, Text, Checkbox, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
 
-import styles from './index.module.scss'
 
 import CustomHeader from '@/components/custom-header'
 import { AppDispatch } from '@/store'
 import { login } from '@/store/slices/userSlice'
+
+import styles from './index.module.scss'
 
 // 图标路径
 const logo = '/assets/wiki-lc-green.png'

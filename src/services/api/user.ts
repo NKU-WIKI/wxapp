@@ -1,4 +1,3 @@
-import http from '../request'
 
 import { ActionRead } from '@/store/slices/favoriteSlice'
 import { PaginatedData, PaginationParams } from '@/types/api/common'
@@ -11,6 +10,8 @@ import {
   GetHistoryParams,
   User,
 } from '@/types/api/user'
+
+import http from '../request'
 
 
 /**

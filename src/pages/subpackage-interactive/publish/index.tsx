@@ -1,19 +1,15 @@
+
+import { useState, useEffect, useCallback } from 'react'
+
 import { View, Text, Input, Textarea, Image, ScrollView } from '@tarojs/components'
 import Taro, { useRouter, useUnload } from '@tarojs/taro'
 
-import { useState, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 
 // Absolute imports (alphabetical order)
-import styles from './index.module.scss'
 
-import type { Post } from '@/types/api/post.d'
 
-import { DraftPost } from '@/types/draft'
-import { normalizeImageUrl } from '@/utils/image'
-import { checkFileUploadPermissionWithToast } from '@/utils/permissionChecker'
-import { saveDraft, getDrafts } from '@/utils/draft'
 
 
 // Asset imports
@@ -21,19 +17,19 @@ import atSignIcon from '@/assets/at-sign.svg'
 import bagIcon from '@/assets/bag.svg'
 import boldIcon from '@/assets/bold.svg'
 import cameraIcon from '@/assets/camera.svg'
-import defaultAvatar from '@/assets/profile.png'
+import settingIcon from '@/assets/cog.svg'
 import hatIcon from '@/assets/hat.svg'
 import imageIcon from '@/assets/image.svg'
 import italicIcon from '@/assets/italic.svg'
+import defaultAvatar from '@/assets/profile.png'
 import plusIcon from '@/assets/plus.svg'
 import penToolIcon from '@/assets/pen-tool.svg'
 import studyIcon from '@/assets/school.svg'
 import starIcon from '@/assets/star2.svg'
 import usersGroupIcon from '@/assets/p2p-fill.svg'
-import xCircleIcon from '@/assets/x-circle.svg'
-import settingIcon from '@/assets/cog.svg'
 import switchOffIcon from '@/assets/switch-off.svg'
 import switchOnIcon from '@/assets/switch-on.svg'
+import xCircleIcon from '@/assets/x-circle.svg'
 import CustomHeader from '@/components/custom-header'
 import { usePolish } from '@/hooks/usePolish'
 import { getPostDetail, getMyDrafts, deleteDraft } from '@/services/api/post'
@@ -41,6 +37,13 @@ import searchApi from '@/services/api/search'
 import { uploadApi } from '@/services/api/upload'
 import { AppDispatch, RootState } from '@/store'
 import { createPost } from '@/store/slices/postSlice'
+import type { Post } from '@/types/api/post.d'
+import { DraftPost } from '@/types/draft'
+import { saveDraft, getDrafts } from '@/utils/draft'
+import { normalizeImageUrl } from '@/utils/image'
+import { checkFileUploadPermissionWithToast } from '@/utils/permissionChecker'
+
+import styles from './index.module.scss'
 
 // Relative imports
 
@@ -60,7 +63,7 @@ const categories = [
 // 简单 uuid 生成
 function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0,
+    const r = (Math.random() * 16) | 0,
       v = c === 'x' ? r : (r & 0x3) | 0x8
     return v.toString(16)
   })

@@ -1,12 +1,14 @@
+import React from 'react'
+
 import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import React from 'react'
 import { useSelector } from 'react-redux'
+
+import { RootState } from '@/store'
 
 import styles from './index.module.scss'
 
-import { RootState } from '@/store'
 
 interface AuthFloatingButtonProps {
   /** 按钮图标路径 */

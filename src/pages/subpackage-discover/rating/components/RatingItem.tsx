@@ -1,15 +1,17 @@
-import { View, Text, Image } from '@tarojs/components'
 
 import { useState } from 'react'
 
+import { View, Text, Image } from '@tarojs/components'
+
 // Assets imports
-import styles from './RatingItem.module.scss'
 
 import starFilledIcon from '@/assets/star-filled.svg'
 import starOutlineIcon from '@/assets/star-outline.svg'
 
 // Absolute imports
 import HighlightText from '@/components/highlight-text'
+
+import styles from './RatingItem.module.scss'
 
 // Relative imports
 

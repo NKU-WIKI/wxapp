@@ -1,30 +1,33 @@
+import { useState, useCallback } from 'react'
+
 import { View, Text, ScrollView, Image, Swiper, SwiperItem, Input } from '@tarojs/components'
 import Taro, { useRouter, useDidShow } from '@tarojs/taro'
 
-import { useState, useCallback } from 'react'
+
 import { useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import heartFilledIcon from '@/assets/heart-bold.svg'
 import heartIcon from '@/assets/heart-outline.svg'
+import commentIcon from '@/assets/message-circle.svg'
+import sendIcon from '@/assets/sendcomment.svg'
 import shareIcon from '@/assets/share.svg'
 import bookmarkFilledIcon from '@/assets/star-filled.svg'
 import bookmarkIcon from '@/assets/star-outline.svg'
 import ActionBar from '@/components/action-bar'
 import CustomHeader from '@/components/custom-header'
+import { useSharing } from '@/hooks/useSharing'
 import { getComments, createComment } from '@/services/api/comment'
 import { getNoteDetail } from '@/services/api/note'
-import { RootState } from '@/store'
 import { getActionStatus } from '@/services/api/user'
+import { RootState } from '@/store'
 import { CommentTreeRead, CreateCommentRequest } from '@/types/api/comment'
 import { NoteDetail, NoteRead } from '@/types/api/note'
 import { normalizeImageUrl } from '@/utils/image'
 import { convertLevelToRealm } from '@/utils/levelConverter'
 import { formatPostDate } from '@/utils/time'
-import { useSharing } from '@/hooks/useSharing'
-import commentIcon from '@/assets/message-circle.svg'
-import sendIcon from '@/assets/sendcomment.svg'
+
+import styles from './index.module.scss'
 
 
 export default function NoteDetailPage() {

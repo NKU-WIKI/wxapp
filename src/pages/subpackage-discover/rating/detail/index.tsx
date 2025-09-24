@@ -1,16 +1,19 @@
+
+import { useState, useEffect, useCallback } from 'react'
+
 import { View, Text, Image, ScrollView, Input } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 
-import { useState, useEffect, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import starFilledIcon from '@/assets/star-filled.svg'
 import starOutlineIcon from '@/assets/star-outline.svg'
 import CustomHeader from '@/components/custom-header'
 import { getResourceRatingsList, getResourceStatistics, createRating } from '@/services/api/rating'
 import { RootState } from '@/store'
+
+import styles from './index.module.scss'
 // import { createUserRating } from '@/store/slices/ratingSlice' // 未使用
 
 // 引入星星图标

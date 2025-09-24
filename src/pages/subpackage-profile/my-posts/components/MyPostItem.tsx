@@ -2,7 +2,6 @@ import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
 // Type imports
-import styles from './MyPostItem.module.scss'
 
 import deleteIcon from '@/assets/x-circle.svg'
 import { Post } from '@/types/api/post.d'
@@ -10,6 +9,8 @@ import { Post } from '@/types/api/post.d'
 // Utils imports
 import { normalizeImageUrl } from '@/utils/image'
 import { formatRelativeTime } from '@/utils/time'
+
+import styles from './MyPostItem.module.scss'
 
 // Assets imports
 

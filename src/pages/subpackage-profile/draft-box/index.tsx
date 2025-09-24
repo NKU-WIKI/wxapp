@@ -1,11 +1,11 @@
+
+import { useEffect, useState, useCallback } from 'react'
+
 import { View, ScrollView } from '@tarojs/components'
 import Taro, { usePullDownRefresh } from '@tarojs/taro'
 
-import { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import DraftItem from './components/DraftItem'
-import styles from './index.module.scss'
 
 import Button from '@/components/button'
 import {
@@ -17,6 +17,9 @@ import { fetchDrafts } from '@/store/slices/postSlice'
 import { Post } from '@/types/api/post.d'
 import { DraftPost } from '@/types/draft'
 import { getDrafts, clearDrafts } from '@/utils/draft'
+
+import DraftItem from './components/DraftItem'
+import styles from './index.module.scss'
 
 // Relative imports
 

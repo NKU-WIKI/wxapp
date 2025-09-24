@@ -1,12 +1,14 @@
+import { useEffect, useCallback } from 'react'
+
 import { View, Text, ScrollView, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useEffect, useCallback } from 'react'
-
-import styles from './index.module.scss'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { getFeedbackList } from '@/store/slices/feedbackSlice'
+
+import styles from './index.module.scss'
+
 
 const STATUS_MAP = {
   pending: { text: '待处理', color: '#F59E0B' },

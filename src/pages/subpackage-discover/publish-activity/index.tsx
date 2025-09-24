@@ -1,10 +1,11 @@
+
+import { useState, useCallback } from 'react'
+
 import { View, Text, Input, Textarea, Picker } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import CustomHeader from '@/components/custom-header'
 import activityApi from '@/services/api/activity'
@@ -16,6 +17,8 @@ import {
   ActivityRead,
 } from '@/types/api/activity.d'
 import { ActivityNotificationHelper } from '@/utils/notificationHelper'
+
+import styles from './index.module.scss'
 
 
 interface FormState {

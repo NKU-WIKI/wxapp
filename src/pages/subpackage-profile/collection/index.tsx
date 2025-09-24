@@ -1,10 +1,11 @@
+
+import React, { useEffect, useCallback, useMemo, useState } from 'react'
+
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 
-import React, { useEffect, useCallback, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import starOutlineIcon from '@/assets/star-outline.svg'
 import CustomHeader from '@/components/custom-header'
@@ -14,6 +15,8 @@ import { useMultipleFollowStatus } from '@/hooks/useFollowStatus'
 import { AppDispatch, RootState } from '@/store'
 import { fetchFavorites, FavoriteItem, setFavorites } from '@/store/slices/favoriteSlice'
 import { formatRelativeTime } from '@/utils/time'
+
+import styles from './index.module.scss'
 
 
 // 定义收藏类型

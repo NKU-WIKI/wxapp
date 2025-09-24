@@ -1,11 +1,13 @@
+import React, { FC } from 'react'
+
 import { View, Image, Text } from '@tarojs/components'
 
 import classnames from 'classnames'
-import React, { FC } from 'react'
+
+import { useImageUpload, ImageUploadOptions } from '@/hooks/useImageUpload'
 
 import styles from './index.module.scss'
 
-import { useImageUpload, ImageUploadOptions } from '@/hooks/useImageUpload'
 
 
 export interface ImageUploaderProps {

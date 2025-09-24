@@ -1,5 +1,3 @@
-import http from '../request'
-
 import {
   RagRequest,
   ChatRequest,
@@ -29,6 +27,9 @@ import {
   RAGSourcesResponse,
   RAGResponse,
 } from '@/types/api/agent.d'
+
+import http from '../request'
+
 
 // RAG问答：混合检索 + GLM 生成
 export const rag = (data: RagRequest) => {

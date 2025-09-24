@@ -1,12 +1,13 @@
 // Third-party imports
+
+import { useEffect, useCallback } from 'react'
+
 import { View, ScrollView, Text, Image, Button } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 
-import { useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 // Relative imports
-import styles from './index.module.scss'
 
 import locationIcon from '@/assets/map-pin.svg'
 import moreIcon from '@/assets/more-horizontal.svg'
@@ -18,6 +19,8 @@ import { RootState, AppDispatch } from '@/store'
 import { fetchErrandDetail, clearError } from '@/store/slices/marketplaceSlice'
 import { fetchCurrentUser } from '@/store/slices/userSlice'
 import { ListingRead, ErrandType } from '@/types/api/marketplace.d'
+
+import styles from './index.module.scss'
 
 // Assets imports
 

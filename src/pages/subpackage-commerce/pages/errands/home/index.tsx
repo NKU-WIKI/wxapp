@@ -1,14 +1,14 @@
 // Third-party imports
+
+import { useEffect, useState, useCallback } from 'react'
+
 import { View, ScrollView, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 
-import { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 // Absolute imports (alphabetical order)
-import ErrandsTabBar from '../../../components/ErrandsTabBar'
 
-import styles from './index.module.scss'
 
 import AuthFloatingButton from '@/components/auth-floating-button'
 import CustomHeader from '@/components/custom-header'
@@ -18,6 +18,9 @@ import SearchBar from '@/components/search-bar'
 import { RootState, AppDispatch } from '@/store'
 import { fetchErrands, clearError } from '@/store/slices/marketplaceSlice'
 import { ErrandType } from '@/types/api/marketplace.d'
+
+import styles from './index.module.scss'
+import ErrandsTabBar from '../../../components/ErrandsTabBar'
 
 // Relative imports
 

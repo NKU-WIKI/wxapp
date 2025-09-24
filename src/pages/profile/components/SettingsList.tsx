@@ -2,7 +2,6 @@ import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
 // Import icons
-import styles from './SettingsList.module.scss'
 
 import aboutIcon from '@/assets/about.svg'
 import arrowRightIcon from '@/assets/arrow-right.svg'
@@ -15,6 +14,8 @@ import messageSquareIcon from '@/assets/message-square.svg'
 import settingsIcon from '@/assets/settings.svg'
 import starIcon from '@/assets/star-filled.svg'
 import userIcon from '@/assets/user.svg'
+
+import styles from './SettingsList.module.scss'
 
 // Relative imports
 

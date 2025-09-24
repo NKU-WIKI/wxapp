@@ -1,10 +1,11 @@
+
+import { useState, useEffect } from 'react'
+
 import { View, Text, ScrollView, Image, Input } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import CheckIcon from '@/assets/check-square.svg'
 import PlusIcon from '@/assets/plus.png'
@@ -17,6 +18,8 @@ import {
   renameSession,
 } from '@/store/slices/chatSlice'
 import { ChatSession } from '@/types/chat'
+
+import styles from './index.module.scss'
 
 // Components imports
 

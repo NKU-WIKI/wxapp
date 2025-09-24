@@ -1,10 +1,11 @@
+
+import React, { useEffect, useCallback, useState } from 'react'
+
 import { View, Text, ScrollView, Image } from '@tarojs/components'
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 
-import React, { useEffect, useCallback, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import arrowLeftIcon from '@/assets/arrow-left.svg'
 import messageSquareIcon from '@/assets/message-square.svg'
@@ -15,6 +16,8 @@ import { getMyComments } from '@/services/api/user'
 import { RootState } from '@/store'
 import { CommentRead } from '@/types/api/comment.d'
 import { Post } from '@/types/api/post.d'
+
+import styles from './index.module.scss'
 
 
 interface CommentItemProps {

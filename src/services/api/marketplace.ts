@@ -1,8 +1,6 @@
 /**
  * 市场相关API服务
  */
-import http from '../request'
-
 import type {
   ListingCreate,
   ListingListParams,
@@ -24,6 +22,9 @@ import type {
   ApiResponse_List_dict__,
   BookingStatus,
 } from '@/types/api/marketplace.d'
+
+import http from '../request'
+
 
 // Relative imports
 

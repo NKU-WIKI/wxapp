@@ -1,10 +1,11 @@
-﻿import { View, Text, Image, Button, ScrollView } from '@tarojs/components'
+﻿
+import { useEffect } from 'react'
+
+import { View, Text, Image, Button, ScrollView } from '@tarojs/components'
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro'
 
-import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import CustomHeader from '@/components/custom-header'
 import PostItemSkeleton from '@/components/post-item-skeleton'
@@ -27,6 +28,8 @@ import {
 import { normalizeImageUrl } from '@/utils/image'
 import { convertLevelToRealm } from '@/utils/levelConverter'
 import { usePageRefresh } from '@/utils/pageRefreshManager'
+
+import styles from './index.module.scss'
 
 
 // 登录提示组件

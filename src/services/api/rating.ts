@@ -1,5 +1,3 @@
-import http from '../request'
-
 import {
   RatingCategory,
   RatingItem,
@@ -21,6 +19,9 @@ import {
   SearchResourcesRequest,
   GetTopRatedResourcesRequest,
 } from '@/types/api/rating.d'
+
+import http from '../request'
+
 
 // Relative imports
 

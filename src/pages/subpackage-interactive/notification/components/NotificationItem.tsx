@@ -1,9 +1,10 @@
 import { View, Image, Text } from '@tarojs/components'
 
-import styles from './NotificationItem.module.scss'
 
 import { NotificationRead } from '@/types/api/notification.d'
 import { normalizeImageUrl } from '@/utils/image'
+
+import styles from './NotificationItem.module.scss'
 
 // Relative imports
 

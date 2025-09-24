@@ -1,10 +1,11 @@
+
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
+
 import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import AuthFloatingButton from '@/components/auth-floating-button'
 import CustomHeader from '@/components/custom-header'
@@ -20,6 +21,8 @@ import {
   RegistrationStatus,
 } from '@/types/api/activity.d'
 import { ActivityNotificationHelper } from '@/utils/notificationHelper'
+
+import styles from './index.module.scss'
 
 
 // eslint-disable-next-line import/no-unused-modules

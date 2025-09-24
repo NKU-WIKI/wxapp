@@ -1,10 +1,11 @@
 import { View, Image, Text } from '@tarojs/components'
 
-import styles from './DraftItem.module.scss'
 
 import editIcon from '@/assets/pen-tool.svg'
 import deleteIcon from '@/assets/x.svg'
 import { DraftPost } from '@/types/draft'
+
+import styles from './DraftItem.module.scss'
 
 
 interface Props {

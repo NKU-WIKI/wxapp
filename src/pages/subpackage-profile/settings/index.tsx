@@ -1,10 +1,11 @@
+
+import React, { useCallback, useState, useEffect } from 'react'
+
 import { View, Text, Button, Switch, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import React, { useCallback, useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import { RootState } from '@/store/rootReducer'
 import {
@@ -15,6 +16,8 @@ import {
 import { logout } from '@/store/slices/userSlice'
 import { clearCache, getCacheSize } from '@/utils/cacheManager'
 import { runNetworkDiagnosis } from '@/utils/networkDiagnosis'
+
+import styles from './index.module.scss'
 
 
 // 图标组件（使用Unicode字符）

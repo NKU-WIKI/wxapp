@@ -41,7 +41,7 @@ export const fetchLikes = createAsyncThunk<
       getUserLikedNotes(paginationParams),
     ])
 
-    let allItems: LikeItem[] = []
+    const allItems: LikeItem[] = []
     let totalCount = 0
 
     // 处理帖子响应

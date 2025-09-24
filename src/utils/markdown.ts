@@ -1,7 +1,7 @@
 // 简单的同步markdown解析器，避免Taro模块加载问题
 const parseMarkdown = (markdown: string): string => {
   // 预处理：清理多余的空行，但保留段落分隔
-  let processedMarkdown = markdown
+  const processedMarkdown = markdown
     // 将多个连续空行压缩为两个（保留段落分隔）
     .replace(/\n{3,}/g, '\n\n')
     // 移除行首和行尾的空白字符

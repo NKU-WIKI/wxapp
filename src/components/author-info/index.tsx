@@ -1,10 +1,11 @@
+
+import React from 'react'
+
 import { View, Text, Image } from '@tarojs/components'
 
 import classnames from 'classnames'
-import React from 'react'
 import { useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import infoIcon from '@/assets/about.svg'
 import defaultAvatar from '@/assets/avatar1.png'
@@ -13,18 +14,20 @@ import feedbackIcon from '@/assets/feedback.svg'
 import draftIcon from '@/assets/file-text.svg'
 import heartIcon from '@/assets/heart-outline.svg'
 import locationIcon from '@/assets/map-pin.svg'
+import commentIcon from '@/assets/message-circle.svg'
+import moreIcon from '@/assets/more-horizontal.svg'
+import campusIcon from '@/assets/school.svg'
+import settingsIcon from '@/assets/settings.svg'
+import starIcon from '@/assets/star.svg'
 import userIcon from '@/assets/user.svg'
 import { NICKNAME_DISPLAY_MAX_LENGTH } from '@/constants'
 import { useAuthorInfo } from '@/hooks/useAuthorInfo'
 import { RootState } from '@/store'
-import { formatRelativeTime } from '@/utils/time'
 import { normalizeImageUrl } from '@/utils/image'
+import { formatRelativeTime } from '@/utils/time'
 // 导入图标资源
-import starIcon from '@/assets/star.svg'
-import commentIcon from '@/assets/message-circle.svg'
-import campusIcon from '@/assets/school.svg'
-import settingsIcon from '@/assets/settings.svg'
-import moreIcon from '@/assets/more-horizontal.svg'
+
+import styles from './index.module.scss'
 
 
 const levelIcon = starIcon

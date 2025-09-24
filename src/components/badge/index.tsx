@@ -1,7 +1,8 @@
+import React from 'react'
+
 import { View } from '@tarojs/components'
 
 import classnames from 'classnames'
-import React from 'react'
 
 import styles from './index.module.scss'
 

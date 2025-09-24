@@ -1,14 +1,16 @@
-import { View, Text, Image } from '@tarojs/components'
 
 import React from 'react'
 
-import styles from './index.module.scss'
+import { View, Text, Image } from '@tarojs/components'
+
 
 import AuthorInfo from '@/components/author-info'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/card'
 import Post from '@/components/post'
 import { Post as PostData } from '@/types/api/post.d'
 import { SearchResultItem as ApiSearchResultItem } from '@/types/api/search'
+
+import styles from './index.module.scss'
 
 // 图片资源使用字符串路径引用
 

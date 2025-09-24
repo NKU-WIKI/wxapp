@@ -1,6 +1,7 @@
+import { LevelInfo, ExperienceRecordPage } from '@/types/api/level'
+
 import http from '../request'
 
-import { LevelInfo, ExperienceRecordPage } from '@/types/api/level'
 
 // Relative imports
 

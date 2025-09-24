@@ -1,9 +1,9 @@
-import { View, Text, Textarea, Button } from '@tarojs/components'
-import Taro from '@tarojs/taro'
 
 import { useState, useEffect } from 'react'
 
-import styles from './index.module.scss'
+import { View, Text, Textarea, Button } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
 
 import uploadIcon from '@/assets/feedback.svg'
 import lightbulbIcon from '@/assets/lightbulb.svg'
@@ -16,6 +16,8 @@ import { submitFeedback } from '@/store/slices/feedbackSlice'
 
 // Type imports
 import { CreateFeedbackParams, DeviceInfo } from '@/types/api/feedback.d'
+
+import styles from './index.module.scss'
 
 // API imports
 

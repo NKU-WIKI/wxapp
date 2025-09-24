@@ -1,13 +1,14 @@
 ﻿import { View, Image, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import styles from './ProfileSummary.module.scss'
 
 import awardIcon from '@/assets/award.svg'
 import { UserInfo } from '@/types/api/user'
 import { normalizeImageUrl } from '@/utils/image'
 import { convertLevelToRealm } from '@/utils/levelConverter'
 import { tabBarSyncManager } from '@/utils/tabBarSync'
+
+import styles from './ProfileSummary.module.scss'
 
 interface ProfileSummaryProps {
   userInfo: UserInfo

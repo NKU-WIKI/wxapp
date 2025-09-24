@@ -1,3 +1,6 @@
+
+import { useState, useEffect } from 'react'
+
 import {
   View,
   Text,
@@ -12,15 +15,14 @@ import {
 } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useState, useEffect } from 'react'
-
-import styles from './index.module.scss'
 
 import fileUploadApi from '@/services/api/fileUpload'
 import { LearningMaterialService } from '@/services/api/learningMaterial'
 import uploadApi from '@/services/api/upload'
 import { FileUploadRead, MAX_FILE_SIZE, getFileTypeDisplayName } from '@/types/api/fileUpload'
 import { checkFileUploadPermissionWithToast } from '@/utils/permissionChecker'
+
+import styles from './index.module.scss'
 
 // eslint-disable-next-line import/no-unused-modules
 export default function UploadMaterial() {

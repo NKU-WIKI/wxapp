@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react'
+
 import { View, Text } from '@tarojs/components'
 
-import { useState, useEffect } from 'react'
 
 import styles from './RatingComponent.module.scss'
 

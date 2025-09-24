@@ -1,8 +1,8 @@
-﻿import { View, Text, Image } from '@tarojs/components'
-
+﻿
 import { useEffect, useMemo } from 'react'
 
-import styles from './index.module.scss'
+import { View, Text, Image } from '@tarojs/components'
+
 
 import checkinIcon from '@/assets/clock.svg'
 import noteIcon from '@/assets/file-text.svg'
@@ -17,6 +17,8 @@ import { fetchMyLevel, fetchTodayExperienceRecords } from '@/store/slices/levelS
 // Utils imports
 import { normalizeImageUrl } from '@/utils/image'
 import { convertLevelToRealm } from '@/utils/levelConverter'
+
+import styles from './index.module.scss'
 
 // Assets imports
 

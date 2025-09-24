@@ -1,12 +1,12 @@
+
+import React, { useEffect, useCallback, useState } from 'react'
+
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 
-import React, { useEffect, useCallback, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { togglePostPin } from '../../../services/api/actions'
 
-import styles from './index.module.scss'
 
 import penToolIcon from '@/assets/pen-tool.svg'
 import EmptyState from '@/components/empty-state'
@@ -18,6 +18,9 @@ import Post from '@/components/post'
 import { AppDispatch, RootState } from '@/store'
 import { deletePost } from '@/store/slices/postSlice'
 import { fetchUserPosts, resetUserPosts } from '@/store/slices/userPostsSlice'
+
+import styles from './index.module.scss'
+import { togglePostPin } from '../../../services/api/actions'
 
 const MyPostsPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()

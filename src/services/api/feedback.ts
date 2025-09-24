@@ -1,4 +1,3 @@
-import http from '../request'
 
 import { PaginatedData } from '@/types/api/common'
 import {
@@ -7,6 +6,8 @@ import {
   GetFeedbackListParams,
   CreateFeedbackResponse,
 } from '@/types/api/feedback.d'
+
+import http from '../request'
 
 // Relative imports
 

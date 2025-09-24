@@ -1,72 +1,52 @@
-##  Linting & Formatting 规范
+## Linting & Formatting 规范
 
 为确保代码风格统一、规避潜在错误并提升代码质量，项目集成了 ESLint、Prettier 和 Stylelint。所有代码在提交前都必须通过这些工具的校验。
 
 ### 核心原则
 
-- **ESLint**: 负责 JavaScript 和 TypeScript 的代码质量检查，发现潜在的 bug、不合理的写法，并执行部分编码规范。
-- **Prettier**: 负责代码格式化。它会以一种统一的风格重写你的代码，不关心代码质量，只关心格式（如缩进、分号、引号等）。
-- **Stylelint**: 负责 SCSS/CSS 的代码质量检查和格式化。
+- **Prettier**: 负责统一代码**格式**。它通过解析代码并使用自定义规则重新打印，确保所有代码的风格（缩进、分号、引号等）保持一致。
+- **ESLint**: 负责 JavaScript 和 TypeScript 的**代码质量**。它通过静态分析发现潜在的 bug、不合理的写法，并执行编码规范。
+- **Stylelint**: 负责 SCSS/CSS 的**代码质量和格式**。
 
-这三者协同工作，其中 Prettier 的优先级最高。ESLint 和 Stylelint 中任何与 Prettier 冲突的格式化规则都已被禁用。
-
-### 配置文件
-
-- **ESLint**: `.eslintrc.js`
-- **Prettier**: `.prettierrc.js`
-- **Stylelint**: `stylelint.config.mjs`
-
-### 推荐的 VS Code 插件
-
-为获得最佳的开发体验，请安装以下 VS Code 插件：
-
-- `dbaeumer.vscode-eslint`
-- `esbenp.prettier-vscode`
-- `stylelint.vscode-stylelint`
-
-并建议在 VS Code 的 `settings.json` 中开启保存时自动格式化：
-
-```json
-{
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll.stylelint": true
-  }
-}
-```
+三者协同工作，其中 Prettier 的格式化优先级最高。ESLint 和 Stylelint 中任何与 Prettier 冲突的**格式化**规则都已被禁用（通过 `eslint-config-prettier` 和 `stylelint-config-prettier`）。
 
 ### 脚本命令
 
-- `npm run lint`: 检查 JS/TS 代码。
-- `npm run lint:fix`: 自动修复可修复的 JS/TS 问题。
-- `npm run stylelint`: 检查样式代码。
-- `npm run stylelint:fix`: 自动修复可修复的样式问题。
-- `npm run format`: 使用 Prettier 格式化所有支持的文件类型。
+- `npm run format`: 使用 Prettier **格式化**所有支持的文件。
+- `npm run lint`: **检查** JS/TS 代码质量问题。
+- `npm run lint:fix`: **自动修复**可修复的 JS/TS 问题。
+- `npm run stylelint`: **检查**样式代码质量问题。
+- `npm run stylelint:fix`: **自动修复**可修复的样式问题。
+- `npm run lint:all`: **检查**所有代码质量问题。
+- `npm run lint:all:fix`: **自动修复**所有代码质量问题。
 
-### ESLint 核心规则 (`.eslintrc.js`)
+### ESLint 深度配置 (`.eslintrc.js`)
 
-- **继承**: 继承自 `taro/react` 官方推荐配置。
-- **集成 Prettier**: 继承 `prettier` 配置，关闭与 Prettier 冲突的规则。
-- **React Hooks**: 强制执行 `react-hooks/exhaustive-deps` 规则，避免因依赖项缺失导致的 bug。
-- **未使用的变量**: 严格禁止未使用的变量，除非变量名或参数名以 `_` (下划线) 开头。
-- **导入顺序**: 通过 `import/first` 规则，强制要求绝对路径导入（如第三方库）必须在相对路径导入（项目内模块）之前。
+- **继承链**: `taro/react` -> `plugin:@typescript-eslint/recommended` -> `prettier`。顺序至关重要，`prettier` 必须在最后以覆盖其他配置中的样式规则。
+- **TypeScript 支持**: 明确使用 `@typescript-eslint/parser` 并继承推荐规则，对 TypeScript 代码进行最严格的类型检查。
+- **React Hooks (强制)**: `react-hooks/rules-of-hooks` 和 `react-hooks/exhaustive-deps` 均设为 `error`，从根本上杜绝因 Hooks 使用不当导致的潜在 bug。
+- **未使用变量 (严格)**: `_` (下划线) 前缀是允许未使用变量存在的**唯一**豁免方式。
+- **导入顺序 (精细化)**: 使用 `eslint-plugin-import` 强制执行严格的导入顺序，规则如下：
+  1.  `react`
+  2.  `@tarojs/**`
+  3.  第三方库 (`node_modules`)
+  4.  内部绝对路径别名 (`@/components`, `@/services`, etc.)
+  5.  父子级相对路径 (`../`, `./`)
+  6.  `type` 类型导入
+- **控制台输出**: 禁止使用 `console.log`，但允许 `console.warn` 和 `console.error`，以便在生产环境中追踪警告和错误。
 
-### Stylelint 核心规则 (`stylelint.config.mjs`)
+### Stylelint 深度配置 (`stylelint.config.mjs`)
 
-- **继承**: 继承自 `stylelint-config-standard-scss`，提供对 SCSS 的全面支持。
-- **集成 Prettier**: 继承 `stylelint-config-prettier`，关闭与 Prettier 冲突的规则。
-- **未知规则容错**:
-  - 允许 SCSS 特有的 `@` 规则（如 `@mixin`, `@include`）。
-  - 忽略小程序特有的 `:global` 伪类。
-  - 忽略 CSS Modules 使用的 `composes` 属性。
-- **禁止未知属性值**: 开启 `declaration-property-value-no-unknown` 以防止拼写错误，但需要注意，它无法原生识别 SCSS 变量和 `rpx` 单位，相关报错需开发者自行判断。
+- **继承链**: `stylelint-config-standard-scss` -> `stylelint-config-prettier`。
+- **Taro/SCSS 兼容**:
+  - **`rpx` 单位**: 通过 `unit-no-unknown` 规则将 `rpx` 添加到白名单，解决了 Stylelint 无法识别小程序单位的问题。
+  - **`:global` 伪类**: 允许在 CSS Modules 中使用 `:global` 伪类。
+  - **`composes` 属性**: 允许在 CSS Modules 中使用 `composes` 属性进行样式组合。
+- **SCSS 最佳实践**:
+  - **变量命名**: 强制 SCSS 变量使用 `kebab-case` (短横线连接)。
+  - **禁止冗余嵌套**: 禁止不必要的 `&` 嵌套选择器。
+- **规则禁用**: 暂时禁用 `declaration-property-value-no-unknown` 规则。虽然此规则能检测属性值的拼写错误，但目前它对 SCSS 的变量和函数（如 `darken()`）支持不佳，会产生大量误报，因此暂时禁用以确保开发流程顺畅。
 
-### Prettier 核心规则 (`.prettierrc.js`)
+### Prettier 配置 (`.prettierrc.js`)
 
-- **分号**: `semi: false` - 不使用分号。
-- **引号**: `singleQuote: true` - 使用单引号。
-- **尾随逗号**: `trailingComma: 'es5'` - 在 ES5 有效的尾随逗号（对象、数组等）。
-- **打印宽度**: `printWidth: 100` - 每行最大字符数。
-- **Tab 宽度**: `tabWidth: 2` - 使用 2 个空格进行缩进。
+- 格式化配置相对稳定，遵循社区普遍的最佳实践，如使用单引号、无分号、100 字符行宽等。

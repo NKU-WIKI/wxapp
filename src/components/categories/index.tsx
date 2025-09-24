@@ -1,14 +1,16 @@
-import { View, Text } from '@tarojs/components'
 
 import { FC, useState } from 'react'
 
-import styles from './index.module.scss'
+import { View, Text } from '@tarojs/components'
+
 
 import bookIcon from '@/assets/book-bold-duotone.svg'
 import buildingsIcon from '@/assets/buildings-2-bold-duotone.svg'
 import magniferIcon from '@/assets/magnifer-bold-duotone.svg'
 import rocketIcon from '@/assets/rocket-bold-duotone.svg'
 import usersGroupIcon from '@/assets/users-group-rounded-bold-duotone.svg'
+
+import styles from './index.module.scss'
 
 const categoriesData = [
   { id: 1, name: '学习交流', icon: bookIcon },

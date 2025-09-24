@@ -1,15 +1,17 @@
+import { FC, useEffect, useState, useCallback, useMemo } from 'react'
+
 import { View, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { FC, useEffect, useState, useCallback, useMemo } from 'react'
-
-import { pageRefreshManager } from '../utils/pageRefreshManager'
-import { useTabBarSync, TAB_BAR_PAGES } from '../utils/tabBarSync'
-
-import styles from './index.module.scss'
 
 import plusIcon from '@/assets/plus.svg' // 使用新的白色+号SVG图标
 import { useAuthGuard } from '@/hooks/useAuthGuard'
+
+import styles from './index.module.scss'
+import { pageRefreshManager } from '../utils/pageRefreshManager'
+import { useTabBarSync, TAB_BAR_PAGES } from '../utils/tabBarSync'
+
+
 
 // 引入本地图标 - 使用字符串路径
 const homeIcon = '/assets/home.png'

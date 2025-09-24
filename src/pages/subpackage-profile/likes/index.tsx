@@ -1,10 +1,11 @@
+
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
+
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro'
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import styles from './index.module.scss'
 
 import heartOutlineIcon from '@/assets/heart-outline.svg'
 import CustomHeader from '@/components/custom-header'
@@ -14,6 +15,8 @@ import Post from '@/components/post'
 import { useMultipleFollowStatus } from '@/hooks/useFollowStatus'
 import { AppDispatch, RootState } from '@/store'
 import { fetchLikes, resetLikes } from '@/store/slices/likesSlice'
+
+import styles from './index.module.scss'
 
 
 // 定义点赞类型

@@ -1,11 +1,11 @@
+
+import { useState, useEffect } from 'react'
+
 import { View, ScrollView, Text, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 
-import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import RagResult from './components/RagResult'
-import styles from './index.module.scss'
 
 import bookOpenIcon from '@/assets/book-open.svg'
 import fileTextIcon from '@/assets/file-text.svg'
@@ -15,6 +15,9 @@ import CustomHeader, { useCustomHeaderHeight } from '@/components/custom-header'
 import GeminiReadingAnimation from '@/components/gemini-reading-animation'
 import MasonryLayout from '@/components/masonry-layout'
 import SearchBar, { SearchSuggestion } from '@/components/search-bar'
+import SearchResultRenderer from '@/components/search-result-renderer'
+import agentApi from '@/services/api/agent'
+import searchApi from '@/services/api/search'
 import { AppDispatch, RootState } from '@/store'
 import { clearSearchResults } from '@/store/slices/chatSlice'
 import {
@@ -24,11 +27,11 @@ import {
   setRefreshing,
   fetchNotesInteractionStatus,
 } from '@/store/slices/noteSlice'
-import searchApi from '@/services/api/search'
-import agentApi from '@/services/api/agent'
-import SearchResultRenderer from '@/components/search-result-renderer'
 import { SearchResultItem, SearchMode } from '@/types/api/search'
 import { usePageRefresh } from '@/utils/pageRefreshManager'
+
+import RagResult from './components/RagResult'
+import styles from './index.module.scss'
 
 // Icon imports need to be after component/logic imports if they are just paths
 

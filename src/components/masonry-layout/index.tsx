@@ -1,12 +1,14 @@
+import { useState, useEffect, useCallback } from 'react'
+
 import { View, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 
-import { useState, useEffect, useCallback } from 'react'
-
-import styles from './index.module.scss'
 
 import NoteCard from '@/components/note-card'
 import { NoteListItem } from '@/services/api/note'
+
+import styles from './index.module.scss'
+
 
 interface MasonryLayoutProps {
   notes: NoteListItem[]

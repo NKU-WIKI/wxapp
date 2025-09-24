@@ -1,28 +1,29 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { persistReducer } from 'redux-persist'
 
+import persistStorage from '@/utils/persistStorage'
+
 import aboutReducer from './slices/aboutSlice'
 import actionReducer from './slices/actionSlice' // Action slice for like/favorite/follow actions
-import chatReducer from './slices/chatSlice'
-import levelReducer from './slices/levelSlice'
-import settingsReducer from './slices/settingsSlice' // Settings slice
-import searchReducer from './slices/searchSlice' // Search slice
-import noteReducer from './slices/noteSlice' // Note slice
 import campusVerificationReducer from './slices/campusVerificationSlice' // Campus verification slice
+import chatReducer from './slices/chatSlice'
 import commentReducer from './slices/commentSlice'
 import favoriteReducer from './slices/favoriteSlice' // Favorite list slice
 import feedbackReducer from './slices/feedbackSlice'
+import levelReducer from './slices/levelSlice'
 import likeReducer from './slices/likeSlice' // Like list slice
 import likesReducer from './slices/likesSlice' // User likes list slice
 import marketplaceReducer from './slices/marketplaceSlice' // Marketplace slice
+import noteReducer from './slices/noteSlice' // Note slice
 import notificationReducer from './slices/notificationSlice' // Notification slice
 import postReducer from './slices/postSlice'
 import ratingReducer from './slices/ratingSlice' // Rating slice
+import searchReducer from './slices/searchSlice' // Search slice
+import settingsReducer from './slices/settingsSlice' // Settings slice
 import userCommentReducer from './slices/userCommentSlice' // User comment list slice
 import userPostsReducer from './slices/userPostsSlice' // User posts list slice
 import userReducer from './slices/userSlice'
 
-import persistStorage from '@/utils/persistStorage'
 
 const userPersistConfig = {
   key: 'user',

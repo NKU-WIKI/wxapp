@@ -1,9 +1,9 @@
-import { View, ScrollView, Text } from '@tarojs/components'
-import Taro from '@tarojs/taro'
 
 import { useState, useEffect, useCallback } from 'react'
 
-import styles from './index.module.scss'
+import { View, ScrollView, Text } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+
 
 import AuthFloatingButton from '@/components/auth-floating-button'
 import CustomHeader from '@/components/custom-header'
@@ -12,6 +12,8 @@ import SearchBar from '@/components/search-bar'
 import { downloadFile, getDownloadInfo, saveImageToAlbum } from '@/services/api/download'
 import LearningMaterialService, { CATEGORY_CONFIG } from '@/services/api/learningMaterial'
 import { LearningMaterial, LearningMaterialCategory } from '@/types/api/learningMaterial'
+
+import styles from './index.module.scss'
 
 // eslint-disable-next-line import/no-unused-modules
 export default function LearningMaterials() {
