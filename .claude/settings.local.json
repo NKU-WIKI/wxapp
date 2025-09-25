@@ -33,7 +33,8 @@
       "Bash(npx stylelint:*)",
       "Bash(find:*)",
       "Bash(git rebase:*)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "Bash(timeout 120s npm run build:weapp:*)"
     ],
     "deny": [],
     "ask": []
