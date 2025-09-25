@@ -3,7 +3,6 @@
   "version": "0.2.6",
   "private": true,
   "description": "wiki校园知识共享平台",
-  "type": "module",
   "templateInfo": {
     "name": "default",
     "typescript": true,
