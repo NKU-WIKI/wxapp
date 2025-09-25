@@ -189,7 +189,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
   }, []);
 
   // 处理评论功能
-  const handleComment = useCallback((buttonIndex: number) => {
+  const handleComment = useCallback((_buttonIndex: number) => {
     // 评论按钮点击应该导航到帖子详情页面
     if (targetType === 'post') {
       Taro.navigateTo({
