@@ -6,7 +6,7 @@
 }
 
 // 统一阴影 & 动画变量
-$card-radius: 20rpx;$card-radius
+$card-radius: 20rpx;
 $card-shadow: 0 4rpx 14rpx rgb(15 23 42 / 6%), 0 2rpx 4rpx rgb(15 23 42 / 4%);
 $primary: #4f46e5;
 $primary-grad: linear-gradient(135deg,#6366f1 0%,#4f46e5 55%,#4338ca 100%);
@@ -81,14 +81,14 @@ $text-secondary: #64748b;
   border-radius: 14rpx;
 
   // 移除过渡动画和焦点效果以避免闪烁
-  box-shadow: none;box-shadow
+  box-shadow: none;
 
   &:focus {
     outline: none;
     background: #fff;
 
     // 移除焦点时的蓝色效果
-    border-color: #e2e8f0;border-color
+    border-color: #e2e8f0;
     box-shadow: none;
   }
 
@@ -158,11 +158,11 @@ $text-secondary: #64748b;
   border-radius: 40rpx;
 
   // 移除所有过渡动画和悬停效果以避免闪烁
-  box-shadow: 0 2rpx 4rpx rgb(15 23 42 / 4%);box-shadow
+  box-shadow: 0 2rpx 4rpx rgb(15 23 42 / 4%);
 
   &:active {
     // 移除缩放效果
-    transform: none;transform
+    transform: none;
   }
 }
 
@@ -195,11 +195,11 @@ $text-secondary: #64748b;
   border-radius: 40rpx;
 
   // 移除所有过渡动画和悬停效果以避免闪烁
-  box-shadow: 0 2rpx 4rpx rgb(15 23 42 / 4%);box-shadow
+  box-shadow: 0 2rpx 4rpx rgb(15 23 42 / 4%);
 
   &:active {
     // 移除缩放效果
-    transform: none;transform
+    transform: none;
   }
 }
 
@@ -235,7 +235,7 @@ $text-secondary: #64748b;
 
   &:active {
     // 移除移动效果
-    transform: none;transform
+    transform: none;
   }
 }
 
@@ -284,7 +284,7 @@ $text-secondary: #64748b;
   pointer-events: auto;
 
   // 移除所有过渡动画和悬停效果以避免闪烁
-  cursor: pointer;cursor
+  cursor: pointer;
   background: transparent;
   border: 2rpx solid #cbd5e1;
   border-radius: 8rpx;
@@ -293,14 +293,14 @@ $text-secondary: #64748b;
     border-color: #cbd5e1;
 
     // 移除激活时的效果
-    transform: none;transform
+    transform: none;
   }
 
   &:hover {
     background: transparent;
 
     // 移除悬停时的效果
-    border-color: #cbd5e1;border-color
+    border-color: #cbd5e1;
   }
 }
 
@@ -313,7 +313,7 @@ $text-secondary: #64748b;
 
   .counterButton:hover & {
     // 移除悬停时的文字效果
-    color: #64748b;color
+    color: #64748b;
   }
 }
 
@@ -349,7 +349,7 @@ $text-secondary: #64748b;
 
 // 日期时间选择器样式
 .datetimePicker {
-  position: relative;box-sizing
+  position: relative;
   display: flex;
   align-items: center;
   width: 100%;
@@ -363,13 +363,13 @@ $text-secondary: #64748b;
   border-radius: 14rpx;
 
   // 移除过渡动画和激活效果以避免闪烁
-  box-shadow: none;box-shadow
+  box-shadow: none;
 
   &:active {
     background: #fff;
 
     // 移除激活时的效果
-    border-color: #e2e8f0;border-color
+    border-color: #e2e8f0;
     box-shadow: none;
   }
 

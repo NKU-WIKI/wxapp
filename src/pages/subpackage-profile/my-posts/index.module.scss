@@ -215,8 +215,8 @@
   margin-bottom: 12px;
   cursor: pointer;
   background: $bg-card;
-  border: 1px solid rgb(59 130 246 / 30%);border-radius // 圆角
-  transition: all 0.2s ease;transition
+  border: 1px solid rgb(59 130 246 / 30%); // 圆角
+  transition: all 0.2s ease;
   
   &:last-child {
     margin-bottom: 0;
@@ -228,7 +228,7 @@
   
   &.pinOptionSelected {
     background: rgb(139 92 246 / 10%); // 浅紫色选中效果
-    border-color: rgb(139 92 246 / 50%);border-color // 选中时边框变为紫色
+    border-color: rgb(139 92 246 / 50%); // 选中时边框变为紫色
   }
 }
 

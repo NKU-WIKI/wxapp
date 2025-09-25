@@ -32,7 +32,8 @@
       "Bash(npm run stylelint:*)",
       "Bash(npx stylelint:*)",
       "Bash(find:*)",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
+      "Bash(xargs cat:*)"
     ],
     "deny": [],
     "ask": []

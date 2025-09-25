@@ -15,13 +15,13 @@
 // 标签页导航
 .tabsContainer {
   position: fixed;
-  top: 0;left
+  top: 0;
   z-index: 40;
   display: flex;
-  align-items: center;width
+  align-items: center;
   height: 50px;
   padding: 0; // 移除额外padding
-  background: rgb(255 255 255 / 95%);移除额外paddingbackground
+  background: rgb(255 255 255 / 95%); // 移除额外padding
   border-bottom: 1px solid rgb(139 92 246 / 10%);
   backdrop-filter: blur(20px);
 }
@@ -30,10 +30,10 @@
   position: relative;
   display: flex;
   flex: 1;
-  align-items: center;justify-content
+  align-items: center;
   height: 100%;
   padding: 0; // 移除额外padding
-  font-size: 15px;移除额外paddingfont-size
+  font-size: 15px; // 移除额外padding
   font-weight: 500;
   cursor: pointer;
   background: transparent;
@@ -72,7 +72,7 @@
 // 固定搜索和统计区域
 .fixedSearchArea {
   position: fixed;
-  top: 50px;标签页50pxleft
+  top: 50px; // 标签页50px
   z-index: 30;
   width: 100%;
   padding: 16px;

@@ -14,8 +14,9 @@
 .searchContainer {
   display: flex;
   align-items: center;
-  padding: 8px 12px;恢复为与home页面相同的8pxmargin // 恢复为与home页面相同的边距
-  background-color: #f3f4f6;恢复为与home页面相同的边距background-color
+  padding: 8px 12px; // 恢复为与home页面相同的8px边距
+  margin: 4px; // 恢复为与home页面相同的边距
+  background-color: #f3f4f6;
   border-radius: 9999px;
 }
 
@@ -178,7 +179,7 @@
   position: relative;
   flex: 1;
   overflow-y: auto; // 允许垂直滚动
-  -webkit-overflow-scrolling: touch;-webkit-overflow-scrolling // 优化iOS滚动体验
+  -webkit-overflow-scrolling: touch; // 优化iOS滚动体验
 }
 
 .publishSection {
@@ -213,19 +214,19 @@
 .activitiesContainer {
   display: flex;
   flex-direction: column;
-  align-items: stretch;min-height // 确保容器高度自适应内容
-  padding-bottom: 50px;padding-bottom // 为悬浮按钮预留空间
+  align-items: stretch; // 确保容器高度自适应内容
+  padding-bottom: 50px; // 为悬浮按钮预留空间
 
   // 单个活动时无上边距，无间距
   &.singleActivity {
     gap: 0; // 移除间距，让活动紧贴分类栏
-    margin-top: 0;margin-top
+    margin-top: 0;
   }
 
   // 多个活动时有上边距和间距
   &.multipleActivities {
     gap: 16px; // 活动之间保持间距
-    margin-top: 12px;margin-top
+    margin-top: 12px;
   }
 }
 
@@ -241,7 +242,7 @@
 .activityCard {
   margin-right: 8px;
   margin-bottom: 2px; // 原8px减半为4px
-  margin-left: 8px;原8px减半为4pxmargin-left
+  margin-left: 8px; // 原8px减半为4px
   overflow: hidden;
   background: #fff;
   border-radius: 12px;
@@ -257,15 +258,15 @@
   display: flex;
   flex-direction: column;
   gap: 0; // 移除自动间距，手动控制
-  padding: 20px;padding
+  padding: 20px;
 }
 
 // 标题区域样式
 // 标题区域样式
 .titleSection {
   display: flex;
-  flex-wrap: nowrap;gap  // 减小间距，让标签更紧挨着标题
-  align-items: center;align-items
+  flex-wrap: nowrap; // 减小间距，让标签更紧挨着标题
+  align-items: center;
   margin-bottom: 16px;
 }
 
@@ -273,13 +274,13 @@
 .organizerTag {
   flex-shrink: 0;
   padding: 4px 8px;  // 减小内边距，让标签更紧凑
-  background: #6B46C1;background
+  background: #6B46C1;
   border-radius: 4px;
 }
 
 .organizerTagText {
   font-size: 12px;  // 稍微减小字体
-  font-weight: 600;font-weight
+  font-weight: 600;
   line-height: 1;
   color: #fff;
 }
@@ -287,7 +288,7 @@
 // 内联组织者标签样式（直接在标题文本后面）
 .organizerTagInline {
   padding: 4px 8px;  // 增加上下padding从2px到4px，左右从6px到8px
-  margin-left: 8px;增加上下padding从2px到4px，左右从6px到8pxmargin-left
+  margin-left: 8px; // 增加上下padding从2px到4px，左右从6px到8px
   font-size: 12px;
   font-weight: 600;
   color: #fff;
@@ -296,8 +297,8 @@
 }
 
 .activityTitle {
-  flex-shrink: 1;margin // 移除边距，由父容器控制间距
-  font-size: 18px;font-size
+  flex-shrink: 1; // 移除边距，由父容器控制间距
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.3;
   color: #1e293b;
@@ -324,10 +325,10 @@
 
   &.collapsed {
     display: -webkit-box;
-    max-height: 3em;约2行的高度text-overflow
+    max-height: 3em; // 约2行的高度
     -webkit-line-clamp: 2;
     line-clamp: 2; // 标准属性，用于现代浏览器兼容性
-    opacity: 1;opacity
+    opacity: 1;
     animation: collapseText 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     -webkit-box-orient: vertical;
   }
@@ -335,10 +336,10 @@
   // 展开状态 - 使用一个足够大的max-height值来模拟自动高度
   &:not(.collapsed) {
     display: block;
-    max-height: 1000px;text-overflow
+    max-height: 1000px;
     -webkit-line-clamp: unset;
     line-clamp: unset; // 标准属性
-    opacity: 1;opacity
+    opacity: 1;
     animation: expandText 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
@@ -423,13 +424,13 @@
 
 .actionButton {
   padding: 8px 16px;
-  margin-left: auto;font-size
+  margin-left: auto;
   font-weight: 500;
   color: #fff;
   cursor: pointer;
   background: #4f46e5;
   border-radius: 8px; // 从20px改为8px，变成圆角矩形
-  transition: all 0.2s ease;从20px改为8px，变成圆角矩形transition
+  transition: all 0.2s ease; // 从20px改为8px，变成圆角矩形
 
   &:active {
     transform: scale(0.98);

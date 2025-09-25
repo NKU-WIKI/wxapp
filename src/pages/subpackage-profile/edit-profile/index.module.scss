@@ -56,15 +56,15 @@
 // 卡片样式
 // 卡片外的标题
 .sectionTitle {
-  margin-top: 20px;margin-bottom  // 缩短与卡片的距离
-  font-size: 16px;font-size
+  margin-top: 20px; // 缩短与卡片的距离
+  font-size: 16px;
   font-weight: 600;
   color: #4F46E5;
 }
 
 .card {
   margin-bottom: 16px; // 缩短卡片之间的距离
-  overflow: hidden;overflow
+  overflow: hidden;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
@@ -72,7 +72,7 @@
 
 .cardTitle {
   display: none; // 隐藏卡片内的标题
-  padding: 16px 16px 0;padding
+  padding: 16px 16px 0;
   margin-bottom: 16px;
   font-size: 16px;
   font-weight: 600;
@@ -144,7 +144,7 @@
   flex: 1;
   font-size: 16px;
   color: #999; // 灰色文字
-  text-align: right;text-align
+  text-align: right;
   outline: none;
   background: transparent;
   border: none;
