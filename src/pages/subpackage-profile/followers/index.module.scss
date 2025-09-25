@@ -77,7 +77,7 @@
   width: 100%;
   padding: 16px;
   padding-bottom: 20px; // 增加底部内边距
-  background: linear-gradient(135deg, #F8F9FF 0%, #F3F4F6 100%);background
+  background: linear-gradient(135deg, #F8F9FF 0%, #F3F4F6 100%);
   border-bottom: 1px solid rgb(139 92 246 / 10%);
   box-shadow: 0 2px 4px rgb(0 0 0 / 5%); // 添加阴影增强分离感
 }
@@ -197,8 +197,9 @@
 
 // 统计信息 - 在固定区域内
 .countInfo {
-  padding-bottom: 4px;margin-bottom // 添加底部间距，增强与下方内容的分离
-  font-size: 14px;font-size
+  padding-bottom: 4px;
+  margin-bottom: 8px; // 添加底部间距，增强与下方内容的分离
+  font-size: 14px;
   font-weight: 500;
   color: rgb(107 114 128 / 80%);
 }
@@ -214,8 +215,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 68px;padding // 增加垂直间距以适应两行文字
-  border-bottom: 1px solid rgb(139 92 246 / 10%);border-bottom
+  min-height: 68px;
+  padding: 18px 8px; // 增加垂直间距以适应两行文字
+  border-bottom: 1px solid rgb(139 92 246 / 10%);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   &:last-child {
@@ -224,7 +226,7 @@
   
   &:hover {
     padding: 18px 8px; // 保持一致的垂直间距
-    margin: 0 -8px;margin
+    margin: 0 -8px;
     background: rgb(139 92 246 / 2%);
     border-radius: 8px;
   }
@@ -257,14 +259,15 @@
   display: flex;
   flex: 1;
   flex-direction: column; // 垂直排列
-  justify-content: center;justify-content
+  justify-content: center;
 }
 
 .userName {
-  margin-bottom: 4px;与bio的间距font-size
+  margin-bottom: 4px; // 与bio的间距
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.2; // 行高调整
-  color: $text-primary;color
+  color: $text-primary;
   background: linear-gradient(135deg, $theme-primary 0%, $theme-accent 100%);
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -272,7 +275,7 @@
 
 .userBio {
   margin-top: 2px; // 与昵称的间距
-  overflow: hidden;overflow
+  overflow: hidden;
   text-overflow: ellipsis;
   font-size: 14px;
   line-height: 1.3;

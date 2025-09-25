@@ -79,8 +79,10 @@
     align-items: center;
     justify-content: center;
     width: fit-content;
-    height: 16px;减少内paddingfont-size // 减少字体大小
-    font-weight: 500;font-weight
+    height: 16px;
+    padding: 0 4px; // 减少内padding
+    font-size: 12px; // 减少字体大小
+    font-weight: 500;
     color: #fff;
     background-color: #4F46E5;
     border-radius: 8px;
@@ -89,7 +91,7 @@
   .authorBio {
     display: block;
     max-width: 200px; // 限制签名宽度，避免过长
-    margin-top: 2px;margin-top
+    margin-top: 2px;
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 13px;
@@ -102,13 +104,13 @@
     display: flex;
     flex-direction: column;
     gap: 6px; // 减少元素间距
-    align-items: flex-end;align-items
+    align-items: flex-end;
     margin-left: auto;
   }
   
   .followButton {
     padding: 4px 10px; // 减少内padding
-    color: #333;减少内paddingcolor
+    color: #333;
     cursor: pointer;
     background-color: #f5f5f5;
     border: 1px solid #e0e0e0;
@@ -117,12 +119,12 @@
   
   .followText {
     font-size: 13px; // 减少字体大小
-    font-weight: 500;font-weight
+    font-weight: 500;
   }
   
   .publicationTime {
     font-size: 13px; // 减少字体大小
-    color: #666;color
+    color: #666;
     white-space: nowrap;
   }
   
@@ -130,14 +132,16 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px; // 减少标签间距
-    margin-top: 8px;margin-top // 减少标签顶部margin
+    margin-top: 8px; // 减少标签顶部margin
   }
   
   .tag {
     display: flex;
-    gap: 4px;align-items
-    padding: 4px 8px;减少标签内paddingfont-size // 减少字体大小
-    color: #4a90e2;color
+    gap: 4px;
+    align-items: center;
+    padding: 4px 8px; // 减少标签内padding
+    font-size: 12px; // 减少字体大小
+    color: #4a90e2;
     background-color: #f0f8ff;
     border: 1px solid #e1f0ff;
     border-radius: 16px;
@@ -146,7 +150,7 @@
   
   .tagIcon {
     width: 12px; // 减少图标大小
-    height: 12px;height
+    height: 12px;
   }
   
   .tagText {
@@ -155,8 +159,9 @@
   
   .imageSection {
     position: relative;
-    padding: 16px;margin-bottom // 减少图片区域底部margin
-    background-color: #fff;减少图片区域底部marginbackground-color
+    padding: 16px;
+    margin-bottom: 8px; // 减少图片区域底部margin
+    background-color: #fff;
   }
   
   .imageContainer {
@@ -164,15 +169,18 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 180px;background-color // 添加背景色，为留白区域提供统一的背景
-    border-radius: 12px;border-radius // 添加圆角
+    height: 180px;
+    background-color: #f5f5f5; // 添加背景色，为留白区域提供统一的背景
+    border-radius: 12px; // 添加圆角
   }
   
   .image {
     width: 100%;
     height: 100%;
-    cursor: pointer;改为contain确保图片完整显示并留白border-radius // 为图片本身也添加圆角
-    transition: transform 0.2s ease;transition // 添加过渡效果
+    cursor: pointer;
+    object-fit: contain; // 改为contain确保图片完整显示并留白
+    border-radius: 12px; // 为图片本身也添加圆角
+    transition: transform 0.2s ease; // 添加过渡效果
     
     &:active {
       transform: scale(0.98); // 点击时轻微缩小，提供触觉反馈
@@ -182,8 +190,10 @@
   .imageCounter {
     position: absolute;
     right: 16px;
-    bottom: 10px;减少内paddingfont-size // 减少字体大小
-    font-weight: 500;font-weight
+    bottom: 10px;
+    padding: 4px 8px; // 减少内padding
+    font-size: 12px; // 减少字体大小
+    font-weight: 500;
     color: #fff;
     background-color: rgb(0 0 0 / 60%);
     border-radius: 10px;
@@ -191,15 +201,16 @@
   
   .imageDots {
     position: absolute;
-    bottom: 12px;left
+    bottom: 12px;
+    left: 50%;
     display: flex;
     gap: 5px; // 减少点间距
-    transform: translateX(-50%);transform
+    transform: translateX(-50%);
   }
   
   .dot {
     width: 5px; // 减少点大小
-    height: 5px;height
+    height: 5px;
     background-color: rgb(255 255 255 / 50%);
     border-radius: 50%;
     transition: background-color 0.3s;
@@ -210,16 +221,18 @@
   }
   
   .contentText {
-    font-size: 15px;line-height // 减少行高
-    color: #333;color
+    font-size: 15px;
+    line-height: 1.4; // 减少行高
+    color: #333;
     text-align: justify;
   }
   
 
   
   .commentSection {
-    padding: 12px 16px 0;减少上下padding，底部不设paddingmargin-bottom // 减少底部margin
-    background-color: #fff;减少底部marginbackground-color
+    padding: 12px 16px 0; // 减少上下padding，底部不设padding
+    margin-bottom: 8px; // 减少底部margin
+    background-color: #fff;
   }
   
   .commentHeader {
@@ -228,7 +241,7 @@
   
   .commentCount {
     font-size: 17px; // 减少字体大小
-    font-weight: 600;font-weight
+    font-weight: 600;
     color: #333;
   }
   
@@ -236,7 +249,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px; // 减少评论项之间的间距
-    margin-bottom: 12px;margin-bottom // 减少评论列表底部margin
+    margin-bottom: 12px; // 减少评论列表底部margin
   }
   
   .commentItem {
@@ -247,7 +260,7 @@
   .commentAvatar {
     flex-shrink: 0;
     width: 32px; // 减少头像大小
-    height: 32px;height
+    height: 32px;
     border-radius: 50%;
   }
   
@@ -257,19 +270,21 @@
   
   .commentAuthor {
     display: block;
-    margin-bottom: 3px;减少底部marginfont-size // 减少字体大小
-    font-weight: 500;font-weight
+    margin-bottom: 3px; // 减少底部margin
+    font-size: 14px; // 减少字体大小
+    font-weight: 500;
     color: #333;
   }
   
   .commentText {
-    margin-bottom: 3px;line-height // 减少行高
-    color: #333;color
+    margin-bottom: 3px;
+    line-height: 1.4; // 减少行高
+    color: #333;
   }
   
   .commentTime {
     font-size: 11px; // 减少字体大小
-    color: #999;color
+    color: #999;
   }
   
   .commentInput {
@@ -365,7 +380,7 @@
   
   .bottomBar {
     padding: 10px 16px; // 减少上下padding
-    background-color: #fff;减少上下paddingbackground-color
+    background-color: #fff;
     border-top: 1px solid #e9ecef;
   }
   
@@ -376,23 +391,26 @@
     align-items: center;
     justify-content: center;
     padding: 50px 20px; // 减少上下padding
-    text-align: center;减少上下paddingtext-align
+    text-align: center;
   }
   
   .loadingText {
-    margin-bottom: 12px;减少底部marginfont-size // 减少字体大小
-    color: #666;color
+    margin-bottom: 12px; // 减少底部margin
+    font-size: 14px; // 减少字体大小
+    color: #666;
   }
   
   .errorText {
-    margin-bottom: 16px;减少底部marginfont-size // 减少字体大小
-    color: #e74c3c;color
+    margin-bottom: 16px; // 减少底部margin
+    font-size: 14px; // 减少字体大小
+    color: #e74c3c;
     text-align: center;
   }
   
   .retryButton {
-    padding: 10px 20px;减少内paddingfont-size // 减少字体大小
-    font-weight: 500;font-weight
+    padding: 10px 20px; // 减少内padding
+    font-size: 14px; // 减少字体大小
+    font-weight: 500;
     color: #fff;
     background-color: #4a90e2;
     border-radius: 18px;
