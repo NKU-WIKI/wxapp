@@ -116,6 +116,12 @@ jobs:
         run: |
           set -o pipefail
           node scripts/upload.js | tee upload_output.log
+        env:
+          APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          PRIVATE_KEY_PATH: ./private.key
+          VERSION: ${{ env.VERSION }}
+          DESC: ${{ env.DESC }}
+          ROBOT: ${{ env.ROBOT }}
 
       - name: Send Feishu Notification
         if: always()
