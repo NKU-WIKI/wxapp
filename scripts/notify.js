@@ -1,3 +1,4 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const FormData = require('form-data'); // 需要安装 form-data
@@ -166,8 +167,9 @@ function buildMessageCard({
       elements.push({
         tag: 'img',
         title: { tag: 'lark_md', content: '**📸 体验版二维码** (请使用微信扫描)' },
-        image_key: imageKey,
+        img_key: imageKey,
         alt: { tag: 'plain_text', content: '小程序体验版二维码' },
+        mode: 'crop_center', // 裁剪并居中图片，使其以更协调的尺寸展示
       });
     } else {
       elements.push({
