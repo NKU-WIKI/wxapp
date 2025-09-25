@@ -19,3 +19,7 @@ temp/
 *.key
 private.key
 priviate.key
+
+# Local environment variables
+.env
+github-webhook/

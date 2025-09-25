@@ -32,32 +32,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run linting
-      run: |
-        npm run lint
-        npm run stylelint
+      - name: Run linting
+        run: |
+          npm run lint
+          npm run stylelint
 
-    - name: Build project
-      run: npm run build:weapp
+      - name: Build project
+        run: npm run build:weapp
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-output
-        path: dist/
-        retention-days: 7
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: dist/
+          retention-days: 7
 
   deploy:
     needs: build
@@ -65,78 +65,86 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.event_name == 'workflow_dispatch'
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # 拉取所有历史记录，以便 git log 命令可以正常工作
+          fetch-depth: 0
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: build-output
-        path: dist/
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: dist/
 
-    - name: Create private key file
-      run: |
-        echo "${{ secrets.WECHAT_PRIVATE_KEY }}" > private.key
-      env:
-        WECHAT_PRIVATE_KEY: ${{ secrets.WECHAT_PRIVATE_KEY }}
+      - name: Create private key file
+        run: |
+          echo "${{ secrets.WECHAT_PRIVATE_KEY }}" > private.key
+        env:
+          WECHAT_PRIVATE_KEY: ${{ secrets.WECHAT_PRIVATE_KEY }}
 
-    - name: Set version variables
-      run: |
-        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-          echo "DESC=${{ github.event.inputs.desc }}" >> $GITHUB_ENV
-          echo "ROBOT=${{ github.event.inputs.robot }}" >> $GITHUB_ENV
-          echo "GENERATE_PREVIEW=${{ github.event.inputs.generate_preview }}" >> $GITHUB_ENV
-        else
-          # 自动生成版本号：日期 + commit hash
-          VERSION="$(date +'%Y.%m.%d').${GITHUB_SHA::7}"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "DESC=Production build from main branch" >> $GITHUB_ENV
-            echo "ROBOT=1" >> $GITHUB_ENV
+      - name: Set version variables
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+            echo "DESC=${{ github.event.inputs.desc }}" >> $GITHUB_ENV
+            echo "ROBOT=${{ github.event.inputs.robot }}" >> $GITHUB_ENV
           else
-            echo "DESC=Development build from dev branch" >> $GITHUB_ENV
-            echo "ROBOT=2" >> $GITHUB_ENV
+            # 自动生成版本号：日期 + commit hash
+            VERSION="$(date +'%Y.%m.%d').${GITHUB_SHA::7}"
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+              echo "DESC=Production build from main branch" >> $GITHUB_ENV
+              echo "ROBOT=1" >> $GITHUB_ENV
+            else
+              echo "DESC=Development build from dev branch" >> $GITHUB_ENV
+              echo "ROBOT=2" >> $GITHUB_ENV
+            fi
           fi
-          echo "GENERATE_PREVIEW=false" >> $GITHUB_ENV
-        fi
 
-    - name: Upload to WeChat
-      run: node scripts/upload.js
-      env:
-        APP_ID: ${{ secrets.WECHAT_APP_ID }}
-        PRIVATE_KEY_PATH: ./private.key
-        VERSION: ${{ env.VERSION }}
-        DESC: ${{ env.DESC }}
-        ROBOT: ${{ env.ROBOT }}
-        GENERATE_PREVIEW: ${{ env.GENERATE_PREVIEW }}
+      - name: Upload to WeChat
+        id: upload
+        run: |
+          set -o pipefail
+          node scripts/upload.js | tee upload_output.log
 
-    - name: Upload preview QR code
-      if: env.GENERATE_PREVIEW == 'true'
-      uses: actions/upload-artifact@v4
-      with:
-        name: preview-qrcode
-        path: preview.jpg
-        retention-days: 7
+      - name: Send Feishu Notification
+        if: always()
+        run: node scripts/notify.js
+        env:
+          # 飞书 Secrets
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          FEISHU_CHAT_ID: ${{ secrets.FEISHU_CHAT_ID }}
+          # 任务上下文
+          JOB_STATUS: ${{ job.status }}
+          REPO_NAME: ${{ github.repository }}
+          COMMIT_AUTHOR: ${{ github.actor }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          # 从上一步获取的环境变量
+          VERSION: ${{ env.VERSION }}
+          # 将日志文件路径传递给通知脚本
+          LOG_FILE_PATH: upload_output.log
 
-    - name: Clean up
-      if: always()
-      run: rm -f private.key
+      - name: Clean up
+        if: always()
+        run: rm -f private.key upload_output.log
 
-    - name: Notify deployment result
-      if: always()
-      run: |
-        if [ "${{ job.status }}" == "success" ]; then
-          echo "✅ 微信小程序部署成功！版本号: ${{ env.VERSION }}"
-        else
-          echo "❌ 微信小程序部署失败！"
-        fi
+      - name: Notify deployment result
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ 微信小程序部署成功！版本号: ${{ env.VERSION }}"
+          else
+            echo "❌ 微信小程序部署失败！"
+          fi
