@@ -106,6 +106,7 @@ function buildMessageCard({
   commitAuthor,
   commitMessages,
   runUrl,
+  commitUrl,
   duration,
   imageKey,
 }) {
@@ -177,16 +178,28 @@ function buildMessageCard({
   }
 
   elements.push({ tag: 'hr' });
+
+  const actions = [
+    {
+      tag: 'button',
+      text: { tag: 'plain_text', content: '🔗 查看工作流日志' },
+      type: 'default',
+      url: runUrl,
+    },
+  ];
+
+  if (commitUrl) {
+    actions.push({
+      tag: 'button',
+      text: { tag: 'plain_text', content: '🔍 查看提交详情' },
+      type: 'default',
+      url: commitUrl,
+    });
+  }
+
   elements.push({
     tag: 'action',
-    actions: [
-      {
-        tag: 'button',
-        text: { tag: 'plain_text', content: '🔗 查看工作流日志' },
-        type: 'default',
-        url: runUrl,
-      },
-    ],
+    actions,
   });
 
   return {
@@ -248,6 +261,7 @@ async function main() {
     VERSION,
     COMMIT_AUTHOR,
     COMMIT_MESSAGES_JSON,
+    COMMIT_URL,
     RUN_URL,
     START_TIME,
     QR_CODE_PATH,
@@ -287,6 +301,7 @@ async function main() {
     commitAuthor: COMMIT_AUTHOR || 'N/A',
     commitMessages,
     runUrl: RUN_URL,
+    commitUrl: COMMIT_URL,
     duration: formatDuration(START_TIME),
     imageKey,
   });

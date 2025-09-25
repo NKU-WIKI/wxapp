@@ -1,9 +1,0 @@
-   36:18  error    Empty block statement                     no-empty
-  201:30  error    Empty block statement                     no-empty
-  157:16  error    Empty block statement                     no-empty
-  2:46  error  'UserRating' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
-  186:29  error  Empty block statement  no-empty
-  188:23  error  Empty block statement  no-empty
-  155:28  error    Empty block statement                     no-empty
-  155:28  error    Empty block statement                     no-empty
-✖ 406 problems (8 errors, 398 warnings)

@@ -1,65 +1,73 @@
 # CI/CD 集成指南
 
-为了确保代码库的长期健康和高质量，我们强烈建议将代码质量检查集成到您的持续集成/持续部署 (CI/CD) 流程中。
+为了确保代码库的长期健康和高质量，我们的项目深度集成了 GitHub Actions，实现了一套强大、自动化的持续集成/持续部署 (CI/CD) 流程。
 
-## 核心检查流程
+## 核心流程：Build & Deploy
 
-我们的项目已经通过 `husky` 和 `lint-staged` 配置了 `pre-commit` 钩子。这意味着在每次代码提交到 Git 仓库之前，都会在本地对暂存文件进行自动的 lint 检查和格式化。
+我们的工作流被划分为两个核心任务 (Jobs)，遵循“构建与部署分离”的最佳实践：
 
-然而，为了防止任何未经检查的代码被意外推送到远程仓库（例如，通过 `git commit --no-verify`），在 CI/CD 流程中增加一个服务器端的检查步骤是至关重要的。
+1.  **`build` 任务**:
+    - **职责**: 负责代码的静态检查和编译。
+    - **流程**: 拉取代码 -> 安装依赖 -> 运行 ESLint 和 Stylelint 检查 -> 执行 `npm run build:weapp` 进行编译。
+    - **产物**: 生成 `dist/` 目录，并将其作为 "artifact" 上传，供后续任务使用。
+    - **此任务只编译一次，确保了流程的一致性和高效性。**
 
-## 在 CI/CD 中集成 Lint 检查
+2.  **`deploy` 任务**:
+    - **职责**: 负责将编译好的代码部署到微信小程序后台，并发送结果通知。
+    - **流程**: 下载 `build` 任务上传的 `dist/` 产物 -> 安装脚本依赖 -> 执行 `upload.js` 脚本上传小程序 -> 调用 `notify.js` 脚本发送飞书通知。
+    - **此任务不进行任何编译操作，只负责部署。**
 
-我们已经在 `package.json` 中提供了一个专门为 CI 环境设计的、更严格的 lint 脚本：`lint:ci`。
+## 触发方式
 
-```json
-"scripts": {
-  // ...
-  "lint:ci": "eslint src --max-warnings 0"
-}
-```
+工作流会在以下情况被自动触发：
 
-这个脚本与本地的 `lint` 命令有两个关键区别：
+- 当有代码被推送到 `main` 或 `dev` 分支时。
+- 当有针对 `main` 分支的 Pull Request 被创建时 (仅运行 `build` 任务)。
+- 通过 GitHub Actions 页面**手动触发** (`workflow_dispatch`)。
 
-1.  它会检查 `src` 目录下的所有文件，而不仅仅是暂存文件。
-2.  它使用了 `--max-warnings 0` 标志，这意味着**任何 ESLint 警告都会被视为错误**，从而导致检查失败。这对于逐步消除代码中的 `any` 类型等技术债非常有帮助。
+## 自动化功能亮点
 
-### GitHub Actions 示例配置
+`deploy` 任务实现了高度的自动化，能自动生成版本号和备注：
 
-您可以在您的 GitHub Actions 工作流中添加一个新的 `job` 来执行这个检查。这是一个示例配置，您可以将其添加到您的 `.github/workflows/main.yml` (或类似) 文件中：
+- **版本号 (`version`)**: 自动读取 `package.json` 中的版本号，并拼接上当前的时间戳 (格式: `YYYYMMDDHHMM`)，例如 `0.2.6-202509251430`。
+- **项目备注 (`desc`)**: 自动获取最新一次 Git commit 的作者和时间，并格式化为备注，例如: `作者 在 YYYY年M月D日 XX点XX分 提交上传`。
+- **预览二维码**: 默认会自动生成**体验版**的预览二维码，并将其集成在飞书通知中。
 
-```yaml
-jobs:
-  lint:
-    name: Code Quality Check
-    runs-on: ubuntu-latest
+## 飞书通知集成 (Feishu Notification)
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+部署任务的最后一步是发送飞书通知，以便团队成员能实时了解部署状态。
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20" # 确保这里的版本与项目开发环境一致
-          cache: "npm"
+- **通知时机**: 部署任务结束后，**无论成功或失败**，都会发送通知。
+- **通知内容**:
+  - ✅/❌ 部署状态 (成功/失败)
+  - 📦 项目名称和🌿分支
+  - 🔖 版本号和⏱️总耗时 (包括 build 和 deploy)
+  - 👤 最新提交者和💬完整的 Commit 信息列表
+  - 📸 如果部署成功，会**直接在卡片中原生渲染出可供扫描的体验版二维码**。
+  - 🔗 指向本次工作流运行日志的直接链接。
 
-      - name: Install dependencies
-        run: npm install
+![飞书通知卡片示例](https://your-image-host.com/feishu-card-example.png) <!-- 建议替换为真实的卡片截图 -->
 
-      - name: Run ESLint check
-        run: npm run lint:ci
+## 配置指南
 
-      - name: Run Stylelint check
-        run: npm run stylelint
-```
+为了让 `deploy` 任务能正常工作，你必须在你的 GitHub 仓库中配置以下 **Secrets**。
 
-**工作流说明**:
+路径: `Settings` -> `Secrets and variables` -> `Actions` -> `New repository secret`
 
-1.  **Checkout repository**: 拉取最新的代码。
-2.  **Set up Node.js**: 设置 Node.js 环境，并启用 `npm` 缓存以加快依赖安装速度。
-3.  **Install dependencies**: 安装项目所需的所有依赖。
-4.  **Run ESLint check**: 执行我们严格的 `lint:ci` 脚本。如果发现任何错误或警告，这个步骤将会失败，从而阻止后续的构建或部署流程。
-5.  **Run Stylelint check**: 执行 Stylelint 检查，确保样式代码的规范性。
+| Secret 名称          | 说明                                                                         |
+| -------------------- | ---------------------------------------------------------------------------- |
+| `WECHAT_APP_ID`      | 你的微信小程序的 AppID。                                                     |
+| `WECHAT_PRIVATE_KEY` | 你的小程序代码上传密钥的**完整内容** (从 `-----BEGIN...` 到 `...END-----`)。 |
+| `FEISHU_APP_ID`      | 你用于发送通知的飞书机器人的 App ID。                                        |
+| `FEISHU_APP_SECRET`  | 你的飞书机器人的 App Secret。                                                |
+| `FEISHU_CHAT_ID`     | 你希望接收通知的飞书群聊的 Chat ID。                                         |
 
-通过将这些检查集成到您的 CI 流程中，您可以确保所有合并到主分支的代码都始终符合项目设定的最高质量标准。
+## 手动触发工作流
+
+你可以随时通过 GitHub Actions 页面手动发起一次部署。
+
+1.  进入仓库的 `Actions` 标签页。
+2.  在左侧选择 `Deploy WeChat Mini Program` 工作流。
+3.  点击 `Run workflow` 下拉菜单。
+4.  你可以选择运行的分支，并选择性地覆盖自动生成的**版本号**和**版本描述**。
+5.  点击 `Run workflow` 按钮即可开始。
