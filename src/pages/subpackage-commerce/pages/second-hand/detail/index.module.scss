@@ -30,7 +30,7 @@
     display: block;
     width: 100%;
     height: 375px; // 固定高度，确保图片显示一致
-    object-fit: cover;object-fit
+    object-fit: cover;
   }
 }
 
@@ -343,7 +343,7 @@
 
        :global(.action-button_icon__1-s_m) {
         // 在这里应用 filter
-        filter: brightness(0) invert(1);filterfilter
+        filter: brightness(0) invert(1);
       }
     }
 
