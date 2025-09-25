@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const FormData = require('form-data'); // 需要安装 form-data
 
 // --- Helper Functions ---
 
@@ -40,6 +41,59 @@ async function getTenantAccessToken(appId, appSecret) {
 }
 
 /**
+ * 上传图片到飞书并获取 image_key
+ * @param {string} accessToken
+ * @param {string} imagePath
+ * @returns {Promise<string|null>} image_key 或 null
+ */
+async function uploadImageToFeishu(accessToken, imagePath) {
+  if (!fs.existsSync(imagePath)) {
+    console.warn(`二维码图片文件不存在: ${imagePath}`);
+    return null;
+  }
+  console.log(`正在上传二维码图片 ${imagePath} 到飞书...`);
+
+  const form = new FormData();
+  form.append('image_type', 'message');
+  form.append('image', fs.createReadStream(imagePath));
+
+  try {
+    const response = await fetch('https://open.feishu.cn/open-apis/im/v1/images', {
+      method: 'POST',
+      headers: {
+        ...form.getHeaders(),
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: form,
+    });
+    const data = await response.json();
+    if (data.code === 0) {
+      console.log('图片上传成功，获取 image_key:', data.data.image_key);
+      return data.data.image_key;
+    } else {
+      console.error(`飞书图片上传失败: ${data.msg}`, data);
+      return null;
+    }
+  } catch (error) {
+    console.error('请求飞书图片上传 API 时发生网络错误:', error);
+    return null;
+  }
+}
+
+/**
+ * 格式化部署耗时
+ * @param {number} startTime - Unix 时间戳 (秒)
+ * @returns {string} 格式化后的时间字符串
+ */
+function formatDuration(startTime) {
+  if (!startTime) return 'N/A';
+  const durationInSeconds = Math.floor(Date.now() / 1000) - Number(startTime);
+  const minutes = Math.floor(durationInSeconds / 60);
+  const seconds = durationInSeconds % 60;
+  return `${minutes} 分 ${seconds} 秒`;
+}
+
+/**
  * 构建飞书消息卡片
  * @param {object} params - 构建卡片所需的参数
  * @returns {object} 消息卡片 JSON 对象
@@ -47,16 +101,27 @@ async function getTenantAccessToken(appId, appSecret) {
 function buildMessageCard({
   status,
   repoName,
+  branchName,
   version,
   commitAuthor,
-  commitMessage,
+  commitMessages,
   runUrl,
-  logContent,
+  duration,
+  imageKey,
 }) {
   const isSuccess = status === 'success';
   const headerTemplate = isSuccess ? 'green' : 'red';
   const statusIcon = isSuccess ? '✅' : '❌';
   const statusText = isSuccess ? '部署成功' : '部署失败';
+
+  let commitContent = '';
+  if (Array.isArray(commitMessages) && commitMessages.length > 0) {
+    commitContent = commitMessages
+      .map((c) => `• ${c.message.split('\\n')[0]} (by ${c.author.name})`)
+      .join('\\n');
+  } else {
+    commitContent = '没有获取到具体的 commit 信息。';
+  }
 
   const elements = [
     {
@@ -69,78 +134,55 @@ function buildMessageCard({
     {
       tag: 'div',
       fields: [
-        {
-          is_short: true,
-          text: {
-            tag: 'lark_md',
-            content: `**📦 项目:**\n${repoName}`,
-          },
-        },
-        {
-          is_short: true,
-          text: {
-            tag: 'lark_md',
-            content: `**🔖 版本号:**\n${version}`,
-          },
-        },
+        { is_short: true, text: { tag: 'lark_md', content: `**📦 项目:**\n${repoName}` } },
+        { is_short: true, text: { tag: 'lark_md', content: `**🌿 分支:**\n${branchName}` } },
       ],
     },
     {
       tag: 'div',
       fields: [
-        {
-          is_short: true,
-          text: {
-            tag: 'lark_md',
-            content: `**👤 提交者:**\n${commitAuthor}`,
-          },
-        },
-        {
-          is_short: true,
-          text: {
-            tag: 'lark_md',
-            content: `**💬 提交信息:**\n${commitMessage.split('\\n')[0]}`,
-          },
-        },
+        { is_short: true, text: { tag: 'lark_md', content: `**🔖 版本号:**\n${version}` } },
+        { is_short: true, text: { tag: 'lark_md', content: `**⏱️ 耗时:**\n${duration}` } },
       ],
     },
     {
-      tag: 'hr',
+      tag: 'div',
+      text: { tag: 'lark_md', content: `**👤 最新提交者:**\n${commitAuthor}` },
+    },
+    { tag: 'hr' },
+    {
+      tag: 'div',
+      text: { tag: 'lark_md', content: `**💬 提交信息:**\n${commitContent}` },
     },
   ];
 
-  if (isSuccess && logContent) {
-    // 尝试从日志中提取二维码
-    const qrCodeRegex = /(-{10,}[\s\S]*-{10,})/;
-    const match = logContent.match(qrCodeRegex);
-    if (match && match[0]) {
+  if (isSuccess) {
+    if (imageKey) {
+      elements.push({ tag: 'hr' });
       elements.push({
-        tag: 'div',
-        text: {
-          tag: 'lark_md',
-          content: `**📸 体验版二维码** (请使用微信扫描):\n\`\`\`\n${match[0]}\n\`\`\``,
-        },
+        tag: 'img',
+        title: { tag: 'lark_md', content: '**📸 体验版二维码** (请使用微信扫描)' },
+        image_key: imageKey,
+        alt: { tag: 'plain_text', content: '小程序体验版二维码' },
       });
     } else {
       elements.push({
         tag: 'div',
         text: {
           tag: 'lark_md',
-          content: '**📸 体验版二维码**\n无法从日志中提取二维码，请检查 Actions 日志。',
+          content: '**📸 体验版二维码**\n无法生成或上传二维码图片，请检查 Actions 日志。',
         },
       });
     }
   }
 
+  elements.push({ tag: 'hr' });
   elements.push({
     tag: 'action',
     actions: [
       {
         tag: 'button',
-        text: {
-          tag: 'plain_text',
-          content: '🔗 查看工作流日志',
-        },
+        text: { tag: 'plain_text', content: '🔗 查看工作流日志' },
         type: 'default',
         url: runUrl,
       },
@@ -150,10 +192,7 @@ function buildMessageCard({
   return {
     config: { wide_screen_mode: true },
     header: {
-      title: {
-        tag: 'plain_text',
-        content: '小程序 CI/CD 通知',
-      },
+      title: { tag: 'plain_text', content: '小程序 CI/CD 通知' },
       template: headerTemplate,
     },
     elements,
@@ -205,11 +244,13 @@ async function main() {
     FEISHU_CHAT_ID,
     JOB_STATUS,
     REPO_NAME,
+    BRANCH_NAME,
     VERSION,
     COMMIT_AUTHOR,
-    COMMIT_MESSAGE,
+    COMMIT_MESSAGES_JSON,
     RUN_URL,
-    LOG_FILE_PATH,
+    START_TIME,
+    QR_CODE_PATH,
   } = process.env;
 
   if (!FEISHU_APP_ID || !FEISHU_APP_SECRET || !FEISHU_CHAT_ID) {
@@ -219,27 +260,35 @@ async function main() {
     return;
   }
 
-  let logContent = '';
-  if (LOG_FILE_PATH && fs.existsSync(LOG_FILE_PATH)) {
-    logContent = fs.readFileSync(LOG_FILE_PATH, 'utf-8');
-  } else {
-    console.warn(`日志文件路径未提供或文件不存在: ${LOG_FILE_PATH}`);
-  }
-
   const accessToken = await getTenantAccessToken(FEISHU_APP_ID, FEISHU_APP_SECRET);
   if (!accessToken) {
     console.error('无法获取 access token，通知发送中止。');
     process.exit(1);
   }
 
+  // 上传图片（如果成功）
+  const imageKey = QR_CODE_PATH ? await uploadImageToFeishu(accessToken, QR_CODE_PATH) : null;
+
+  // 解析 commits
+  let commitMessages = [];
+  if (COMMIT_MESSAGES_JSON) {
+    try {
+      commitMessages = JSON.parse(COMMIT_MESSAGES_JSON);
+    } catch (e) {
+      console.error('解析 COMMIT_MESSAGES_JSON 失败:', e);
+    }
+  }
+
   const card = buildMessageCard({
     status: JOB_STATUS,
     repoName: REPO_NAME,
+    branchName: BRANCH_NAME || 'N/A',
     version: VERSION || 'N/A',
     commitAuthor: COMMIT_AUTHOR || 'N/A',
-    commitMessage: COMMIT_MESSAGE || 'N/A',
+    commitMessages,
     runUrl: RUN_URL,
-    logContent,
+    duration: formatDuration(START_TIME),
+    imageKey,
   });
 
   await sendMessage(accessToken, FEISHU_CHAT_ID, card);
@@ -249,4 +298,3 @@ main().catch((error) => {
   console.error('执行通知脚本时发生未知错误:', error);
   process.exit(1);
 });
-

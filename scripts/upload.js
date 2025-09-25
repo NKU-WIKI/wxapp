@@ -125,15 +125,15 @@ async function upload() {
         codeProtect: false,
         autoPrefixWXSS: true,
       },
-      qrcodeFormat: 'image',
+      qrcodeFormat: 'image', // <--- 改回 image
       qrcodeOutputDest: path.resolve(__dirname, '../preview.jpg'),
       pagePath: 'pages/home/index', // 设置正确的默认预览页面
       // 标记为体验版
       experience: true,
     });
-    console.log('体验版二维码已生成: preview.jpg', previewResult);
+    console.log('体验版二维码图片已生成: preview.jpg');
   } catch (error) {
-    console.error('上传失败:', error);
+    console.error('上传或预览失败:', error);
     process.exit(1);
   }
 }
