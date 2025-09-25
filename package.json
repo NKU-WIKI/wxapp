@@ -45,7 +45,7 @@
     "@tarojs/shared": "4.1.4",
     "@tarojs/taro": "4.1.4",
     "@types/classnames": "^2.3.0",
-    "axios": "^1.10.0",
+    "axios": "^1.12.2",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.13",
     "form-data": "^4.0.4",

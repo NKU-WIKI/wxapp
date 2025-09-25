@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const FormData = require('form-data'); // 需要安装 form-data
+const axios = require('axios'); // 引入 axios
 
 // --- Helper Functions ---
 
@@ -13,20 +14,17 @@ const FormData = require('form-data'); // 需要安装 form-data
 async function getTenantAccessToken(appId, appSecret) {
   console.log('正在获取 Feishu tenant_access_token...');
   try {
-    const response = await fetch(
+    const response = await axios.post(
       'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
       {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-        },
-        body: JSON.stringify({
-          app_id: appId,
-          app_secret: appSecret,
-        }),
+        app_id: appId,
+        app_secret: appSecret,
+      },
+      {
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
       },
     );
-    const data = await response.json();
+    const data = response.data;
     if (data.code === 0) {
       console.log('成功获取 tenant_access_token。');
       return data.tenant_access_token;
@@ -35,7 +33,10 @@ async function getTenantAccessToken(appId, appSecret) {
       return null;
     }
   } catch (error) {
-    console.error('请求 tenant_access_token 时发生网络错误:', error);
+    console.error(
+      '请求 tenant_access_token 时发生网络错误:',
+      error.response ? error.response.data : error.message,
+    );
     return null;
   }
 }
@@ -58,15 +59,14 @@ async function uploadImageToFeishu(accessToken, imagePath) {
   form.append('image', fs.createReadStream(imagePath));
 
   try {
-    const response = await fetch('https://open.feishu.cn/open-apis/im/v1/images', {
-      method: 'POST',
+    const response = await axios.post('https://open.feishu.cn/open-apis/im/v1/images', form, {
       headers: {
         ...form.getHeaders(),
         Authorization: `Bearer ${accessToken}`,
       },
-      body: form,
     });
-    const data = await response.json();
+
+    const data = response.data;
     if (data.code === 0) {
       console.log('图片上传成功，获取 image_key:', data.data.image_key);
       return data.data.image_key;
@@ -75,7 +75,10 @@ async function uploadImageToFeishu(accessToken, imagePath) {
       return null;
     }
   } catch (error) {
-    console.error('请求飞书图片上传 API 时发生网络错误:', error);
+    console.error(
+      '请求飞书图片上传 API 时发生网络错误:',
+      error.response ? error.response.data : error.message,
+    );
     return null;
   }
 }
@@ -221,29 +224,31 @@ function buildMessageCard({
 async function sendMessage(accessToken, chatId, card) {
   console.log(`正在发送消息到 Chat ID: ${chatId}...`);
   try {
-    const response = await fetch(
+    const response = await axios.post(
       `https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=chat_id`,
       {
-        method: 'POST',
+        receive_id: chatId,
+        msg_type: 'interactive',
+        content: JSON.stringify(card),
+      },
+      {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          receive_id: chatId,
-          msg_type: 'interactive',
-          content: JSON.stringify(card),
-        }),
       },
     );
-    const data = await response.json();
+    const data = response.data;
     if (data.code === 0) {
       console.log('飞书消息发送成功！');
     } else {
       console.error(`飞书消息发送失败: ${data.msg}`, data);
     }
   } catch (error) {
-    console.error('请求飞书 sendMessage API 时发生网络错误:', error);
+    console.error(
+      '请求飞书 sendMessage API 时发生网络错误:',
+      error.response ? error.response.data : error.message,
+    );
   }
 }
 
