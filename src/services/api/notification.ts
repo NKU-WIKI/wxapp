@@ -1,5 +1,5 @@
-import { store } from "@/store";
-import { incrementUnreadCount } from "@/store/slices/notificationSlice";
+import { store } from '@/store';
+import { incrementUnreadCount } from '@/store/slices/notificationSlice';
 import {
   NotificationListRequest,
   NotificationApiResponse,
@@ -9,8 +9,8 @@ import {
   NotificationCreateResponse,
   NotificationChannel,
   NotificationPriority,
-} from "@/types/api/notification.d";
-import http from "../request";
+} from '@/types/api/notification.d';
+import http from '../request';
 
 /**
  * 获取通知列表
@@ -33,7 +33,7 @@ export const getNotifications = (params: NotificationListRequest = {}) => {
     {} as Record<string, any>,
   );
 
-  return http.get<NotificationApiResponse>("/notifications", filteredParams);
+  return http.get<NotificationApiResponse>('/notifications', filteredParams);
 };
 
 /**
@@ -43,7 +43,7 @@ export const getNotifications = (params: NotificationListRequest = {}) => {
  */
 export const getUnreadCount = () => {
   // TODO: 后端API不存在，暂时注释
-  throw new Error("后端API不存在，请使用其他方式获取未读数量");
+  throw new Error('后端API不存在，请使用其他方式获取未读数量');
   // return http.get<{ code: number; data: UnreadCountResponse; message: string }>(
   //   "/notifications/count/unread"
   // );
@@ -54,9 +54,7 @@ export const getUnreadCount = () => {
  * @param type 通知类型
  * @returns 未读数量
  */
-export const getUnreadCountByType = async (
-  type: NotificationType,
-): Promise<number> => {
+export const getUnreadCountByType = async (type: NotificationType): Promise<number> => {
   try {
     const res = await getNotifications({
       type,
@@ -80,10 +78,7 @@ export const getUnreadCountByType = async (
  * @returns 操作结果
  */
 export const markAsRead = (data: MarkReadRequest) => {
-  return http.post<{ code: number; message: string }>(
-    "/notifications/mark-read",
-    data,
-  );
+  return http.post<{ code: number; message: string }>('/notifications/mark-read', data);
 };
 
 /**
@@ -94,7 +89,7 @@ export const markAsRead = (data: MarkReadRequest) => {
 export const markAllAsRead = (type?: NotificationType) => {
   const url = type
     ? `/notifications/mark-all-read?notification_type=${type}`
-    : "/notifications/mark-all-read";
+    : '/notifications/mark-all-read';
 
   return http
     .post<{ code: number; message: string }>(url, {})
@@ -116,10 +111,7 @@ export const markNotificationAsRead = (notificationId: string) => {
   // console.log('🔧 [API调试] markNotificationAsRead 调用', { notificationId, payload });
 
   return http
-    .post<{ code: number; message: string }>(
-      "/notifications/mark-read",
-      payload,
-    )
+    .post<{ code: number; message: string }>('/notifications/mark-read', payload)
     .then((response) => {
       return response;
     })
@@ -135,7 +127,7 @@ export const markNotificationAsRead = (notificationId: string) => {
  */
 export const createNotification = (data: NotificationCreateRequest) => {
   return http
-    .post<NotificationCreateResponse>("/notifications", data)
+    .post<NotificationCreateResponse>('/notifications', data)
     .then((response) => {
       return response;
     })
@@ -159,16 +151,16 @@ export const createBBSNotification = {
   }) => {
     const notificationData = {
       type: NotificationType._Message,
-      business_type: "like",
+      business_type: 'like',
       business_id: params.post_id,
-      title: "点赞通知",
+      title: '点赞通知',
       content: `您的帖子「${params.post_title}」收到了一个赞`,
       recipient_id: params.recipient_id,
       sender_id: params.sender_id,
       data: {
         post_id: params.post_id,
         post_title: params.post_title,
-        action_type: "like",
+        action_type: 'like',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Low,
@@ -197,9 +189,9 @@ export const createBBSNotification = {
 
     const notificationData = {
       type: NotificationType._Message,
-      business_type: "comment",
+      business_type: 'comment',
       business_id: params.post_id,
-      title: "评论通知",
+      title: '评论通知',
       content: `您的帖子「${params.post_title}」收到了新评论`,
       recipient_id: params.recipient_id,
       sender_id: params.sender_id,
@@ -207,18 +199,11 @@ export const createBBSNotification = {
         post_id: params.post_id,
         post_title: params.post_title,
         comment_content: params.comment_content,
-        action_type: "comment",
+        action_type: 'comment',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal,
     };
-
-    //   完整请求�? notificationData,
-    //   类型: notificationData.type,
-    //   业务类型: notificationData.business_type,
-    //   接收�? notificationData.recipient_id,
-    //   发送�? notificationData.sender_id
-    // });
 
     return createNotification(notificationData)
       .then((response) => {
@@ -229,10 +214,6 @@ export const createBBSNotification = {
         return response;
       })
       .catch((error) => {
-        //   error,
-        //   errorMessage: error?.message,
-        //   请求�? notificationData
-        // });
         throw error;
       });
   },
@@ -240,23 +221,19 @@ export const createBBSNotification = {
   /**
    * 创建关注通知
    */
-  follow: (params: {
-    recipient_id: string;
-    sender_id: string;
-    sender_nickname: string;
-  }) => {
+  follow: (params: { recipient_id: string; sender_id: string; sender_nickname: string }) => {
     const notificationData = {
       type: NotificationType._Message,
-      business_type: "follow",
+      business_type: 'follow',
       business_id: params.sender_id,
-      title: "关注通知",
+      title: '关注通知',
       content: `${params.sender_nickname} 关注了您`,
       recipient_id: params.recipient_id,
       sender_id: params.sender_id,
       data: {
         follower_id: params.sender_id,
         follower_nickname: params.sender_nickname,
-        action_type: "follow",
+        action_type: 'follow',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal,
@@ -276,16 +253,16 @@ export const createBBSNotification = {
   }) => {
     const notificationData = {
       type: NotificationType._Message,
-      business_type: "collect",
+      business_type: 'collect',
       business_id: params.post_id,
-      title: "收藏通知",
+      title: '收藏通知',
       content: `您的帖子「${params.post_title}」被收藏了`,
       recipient_id: params.recipient_id,
       sender_id: params.sender_id,
       data: {
         post_id: params.post_id,
         post_title: params.post_title,
-        action_type: "collect",
+        action_type: 'collect',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Low,
@@ -306,9 +283,9 @@ export const createBBSNotification = {
   }) => {
     return createNotification({
       type: NotificationType._Mention,
-      business_type: "mention",
+      business_type: 'mention',
       business_id: params.post_id,
-      title: "提及通知",
+      title: '提及通知',
       content: `${params.sender_nickname} 在帖子「${params.post_title}」中提及了您`,
       recipient_id: params.recipient_id,
       sender_id: params.sender_id,
@@ -316,7 +293,7 @@ export const createBBSNotification = {
         post_id: params.post_id,
         post_title: params.post_title,
         sender_nickname: params.sender_nickname,
-        action_type: "mention",
+        action_type: 'mention',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal,
@@ -325,7 +302,7 @@ export const createBBSNotification = {
 };
 
 /**
- * 活动通知创建�? */
+ * 活动通知创建 */
 export const createActivityNotification = {
   /**
    * 创建活动发布通知
@@ -340,9 +317,9 @@ export const createActivityNotification = {
   }) => {
     const notificationData = {
       type: NotificationType._Activity,
-      business_type: "activity_published",
+      business_type: 'activity_published',
       business_id: params.activity_id,
-      title: "活动发布通知",
+      title: '活动发布通知',
       content: `您发布的活动「${params.activity_title}」已成功发布`,
       recipient_id: params.recipient_id,
       sender_id: params.organizer_id,
@@ -352,7 +329,7 @@ export const createActivityNotification = {
         activity_category: params.activity_category,
         organizer_id: params.organizer_id,
         organizer_nickname: params.organizer_nickname,
-        action_type: "published",
+        action_type: 'published',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal,
@@ -386,9 +363,9 @@ export const createActivityNotification = {
   }) => {
     const notificationData = {
       type: NotificationType._Activity,
-      business_type: "activity_registration",
+      business_type: 'activity_registration',
       business_id: params.activity_id,
-      title: "活动报名状态通知",
+      title: '活动报名状态通知',
       content: `您的活动「${params.activity_title}」报名状态已更新`,
       recipient_id: params.organizer_id,
       sender_id: params.participant_id, // 使用参与者ID作为发送者
@@ -398,7 +375,7 @@ export const createActivityNotification = {
         organizer_id: params.organizer_id,
         participant_id: params.participant_id,
         participant_nickname: params.participant_nickname,
-        action_type: "joined",
+        action_type: 'joined',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal,
@@ -438,9 +415,9 @@ export const createActivityNotification = {
   }) => {
     const notificationData = {
       type: NotificationType._Activity,
-      business_type: "activity_cancel_registration",
+      business_type: 'activity_cancel_registration',
       business_id: params.activity_id,
-      title: "活动报名状态通知",
+      title: '活动报名状态通知',
       content: `您的活动「${params.activity_title}」报名状态已更新`,
       recipient_id: params.organizer_id,
       sender_id: params.participant_id, // 使用参与者ID作为发送者
@@ -450,7 +427,7 @@ export const createActivityNotification = {
         organizer_id: params.organizer_id,
         participant_id: params.participant_id,
         participant_nickname: params.participant_nickname,
-        action_type: "cancel_registration",
+        action_type: 'cancel_registration',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal,
@@ -489,9 +466,9 @@ export const createActivityNotification = {
   }) => {
     const notificationData = {
       type: NotificationType._Activity,
-      business_type: "participant_join_success",
+      business_type: 'participant_join_success',
       business_id: params.activity_id,
-      title: "活动报名成功",
+      title: '活动报名成功',
       content: `您已成功报名活动「${params.activity_title}」`,
       recipient_id: params.participant_id,
       sender_id: null, // 系统通知
@@ -500,7 +477,7 @@ export const createActivityNotification = {
         activity_title: params.activity_title,
         participant_id: params.participant_id,
         participant_nickname: params.participant_nickname,
-        action_type: "participant_join_success",
+        action_type: 'participant_join_success',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal,
@@ -538,9 +515,9 @@ export const createActivityNotification = {
   }) => {
     const notificationData = {
       type: NotificationType._Activity,
-      business_type: "participant_cancel_success",
+      business_type: 'participant_cancel_success',
       business_id: params.activity_id,
-      title: "取消报名成功",
+      title: '取消报名成功',
       content: `您已成功取消报名活动「${params.activity_title}」`,
       recipient_id: params.participant_id,
       sender_id: null, // 系统通知
@@ -549,7 +526,7 @@ export const createActivityNotification = {
         activity_title: params.activity_title,
         participant_id: params.participant_id,
         participant_nickname: params.participant_nickname,
-        action_type: "participant_cancel_success",
+        action_type: 'participant_cancel_success',
       },
       channels: [NotificationChannel._InApp],
       priority: NotificationPriority._Normal,
@@ -591,10 +568,10 @@ export const createActivityNotification = {
     const promises = params.recipient_ids.map((recipientId) => {
       const notificationData = {
         type: NotificationType._Activity,
-        business_type: "activity_cancelled",
+        business_type: 'activity_cancelled',
         business_id: params.activity_id,
-        title: "活动取消通知",
-        content: `活动「${params.activity_title}」已被取消${params.cancel_reason ? `，原因：${params.cancel_reason}` : ""}`,
+        title: '活动取消通知',
+        content: `活动「${params.activity_title}」已被取消${params.cancel_reason ? `，原因：${params.cancel_reason}` : ''}`,
         recipient_id: recipientId,
         sender_id: params.organizer_id,
         data: {
@@ -603,7 +580,7 @@ export const createActivityNotification = {
           organizer_id: params.organizer_id,
           organizer_nickname: params.organizer_nickname,
           cancel_reason: params.cancel_reason,
-          action_type: "cancelled",
+          action_type: 'cancelled',
         },
         channels: [NotificationChannel._InApp],
         priority: NotificationPriority._High,
@@ -639,9 +616,9 @@ export const createActivityNotification = {
     const promises = params.recipient_ids.map((recipientId) => {
       const notificationData = {
         type: NotificationType._Activity,
-        business_type: "activity_updated",
+        business_type: 'activity_updated',
         business_id: params.activity_id,
-        title: "活动更新通知",
+        title: '活动更新通知',
         content: `活动「${params.activity_title}」信息已更新：${params.update_summary}`,
         recipient_id: recipientId,
         sender_id: params.organizer_id,
@@ -651,7 +628,7 @@ export const createActivityNotification = {
           organizer_id: params.organizer_id,
           organizer_nickname: params.organizer_nickname,
           update_summary: params.update_summary,
-          action_type: "updated",
+          action_type: 'updated',
         },
         channels: [NotificationChannel._InApp],
         priority: NotificationPriority._Normal,

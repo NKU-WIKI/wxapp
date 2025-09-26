@@ -1,85 +1,89 @@
-import React from 'react'
-import { View, Text, Image } from '@tarojs/components'
-import classnames from 'classnames'
-import { useSelector } from 'react-redux'
-import { useAuthorInfo } from '@/hooks/useAuthorInfo'
-import { RootState } from '@/store'
-import { formatRelativeTime } from '@/utils/time'
-import { normalizeImageUrl } from '@/utils/image'
-import { NICKNAME_DISPLAY_MAX_LENGTH } from '@/constants'
+import React from 'react';
+import { View, Text, Image } from '@tarojs/components';
+import classnames from 'classnames';
+import { useSelector } from 'react-redux';
+import { useAuthorInfo } from '@/hooks/useAuthorInfo';
+import { RootState } from '@/store';
+import { formatRelativeTime } from '@/utils/time';
+import { normalizeImageUrl } from '@/utils/image';
+import { NICKNAME_DISPLAY_MAX_LENGTH } from '@/constants';
+import type { FollowRelation } from '@/types/api/followers';
 // 导入图标资源
-import defaultAvatar from '@/assets/avatar1.png'
-import locationIcon from '@/assets/map-pin.svg'
-import userIcon from '@/assets/user.svg'
-import heartIcon from '@/assets/heart-outline.svg'
-import starIcon from '@/assets/star.svg'
-import commentIcon from '@/assets/message-circle.svg'
-import draftIcon from '@/assets/file-text.svg'
-import historyIcon from '@/assets/clock.svg'
-import feedbackIcon from '@/assets/feedback.svg'
-import campusIcon from '@/assets/school.svg'
-import infoIcon from '@/assets/about.svg'
-import settingsIcon from '@/assets/settings.svg'
-import moreIcon from '@/assets/more-horizontal.svg'
+import defaultAvatar from '@/assets/avatar1.png';
+import locationIcon from '@/assets/map-pin.svg';
+import userIcon from '@/assets/user.svg';
+import heartIcon from '@/assets/heart-outline.svg';
+import starIcon from '@/assets/star.svg';
+import commentIcon from '@/assets/message-circle.svg';
+import draftIcon from '@/assets/file-text.svg';
+import historyIcon from '@/assets/clock.svg';
+import feedbackIcon from '@/assets/feedback.svg';
+import campusIcon from '@/assets/school.svg';
+import infoIcon from '@/assets/about.svg';
+import settingsIcon from '@/assets/settings.svg';
+import moreIcon from '@/assets/more-horizontal.svg';
 
-import styles from './index.module.scss'
+import styles from './index.module.scss';
 
-const levelIcon = starIcon
-const postIcon = draftIcon
+const levelIcon = starIcon;
+const postIcon = draftIcon;
 
 // 昵称截断函数
 const truncateNickname = (nickname: string): string => {
-  if (!nickname) return '匿名用户'
-  if (nickname.length <= NICKNAME_DISPLAY_MAX_LENGTH) return nickname
-  return nickname.substring(0, NICKNAME_DISPLAY_MAX_LENGTH) + '...'
-}
+  if (!nickname) return '匿名用户';
+  if (nickname.length <= NICKNAME_DISPLAY_MAX_LENGTH) return nickname;
+  return nickname.substring(0, NICKNAME_DISPLAY_MAX_LENGTH) + '...';
+};
 
-
-export type AuthorInfoMode = 'compact' | 'expanded' | 'profile'
+export type AuthorInfoMode = 'compact' | 'expanded' | 'profile';
 
 export interface AuthorInfoProps {
   /** 用户ID */
-  userId: string
+  userId: string;
   /** 显示模式：compact(简洁) | expanded(详细) | profile(个人中心) */
-  mode?: AuthorInfoMode
+  mode?: AuthorInfoMode;
   /** 是否显示个人简介 */
-  showBio?: boolean
+  showBio?: boolean;
   /** 是否显示关注按钮 */
-  showFollowButton?: boolean
+  showFollowButton?: boolean;
   /** 是否显示统计信息 */
-  showStats?: boolean
+  showStats?: boolean;
   /** 是否显示等级信息 */
-  showLevel?: boolean
+  showLevel?: boolean;
   /** 是否显示位置信息 */
-  showLocation?: boolean
+  showLocation?: boolean;
   /** 是否显示时间信息 */
-  showTime?: boolean
+  showTime?: boolean;
   /** 创建时间（用于显示相对时间） */
-  createTime?: string
+  createTime?: string;
   /** 自定义右上角操作区域 */
-  extraNode?: React.ReactNode
+  extraNode?: React.ReactNode;
   /** 自定义类名 */
-  className?: string
+  className?: string;
   /** 是否禁用昵称截断（在评论区需要完整显示昵称时启用） */
-  disableNameTruncate?: boolean
+  disableNameTruncate?: boolean;
   /** 外部点击回调（可选，用于自定义行为） */
-  onClick?: () => void
+  onClick?: () => void;
   /** Profile模式专用：是否显示操作菜单 */
-  showMenu?: boolean
+  showMenu?: boolean;
   /** Profile模式专用：是否显示编辑按钮 */
-  showEditButton?: boolean
+  showEditButton?: boolean;
   /** Profile模式专用：编辑按钮点击回调 */
-  onEdit?: () => void
+  onEdit?: () => void;
   /** Profile模式专用：菜单项点击回调 */
-  onMenuClick?: (_type: string) => void
+  onMenuClick?: (_type: string) => void;
   /** Profile模式专用：校园认证状态 */
-  isCampusVerified?: boolean
+  isCampusVerified?: boolean;
   /** Profile模式专用：积分值 */
-  points?: number
+  points?: number;
   /** 是否显示删除/更多按钮 */
-  showMoreButton?: boolean
+  showMoreButton?: boolean;
   /** 删除/更多按钮点击回调 */
-  onMoreClick?: () => void
+  onMoreClick?: () => void;
+  /** 外部控制的关注关系 */
+  relation?: FollowRelation;
+  /** 关注/取关回调，如果提供，将覆盖内部逻辑 */
+  onFollowToggle?: (userId: string, currentRelation: FollowRelation) => Promise<void> | void;
 }
 
 /**
@@ -112,11 +116,11 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
   isCampusVerified = false,
   points = 0,
   showMoreButton = false,
-  onMoreClick
+  onMoreClick,
+  relation,
+  onFollowToggle,
 }) => {
-  const currentUserId = useSelector((state: RootState) => (
-    state.user.user?.id || ''
-  ))
+  const currentUserId = useSelector((state: RootState) => state.user.user?.id || '');
 
   const {
     user,
@@ -128,47 +132,56 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
     isLoading,
     error,
     follow,
-    unfollow
+    unfollow,
   } = useAuthorInfo(userId, {
     includeLevel: showLevel,
-    includeFollowStatus: showFollowButton,
-    includeStats: showStats
-  })
+    includeFollowStatus: showFollowButton && !onFollowToggle, // 如果外部传入了onFollowToggle，则不独立获取关注状态
+    includeStats: showStats,
+  });
 
-  const isCurrentUser = !!currentUserId && currentUserId === userId
+  const isCurrentUser = !!currentUserId && currentUserId === userId;
 
+  // 优先使用外部传入的relation状态，否则使用内部hook获取的状态
+  const isFollowingStatus =
+    relation !== undefined ? relation === 'following' || relation === 'mutual' : isFollowing;
 
-  const handleFollowToggle = async () => {
-    if (isFollowing) {
-      await unfollow()
+  const handleFollowClick = (e) => {
+    e.stopPropagation();
+    if (onFollowToggle) {
+      // 如果外部传入了回调，则使用外部回调
+      const currentRelation = relation ?? (isFollowing ? 'following' : 'none');
+      onFollowToggle(userId, currentRelation);
     } else {
-      await follow()
+      // 否则，使用内部的关注/取关逻辑
+      if (isFollowing) {
+        unfollow();
+      } else {
+        follow();
+      }
     }
-  }
+  };
 
   const containerClasses = classnames(styles.container, className, {
     [styles.clickable]: mode === 'compact' && onClick, // compact模式下如果有onClick则显示可点击状态
     [styles.compact]: mode === 'compact',
     [styles.expanded]: mode === 'expanded',
-    [styles.profile]: mode === 'profile'
-  })
+    [styles.profile]: mode === 'profile',
+  });
 
   if (isLoading) {
     return (
       <View className={classnames(containerClasses, styles.loading)}>
         <View className={styles.loadingSkeleton} />
       </View>
-    )
+    );
   }
 
   if (error && !user) {
     return (
       <View className={containerClasses}>
-        <Text className={styles.errorText}>
-          {error || '用户信息加载失败'}
-        </Text>
+        <Text className={styles.errorText}>{error || '用户信息加载失败'}</Text>
       </View>
-    )
+    );
   }
 
   // 简洁模式渲染（类似post-card中的作者信息）
@@ -184,14 +197,18 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
             />
             <View className={styles.compactUserDetails}>
               <View className={styles.compactUserNameRow}>
-                <Text className={classnames(styles.compactUserName, { [styles.noTruncate]: disableNameTruncate })}>
-                  {disableNameTruncate ? (user?.nickname || '匿名用户') : truncateNickname(user?.nickname)}
+                <Text
+                  className={classnames(styles.compactUserName, {
+                    [styles.noTruncate]: disableNameTruncate,
+                  })}
+                >
+                  {disableNameTruncate
+                    ? user?.nickname || '匿名用户'
+                    : truncateNickname(user?.nickname)}
                 </Text>
                 {showLevel && levelInfo && (
                   <View className={styles.compactLevelBadge}>
-                    <Text className={styles.compactLevelText}>
-                      {levelInfo.level_name}
-                    </Text>
+                    <Text className={styles.compactLevelText}>{levelInfo.level_name}</Text>
                   </View>
                 )}
               </View>
@@ -207,9 +224,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                     className={styles.compactLocationIcon}
                     style={{ width: '10px', height: '10px' }}
                   />
-                  <Text className={styles.compactLocationText}>
-                    {user?.location}
-                  </Text>
+                  <Text className={styles.compactLocationText}>{user?.location}</Text>
                 </View>
               )}
             </View>
@@ -220,23 +235,18 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
 
             {/* 时间信息 */}
             {showTime && createTime && (
-              <Text className={styles.compactTime}>
-                {formatRelativeTime(createTime)}
-              </Text>
+              <Text className={styles.compactTime}>{formatRelativeTime(createTime)}</Text>
             )}
 
             <View className={styles.compactFollowContainer}>
               {showFollowButton && !isCurrentUser && (
                 <View
                   className={classnames(styles.compactFollowButton, {
-                    [styles.following]: isFollowing
+                    [styles.following]: isFollowingStatus,
                   })}
-                  onClick={(e) => {
-                    e.stopPropagation(); // 阻止事件冒泡
-                    handleFollowToggle();
-                  }}
+                  onClick={handleFollowClick}
                 >
-                  <Text>{isFollowing ? '已关注' : '关注'}</Text>
+                  <Text>{isFollowingStatus ? '已关注' : '关注'}</Text>
                 </View>
               )}
             </View>
@@ -256,7 +266,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           </View>
         </View>
       </View>
-    )
+    );
   }
 
   // 详细模式渲染（完整的用户信息卡片）
@@ -273,9 +283,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
 
           <View className={styles.userInfo}>
             <View className={styles.userNameRow}>
-              <Text className={styles.userName}>
-                {truncateNickname(user?.nickname)}
-              </Text>
+              <Text className={styles.userName}>{truncateNickname(user?.nickname)}</Text>
 
               {/* 等级信息 */}
               {showLevel && levelInfo && (
@@ -285,9 +293,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                     className={styles.levelIcon}
                     style={{ width: '14px', height: '14px' }}
                   />
-                  <Text className={styles.levelText}>
-                    {levelInfo.level_name}
-                  </Text>
+                  <Text className={styles.levelText}>{levelInfo.level_name}</Text>
                 </View>
               )}
             </View>
@@ -295,7 +301,8 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
             {/* 学校信息 */}
             {(user?.school || user?.college) && (
               <Text className={styles.userSchool}>
-                {user?.school || ''}{user?.college ? ` ${user.college}` : ''}
+                {user?.school || ''}
+                {user?.college ? ` ${user.college}` : ''}
               </Text>
             )}
 
@@ -307,17 +314,13 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                   className={styles.locationIcon}
                   style={{ width: '12px', height: '12px' }}
                 />
-                <Text className={styles.locationText}>
-                  {user?.location}
-                </Text>
+                <Text className={styles.locationText}>{user?.location}</Text>
               </View>
             )}
 
             {/* 时间信息 */}
             {showTime && createTime && (
-              <Text className={styles.userTime}>
-                {formatRelativeTime(createTime)}
-              </Text>
+              <Text className={styles.userTime}>{formatRelativeTime(createTime)}</Text>
             )}
           </View>
 
@@ -325,21 +328,17 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           {showFollowButton && !isCurrentUser && (
             <View
               className={classnames(styles.followButton, {
-                [styles.following]: isFollowing
+                [styles.following]: isFollowingStatus,
               })}
-              onClick={handleFollowToggle}
+              onClick={handleFollowClick}
             >
-              <Text>{isFollowing ? '已关注' : '+关注'}</Text>
+              <Text>{isFollowingStatus ? '已关注' : '+关注'}</Text>
             </View>
           )}
         </View>
 
         {/* 用户简介 */}
-        {user?.bio && (
-          <Text className={styles.userBio}>
-            {user?.bio}
-          </Text>
-        )}
+        {user?.bio && <Text className={styles.userBio}>{user?.bio}</Text>}
 
         {/* 统计信息 */}
         {showStats && (
@@ -383,7 +382,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
               <View
                 className={styles.progressFill}
                 style={{
-                  width: `${Math.min(100, levelInfo.progress * 100)}%`
+                  width: `${Math.min(100, levelInfo.progress * 100)}%`,
                 }}
               />
             </View>
@@ -393,7 +392,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           </View>
         )}
       </View>
-    )
+    );
   }
 
   // Profile模式渲染（个人中心页面）
@@ -413,9 +412,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           </View>
 
           <View className={styles.profileUserDetails}>
-            <Text className={styles.profileNickname}>
-              {user?.nickname || '未设置昵称'}
-            </Text>
+            <Text className={styles.profileNickname}>{user?.nickname || '未设置昵称'}</Text>
             <Text className={styles.profileBio}>
               {user?.bio || '这个人很懒，还没有设置个性签名~'}
             </Text>
@@ -429,9 +426,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                 className={styles.profileStarIcon}
                 style={{ width: '14px', height: '14px' }}
               />
-              <Text className={styles.profileLevelText}>
-                {levelInfo.level_name}
-              </Text>
+              <Text className={styles.profileLevelText}>{levelInfo.level_name}</Text>
             </View>
           )}
 
@@ -585,7 +580,10 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                 <Text className={styles.profileChevron}>›</Text>
               </View>
 
-              <View className={styles.profileMenuItem} onClick={() => onMenuClick?.('campus-verification')}>
+              <View
+                className={styles.profileMenuItem}
+                onClick={() => onMenuClick?.('campus-verification')}
+              >
                 <View className={styles.profileMenuLeft}>
                   <Image
                     src={campusIcon}
@@ -593,9 +591,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
                     style={{ width: '16px', height: '16px' }}
                   />
                   <Text className={styles.profileMenuText}>校园认证</Text>
-                  {isCampusVerified && (
-                    <Text className={styles.profileVerifiedBadge}>已认证</Text>
-                  )}
+                  {isCampusVerified && <Text className={styles.profileVerifiedBadge}>已认证</Text>}
                 </View>
                 <Text className={styles.profileChevron}>›</Text>
               </View>
@@ -627,8 +623,8 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({
           </View>
         )}
       </View>
-    )
+    );
   }
-}
+};
 
-export default AuthorInfo
+export default AuthorInfo;

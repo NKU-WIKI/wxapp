@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import CustomHeader from '@/components/custom-header';
 
 // Store imports
-import { fetchPostDetail , PostsState } from '@/store/slices/postSlice';
-import { fetchComments , CommentState } from '@/store/slices/commentSlice';
+import { fetchPostDetail, PostsState } from '@/store/slices/postSlice';
+import { fetchComments, CommentState } from '@/store/slices/commentSlice';
 import { AppDispatch, RootState } from '@/store';
 
 // Components imports
@@ -26,8 +26,14 @@ import styles from './index.module.scss';
 const PostDetailPage = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { currentPost, detailLoading, error } = useSelector((state: RootState) => state.post as PostsState);
-  const { comments, fetchStatus: commentsLoading, error: commentsError } = useSelector((state: RootState) => state.comment as CommentState);
+  const { currentPost, detailLoading, error } = useSelector(
+    (state: RootState) => state.post as PostsState,
+  );
+  const {
+    comments,
+    fetchStatus: commentsLoading,
+    error: commentsError,
+  } = useSelector((state: RootState) => state.comment as CommentState);
 
   // 从路由参数中获取帖子ID
   const postId = router.params.id;
@@ -37,13 +43,15 @@ const PostDetailPage = () => {
       // 获取帖子详情
       dispatch(fetchPostDetail(postId));
       // 获取帖子评论 - 使用树形接口
-      dispatch(fetchComments({
-        resource_id: postId,
-        resource_type: 'post',
-        max_depth: 5,
-        limit_per_level: 10,
-        limit: 20
-      }));
+      dispatch(
+        fetchComments({
+          resource_id: postId,
+          resource_type: 'post',
+          max_depth: 5,
+          limit_per_level: 10,
+          limit: 20,
+        }),
+      );
     }
   }, [dispatch, postId]);
 
@@ -54,12 +62,11 @@ const PostDetailPage = () => {
       // 注意：post.id是string类型（UUID），但服务器API需要number类型
       const numericId = parseInt(String(currentPost.id)) || 0;
 
-      // 获取头像：优先使�?user.avatar，兼�?author_info.avatar
       const author = currentPost.user || currentPost.author_info;
       const avatarUrl = author?.avatar || '';
 
-      // 获取时间：优先使�?created_at，兼�?create_time，如果没有则使用当前时间
-      const createTime = currentPost.created_at || currentPost.create_time || new Date().toISOString();
+      const createTime =
+        currentPost.created_at || currentPost.create_time || new Date().toISOString();
       const viewTime = new Date().toISOString();
 
       // 调试日志
@@ -80,10 +87,10 @@ const PostDetailPage = () => {
           cover: currentPost.image_urls?.[0] || '',
           avatar: avatarUrl,
           createdAt: createTime,
-          viewedAt: viewTime
+          viewedAt: viewTime,
         },
         'post',
-        numericId
+        numericId,
       );
     }
   }, [currentPost]);
@@ -94,12 +101,16 @@ const PostDetailPage = () => {
     }
 
     if (detailLoading === 'failed' || !currentPost) {
-      return (
-        <EmptyState
-          icon={emptyIcon}
-          text={error || '加载失败，请稍后再试'}
-        />
-      );
+      const getErrorMessage = (err: unknown): string => {
+        if (typeof err === 'string') {
+          return err;
+        }
+        if (err && typeof err === 'object' && 'message' in err) {
+          return String((err as { message: unknown }).message);
+        }
+        return '加载失败，请稍后再试';
+      };
+      return <EmptyState icon={emptyIcon} text={getErrorMessage(error)} />;
     }
 
     return (
@@ -114,7 +125,7 @@ const PostDetailPage = () => {
           <View className={styles.commentsContainer}>
             <Text className={styles.commentsTitle}>评论 ({comments?.length || 0})</Text>
             {commentsLoading === 'pending' ? (
-              <Text>加载评论�?..</Text>
+              <Text>加载评论中...</Text>
             ) : (
               comments?.map((comment, index) => (
                 <View key={comment.id || index} className={styles.commentItem}>
@@ -133,9 +144,7 @@ const PostDetailPage = () => {
       <CustomHeader title='帖子详情' hideBack={false} background='#FFFFFF' />
       <ScrollView scrollY className={styles.scrollView}>
         <View style={{ height: 81 }} />
-        <View className={styles.mainContent}>
-          {renderContent()}
-        </View>
+        <View className={styles.mainContent}>{renderContent()}</View>
       </ScrollView>
     </View>
   );

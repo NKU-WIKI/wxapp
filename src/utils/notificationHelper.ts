@@ -1,16 +1,12 @@
 /**
  * 通知创建辅助工具
- * 用于�?BBS 相关操作中自动创建通知
  */
 
-import {
-  createBBSNotification,
-  createActivityNotification,
-} from "@/services/api/notification";
-import { ActivityRead } from "@/types/api/activity.d";
+import { createBBSNotification, createActivityNotification } from '@/services/api/notification';
+import { ActivityRead } from '@/types/api/activity.d';
 
 /**
- * BBS 操作通知创建�? */
+ * BBS 操作通知创建 */
 export class BBSNotificationHelper {
   /**
    * 处理点赞操作的通知
@@ -24,11 +20,11 @@ export class BBSNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.currentUserId || params.currentUserId.trim() === "") {
+      if (!params.currentUserId || params.currentUserId.trim() === '') {
         return;
       }
 
-      if (!params.postAuthorId || params.postAuthorId.trim() === "") {
+      if (!params.postAuthorId || params.postAuthorId.trim() === '') {
         return;
       }
 
@@ -60,11 +56,11 @@ export class BBSNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.currentUserId || params.currentUserId.trim() === "") {
+      if (!params.currentUserId || params.currentUserId.trim() === '') {
         return;
       }
 
-      if (!params.postAuthorId || params.postAuthorId.trim() === "") {
+      if (!params.postAuthorId || params.postAuthorId.trim() === '') {
         return;
       }
 
@@ -96,11 +92,11 @@ export class BBSNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.currentUserId || params.currentUserId.trim() === "") {
+      if (!params.currentUserId || params.currentUserId.trim() === '') {
         return;
       }
 
-      if (!params.targetUserId || params.targetUserId.trim() === "") {
+      if (!params.targetUserId || params.targetUserId.trim() === '') {
         return;
       }
 
@@ -131,11 +127,11 @@ export class BBSNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (!params.currentUserId || params.currentUserId.trim() === "") {
+      if (!params.currentUserId || params.currentUserId.trim() === '') {
         return;
       }
 
-      if (!params.postAuthorId || params.postAuthorId.trim() === "") {
+      if (!params.postAuthorId || params.postAuthorId.trim() === '') {
         return;
       }
 
@@ -185,8 +181,9 @@ export const debugNotification = {
     participantId: string,
     participantNickname: string,
   ) => {
-    const { createActivityNotification: activityNotificationAPI } =
-      await import("@/services/api/notification");
+    const { createActivityNotification: activityNotificationAPI } = await import(
+      '@/services/api/notification'
+    );
 
     const result = await activityNotificationAPI.joined({
       activity_id: activityId,
@@ -206,13 +203,12 @@ export const debugNotification = {
     activityTitle: string,
     organizerId: string,
   ) => {
-    const { store } = await import("@/store");
-    const { createActivityNotification: activityNotificationAPI } =
-      await import("@/services/api/notification");
-    const { incrementUnreadCount } = await import(
-      "@/store/slices/notificationSlice"
+    const { store } = await import('@/store');
+    const { createActivityNotification: activityNotificationAPI } = await import(
+      '@/services/api/notification'
     );
-    const { NotificationType } = await import("@/types/api/notification.d");
+    const { incrementUnreadCount } = await import('@/store/slices/notificationSlice');
+    const { NotificationType } = await import('@/types/api/notification.d');
 
     const state = store.getState();
     const currentUser = state.user.user;
@@ -226,13 +222,11 @@ export const debugNotification = {
       activity_title: activityTitle,
       organizer_id: organizerId,
       participant_id: currentUser.id,
-      participant_nickname: currentUser.nickname || "测试用户",
+      participant_nickname: currentUser.nickname || '测试用户',
     });
 
     // 更新未读数量
-    store.dispatch(
-      incrementUnreadCount({ type: NotificationType._Activity, count: 1 }),
-    );
+    store.dispatch(incrementUnreadCount({ type: NotificationType._Activity, count: 1 }));
 
     return result;
   },
@@ -240,31 +234,32 @@ export const debugNotification = {
   /**
    * 测试通知创建
    */
-  testNotification: async (type: "join" | "cancel" | "publish") => {
-    const { createActivityNotification: activityNotificationAPI } =
-      await import("@/services/api/notification");
+  testNotification: async (type: 'join' | 'cancel' | 'publish') => {
+    const { createActivityNotification: activityNotificationAPI } = await import(
+      '@/services/api/notification'
+    );
 
     const testData = {
-      activity_id: "test-" + Date.now(),
-      activity_title: "测试活动 " + new Date().toLocaleTimeString(),
-      organizer_id: "test-organizer",
-      participant_id: "test-participant",
-      participant_nickname: "测试用户",
+      activity_id: 'test-' + Date.now(),
+      activity_title: '测试活动 ' + new Date().toLocaleTimeString(),
+      organizer_id: 'test-organizer',
+      participant_id: 'test-participant',
+      participant_nickname: '测试用户',
     };
 
     let result;
     switch (type) {
-      case "join":
+      case 'join':
         result = await activityNotificationAPI.joined(testData);
         break;
-      case "cancel":
+      case 'cancel':
         result = await activityNotificationAPI.cancelRegistration(testData);
         break;
-      case "publish":
+      case 'publish':
         result = await activityNotificationAPI.published({
           ...testData,
-          activity_category: "测试分类",
-          organizer_nickname: "测试组织者",
+          activity_category: '测试分类',
+          organizer_nickname: '测试组织者',
           recipient_id: testData.organizer_id,
         });
         break;
@@ -274,7 +269,7 @@ export const debugNotification = {
 };
 
 // 挂载到全局对象，方便控制台调试
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   window.debugNotification = debugNotification;
 }
 
@@ -289,20 +284,15 @@ export class ActivityNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (
-        !params.activity?.id ||
-        !params.organizerId ||
-        !params.organizerNickname
-      ) {
+      if (!params.activity?.id || !params.organizerId || !params.organizerNickname) {
         return;
       }
 
       // 获取需要通知的用户列表（这里可以根据业务逻辑获取关注者、感兴趣用户等）
-      const recipientIds =
-        await ActivityNotificationHelper.getActivityPublishRecipients(
-          params.activity,
-          params.organizerId,
-        );
+      const recipientIds = await ActivityNotificationHelper.getActivityPublishRecipients(
+        params.activity,
+        params.organizerId,
+      );
 
       if (recipientIds.length === 0) {
         return;
@@ -335,19 +325,14 @@ export class ActivityNotificationHelper {
   }) {
     try {
       // 检查必要参数
-      if (
-        !params.activity?.id ||
-        !params.organizerId ||
-        !params.organizerNickname
-      ) {
+      if (!params.activity?.id || !params.organizerId || !params.organizerNickname) {
         return;
       }
 
       // 获取需要通知的用户列表（已报名的用户）
-      const recipientIds =
-        await ActivityNotificationHelper.getActivityParticipants(
-          params.activity.id,
-        );
+      const recipientIds = await ActivityNotificationHelper.getActivityParticipants(
+        params.activity.id,
+      );
 
       if (recipientIds.length === 0) {
         return;
@@ -389,10 +374,9 @@ export class ActivityNotificationHelper {
       }
 
       // 获取需要通知的用户列表（已报名的用户）
-      const recipientIds =
-        await ActivityNotificationHelper.getActivityParticipants(
-          params.activity.id,
-        );
+      const recipientIds = await ActivityNotificationHelper.getActivityParticipants(
+        params.activity.id,
+      );
 
       if (recipientIds.length === 0) {
         return;
@@ -435,7 +419,7 @@ export class ActivityNotificationHelper {
       // 不给自己发通知（测试环境允许）
       if (params.participantId === organizerId) {
         // 在测试环境中允许自己给自己发通知，方便调试
-        if (process.env.NODE_ENV === "production") {
+        if (process.env.NODE_ENV === 'production') {
           return;
         }
       }
@@ -477,7 +461,7 @@ export class ActivityNotificationHelper {
       // 不给自己发通知（测试环境允许）
       if (params.participantId === organizerId) {
         // 在测试环境中允许自己给自己发通知，方便调试
-        if (process.env.NODE_ENV === "production") {
+        if (process.env.NODE_ENV === 'production') {
           return;
         }
       }
@@ -555,9 +539,7 @@ export class ActivityNotificationHelper {
   /**
    * 获取活动参与者列表
    */
-  private static async getActivityParticipants(
-    _activityId: string,
-  ): Promise<string[]> {
+  private static async getActivityParticipants(_activityId: string): Promise<string[]> {
     try {
       // TODO: 这里应该调用后端API获取活动的参与者列表
       // 例如: GET /api/v1/activities/{activityId}/participants

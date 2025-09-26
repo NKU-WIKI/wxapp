@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-import { PaginationParams } from "./common";
-import { User } from "./user";
+import { PaginationParams } from './common';
+import { User } from './user';
 
 /**
  * @description 帖子信息结构
@@ -9,7 +9,7 @@ export interface Post {
   id: string; // 改为string以支持UUID
   title: string;
   content?: string;
-  status: "published" | "draft";
+  status: 'published' | 'draft' | 'archived';
   user_id: string;
   user: User; // Renamed from user_info
   author_info?: User; // 兼容旧版API返回的作者信息
@@ -48,7 +48,7 @@ export interface GetForumPostsParams extends PaginationParams {
 export interface CreateForumPostRequest {
   title: string;
   content?: string;
-  status?: "published" | "draft";
+  status?: 'published' | 'draft';
   category_id?: string; // UUID string as per API docs
   images?: string[]; // Changed from image_urls to images
   tags?: string[]; // Changed from tag to tags, and from union to array
@@ -62,7 +62,7 @@ export interface CreateForumPostRequest {
 export interface PostUpdate {
   title?: string;
   content?: string;
-  status?: "published" | "draft" | "archived";
+  status?: 'published' | 'draft' | 'archived';
 }
 
 export interface GetHotPostsParams {
@@ -200,7 +200,7 @@ export interface UserRead {
  * BANNED: 被禁用户，无法登录和使用功能
  */
 export enum UserStatus {
-  Active = "active",
-  Banned = "banned",
-  Inactive = "inactive",
+  Active = 'active',
+  Banned = 'banned',
+  Inactive = 'inactive',
 }
