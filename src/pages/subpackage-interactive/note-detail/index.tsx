@@ -7,7 +7,7 @@ import { RootState } from '@/store';
 import { getNoteDetail } from '@/services/api/note';
 import { getActionStatus } from '@/services/api/user';
 import { getComments, createComment } from '@/services/api/comment';
-import { NoteDetail, NoteRead } from '@/types/api/note';
+import type { NoteDetail, NoteRead } from '@/types/api/note';
 import { CommentTreeRead, CreateCommentRequest } from '@/types/api/comment';
 import { normalizeImageUrl } from '@/utils/image';
 import { convertLevelToRealm } from '@/utils/levelConverter';
@@ -89,10 +89,9 @@ export default function NoteDetailPage() {
     }
   }, [noteId]);
 
-  // ���رʼ�����
   const loadNoteDetail = useCallback(async () => {
     if (!noteId) {
-      setError('�ʼ�ID������');
+      setError('id 不存在');
       setLoading(false);
       return;
     }
@@ -105,7 +104,7 @@ export default function NoteDetailPage() {
         const response = await getNoteDetail(noteId, userId);
 
         if (response.code === 0 && response.data) {
-          const userNotes = response.data as NoteRead[];
+          const userNotes = response.data as unknown as NoteRead[];
 
           if (!Array.isArray(userNotes)) {
             setError('API返回数据格式错误');
@@ -128,10 +127,10 @@ export default function NoteDetailPage() {
             images: noteData.images || [],
             tags: noteData.tags || [],
             location: noteData.location || null,
-            visibility: noteData.visibility || 'PUBLIC',
-            allow_comment: noteData.allow_comment || true,
-            allow_share: noteData.allow_share || true,
-            status: noteData.status || 'published',
+            visibility: (noteData.visibility || 'PUBLIC') as NoteDetail['visibility'],
+            allow_comment: noteData.allow_comment ?? true,
+            allow_share: noteData.allow_share ?? true,
+            status: (noteData.status || 'published') as NoteDetail['status'],
             created_at:
               noteData.created_at instanceof Date
                 ? noteData.created_at.toISOString()
@@ -188,59 +187,55 @@ export default function NoteDetailPage() {
           };
 
           setNote(noteDetailData);
-          // ���ý���״̬�ͼ���
           setIsLiked(Boolean(noteData.is_liked));
           setIsBookmarked(Boolean(noteData.is_favorited));
-          setLikeCount(noteData.like_count || 0);
-          setFavoriteCount(noteData.favorite_count || 0);
-          setShareCount(noteData.share_count || 0);
+          setLikeCount(Number(noteData.like_count || 0));
+          setFavoriteCount(Number(noteData.favorite_count || 0));
+          setShareCount(Number(noteData.share_count || 0));
         } else {
-          setError(response.message || '����ʧ��');
+          setError(response.message || '获取笔记详情失败');
         }
       } else {
-        // ���û��userId��ֱ��ʹ��noteId��ȡ�ʼ����飨�����ݣ�
         const response = await getNoteDetail(noteId);
 
         if (response.code === 0 && response.data) {
           const noteData = response.data as unknown as NoteDetail;
 
           setNote(noteData);
-          // ����Ƿ��ѵ��޺��ղ�
           setIsLiked(noteData.is_liked || false);
           setIsBookmarked(noteData.is_favorited || false);
-          // ���ü���
-          setLikeCount(noteData.like_count || 0);
-          setFavoriteCount(noteData.favorite_count || 0);
-          setShareCount(noteData.share_count || 0);
+          setLikeCount(Number(noteData.like_count || 0));
+          setFavoriteCount(Number(noteData.favorite_count || 0));
+          setShareCount(Number(noteData.share_count || 0));
         } else {
-          setError(response.message || '����ʧ��');
+          setError(response.message || '获取笔记详情失败');
         }
       }
 
-      // ���������б�
+      // 加载评论
       await loadComments();
 
-      // ����û��ѵ�¼��������ѯ�û��ĵ����ղ�״̬
+      // 如果用户已登录，查询用户点赞状态
       if (isLoggedIn && noteId) {
         try {
-          // ��ѯ����״̬
+          // 查询点赞状态
           const likeResponse = await getActionStatus(noteId, 'note', 'like');
 
           if (likeResponse.code === 0 && likeResponse.data) {
-            setIsLiked(likeResponse.data.is_active);
-            setLikeCount(likeResponse.data.count || 0);
+            setIsLiked(Boolean(likeResponse.data.is_active));
+            setLikeCount(Number(likeResponse.data.count || 0));
           }
         } catch {
           // 静默处理点赞状态查询错误，保持原有状态
         }
 
         try {
-          // ��ѯ�ղ�״̬
+          // 查询收藏状态
           const favoriteResponse = await getActionStatus(noteId, 'note', 'favorite');
 
           if (favoriteResponse.code === 0 && favoriteResponse.data) {
-            setIsBookmarked(favoriteResponse.data.is_active);
-            setFavoriteCount(favoriteResponse.data.count || 0);
+            setIsBookmarked(Boolean(favoriteResponse.data.is_active));
+            setFavoriteCount(Number(favoriteResponse.data.count || 0));
           }
         } catch {
           // 静默处理收藏状态查询错误，保持原有状态
@@ -254,34 +249,34 @@ export default function NoteDetailPage() {
     }
   }, [noteId, userId, isLoggedIn, loadComments]);
 
-  // ҳ����ʾʱ��������
+  // 页面显示时加载笔记详情
   useDidShow(() => {
     if (noteId) {
       loadNoteDetail();
     }
   });
 
-  // ����ͼƬ�ֲ��仯
+  // 图片切换
   const handleImageChange = (e: { detail: { current: number } }) => {
     setCurrentImageIndex(e.detail.current);
   };
 
-  // ����ͼƬԤ��
-  const handleImagePreview = (imageUrl: string, index: number) => {
+  // 图片预览
+  const handleImagePreview = (_imageUrl: string, index: number) => {
     const images = note?.images || [];
     Taro.previewImage({
       urls: images,
-      current: index, // ��ǰͼƬ����
+      current: index, // 当前图片索引
       success: () => {},
       fail: (_err) => {},
     });
   };
 
-  // ���������ύ
+  // 提交评论
   const handleCommentSubmit = async () => {
     if (!commentText.trim()) {
       Taro.showToast({
-        title: '��������������',
+        title: '请输入评论',
         icon: 'none',
       });
       return;
@@ -289,7 +284,7 @@ export default function NoteDetailPage() {
 
     if (!isLoggedIn) {
       Taro.showToast({
-        title: '���ȵ�¼',
+        title: '请先登录',
         icon: 'none',
       });
       return;
@@ -297,7 +292,7 @@ export default function NoteDetailPage() {
 
     if (!noteId) {
       Taro.showToast({
-        title: '�ʼ�ID������',
+        title: '笔记ID不存在',
         icon: 'none',
       });
       return;
@@ -316,18 +311,18 @@ export default function NoteDetailPage() {
 
       if (response.code === 0) {
         Taro.showToast({
-          title: '���۳ɹ�',
+          title: '评论成功',
           icon: 'success',
         });
         setCommentText('');
-        // ���¼��������б�
+        // 加载评论
         await loadComments();
       } else {
-        throw new Error(response.message || '����ʧ��');
+        throw new Error(response.message || '评论失败');
       }
     } catch (_error) {
       Taro.showToast({
-        title: (_error as Error).message || '����ʧ�ܣ�������',
+        title: (_error as Error).message || '评论失败，请重试',
         icon: 'none',
       });
     } finally {
@@ -356,7 +351,7 @@ export default function NoteDetailPage() {
           <View className={styles.errorContainer}>
             <Text className={styles.errorText}>{error || '笔记不存在'}</Text>
             <View className={styles.retryButton} onClick={loadNoteDetail}>
-              <Text>���¼���</Text>
+              <Text>重新加载</Text>
             </View>
           </View>
         </View>
@@ -403,7 +398,7 @@ export default function NoteDetailPage() {
                       </View>
                     )}
                     <Text className={styles.publicationTime}>
-                      {note.created_at ? formatPostDate(note.created_at) : 'ʱ��δ֪'}
+                      {note.created_at ? formatPostDate(note.created_at) : '时间未知'}
                     </Text>
                   </View>
                 </View>
@@ -574,7 +569,7 @@ export default function NoteDetailPage() {
               setIsBookmarked(isActive);
               setFavoriteCount(count);
             } else if (type === 'comment') {
-              // 评论数量更新逻辑（如果需要的话）
+              // 评论数量更新逻辑（如果需要的话），目前没有用到
             } else if (type === 'share') {
               setShareCount((prev) => prev + 1);
             }

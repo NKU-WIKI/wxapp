@@ -4,7 +4,7 @@ import Taro from '@tarojs/taro';
 import actionApi from '@/services/api/action';
 import { normalizeImageUrl } from '@/utils/image';
 import { checkLoginWithModal } from '@/utils/auth';
-import { NoteListItem } from '@/types/api/note';
+import type { NoteListItem } from '@/types/api/note';
 import ActionButton from '@/components/action-button';
 // 图片资源使用字符串路径引用
 import styles from './index.module.scss';

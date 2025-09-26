@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import noteApi, { CreateNoteRequest } from '@/services/api/note';
 import type { NoteListItem } from '@/types/api/note';
-import { Visibility, NoteStatus } from '@/types/api/note';
+// 仅类型导入
+import type { Visibility, NoteStatus } from '@/types/api/note';
 import { getActionStatus } from '@/services/api/user';
 import type { NoteDetail } from '@/types/api/note';
 
@@ -24,8 +25,8 @@ const createMockNotes = (): NoteListItem[] => {
       author_name: '张同学',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhang',
       user_id: 'user-001', // 新增：用户ID
-      status: NoteStatus.Published,
-      visibility: Visibility.Public,
+      status: 'published' as unknown as NoteStatus,
+      visibility: 'PUBLIC' as unknown as Visibility,
     },
     {
       id: 'mock-2',
@@ -43,8 +44,8 @@ const createMockNotes = (): NoteListItem[] => {
       author_name: '李小明',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li',
       user_id: 'user-002', // 新增：用户ID
-      status: NoteStatus.Published,
-      visibility: Visibility.Public,
+      status: 'published' as unknown as NoteStatus,
+      visibility: 'PUBLIC' as unknown as Visibility,
     },
     {
       id: 'mock-3',
@@ -62,8 +63,8 @@ const createMockNotes = (): NoteListItem[] => {
       author_name: '王程序员',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang',
       user_id: 'user-003', // 新增：用户ID
-      status: NoteStatus.Published,
-      visibility: Visibility.Public,
+      status: 'published' as unknown as NoteStatus,
+      visibility: 'PUBLIC' as unknown as Visibility,
     },
     {
       id: 'mock-4',
@@ -80,8 +81,8 @@ const createMockNotes = (): NoteListItem[] => {
       author_name: '美食家小陈',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chen',
       user_id: 'user-004', // 新增：用户ID
-      status: NoteStatus.Published,
-      visibility: Visibility.Public,
+      status: 'published' as unknown as NoteStatus,
+      visibility: 'PUBLIC' as unknown as Visibility,
     },
     {
       id: 'mock-5',
@@ -592,13 +593,8 @@ const noteSlice = createSlice({
             comment_count: 0,
             author_name: noteData.author?.nickname || '匿名用户',
             author_avatar: noteData.author?.avatar || '',
-            status: (noteData.status as NoteStatus) || NoteStatus.Draft,
-            visibility:
-              noteData.visibility === 'PUBLIC'
-                ? Visibility.Public
-                : noteData.visibility === 'FRIENDS'
-                  ? Visibility.Friends
-                  : Visibility.Private,
+            status: (noteData.status as NoteStatus) || 'draft',
+            visibility: noteData.visibility,
           };
           state.notes = [newNote, ...state.notes];
           state.createError = null;

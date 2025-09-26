@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { Post } from '@/types/api/post.d';
-import { NoteListItem } from '@/types/api/note.d';
-import { Pagination } from '@/types/api/common.d';
+import type { Post } from '@/types/api/post.d';
+import type { NoteListItem } from '@/types/api/note.d';
+import type { Pagination } from '@/types/api/common.d';
 import { getUserLikedPosts, getUserLikedNotes } from '@/services/api/user';
 
 // 获取用户点赞列表的参数类型

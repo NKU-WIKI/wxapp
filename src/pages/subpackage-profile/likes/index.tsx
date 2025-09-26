@@ -4,7 +4,9 @@ import Taro, { usePullDownRefresh, useReachBottom } from '@tarojs/taro';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchLikes, resetLikes, LikeItem } from '@/store/slices/likesSlice';
-import { Visibility, NoteStatus } from '@/types/api/note';
+// 仅类型导入；若未使用，避免触发 no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Visibility, NoteStatus } from '@/types/api/note';
 import { User } from '@/types/api/user';
 import { useMultipleFollowStatus } from '@/hooks/useFollowStatus';
 import CustomHeader from '@/components/custom-header';
@@ -360,7 +362,7 @@ const LikesPage: React.FC = () => {
                   id: like.content.id,
                   title: like.content.title || '无标题笔记',
                   content: like.content.content || '',
-                  status: NoteStatus.Published,
+                  status: 'published' as unknown as NoteStatus,
                   user_id: like.content.author_info?.id || '',
                   user: like.content.author_info
                     ? {
@@ -407,14 +409,14 @@ const LikesPage: React.FC = () => {
                     : new Date(like.created_at),
                   updated_at: new Date(like.updated_at),
                   // 添加图片支持
-                  images: [],
+                  images: [] as string[],
                   // 添加类型标识
                   type: 'note' as const,
                   // 添加必需的属性
                   is_public: true,
-                  visibility: Visibility.Public,
+                  visibility: 'PUBLIC' as unknown as Visibility,
                   category_id: undefined,
-                  tags: [],
+                  tags: [] as string[],
                 };
 
                 return (

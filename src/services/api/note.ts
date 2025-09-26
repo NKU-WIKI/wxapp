@@ -1,5 +1,5 @@
 import http from '../request';
-import { NoteDetail, NoteRead, NoteListItem } from '@/types/api/note';
+import type { NoteDetail, NoteRead, NoteListItem } from '@/types/api/note';
 
 // 笔记可见性枚举
 export type NoteVisibility = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
