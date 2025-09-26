@@ -63,8 +63,8 @@ export class LearningMaterialService {
   ): LearningMaterial {
     const materials = this.getAllMaterials();
 
-    // 根据学科推断分类
-    const category = this.inferCategory(
+    // 优先使用用户提供的分类，如果没有则自动推断
+    const category = materialData.category || this.inferCategory(
       materialData.subject,
       materialData.description,
     );

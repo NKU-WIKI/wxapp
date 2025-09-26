@@ -244,9 +244,10 @@
   border-radius: 8px;
 }
 
-/* 下拉选择器（学院、学科） */
+/* 下拉选择器（学院、学科、分类） */
 .collegeSelect,
-.subjectSelect {
+.subjectSelect,
+.categorySelect {
   display: flex;
   align-items: center;
   justify-content: space-between;

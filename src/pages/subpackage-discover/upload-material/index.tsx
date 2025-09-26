@@ -2,7 +2,8 @@ import { View, Text, Image, Input, Textarea, Picker, RadioGroup, Radio, Label, B
 import { FileUploadRead, MAX_FILE_SIZE, getFileTypeDisplayName } from "@/types/api/fileUpload";
 import fileUploadApi from "@/services/api/fileUpload";
 import uploadApi from "@/services/api/upload";
-import { LearningMaterialService } from "@/services/api/learningMaterial";
+import { LearningMaterialService, CATEGORY_CONFIG } from "@/services/api/learningMaterial";
+import { LearningMaterialCategory } from "@/types/api/learningMaterial";
 import { checkFileUploadPermissionWithToast } from "@/utils/permissionChecker";
 import Taro from "@tarojs/taro";
 import { useState, useEffect } from "react";
@@ -14,6 +15,7 @@ export default function UploadMaterial() {
   const [description, setDescription] = useState("");
   const [selectedCollege, setSelectedCollege] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<LearningMaterialCategory>(LearningMaterialCategory.OTHER);
   const [signatureType, setSignatureType] = useState("anonymous");
   const [uploadedFile, setUploadedFile] = useState<FileUploadRead | null>(null);
   const [originalFileName, setOriginalFileName] = useState<string>("");
@@ -290,6 +292,13 @@ export default function UploadMaterial() {
     setSelectedSubject(subjects[index].value);
   };
 
+  // 分类选择
+  const handleCategoryChange = (e: any) => {
+    const index = e.detail.value;
+    const categories = Object.values(LearningMaterialCategory);
+    setSelectedCategory(categories[index]);
+  };
+
   // 署名方式选择
   const handleSignatureChange = (e: any) => {
     setSignatureType(e.detail.value);
@@ -431,6 +440,7 @@ export default function UploadMaterial() {
             original_file_name: selectedFile.name,
             netdisk_link: netdiskLink.trim(),
             file_size: selectedFile.size,
+            category: selectedCategory,
             link_id: fileUploadResult.data.id
           };
           
@@ -457,6 +467,7 @@ export default function UploadMaterial() {
           original_file_name: netdiskLink.trim(), // 使用网盘链接作为标题
           netdisk_link: netdiskLink.trim(),
           file_size: 0,
+          category: selectedCategory,
           link_id: ''
         };
         
@@ -663,6 +674,27 @@ export default function UploadMaterial() {
           <View className={styles.subjectSelect}>
             <Text className={styles.selectText}>
               {selectedSubject ? getSubjectsForCollege(selectedCollege).find(s => s.value === selectedSubject)?.name : '请选择学科'}
+            </Text>
+            <Text className={styles.selectArrow}>▼</Text>
+          </View>
+        </Picker>
+      </View>
+
+      {/* 文件分类下拉选择 */}
+      <View className={styles.formGroup}>
+        <Text className={styles.formLabel}>文件分类</Text>
+        <Picker
+          mode='selector'
+          range={Object.values(LearningMaterialCategory).map(category => ({
+            name: CATEGORY_CONFIG[category].title,
+            value: category
+          }))}
+          rangeKey='name'
+          onChange={handleCategoryChange}
+        >
+          <View className={styles.categorySelect}>
+            <Text className={styles.selectText}>
+              {CATEGORY_CONFIG[selectedCategory].title}
             </Text>
             <Text className={styles.selectArrow}>▼</Text>
           </View>
