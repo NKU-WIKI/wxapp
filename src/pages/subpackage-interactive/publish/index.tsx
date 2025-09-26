@@ -1,82 +1,87 @@
-import { useState, useEffect, useCallback } from "react";
-import Taro, { useRouter, useUnload } from "@tarojs/taro";
-import { useDispatch, useSelector } from "react-redux";
-import { View, Text, Input, Textarea, Image, ScrollView } from "@tarojs/components";
+import { useState, useEffect, useCallback } from 'react';
+import Taro, { useRouter, useUnload } from '@tarojs/taro';
+import { useDispatch, useSelector } from 'react-redux';
+import { View, Text, Input, Textarea, Image, ScrollView } from '@tarojs/components';
 // Absolute imports (alphabetical order)
-import { AppDispatch, RootState } from "@/store";
-import CustomHeader from "@/components/custom-header";
-import { usePolish } from "@/hooks/usePolish";
-import searchApi from "@/services/api/search";
-import { uploadApi } from "@/services/api/upload";
-import { getPostDetail, getMyDrafts, deleteDraft } from "@/services/api/post";
-import { createPost } from "@/store/slices/postSlice";
-import { normalizeImageUrl } from "@/utils/image";
-import { checkFileUploadPermissionWithToast } from "@/utils/permissionChecker";
-import { DraftPost } from "@/types/draft";
-import { saveDraft, getDrafts } from "@/utils/draft";
-import type { Post } from "@/types/api/post.d";
+import { AppDispatch, RootState } from '@/store';
+import CustomHeader from '@/components/custom-header';
+import { usePolish } from '@/hooks/usePolish';
+import searchApi from '@/services/api/search';
+import { uploadApi } from '@/services/api/upload';
+import { getPostDetail, getMyDrafts, deleteDraft } from '@/services/api/post';
+import { createPost } from '@/store/slices/postSlice';
+import { normalizeImageUrl } from '@/utils/image';
+import { checkFileUploadPermissionWithToast } from '@/utils/permissionChecker';
+import { DraftPost } from '@/types/draft';
+import { saveDraft, getDrafts } from '@/utils/draft';
+import type { Post } from '@/types/api/post.d';
 
 // Asset imports
-import atSignIcon from "@/assets/at-sign.svg";
-import bagIcon from "@/assets/bag.svg";
-import boldIcon from "@/assets/bold.svg";
-import cameraIcon from "@/assets/camera.svg";
-import defaultAvatar from "@/assets/profile.png";
-import hatIcon from "@/assets/hat.svg";
-import imageIcon from "@/assets/image.svg";
-import italicIcon from "@/assets/italic.svg";
-import plusIcon from "@/assets/plus.svg";
+import atSignIcon from '@/assets/at-sign.svg';
+import bagIcon from '@/assets/bag.svg';
+import boldIcon from '@/assets/bold.svg';
+import cameraIcon from '@/assets/camera.svg';
+import defaultAvatar from '@/assets/profile.png';
+import hatIcon from '@/assets/hat.svg';
+import imageIcon from '@/assets/image.svg';
+import italicIcon from '@/assets/italic.svg';
+import plusIcon from '@/assets/plus.svg';
 
-import penToolIcon from "@/assets/pen-tool.svg";
-import studyIcon from "@/assets/school.svg";
-import starIcon from "@/assets/star2.svg";
-import usersGroupIcon from "@/assets/p2p-fill.svg";
-import xCircleIcon from "@/assets/x-circle.svg";
+import penToolIcon from '@/assets/pen-tool.svg';
+import studyIcon from '@/assets/school.svg';
+import starIcon from '@/assets/star2.svg';
+import usersGroupIcon from '@/assets/p2p-fill.svg';
+import xCircleIcon from '@/assets/x-circle.svg';
 
-import settingIcon from "@/assets/cog.svg";
-import switchOffIcon from "@/assets/switch-off.svg";
-import switchOnIcon from "@/assets/switch-on.svg";
+import settingIcon from '@/assets/cog.svg';
+import switchOffIcon from '@/assets/switch-off.svg';
+import switchOnIcon from '@/assets/switch-on.svg';
 
 // Relative imports
-import styles from "./index.module.scss";
+import styles from './index.module.scss';
 
 const mockData = {
-  styles: ["正式", "轻松", "幽默", "专业"],
+  styles: ['正式', '轻松', '幽默', '专业'],
 };
 
 // 分类数据，与首页保持一致
 const categories = [
-  { id: "c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f", name: "学习交流", icon: studyIcon },
-  { id: "c2b8f8f5-b6b7-4c2c-9d9e-1f1f1f1f1f1f", name: "校园生活", icon: hatIcon },
-  { id: "c3c9a9a6-c7c8-4d3d-aeaf-2a2b2c2d2e2f", name: "就业创业", icon: starIcon },
-  { id: "d4d1a1a7-d8d9-4e4e-bfbf-3a3b3c3d3e3f", name: "社团活动", icon: usersGroupIcon },
-  { id: "e5e2b2b8-e9ea-4f5f-cfdf-4a4b4c4d4e4f", name: "失物招领", icon: bagIcon },
+  { id: 'c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f', name: '学习交流', icon: studyIcon },
+  { id: 'c2b8f8f5-b6b7-4c2c-9d9e-1f1f1f1f1f1f', name: '校园生活', icon: hatIcon },
+  { id: 'c3c9a9a6-c7c8-4d3d-aeaf-2a2b2c2d2e2f', name: '就业创业', icon: starIcon },
+  { id: 'd4d1a1a7-d8d9-4e4e-bfbf-3a3b3c3d3e3f', name: '社团活动', icon: usersGroupIcon },
+  { id: 'e5e2b2b8-e9ea-4f5f-cfdf-4a4b4c4d4e4f', name: '失物招领', icon: bagIcon },
 ];
 
 // 简单 uuid 生成
 function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    const r = (Math.random() * 16) | 0,
+      v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
 
 export default function PublishPost() {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedStyle, setSelectedStyle] = useState("正式");
+  const [selectedStyle, setSelectedStyle] = useState('正式');
   const [isPublic, setIsPublic] = useState(true);
   const [allowComments, setAllowComments] = useState(true);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [customTag, setCustomTag] = useState("");
+  const [customTag, setCustomTag] = useState('');
   const [isAddingTag, setIsAddingTag] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f"); // 默认选择第一个分类
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    'c1a7e7e4-a5a6-4b1b-8c8d-9e9f9f9f9f9f',
+  ); // 默认选择第一个分类
   // 标记是否已通过弹窗保存过草稿，避免 useUnload 再次保存
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
   const [showRefPanel, setShowRefPanel] = useState(false);
-  const [refSuggestions, setRefSuggestions] = useState<Array<{ type: 'history' | 'knowledge'; id?: string; title: string }>>([]);
+  const [refSuggestions, setRefSuggestions] = useState<
+    Array<{ type: 'history' | 'knowledge'; id?: string; title: string }>
+  >([]);
   const [showDraftPicker, setShowDraftPicker] = useState(false);
   const [draftList, setDraftList] = useState<DraftPost[]>([]);
   const [serverDrafts, setServerDrafts] = useState<Post[]>([]);
@@ -92,7 +97,7 @@ export default function PublishPost() {
     showOptions,
     polishTextWithAnimation,
     acceptPolish,
-    rejectPolish
+    rejectPolish,
   } = usePolish();
 
   // 文风选择状态
@@ -108,10 +113,13 @@ export default function PublishPost() {
     return s;
   }, []);
 
-  const formatTagForState = useCallback((t: string): string => {
-    const s = normalizeTagText(t);
-    return s ? `#${s}` : '';
-  }, [normalizeTagText]);
+  const formatTagForState = useCallback(
+    (t: string): string => {
+      const s = normalizeTagText(t);
+      return s ? `#${s}` : '';
+    },
+    [normalizeTagText],
+  );
   const formatTagsForPayload = (arr: string[]): string[] => {
     const seen = new Set<string>();
     const out: string[] = [];
@@ -132,21 +140,19 @@ export default function PublishPost() {
   const userInfo = useSelector((state: RootState) => state.user?.user);
 
   // 添加调试日志，查看当前选中的标签
-  useEffect(() => {
-
-  }, [selectedTags]);
+  useEffect(() => {}, [selectedTags]);
 
   // 编辑草稿时初始化内容
   useEffect(() => {
     if (draftId) {
       const drafts = getDrafts();
-      const draft = drafts.find(d => d.id === draftId);
+      const draft = drafts.find((d) => d.id === draftId);
       if (draft) {
         setTitle(draft.title || '');
         setContent(draft.content || '');
         // 同步本地草稿的标签与分类
         try {
-          const tagTexts = Array.isArray((draft as any).tags) ? (draft as any).tags : [];
+          const tagTexts = Array.isArray(draft.tags) ? draft.tags : [];
           if (tagTexts.length > 0) {
             const withSharp = tagTexts.map((t: string) => (t && t.startsWith('#') ? t : `#${t}`));
             setSelectedTags(withSharp);
@@ -154,8 +160,8 @@ export default function PublishPost() {
         } catch {
           // 静默处理标签解析错误
         }
-        if ((draft as any).category_id) {
-          setSelectedCategory((draft as any).category_id);
+        if (draft.category_id) {
+          setSelectedCategory(draft.category_id);
         }
         // setImages(draft.images || []); // 如有图片字段可补充
       }
@@ -168,8 +174,8 @@ export default function PublishPost() {
       if (!postId) return;
       try {
         // 优先从临时缓存读取，避免因接口权限/路径导致的404
-        const cached: any = Taro.getStorageSync('tmp_server_draft');
-        let p: any = cached && cached.id === postId ? cached : null;
+        const cached = Taro.getStorageSync('tmp_server_draft') as { id: string } | null;
+        let p: Post | null = cached && cached.id === postId ? (cached as Post) : null;
         if (!p) {
           try {
             const res = await getPostDetail(postId);
@@ -185,21 +191,31 @@ export default function PublishPost() {
             ? p.images
             : Array.isArray(p?.image_urls)
               ? p.image_urls
-              : (typeof p?.image === 'string' ? [p.image] : Array.isArray(p?.image) ? p.image : []);
+              : typeof p?.image === 'string'
+                ? [p.image]
+                : Array.isArray(p?.image)
+                  ? p.image
+                  : [];
           if (imgs?.length) setImages(imgs);
           // 同步草稿的标签与分类
           try {
-            const rawTags: any[] = Array.isArray((p as any).tags) ? (p as any).tags : [];
-            const tagTexts = rawTags.map((t: any) => (typeof t === 'string' ? t : (t?.name || ''))).filter((t: string) => !!t);
+            const rawTags = Array.isArray(p.tags) ? p.tags : [];
+            const tagTexts = rawTags
+              .map((t: string | unknown) => (typeof t === 'string' ? t : ''))
+              .filter((t: string) => !!t);
             if (tagTexts.length > 0) setSelectedTags(tagTexts.map(formatTagForState));
           } catch {
             // 静默处理标签解析错误
           }
-          if ((p as any).category_id) setSelectedCategory((p as any).category_id);
-          try { await deleteDraft(postId); } catch {
+          // Note: Post interface doesn't have category_id field
+          try {
+            await deleteDraft(postId);
+          } catch {
             // 静默处理草稿删除错误
           }
-          try { Taro.removeStorageSync('tmp_server_draft'); } catch {
+          try {
+            Taro.removeStorageSync('tmp_server_draft');
+          } catch {
             // 静默处理缓存清理错误
           }
         }
@@ -217,7 +233,7 @@ export default function PublishPost() {
       setDraftList(localDrafts);
       try {
         const res = await getMyDrafts();
-        const s = Array.isArray(res.data) ? res.data.filter((p: any) => p.status === 'draft') : [];
+        const s = Array.isArray(res.data) ? res.data.filter((p: Post) => p.status === 'draft') : [];
         setServerDrafts(s as Post[]);
         if (!draftId && !postId && (localDrafts.length > 0 || s.length > 0)) {
           setShowDraftPicker(true);
@@ -233,8 +249,8 @@ export default function PublishPost() {
 
   // 点击外部关闭文风选择器
   useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (showStyleSelector && event.target) {
+    const handleClickOutside = (event: Event) => {
+      if (showStyleSelector && event.target instanceof HTMLElement) {
         const styleSelector = event.target.closest('.styleSelector');
         const styleButton = event.target.closest('.styleButton');
         if (!styleSelector && !styleButton) {
@@ -292,7 +308,7 @@ export default function PublishPost() {
               id,
               title,
               content,
-              avatar: (userInfo as any)?.avatar || defaultAvatar,
+              avatar: userInfo?.avatar || defaultAvatar,
               updatedAt: Date.now(),
               tags: processedTags,
               category_id: selectedCategory,
@@ -306,7 +322,7 @@ export default function PublishPost() {
             setHasSavedDraft(true);
             Taro.navigateBack();
           }
-        }
+        },
       });
     } else {
       setHasSavedDraft(true);
@@ -359,7 +375,7 @@ export default function PublishPost() {
             id,
             title,
             content,
-            avatar: (userInfo as any)?.avatar || defaultAvatar,
+            avatar: userInfo?.avatar || defaultAvatar,
             updatedAt: Date.now(),
             tags: processedTags,
             category_id: selectedCategory,
@@ -368,7 +384,7 @@ export default function PublishPost() {
         }
         // 无论选择保存还是不保存，都标记为已处理，避免重复弹窗
         setHasSavedDraft(true);
-      }
+      },
     });
   });
 
@@ -381,26 +397,23 @@ export default function PublishPost() {
     if (isUploading) return;
     const count = 9 - images.length;
     if (count <= 0) {
-      Taro.showToast({ title: "最多上传9张图片", icon: "none" });
+      Taro.showToast({ title: '最多上传9张图片', icon: 'none' });
       return;
     }
     Taro.chooseImage({
       count,
-      sizeType: ["compressed"],
-      sourceType: ["album", "camera"],
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
       success: async (res) => {
         setIsUploading(true);
-        Taro.showLoading({ title: "上传中...", mask: true });
+        Taro.showLoading({ title: '上传中...', mask: true });
         try {
-          const uploadPromises = res.tempFilePaths.map((path) =>
-            uploadApi.uploadImage(path)
-          );
+          const uploadPromises = res.tempFilePaths.map((path) => uploadApi.uploadImage(path));
           const uploadedUrls = await Promise.all(uploadPromises);
           setImages((prev) => [...prev, ...uploadedUrls]);
-          Taro.showToast({ title: "上传成功", icon: "success" });
+          Taro.showToast({ title: '上传成功', icon: 'success' });
         } catch {
-
-          Taro.showToast({ title: "上传失败，请重试", icon: "none" });
+          Taro.showToast({ title: '上传失败，请重试', icon: 'none' });
         } finally {
           setIsUploading(false);
           Taro.hideLoading();
@@ -413,10 +426,10 @@ export default function PublishPost() {
         }
         // 只有真正的错误才显示提示
         Taro.showToast({
-          title: "选择图片失败",
-          icon: "none"
+          title: '选择图片失败',
+          icon: 'none',
         });
-      }
+      },
     });
   };
 
@@ -429,10 +442,8 @@ export default function PublishPost() {
     const cleaned = s.startsWith('#') ? s : `#${s}`;
     if (!cleaned) return;
 
-
-
     if (selectedTags.includes(cleaned)) {
-      const newTags = selectedTags.filter(t => t !== cleaned);
+      const newTags = selectedTags.filter((t) => t !== cleaned);
 
       setSelectedTags(newTags);
     } else {
@@ -441,7 +452,7 @@ export default function PublishPost() {
 
         setSelectedTags(newTags);
       } else {
-        Taro.showToast({ title: "最多选择3个话题", icon: "none" });
+        Taro.showToast({ title: '最多选择3个话题', icon: 'none' });
       }
     }
   };
@@ -474,39 +485,39 @@ export default function PublishPost() {
     }
 
     setSelectedTags([...selectedTags, formattedTag]);
-    setCustomTag("");
+    setCustomTag('');
     setIsAddingTag(false);
   };
 
   const handlePublish = async () => {
     if (!title.trim()) {
       Taro.showToast({
-        title: "请输入标题",
-        icon: "none",
+        title: '请输入标题',
+        icon: 'none',
         duration: 2000,
       });
       return;
     }
     if (title.trim().length < 4) {
       Taro.showToast({
-        title: "标题至少需要4个字符",
-        icon: "none",
+        title: '标题至少需要4个字符',
+        icon: 'none',
         duration: 2000,
       });
       return;
     }
     if (title.trim().length > 20) {
       Taro.showToast({
-        title: "标题最多20个字符",
-        icon: "none",
+        title: '标题最多20个字符',
+        icon: 'none',
         duration: 2000,
       });
       return;
     }
     if (!content.trim()) {
       Taro.showToast({
-        title: "请输入内容",
-        icon: "none",
+        title: '请输入内容',
+        icon: 'none',
         duration: 2000,
       });
       return;
@@ -514,8 +525,9 @@ export default function PublishPost() {
 
     try {
       // 处理标签，去掉#前缀
-      const processedTags = selectedTags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag);
-
+      const processedTags = selectedTags.map((tag) =>
+        tag.startsWith('#') ? tag.substring(1) : tag,
+      );
 
       await dispatch(
         createPost({
@@ -527,16 +539,14 @@ export default function PublishPost() {
           is_public: isPublic,
           allow_comments: allowComments,
           category_id: selectedCategory, // 添加分类ID
-        })
+        }),
       ).unwrap();
 
       Taro.showToast({
-        title: "发布成功",
-        icon: "success",
+        title: '发布成功',
+        icon: 'success',
         duration: 1500,
       });
-
-
 
       // 1.5秒后跳转到首页并强制刷新
       setTimeout(() => {
@@ -544,10 +554,11 @@ export default function PublishPost() {
           url: '/pages/home/index?refresh=true',
         });
       }, 1500);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : error || '发布失败';
       Taro.showToast({
-        title: error || "发布失败",
-        icon: "none",
+        title: errorMessage as string,
+        icon: 'none',
         duration: 2000,
       });
     }
@@ -591,14 +602,13 @@ export default function PublishPost() {
       cancelText: '取消',
       success: async (res) => {
         if (res.confirm) {
-          const newTags = selectedTags.filter(t => t !== tag);
+          const newTags = selectedTags.filter((t) => t !== tag);
           setSelectedTags(newTags);
           Taro.showToast({ title: '话题已删除', icon: 'success' });
         }
-      }
+      },
     });
   };
-
 
   return (
     <View
@@ -684,7 +694,9 @@ export default function PublishPost() {
                         const hotQueries = await searchApi.getHotQueriesSimple();
 
                         const items = hotQueries.slice(0, 6);
-                        setRefSuggestions(items.map((t: string) => ({ type: 'knowledge', title: t })));
+                        setRefSuggestions(
+                          items.map((t: string) => ({ type: 'knowledge', title: t })),
+                        );
                         setShowRefPanel(true);
                       } catch {
                         setShowRefPanel(false);
@@ -693,8 +705,14 @@ export default function PublishPost() {
                       try {
                         const { getHistory } = await import('@/utils/history');
                         const list = getHistory(1, 50) || [];
-                        const filtered = list.filter((h) => h.title.toLowerCase().includes((query || '').toLowerCase()));
-                        setRefSuggestions(filtered.slice(0, 6).map((h) => ({ type: 'history', id: h.id, title: h.title })));
+                        const filtered = list.filter((h) =>
+                          h.title.toLowerCase().includes((query || '').toLowerCase()),
+                        );
+                        setRefSuggestions(
+                          filtered
+                            .slice(0, 6)
+                            .map((h) => ({ type: 'history', id: h.id, title: h.title })),
+                        );
                         setShowRefPanel(true);
                       } catch {
                         setShowRefPanel(false);
@@ -715,7 +733,8 @@ export default function PublishPost() {
                     className={styles.refItem}
                     onClick={() => {
                       const replaced = content.replace(/(^|\s)@([^\s@]{0,30})$/, (m) => {
-                        if (s.type === 'history') return `${m.startsWith(' ') ? ' ' : ''}[ref:post:${s.id}|${s.title}] `;
+                        if (s.type === 'history')
+                          return `${m.startsWith(' ') ? ' ' : ''}[ref:post:${s.id}|${s.title}] `;
                         return `${m.startsWith(' ') ? ' ' : ''}[ref:knowledge:${s.title}] `;
                       });
                       setContent(replaced);
@@ -738,13 +757,8 @@ export default function PublishPost() {
                     className={styles.inlineTopicWrapper}
                     onLongPress={() => handleLongPressDelete(tag)}
                   >
-                    <Text className={styles.inlineTopic}>
-                      {tag}
-                    </Text>
-                    <Text
-                      className={styles.inlineTopicDelete}
-                      onClick={() => handleTagToggle(tag)}
-                    >
+                    <Text className={styles.inlineTopic}>{tag}</Text>
+                    <Text className={styles.inlineTopicDelete} onClick={() => handleTagToggle(tag)}>
                       ×
                     </Text>
                   </View>
@@ -755,19 +769,10 @@ export default function PublishPost() {
             <View className={styles.imagePreviewContainer}>
               {/* 图片占位符 - 总是显示，但在达到9张时隐藏 */}
               {images.length < 9 && (
-                <View
-                  className={styles.imagePlaceholder}
-                  onClick={handleChooseImage}
-                >
+                <View className={styles.imagePlaceholder} onClick={handleChooseImage}>
                   <View className={styles.placeholderContent}>
-                    <Image
-                      src={cameraIcon}
-                      className={styles.placeholderCameraIcon}
-                    />
-                    <Image
-                      src={plusIcon}
-                      className={styles.placeholderPlusIcon}
-                    />
+                    <Image src={cameraIcon} className={styles.placeholderCameraIcon} />
+                    <Image src={plusIcon} className={styles.placeholderPlusIcon} />
                   </View>
                 </View>
               )}
@@ -793,11 +798,7 @@ export default function PublishPost() {
             <View className={styles.toolbar}>
               <Image src={boldIcon} className={styles.toolbarIcon} />
               <Image src={italicIcon} className={styles.toolbarIcon} />
-              <Image
-                src={imageIcon}
-                className={styles.toolbarIcon}
-                onClick={handleChooseImage}
-              />
+              <Image src={imageIcon} className={styles.toolbarIcon} onClick={handleChooseImage} />
               <Image src={atSignIcon} className={styles.toolbarIcon} />
 
               {/* 润色工具组 */}
@@ -809,7 +810,9 @@ export default function PublishPost() {
                     onClick={() => setShowStyleSelector(!showStyleSelector)}
                   >
                     <Text className={styles.styleText}>{selectedStyle}</Text>
-                    <View className={`${styles.arrow} ${showStyleSelector ? styles.arrowUp : styles.arrowDown}`} />
+                    <View
+                      className={`${styles.arrow} ${showStyleSelector ? styles.arrowUp : styles.arrowDown}`}
+                    />
                   </View>
 
                   {/* 文风选择下拉菜单 */}
@@ -841,8 +844,6 @@ export default function PublishPost() {
                 </View>
               </View>
             </View>
-
-
 
             {/* 添加话题和可见性设置在同一行 */}
             <View className={styles.topicAndVisibilityRow}>
@@ -885,7 +886,9 @@ export default function PublishPost() {
                   setActiveMenu(activeMenu === 'settings' ? null : 'settings');
                 }}
               >
-                <Text className={styles.visibleAllText}>{isPublic ? '所有人可见 ◑' : '仅对自己可见 ◐'}</Text>
+                <Text className={styles.visibleAllText}>
+                  {isPublic ? '所有人可见 ◑' : '仅对自己可见 ◐'}
+                </Text>
               </View>
             </View>
           </View>
@@ -897,8 +900,9 @@ export default function PublishPost() {
               {categories.map((category) => (
                 <View
                   key={category.id}
-                  className={`${styles.categoryItem} ${selectedCategory === category.id ? styles.selected : ""
-                    }`}
+                  className={`${styles.categoryItem} ${
+                    selectedCategory === category.id ? styles.selected : ''
+                  }`}
                   onClick={() => setSelectedCategory(category.id)}
                 >
                   {/* <Image src={category.icon} className={styles.categoryIcon} /> */}
@@ -907,11 +911,6 @@ export default function PublishPost() {
               ))}
             </View>
           </View>
-
-
-
-
-
         </ScrollView>
       </View>
 
@@ -934,7 +933,6 @@ export default function PublishPost() {
             >
               <Image src={settingIcon} className={styles.quickActionIcon} />
             </View>
-
           </View>
 
           {/* 子菜单界面 */}
@@ -992,8 +990,8 @@ export default function PublishPost() {
         className={styles.publishButton}
         onClick={handlePublish}
         style={{
-          opacity: (!title.trim() || !content.trim()) ? 0.7 : 1,
-          pointerEvents: (!title.trim() || !content.trim()) ? 'none' : 'auto'
+          opacity: !title.trim() || !content.trim() ? 0.7 : 1,
+          pointerEvents: !title.trim() || !content.trim() ? 'none' : 'auto',
         }}
       >
         <Text>发布</Text>
@@ -1004,40 +1002,58 @@ export default function PublishPost() {
           <View className={styles.draftModal}>
             <Text className={styles.draftTitle}>从草稿继续编辑</Text>
             <ScrollView scrollY className={styles.draftList}>
-              {([...
-                serverDrafts.map((p) => ({ id: p.id, title: p.title, source: 'server' as const })),
-              ...draftList.map((d) => ({ id: d.id, title: d.title, source: 'local' as const }))
-              ] as Array<{ id: string; title: string; source: 'server' | 'local' }>)
-                .reduce((acc: any[], item) => {
-                  const idx = acc.findIndex(x => x.id === item.id);
-                  if (idx >= 0) {
-                    if (item.source === 'server') acc[idx] = item;
-                  } else acc.push(item);
-                  return acc;
-                }, [])
+              {(
+                [
+                  ...serverDrafts.map((p) => ({
+                    id: p.id,
+                    title: p.title,
+                    source: 'server' as const,
+                  })),
+                  ...draftList.map((d) => ({ id: d.id, title: d.title, source: 'local' as const })),
+                ] as Array<{ id: string; title: string; source: 'server' | 'local' }>
+              )
+                .reduce(
+                  (acc: Array<{ id: string; title: string; source: 'server' | 'local' }>, item) => {
+                    const idx = acc.findIndex((x) => x.id === item.id);
+                    if (idx >= 0) {
+                      if (item.source === 'server') acc[idx] = item;
+                    } else acc.push(item);
+                    return acc;
+                  },
+                  [],
+                )
                 .map((item) => (
-                  <View key={item.id} className={styles.draftItem} onClick={async () => {
-                    setShowDraftPicker(false);
-                    if (item.source === 'server') {
-                      try {
-                        const draft = serverDrafts.find(p => p.id === item.id);
-                        if (draft) Taro.setStorageSync('tmp_server_draft', draft);
-                      } catch {
-                        // 静默处理草稿缓存设置错误
+                  <View
+                    key={item.id}
+                    className={styles.draftItem}
+                    onClick={async () => {
+                      setShowDraftPicker(false);
+                      if (item.source === 'server') {
+                        try {
+                          const draft = serverDrafts.find((p) => p.id === item.id);
+                          if (draft) Taro.setStorageSync('tmp_server_draft', draft);
+                        } catch {
+                          // 静默处理草稿缓存设置错误
+                        }
+                        Taro.redirectTo({
+                          url: `/pages/subpackage-interactive/publish/index?postId=${item.id}&isEdit=true`,
+                        });
+                      } else {
+                        try {
+                          const { removeDraft } = await import('@/utils/draft');
+                          removeDraft(item.id);
+                        } catch {
+                          // 静默处理草稿移除错误
+                        }
+                        Taro.redirectTo({
+                          url: `/pages/subpackage-interactive/publish/index?draftId=${item.id}`,
+                        });
                       }
-                      Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?postId=${item.id}&isEdit=true` });
-                    } else {
-                      try {
-                        const { removeDraft } = await import('@/utils/draft');
-                        removeDraft(item.id);
-                      } catch {
-                        // 静默处理草稿移除错误
-                      }
-                      Taro.redirectTo({ url: `/pages/subpackage-interactive/publish/index?draftId=${item.id}` });
-                    }
-                  }}
+                    }}
                   >
-                    <Text className={styles.draftItemTitle}>{(item.title || '').trim() || '无标题草稿'}</Text>
+                    <Text className={styles.draftItemTitle}>
+                      {(item.title || '').trim() || '无标题草稿'}
+                    </Text>
                   </View>
                 ))}
             </ScrollView>
@@ -1048,5 +1064,5 @@ export default function PublishPost() {
         </View>
       )}
     </View>
-  )
+  );
 }

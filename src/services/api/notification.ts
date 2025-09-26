@@ -30,7 +30,7 @@ export const getNotifications = (params: NotificationListRequest = {}) => {
       }
       return acc;
     },
-    {} as Record<string, any>,
+    {} as Record<string, unknown>,
   );
 
   return http.get<NotificationApiResponse>('/notifications', filteredParams);

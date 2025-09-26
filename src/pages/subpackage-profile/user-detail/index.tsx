@@ -3,6 +3,7 @@ import { View, Text } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { BBSNotificationHelper } from '@/utils/notificationHelper';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { User } from '@/types/api/user';
 import { fetchUserProfile, fetchCurrentUser } from '@/store/slices/userSlice';
 import {
   getActionStatus,
@@ -21,7 +22,7 @@ const UserDetail: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isLoggedIn } = useAppSelector((state) => state.user);
-  const [targetUser, setTargetUser] = useState<any>(null);
+  const [targetUser, setTargetUser] = useState<User | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -143,8 +144,8 @@ const UserDetail: React.FC = () => {
         if (is_active) {
           // 获取当前用户信息
           const currentUser =
-            (window as any).g_app?.$app?.globalData?.userInfo ||
-            JSON.parse(Taro.getStorageSync('userInfo') || '{}');
+            (window as { g_app?: { $app?: { globalData?: { userInfo?: User } } } }).g_app?.$app
+              ?.globalData?.userInfo || JSON.parse(Taro.getStorageSync('userInfo') || '{}');
 
           BBSNotificationHelper.handleFollowNotification({
             targetUserId: userId,

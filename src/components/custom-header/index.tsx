@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import React from 'react';
+import { View, Text, Image } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
-import styles from "./index.module.scss";
+import styles from './index.module.scss';
 
 // 图标路径常量
-const backIcon = "/assets/arrow-left.svg";
-const notificationIcon = "/assets/bell.svg";
-const locationIcon = "/assets/map-pin.svg";
+const backIcon = '/assets/arrow-left.svg';
+const notificationIcon = '/assets/bell.svg';
+const locationIcon = '/assets/map-pin.svg';
 
 interface NavStyle {
   navBarHeight: number;
@@ -30,51 +30,13 @@ interface CustomHeaderProps {
   onLeftClick?: () => void;
 }
 
-export function useCustomHeaderHeight(defaultHeight = 88) {
-  const [height, setHeight] = useState(defaultHeight);
-  useEffect(() => {
-    try {
-      const windowInfo = Taro.getWindowInfo();
-      const menuButtonInfo = Taro.getMenuButtonBoundingClientRect();
-
-      // 使用和CustomHeader完全相同的计算逻辑
-      if (windowInfo && menuButtonInfo) {
-        const statusBarHeight = windowInfo.statusBarHeight || 0;
-        const menuButtonTop = menuButtonInfo.top;
-        const menuButtonHeight = menuButtonInfo.height;
-
-        // 导航栏内容区高度
-        const navBarContentHeight = menuButtonHeight;
-        // 导航栏内容区上边界 = 胶囊上边界
-        const navBarContentTop = menuButtonTop;
-        // 导航栏总高度 = 状态栏高度 + 内容区高度 + (内容区上边界 - 状态栏高度) * 2 (即上下边距)
-        const navBarHeight =
-          statusBarHeight +
-          navBarContentHeight +
-          (navBarContentTop - statusBarHeight) * 2;
-
-        if (navBarHeight > 0 && navBarHeight < 300) { // 合理范围检查
-          setHeight(navBarHeight);
-          return;
-        }
-      }
-
-      // 如果数据无效，使用默认值
-      setHeight(defaultHeight);
-    } catch {
-      setHeight(defaultHeight);
-    }
-  }, [defaultHeight]);
-  return height;
-}
-
 const CustomHeader = ({
   title,
   hideBack = false,
   showNotificationIcon = false,
   showWikiButton = false,
   renderRight, // Destructure rightContent
-  background = "#FFFFFF",
+  background = '#FFFFFF',
   leftIcon,
   onLeftClick,
 }: CustomHeaderProps) => {
@@ -102,12 +64,9 @@ const CustomHeader = ({
         const navBarContentTop = menuButtonTop;
         // 导航栏总高度 = 状态栏高度 + 内容区高度 + (内容区上边界 - 状态栏高度) * 2 (即上下边距)
         const navBarHeight =
-          statusBarHeight +
-          navBarContentHeight +
-          (navBarContentTop - statusBarHeight) * 2;
+          statusBarHeight + navBarContentHeight + (navBarContentTop - statusBarHeight) * 2;
         // 右侧安全间距
-        const menuButtonRightGap =
-          windowInfo.windowWidth - menuButtonInfo.right;
+        const menuButtonRightGap = windowInfo.windowWidth - menuButtonInfo.right;
 
         setNavStyle({
           navBarHeight,
@@ -128,9 +87,8 @@ const CustomHeader = ({
     }
   };
 
-
   const handleNotificationClick = () => {
-    Taro.navigateTo({ url: "/pages/subpackage-interactive/notification/index" });
+    Taro.navigateTo({ url: '/pages/subpackage-interactive/notification/index' });
   };
 
   // 获取未读消息总数

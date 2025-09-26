@@ -5,7 +5,15 @@
 /**
  * 搜索类型枚举
  */
-export type SearchType = 'all' | 'post' | 'user' | 'note' | 'web' | 'listing' | 'errand' | 'activity';
+export type SearchType =
+  | 'all'
+  | 'post'
+  | 'user'
+  | 'note'
+  | 'web'
+  | 'listing'
+  | 'errand'
+  | 'activity';
 
 /**
  * 搜索模式枚举（用于UI展示）
@@ -15,7 +23,13 @@ export type SearchMode = 'wiki' | 'user' | 'post' | 'note' | null;
 /**
  * 排序字段枚举
  */
-export type SortField = 'relevance' | 'time' | 'price' | 'like_count' | 'view_count' | 'follower_count';
+export type SortField =
+  | 'relevance'
+  | 'time'
+  | 'price'
+  | 'like_count'
+  | 'view_count'
+  | 'follower_count';
 
 /**
  * 排序顺序枚举
@@ -153,7 +167,7 @@ export interface SearchResultItem {
   /** 头像URL */
   avatar?: string;
   /** 其他扩展字段 */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

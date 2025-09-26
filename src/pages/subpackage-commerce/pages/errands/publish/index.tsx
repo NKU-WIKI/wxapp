@@ -1,57 +1,58 @@
-import { View, ScrollView, Text, Input, Textarea } from '@tarojs/components'
-import Taro from '@tarojs/taro'
-import { useDispatch, useSelector } from 'react-redux'
-import { useState, useCallback, useEffect } from 'react'
+import { View, ScrollView, Text, Input, Textarea } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState, useCallback, useEffect } from 'react';
 
-import CustomHeader from '@/components/custom-header'
-import { createErrand, clearError } from '@/store/slices/marketplaceSlice'
-import { RootState, AppDispatch } from '@/store'
-import { ErrandType } from '@/types/api/marketplace.d'
-import { useAuthGuard } from '@/hooks/useAuthGuard'
+import CustomHeader from '@/components/custom-header';
+import { createErrand, clearError } from '@/store/slices/marketplaceSlice';
+import { RootState, AppDispatch } from '@/store';
+import { ErrandType } from '@/types/api/marketplace.d';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { InputEvent } from '@/types/common';
 
-import styles from './index.module.scss'
+import styles from './index.module.scss';
 
 const ErrandsPublishPage = () => {
-  const dispatch = useDispatch<AppDispatch>()
-  const { checkAuth } = useAuthGuard()
-  const { createErrandLoading, error } = useSelector((state: RootState) => state.marketplace)
+  const dispatch = useDispatch<AppDispatch>();
+  const { checkAuth } = useAuthGuard();
+  const { createErrandLoading, error } = useSelector((state: RootState) => state.marketplace);
 
   // 表单状态
-  const [errandType, setErrandType] = useState<ErrandType>(ErrandType.EXPRESS_PICKUP)
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [reward, setReward] = useState('')
-  const [locationFrom, setLocationFrom] = useState('')
-  const [locationTo, setLocationTo] = useState('')
-  const [deadline, setDeadline] = useState('')
-  const [contactInfo, setContactInfo] = useState('')
+  const [errandType, setErrandType] = useState<ErrandType>(ErrandType.EXPRESS_PICKUP);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [reward, setReward] = useState('');
+  const [locationFrom, setLocationFrom] = useState('');
+  const [locationTo, setLocationTo] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [contactInfo, setContactInfo] = useState('');
 
   // 表单验证
   const validateForm = useCallback(() => {
     if (!title.trim()) {
-      Taro.showToast({ title: '请输入任务标题', icon: 'none' })
-      return false
+      Taro.showToast({ title: '请输入任务标题', icon: 'none' });
+      return false;
     }
     if (!content.trim()) {
-      Taro.showToast({ title: '请输入任务详情', icon: 'none' })
-      return false
+      Taro.showToast({ title: '请输入任务详情', icon: 'none' });
+      return false;
     }
     if (!reward.trim()) {
-      Taro.showToast({ title: '请输入悬赏金额', icon: 'none' })
-      return false
+      Taro.showToast({ title: '请输入悬赏金额', icon: 'none' });
+      return false;
     }
     if (parseFloat(reward) <= 0) {
-      Taro.showToast({ title: '悬赏金额必须大于0', icon: 'none' })
-      return false
+      Taro.showToast({ title: '悬赏金额必须大于0', icon: 'none' });
+      return false;
     }
-    return true
-  }, [title, content, reward])
+    return true;
+  }, [title, content, reward]);
 
   // 处理发布
   const handlePublish = useCallback(async () => {
-    if (!checkAuth()) return
+    if (!checkAuth()) return;
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
     try {
       const errandData = {
@@ -63,16 +64,16 @@ const ErrandsPublishPage = () => {
         location_to: locationTo.trim() || undefined,
         deadline: deadline.trim() || undefined,
         contact_info: contactInfo.trim() || undefined,
-      }
+      };
 
-      await dispatch(createErrand(errandData)).unwrap()
+      await dispatch(createErrand(errandData)).unwrap();
 
-      Taro.showToast({ title: '发布成功', icon: 'success' })
+      Taro.showToast({ title: '发布成功', icon: 'success' });
 
       // 使用更短的延迟时间，避免页面跳转时的DOM冲突
       setTimeout(() => {
         // 发送刷新事件通知主页
-        Taro.eventCenter.trigger('refreshErrandsListings')
+        Taro.eventCenter.trigger('refreshErrandsListings');
 
         // 使用更保守的导航方式
         Taro.navigateBack({
@@ -82,22 +83,34 @@ const ErrandsPublishPage = () => {
           },
           fail: (_navError) => {
             // 导航失败，静默处理
-          }
-        })
-      }, 300)
+          },
+        });
+      }, 300);
     } catch {
-      // 
+      //
       // 错误已经在slice中处理了，这里不需要额外处理
     }
-  }, [checkAuth, validateForm, title, content, errandType, reward, locationFrom, locationTo, deadline, contactInfo, dispatch])
+  }, [
+    checkAuth,
+    validateForm,
+    title,
+    content,
+    errandType,
+    reward,
+    locationFrom,
+    locationTo,
+    deadline,
+    contactInfo,
+    dispatch,
+  ]);
 
   // 错误处理
   useEffect(() => {
     if (error) {
-      Taro.showToast({ title: error, icon: 'none' })
-      dispatch(clearError())
+      Taro.showToast({ title: error, icon: 'none' });
+      dispatch(clearError());
     }
-  }, [error, dispatch])
+  }, [error, dispatch]);
 
   // 任务类型选择组件
   const TaskTypeSelector = () => {
@@ -106,7 +119,7 @@ const ErrandsPublishPage = () => {
       { type: ErrandType.FOOD_DELIVERY, label: '食堂带饭' },
       { type: ErrandType.GROCERY_SHOPPING, label: '超市代购' },
       { type: ErrandType.OTHER, label: '其他' },
-    ]
+    ];
 
     return (
       <View className={styles.taskTypes}>
@@ -120,11 +133,18 @@ const ErrandsPublishPage = () => {
           </Text>
         ))}
       </View>
-    )
-  }
+    );
+  };
 
   // 表单输入组件
-  const FormInput = ({ label, placeholder, value, onChange, type = 'text' as const, isTextarea = false }) => (
+  const FormInput = ({
+    label,
+    placeholder,
+    value,
+    onChange,
+    type = 'text' as const,
+    isTextarea = false,
+  }) => (
     <View className={styles.formSection}>
       <Text className={styles.sectionTitle}>{label}</Text>
       {isTextarea ? (
@@ -132,7 +152,7 @@ const ErrandsPublishPage = () => {
           className={styles.detailsInput}
           placeholder={placeholder}
           value={value}
-          onInput={(e) => onChange(e.detail.value)}
+          onInput={(e: InputEvent) => onChange(e.detail.value)}
         />
       ) : (
         <Input
@@ -140,11 +160,11 @@ const ErrandsPublishPage = () => {
           type={type}
           placeholder={placeholder}
           value={value}
-          onInput={(e) => onChange(e.detail.value)}
+          onInput={(e: InputEvent) => onChange(e.detail.value)}
         />
       )}
     </View>
-  )
+  );
 
   // 悬赏金额输入组件
   const RewardInput = () => (
@@ -157,11 +177,11 @@ const ErrandsPublishPage = () => {
           type='digit'
           placeholder='请输入金额'
           value={reward}
-          onInput={(e) => setReward(e.detail.value)}
+          onInput={(e: InputEvent) => setReward(e.detail.value)}
         />
       </View>
     </View>
-  )
+  );
 
   // 发布按钮组件
   const PublishButton = () => (
@@ -173,7 +193,7 @@ const ErrandsPublishPage = () => {
         {createErrandLoading === 'pending' ? '发布中...' : '确认发布'}
       </Text>
     </View>
-  )
+  );
 
   return (
     <View style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -198,7 +218,7 @@ const ErrandsPublishPage = () => {
               className={styles.detailsInput}
               placeholder={`请详细描述您的需求，如：${errandType === ErrandType.EXPRESS_PICKUP ? '快递单号、取件码' : errandType === ErrandType.FOOD_DELIVERY ? '具体菜品、份数' : errandType === ErrandType.GROCERY_SHOPPING ? '商品名称、规格' : '具体要求'}、期望送达时间等...`}
               value={content}
-              onInput={(e) => setContent(e.detail.value)}
+              onInput={(e: InputEvent) => setContent(e.detail.value)}
             />
           </View>
 
@@ -236,7 +256,7 @@ const ErrandsPublishPage = () => {
         </ScrollView>
       </View>
     </View>
-  )
-}
+  );
+};
 
-export default ErrandsPublishPage
+export default ErrandsPublishPage;

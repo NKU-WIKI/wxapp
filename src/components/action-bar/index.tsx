@@ -1,15 +1,15 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { View } from "@tarojs/components";
-import { useSelector } from "react-redux";
-import ActionButton, { ActionButtonProps } from "@/components/action-button";
-import { toggleAction } from "@/services/api/action";
-import { marketplaceApi } from "@/services/api/marketplace";
-import { BBSNotificationHelper } from "@/utils/notificationHelper";
-import { checkLoginWithModal } from "@/utils/auth";
-import { RootState } from "@/store";
-import Taro from "@tarojs/taro";
-import classnames from "classnames";
-import styles from "./index.module.scss";
+import React, { useState, useCallback, useEffect } from 'react';
+import { View } from '@tarojs/components';
+import { useSelector } from 'react-redux';
+import ActionButton, { ActionButtonProps } from '@/components/action-button';
+import { toggleAction } from '@/services/api/action';
+import { marketplaceApi } from '@/services/api/marketplace';
+import { BBSNotificationHelper } from '@/utils/notificationHelper';
+import { checkLoginWithModal } from '@/utils/auth';
+import { RootState } from '@/store';
+import Taro from '@tarojs/taro';
+import classnames from 'classnames';
+import styles from './index.module.scss';
 
 export interface ActionButtonConfig {
   /**
@@ -21,7 +21,7 @@ export interface ActionButtonConfig {
    * - share: 分享按钮（默认不需要登录）
    * - custom: 自定义按钮（权限由 requireAuth 决定）
    */
-  type: "like" | "favorite" | "follow" | "share" | "comment" | "custom";
+  type: 'like' | 'favorite' | 'follow' | 'share' | 'comment' | 'custom';
   /**
    * 按钮图标（未激活状态）
    */
@@ -70,14 +70,7 @@ export interface ActionBarProps {
   /**
    * 目标对象类型（用于action/toggle操作）
    */
-  targetType:
-    | "post"
-    | "comment"
-    | "user"
-    | "listing"
-    | "note"
-    | "activity"
-    | "errand";
+  targetType: 'post' | 'comment' | 'user' | 'listing' | 'note' | 'activity' | 'errand';
   /**
    * 初始状态配置（可选，用于初始化按钮状态）
    */
@@ -156,16 +149,10 @@ const ActionBar: React.FC<ActionBarProps> = ({
   postInfo,
   authConfig = {},
 }) => {
-  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
-    {},
-  );
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const [localStates, setLocalStates] =
-    useState<Record<string, { isActive: boolean; count: number }>>(
-      initialStates,
-    );
-  const isLoggedIn = useSelector(
-    (state: RootState) => !!(state.user.user && state.user.token),
-  );
+    useState<Record<string, { isActive: boolean; count: number }>>(initialStates);
+  const isLoggedIn = useSelector((state: RootState) => !!(state.user.user && state.user.token));
   const currentUser = useSelector((state: RootState) => state.user.user);
 
   // 初始化本地状态（如果还没有初始化）
@@ -189,22 +176,25 @@ const ActionBar: React.FC<ActionBarProps> = ({
   }, []);
 
   // 处理评论功能
-  const handleComment = useCallback((_buttonIndex: number) => {
-    // 评论按钮点击应该导航到帖子详情页面
-    if (targetType === 'post') {
-      Taro.navigateTo({
-        url: `/pages/subpackage-interactive/post-detail/index?id=${targetId}`
-      }).catch(() => {
-        Taro.showToast({
-          title: '跳转失败',
-          icon: 'none'
+  const handleComment = useCallback(
+    (_buttonIndex: number) => {
+      // 评论按钮点击应该导航到帖子详情页面
+      if (targetType === 'post') {
+        Taro.navigateTo({
+          url: `/pages/subpackage-interactive/post-detail/index?id=${targetId}`,
+        }).catch(() => {
+          Taro.showToast({
+            title: '跳转失败',
+            icon: 'none',
+          });
         });
-      });
-    } else {
-      // 对于其他类型，调用外部回调，通知需要聚焦到评论区
-      onStateChange?.('comment', true, 0);
-    }
-  }, [targetId, targetType, onStateChange]);
+      } else {
+        // 对于其他类型，调用外部回调，通知需要聚焦到评论区
+        onStateChange?.('comment', true, 0);
+      }
+    },
+    [targetId, targetType, onStateChange],
+  );
 
   // 判断按钮是否需要登录权限
   const requiresAuth = useCallback((button: ActionButtonConfig): boolean => {
@@ -214,7 +204,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
     }
 
     // 默认规则：点赞、收藏、关注需要登录
-    return ["like", "favorite", "follow"].includes(button.type);
+    return ['like', 'favorite', 'follow'].includes(button.type);
   }, []);
 
   // 判断按钮是否应该被禁用
@@ -243,20 +233,20 @@ const ActionBar: React.FC<ActionBarProps> = ({
       // 如果按钮被禁用，显示提示信息
       if (isButtonDisabled(button)) {
         Taro.showToast({
-          title: authConfig.loginPrompt || "请先登录",
-          icon: "none",
+          title: authConfig.loginPrompt || '请先登录',
+          icon: 'none',
           duration: 2000,
         });
         return;
       }
 
-      if (button.type === "custom" || button.type === "share") {
+      if (button.type === 'custom' || button.type === 'share') {
         // 自定义按钮和分享按钮，直接调用外部处理函数（分享按钮通过 openType 实现，此处可用于附加逻辑）
         button.onClick?.();
         return;
       }
 
-      if (button.type === "comment") {
+      if (button.type === 'comment') {
         // 评论按钮，聚焦到评论区
         handleComment(index);
         return;
@@ -280,18 +270,17 @@ const ActionBar: React.FC<ActionBarProps> = ({
         let response;
 
         // 根据操作类型调用相应的API
-        if (targetType === "listing" && button.type === "favorite") {
+        if (targetType === 'listing' && button.type === 'favorite') {
           response = await marketplaceApi.toggleFavorite(targetId);
         } else {
           response = await toggleAction({
             target_id: targetId,
-            target_type: targetType as any,
-            action_type: button.type as any,
+            target_type: targetType,
+            action_type: button.type,
           });
         }
 
-        const isActive =
-          response?.data?.is_active ?? !localStates[key]?.isActive;
+        const isActive = response?.data?.is_active ?? !localStates[key]?.isActive;
         const count = response?.data?.count ?? localStates[key]?.count ?? 0;
 
         setLocalStates((prev) => ({
@@ -301,13 +290,13 @@ const ActionBar: React.FC<ActionBarProps> = ({
 
         // 创建通知（仅针对帖子的点赞和收藏操作）
         if (
-          targetType === "post" &&
+          targetType === 'post' &&
           postInfo &&
-          (button.type === "like" || button.type === "favorite")
+          (button.type === 'like' || button.type === 'favorite')
         ) {
           try {
             if (currentUser?.id) {
-              if (button.type === "like") {
+              if (button.type === 'like') {
                 // 创建点赞通知
                 BBSNotificationHelper.handleLikeNotification({
                   postId: targetId,
@@ -316,7 +305,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
                   currentUserId: currentUser.id,
                   isLiked: isActive,
                 });
-              } else if (button.type === "favorite") {
+              } else if (button.type === 'favorite') {
                 // 创建收藏通知
                 BBSNotificationHelper.handleCollectNotification({
                   postId: targetId,
@@ -336,8 +325,8 @@ const ActionBar: React.FC<ActionBarProps> = ({
         onStateChange?.(button.type, isActive, count);
       } catch {
         Taro.showToast({
-          title: "操作失败，请稍后重试",
-          icon: "none",
+          title: '操作失败，请稍后重试',
+          icon: 'none',
           duration: 2000,
         });
       } finally {
@@ -374,17 +363,18 @@ const ActionBar: React.FC<ActionBarProps> = ({
 
         // 使用本地状态或按钮配置中的文本
         const currentIsActive =
-          button.type === "custom" || button.type === "share"
+          button.type === 'custom' || button.type === 'share'
             ? false
-            : button.type === "comment"
+            : button.type === 'comment'
               ? (localState?.isActive ?? false)
               : (localState?.isActive ?? false);
 
-        const currentText = button.type === 'custom'
-          ? (button.text || '')
-          : button.type === 'comment'
-            ? (initialStates[key]?.count?.toString() ?? '0') // 评论数量使用初始状态中的数量，不使用本地状态
-            : (localState?.count?.toString() ?? '0');
+        const currentText =
+          button.type === 'custom'
+            ? button.text || ''
+            : button.type === 'comment'
+              ? (initialStates[key]?.count?.toString() ?? '0') // 评论数量使用初始状态中的数量，不使用本地状态
+              : (localState?.count?.toString() ?? '0');
 
         const actionButtonProps: ActionButtonProps = {
           icon: button.icon,
@@ -393,8 +383,8 @@ const ActionBar: React.FC<ActionBarProps> = ({
           isActive: currentIsActive,
           onClick: () => handleButtonClick(button, index),
           disabled: isButtonDisabled(button),
-          className: isLoading ? "loading" : undefined,
-          openType: button.type === "share" ? "share" : undefined,
+          className: isLoading ? 'loading' : undefined,
+          openType: button.type === 'share' ? 'share' : undefined,
         };
 
         return <ActionButton key={key} {...actionButtonProps} />;

@@ -34,6 +34,47 @@ alwaysApply: true
 - 明确定义函数参数和返回值的类型。
 - 优先使用 `interface` 定义对象类型，使用 `type` 定义联合类型、交叉类型等。
 
+#### TypeScript 禁止 any（强制）
+
+- 严禁使用 `any`。必须通过类型建模消除 `@typescript-eslint/no-explicit-any` 警告。
+- 当类型暂不确定时，使用 `unknown` 并通过类型守卫进行收窄；或使用带约束的泛型。
+- 常用替代：
+  - 使用 `unknown` + 运行时校验/类型守卫
+  - 使用泛型 `<T extends object = Record<string, unknown>>`
+  - 使用 `Record<K, V>` 或明确的索引签名
+  - 使用联合类型、可选属性与判定式缩小
+  - 使用 `never` 表达不可能到达的分支
+
+示例（替代 any）：
+
+```ts
+// bad
+function parse(data: any) {
+  return data.value;
+}
+
+// good: unknown + 收窄
+function parse(data: unknown) {
+  if (typeof data === 'object' && data !== null && 'value' in data) {
+    return (data as { value: string }).value;
+  }
+  return '';
+}
+
+// good: 泛型 + 约束
+function getProp<T extends object, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+```
+
+例外与临时措施：
+
+- 原则上禁止使用 `eslint-disable` 绕过该规则。如确有第三方库类型缺失等客观原因，必须：
+  1. 局部最小范围使用，
+  2. 附带原因说明，
+  3. 优先补充 `d.ts` 或采用 `unknown`/泛型方案，
+  4. 后续补齐类型的任务需登记到待办。
+
 ### React
 
 - **函数式组件优先**: 全面使用函数式组件和 Hooks (`useState`, `useEffect`, `useContext` 等)。

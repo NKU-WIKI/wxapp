@@ -3,6 +3,20 @@ import { CommentRead } from '@/types/api/comment.d';
 import { getMyComments } from '@/services/api/user'; // 使用新的API
 import { PaginationParams } from '@/types/api/common';
 
+// 错误处理辅助函数
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return '操作失败';
+};
+
 // 获取用户评论列表的参数类型
 export interface GetUserCommentsParams {
   skip?: number;
@@ -30,10 +44,10 @@ const initialState: UserCommentState = {
     skip: 0,
     limit: 20,
     total: 0,
-    has_more: false
+    has_more: false,
   },
   loading: 'idle',
-  error: null
+  error: null,
 };
 
 // 获取用户评论列表的异步thunk
@@ -51,8 +65,6 @@ export const fetchUserComments = createAsyncThunk<
   { rejectValue: string }
 >('userComment/fetchUserComments', async (params, { rejectWithValue }) => {
   try {
-    
-    
     const { skip = 0, limit = 20 } = params;
     const paginationParams: PaginationParams = { skip, limit };
 
@@ -65,7 +77,9 @@ export const fetchUserComments = createAsyncThunk<
     // 兼容两种返回：
     // 1) data 为数组 CommentRead[]
     // 2) data 为对象 { items: CommentRead[], total?, has_more? }
-    const raw = response.data as any;
+    const raw = response.data as
+      | CommentRead[]
+      | { items?: CommentRead[]; total?: number; has_more?: boolean };
     const items: CommentRead[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
     const totalFromApi = Array.isArray(raw) ? undefined : raw?.total;
     const hasMoreFromApi = Array.isArray(raw) ? undefined : raw?.has_more;
@@ -79,12 +93,11 @@ export const fetchUserComments = createAsyncThunk<
         skip,
         limit,
         total,
-        has_more: hasMore
-      }
+        has_more: hasMore,
+      },
     };
-  } catch (error: any) {
-    
-    return rejectWithValue(error.message || "Failed to fetch user comments");
+  } catch (error: unknown) {
+    return rejectWithValue(getErrorMessage(error) || 'Failed to fetch user comments');
   }
 });
 
@@ -99,7 +112,7 @@ const userCommentSlice = createSlice({
         skip: 0,
         limit: 20,
         total: 0,
-        has_more: false
+        has_more: false,
       };
       state.loading = 'idle';
       state.error = null;
@@ -111,7 +124,7 @@ const userCommentSlice = createSlice({
         items: CommentRead[];
         pagination: { skip: number; limit: number; total: number; has_more: boolean };
         append?: boolean;
-      }>
+      }>,
     ) => {
       const { items, pagination, append } = action.payload;
       if (append) {
@@ -133,10 +146,10 @@ const userCommentSlice = createSlice({
       .addCase(fetchUserComments.fulfilled, (state, action) => {
         state.loading = 'succeeded';
         const { items, pagination } = action.payload;
-        
+
         // 检查是否是追加模式
         const isAppend = (action.meta.arg as GetUserCommentsParams).isAppend;
-        
+
         if (isAppend && pagination.skip > 0) {
           // 追加数据
           state.items = [...state.items, ...items];
@@ -144,7 +157,7 @@ const userCommentSlice = createSlice({
           // 重置数据（第一页或刷新）
           state.items = items;
         }
-        
+
         state.pagination = pagination;
       })
       .addCase(fetchUserComments.rejected, (state, action) => {

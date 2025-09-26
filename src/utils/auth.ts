@@ -71,7 +71,7 @@ export const checkLoginWithToast = (): boolean => {
  * @param useModal 是否使用模态框提示，默认true
  * @returns 包装后的函数
  */
-export const withLoginCheck = <T extends any[], R>(
+export const withLoginCheck = <T extends unknown[], R>(
   _fn: (..._args: T) => R,
   useModal: boolean = true,
 ) => {

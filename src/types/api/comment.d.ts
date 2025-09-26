@@ -1,4 +1,5 @@
-import { User } from "./user";
+import { User } from './user';
+import { Attachment } from './common';
 
 /**
  * @description 评论输出模型（匹配OpenAPI CommentRead）
@@ -19,7 +20,7 @@ export interface CommentRead {
   likes_count: number;
   replies_count_immediate: number;
   has_liked?: boolean;
-  attachments?: Record<string, any> | null;
+  attachments?: Record<string, Attachment> | null;
   user?: User | null;
 }
 
@@ -43,7 +44,7 @@ export interface CommentTreeRead {
   likes_count: number;
   replies_count_immediate: number;
   has_liked?: boolean;
-  attachments?: any;
+  attachments?: Record<string, Attachment>;
   children?: CommentTreeRead[];
   total_children_count?: number;
   tree_depth?: number;
@@ -70,7 +71,7 @@ export interface Comment {
   likes_count?: number;
   replies_count_immediate?: number;
   has_liked?: boolean;
-  attachments?: Record<string, any>;
+  attachments?: Record<string, Attachment>;
   // 🎯 新增：API返回的用户信息字段
   author_nickname?: string; // 作者昵称
   author_avatar?: string; // 作者头像
@@ -101,7 +102,7 @@ export interface CreateCommentRequest {
   resource_type: string; // 资源类型，如'post'
   parent_id?: string | number; // 父评论ID，可选，支持string或number类型
   parent_author_nickname?: string; // 被回复用户的昵称，用于嵌套评论显示
-  attachments?: Record<string, any>; // 附件信息，可选
+  attachments?: Record<string, Attachment>; // 附件信息，可选
 }
 
 /**

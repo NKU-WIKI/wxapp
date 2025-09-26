@@ -27,7 +27,6 @@ export interface RAGResponse {
   sources: DocSource[];
 }
 
-
 // 根据API文档更新的聊天接口
 export interface ChatRequest {
   message: string;
@@ -36,14 +35,12 @@ export interface ChatRequest {
   max_tokens?: number | null;
 }
 
-export interface ChatResponse {
-  content: string;
-}
-
 export interface ApiResponse_ChatResponse_ {
   code: number;
   message: string;
-  data: ChatResponse;
+  data: {
+    content: string;
+  };
 }
 
 // 保留原有接口以兼容现有代码
@@ -105,20 +102,20 @@ export interface TranscribeResponse {
 
 // 用户偏好设置
 export interface UserPreferencesRequest {
-  preferences: any;
+  preferences: Record<string, unknown>;
 }
 
 export interface UserPreferencesResponse {
   success: boolean;
-  preferences?: any;
+  preferences?: Record<string, unknown>;
   message: string;
 }
 
 // 模型统计
 export interface ModelStatsResponse {
-  user_stats: any;
-  model_stats: Record<string, any>;
-  available_models: any[];
+  user_stats: Record<string, unknown>;
+  model_stats: Record<string, unknown>;
+  available_models: unknown[];
 }
 
 // 模型路由信息
@@ -148,7 +145,7 @@ export interface WorkflowStepRequest {
   optional_inputs?: string[];
   outputs?: string[];
   dependencies?: string[];
-  config?: any;
+  config?: Record<string, unknown>;
 }
 
 export interface WorkflowDefinitionRequest {
@@ -165,25 +162,25 @@ export interface WorkflowExecutionRequest {
   workflow_id?: string | null;
   template_name?: string | null;
   custom_workflow?: WorkflowDefinitionRequest;
-  inputs: any;
+  inputs: Record<string, unknown>;
 }
 
 export interface WorkflowExecutionResponse {
   workflow_id: string;
   status: string;
-  result?: any;
+  result?: unknown;
   steps_executed?: number;
   execution_time?: number;
   error?: string | null;
 }
 
 export interface WorkflowTemplateResponse {
-  templates: any[];
+  templates: unknown[];
 }
 
 // RAG 相关类型
 export interface RAGSourcesResponse {
-  sources: any[];
+  sources: unknown[];
 }
 
 export interface TextPolishRequest {
@@ -205,5 +202,3 @@ export interface TextSummarizeRequest {
 export interface TextSummarizeResponse {
   content: string;
 }
-
-

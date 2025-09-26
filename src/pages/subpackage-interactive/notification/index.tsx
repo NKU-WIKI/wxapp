@@ -18,6 +18,21 @@ import checkSquareIcon from '@/assets/check-square.svg';
 import NotificationItem from './components/NotificationItem';
 import styles from './index.module.scss';
 
+/**
+ * 显示用通知项接口
+ */
+interface DisplayNotificationItem {
+  id: string;
+  user: string;
+  user_id?: string;
+  avatar: string;
+  action: string;
+  post: string;
+  time: string;
+  unread: boolean;
+  originalNotification?: NotificationRead;
+}
+
 // 通知类型映射配置
 const NOTIFICATION_TABS = [
   {
@@ -64,7 +79,7 @@ const NotificationPage = () => {
   const unreadCounts = useSelector((state: RootState) => state.notification.unreadCounts);
   const [currentTab, setCurrentTab] = useState<TabKey>(NotificationType._Message);
   const [notifications, setNotifications] = useState<NotificationRead[]>([]);
-  const [displayNotifications, setDisplayNotifications] = useState<any[]>([]); // 解析后的显示数据
+  const [displayNotifications, setDisplayNotifications] = useState<DisplayNotificationItem[]>([]); // 解析后的显示数据
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userCache, setUserCache] = useState<Map<string, User>>(new Map()); // 用户信息缓存
@@ -260,7 +275,11 @@ const NotificationPage = () => {
         setError(null);
 
         // 为了兼容错误分类的活动通知，我们需要同时查询多个type
-        const requestParams: any = {
+        const requestParams: {
+          page: number;
+          page_size: number;
+          type?: NotificationType;
+        } = {
           page: 1,
           page_size: 50,
         };
@@ -307,7 +326,7 @@ const NotificationPage = () => {
         } else {
           throw new Error(res.message || '获取通知失败');
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         //   error: e,
         //   errorMessage: e?.message,
         //   targetType,
@@ -334,7 +353,7 @@ const NotificationPage = () => {
   };
 
   // 处理通知项点击事
-  const handleNotificationClick = async (_item: any, originalNotification?: NotificationRead) => {
+  const handleNotificationClick = async (_item: DisplayNotificationItem, originalNotification?: NotificationRead) => {
     try {
       if (!originalNotification) {
         return;
@@ -364,7 +383,7 @@ const NotificationPage = () => {
 
       // 根据通知类型和业务类型进行页面跳
       await handleNotificationNavigation(originalNotification);
-    } catch (_error: any) {
+    } catch (_error: unknown) {
       Taro.showToast({
         title: _error?.message || '操作失败',
         icon: 'none',
@@ -467,8 +486,8 @@ const NotificationPage = () => {
       } else {
         throw new Error(res.message || '操作失败');
       }
-    } catch (e: any) {
-      Taro.showToast({ title: e?.message || '操作失败', icon: 'none' });
+    } catch (e: unknown) {
+      Taro.showToast({ title: (e as Error)?.message || '操作失败', icon: 'none' });
     }
   };
 

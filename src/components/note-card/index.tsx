@@ -48,8 +48,8 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
       // 如果有用户信息，添加userId参数
       if (note.user?.id) {
         url += `&userId=${note.user.id}`;
-      } else if ((note as any).user_id) {
-        url += `&userId=${(note as any).user_id}`;
+      } else if (note.user_id) {
+        url += `&userId=${note.user_id}`;
       }
 
       Taro.navigateTo({ url });
@@ -57,7 +57,7 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
   };
 
   const getAuthorAvatar = () => {
-    const avatar = note.author_avatar || (note.user?.avatar);
+    const avatar = note.author_avatar || note.user?.avatar;
     if (avatar && avatar.includes('127.0.0.1:32968/__tmp__/')) {
       return '/assets/avatar1.png';
     }
@@ -70,9 +70,8 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
 
   const getCoverImage = () => {
     // 如果笔记有图片数组且不为空，使用第一张图片
-    const noteWithImages = note as any;
-    if (noteWithImages.images && noteWithImages.images.length > 0) {
-      const firstImage = noteWithImages.images[0];
+    if (note.images && note.images.length > 0) {
+      const firstImage = note.images[0];
 
       // 检查是否是本地开发服务器路径，如果是则使用占位图
       if (firstImage && firstImage.includes('127.0.0.1:32968/__tmp__/')) {
@@ -97,7 +96,9 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
 
   return (
     <View className={styles.noteCard} style={style} onClick={handleClick}>
-      <View className={`${styles.imageContainer} ${isPlaceholderImage ? styles.placeholderContainer : ''}`}>
+      <View
+        className={`${styles.imageContainer} ${isPlaceholderImage ? styles.placeholderContainer : ''}`}
+      >
         <Image
           src={coverImage}
           className={`${styles.coverImage} ${isPlaceholderImage ? styles.placeholderImage : ''}`}
@@ -115,7 +116,11 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
         {note.user ? (
           <View className={styles.authorInfoWrapper}>
             <Image
-              src={avatarImageError ? '/assets/avatar1.png' : normalizeImageUrl(note.user.avatar) || '/assets/avatar1.png'}
+              src={
+                avatarImageError
+                  ? '/assets/avatar1.png'
+                  : normalizeImageUrl(note.user.avatar) || '/assets/avatar1.png'
+              }
               className={styles.exploreAvatarSmall} // 使用note-card自己的小头像样式
               mode='aspectFill'
               onError={() => setAvatarImageError(true)}
@@ -151,11 +156,18 @@ const NoteCard = ({ note, style, onClick }: NoteCardProps) => {
               if (isLiking) return;
               try {
                 setIsLiking(true);
-                const resp = await actionApi.toggleAction({ target_id: String(note.id), target_type: 'note', action_type: 'like' });
+                const resp = await actionApi.toggleAction({
+                  target_id: String(note.id),
+                  target_type: 'note',
+                  action_type: 'like',
+                });
                 const nextActive = resp.data?.is_active ?? !isLiked;
-                const nextCount = typeof resp.data?.count === 'number'
-                  ? resp.data.count
-                  : (nextActive ? likeCount + 1 : Math.max(0, likeCount - 1));
+                const nextCount =
+                  typeof resp.data?.count === 'number'
+                    ? resp.data.count
+                    : nextActive
+                      ? likeCount + 1
+                      : Math.max(0, likeCount - 1);
                 setIsLiked(nextActive);
                 setLikeCount(nextCount);
               } catch {

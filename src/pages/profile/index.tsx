@@ -3,8 +3,20 @@ import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { fetchUserStats, fetchFollowersCount, fetchCollectionCount, resetUserStats, resetFollowersCount, resetCollectionCount } from '@/store/slices/userSlice';
-import { fetchUserPostCount, fetchUserLikeCount, resetUserPostCount, resetUserLikeCount } from '@/store/slices/userPostsSlice';
+import {
+  fetchUserStats,
+  fetchFollowersCount,
+  fetchCollectionCount,
+  resetUserStats,
+  resetFollowersCount,
+  resetCollectionCount,
+} from '@/store/slices/userSlice';
+import {
+  fetchUserPostCount,
+  fetchUserLikeCount,
+  resetUserPostCount,
+  resetUserLikeCount,
+} from '@/store/slices/userPostsSlice';
 import { fetchUnreadCounts } from '@/store/slices/notificationSlice';
 import CustomHeader from '@/components/custom-header';
 import PostItemSkeleton from '@/components/post-item-skeleton';
@@ -16,21 +28,15 @@ import styles from './index.module.scss';
 // 登录提示组件
 const LoginPrompt = () => {
   const handleLogin = () => {
-    Taro.navigateTo({ url: "/pages/subpackage-profile/login/index" });
+    Taro.navigateTo({ url: '/pages/subpackage-profile/login/index' });
   };
 
   return (
     <View className={styles.loginPromptContainer}>
       <View className={styles.promptCard}>
-        <Image
-          src='/assets/logo.png'
-          className={styles.logo}
-          mode='aspectFit'
-        />
+        <Image src='/assets/logo.png' className={styles.logo} mode='aspectFit' />
         <Text className={styles.mainText}>登录 nkuwiki，开启全新校园交流体验</Text>
-        <Text className={styles.subText}>
-          发帖、评论、点赞、收藏，与数万校友分享你的见解
-        </Text>
+        <Text className={styles.subText}>发帖、评论、点赞、收藏，与数万校友分享你的见解</Text>
 
         <Button className={styles.loginButton} onClick={handleLogin}>
           立即登录/注册
@@ -72,7 +78,7 @@ const Profile = () => {
         dispatch(fetchUserLikeCount({}));
       }
       // 刷新未读通知数量
-      dispatch(fetchUnreadCounts()).catch(_error => {
+      dispatch(fetchUnreadCounts()).catch((_error) => {
         // 静默处理错误，不影响主要功能
       });
     }
@@ -94,19 +100,18 @@ const Profile = () => {
           dispatch(fetchFollowersCount()).unwrap(),
           dispatch(fetchCollectionCount()).unwrap(),
           dispatch(fetchUserPostCount({})).unwrap(),
-          dispatch(fetchUserLikeCount({})).unwrap()
+          dispatch(fetchUserLikeCount({})).unwrap(),
         ]);
         Taro.showToast({
           title: '刷新成功',
           icon: 'success',
-          duration: 1000
+          duration: 1000,
         });
       } catch {
-
         Taro.showToast({
           title: '刷新失败',
           icon: 'error',
-          duration: 1000
+          duration: 1000,
         });
       }
     }
@@ -115,7 +120,7 @@ const Profile = () => {
 
   useEffect(() => {
     // 初始加载时的逻辑
-    if (isLoggedIn && !userStats && (statsStatus as any) !== 'loading') {
+    if (isLoggedIn && !userStats && statsStatus !== 'loading') {
       dispatch(fetchUserStats());
     }
   }, [dispatch, isLoggedIn, userStats, statsStatus]);
@@ -129,7 +134,7 @@ const Profile = () => {
       dispatch(resetCollectionCount());
       dispatch(resetUserPostCount());
       dispatch(resetUserLikeCount());
-      
+
       dispatch(fetchUserStats());
       dispatch(fetchFollowersCount());
       dispatch(fetchCollectionCount());
@@ -147,56 +152,55 @@ const Profile = () => {
   }, [pageRefresh]);
 
   const handleEditProfile = () => {
-    Taro.navigateTo({ url: "/pages/subpackage-profile/edit-profile/index" });
+    Taro.navigateTo({ url: '/pages/subpackage-profile/edit-profile/index' });
   };
 
   const handleNavigateToFollowing = () => {
     // 导航到关注页面
     Taro.navigateTo({
-      url: '/pages/subpackage-profile/followers/index?tab=following'
-    }).then(() => {
-      // Navigation success
-    }).catch((_err) => {
-
-      Taro.showToast({
-        title: '页面跳转失败',
-        icon: 'error'
+      url: '/pages/subpackage-profile/followers/index?tab=following',
+    })
+      .then(() => {
+        // Navigation success
+      })
+      .catch((_err) => {
+        Taro.showToast({
+          title: '页面跳转失败',
+          icon: 'error',
+        });
       });
-    });
   };
 
   const handleNavigateToFollowers = () => {
     // 导航到粉丝页面
     Taro.navigateTo({
-      url: '/pages/subpackage-profile/followers/index?tab=followers'
-    }).then(() => {
-      // Navigation success
-    }).catch((_err) => {
-
-      Taro.showToast({
-        title: '页面跳转失败',
-        icon: 'error'
+      url: '/pages/subpackage-profile/followers/index?tab=followers',
+    })
+      .then(() => {
+        // Navigation success
+      })
+      .catch((_err) => {
+        Taro.showToast({
+          title: '页面跳转失败',
+          icon: 'error',
+        });
       });
-    });
   };
 
   const handleNavigateToCollection = () => {
     // 导航到收藏页面
     Taro.navigateTo({
-      url: '/pages/subpackage-profile/collection/index'
-    }).catch((_err) => {
-
-    });
+      url: '/pages/subpackage-profile/collection/index',
+    }).catch((_err) => {});
   };
 
   const handleNavigateToPosts = () => {
     Taro.navigateTo({
-      url: '/pages/subpackage-profile/my-posts/index'
+      url: '/pages/subpackage-profile/my-posts/index',
     }).catch((_err) => {
-
       Taro.showToast({
         title: '页面跳转失败',
-        icon: 'error'
+        icon: 'error',
       });
     });
   };
@@ -204,12 +208,11 @@ const Profile = () => {
   const handleNavigateToLikes = () => {
     // 导航到获赞页面
     Taro.navigateTo({
-      url: '/pages/subpackage-profile/received-likes/index'
+      url: '/pages/subpackage-profile/received-likes/index',
     }).catch((_err) => {
-
       Taro.showToast({
         title: '页面跳转失败',
-        icon: 'error'
+        icon: 'error',
       });
     });
   };
@@ -231,7 +234,7 @@ const Profile = () => {
     }
   };
 
-  const scrollViewStyle = { height: '100%' } as any;
+  const scrollViewStyle = { height: '100%' } as React.CSSProperties;
 
   // 渲染骨架屏
   const renderSkeleton = () => (
@@ -265,7 +268,15 @@ const Profile = () => {
   }
 
   // 如果正在加载，或者已经登录但还没有用户信息，则显示骨架屏
-  if ((status as any) === 'loading' || (statsStatus as any) === 'loading' || (followersCountStatus as any) === 'loading' || (collectionCountStatus as any) === 'loading' || (userPostsState?.postCountLoading as any) === 'pending' || (userPostsState?.likeCountLoading as any) === 'pending' || (isLoggedIn && !userInfo)) {
+  if (
+    status === 'loading' ||
+    statsStatus === 'loading' ||
+    followersCountStatus === 'loading' ||
+    collectionCountStatus === 'loading' ||
+    userPostsState?.postCountLoading === 'pending' ||
+    userPostsState?.likeCountLoading === 'pending' ||
+    (isLoggedIn && !userInfo)
+  ) {
     return renderSkeleton();
   }
 
@@ -285,26 +296,33 @@ const Profile = () => {
             <View className={styles.userInfoRow}>
               <View className={styles.avatarContainer}>
                 <View className={styles.avatarWrapper}>
-                  <Image src={normalizeImageUrl(userInfo?.avatar || '') || "/assets/profile.png"} className={styles.avatar} />
+                  <Image
+                    src={normalizeImageUrl(userInfo?.avatar || '') || '/assets/profile.png'}
+                    className={styles.avatar}
+                  />
                 </View>
               </View>
 
               <View className={styles.userDetails}>
                 <Text className={styles.nickname}>{userInfo?.nickname || '未设置昵称'}</Text>
-                <Text className={styles.userBio}>{userInfo?.bio || '这个人很懒，还没有设置个性签名~'}</Text>
+                <Text className={styles.userBio}>
+                  {userInfo?.bio || '这个人很懒，还没有设置个性签名~'}
+                </Text>
               </View>
 
-              <View className={styles.levelBadge} onClick={() => Taro.navigateTo({ url: '/pages/subpackage-profile/level/index' })} style={{ cursor: 'pointer' }}>
+              <View
+                className={styles.levelBadge}
+                onClick={() => Taro.navigateTo({ url: '/pages/subpackage-profile/level/index' })}
+                style={{ cursor: 'pointer' }}
+              >
                 <Text className={styles.starIcon}>★</Text>
                 <Text className={styles.levelText}>
-                  {(status as any) === 'loading' ? '...' :
-                    (() => {
-                      const level = userInfo?.level;
-                      return (level !== undefined && level !== null && level > 0) ?
-                        `${convertLevelToRealm(level)}` :
-                        '';
-                    })()
-                  }
+                  {(() => {
+                    const level = userInfo?.level;
+                    return level !== undefined && level !== null && level > 0
+                      ? `${convertLevelToRealm(level)}`
+                      : '';
+                  })()}
                 </Text>
               </View>
 
@@ -318,7 +336,10 @@ const Profile = () => {
               <View className={styles.statsRow}>
                 <View className={styles.statItem} onClick={handleNavigateToPosts}>
                   <Text className={styles.statValue}>
-                    {(userPostsState?.postCountLoading as any) === 'pending' ? '...' : (userPostsState?.postCount ?? userStats?.post_count ?? userInfo?.post_count ?? 0)}
+                    {userPostsState?.postCount ??
+                      userStats?.post_count ??
+                      userInfo?.post_count ??
+                      0}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>📝</Text>
@@ -327,9 +348,9 @@ const Profile = () => {
                 </View>
                 <View className={styles.statItem} onClick={handleNavigateToLikes}>
                   <Text className={styles.statValue}>
-                    {(userPostsState?.likeCountLoading as any) === 'pending' ? '...' :
-                      (userPostsState?.likeCount !== null && userPostsState?.likeCount !== undefined) ? userPostsState.likeCount :
-                        (userStats?.like_count ?? userInfo?.total_likes ?? 0)}
+                    {userPostsState?.likeCount !== null && userPostsState?.likeCount !== undefined
+                      ? userPostsState.likeCount
+                      : (userStats?.like_count ?? userInfo?.total_likes ?? 0)}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>❤️</Text>
@@ -338,7 +359,7 @@ const Profile = () => {
                 </View>
                 <View className={styles.statItem} onClick={handleNavigateToFollowing}>
                   <Text className={styles.statValue}>
-                    {(followersCountStatus as any) === 'loading' ? '...' : (followersCount?.following_count ?? userInfo?.following_count ?? 0)}
+                    {followersCount?.following_count ?? userInfo?.following_count ?? 0}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>👥</Text>
@@ -350,7 +371,7 @@ const Profile = () => {
               <View className={styles.statsRow}>
                 <View className={styles.statItem} onClick={handleNavigateToFollowers}>
                   <Text className={styles.statValue}>
-                    {(followersCountStatus as any) === 'loading' ? '...' : (followersCount?.follower_count ?? userInfo?.follower_count ?? 0)}
+                    {followersCount?.follower_count ?? userInfo?.follower_count ?? 0}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>👥</Text>
@@ -359,7 +380,7 @@ const Profile = () => {
                 </View>
                 <View className={styles.statItem} onClick={handleNavigateToCollection}>
                   <Text className={styles.statValue}>
-                    {(collectionCountStatus as any) === 'loading' ? '...' : (collectionCount ?? userStats?.favorite_count ?? userInfo?.total_favorites ?? 0)}
+                    {collectionCount ?? userStats?.favorite_count ?? userInfo?.total_favorites ?? 0}
                   </Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>🔖</Text>
@@ -367,9 +388,7 @@ const Profile = () => {
                   </View>
                 </View>
                 <View className={styles.statItem}>
-                  <Text className={styles.statValue}>
-                    {(status as any) === 'loading' ? '...' : (userInfo?.points ?? 0)}
-                  </Text>
+                  <Text className={styles.statValue}>{userInfo?.points ?? 0}</Text>
                   <View className={styles.statLabelRow}>
                     <Text className={styles.statIcon}>🏆</Text>
                     <Text className={styles.statLabel}>积分</Text>
@@ -469,7 +488,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-
-
-

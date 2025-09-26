@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import noteApi, { NoteListItem, CreateNoteRequest } from '@/services/api/note';
+import noteApi, { CreateNoteRequest } from '@/services/api/note';
+import type { NoteListItem } from '@/types/api/note';
+import { Visibility, NoteStatus } from '@/types/api/note';
 import { getActionStatus } from '@/services/api/user';
-import { BaseResponse } from '@/types/api/common';
 import type { NoteDetail } from '@/types/api/note';
 
 // Mock数据，用于展示功能
@@ -10,50 +11,59 @@ const createMockNotes = (): NoteListItem[] => {
     {
       id: 'mock-1',
       title: '机器学习入门指南',
-      content: '这是一份详细的机器学习入门指南，涵盖了从基础概念到实际应用的全部内容，包括监督学习、无监督学习、深度学习等核心概念...',
+      content:
+        '这是一份详细的机器学习入门指南，涵盖了从基础概念到实际应用的全部内容，包括监督学习、无监督学习、深度学习等核心概念...',
       category_id: 'tech',
       tags: ['机器学习', 'AI', '入门'],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: new Date(),
+      updated_at: new Date(),
       is_public: true,
       view_count: 150,
       like_count: 23,
       comment_count: 8,
       author_name: '张同学',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhang',
-      user_id: 'user-001' // 新增：用户ID
+      user_id: 'user-001', // 新增：用户ID
+      status: NoteStatus.Published,
+      visibility: Visibility.Public,
     },
     {
       id: 'mock-2',
       title: '南开大学校园生活指南',
-      content: '作为南开新生，这里整理了一些实用的校园生活小贴士，包括食堂推荐、图书馆使用指南、选课技巧等...',
+      content:
+        '作为南开新生，这里整理了一些实用的校园生活小贴士，包括食堂推荐、图书馆使用指南、选课技巧等...',
       category_id: 'life',
       tags: ['南开', '校园生活', '新生指南'],
-      created_at: new Date(Date.now() - 3600000).toISOString(),
-      updated_at: new Date(Date.now() - 3600000).toISOString(),
+      created_at: new Date(Date.now() - 3600000),
+      updated_at: new Date(Date.now() - 3600000),
       is_public: true,
       view_count: 89,
       like_count: 15,
       comment_count: 5,
       author_name: '李小明',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li',
-      user_id: 'user-002' // 新增：用户ID
+      user_id: 'user-002', // 新增：用户ID
+      status: NoteStatus.Published,
+      visibility: Visibility.Public,
     },
     {
       id: 'mock-3',
       title: 'React Hooks 最佳实践',
-      content: '总结了React Hooks的常见使用模式和最佳实践，包括useState、useEffect、useContext等常用hooks的详细用法...',
+      content:
+        '总结了React Hooks的常见使用模式和最佳实践，包括useState、useEffect、useContext等常用hooks的详细用法...',
       category_id: 'tech',
       tags: ['React', 'Hooks', '前端'],
-      created_at: new Date(Date.now() - 7200000).toISOString(),
-      updated_at: new Date(Date.now() - 7200000).toISOString(),
+      created_at: new Date(Date.now() - 7200000),
+      updated_at: new Date(Date.now() - 7200000),
       is_public: true,
       view_count: 234,
       like_count: 45,
       comment_count: 12,
       author_name: '王程序员',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang',
-      user_id: 'user-003' // 新增：用户ID
+      user_id: 'user-003', // 新增：用户ID
+      status: NoteStatus.Published,
+      visibility: Visibility.Public,
     },
     {
       id: 'mock-4',
@@ -61,31 +71,36 @@ const createMockNotes = (): NoteListItem[] => {
       content: '记录了在天津吃过的各种美食，从街边小吃到高档餐厅，每一家都有详细的评价和推荐。',
       category_id: 'food',
       tags: ['美食', '天津', '探店'],
-      created_at: new Date(Date.now() - 10800000).toISOString(),
-      updated_at: new Date(Date.now() - 10800000).toISOString(),
+      created_at: new Date(Date.now() - 10800000),
+      updated_at: new Date(Date.now() - 10800000),
       is_public: true,
       view_count: 67,
       like_count: 18,
       comment_count: 6,
       author_name: '美食家小陈',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chen',
-      user_id: 'user-004' // 新增：用户ID
+      user_id: 'user-004', // 新增：用户ID
+      status: NoteStatus.Published,
+      visibility: Visibility.Public,
     },
     {
       id: 'mock-5',
       title: '数据结构与算法笔记',
-      content: '整理的数据结构与算法复习笔记，包含常见题型和解题思路，涵盖链表、树、图等重要数据结构...',
+      content:
+        '整理的数据结构与算法复习笔记，包含常见题型和解题思路，涵盖链表、树、图等重要数据结构...',
       category_id: 'study',
       tags: ['算法', '数据结构', '计算机科学'],
-      created_at: new Date(Date.now() - 14400000).toISOString(),
-      updated_at: new Date(Date.now() - 14400000).toISOString(),
+      created_at: new Date(Date.now() - 14400000),
+      updated_at: new Date(Date.now() - 14400000),
       is_public: true,
       view_count: 312,
       like_count: 67,
       comment_count: 23,
       author_name: '算法小能手',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=algo',
-      user_id: 'user-005' // 新增：用户ID
+      user_id: 'user-005', // 新增：用户ID
+      status: NoteStatus.Published,
+      visibility: Visibility.Public,
     },
     {
       id: 'mock-6',
@@ -93,31 +108,32 @@ const createMockNotes = (): NoteListItem[] => {
       content: '分享一些摄影的基本技巧和后期处理方法，从构图到光线运用。',
       category_id: 'hobby',
       tags: ['摄影', '技巧'],
-      created_at: new Date(Date.now() - 18000000).toISOString(),
-      updated_at: new Date(Date.now() - 18000000).toISOString(),
+      created_at: new Date(Date.now() - 18000000),
+      updated_at: new Date(Date.now() - 18000000),
       is_public: true,
       view_count: 128,
       like_count: 29,
       comment_count: 11,
       author_name: '摄影师小赵',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=photo',
-      user_id: 'user-006' // 新增：用户ID
+      user_id: 'user-006', // 新增：用户ID
     },
     {
       id: 'mock-7',
       title: 'TypeScript 进阶指南',
-      content: '深入理解TypeScript的高级特性，包括泛型、装饰器、模块系统等内容，提升代码质量和开发效率。',
+      content:
+        '深入理解TypeScript的高级特性，包括泛型、装饰器、模块系统等内容，提升代码质量和开发效率。',
       category_id: 'tech',
       tags: ['TypeScript', '进阶'],
-      created_at: new Date(Date.now() - 21600000).toISOString(),
-      updated_at: new Date(Date.now() - 21600000).toISOString(),
+      created_at: new Date(Date.now() - 21600000),
+      updated_at: new Date(Date.now() - 21600000),
       is_public: true,
       view_count: 89,
       like_count: 16,
       comment_count: 4,
       author_name: 'TS大师',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ts',
-      user_id: 'user-007' // 新增：用户ID
+      user_id: 'user-007', // 新增：用户ID
     },
     {
       id: 'mock-8',
@@ -125,15 +141,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: '分享考研数学的复习经验和方法，包括高数、线代、概率论的重点知识总结',
       category_id: 'study',
       tags: ['考研', '数学', '复习'],
-      created_at: new Date(Date.now() - 25200000).toISOString(),
-      updated_at: new Date(Date.now() - 25200000).toISOString(),
+      created_at: new Date(Date.now() - 25200000),
+      updated_at: new Date(Date.now() - 25200000),
       is_public: true,
       view_count: 203,
       like_count: 42,
       comment_count: 18,
       author_name: '数学小王子',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=math',
-      user_id: 'user-008' // 新增：用户ID
+      user_id: 'user-008', // 新增：用户ID
     },
     {
       id: 'mock-9',
@@ -141,15 +157,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: '从零开始的健身指南，包括基础动作、训练计划、饮食搭配等方面的详细介绍。',
       category_id: 'health',
       tags: ['健身', '运动', '健康'],
-      created_at: new Date(Date.now() - 28800000).toISOString(),
-      updated_at: new Date(Date.now() - 28800000).toISOString(),
+      created_at: new Date(Date.now() - 28800000),
+      updated_at: new Date(Date.now() - 28800000),
       is_public: true,
       view_count: 156,
       like_count: 34,
       comment_count: 9,
       author_name: '健身达人',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fitness',
-      user_id: 'user-009' // 新增：用户ID
+      user_id: 'user-009', // 新增：用户ID
     },
     {
       id: 'mock-10',
@@ -157,15 +173,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: 'Python学习路线图，从基础语法到高级应用，包含实战项目推荐',
       category_id: 'tech',
       tags: ['Python', '编程', '学习路径'],
-      created_at: new Date(Date.now() - 32400000).toISOString(),
-      updated_at: new Date(Date.now() - 32400000).toISOString(),
+      created_at: new Date(Date.now() - 32400000),
+      updated_at: new Date(Date.now() - 32400000),
       is_public: true,
       view_count: 278,
       like_count: 52,
       comment_count: 15,
       author_name: 'Python老师',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=python',
-      user_id: 'user-010' // 新增：用户ID
+      user_id: 'user-010', // 新增：用户ID
     },
     {
       id: 'mock-11',
@@ -173,15 +189,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: '旅行中如何拍出好照片，风光摄影的构图技巧和设备选择',
       category_id: 'travel',
       tags: ['旅行', '摄影', '技巧'],
-      created_at: new Date(Date.now() - 36000000).toISOString(),
-      updated_at: new Date(Date.now() - 36000000).toISOString(),
+      created_at: new Date(Date.now() - 36000000),
+      updated_at: new Date(Date.now() - 36000000),
       is_public: true,
       view_count: 123,
       like_count: 28,
       comment_count: 7,
       author_name: '旅行摄影师',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=travel',
-      user_id: 'user-011' // 新增：用户ID
+      user_id: 'user-011', // 新增：用户ID
     },
     {
       id: 'mock-12',
@@ -189,15 +205,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: '整理了前端面试中的常见问题和答题技巧，包括HTML、CSS、JavaScript、React。',
       category_id: 'tech',
       tags: ['前端', '面试', '经验'],
-      created_at: new Date(Date.now() - 39600000).toISOString(),
-      updated_at: new Date(Date.now() - 39600000).toISOString(),
+      created_at: new Date(Date.now() - 39600000),
+      updated_at: new Date(Date.now() - 39600000),
       is_public: true,
       view_count: 345,
       like_count: 78,
       comment_count: 25,
       author_name: '前端工程师',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=frontend',
-      user_id: 'user-012' // 新增：用户ID
+      user_id: 'user-012', // 新增：用户ID
     },
     {
       id: 'mock-13',
@@ -205,15 +221,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: '从咖啡豆的选择到冲泡技巧，带你进入咖啡的世界。',
       category_id: 'lifestyle',
       tags: ['咖啡', '生活', '品味'],
-      created_at: new Date(Date.now() - 43200000).toISOString(),
-      updated_at: new Date(Date.now() - 43200000).toISOString(),
+      created_at: new Date(Date.now() - 43200000),
+      updated_at: new Date(Date.now() - 43200000),
       is_public: true,
       view_count: 92,
       like_count: 21,
       comment_count: 6,
       author_name: '咖啡爱好者',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=coffee',
-      user_id: 'user-013' // 新增：用户ID
+      user_id: 'user-013', // 新增：用户ID
     },
     {
       id: 'mock-14',
@@ -221,15 +237,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: '提高英语口语和听力的实用方法，包括学习资源推荐。',
       category_id: 'study',
       tags: ['英语', '学习方法', '口语'],
-      created_at: new Date(Date.now() - 46800000).toISOString(),
-      updated_at: new Date(Date.now() - 46800000).toISOString(),
+      created_at: new Date(Date.now() - 46800000),
+      updated_at: new Date(Date.now() - 46800000),
       is_public: true,
       view_count: 187,
       like_count: 36,
       comment_count: 12,
       author_name: '英语老师',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=english',
-      user_id: 'user-014' // 新增：用户ID
+      user_id: 'user-014', // 新增：用户ID
     },
     {
       id: 'mock-15',
@@ -237,15 +253,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: '简单易学的手工制作项目，培养动手能力和创造力',
       category_id: 'hobby',
       tags: ['手工', 'DIY', '创意'],
-      created_at: new Date(Date.now() - 50400000).toISOString(),
-      updated_at: new Date(Date.now() - 50400000).toISOString(),
+      created_at: new Date(Date.now() - 50400000),
+      updated_at: new Date(Date.now() - 50400000),
       is_public: true,
       view_count: 76,
       like_count: 19,
       comment_count: 4,
       author_name: '手工达人',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=craft',
-      user_id: 'user-015' // 新增：用户ID
+      user_id: 'user-015', // 新增：用户ID
     },
     {
       id: 'mock-16',
@@ -253,15 +269,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: '理财新手必看，基金、股票、保险等投资工具的基础知识',
       category_id: 'finance',
       tags: ['理财', '投资', '基金'],
-      created_at: new Date(Date.now() - 54000000).toISOString(),
-      updated_at: new Date(Date.now() - 54000000).toISOString(),
+      created_at: new Date(Date.now() - 54000000),
+      updated_at: new Date(Date.now() - 54000000),
       is_public: true,
       view_count: 234,
       like_count: 48,
       comment_count: 16,
       author_name: '理财顾问',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=finance',
-      user_id: 'user-016' // 新增：用户ID
+      user_id: 'user-016', // 新增：用户ID
     },
     {
       id: 'mock-17',
@@ -269,15 +285,15 @@ const createMockNotes = (): NoteListItem[] => {
       content: '分享极简生活的理念和实践方法，让生活更简单更快乐',
       category_id: 'lifestyle',
       tags: ['极简', '生活方式', '断舍离'],
-      created_at: new Date(Date.now() - 57600000).toISOString(),
-      updated_at: new Date(Date.now() - 57600000).toISOString(),
+      created_at: new Date(Date.now() - 57600000),
+      updated_at: new Date(Date.now() - 57600000),
       is_public: true,
       view_count: 145,
       like_count: 33,
       comment_count: 8,
       author_name: '极简主义者',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=minimal',
-      user_id: 'user-017' // 新增：用户ID
+      user_id: 'user-017', // 新增：用户ID
     },
     {
       id: 'mock-18',
@@ -285,16 +301,16 @@ const createMockNotes = (): NoteListItem[] => {
       content: '家常菜制作的小技巧和窍门，让你的厨艺更上一层楼',
       category_id: 'food',
       tags: ['美食', '烹饪', '技巧'],
-      created_at: new Date(Date.now() - 61200000).toISOString(),
-      updated_at: new Date(Date.now() - 61200000).toISOString(),
+      created_at: new Date(Date.now() - 61200000),
+      updated_at: new Date(Date.now() - 61200000),
       is_public: true,
       view_count: 198,
       like_count: 41,
       comment_count: 13,
       author_name: '美食博主',
       author_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=cooking',
-      user_id: 'user-018' // 新增：用户ID
-    }
+      user_id: 'user-018', // 新增：用户ID
+    },
   ];
 
   return mockNotes;
@@ -314,7 +330,7 @@ export const fetchNoteFeed = createAsyncThunk(
           skip: params.skip || 0,
           limit: params.limit || 20,
           sort_by: 'created_at',
-          sort_order: 'desc' as const
+          sort_order: 'desc' as const,
         };
         const fallbackResponse = await noteApi.getNotes(fallbackParams);
         return fallbackResponse;
@@ -328,31 +344,28 @@ export const fetchNoteFeed = createAsyncThunk(
         return rejectWithValue({
           code: 0,
           message: 'success',
-          data: slicedMockData
+          data: slicedMockData,
         });
       }
     }
-  }
+  },
 );
 
 // 异步thunk - 创建笔记
 export const createNote = createAsyncThunk<
-  BaseResponse<NoteDetail>,
-  CreateNoteRequest
->(
-  'note/createNote',
-  async (noteData: CreateNoteRequest, { rejectWithValue }) => {
-    try {
+  { code: number; message?: string; data: NoteDetail },
+  CreateNoteRequest,
+  { rejectValue: string }
+>('note/createNote', async (noteData: CreateNoteRequest, { rejectWithValue }) => {
+  try {
+    const response = await noteApi.createNote(noteData);
 
-      const response = await noteApi.createNote(noteData);
-
-      return response;
-    } catch {
-
-      return rejectWithValue(error.message || '创建笔记失败');
-    }
+    return response;
+  } catch (error: unknown) {
+    const err = error as { message?: string };
+    return rejectWithValue(err.message || '创建笔记失败');
   }
-);
+});
 
 // 异步thunk - 加载更多笔记
 export const loadMoreNotes = createAsyncThunk(
@@ -368,7 +381,7 @@ export const loadMoreNotes = createAsyncThunk(
           skip: params.skip || 0,
           limit: params.limit || 20,
           sort_by: 'created_at',
-          sort_order: 'desc' as const
+          sort_order: 'desc' as const,
         };
         const fallbackResponse = await noteApi.getNotes(fallbackParams);
         return fallbackResponse;
@@ -382,18 +395,18 @@ export const loadMoreNotes = createAsyncThunk(
         return rejectWithValue({
           code: 0,
           message: 'success',
-          data: slicedMockData
+          data: slicedMockData,
         });
       }
     }
-  }
+  },
 );
 
 // 批量查询笔记的用户交互状态
 export const fetchNotesInteractionStatus = createAsyncThunk(
   'note/fetchNotesInteractionStatus',
   async (noteIds: string[], { getState }) => {
-    const state = getState() as any;
+    const state = getState() as { user?: { isLoggedIn?: boolean } };
     const isLoggedIn = state.user?.isLoggedIn || false;
 
     if (!isLoggedIn || noteIds.length === 0) {
@@ -402,25 +415,29 @@ export const fetchNotesInteractionStatus = createAsyncThunk(
 
     try {
       // 并发查询所有笔记的点赞和收藏状态
-      const statusPromises = noteIds.flatMap(noteId => [
-        getActionStatus(noteId, 'note', 'like').then(res => ({
-          noteId,
-          type: 'like' as const,
-          status: res.data?.is_active || false
-        })).catch(() => ({
-          noteId,
-          type: 'like' as const,
-          status: false
-        })),
-        getActionStatus(noteId, 'note', 'favorite').then(res => ({
-          noteId,
-          type: 'favorite' as const,
-          status: res.data?.is_active || false
-        })).catch(() => ({
-          noteId,
-          type: 'favorite' as const,
-          status: false
-        }))
+      const statusPromises = noteIds.flatMap((noteId) => [
+        getActionStatus(noteId, 'note', 'like')
+          .then((res) => ({
+            noteId,
+            type: 'like' as const,
+            status: res.data?.is_active || false,
+          }))
+          .catch(() => ({
+            noteId,
+            type: 'like' as const,
+            status: false,
+          })),
+        getActionStatus(noteId, 'note', 'favorite')
+          .then((res) => ({
+            noteId,
+            type: 'favorite' as const,
+            status: res.data?.is_active || false,
+          }))
+          .catch(() => ({
+            noteId,
+            type: 'favorite' as const,
+            status: false,
+          })),
       ]);
 
       const results = await Promise.all(statusPromises);
@@ -428,7 +445,7 @@ export const fetchNotesInteractionStatus = createAsyncThunk(
       // 组织返回数据
       const statusMap: Record<string, { is_liked: boolean; is_favorited: boolean }> = {};
 
-      results.forEach(result => {
+      results.forEach((result) => {
         if (!statusMap[result.noteId]) {
           statusMap[result.noteId] = { is_liked: false, is_favorited: false };
         }
@@ -444,7 +461,7 @@ export const fetchNotesInteractionStatus = createAsyncThunk(
     } catch {
       return {};
     }
-  }
+  },
 );
 
 // 扩展的笔记列表项，包含用户交互状态
@@ -517,7 +534,7 @@ const noteSlice = createSlice({
       .addCase(fetchNoteFeed.rejected, (state, action) => {
         state.loading = false;
         state.refreshing = false;
-        state.error = action.payload as string || action.error.message || '获取笔记失败';
+        state.error = (action.payload as string) || action.error.message || '获取笔记失败';
       })
       // 加载更多笔记
       .addCase(loadMoreNotes.pending, (state) => {
@@ -531,8 +548,12 @@ const noteSlice = createSlice({
 
         if (response.code === 0 && Array.isArray(response.data)) {
           // 去重并追加新笔记
-          const existingIds = new Set(state.notes.map(note => note.id));
-          const newNotes = response.data.filter(note => !existingIds.has(note.id));
+          const existingIds = new Set(
+            state.notes.map((note) => (note as NoteListItemWithStatus).id),
+          );
+          const newNotes = response.data.filter(
+            (note) => !existingIds.has((note as NoteListItemWithStatus).id),
+          );
           state.notes = [...state.notes, ...newNotes];
           state.hasMore = response.data.length >= state.pageSize;
           state.page += 1;
@@ -555,21 +576,29 @@ const noteSlice = createSlice({
         const response = action.payload;
 
         if (response.code === 0 && response.data) {
+          const noteData = response.data;
           // 将新创建的笔记添加到列表顶部
           const newNote: NoteListItem = {
-            id: response.data.id,
-            title: response.data.title,
-            content: response.data.content || '',
-            category_id: response.data.category_id,
-            tags: response.data.tags || [],
-            created_at: response.data.created_at,
-            updated_at: response.data.updated_at,
-            is_public: response.data.visibility === 'PUBLIC',
+            id: noteData.id,
+            title: noteData.title,
+            content: noteData.content || '',
+            category_id: noteData.category?.id || 'general',
+            tags: noteData.tags || [],
+            created_at: new Date(noteData.created_at),
+            updated_at: new Date(noteData.updated_at),
+            is_public: noteData.visibility === 'PUBLIC',
             view_count: 0,
             like_count: 0,
             comment_count: 0,
-            author_name: response.data.author?.nickname || '匿名用户',
-            author_avatar: response.data.author?.avatar || ''
+            author_name: noteData.author?.nickname || '匿名用户',
+            author_avatar: noteData.author?.avatar || '',
+            status: (noteData.status as NoteStatus) || NoteStatus.Draft,
+            visibility:
+              noteData.visibility === 'PUBLIC'
+                ? Visibility.Public
+                : noteData.visibility === 'FRIENDS'
+                  ? Visibility.Friends
+                  : Visibility.Private,
           };
           state.notes = [newNote, ...state.notes];
           state.createError = null;
@@ -579,33 +608,39 @@ const noteSlice = createSlice({
       })
       .addCase(createNote.rejected, (state, action) => {
         state.creating = false;
-        state.createError = action.payload as string || action.error.message || '创建笔记失败';
+        state.createError = (action.payload as string) || action.error.message || '创建笔记失败';
       })
       // 批量查询交互状态
       .addCase(fetchNotesInteractionStatus.fulfilled, (state, action) => {
         const statusMap = action.payload;
 
         // 更新笔记的交互状态
-        state.notes = state.notes.map(note => ({
+        state.notes = state.notes.map((note) => ({
           ...note,
-          is_liked: statusMap[note.id]?.is_liked ?? note.is_liked ?? false,
-          is_favorited: statusMap[note.id]?.is_favorited ?? note.is_favorited ?? false,
-          interaction_loading: false
+          is_liked:
+            statusMap[(note as NoteListItemWithStatus).id]?.is_liked ?? note.is_liked ?? false,
+          is_favorited:
+            statusMap[(note as NoteListItemWithStatus).id]?.is_favorited ??
+            note.is_favorited ??
+            false,
+          interaction_loading: false,
         }));
       })
       .addCase(fetchNotesInteractionStatus.pending, (state, action) => {
         // 标记正在查询交互状态的笔记
         const noteIds = action.meta.arg;
-        state.notes = state.notes.map(note => ({
+        state.notes = state.notes.map((note) => ({
           ...note,
-          interaction_loading: noteIds.includes(note.id) ? true : note.interaction_loading
+          interaction_loading: noteIds.includes((note as NoteListItemWithStatus).id)
+            ? true
+            : note.interaction_loading,
         }));
       })
       .addCase(fetchNotesInteractionStatus.rejected, (state, _action) => {
         // 清除加载状态
-        state.notes = state.notes.map(note => ({
+        state.notes = state.notes.map((note) => ({
           ...note,
-          interaction_loading: false
+          interaction_loading: false,
         }));
       });
   },

@@ -5,13 +5,13 @@
 import { BaseResponse } from './common';
 
 // 使用common.d.ts中已定义的基础响应类型
-export type ApiResponse<T = any> = BaseResponse<T>;
+export type ApiResponse<T = unknown> = BaseResponse<T>;
 
 // 用户状态枚举
 export enum UserStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
-  BANNED = 'banned'
+  BANNED = 'banned',
 }
 
 // 商品类型枚举
@@ -19,7 +19,7 @@ export enum ListingType {
   BUY = 'buy',
   SELL = 'sell',
   SERVICE = 'service',
-  RENT = 'rent'
+  RENT = 'rent',
 }
 
 // 商品成色枚举
@@ -28,7 +28,7 @@ export enum ListingCondition {
   LIKE_NEW = 'like_new',
   GOOD = 'good',
   ACCEPTABLE = 'acceptable',
-  DAMAGED = 'damaged'
+  DAMAGED = 'damaged',
 }
 
 // 商品状态枚举
@@ -37,7 +37,7 @@ export enum ListingStatus {
   SOLD = 'sold',
   RESERVED = 'reserved',
   INACTIVE = 'inactive',
-  EXPIRED = 'expired'
+  EXPIRED = 'expired',
 }
 
 // 预约状态枚举
@@ -46,7 +46,7 @@ export enum BookingStatus {
   CONFIRMED = 'confirmed',
   REJECTED = 'rejected',
   CANCELLED = 'cancelled',
-  COMPLETED = 'completed'
+  COMPLETED = 'completed',
 }
 
 // 用户基本信息
@@ -136,6 +136,7 @@ export interface ListingListParams {
   sort_order?: 'asc' | 'desc';
   skip?: number;
   limit?: number;
+  [key: string]: unknown;
 }
 
 // 商品搜索参数
@@ -150,6 +151,7 @@ export interface ListingSearchParams {
   include_expired?: boolean;
   skip?: number;
   limit?: number;
+  [key: string]: unknown;
 }
 
 // 预约创建模型
@@ -218,12 +220,12 @@ export interface ProductListParams {
 
 // 市场统计信息
 export interface MarketplaceStats {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // 热门趋势分析
 export interface TrendingData {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // 跑腿任务类型枚举
@@ -231,7 +233,7 @@ export enum ErrandType {
   EXPRESS_PICKUP = 'express_pickup',
   FOOD_DELIVERY = 'food_delivery',
   GROCERY_SHOPPING = 'grocery_shopping',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 // 跑腿任务状态枚举
@@ -240,7 +242,7 @@ export enum ErrandStatus {
   ACCEPTED = 'accepted',
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 // 跑腿任务读取模型
@@ -283,6 +285,7 @@ export interface ErrandListParams {
   status?: ErrandStatus;
   skip?: number;
   limit?: number;
+  [key: string]: unknown;
 }
 
 // API响应类型
@@ -292,5 +295,5 @@ export type ApiResponse_BookingRead_ = ApiResponse<BookingRead>;
 export type ApiResponse_List_BookingRead__ = ApiResponse<BookingRead[]>;
 export type ApiResponse_ProductRead_ = ApiResponse<ProductRead>;
 export type ApiResponse_List_ProductRead__ = ApiResponse<ProductRead[]>;
-export type ApiResponse_dict_ = ApiResponse<Record<string, any>>;
-export type ApiResponse_List_dict__ = ApiResponse<Record<string, any>[]>;
+export type ApiResponse_dict_ = ApiResponse<Record<string, unknown>>;
+export type ApiResponse_List_dict__ = ApiResponse<Record<string, unknown>[]>;

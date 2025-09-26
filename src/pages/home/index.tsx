@@ -1,37 +1,42 @@
-import { useState, useEffect, useMemo } from "react";
-import { View, ScrollView, Text, Image } from "@tarojs/components";
-import Taro, { useDidShow } from "@tarojs/taro";
-import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect, useMemo } from 'react';
+import { View, ScrollView, Text, Image } from '@tarojs/components';
+import Taro, { useDidShow } from '@tarojs/taro';
+import { useDispatch, useSelector } from 'react-redux';
 
-import type { Post as PostType } from "@/types/api/post.d";
-import { AppDispatch, RootState } from "@/store";
-import { fetchFeed, fetchForumPosts } from "@/store/slices/postSlice";
-import { fetchUnreadCounts } from "@/store/slices/notificationSlice";
-import { useMultipleFollowStatus } from "@/hooks/useFollowStatus";
-import { getRecommendedContent, collectUserInteraction } from "@/utils/contentRecommendation";
-import { Categories } from "@/constants/categories";
-import CustomHeader from "@/components/custom-header";
-import PostItemSkeleton from "@/components/post-item-skeleton";
-import EmptyState from "@/components/empty-state";
-import Post from "@/components/post";
-import SearchBar from "@/components/search-bar";
-import { usePageRefresh } from "@/utils/pageRefreshManager";
+import type { Post as PostType, GetForumPostsParams } from '@/types/api/post.d';
+import type { PaginationParams } from '@/types/api/common';
+import { AppDispatch, RootState } from '@/store';
+import { fetchFeed, fetchForumPosts } from '@/store/slices/postSlice';
+import { fetchUnreadCounts } from '@/store/slices/notificationSlice';
+import { useMultipleFollowStatus } from '@/hooks/useFollowStatus';
+import { getRecommendedContent, collectUserInteraction } from '@/utils/contentRecommendation';
+import { Categories } from '@/constants/categories';
+import CustomHeader from '@/components/custom-header';
+import PostItemSkeleton from '@/components/post-item-skeleton';
+import EmptyState from '@/components/empty-state';
+import Post from '@/components/post';
+import SearchBar from '@/components/search-bar';
+import { usePageRefresh } from '@/utils/pageRefreshManager';
 
 // Assets imports
-import emptyIcon from "@/assets/empty.svg";
+import emptyIcon from '@/assets/empty.svg';
 
 // Relative imports
-import styles from "./index.module.scss";
+import styles from './index.module.scss';
 
 export default function Home() {
-  
   const dispatch = useDispatch<AppDispatch>();
-  const { list: posts, loading, pagination } = useSelector(
-    (state: RootState) => state.post || { list: [] as PostType[], loading: 'idle', pagination: null }
+  const {
+    list: posts,
+    loading,
+    pagination,
+  } = useSelector(
+    (state: RootState) =>
+      state.post || { list: [] as PostType[], loading: 'idle', pagination: null },
   );
   const { isLoggedIn } = useSelector((state: RootState) => state.user || { isLoggedIn: false });
-  const isLoading = loading === "pending";
-  const isLoadingMore = loading === "pending" && posts.length > 0;
+  const isLoading = loading === 'pending';
+  const isLoadingMore = loading === 'pending' && posts.length > 0;
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -43,11 +48,7 @@ export default function Home() {
     if (!isLoggedIn) {
       return [];
     }
-    return Array.from(new Set(
-      posts
-        .filter(post => post?.user?.id)
-        .map(post => post.user.id)
-    ));
+    return Array.from(new Set(posts.filter((post) => post?.user?.id).map((post) => post.user.id)));
   }, [posts, isLoggedIn]);
 
   // 获取批量关注状态
@@ -73,21 +74,19 @@ export default function Home() {
 
   useDidShow(() => {
     // 每次显示首页时都刷新帖子数据和关注状态
-    
-    
+
     const now = Date.now();
-    
+
     // 防抖：如果距离上次刷新不足2秒，则跳过
     if (now - lastRefreshTime < 2000) {
-      
       return;
     }
-    
+
     setLastRefreshTime(now);
-    
+
     // 刷新帖子数据
     handlePullRefresh();
-    
+
     // 刷新关注状态
     if (isLoggedIn && authorIds.length > 0) {
       refreshFollowStatus();
@@ -100,9 +99,11 @@ export default function Home() {
 
     setIsRefreshing(true);
     try {
-      const params = { skip: 0, limit: 10 };
+      const params: PaginationParams = { skip: 0, limit: 10 };
       if (selectedCategory) {
-        await dispatch(fetchForumPosts({ ...params, category_id: selectedCategory as any })).unwrap();
+        await dispatch(
+          fetchForumPosts({ ...params, category_id: selectedCategory } as GetForumPostsParams),
+        ).unwrap();
       } else {
         await dispatch(fetchFeed(params)).unwrap();
       }
@@ -119,11 +120,11 @@ export default function Home() {
 
     try {
       const nextSkip = (pagination.skip || 0) + (pagination.limit || 10);
-      const params = { skip: nextSkip, limit: 10 };
+      const params: PaginationParams = { skip: nextSkip, limit: 10 };
 
       if (selectedCategory) {
         await dispatch(
-          fetchForumPosts({ ...params, category_id: selectedCategory })
+          fetchForumPosts({ ...params, category_id: selectedCategory } as GetForumPostsParams),
         ).unwrap();
       } else {
         await dispatch(fetchFeed(params)).unwrap();
@@ -137,10 +138,12 @@ export default function Home() {
     const newSelectedCategory = selectedCategory === categoryId ? null : categoryId;
     setSelectedCategory(newSelectedCategory);
 
-    const params = { skip: 0, limit: 10 };
+    const params: PaginationParams = { skip: 0, limit: 10 };
 
     if (newSelectedCategory) {
-      dispatch(fetchForumPosts({ ...params, category_id: newSelectedCategory as any }));
+      dispatch(
+        fetchForumPosts({ ...params, category_id: newSelectedCategory } as GetForumPostsParams),
+      );
     } else {
       dispatch(fetchFeed(params));
     }
@@ -148,9 +151,9 @@ export default function Home() {
 
   // 页面显示时刷新未读通知数量
   useDidShow(() => {
-    const storedToken = Taro.getStorageSync("token");
+    const storedToken = Taro.getStorageSync('token');
     if (storedToken) {
-      dispatch(fetchUnreadCounts()).catch(_error => {
+      dispatch(fetchUnreadCounts()).catch((_error) => {
         // 静默处理错误，不影响主要功能
       });
     }
@@ -164,12 +167,7 @@ export default function Home() {
     }
 
     if (!posts || posts.length === 0) {
-      return (
-        <EmptyState
-          icon={emptyIcon}
-          text='暂时没有帖子，快来发布第一条吧！'
-        />
-      );
+      return <EmptyState icon={emptyIcon} text='暂时没有帖子，快来发布第一条吧！' />;
     }
 
     // 根据用户设置决定帖子排序方式
@@ -181,7 +179,7 @@ export default function Home() {
         return timeB - timeA;
       }),
       // 个性化推荐排序的帖子（这里简化为按点赞数排序作为示例）
-      [...posts].sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
+      [...posts].sort((a, b) => (b.like_count || 0) - (a.like_count || 0)),
     );
 
     const content = sortedPosts
@@ -189,21 +187,21 @@ export default function Home() {
       .map((post) => {
         // 从关注状态映射中获取该作者的关注状态
         const isFollowingAuthor = followStatusMap[post.user.id] === true;
-        
+
         // 创建包含正确关注状态的帖子对象
         const postWithFollowStatus = {
           ...post,
-          is_following_author: isFollowingAuthor
+          is_following_author: isFollowingAuthor,
         };
-        
+
         // 收集用户查看行为数据
         collectUserInteraction('view', post.id, 'post');
-        
+
         return (
-          <Post 
-            key={post.id} 
-            post={postWithFollowStatus} 
-            className={styles.postListItem} 
+          <Post
+            key={post.id}
+            post={postWithFollowStatus}
+            className={styles.postListItem}
             mode='list'
           />
         );
@@ -214,7 +212,7 @@ export default function Home() {
       content.push(
         ...Array.from({ length: 2 }).map((_, index) => (
           <PostItemSkeleton key={`loading-skeleton-${index}`} className={styles.postListItem} />
-        ))
+        )),
       );
     }
 
@@ -223,7 +221,7 @@ export default function Home() {
       content.push(
         <View key='no-more' className={styles.noMoreTip}>
           <Text>没有更多内容了</Text>
-        </View>
+        </View>,
       );
     }
 
@@ -256,16 +254,12 @@ export default function Home() {
             <View
               key={category.id}
               className={`${styles.categoryItem} ${
-                selectedCategory === category.id ? styles.selected : ""
+                selectedCategory === category.id ? styles.selected : ''
               }`}
               onClick={() => handleCategoryClick(category.id)}
             >
               <View className={styles.categoryIconContainer}>
-                <Image
-                  src={category.icon}
-                  className={styles.categoryIcon}
-                  mode='aspectFit'
-                />
+                <Image src={category.icon} className={styles.categoryIcon} mode='aspectFit' />
               </View>
               <Text
                 className={`${styles.categoryName} ${

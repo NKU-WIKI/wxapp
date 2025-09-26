@@ -68,7 +68,6 @@ export default function RagResult({ data }: Props) {
       // 如果内容较长，默认折叠
       setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD);
     } catch {
-
       setRenderedAnswer(data.answer); // 失败时使用原始文本
       setIsExpanded(data.answer.length <= RAG_CONTENT_COLLAPSE_THRESHOLD);
     }
@@ -76,7 +75,6 @@ export default function RagResult({ data }: Props) {
 
   if (!data) return null;
   const { sources = [] } = data;
-
 
   return (
     <View className={styles.ragContainer}>
@@ -88,21 +86,21 @@ export default function RagResult({ data }: Props) {
         <View className={styles.responseText}>
           <View
             className={`${styles.contentWrapper} ${!isExpanded ? styles.collapsed : ''}`}
-            style={!isExpanded ? { '--max-height': `${RAG_CONTENT_MAX_HEIGHT}px` } as any : {}}
+            style={!isExpanded ? { '--max-height': `${RAG_CONTENT_MAX_HEIGHT}px` } : {}}
           >
             <RichText nodes={renderedAnswer} />
           </View>
           {renderedAnswer && renderedAnswer.length > RAG_CONTENT_COLLAPSE_THRESHOLD && (
-            <View className={styles.expandButtonContainer} onClick={() => setIsExpanded(!isExpanded)}>
+            <View
+              className={styles.expandButtonContainer}
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
               <View className={styles.expandButton}>
-                <Text className={styles.expandText}>
-                  {isExpanded ? '收起内容' : '展开全部'}
-                </Text>
+                <Text className={styles.expandText}>{isExpanded ? '收起内容' : '展开全部'}</Text>
               </View>
             </View>
           )}
         </View>
-
       </View>
 
       {sources.length > 0 && (
@@ -117,9 +115,7 @@ export default function RagResult({ data }: Props) {
               <View className={styles.sourceContent}>
                 <Text className={styles.sourceTitle}>{s.title}</Text>
 
-                {s.content && (
-                  <Text className={styles.sourceContentText}>{s.content}</Text>
-                )}
+                {s.content && <Text className={styles.sourceContentText}>{s.content}</Text>}
 
                 <View className={styles.sourceMeta}>
                   {s.author && (
@@ -156,7 +152,7 @@ export default function RagResult({ data }: Props) {
                       if (url) {
                         Taro.setClipboardData({
                           data: url,
-                          success: () => Taro.showToast({ title: '链接已复制', icon: 'success' })
+                          success: () => Taro.showToast({ title: '链接已复制', icon: 'success' }),
                         });
                       }
                     }}
@@ -172,5 +168,3 @@ export default function RagResult({ data }: Props) {
     </View>
   );
 }
-
-

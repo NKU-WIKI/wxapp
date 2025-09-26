@@ -31,10 +31,10 @@ const FEEDBACK_TYPES = [
 export default function FeedbackPage() {
   const dispatch = useAppDispatch();
   const { submitting } = useAppSelector((state) => state.feedback);
-  
+
   const [type, setType] = useState<'bug' | 'ux' | 'suggest' | 'other'>('bug');
   const [desc, setDesc] = useState('');
-  const [files, setFiles] = useState<any[]>([]);
+  const [files, setFiles] = useState<UploadResult[]>([]);
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({});
   const [appVersion, setAppVersion] = useState('');
 
@@ -52,40 +52,40 @@ export default function FeedbackPage() {
           version: systemInfo.version,
           app_version: '1.0.0', // 应用版本号
         });
-        
+
         const accountInfo = await Taro.getAccountInfoSync();
         setAppVersion(accountInfo.miniProgram?.version || '1.0.0');
       } catch {
         // 静默处理获取系统信息错误
       }
     };
-    
+
     getSystemInfo();
   }, []);
 
-  const handleTypeClick = (key: string) => setType(key as any);
+  const handleTypeClick = (key: string) => setType(key as 'bug' | 'ux' | 'suggest' | 'other');
 
-  const handleDescChange = e => setDesc(e.detail.value);
+  const handleDescChange = (e) => setDesc(e.detail.value);
 
   const handleUpload = async () => {
     if (files.length >= 3) {
       Taro.showToast({ title: '最多上传3个文件', icon: 'none' });
       return;
     }
-    
+
     try {
-      const res = await Taro.chooseImage({ 
+      const res = await Taro.chooseImage({
         count: 3 - files.length,
         sizeType: ['compressed'],
-        sourceType: ['album', 'camera']
+        sourceType: ['album', 'camera'],
       });
-      
-      const newFiles = res.tempFiles || res.tempFilePaths.map(path => ({ path }));
+
+      const newFiles = res.tempFiles || res.tempFilePaths.map((path) => ({ path }));
       setFiles([...files, ...newFiles]);
-    } catch {
+    } catch (error: unknown) {
       // 检查是否是用户取消操作
-      if (error && typeof error === 'object' && 'errMsg' in error) {
-        const errMsg = (error as any).errMsg;
+      if (error && typeof error === 'object' && error !== null && 'errMsg' in error) {
+        const errMsg = (error as { errMsg: string }).errMsg;
         if (errMsg && errMsg.includes('cancel')) {
           // 用户取消是正常行为，不显示错误提示
           return;
@@ -96,7 +96,7 @@ export default function FeedbackPage() {
     }
   };
 
-  const handleRemoveFile = idx => {
+  const handleRemoveFile = (idx) => {
     setFiles(files.filter((_, i) => i !== idx));
   };
 
@@ -112,7 +112,7 @@ export default function FeedbackPage() {
       Taro.showToast({ title: '请填写问题描述', icon: 'none' });
       return;
     }
-    
+
     try {
       // 先上传图片
       let imageUrls: string[] = [];
@@ -121,7 +121,7 @@ export default function FeedbackPage() {
         imageUrls = await uploadImages();
         Taro.hideLoading();
       }
-      
+
       // 构建反馈数据 - 根据后端Feedback模型
       const feedbackData: CreateFeedbackParams = {
         content: desc.trim(),
@@ -130,16 +130,16 @@ export default function FeedbackPage() {
         device_info: deviceInfo,
         version: appVersion,
       };
-      
+
       await dispatch(submitFeedback(feedbackData)).unwrap();
-      
+
       Taro.showToast({ title: '反馈成功，感谢您的付出', icon: 'success' });
       setTimeout(() => Taro.navigateBack(), 1200);
     } catch {
       // 静默处理提交反馈错误
       Taro.showToast({
         title: '反馈失败',
-        icon: 'none'
+        icon: 'none',
       });
     }
   };
@@ -150,19 +150,22 @@ export default function FeedbackPage() {
       <View className={styles.section} style={{ marginTop: 20 }}>
         <Text className={styles.sectionTitle}>反馈类型</Text>
         <View className={styles.typeGrid}>
-          {FEEDBACK_TYPES.map(item => (
+          {FEEDBACK_TYPES.map((item) => (
             <View
               key={item.key}
               className={`${styles.typeBtn} ${type === item.key ? styles.selected : ''}`}
               onClick={() => handleTypeClick(item.key)}
             >
-              <View className={styles.typeIcon} style={{ '--icon-url': `url(${item.icon})` } as any} />
+              <View
+                className={styles.typeIcon}
+                style={{ '--icon-url': `url(${item.icon})` } as React.CSSProperties}
+              />
               <Text>{item.label}</Text>
             </View>
           ))}
         </View>
       </View>
-      
+
       {/* 问题描述 */}
       <View className={styles.section} style={{ marginTop: 24 }}>
         <Text className={styles.sectionTitle}>问题描述</Text>
@@ -175,28 +178,36 @@ export default function FeedbackPage() {
           autoHeight
         />
       </View>
-      
+
       {/* 上传附件 */}
       <View className={styles.section} style={{ marginTop: 24 }}>
         <Text className={styles.sectionTitle}>上传附件</Text>
-        <View
-          className={styles.uploadBox}
-          onClick={handleUpload}
-        >
-          <View className={styles.uploadIcon} style={{ '--icon-url': `url(${uploadIcon})` } as any} />
+        <View className={styles.uploadBox} onClick={handleUpload}>
+          <View
+            className={styles.uploadIcon}
+            style={{ '--icon-url': `url(${uploadIcon})` } as React.CSSProperties}
+          />
           <Text className={styles.uploadText}>点击或拖拽上传文件</Text>
         </View>
         <View className={styles.fileList}>
           {files.map((file, idx) => (
             <View key={idx} className={styles.fileItem}>
               <Text>{file.name || file.path.split('/').pop()}</Text>
-              <Text className={styles.removeFile} onClick={e => { e.stopPropagation(); handleRemoveFile(idx); }}>删除</Text>
+              <Text
+                className={styles.removeFile}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveFile(idx);
+                }}
+              >
+                删除
+              </Text>
             </View>
           ))}
         </View>
         <Text className={styles.uploadTip}>最多可上传3个文件，单个文件不超过5MB</Text>
       </View>
-      
+
       {/* 提交按钮 */}
       <Button
         className={styles.submitBtn}

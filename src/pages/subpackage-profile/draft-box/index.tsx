@@ -7,7 +7,10 @@ import { DraftPost } from '@/types/draft';
 import { Post } from '@/types/api/post.d';
 import { getDrafts, clearDrafts } from '@/utils/draft';
 import { fetchDrafts } from '@/store/slices/postSlice';
-import { deleteDraft as apiDeleteDraft, clearAllDrafts as apiClearAllDrafts } from '@/services/api/post';
+import {
+  deleteDraft as apiDeleteDraft,
+  clearAllDrafts as apiClearAllDrafts,
+} from '@/services/api/post';
 import Button from '@/components/button';
 
 // Relative imports
@@ -61,7 +64,9 @@ const DraftBox = () => {
     } catch {
       // 静默处理存储设置错误
     }
-    Taro.navigateTo({ url: `/pages/subpackage-interactive/publish/index?postId=${draft.id}&isEdit=true` });
+    Taro.navigateTo({
+      url: `/pages/subpackage-interactive/publish/index?postId=${draft.id}&isEdit=true`,
+    });
   };
 
   // 处理本地草稿删除
@@ -119,30 +124,55 @@ const DraftBox = () => {
   };
 
   // 合并并排序所有草稿
-  const mapServerPostToUnified = (post: any) => ({
-    id: post.id,
-    title: post.title,
-    content: post.content || '',
-    avatar: post.user?.avatar || '',
-    updatedAt: new Date(post.updated_at || post.created_at || post.create_time || '').getTime() || Date.now(),
-    likeCount: post.like_count ?? 0,
-    favoriteCount: post.favorite_count ?? 0,
-    commentCount: post.comment_count ?? 0,
-    viewCount: post.view_count ?? 0,
-    status: post.status,
-    // tags 可能为字符串数组或对象数组（TagRead），统一映射为字符串数组
-    tags: Array.isArray(post.tags)
-      ? post.tags.map((t: any) => (typeof t === 'string' ? t : (t?.name || '') )).filter((t: string) => !!t)
-      : [],
-    images: Array.isArray(post.images) ? post.images : (Array.isArray((post as any).image_urls) ? (post as any).image_urls : []),
-    categoryId: post.category_id || '',
-    isPublic: post.is_public ?? true,
-    allowComments: post.allow_comments ?? true,
-    source: 'server' as const,
-  });
+  const mapServerPostToUnified = (post: unknown) => {
+    const p = post as {
+      id: string;
+      title: string;
+      content?: string;
+      user?: { avatar?: string };
+      updated_at?: string;
+      created_at?: string;
+      create_time?: string;
+      like_count?: number;
+      favorite_count?: number;
+      comment_count?: number;
+      view_count?: number;
+      status: string;
+      tags?: unknown[];
+      images?: string[];
+      image_urls?: string[];
+      category_id?: string;
+      is_public?: boolean;
+      allow_comments?: boolean;
+    };
+    return {
+      id: p.id,
+      title: p.title,
+      content: p.content || '',
+      avatar: p.user?.avatar || '',
+      updatedAt:
+        new Date(p.updated_at || p.created_at || p.create_time || '').getTime() || Date.now(),
+      likeCount: p.like_count ?? 0,
+      favoriteCount: p.favorite_count ?? 0,
+      commentCount: p.comment_count ?? 0,
+      viewCount: p.view_count ?? 0,
+      status: p.status,
+      // tags 可能为字符串数组或对象数组（TagRead），统一映射为字符串数组
+      tags: Array.isArray(p.tags)
+        ? p.tags
+            .map((t: unknown) => (typeof t === 'string' ? t : (t as { name?: string })?.name || ''))
+            .filter((t: string) => !!t)
+        : [],
+      images: Array.isArray(p.images) ? p.images : Array.isArray(p.image_urls) ? p.image_urls : [],
+      categoryId: p.category_id || '',
+      isPublic: p.is_public ?? true,
+      allowComments: p.allow_comments ?? true,
+      source: 'server' as const,
+    };
+  };
 
   const allDrafts = [
-    ...localDrafts.map(draft => ({
+    ...localDrafts.map((draft) => ({
       id: draft.id,
       title: draft.title,
       content: draft.content,
@@ -160,24 +190,45 @@ const DraftBox = () => {
       allowComments: true,
       source: 'local' as const,
     })),
-    ...serverDrafts.map(mapServerPostToUnified)
+    ...serverDrafts.map(mapServerPostToUnified),
   ]
-  // 去重：以 id 优先服务端覆盖本地
-  .reduce((acc: any[], item) => {
-    const idx = acc.findIndex(d => d.id === item.id);
-    if (idx >= 0) {
-      // 服务端覆盖本地
-      if (item.source === 'server') acc[idx] = item;
-    } else {
-      acc.push(item);
-    }
-    return acc;
-  }, [])
-  .sort((a, b) => b.updatedAt - a.updatedAt);
+    // 去重：以 id 优先服务端覆盖本地
+    .reduce(
+      (
+        acc: Array<{
+          id: string;
+          title: string;
+          content: string;
+          avatar: string;
+          updatedAt: number;
+          tags: string[];
+          categoryId: string;
+          likeCount: number;
+          favoriteCount: number;
+          commentCount: number;
+          viewCount: number;
+          status: string;
+          images: string[];
+          isPublic: boolean;
+          allowComments: boolean;
+          source: 'local' | 'server';
+        }>,
+        item,
+      ) => {
+        const idx = acc.findIndex((d) => d.id === item.id);
+        if (idx >= 0) {
+          // 服务端覆盖本地
+          if (item.source === 'server') acc[idx] = item;
+        } else {
+          acc.push(item);
+        }
+        return acc;
+      },
+      [],
+    )
+    .sort((a, b) => b.updatedAt - a.updatedAt);
 
-  useEffect(() => {
-    
-  }, [allDrafts.length, serverDrafts.length, localDrafts.length, draftsLoading]);
+  useEffect(() => {}, [allDrafts.length, serverDrafts.length, localDrafts.length, draftsLoading]);
 
   return (
     <View className={styles.container}>
@@ -189,34 +240,30 @@ const DraftBox = () => {
         ) : (
           <>
             {/* 合并后的草稿列表 */}
-              <View className={styles.section}>
+            <View className={styles.section}>
               {allDrafts.map((draft) => (
-                  <DraftItem
-                    key={draft.id}
-                    draft={draft}
-                    onEdit={() => {
+                <DraftItem
+                  key={draft.id}
+                  draft={draft}
+                  onEdit={() => {
                     if (draft.source === 'server') {
-                      handleServerEdit(serverDrafts.find(p => p.id === draft.id)!);
+                      handleServerEdit(serverDrafts.find((p) => p.id === draft.id)!);
                     } else {
                       handleLocalEdit(draft);
                     }
                   }}
-                    onDelete={() => {
+                  onDelete={() => {
                     if (draft.source === 'local') handleLocalDelete(draft.id);
                     else handleServerDelete(draft.id);
                   }}
-                  />
-                ))}
-              </View>
+                />
+              ))}
+            </View>
           </>
         )}
       </ScrollView>
       <View className={styles.bottomBar}>
-        <Button
-          className={styles.clearBtn}
-          type='primary'
-          onClick={handleClearAll}
-        >
+        <Button className={styles.clearBtn} type='primary' onClick={handleClearAll}>
           放弃所有草稿
         </Button>
       </View>

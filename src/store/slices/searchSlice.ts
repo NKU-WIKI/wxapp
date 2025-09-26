@@ -9,6 +9,20 @@ import {
   SearchHistoryItem,
 } from '@/types/api/search';
 
+// 错误处理辅助函数
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return '操作失败';
+};
+
 // 搜索状态接口
 interface SearchState {
   // 搜索结果
@@ -57,10 +71,10 @@ export const performSearch = createAsyncThunk(
     try {
       const response = await searchApi.search(params);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error?.message || '搜索失败');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error) || '搜索失败');
     }
-  }
+  },
 );
 
 /**
@@ -72,10 +86,10 @@ export const fetchHotQueries = createAsyncThunk(
     try {
       const response = await searchApi.getHotQueries();
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error?.message || '获取热门搜索词失败');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error) || '获取热门搜索词失败');
     }
-  }
+  },
 );
 
 /**
@@ -87,10 +101,10 @@ export const fetchSearchHistory = createAsyncThunk(
     try {
       const response = await searchApi.getSearchHistory(pageSize);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error?.message || '获取搜索历史失败');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error) || '获取搜索历史失败');
     }
-  }
+  },
 );
 
 /**
@@ -102,10 +116,10 @@ export const clearSearchHistory = createAsyncThunk(
     try {
       const response = await searchApi.clearSearchHistory();
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error?.message || '清空搜索历史失败');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error) || '清空搜索历史失败');
     }
-  }
+  },
 );
 
 // 创建搜索slice
@@ -149,12 +163,15 @@ const searchSlice = createSlice({
         state.isSearching = true;
         state.searchError = null;
       })
-      .addCase(performSearch.fulfilled, (state, action: PayloadAction<BaseResponse<SearchBundleRead>>) => {
-        state.isSearching = false;
-        state.searchResults = action.payload.data.items;
-        state.total = action.payload.data.total;
-        state.searchTime = action.payload.data.search_time;
-      })
+      .addCase(
+        performSearch.fulfilled,
+        (state, action: PayloadAction<BaseResponse<SearchBundleRead>>) => {
+          state.isSearching = false;
+          state.searchResults = action.payload.data.items;
+          state.total = action.payload.data.total;
+          state.searchTime = action.payload.data.search_time;
+        },
+      )
       .addCase(performSearch.rejected, (state, action) => {
         state.isSearching = false;
         state.searchError = action.payload as string;
@@ -169,10 +186,13 @@ const searchSlice = createSlice({
         state.isLoadingHotQueries = true;
         state.hotQueriesError = null;
       })
-      .addCase(fetchHotQueries.fulfilled, (state, action: PayloadAction<BaseResponse<string[]>>) => {
-        state.isLoadingHotQueries = false;
-        state.hotQueries = action.payload.data;
-      })
+      .addCase(
+        fetchHotQueries.fulfilled,
+        (state, action: PayloadAction<BaseResponse<string[]>>) => {
+          state.isLoadingHotQueries = false;
+          state.hotQueries = action.payload.data;
+        },
+      )
       .addCase(fetchHotQueries.rejected, (state, action) => {
         state.isLoadingHotQueries = false;
         state.hotQueriesError = action.payload as string;
@@ -184,10 +204,13 @@ const searchSlice = createSlice({
         state.isLoadingHistory = true;
         state.historyError = null;
       })
-      .addCase(fetchSearchHistory.fulfilled, (state, action: PayloadAction<BaseResponse<SearchHistoryResponse>>) => {
-        state.isLoadingHistory = false;
-        state.searchHistory = action.payload.data.data;
-      })
+      .addCase(
+        fetchSearchHistory.fulfilled,
+        (state, action: PayloadAction<BaseResponse<SearchHistoryResponse>>) => {
+          state.isLoadingHistory = false;
+          state.searchHistory = action.payload.data.data;
+        },
+      )
       .addCase(fetchSearchHistory.rejected, (state, action) => {
         state.isLoadingHistory = false;
         state.historyError = action.payload as string;
@@ -223,9 +246,13 @@ export const selectSearchTime = (state: { search: SearchState }) => state.search
 export const selectIsSearching = (state: { search: SearchState }) => state.search.isSearching;
 export const selectSearchError = (state: { search: SearchState }) => state.search.searchError;
 export const selectHotQueries = (state: { search: SearchState }) => state.search.hotQueries;
-export const selectIsLoadingHotQueries = (state: { search: SearchState }) => state.search.isLoadingHotQueries;
-export const selectHotQueriesError = (state: { search: SearchState }) => state.search.hotQueriesError;
+export const selectIsLoadingHotQueries = (state: { search: SearchState }) =>
+  state.search.isLoadingHotQueries;
+export const selectHotQueriesError = (state: { search: SearchState }) =>
+  state.search.hotQueriesError;
 export const selectSearchHistory = (state: { search: SearchState }) => state.search.searchHistory;
-export const selectIsLoadingHistory = (state: { search: SearchState }) => state.search.isLoadingHistory;
+export const selectIsLoadingHistory = (state: { search: SearchState }) =>
+  state.search.isLoadingHistory;
 export const selectHistoryError = (state: { search: SearchState }) => state.search.historyError;
-export const selectCurrentSearchParams = (state: { search: SearchState }) => state.search.currentSearchParams;
+export const selectCurrentSearchParams = (state: { search: SearchState }) =>
+  state.search.currentSearchParams;

@@ -1,30 +1,32 @@
-import { PropsWithChildren } from 'react'
-import Taro, { useLaunch } from '@tarojs/taro'
-import { Provider } from 'react-redux'
-import { PersistGate } from 'redux-persist/integration/react'
-import 'taro-ui/dist/style/index.scss'
-import store, { persistor } from './store'
-import { initTabBarSync } from './utils/tabBarSync'
-import './app.scss'
-import { fetchCurrentUser, fetchAboutInfo } from "./store/slices/userSlice";
-import { initializeSettings, applyFontSize, applyNightMode } from "./store/slices/settingsSlice";
-import { fetchUnreadCounts } from "./store/slices/notificationSlice";
-
+import { PropsWithChildren } from 'react';
+import Taro, { useLaunch } from '@tarojs/taro';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import 'taro-ui/dist/style/index.scss';
+import store, { persistor } from './store';
+import { initTabBarSync } from './utils/tabBarSync';
+import './app.scss';
+import { fetchCurrentUser, fetchAboutInfo } from './store/slices/userSlice';
+import { initializeSettings, applyFontSize, applyNightMode } from './store/slices/settingsSlice';
+import { fetchUnreadCounts } from './store/slices/notificationSlice';
 
 // AbortController polyfill for WeChat miniprogram
 if (typeof globalThis.AbortController === 'undefined') {
   globalThis.AbortController = class AbortController {
-    signal: any;
+    signal: AbortSignal;
     constructor() {
       this.signal = {
         aborted: false,
         addEventListener: () => {},
         removeEventListener: () => {},
-        dispatchEvent: () => {},
-      };
+        dispatchEvent: (): boolean => false,
+        onabort: null,
+        reason: undefined,
+        throwIfAborted: () => {},
+      } as unknown as AbortSignal;
     }
     abort() {
-      this.signal.aborted = true;
+      (this.signal as { aborted: boolean }).aborted = true;
     }
   };
 }
@@ -32,7 +34,7 @@ if (typeof globalThis.AbortController === 'undefined') {
 // 初始化导航栏状态同步
 initTabBarSync();
 
-function App({ children }: PropsWithChildren<any>) {
+function App({ children }: PropsWithChildren) {
   useLaunch(() => {
     // 初始化设置
     store.dispatch(initializeSettings());
@@ -54,20 +56,20 @@ function App({ children }: PropsWithChildren<any>) {
     applyNightMode(settings.nightMode);
 
     // 检查是否有存储的token
-    const storedToken = Taro.getStorageSync("token");
+    const storedToken = Taro.getStorageSync('token');
 
     if (storedToken) {
       // 如果有token，尝试验证其有效性
       store.dispatch(fetchCurrentUser());
-      
+
       // 获取未读通知数量（仅在已登录时）
-      store.dispatch(fetchUnreadCounts()).catch(_error => {
+      store.dispatch(fetchUnreadCounts()).catch((_error) => {
         // 静默处理错误，不影响应用启动
       });
     } else {
       // 未登录状态，所有请求将使用x-tenant-id头
     }
-  })
+  });
 
   // children 是将要会渲染的页面
   return (
@@ -76,7 +78,7 @@ function App({ children }: PropsWithChildren<any>) {
         {children}
       </PersistGate>
     </Provider>
-  )
+  );
 }
 
-export default App
+export default App;

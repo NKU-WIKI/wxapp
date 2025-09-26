@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import Taro, { useRouter } from "@tarojs/taro";
-import { useDispatch } from "react-redux";
+import { useState, useEffect, useCallback } from 'react';
+import Taro, { useRouter } from '@tarojs/taro';
+import { useDispatch } from 'react-redux';
 import {
   View,
   Text,
@@ -12,28 +12,28 @@ import {
   SwiperItem,
   Button, // Added Button import
   type SwiperProps,
-} from "@tarojs/components";
+} from '@tarojs/components';
 
 // Absolute imports (alphabetical order)
-import { AppDispatch } from "@/store";
-import CustomHeader from "@/components/custom-header";
-import { createNote } from "@/store/slices/noteSlice";
-import { uploadApi } from "@/services/api/upload";
-import { checkFileUploadPermissionWithToast } from "@/utils/permissionChecker";
+import { AppDispatch } from '@/store';
+import CustomHeader from '@/components/custom-header';
+import { createNote } from '@/store/slices/noteSlice';
+import { uploadApi } from '@/services/api/upload';
+import { checkFileUploadPermissionWithToast } from '@/utils/permissionChecker';
 
 // Asset imports
-import plusIcon from "@/assets/plus.svg";
-import cameraIcon from "@/assets/camera.svg";
+import plusIcon from '@/assets/plus.svg';
+import cameraIcon from '@/assets/camera.svg';
 
 // Relative imports
-import styles from "./index.module.scss";
+import styles from './index.module.scss';
 
 export default function PublishNote() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   // 状态管理
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]); // 本地图片路径数组
   const [localImages, setLocalImages] = useState<
     Array<{ path: string; size: number; compressed: boolean }>
@@ -77,7 +77,7 @@ export default function PublishNote() {
 
         // 如果内容较长，可以自动生成标题
         if (decodedContent.length > 20) {
-          const autoTitle = decodedContent.substring(0, 20) + "...";
+          const autoTitle = decodedContent.substring(0, 20) + '...';
           setTitle(autoTitle);
         }
       } catch {
@@ -95,7 +95,7 @@ export default function PublishNote() {
   }, [images, updateImageAspectRatio]);
 
   // 处理图片轮播变化
-  const handleImageChange: SwiperProps["onChange"] = (e) => {
+  const handleImageChange: SwiperProps['onChange'] = (e) => {
     setCurrentImageIndex(e.detail.current);
   };
 
@@ -109,8 +109,8 @@ export default function PublishNote() {
     try {
       const res = await Taro.chooseImage({
         count: 9 - images.length,
-        sizeType: ["original"], // 选择原图，本地压缩
-        sourceType: ["album", "camera"],
+        sizeType: ['original'], // 选择原图，本地压缩
+        sourceType: ['album', 'camera'],
       });
 
       if (res.tempFilePaths && res.tempFilePaths.length > 0) {
@@ -122,7 +122,7 @@ export default function PublishNote() {
               const fileInfo = await Taro.getFileInfo({ filePath: tempPath });
               let originalSize = 0;
 
-              if ("size" in fileInfo) {
+              if ('size' in fileInfo) {
                 originalSize = fileInfo.size;
               }
 
@@ -133,7 +133,7 @@ export default function PublishNote() {
               if (originalSize > 1024 * 1024 * 10) {
                 // 超过10MB
                 // 使用智能压缩10MB以下
-                const { smartCompressImage } = await import("@/utils/image");
+                const { smartCompressImage } = await import('@/utils/image');
                 finalPath = await smartCompressImage(tempPath, 1024 * 10, 0.85);
 
                 compressed = true;
@@ -163,15 +163,15 @@ export default function PublishNote() {
 
         Taro.showToast({
           title: `已添加{compressedImages.length}张图片`,
-          icon: "success",
+          icon: 'success',
           duration: 2000,
         });
       }
     } catch (error: unknown) {
       // 检查是否是用户取消操作
-      if (error && typeof error === "object" && "errMsg" in error) {
-        const errMsg = (error as any).errMsg;
-        if (errMsg && errMsg.includes("cancel")) {
+      if (error && typeof error === 'object' && 'errMsg' in error) {
+        const errMsg = (error as { errMsg?: string }).errMsg;
+        if (errMsg && errMsg.includes('cancel')) {
           // 用户取消是正常行为，不显示错误提示
           return;
         }
@@ -179,8 +179,8 @@ export default function PublishNote() {
 
       // 其他错误才显示提示
       Taro.showToast({
-        title: "选择图片失败",
-        icon: "none",
+        title: '选择图片失败',
+        icon: 'none',
         duration: 2000,
       });
     }
@@ -224,8 +224,8 @@ export default function PublishNote() {
   const handlePublish = async () => {
     if (!title.trim()) {
       Taro.showToast({
-        title: "请输入标题",
-        icon: "none",
+        title: '请输入标题',
+        icon: 'none',
         duration: 2000,
       });
       return;
@@ -233,8 +233,8 @@ export default function PublishNote() {
 
     if (title.trim().length < 4) {
       Taro.showToast({
-        title: "标题至少需要4个字",
-        icon: "none",
+        title: '标题至少需要4个字',
+        icon: 'none',
         duration: 2000,
       });
       return;
@@ -242,8 +242,8 @@ export default function PublishNote() {
 
     if (title.trim().length > 20) {
       Taro.showToast({
-        title: "标题最多有20个字",
-        icon: "none",
+        title: '标题最多有20个字',
+        icon: 'none',
         duration: 2000,
       });
       return;
@@ -251,8 +251,8 @@ export default function PublishNote() {
 
     if (!content.trim()) {
       Taro.showToast({
-        title: "请输入内容",
-        icon: "none",
+        title: '请输入内容',
+        icon: 'none',
         duration: 2000,
       });
       return;
@@ -265,7 +265,7 @@ export default function PublishNote() {
       const imageUrls: string[] = [];
 
       if (images.length > 0) {
-        Taro.showLoading({ title: "正在上传图片..." });
+        Taro.showLoading({ title: '正在上传图片...' });
 
         if (localImages.length > 0) {
           const uploadPromises = localImages.map(async (imgInfo) => {
@@ -294,14 +294,14 @@ export default function PublishNote() {
           images: imageUrls,
           allow_comment: true,
           allow_share: true,
-          category_id: "c1a7e7e4-a5b6-4c1c-8d8e-9e9f9f9f9f9f", // 示例分类ID，实际应从后端获取
+          category_id: 'c1a7e7e4-a5b6-4c1c-8d8e-9e9f9f9f9f9f', // 示例分类ID，实际应从后端获取
         }),
       ).unwrap();
 
       if (response.code === 0) {
         Taro.showToast({
-          title: "发布成功",
-          icon: "success",
+          title: '发布成功',
+          icon: 'success',
           duration: 2000,
         });
 
@@ -310,16 +310,16 @@ export default function PublishNote() {
           Taro.navigateBack();
         }, 2000);
       } else {
-        throw new Error(response.message || "发布失败");
+        throw new Error(response.message || '发布失败');
       }
     } catch (error: unknown) {
-      let errorMessage = "发布失败，请重试";
+      let errorMessage = '发布失败，请重试';
       if (error instanceof Error) {
         errorMessage = error.message;
       }
       Taro.showToast({
         title: errorMessage,
-        icon: "none",
+        icon: 'none',
         duration: 3000,
       });
     } finally {
@@ -329,7 +329,7 @@ export default function PublishNote() {
 
   return (
     <View className={styles.pageContainer}>
-      <CustomHeader title="发布笔记" />
+      <CustomHeader title='发布笔记' />
 
       <View className={styles.contentWrapper}>
         <ScrollView scrollY className={styles.scrollView} enableBackToTop>
@@ -338,27 +338,15 @@ export default function PublishNote() {
             <View
               className={styles.imageGrid}
               style={{
-                height:
-                  images.length > 0
-                    ? `${Math.max(200, 300 * imageAspectRatio)}px`
-                    : "200px",
+                height: images.length > 0 ? `${Math.max(200, 300 * imageAspectRatio)}px` : '200px',
               }}
             >
               {/* 图片占位符- 当没有图片时显示 */}
               {images.length === 0 && (
-                <View
-                  className={styles.imagePlaceholder}
-                  onClick={handleImageUpload}
-                >
+                <View className={styles.imagePlaceholder} onClick={handleImageUpload}>
                   <View className={styles.placeholderContent}>
-                    <Image
-                      src={cameraIcon}
-                      className={styles.placeholderCameraIcon}
-                    />
-                    <Image
-                      src={plusIcon}
-                      className={styles.placeholderPlusIcon}
-                    />
+                    <Image src={cameraIcon} className={styles.placeholderCameraIcon} />
+                    <Image src={plusIcon} className={styles.placeholderPlusIcon} />
                   </View>
                   <Text className={styles.placeholderText}>点击添加图片</Text>
                 </View>
@@ -378,14 +366,12 @@ export default function PublishNote() {
                         <Image
                           src={image}
                           className={styles.image}
-                          mode="aspectFit"
+                          mode='aspectFit'
                           onClick={handleShowImageOverview}
                         />
 
                         {/* 图片数量提示 - 左上角*/}
-                        <Text className={styles.imageCount}>
-                          {images.length}/9
-                        </Text>
+                        <Text className={styles.imageCount}>{images.length}/9</Text>
 
                         {/* 移除图片按钮 - 右上角*/}
                         <View
@@ -414,7 +400,7 @@ export default function PublishNote() {
                     <View
                       key={index}
                       className={`${styles.dot} ${
-                        index === currentImageIndex ? styles.active : ""
+                        index === currentImageIndex ? styles.active : ''
                       }`}
                     />
                   ))}
@@ -423,10 +409,7 @@ export default function PublishNote() {
 
               {/* 添加图片按钮 - 右下角*/}
               {images.length > 0 && images.length < 9 && (
-                <View
-                  className={styles.addImageButton}
-                  onClick={handleImageUpload}
-                >
+                <View className={styles.addImageButton} onClick={handleImageUpload}>
                   <Image src={plusIcon} className={styles.plusIcon} />
                 </View>
               )}
@@ -441,7 +424,7 @@ export default function PublishNote() {
             </View>
             <Input
               className={styles.titleInput}
-              placeholder="为你的笔记添加一个标题（4-20个字符）"
+              placeholder='为你的笔记添加一个标题（4-20个字符）'
               value={title}
               onInput={(e) => setTitle(e.detail.value)}
               maxlength={20}
@@ -453,7 +436,7 @@ export default function PublishNote() {
             <Text className={styles.inputLabel}>笔记内容</Text>
             <Textarea
               className={styles.contentInput}
-              placeholder="详细介绍资源内容、适用人群、学习建议等.."
+              placeholder='详细介绍资源内容、适用人群、学习建议等..'
               value={content}
               onInput={(e) => setContent(e.detail.value)}
               maxlength={2000}
@@ -468,7 +451,7 @@ export default function PublishNote() {
               onClick={handlePublish}
               disabled={isPublishing || !title.trim() || !content.trim()}
             >
-              {isPublishing ? "发布中..." : "发布笔记"}
+              {isPublishing ? '发布中...' : '发布笔记'}
             </Button>
           </View>
         </ScrollView>
@@ -476,34 +459,19 @@ export default function PublishNote() {
 
       {/* 图片总览弹窗 */}
       {showImageOverview && (
-        <View
-          className={styles.imageOverviewOverlay}
-          onClick={handleCloseImageOverview}
-        >
-          <View
-            className={styles.imageOverviewModal}
-            onClick={(e) => e.stopPropagation()}
-          >
+        <View className={styles.imageOverviewOverlay} onClick={handleCloseImageOverview}>
+          <View className={styles.imageOverviewModal} onClick={(e) => e.stopPropagation()}>
             <View className={styles.imageOverviewHeader}>
-              <Text className={styles.imageOverviewTitle}>
-                图片总览 ({images.length}/9)
-              </Text>
-              <View
-                className={styles.imageOverviewClose}
-                onClick={handleCloseImageOverview}
-              >
-                <Text style={{ fontSize: "20px", color: "#666" }}>×</Text>
+              <Text className={styles.imageOverviewTitle}>图片总览 ({images.length}/9)</Text>
+              <View className={styles.imageOverviewClose} onClick={handleCloseImageOverview}>
+                <Text style={{ fontSize: '20px', color: '#666' }}>×</Text>
               </View>
             </View>
 
             <View className={styles.imageOverviewGrid}>
               {images.map((image, index) => (
                 <View key={index} className={styles.imageOverviewItem}>
-                  <Image
-                    src={image}
-                    className={styles.imageOverviewImage}
-                    mode="aspectFill"
-                  />
+                  <Image src={image} className={styles.imageOverviewImage} mode='aspectFill' />
                   {/* 删除按钮 */}
                   <View
                     className={styles.imageOverviewDelete}

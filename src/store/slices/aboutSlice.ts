@@ -2,6 +2,19 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getAboutInfo } from '@/services/api/about';
 import { AboutInfo } from '@/types/about.d';
 
+// 错误处理辅助函数
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return '操作失败';
+};
 
 interface AboutState {
   info: AboutInfo | null;
@@ -21,10 +34,10 @@ export const fetchAboutInfo = createAsyncThunk(
     try {
       const response = await getAboutInfo();
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch about info');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error) || 'Failed to fetch about info');
     }
-  }
+  },
 );
 
 const aboutSlice = createSlice({
@@ -47,4 +60,4 @@ const aboutSlice = createSlice({
   },
 });
 
-export default aboutSlice.reducer; 
+export default aboutSlice.reducer;

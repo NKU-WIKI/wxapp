@@ -1,31 +1,31 @@
 import {
   CampusVerificationRequest,
   CampusVerificationResponse,
-  CampusVerificationApplicationsResponse
-} from "@/types/api/campus-verification";
+  CampusVerificationApplicationsResponse,
+} from '@/types/api/campus-verification';
 
 // Relative imports
-import http from "../request";
+import http from '../request';
 
 /**
  * 上传文件
  */
 export const uploadFile = (filePath: string) => {
-  return http.uploadFile("/tools/uploads/file", filePath);
+  return http.uploadFile<{ url?: string; file_url?: string }>('/tools/uploads/file', filePath);
 };
 
 /**
  * 提交校园认证申请
  */
 export const submitCampusVerification = (data: CampusVerificationRequest) => {
-  return http.post<CampusVerificationResponse>("/identity-verification/apply", data);
+  return http.post<CampusVerificationResponse>('/identity-verification/apply', data);
 };
 
 /**
  * 获取当前用户的校园认证申请记录
  */
 export const getCampusVerificationInfo = () => {
-  return http.get<CampusVerificationApplicationsResponse>("/identity-verification/my-applications");
+  return http.get<CampusVerificationApplicationsResponse>('/identity-verification/my-applications');
 };
 
 /**
@@ -42,4 +42,4 @@ const campusVerificationApi = {
   getCampusVerificationDetail,
 };
 
-export default campusVerificationApi; 
+export default campusVerificationApi;

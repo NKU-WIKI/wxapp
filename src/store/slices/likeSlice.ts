@@ -1,7 +1,8 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Post } from "@/types/api/post.d";
-import { Pagination } from "@/types/api/common.d";
-import { getUserLikedPosts, getUserLikedNotes } from "@/services/api/user";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { Post } from '@/types/api/post.d';
+import { NoteListItem } from '@/types/api/note.d';
+import { Pagination } from '@/types/api/common.d';
+import { getUserLikedPosts, getUserLikedNotes } from '@/services/api/user';
 
 // 获取用户点赞列表的参数类型
 export interface GetLikesParams {
@@ -11,12 +12,14 @@ export interface GetLikesParams {
 }
 
 // 点赞项类型（可以是帖子或笔记）
-export interface LikeItem extends Omit<Post, 'user_id'> {
-  type?: 'post' | 'note'; // 添加类型标识
-  author_name?: string; // 作者名称（用于笔记）
-  author_avatar?: string; // 作者头像（用于笔记）
-  user_id?: string; // 用户ID（用于笔记）
-}
+export type LikeItem =
+  | (Omit<Post, 'user_id'> & { type?: 'post' })
+  | (NoteListItem & { type: 'note' });
+
+// 笔记点赞项类型
+export type LikeNoteItem = NoteListItem & {
+  type: 'note';
+};
 
 // 获取用户点赞列表
 export const fetchLikes = createAsyncThunk<
@@ -26,20 +29,18 @@ export const fetchLikes = createAsyncThunk<
   },
   GetLikesParams,
   { rejectValue: string }
->("like/fetchLikes", async (params, { rejectWithValue }) => {
+>('like/fetchLikes', async (params, { rejectWithValue }) => {
   try {
-    
-    
     const { page, page_size } = params;
     const paginationParams = {
       skip: (page - 1) * page_size,
-      limit: page_size
+      limit: page_size,
     };
 
     // 并行获取点赞的帖子和笔记
     const [postsResponse, notesResponse] = await Promise.allSettled([
       getUserLikedPosts(paginationParams),
-      getUserLikedNotes(paginationParams)
+      getUserLikedNotes(paginationParams),
     ]);
 
     const allItems: LikeItem[] = [];
@@ -49,9 +50,9 @@ export const fetchLikes = createAsyncThunk<
     if (postsResponse.status === 'fulfilled' && postsResponse.value.data) {
       const postsData = postsResponse.value.data;
       if (Array.isArray(postsData.data)) {
-        const postsWithType = postsData.data.map(post => ({
+        const postsWithType = postsData.data.map((post) => ({
           ...post,
-          type: 'post' as const
+          type: 'post' as const,
         }));
         allItems.push(...postsWithType);
         totalCount += postsData.pagination?.total || 0;
@@ -65,9 +66,9 @@ export const fetchLikes = createAsyncThunk<
     if (notesResponse.status === 'fulfilled' && notesResponse.value.data) {
       const notesData = notesResponse.value.data;
       if (Array.isArray(notesData.data)) {
-        const notesWithType = notesData.data.map(note => ({
-          ...note,
-          type: 'note' as const
+        const notesWithType: LikeNoteItem[] = notesData.data.map((note: unknown) => ({
+          ...(note as NoteListItem),
+          type: 'note' as const,
         }));
         allItems.push(...notesWithType);
         totalCount += notesData.pagination?.total || 0;
@@ -79,33 +80,47 @@ export const fetchLikes = createAsyncThunk<
 
     // 按创建时间倒序排列
     allItems.sort((a, b) => {
-      const timeA = new Date(a.created_at || a.create_time || 0).getTime();
-      const timeB = new Date(b.created_at || b.create_time || 0).getTime();
+      const getTime = (item: LikeItem): number => {
+        // 对于笔记类型
+        if ('type' in item && item.type === 'note') {
+          return item.created_at ? new Date(item.created_at).getTime() : 0;
+        }
+        // 对于帖子类型
+        const postItem = item as Omit<Post, 'user_id'> & { type?: 'post' };
+        return postItem.created_at
+          ? new Date(postItem.created_at).getTime()
+          : postItem.create_time
+            ? new Date(postItem.create_time).getTime()
+            : 0;
+      };
+      const timeA = getTime(a);
+      const timeB = getTime(b);
       return timeB - timeA;
     });
 
     // 计算分页信息
     const hasMore = allItems.length >= page_size;
-    
+
     return {
       items: allItems,
       pagination: {
         skip: (page - 1) * page_size,
         limit: page_size,
         total: totalCount,
-        has_more: hasMore
-      }
+        has_more: hasMore,
+      },
     };
-  } catch (error: any) {
-    
-    return rejectWithValue(error.message || "Failed to fetch likes");
+  } catch (error: unknown) {
+    const err = error as { msg?: string; message?: string };
+
+    return rejectWithValue(err?.msg || err?.message || 'Failed to fetch likes');
   }
 });
 
 export interface LikeState {
   items: LikeItem[];
   pagination: Pagination & { page: number; page_size: number }; // 兼容现有代码
-  loading: "idle" | "pending" | "succeeded" | "failed";
+  loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   error: string | null;
 }
 
@@ -117,14 +132,14 @@ const initialState: LikeState = {
     total: 0,
     has_more: false,
     page: 1,
-    page_size: 10
+    page_size: 10,
   },
-  loading: "idle",
+  loading: 'idle',
   error: null,
 };
 
 const likeSlice = createSlice({
-  name: "like",
+  name: 'like',
   initialState,
   reducers: {
     resetLikes: (state) => {
@@ -135,27 +150,27 @@ const likeSlice = createSlice({
         total: 0,
         has_more: false,
         page: 1,
-        page_size: 10
+        page_size: 10,
       };
-      state.loading = "idle";
+      state.loading = 'idle';
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchLikes.pending, (state) => {
-        state.loading = "pending";
+        state.loading = 'pending';
         state.error = null;
       })
       .addCase(fetchLikes.fulfilled, (state, action) => {
-        state.loading = "succeeded";
+        state.loading = 'succeeded';
         const { items, pagination } = action.payload;
-        
+
         const currentPage = Math.floor(pagination.skip / pagination.limit) + 1;
-        
+
         // 检查是否是追加模式（通过检查meta.arg.isAppend）
         const isAppend = (action.meta.arg as GetLikesParams).isAppend;
-        
+
         if (isAppend && currentPage > 1) {
           // 追加数据
           state.items = [...state.items, ...items];
@@ -163,15 +178,15 @@ const likeSlice = createSlice({
           // 重置数据（第一页或刷新）
           state.items = items;
         }
-        
+
         state.pagination = {
           ...pagination,
           page: currentPage,
-          page_size: pagination.limit
+          page_size: pagination.limit,
         };
       })
       .addCase(fetchLikes.rejected, (state, action) => {
-        state.loading = "failed";
+        state.loading = 'failed';
         state.error = action.payload as string;
       });
   },

@@ -5,35 +5,35 @@ import { Pagination } from './common';
  * 评分分类枚举 - 根据新版后端API文档更新
  */
 export enum RatingCategory {
-  Course = "学习",           // 学习 - 课程、教材、学习资源
-  Food = "美食",              // 美食 - 餐厅、菜品、美食推荐
-  Game = "游戏",              // 游戏 - 游戏、游戏攻略、游戏设备
-  Entertainment = "娱乐", // 娱乐 - 影视、音乐、娱乐活动
-  Life = "生活",              // 生活 - 生活服务、日用品、生活技巧
-  Sport = "运动",            // 运动 - 运动场所、体育用品、健身课程
-  Other = "其他"             // 其他 - 不属于以上分类的内容
+  Course = '学习', // 学习 - 课程、教材、学习资源
+  Food = '美食', // 美食 - 餐厅、菜品、美食推荐
+  Game = '游戏', // 游戏 - 游戏、游戏攻略、游戏设备
+  Entertainment = '娱乐', // 娱乐 - 影视、音乐、娱乐活动
+  Life = '生活', // 生活 - 生活服务、日用品、生活技巧
+  Sport = '运动', // 运动 - 运动场所、体育用品、健身课程
+  Other = '其他', // 其他 - 不属于以上分类的内容
 }
 
 /**
  * 评分状态枚举
  */
 export enum RatingStatus {
-  Active = "active",     // 活跃
-  Inactive = "inactive", // 不活跃
-  Deleted = "deleted"    // 已删除
+  Active = 'active', // 活跃
+  Inactive = 'inactive', // 不活跃
+  Deleted = 'deleted', // 已删除
 }
 
 /**
  * 评分资源类型枚举 - 与RatingCategory保持一致
  */
 export enum ResourceType {
-  Course = "学习",           // 学习 - 课程、教材、学习资源
-  Food = "美食",               // 美食 - 餐厅、菜品、美食推荐
-  Game = "游戏",               // 游戏 - 游戏、游戏攻略、游戏设备
-  Entertainment = "娱乐", // 娱乐 - 影视、音乐、娱乐活动
-  Life = "生活",               // 生活 - 生活服务、日用品、生活技巧
-  Sport = "运动",             // 运动 - 运动场所、体育用品、健身课程
-  Other = "其他"              // 其他 - 不属于以上分类的内容
+  Course = '学习', // 学习 - 课程、教材、学习资源
+  Food = '美食', // 美食 - 餐厅、菜品、美食推荐
+  Game = '游戏', // 游戏 - 游戏、游戏攻略、游戏设备
+  Entertainment = '娱乐', // 娱乐 - 影视、音乐、娱乐活动
+  Life = '生活', // 生活 - 生活服务、日用品、生活技巧
+  Sport = '运动', // 运动 - 运动场所、体育用品、健身课程
+  Other = '其他', // 其他 - 不属于以上分类的内容
 }
 
 /**
@@ -113,7 +113,7 @@ export interface RatingItem {
   /**
    * 额外数据
    */
-  metadata?: { [key: string]: any };
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -239,7 +239,7 @@ export interface UserRating {
   /**
    * 额外元数据
    */
-  metadata?: { [key: string]: any };
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -409,7 +409,7 @@ export interface CreateRatingItemRequest {
   /**
    * 额外数据
    */
-  metadata?: { [key: string]: any };
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -509,7 +509,7 @@ export interface UpdateRatingRequest {
 /**
  * API响应格式
  */
-export interface RatingApiResponse<T = any> {
+export interface RatingApiResponse<T = unknown> {
   /**
    * 状态码
    */

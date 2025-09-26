@@ -70,7 +70,7 @@ export interface GetHotPostsParams {
    * Limit，排行榜长度（1-50）
    */
   limit?: number;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -89,7 +89,7 @@ export interface HotPostsList {
    * Message，简明中文信息
    */
   message?: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -125,7 +125,6 @@ export interface PostHotRanking {
    * View Count
    */
   view_count: number;
-  [property: string]: any;
 }
 
 /**
@@ -189,7 +188,6 @@ export interface UserRead {
    * Wechat Id
    */
   wechat_id?: null | string;
-  [property: string]: any;
 }
 
 /**

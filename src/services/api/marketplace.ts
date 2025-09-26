@@ -12,6 +12,7 @@ import type {
   ProductListParams,
   ErrandCreate,
   ErrandListParams,
+  ErrandRead,
   ApiResponse_List_ListingRead__,
   ApiResponse_ListingRead_,
   ApiResponse_BookingRead_,
@@ -21,7 +22,8 @@ import type {
   ApiResponse_dict_,
   ApiResponse_List_dict__,
   BookingStatus,
-} from '@/types/api/marketplace.d';
+  ApiResponse,
+} from '@/types/api/marketplace';
 
 // Relative imports
 import http from '../request';
@@ -29,17 +31,20 @@ import http from '../request';
 /**
  * 过滤对象中的undefined值
  */
-function filterUndefined<T extends Record<string, any>>(obj?: T): T | undefined {
+function filterUndefined<T extends Record<string, unknown>>(obj?: T): Partial<T> | undefined {
   if (!obj) return undefined;
 
-  const filtered = Object.keys(obj).reduce((acc, key) => {
-    if (obj[key] !== undefined) {
-      acc[key] = obj[key];
-    }
-    return acc;
-  }, {} as any);
+  const filtered = Object.keys(obj).reduce(
+    (acc, key) => {
+      if (obj[key] !== undefined) {
+        acc[key] = obj[key];
+      }
+      return acc;
+    },
+    {} as Record<string, unknown>,
+  );
 
-  return Object.keys(filtered).length > 0 ? filtered : undefined;
+  return Object.keys(filtered).length > 0 ? (filtered as Partial<T>) : undefined;
 }
 
 /**
@@ -84,14 +89,20 @@ export const marketplaceApi = {
   /**
    * 获取我的发布
    */
-  async getMyListings(params?: { skip?: number; limit?: number }): Promise<ApiResponse_List_ListingRead__> {
+  async getMyListings(params?: {
+    skip?: number;
+    limit?: number;
+  }): Promise<ApiResponse_List_ListingRead__> {
     return http.get('/marketplace/my/listings', filterUndefined(params));
   },
 
   /**
    * 获取相似商品
    */
-  async getSimilarListings(listingId: string, params?: { limit?: number }): Promise<ApiResponse_List_ListingRead__> {
+  async getSimilarListings(
+    listingId: string,
+    params?: { limit?: number },
+  ): Promise<ApiResponse_List_ListingRead__> {
     return http.get(`/marketplace/listings/${listingId}/similar`, params);
   },
 
@@ -102,14 +113,17 @@ export const marketplaceApi = {
     return http.post('/actions/toggle', {
       target_id: listingId,
       target_type: 'listing',
-      action_type: 'favorite'
+      action_type: 'favorite',
     });
   },
 
   /**
    * 获取我的收藏
    */
-  async getMyFavorites(params?: { skip?: number; limit?: number }): Promise<ApiResponse_List_ListingRead__> {
+  async getMyFavorites(params?: {
+    skip?: number;
+    limit?: number;
+  }): Promise<ApiResponse_List_ListingRead__> {
     return http.get('/marketplace/favorites', params);
   },
 
@@ -135,7 +149,10 @@ export const bookingApi = {
   /**
    * 更新预约状态
    */
-  async updateBookingStatus(bookingId: string, status: BookingStatus): Promise<ApiResponse_BookingRead_> {
+  async updateBookingStatus(
+    bookingId: string,
+    status: BookingStatus,
+  ): Promise<ApiResponse_BookingRead_> {
     return http.put(`/marketplace/bookings/${bookingId}/status?status=${status}`, undefined);
   },
 
@@ -232,21 +249,21 @@ export const errandApi = {
   /**
    * 获取跑腿任务列表
    */
-  async listErrands(params?: ErrandListParams): Promise<ApiResponse_List_ListingRead__> {
+  async listErrands(params?: ErrandListParams): Promise<ApiResponse<ErrandRead[]>> {
     return http.get('/marketplace/errands', filterUndefined(params));
   },
 
   /**
    * 获取任务详情
    */
-  async getErrandDetail(errandId: string): Promise<ApiResponse_ListingRead_> {
+  async getErrandDetail(errandId: string): Promise<ApiResponse<ErrandRead>> {
     return http.get(`/marketplace/errands/${errandId}`);
   },
 
   /**
    * 发布跑腿任务
    */
-  async createErrand(data: ErrandCreate): Promise<ApiResponse_ListingRead_> {
+  async createErrand(data: ErrandCreate): Promise<ApiResponse<ErrandRead>> {
     return http.post('/marketplace/errands', data);
   },
 
@@ -274,14 +291,20 @@ export const errandApi = {
   /**
    * 获取我的发布任务
    */
-  async getMyPublishedErrands(params?: { skip?: number; limit?: number }): Promise<ApiResponse_List_ListingRead__> {
+  async getMyPublishedErrands(params?: {
+    skip?: number;
+    limit?: number;
+  }): Promise<ApiResponse<ErrandRead[]>> {
     return http.get('/marketplace/my/errands/published', params);
   },
 
   /**
    * 获取我接受的任务
    */
-  async getMyAcceptedErrands(params?: { skip?: number; limit?: number }): Promise<ApiResponse_List_ListingRead__> {
+  async getMyAcceptedErrands(params?: {
+    skip?: number;
+    limit?: number;
+  }): Promise<ApiResponse<ErrandRead[]>> {
     return http.get('/marketplace/my/errands/accepted', params);
-  }
+  },
 };

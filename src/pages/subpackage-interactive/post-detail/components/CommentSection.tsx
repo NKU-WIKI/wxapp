@@ -1,20 +1,43 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Image } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import { useSelector } from 'react-redux';
 
-import { CommentDetail } from "@/types/api/comment";
-import { RootState } from "@/store";
-import AuthorInfo from "@/components/author-info";
-import ActionBar, { ActionButtonConfig } from "@/components/action-bar";
-import { formatRelativeTime } from "@/utils/time";
+import { CommentDetail } from '@/types/api/comment';
+import { RootState } from '@/store';
+import AuthorInfo from '@/components/author-info';
+import ActionBar, { ActionButtonConfig } from '@/components/action-bar';
+import { formatRelativeTime } from '@/utils/time';
 
-import ChevronDownIcon from "@/assets/chevron-down.svg";
-import ChevronRightIcon from "@/assets/chevron-right.svg";
-import HeartIcon from "@/assets/heart-outline.svg";
-import HeartActiveIcon from "@/assets/heart-bold.svg";
+/**
+ * API返回的原始评论数据接口
+ */
+interface RawCommentData {
+  id?: string;
+  user_id?: string;
+  author_nickname?: string;
+  author_avatar?: string;
+  avatar?: string;
+  user?: {
+    nickname?: string;
+    name?: string;
+    avatar?: string;
+  };
+  create_at?: string;
+  created_at?: string;
+  create_time?: string;
+  update_time?: string;
+  reply_count?: number;
+  content?: string;
+  [key: string]: unknown;
+}
 
-import styles from "../index.module.scss";
+import ChevronDownIcon from '@/assets/chevron-down.svg';
+import ChevronRightIcon from '@/assets/chevron-right.svg';
+import HeartIcon from '@/assets/heart-outline.svg';
+import HeartActiveIcon from '@/assets/heart-bold.svg';
+
+import styles from '../index.module.scss';
 
 // 渲染带有@用户名高亮的评论内容
 const renderCommentContent = (content: string): React.ReactNode => {
@@ -27,11 +50,7 @@ const renderCommentContent = (content: string): React.ReactNode => {
   while ((match = mentionRegex.exec(content)) !== null) {
     // 添加@之前的普通文本
     if (match.index > lastIndex) {
-      parts.push(
-        <Text key={`text-${lastIndex}`}>
-          {content.slice(lastIndex, match.index)}
-        </Text>,
-      );
+      parts.push(<Text key={`text-${lastIndex}`}>{content.slice(lastIndex, match.index)}</Text>);
     }
 
     // 添加高亮的@用户名
@@ -46,9 +65,7 @@ const renderCommentContent = (content: string): React.ReactNode => {
 
   // 添加剩余的普通文本
   if (lastIndex < content.length) {
-    parts.push(
-      <Text key={`text-${lastIndex}`}>{content.slice(lastIndex)}</Text>,
-    );
+    parts.push(<Text key={`text-${lastIndex}`}>{content.slice(lastIndex)}</Text>);
   }
 
   return parts.length > 0 ? parts : <Text>{content}</Text>;
@@ -57,11 +74,7 @@ const renderCommentContent = (content: string): React.ReactNode => {
 interface SubCommentItemProps {
   comment: CommentDetail;
   onReply: (_comment: CommentDetail) => void;
-  onLikeUpdate: (
-    _commentId: string,
-    _isLiked: boolean,
-    _likeCount: number,
-  ) => void;
+  onLikeUpdate: (_commentId: string, _isLiked: boolean, _likeCount: number) => void;
   onDeleteComment?: (_commentId: string) => void;
   /** 是否显示关注按钮 */
   showFollowButton?: boolean;
@@ -79,21 +92,21 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({
 
   const actionBarButtons: ActionButtonConfig[] = [
     {
-      type: "like",
+      type: 'like',
       icon: HeartIcon,
       activeIcon: HeartActiveIcon,
     },
     {
-      type: "comment",
-      icon: "/assets/message-circle.svg",
+      type: 'comment',
+      icon: '/assets/message-circle.svg',
     },
   ];
 
   const handleMoreClick = () => {
     if (isCommentAuthor && _onDeleteComment) {
       Taro.showModal({
-        title: "删除评论",
-        content: "确定要删除这条评论吗？删除后无法恢复。",
+        title: '删除评论',
+        content: '确定要删除这条评论吗？删除后无法恢复。',
         success: (res) => {
           if (res.confirm) {
             _onDeleteComment(_comment.id);
@@ -107,47 +120,43 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({
     <View className={styles.subCommentItem}>
       <AuthorInfo
         userId={_comment.user_id}
-        mode="compact"
+        mode='compact'
         showFollowButton={showFollowButton}
         showStats={false}
         showLevel
         showTime
-        createTime={_comment.create_at || (_comment as any).created_at || ""}
+        createTime={getCommentCreateTime(_comment)}
         showMoreButton={isCommentAuthor && _onDeleteComment ? true : false}
         onMoreClick={handleMoreClick}
         disableNameTruncate
       />
       <View className={styles.subContent}>
-        <Text className={styles.subText}>
-          {renderCommentContent(_comment.content)}
-        </Text>
+        <Text className={styles.subText}>{renderCommentContent(_comment.content)}</Text>
         <View className={styles.subActions}>
           <ActionBar
             targetId={_comment.id}
-            targetType="comment"
+            targetType='comment'
             buttons={actionBarButtons}
             initialStates={{
-              "like-0": {
+              'like-0': {
                 isActive: _comment.has_liked || false,
                 count: _comment.like_count || 0,
               },
-              "comment-1": {
+              'comment-1': {
                 isActive: false,
                 count: _comment.reply_count || 0,
               },
             }}
             onStateChange={(type, isActive, count) => {
-              if (type === "like") {
+              if (type === 'like') {
                 onLikeUpdate(_comment.id, isActive, count);
-              } else if (type === "comment") {
+              } else if (type === 'comment') {
                 onReply(_comment);
               }
             }}
           />
           <Text className={styles.subCommentTime}>
-            {formatRelativeTime(
-              _comment.create_at || (_comment as any).created_at || "",
-            )}
+            {formatRelativeTime(getCommentCreateTime(_comment))}
           </Text>
         </View>
       </View>
@@ -158,11 +167,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({
 interface CommentItemProps {
   comment: CommentDetail;
   onReply: (_comment: CommentDetail) => void;
-  onLikeUpdate: (
-    _commentId: string,
-    _isLiked: boolean,
-    _likeCount: number,
-  ) => void;
+  onLikeUpdate: (_commentId: string, _isLiked: boolean, _likeCount: number) => void;
   onUpdateComment: (_commentId: string, _updatedComment: CommentDetail) => void;
   onDeleteComment?: (_commentId: string) => void;
   /** 是否显示关注按钮 */
@@ -196,13 +201,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
   const actionBarButtons: ActionButtonConfig[] = [
     {
-      type: "like",
+      type: 'like',
       icon: HeartIcon,
       activeIcon: HeartActiveIcon,
     },
     {
-      type: "comment",
-      icon: "/assets/message-circle.svg",
+      type: 'comment',
+      icon: '/assets/message-circle.svg',
     },
   ];
 
@@ -229,20 +234,14 @@ const CommentItem: React.FC<CommentItemProps> = ({
       // 修复数据结构处理，判断response是否为数组
       const repliesData = Array.isArray(response)
         ? response
-        : response?.data || [];
+        : (response as { data?: unknown[] }).data || [];
 
       // 标准化字段：author_nickname / author_avatar / create_at
-      const normalizedReplies = (repliesData || []).map((r: any) => ({
+      const normalizedReplies = (repliesData || []).map((r: RawCommentData) => ({
         ...r,
-        author_nickname:
-          r?.author_nickname ?? r?.user?.nickname ?? r?.user?.name ?? "",
-        author_avatar: r?.author_avatar ?? r?.avatar ?? r?.user?.avatar ?? "",
-        create_at:
-          r?.create_at ||
-          r?.created_at ||
-          r?.create_time ||
-          r?.update_time ||
-          "",
+        author_nickname: r?.author_nickname ?? r?.user?.nickname ?? r?.user?.name ?? '',
+        author_avatar: r?.author_avatar ?? r?.avatar ?? r?.user?.avatar ?? '',
+        create_at: r?.create_at || r?.created_at || r?.create_time || r?.update_time || '',
       }));
 
       // 递归获取所有层级的子评论，传入主评论的昵称作为第一层子评论的父昵称
@@ -266,9 +265,9 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
   // 递归获取所有层级的子评论
   const fetchAllNestedRepliesRecursive = async (
-    replies: any[],
+    replies: RawCommentData[],
     parentauthor_nickname?: string,
-  ): Promise<any[]> => {
+  ): Promise<CommentDetail[]> => {
     const allReplies = [...replies];
 
     for (const reply of replies) {
@@ -288,18 +287,11 @@ const CommentItem: React.FC<CommentItemProps> = ({
             : nestedResponse?.data || [];
 
           // 标准化子层回复的关键字段
-          const nestedReplies = (rawNested || []).map((r: any) => ({
+          const nestedReplies = (rawNested || []).map((r: RawCommentData) => ({
             ...r,
-            author_nickname:
-              r?.author_nickname ?? r?.user?.nickname ?? r?.user?.name ?? "",
-            author_avatar:
-              r?.author_avatar ?? r?.avatar ?? r?.user?.avatar ?? "",
-            create_at:
-              r?.create_at ||
-              r?.created_at ||
-              r?.create_time ||
-              r?.update_time ||
-              "",
+            author_nickname: r?.author_nickname ?? r?.user?.nickname ?? r?.user?.name ?? '',
+            author_avatar: r?.author_avatar ?? r?.avatar ?? r?.user?.avatar ?? '',
+            create_at: r?.create_at || r?.created_at || r?.create_time || r?.update_time || '',
           }));
 
           // 递归获取更深层级的回复，传入当前回复的昵称作为父昵称
@@ -323,8 +315,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const handleMoreClick = () => {
     if (isCommentAuthor && _onDeleteComment) {
       Taro.showModal({
-        title: "删除评论",
-        content: "确定要删除这条评论吗？删除后无法恢复。",
+        title: '删除评论',
+        content: '确定要删除这条评论吗？删除后无法恢复。',
         success: (res) => {
           if (res.confirm) {
             _onDeleteComment(_comment.id);
@@ -338,61 +330,52 @@ const CommentItem: React.FC<CommentItemProps> = ({
     <View className={styles.commentItem}>
       <AuthorInfo
         userId={_comment.user_id}
-        mode="compact"
+        mode='compact'
         showFollowButton={showFollowButton}
         showStats={false}
         showLevel
         showTime
-        createTime={_comment.create_at || (_comment as any).created_at || ""}
+        createTime={getCommentCreateTime(_comment)}
         showMoreButton={isCommentAuthor && _onDeleteComment ? true : false}
         onMoreClick={handleMoreClick}
         disableNameTruncate
       />
       <View className={styles.content}>
-        <Text className={styles.text}>
-          {renderCommentContent(_comment?.content || "")}
-        </Text>
+        <Text className={styles.text}>{renderCommentContent(_comment?.content || '')}</Text>
         <View className={styles.actions}>
           <ActionBar
             targetId={_comment.id}
-            targetType="comment"
+            targetType='comment'
             buttons={actionBarButtons}
             initialStates={{
-              "like-0": {
+              'like-0': {
                 isActive: _comment.has_liked || false,
                 count: _comment.like_count || 0,
               },
-              "comment-1": {
+              'comment-1': {
                 isActive: false,
                 count: _comment.children?.length || 0,
               },
             }}
             onStateChange={(type, isActive, count) => {
-              if (type === "like") {
+              if (type === 'like') {
                 onLikeUpdate(_comment.id, isActive, count);
-              } else if (type === "comment") {
+              } else if (type === 'comment') {
                 onReply(_comment);
               }
             }}
           />
           <View className={styles.commentRightSection}>
             <Text className={styles.commentTime}>
-              {formatRelativeTime(
-                _comment.create_at || (_comment as any).created_at || "",
-              )}
+              {formatRelativeTime(getCommentCreateTime(_comment))}
             </Text>
             {shouldShowToggleButton && (
-              <View
-                className={styles.toggleRepliesButton}
-                onClick={toggleReplies}
-              >
+              <View className={styles.toggleRepliesButton} onClick={toggleReplies}>
                 <Image
                   src={showReplies ? ChevronDownIcon : ChevronRightIcon}
                   className={styles.toggleIcon}
                 />
-                <Text>
-                  {showReplies ? "收起" : `查看剩余${replyCount - 2}条回复`}
-                </Text>
+                <Text>{showReplies ? '收起' : `查看剩余${replyCount - 2}条回复`}</Text>
               </View>
             )}
           </View>
@@ -421,11 +404,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 interface CommentSectionProps {
   comments: CommentDetail[];
   onReply: (_comment: CommentDetail) => void;
-  onLikeUpdate: (
-    _commentId: string,
-    _isLiked: boolean,
-    _likeCount: number,
-  ) => void;
+  onLikeUpdate: (_commentId: string, _isLiked: boolean, _likeCount: number) => void;
   onDeleteComment?: (_commentId: string) => void;
   /** 是否在评论区显示关注按钮 */
   showFollowButton?: boolean;
@@ -438,7 +417,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   onDeleteComment: _onDeleteComment,
   showFollowButton = true,
 }) => {
-  const [sortBy, setSortBy] = useState<"time" | "likes">("time");
+  const [sortBy, setSortBy] = useState<'time' | 'likes'>('time');
   const [localComments, setLocalComments] = useState<CommentDetail[]>([]);
 
   // 同步外部评论数据到本地状态
@@ -450,11 +429,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   useEffect(() => {}, [localComments]);
 
   // 处理点赞状态更新
-  const handleLikeUpdate = (
-    commentId: string,
-    isLiked: boolean,
-    likeCount: number,
-  ) => {
+  const handleLikeUpdate = (commentId: string, isLiked: boolean, likeCount: number) => {
     // 先更新本地状态以提供即时反馈
     setLocalComments((prevComments) => {
       return prevComments.map((comment) => {
@@ -473,11 +448,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           });
 
           // 只有当子评论确实被更新时才返回新对象
-          if (
-            updatedChildren.some(
-              (child, index) => child !== comment.children![index],
-            )
-          ) {
+          if (updatedChildren.some((child, index) => child !== comment.children![index])) {
             return { ...comment, children: updatedChildren };
           }
         }
@@ -493,10 +464,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   };
 
   // 处理评论更新
-  const handleUpdateComment = (
-    commentId: string,
-    updatedComment: CommentDetail,
-  ) => {
+  const handleUpdateComment = (commentId: string, updatedComment: CommentDetail) => {
     setLocalComments((prevComments) => {
       return prevComments.map((comment) => {
         if (String(comment.id) === String(commentId)) {
@@ -509,15 +477,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
   // 根据排序方式对评论进行排序
   const sortedComments = [...localComments].sort((a, b) => {
-    if (sortBy === "time") {
-      const bTime =
-        b.create_at || (b as any).created_at
-          ? new Date((b.create_at || (b as any).created_at) as string).getTime()
-          : 0;
-      const aTime =
-        a.create_at || (a as any).created_at
-          ? new Date((a.create_at || (a as any).created_at) as string).getTime()
-          : 0;
+    if (sortBy === 'time') {
+      const bTimeStr = getCommentCreateTime(b);
+      const aTimeStr = getCommentCreateTime(a);
+      const bTime = bTimeStr ? new Date(bTimeStr).getTime() : 0;
+      const aTime = aTimeStr ? new Date(aTimeStr).getTime() : 0;
       return bTime - aTime;
     } else {
       return (b.like_count || 0) - (a.like_count || 0);
@@ -526,7 +490,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
   // 切换排序方式
   const toggleSort = () => {
-    setSortBy(sortBy === "time" ? "likes" : "time");
+    setSortBy(sortBy === 'time' ? 'likes' : 'time');
   };
 
   return (
@@ -534,7 +498,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       <View className={styles.header}>
         <Text className={styles.title}>评论 ({localComments.length})</Text>
         <View className={styles.sort} onClick={toggleSort}>
-          <Text>{sortBy === "time" ? "时间" : "热度"}</Text>
+          <Text>{sortBy === 'time' ? '时间' : '热度'}</Text>
           <Image src={ChevronDownIcon} className={styles.icon} />
         </View>
       </View>

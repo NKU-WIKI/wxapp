@@ -3,8 +3,8 @@
  */
 export interface ToggleActionRequest {
   target_id: string; // 改为string以支持UUID
-  target_type: "post" | "comment" | "user" | "note";
-  action_type: "like" | "favorite" | "follow";
+  target_type: 'post' | 'comment' | 'user' | 'listing' | 'note' | 'activity' | 'errand';
+  action_type: 'like' | 'favorite' | 'follow' | 'share';
 }
 
 /**

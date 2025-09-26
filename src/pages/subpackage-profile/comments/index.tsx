@@ -26,18 +26,18 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
     if (comment.resource_type === 'post' && comment.resource_id) {
       setLoading(true);
       getPostByIdSilent(comment.resource_id)
-        .then(response => {
+        .then((response) => {
           if (response.code === 0 && response.data) {
             setPostInfo(response.data);
           } else if (response.code === 404) {
             // 帖子已被删除，使用友好的提示信息
-            
+
             setPostInfo(null);
           } else {
             console.warn('获取帖子信息失败:', response);
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('获取帖子信息时出现错误:', error);
         })
         .finally(() => {
@@ -50,11 +50,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
     // 根据资源类型导航到对应页面
     if (comment.resource_type === 'post') {
       Taro.navigateTo({
-        url: `/pages/subpackage-interactive/post-detail/index?id=${comment.resource_id}`
+        url: `/pages/subpackage-interactive/post-detail/index?id=${comment.resource_id}`,
       });
     } else if (comment.resource_type === 'note') {
       Taro.navigateTo({
-        url: `/pages/subpackage-interactive/note-detail/index?id=${comment.resource_id}`
+        url: `/pages/subpackage-interactive/note-detail/index?id=${comment.resource_id}`,
       });
     }
   };
@@ -108,9 +108,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
           <Text className={styles.resourceType}>
             {comment.resource_type === 'post' ? '帖子' : '笔记'}
           </Text>
-          <Text className={styles.resourceAuthor}>
-            {getResourceAuthor()}
-          </Text>
+          <Text className={styles.resourceAuthor}>{getResourceAuthor()}</Text>
         </View>
 
         <Text className={styles.resourceTitle}>
@@ -137,97 +135,100 @@ const CommentsPage: React.FC = () => {
     skip: 0,
     limit: 10,
     total: 0,
-    has_more: false
+    has_more: false,
   });
-  
+
   const { isLoggedIn } = useSelector((state: RootState) => state.user);
 
   // 获取状态栏高度
   useEffect(() => {
-    Taro.getSystemInfo().then(res => {
+    Taro.getSystemInfo().then((res) => {
       setStatusBarHeight(res.statusBarHeight || 20);
     });
   }, []);
 
   // 加载评论列表
-  const loadComments = useCallback(async (refresh = false) => {
-    try {
-      setLoading('pending');
-      setError(null);
-      
-      const skip = refresh ? 0 : comments.length;
-      const limit = 10;
+  const loadComments = useCallback(
+    async (refresh = false) => {
+      try {
+        setLoading('pending');
+        setError(null);
 
-      const response = await getMyComments({ skip, limit });
-      
-      if (response.code !== 0) {
-        throw new Error(response.message || 'Failed to fetch comments');
-      }
+        const skip = refresh ? 0 : comments.length;
+        const limit = 10;
 
-      const raw = response.data as any;
-      const items: CommentRead[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
-      
-      // 过滤掉对应资源已被删除的评论
-      const validComments: CommentRead[] = [];
-      let filteredCount = 0;
-      
-      for (const comment of items) {
-        if (comment.resource_type === 'post') {
-          try {
-            const postResponse = await getPostByIdSilent(comment.resource_id);
-            if (postResponse.code === 0 && postResponse.data) {
-              // 帖子存在，保留评论
-              validComments.push(comment);
-            } else if (postResponse.code === 404) {
-              // 帖子已被删除，过滤掉评论
-              
-              filteredCount++;
-            } else {
-              // 其他错误，保留评论但会显示"未知"信息
+        const response = await getMyComments({ skip, limit });
+
+        if (response.code !== 0) {
+          throw new Error(response.message || 'Failed to fetch comments');
+        }
+
+        const raw = response.data as CommentRead[] | { items: CommentRead[]; total?: number; has_more?: boolean };
+        const items: CommentRead[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
+
+        // 过滤掉对应资源已被删除的评论
+        const validComments: CommentRead[] = [];
+        let filteredCount = 0;
+
+        for (const comment of items) {
+          if (comment.resource_type === 'post') {
+            try {
+              const postResponse = await getPostByIdSilent(comment.resource_id);
+              if (postResponse.code === 0 && postResponse.data) {
+                // 帖子存在，保留评论
+                validComments.push(comment);
+              } else if (postResponse.code === 404) {
+                // 帖子已被删除，过滤掉评论
+
+                filteredCount++;
+              } else {
+                // 其他错误，保留评论但会显示"未知"信息
+                validComments.push(comment);
+              }
+            } catch {
+              // 网络错误等，保留评论
+
               validComments.push(comment);
             }
-          } catch {
-            // 网络错误等，保留评论
-            
+          } else {
+            // 非帖子类型的评论直接保留
             validComments.push(comment);
           }
-        } else {
-          // 非帖子类型的评论直接保留
-          validComments.push(comment);
         }
-      }
-      
-      // 如果有被过滤的评论，输出提示信息
-      if (filteredCount > 0) {
-        console.info(`已过滤 ${filteredCount} 个已删除的帖子评论`);
-      }
 
-      const totalFromApi = Array.isArray(raw) ? undefined : raw?.total;
-      const hasMoreFromApi = Array.isArray(raw) ? undefined : raw?.has_more;
+        // 如果有被过滤的评论，输出提示信息
+        if (filteredCount > 0) {
+          console.info(`已过滤 ${filteredCount} 个已删除的帖子评论`);
+        }
 
-      const hasMore = typeof hasMoreFromApi === 'boolean' ? hasMoreFromApi : validComments.length >= limit;
-      const total = typeof totalFromApi === 'number' ? totalFromApi : validComments.length;
+        const totalFromApi = Array.isArray(raw) ? undefined : raw?.total;
+        const hasMoreFromApi = Array.isArray(raw) ? undefined : raw?.has_more;
 
-      if (refresh) {
-        setComments(validComments);
-      } else {
-        setComments(prev => [...prev, ...validComments]);
+        const hasMore =
+          typeof hasMoreFromApi === 'boolean' ? hasMoreFromApi : validComments.length >= limit;
+        const total = typeof totalFromApi === 'number' ? totalFromApi : validComments.length;
+
+        if (refresh) {
+          setComments(validComments);
+        } else {
+          setComments((prev) => [...prev, ...validComments]);
+        }
+
+        setPagination({
+          skip,
+          limit,
+          total,
+          has_more: hasMore,
+        });
+
+        setLoading('succeeded');
+      } catch (err) {
+        setError((err as Error).message || 'Failed to fetch user comments');
+        setLoading('failed');
       }
-      
-      setPagination({
-        skip,
-        limit,
-        total,
-        has_more: hasMore
-      });
-      
-      setLoading('succeeded');
-    } catch (err: any) {
-      
-      setError(err.message || "Failed to fetch user comments");
-      setLoading('failed');
-    }
-  }, [comments.length]);
+    },
+    [comments.length],
+  );
 
   // 检查登录状态并初始化数据
   useEffect(() => {
@@ -242,7 +243,7 @@ const CommentsPage: React.FC = () => {
           } else {
             Taro.navigateBack();
           }
-        }
+        },
       });
       return;
     }
@@ -290,26 +291,21 @@ const CommentsPage: React.FC = () => {
     }
 
     if (comments.length === 0) {
-      return (
-        <EmptyState
-          icon={messageSquareIcon}
-          text='暂无评论内容'
-        />
-      );
+      return <EmptyState icon={messageSquareIcon} text='暂无评论内容' />;
     }
 
     return (
       <View className={styles.commentsList}>
-        {comments.map(comment => (
+        {comments.map((comment) => (
           <CommentItem key={comment.id} comment={comment} />
         ))}
-        
+
         {loading === 'pending' && comments.length > 0 && (
           <View className={styles.loadingMore}>
             <Text>加载更多...</Text>
           </View>
         )}
-        
+
         {!pagination.has_more && comments.length > 0 && (
           <View className={styles.noMore}>
             <Text>没有更多内容了</Text>
@@ -322,21 +318,16 @@ const CommentsPage: React.FC = () => {
   return (
     <View className={styles.commentsPage}>
       {/* 自定义导航栏 */}
-      <View 
-        className={styles.navbar}
-        style={{ paddingTop: `${statusBarHeight}px` }}
-      >
+      <View className={styles.navbar} style={{ paddingTop: `${statusBarHeight}px` }}>
         <View className={styles.navLeft} onClick={() => Taro.navigateBack()}>
           <Image src={arrowLeftIcon} className={styles.backIcon} />
         </View>
         <View className={styles.navCenter}>
           <Text className={styles.navTitle}>我的评论</Text>
         </View>
-        <View className={styles.navRight}>
-          {/* 占位元素，保持布局平衡 */}
-        </View>
+        <View className={styles.navRight}>{/* 占位元素，保持布局平衡 */}</View>
       </View>
-      
+
       <View className={styles.content}>
         <ScrollView
           scrollY
@@ -359,4 +350,4 @@ const CommentsPage: React.FC = () => {
   );
 };
 
-export default CommentsPage; 
+export default CommentsPage;

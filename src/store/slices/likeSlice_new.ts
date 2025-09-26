@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Post } from "@/types/api/post.d";
-import { Pagination } from "@/types/api/common.d";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { Post } from '@/types/api/post.d';
+import { Pagination } from '@/types/api/common.d';
 
 // 获取用户点赞列表的参数类型
 export interface GetLikesParams {
@@ -16,12 +16,11 @@ export const fetchLikes = createAsyncThunk<
   },
   GetLikesParams,
   { rejectValue: string }
->("like/fetchLikes", async (params, { rejectWithValue }) => {
+>('like/fetchLikes', async (params, { rejectWithValue }) => {
   try {
     // TODO: 当后端提供获取用户点赞列表的API时，调用相应的服务
     // 目前返回空数据，避免报错
-    
-    
+
     // 模拟API响应结构，转换page/page_size为skip/limit
     return {
       items: [],
@@ -29,18 +28,19 @@ export const fetchLikes = createAsyncThunk<
         skip: (params.page - 1) * params.page_size,
         limit: params.page_size,
         total: 0,
-        has_more: false
-      }
+        has_more: false,
+      },
     };
-  } catch (error: any) {
-    return rejectWithValue(error.message || "Failed to fetch likes");
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch likes';
+    return rejectWithValue(errorMessage);
   }
 });
 
 export interface LikeState {
   items: Post[];
   pagination: Pagination & { page: number; page_size: number }; // 兼容现有代码
-  loading: "idle" | "pending" | "succeeded" | "failed";
+  loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   error: string | null;
 }
 
@@ -52,14 +52,14 @@ const initialState: LikeState = {
     total: 0,
     has_more: false,
     page: 1,
-    page_size: 10
+    page_size: 10,
   },
-  loading: "idle",
+  loading: 'idle',
   error: null,
 };
 
 const likeSlice = createSlice({
-  name: "like",
+  name: 'like',
   initialState,
   reducers: {
     resetLikes: (state) => {
@@ -70,24 +70,24 @@ const likeSlice = createSlice({
         total: 0,
         has_more: false,
         page: 1,
-        page_size: 10
+        page_size: 10,
       };
-      state.loading = "idle";
+      state.loading = 'idle';
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchLikes.pending, (state) => {
-        state.loading = "pending";
+        state.loading = 'pending';
         state.error = null;
       })
       .addCase(fetchLikes.fulfilled, (state, action) => {
-        state.loading = "succeeded";
+        state.loading = 'succeeded';
         const { items, pagination } = action.payload;
-        
+
         const currentPage = Math.floor(pagination.skip / pagination.limit) + 1;
-        
+
         if (currentPage === 1) {
           // 第一页，重置数据
           state.items = items;
@@ -95,15 +95,15 @@ const likeSlice = createSlice({
           // 加载更多，追加数据
           state.items = [...state.items, ...items];
         }
-        
+
         state.pagination = {
           ...pagination,
           page: currentPage,
-          page_size: pagination.limit
+          page_size: pagination.limit,
         };
       })
       .addCase(fetchLikes.rejected, (state, action) => {
-        state.loading = "failed";
+        state.loading = 'failed';
         state.error = action.payload as string;
       });
   },

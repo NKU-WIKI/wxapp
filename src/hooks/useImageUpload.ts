@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
-import Taro from "@tarojs/taro";
-import { uploadImage } from "@/services/api/upload";
+import { useState, useCallback } from 'react';
+import Taro from '@tarojs/taro';
+import { uploadImage } from '@/services/api/upload';
 
 export interface ImageUploadOptions {
   maxCount?: number;
@@ -20,9 +20,7 @@ export interface UseImageUploadReturn {
   clearImages: () => void;
 }
 
-export const useImageUpload = (
-  initialImages: string[] = [],
-): UseImageUploadReturn => {
+export const useImageUpload = (initialImages: string[] = []): UseImageUploadReturn => {
   const [images, setImages] = useState<string[]>(initialImages);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -49,8 +47,8 @@ export const useImageUpload = (
         // 选择图片
         const chooseResult = await Taro.chooseImage({
           count: remainingSlots,
-          sizeType: ["compressed"],
-          sourceType: ["album", "camera"],
+          sizeType: ['compressed'],
+          sourceType: ['album', 'camera'],
         });
 
         if (chooseResult.tempFilePaths.length === 0) {
@@ -78,16 +76,13 @@ export const useImageUpload = (
             tempImageUrls[i] = url; // 更新临时图片为真实URL
 
             // 减少进度更新频率，只在关键节点更新
-            if (
-              i === totalFiles - 1 ||
-              (i + 1) % Math.max(1, Math.floor(totalFiles / 3)) === 0
-            ) {
+            if (i === totalFiles - 1 || (i + 1) % Math.max(1, Math.floor(totalFiles / 3)) === 0) {
               const progress = Math.round(((i + 1) / totalFiles) * 100);
               setUploadProgress(progress);
               onProgress?.(progress);
             }
           } catch {
-            tempImageUrls[i] = ""; // 标记上传失败
+            tempImageUrls[i] = ''; // 标记上传失败
             // 继续上传其他图片，不中断整个上传过程
           }
         }
@@ -101,23 +96,24 @@ export const useImageUpload = (
           setUploadProgress(100); // 确保进度完成
           onProgress?.(100);
           onSuccess?.(uploadedUrls);
-          Taro.showToast({ title: "上传成功", icon: "success" });
+          Taro.showToast({ title: '上传成功', icon: 'success' });
         } else {
-          throw new Error("所有图片上传都失败了");
+          throw new Error('所有图片上传都失败了');
         }
-      } catch {
+      } catch (error: unknown) {
         // 检查是否是用户取消操作
-        if (error && typeof error === "object" && "errMsg" in error) {
-          const errMsg = (error as any).errMsg;
-          if (errMsg && errMsg.includes("cancel")) {
+        if (error && typeof error === 'object' && error !== null && 'errMsg' in error) {
+          const errorObj = error as Record<string, unknown>;
+          const errMsg = errorObj.errMsg;
+          if (typeof errMsg === 'string' && errMsg.includes('cancel')) {
             // 用户取消是正常行为，不触发错误回调和提示
             return;
           }
         }
 
-        const err = error instanceof Error ? error : new Error("上传失败");
+        const err = error instanceof Error ? error : new Error('上传失败');
         onError?.(err);
-        Taro.showToast({ title: err.message, icon: "none" });
+        Taro.showToast({ title: err.message, icon: 'none' });
       } finally {
         setIsUploading(false);
         setUploadProgress(0);

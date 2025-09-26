@@ -18,22 +18,12 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "resolveJsonModule": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "types"
-    ],
-    "types": [
-      "@tarojs/taro"
-    ],
+    "typeRoots": ["node_modules/@types", "types"],
+    "types": ["@tarojs/taro", "react"],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
+  "exclude": ["node_modules", "dist"],
   "compileOnSave": false
 }

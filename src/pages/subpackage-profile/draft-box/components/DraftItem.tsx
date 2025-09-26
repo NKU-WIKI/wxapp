@@ -23,13 +23,13 @@ const DraftItem = ({ draft, onEdit, onDelete }: Props) => {
           src={editIcon}
           className={styles.editIcon}
           onClick={onEdit}
-          style={{ '--icon-url': `url(${editIcon})`, backgroundColor: '#1B82D6' } as any}
+          style={{ '--icon-url': `url(${editIcon})`, backgroundColor: '#1B82D6' } as React.CSSProperties}
         />
         <Image
           src={deleteIcon}
           className={styles.deleteIcon}
           onClick={onDelete}
-          style={{ '--icon-url': `url(${deleteIcon})`, backgroundColor: '#D0021B' } as any}
+          style={{ '--icon-url': `url(${deleteIcon})`, backgroundColor: '#D0021B' } as React.CSSProperties}
         />
       </View>
     </View>

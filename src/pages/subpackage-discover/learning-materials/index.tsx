@@ -1,20 +1,29 @@
-import { View, ScrollView, Text } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { useState, useEffect, useCallback } from "react";
-import AuthFloatingButton from "@/components/auth-floating-button";
-import SearchBar from "@/components/search-bar";
-import HighlightText from "@/components/highlight-text";
-import CustomHeader from "@/components/custom-header";
-import LearningMaterialService, { CATEGORY_CONFIG } from "@/services/api/learningMaterial";
-import { LearningMaterial, LearningMaterialCategory } from "@/types/api/learningMaterial";
-import { downloadFile, getDownloadInfo, saveImageToAlbum } from "@/services/api/download";
-import styles from "./index.module.scss";
+import { View, ScrollView, Text } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import { useState, useEffect, useCallback } from 'react';
+import AuthFloatingButton from '@/components/auth-floating-button';
+import SearchBar from '@/components/search-bar';
+import HighlightText from '@/components/highlight-text';
+import CustomHeader from '@/components/custom-header';
+import LearningMaterialService, { CATEGORY_CONFIG } from '@/services/api/learningMaterial';
+import { LearningMaterial, LearningMaterialCategory } from '@/types/api/learningMaterial';
+
+interface CategoryCard {
+  id: string;
+  title: string;
+  count: string;
+  icon: string;
+  type: string;
+  category: LearningMaterialCategory;
+}
+import { downloadFile, getDownloadInfo, saveImageToAlbum } from '@/services/api/download';
+import styles from './index.module.scss';
 
 // eslint-disable-next-line import/no-unused-modules
 export default function LearningMaterials() {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]); // 用于高亮的关键词列表
-  const [activeTag, setActiveTag] = useState("全部");
+  const [activeTag, setActiveTag] = useState('全部');
   const [materials, setMaterials] = useState<LearningMaterial[]>([]);
   const [allMaterials, setAllMaterials] = useState<LearningMaterial[]>([]);
   const [categoryStats, setCategoryStats] = useState<Record<LearningMaterialCategory, number>>({
@@ -33,8 +42,8 @@ export default function LearningMaterials() {
     const newMaterial = LearningMaterialService.checkAndImportUploadData();
     if (newMaterial) {
       Taro.showToast({
-        title: "资料已成功保存",
-        icon: "success"
+        title: '资料已成功保存',
+        icon: 'success',
       });
       // 重新加载数据
       setTimeout(() => {
@@ -52,24 +61,24 @@ export default function LearningMaterials() {
     }
 
     // 根据标签筛选
-    if (activeTag !== "全部") {
+    if (activeTag !== '全部') {
       let category: LearningMaterialCategory | null = null;
       switch (activeTag) {
-        case "考研资料":
+        case '考研资料':
           category = LearningMaterialCategory.GRADUATE_EXAM;
           break;
-        case "期末考试":
+        case '期末考试':
           category = LearningMaterialCategory.FINAL_EXAM;
           break;
-        case "课程笔记":
+        case '课程笔记':
           category = LearningMaterialCategory.COURSE_NOTES;
           break;
-        case "实验报告":
+        case '实验报告':
           category = LearningMaterialCategory.LAB_REPORT;
           break;
       }
       if (category) {
-        filtered = filtered.filter(material => material.category === category);
+        filtered = filtered.filter((material) => material.category === category);
       }
     }
 
@@ -91,21 +100,27 @@ export default function LearningMaterials() {
   };
 
   // 处理搜索输入
-  const handleSearchInput = useCallback((e: any) => {
-    const value = e.detail.value;
-    setSearchValue(value);
+  const handleSearchInput = useCallback(
+    (e: { detail: { value: string } }) => {
+      const value = e.detail.value;
+      setSearchValue(value);
 
-    // 设置关键词用于高亮
-    if (value.trim()) {
-      const keywords = value.trim().split(/\s+/).filter(k => k.length > 0);
-      setSearchKeywords(keywords);
-    } else {
-      setSearchKeywords([]);
-    }
+      // 设置关键词用于高亮
+      if (value.trim()) {
+        const keywords = value
+          .trim()
+          .split(/\s+/)
+          .filter((k) => k.length > 0);
+        setSearchKeywords(keywords);
+      } else {
+        setSearchKeywords([]);
+      }
 
-    // 触发筛选
-    setTimeout(() => filterMaterials(), 0);
-  }, [filterMaterials]);
+      // 触发筛选
+      setTimeout(() => filterMaterials(), 0);
+    },
+    [filterMaterials],
+  );
 
   // 处理搜索确认
   const handleSearchConfirm = useCallback(() => {
@@ -115,52 +130,51 @@ export default function LearningMaterials() {
 
   // 清空搜索
   const handleClearSearch = useCallback(() => {
-    setSearchValue("");
+    setSearchValue('');
     setSearchKeywords([]);
     filterMaterials();
   }, [filterMaterials]);
 
   // 标签数据
-  const tags = ["全部", "考研资料", "期末考试", "课程笔记", "实验报告"];
+  const tags = ['全部', '考研资料', '期末考试', '课程笔记', '实验报告'];
 
   // 分类卡片数据 - 使用真实统计数据
   const categories = [
     {
-      id: "1",
-      title: "课程笔记",
+      id: '1',
+      title: '课程笔记',
       count: `${categoryStats[LearningMaterialCategory.COURSE_NOTES]} 份资料`,
       icon: CATEGORY_CONFIG[LearningMaterialCategory.COURSE_NOTES].icon,
-      type: "notes",
-      category: LearningMaterialCategory.COURSE_NOTES
+      type: 'notes',
+      category: LearningMaterialCategory.COURSE_NOTES,
     },
     {
-      id: "2",
-      title: "期末真题",
+      id: '2',
+      title: '期末真题',
       count: `${categoryStats[LearningMaterialCategory.FINAL_EXAM]} 份资料`,
       icon: CATEGORY_CONFIG[LearningMaterialCategory.FINAL_EXAM].icon,
-      type: "exam",
-      category: LearningMaterialCategory.FINAL_EXAM
+      type: 'exam',
+      category: LearningMaterialCategory.FINAL_EXAM,
     },
     {
-      id: "3",
-      title: "电子书",
+      id: '3',
+      title: '电子书',
       count: `${categoryStats[LearningMaterialCategory.EBOOK]} 本书籍`,
       icon: CATEGORY_CONFIG[LearningMaterialCategory.EBOOK].icon,
-      type: "book",
-      category: LearningMaterialCategory.EBOOK
+      type: 'book',
+      category: LearningMaterialCategory.EBOOK,
     },
     {
-      id: "4",
-      title: "考研资料",
+      id: '4',
+      title: '考研资料',
       count: `${categoryStats[LearningMaterialCategory.GRADUATE_EXAM]} 份资料`,
       icon: CATEGORY_CONFIG[LearningMaterialCategory.GRADUATE_EXAM].icon,
-      type: "graduate",
-      category: LearningMaterialCategory.GRADUATE_EXAM
-    }
+      type: 'graduate',
+      category: LearningMaterialCategory.GRADUATE_EXAM,
+    },
   ];
 
   // 使用全局 CustomHeader，无需本地返回处理
-
 
   // 标签点击处理
   const handleTagClick = (tag: string) => {
@@ -168,21 +182,21 @@ export default function LearningMaterials() {
   };
 
   // 分类卡片点击处理
-  const handleCategoryClick = (category: any) => {
+  const handleCategoryClick = (category: CategoryCard) => {
     // 根据分类设置对应的标签
-    let tag = "全部";
+    let tag = '全部';
     switch (category.category) {
       case LearningMaterialCategory.GRADUATE_EXAM:
-        tag = "考研资料";
+        tag = '考研资料';
         break;
       case LearningMaterialCategory.FINAL_EXAM:
-        tag = "期末考试";
+        tag = '期末考试';
         break;
       case LearningMaterialCategory.COURSE_NOTES:
-        tag = "课程笔记";
+        tag = '课程笔记';
         break;
       case LearningMaterialCategory.LAB_REPORT:
-        tag = "实验报告";
+        tag = '实验报告';
         break;
     }
     setActiveTag(tag);
@@ -230,7 +244,7 @@ export default function LearningMaterials() {
             handleShowDetails(material);
             break;
         }
-      }
+      },
     });
   };
 
@@ -239,24 +253,24 @@ export default function LearningMaterials() {
     if (!material.linkId) {
       Taro.showToast({
         title: '文件链接ID不存在',
-        icon: 'none'
+        icon: 'none',
       });
       return;
     }
 
     try {
       const result = await downloadFile(material.linkId, { showProgress: true });
-      
+
       // 下载成功后尝试打开文件
       try {
         await Taro.openDocument({
           filePath: result.tempFilePath,
-          showMenu: true
+          showMenu: true,
         });
-        
+
         Taro.showToast({
           title: '文件已打开',
-          icon: 'success'
+          icon: 'success',
         });
       } catch {
         // 如果无法打开，询问是否保存到相册（仅限图片）
@@ -265,16 +279,16 @@ export default function LearningMaterials() {
             title: '无法打开文件',
             content: '这是一个图片文件，是否保存到相册？',
             confirmText: '保存',
-            cancelText: '取消'
+            cancelText: '取消',
           });
-          
+
           if (saveRes.confirm) {
             await saveImageToAlbum(result.tempFilePath);
           }
         } else {
           Taro.showToast({
             title: '文件已下载但无法打开',
-            icon: 'none'
+            icon: 'none',
           });
         }
       }
@@ -288,7 +302,7 @@ export default function LearningMaterials() {
     if (!material.linkId) {
       Taro.showToast({
         title: '文件链接ID不存在',
-        icon: 'none'
+        icon: 'none',
       });
       return;
     }
@@ -296,7 +310,7 @@ export default function LearningMaterials() {
     try {
       Taro.showLoading({
         title: '获取信息...',
-        mask: true
+        mask: true,
       });
 
       const response = await getDownloadInfo(material.linkId);
@@ -321,14 +335,14 @@ export default function LearningMaterials() {
           title: '文件下载信息',
           content: details.join('\n'),
           showCancel: false,
-          confirmText: '知道了'
+          confirmText: '知道了',
         });
       }
     } catch {
       Taro.hideLoading();
       Taro.showToast({
         title: '获取信息失败',
-        icon: 'none'
+        icon: 'none',
       });
     }
   };
@@ -338,7 +352,7 @@ export default function LearningMaterials() {
     if (!material.fileUrl) {
       Taro.showToast({
         title: '文件URL不存在',
-        icon: 'none'
+        icon: 'none',
       });
       return;
     }
@@ -352,7 +366,7 @@ export default function LearningMaterials() {
         if (res.confirm) {
           // 显示下载提示
           Taro.showLoading({
-            title: '准备下载...'
+            title: '准备下载...',
           });
 
           // 尝试下载文件
@@ -368,15 +382,15 @@ export default function LearningMaterials() {
                 success: () => {
                   Taro.showToast({
                     title: '文件已打开',
-                    icon: 'success'
+                    icon: 'success',
                   });
                 },
                 fail: () => {
                   Taro.showToast({
                     title: '无法打开文件',
-                    icon: 'none'
+                    icon: 'none',
                   });
-                }
+                },
               });
             },
             fail: (error) => {
@@ -396,23 +410,23 @@ export default function LearningMaterials() {
                         success: () => {
                           Taro.showToast({
                             title: '链接已复制',
-                            icon: 'success'
+                            icon: 'success',
                           });
-                        }
+                        },
                       });
                     }
-                  }
+                  },
                 });
               } else {
                 Taro.showToast({
                   title: '下载失败',
-                  icon: 'none'
+                  icon: 'none',
                 });
               }
-            }
+            },
           });
         }
-      }
+      },
     });
   };
 
@@ -421,7 +435,7 @@ export default function LearningMaterials() {
     if (!material.netdiskLink) {
       Taro.showToast({
         title: '网盘链接不存在',
-        icon: 'none'
+        icon: 'none',
       });
       return;
     }
@@ -431,15 +445,15 @@ export default function LearningMaterials() {
       success: () => {
         Taro.showToast({
           title: '网盘链接已复制',
-          icon: 'success'
+          icon: 'success',
         });
       },
       fail: () => {
         Taro.showToast({
           title: '复制失败',
-          icon: 'none'
+          icon: 'none',
         });
-      }
+      },
     });
   };
 
@@ -463,7 +477,7 @@ export default function LearningMaterials() {
       title: '资料详情',
       content: details.join('\n'),
       showCancel: false,
-      confirmText: '知道了'
+      confirmText: '知道了',
     });
   };
 
@@ -513,7 +527,6 @@ export default function LearningMaterials() {
 
       {/* 内容区域 */}
       <ScrollView scrollY className={styles.contentScrollView}>
-
         {/* 分类卡片区域 */}
         <View className={styles.categoriesContainer}>
           {categories.map((category) => (
@@ -543,9 +556,7 @@ export default function LearningMaterials() {
                 className={styles.uploadItem}
                 onClick={() => handleMaterialClick(material)}
               >
-                <Text className={styles.itemIcon}>
-                  {CATEGORY_CONFIG[material.category].icon}
-                </Text>
+                <Text className={styles.itemIcon}>{CATEGORY_CONFIG[material.category].icon}</Text>
                 <View className={styles.itemInfo}>
                   <HighlightText
                     text={material.title}

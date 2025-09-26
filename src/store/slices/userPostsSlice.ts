@@ -2,6 +2,10 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { getMe, getMyPosts } from '@/services/api/user';
 import { Post } from '@/types/api/post.d';
 import { PaginationParams } from '@/types/api/common';
+import { User } from '@/types/api/user';
+
+// 扩展的 User 类型，支持兼容 user_id 字段
+type UserWithOptionalUserId = User & { user_id?: string };
 
 // 获取用户帖子数量的参数类型
 export interface GetUserPostCountParams {
@@ -40,62 +44,64 @@ export const fetchUserPosts = createAsyncThunk<
 
     // 先获取当前用户信息
     const userResponse = await getMe();
-    
+
     if (userResponse.code !== 0) {
       throw new Error(`获取用户信息失败: ${userResponse.message || '未知错误'}`);
     }
-    
+
     // 兼容处理：API返回的字段可能是 id 或 user_id
-    const userId = userResponse.data?.user_id || (userResponse.data as any)?.id;
-    
+    const userData = userResponse.data as UserWithOptionalUserId;
+    const userId = userData?.user_id || userData?.id;
+
     if (!userId) {
-      
       throw new Error('用户信息中缺少用户ID字段');
     }
 
     // 获取当前用户的帖子列表
     const postsResponse = await getMyPosts(paginationParams);
-    
+
     if (postsResponse.code !== 0) {
       throw new Error(postsResponse.message || 'Failed to fetch user posts');
     }
 
     const userPosts = postsResponse.data || [];
-    
+
     // 计算分页信息
     const hasMore = userPosts.length >= limit;
-    
+
     return {
       items: userPosts,
       pagination: {
         skip,
         limit,
         total: userPosts.length,
-        has_more: hasMore
-      }
+        has_more: hasMore,
+      },
     };
-  } catch (error: any) {
-    
-    
-    // 如果是认证相关错误，给出更具体的提示
-    if (error.message?.includes('用户信息') || error.message?.includes('用户ID') || error.message?.includes('user_id')) {
-      return rejectWithValue('用户登录状态异常，请重新登录');
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      // 如果是认证相关错误，给出更具体的提示
+      if (
+        error.message?.includes('用户信息') ||
+        error.message?.includes('用户ID') ||
+        error.message?.includes('user_id')
+      ) {
+        return rejectWithValue('用户登录状态异常，请重新登录');
+      }
+
+      // 根据错误类型返回不同的提示
+      if (error.message?.includes('网络')) {
+        return rejectWithValue('网络连接异常，请检查网络设置');
+      }
+
+      if (error.message?.includes('unauthorized')) {
+        return rejectWithValue('登录已过期，请重新登录');
+      }
+
+      return rejectWithValue(error.message || '获取我的帖子失败，请稍后重试');
     }
-    
-    // 根据错误类型返回不同的提示
-    if (error.message?.includes('网络') || error.code === 'NETWORK_ERROR') {
-      return rejectWithValue('网络连接异常，请检查网络设置');
-    }
-    
-    if (error.code === 401 || error.message?.includes('unauthorized')) {
-      return rejectWithValue('登录已过期，请重新登录');
-    }
-    
-    if (error.code === 422) {
-      return rejectWithValue('请求参数格式错误，请检查参数设置');
-    }
-    
-    return rejectWithValue(error.message || '获取我的帖子失败，请稍后重试');
+
+    return rejectWithValue('获取我的帖子失败，请稍后重试');
   }
 });
 
@@ -110,49 +116,45 @@ export const fetchUserPostCount = createAsyncThunk<
     let userId = params.userId;
     if (!userId) {
       const userResponse = await getMe();
-      
+
       if (userResponse.code !== 0) {
         throw new Error(`获取用户信息失败: ${userResponse.message || '未知错误'}`);
       }
-      
-      userId = userResponse.data?.user_id || (userResponse.data as any)?.id;
-      
+
+      const userData = userResponse.data as UserWithOptionalUserId;
+      userId = userData?.user_id || userData?.id;
+
       if (!userId) {
-        
         throw new Error('用户信息中缺少用户ID字段');
       }
     }
 
     // 获取当前用户的帖子列表，使用最大允许的limit值
     const postsResponse = await getMyPosts({ skip: 0, limit: 100 });
-    
+
     if (postsResponse.code !== 0) {
       throw new Error(postsResponse.message || 'Failed to fetch user posts');
     }
 
     const userPosts = postsResponse.data || [];
-    
+
     return userPosts.length;
-  } catch (error: any) {
-    
-    
-    if (error.message?.includes('用户信息') || error.message?.includes('用户ID')) {
+  } catch (error: unknown) {
+    const _err = error as { message?: string };
+
+    if (_err.message?.includes('用户信息') || _err.message?.includes('用户ID')) {
       return rejectWithValue('用户登录状态异常，请重新登录');
     }
-    
-    if (error.message?.includes('网络') || error.code === 'NETWORK_ERROR') {
+
+    if (_err.message?.includes('网络')) {
       return rejectWithValue('网络连接异常，请检查网络设置');
     }
-    
-    if (error.code === 401 || error.message?.includes('unauthorized')) {
+
+    if (_err.message?.includes('unauthorized')) {
       return rejectWithValue('登录已过期，请重新登录');
     }
-    
-    if (error.code === 422) {
-      return rejectWithValue('请求参数格式错误，请检查参数设置');
-    }
-    
-    return rejectWithValue(error.message || '获取用户帖子数量失败，请稍后重试');
+
+    return rejectWithValue(_err.message || '获取用户帖子数量失败，请稍后重试');
   }
 });
 
@@ -167,54 +169,50 @@ export const fetchUserLikeCount = createAsyncThunk<
     let userId = params.userId;
     if (!userId) {
       const userResponse = await getMe();
-      
+
       if (userResponse.code !== 0) {
         throw new Error(`获取用户信息失败: ${userResponse.message || '未知错误'}`);
       }
-      
-      userId = userResponse.data?.user_id || (userResponse.data as any)?.id;
-      
+
+      const userData = userResponse.data as UserWithOptionalUserId;
+      userId = userData?.user_id || userData?.id;
+
       if (!userId) {
-        
         throw new Error('用户信息中缺少用户ID字段');
       }
     }
 
     // 获取当前用户的帖子列表，计算总获赞数
     const postsResponse = await getMyPosts({ skip: 0, limit: 100 });
-    
+
     if (postsResponse.code !== 0) {
       throw new Error(postsResponse.message || 'Failed to fetch user posts');
     }
 
     const userPosts = postsResponse.data || [];
-    
+
     // 计算所有帖子的获赞总数
     const totalLikes = userPosts.reduce((sum, post) => {
       return sum + (post.like_count || 0);
     }, 0);
-    
+
     return totalLikes;
-  } catch (error: any) {
-    
-    
-    if (error.message?.includes('用户信息') || error.message?.includes('用户ID')) {
+  } catch (error: unknown) {
+    const _err = error as { message?: string };
+
+    if (_err.message?.includes('用户信息') || _err.message?.includes('用户ID')) {
       return rejectWithValue('用户登录状态异常，请重新登录');
     }
-    
-    if (error.message?.includes('网络') || error.code === 'NETWORK_ERROR') {
+
+    if (_err.message?.includes('网络')) {
       return rejectWithValue('网络连接异常，请检查网络设置');
     }
-    
-    if (error.code === 401 || error.message?.includes('unauthorized')) {
+
+    if (_err.message?.includes('unauthorized')) {
       return rejectWithValue('登录已过期，请重新登录');
     }
-    
-    if (error.code === 422) {
-      return rejectWithValue('请求参数格式错误，请检查参数设置');
-    }
-    
-    return rejectWithValue(error.message || '获取用户获赞总数失败，请稍后重试');
+
+    return rejectWithValue(_err.message || '获取用户获赞总数失败，请稍后重试');
   }
 });
 
@@ -242,7 +240,7 @@ const initialState: UserPostsState = {
     skip: 0,
     limit: 20,
     total: 0,
-    has_more: false
+    has_more: false,
   },
   postCount: null,
   postCountLoading: 'idle',
@@ -251,7 +249,7 @@ const initialState: UserPostsState = {
   likeCountLoading: 'idle',
   likeCountError: null,
   loading: 'idle',
-  error: null
+  error: null,
 };
 
 const userPostsSlice = createSlice({
@@ -264,7 +262,7 @@ const userPostsSlice = createSlice({
         skip: 0,
         limit: 20,
         total: 0,
-        has_more: false
+        has_more: false,
       };
       state.loading = 'idle';
       state.error = null;
@@ -286,7 +284,7 @@ const userPostsSlice = createSlice({
         items: Post[];
         pagination: { skip: number; limit: number; total: number; has_more: boolean };
         append?: boolean;
-      }>
+      }>,
     ) => {
       const { items, pagination, append } = action.payload;
       if (append) {
@@ -308,10 +306,10 @@ const userPostsSlice = createSlice({
       .addCase(fetchUserPosts.fulfilled, (state, action) => {
         state.loading = 'succeeded';
         const { items, pagination } = action.payload;
-        
+
         // 检查是否是追加模式
         const isAppend = (action.meta.arg as GetUserPostsParams).isAppend;
-        
+
         if (isAppend && pagination.skip > 0) {
           // 追加数据
           state.items = [...state.items, ...items];
@@ -319,7 +317,7 @@ const userPostsSlice = createSlice({
           // 重置数据（第一页或刷新）
           state.items = items;
         }
-        
+
         state.pagination = pagination;
       })
       .addCase(fetchUserPosts.rejected, (state, action) => {
@@ -355,5 +353,6 @@ const userPostsSlice = createSlice({
   },
 });
 
-export const { resetUserPosts, resetUserPostCount, resetUserLikeCount, setUserPosts } = userPostsSlice.actions;
+export const { resetUserPosts, resetUserPostCount, resetUserLikeCount, setUserPosts } =
+  userPostsSlice.actions;
 export default userPostsSlice.reducer;

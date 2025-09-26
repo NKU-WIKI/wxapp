@@ -1,6 +1,6 @@
-import { Button as TaroButton, View } from '@tarojs/components'
-import classnames from 'classnames'
-import styles from './index.module.scss'
+import { Button as TaroButton, View } from '@tarojs/components';
+import classnames from 'classnames';
+import styles from './index.module.scss';
 
 type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
 type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
@@ -11,24 +11,46 @@ interface ButtonProps {
   className?: string;
   children: React.ReactNode;
   onClick?: () => void;
-  // Add other props that Taro Button accepts if needed
-  [key: string]: any;
+  // Taro Button specific props
+  type?: 'primary' | 'default' | 'warn';
+  plain?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
+  formType?: 'submit' | 'reset';
+  openType?:
+    | 'contact'
+    | 'share'
+    | 'getPhoneNumber'
+    | 'getUserInfo'
+    | 'launchApp'
+    | 'openSetting'
+    | 'feedback';
+  hoverClass?: string;
+  hoverStopPropagation?: boolean;
+  hoverStartTime?: number;
+  hoverStayTime?: number;
+  lang?: 'en' | 'zh_CN' | 'zh_TW';
+  sessionFrom?: string;
+  sendMessageTitle?: string;
+  sendMessagePath?: string;
+  sendMessageImg?: string;
+  appParameter?: string;
+  showMessageCard?: boolean;
 }
 
-const Button = ({ 
-  variant = 'default', 
-  size = 'default', 
-  className, 
-  children, 
+const Button = ({
+  variant = 'default',
+  size = 'default',
+  className,
+  children,
   onClick,
-  ...props 
+  ...props
 }: ButtonProps) => {
-
   const buttonClasses = classnames(
     styles.button,
     styles[`variant-${variant}`],
     styles[`size-${size}`],
-    className
+    className,
   );
 
   // Use a View for 'link' variant to avoid button styles, or handle in SCSS
@@ -44,7 +66,7 @@ const Button = ({
     <TaroButton className={buttonClasses} onClick={onClick} {...props}>
       {children}
     </TaroButton>
-  )
-}
+  );
+};
 
-export default Button; 
+export default Button;

@@ -1,49 +1,47 @@
-
-
 /**
  * 通知渠道枚举
  */
 export enum NotificationChannel {
-  _Email = "EMAIL",
-  _InApp = "IN_APP",
-  _Push = "PUSH",
-  _Sms = "SMS",
-  _WechatMp = "WECHAT_MINI_PROGRAM",
+  _Email = 'EMAIL',
+  _InApp = 'IN_APP',
+  _Push = 'PUSH',
+  _Sms = 'SMS',
+  _WechatMp = 'WECHAT_MINI_PROGRAM',
 }
 
 /**
  * 通知优先级枚举
  */
 export enum NotificationPriority {
-  _High = "high",
-  _Low = "low",
-  _Normal = "normal",
-  _Urgent = "urgent",
+  _High = 'high',
+  _Low = 'low',
+  _Normal = 'normal',
+  _Urgent = 'urgent',
 }
 
 /**
  * 通知状态枚举
  */
 export enum NotificationStatus {
-  _Delivered = "delivered",
-  _Expired = "expired",
-  _Failed = "failed",
-  _Pending = "pending",
-  _Read = "read",
-  _Sent = "sent",
+  _Delivered = 'delivered',
+  _Expired = 'expired',
+  _Failed = 'failed',
+  _Pending = 'pending',
+  _Read = 'read',
+  _Sent = 'sent',
 }
 
 /**
  * 通知类型枚举
  */
 export enum NotificationType {
-  _Activity = "activity",      // 活动通知
-  _Announcement = "announcement", // 公告通知
-  _Mention = "mention",         // 提及通知
-  _Message = "message",         // 消息通知（点赞、评论、关注等）
-  _Promotion = "promotion",     // 推广通知
-  _Security = "security",       // 安全通知
-  _System = "system",           // 系统通知
+  _Activity = 'activity', // 活动通知
+  _Announcement = 'announcement', // 公告通知
+  _Mention = 'mention', // 提及通知
+  _Message = 'message', // 消息通知（点赞、评论、关注等）
+  _Promotion = 'promotion', // 推广通知
+  _Security = 'security', // 安全通知
+  _System = 'system', // 系统通知
 }
 
 /**
@@ -73,7 +71,7 @@ export interface NotificationRead {
   /**
    * Data
    */
-  data?: { [key: string]: any } | null;
+  data?: Record<string, unknown> | null;
   /**
    * Error Message
    */
@@ -101,13 +99,13 @@ export interface NotificationRead {
   /**
    * Metadata
    */
-  metadata?: { [key: string]: any } | null;
+  metadata?: Record<string, unknown> | null;
   preferred_channel?: NotificationChannel;
   priority?: NotificationPriority;
   /**
    * Recipient
    */
-  recipient?: { [key: string]: any } | null;
+  recipient?: Record<string, unknown> | null;
   /**
    * Recipient Id
    */
@@ -127,7 +125,7 @@ export interface NotificationRead {
   /**
    * Sender
    */
-  sender?: { [key: string]: any } | null;
+  sender?: Record<string, unknown> | null;
   /**
    * Sender Id
    */
@@ -158,7 +156,7 @@ export interface NotificationRead {
    * Updated At
    */
   updated_at: Date;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -177,7 +175,7 @@ export interface PaginationInfo {
    * Total，结果总数
    */
   total: number;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -189,7 +187,7 @@ export interface NotificationListResponse {
    */
   items: NotificationRead[];
   pagination: PaginationInfo;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -228,7 +226,7 @@ export interface NotificationListRequest {
    * Type，通知类型过滤
    */
   type?: string | null;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -247,7 +245,7 @@ export interface NotificationApiResponse {
    * Message，简明中文信息
    */
   message?: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -287,7 +285,7 @@ export interface NotificationCreateRequest {
   /**
    * Data
    */
-  data?: { [key: string]: any } | null;
+  data?: Record<string, unknown> | null;
   /**
    * Expires At
    */
@@ -295,7 +293,7 @@ export interface NotificationCreateRequest {
   /**
    * Metadata
    */
-  metadata?: { [key: string]: any } | null;
+  metadata?: Record<string, unknown> | null;
   preferred_channel?: NotificationChannel;
   priority?: NotificationPriority;
   /**
@@ -327,7 +325,7 @@ export interface NotificationCreateRequest {
    */
   title: string;
   type: NotificationType;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -346,7 +344,7 @@ export interface NotificationCreateResponse {
    * Message，简明中文信息
    */
   message?: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -357,5 +355,3 @@ export interface MarkReadRequest {
   type?: NotificationType;
   mark_all?: boolean;
 }
-
-

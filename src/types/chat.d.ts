@@ -1,13 +1,22 @@
+// 参考资料接口
+export interface ChatReference {
+  id: string;
+  title: string;
+  content: string;
+  url?: string;
+  score?: number;
+}
+
 // 聊天消息接口
 export interface ChatMessage {
   id: string;
   content: string;
-  role: "user" | "assistant" | "system" | "tool";
+  role: 'user' | 'assistant' | 'system' | 'tool';
   timestamp: number;
   isStreaming?: boolean;
   error?: string;
   toolCalls?: OpenAIToolCall[]; // 添加工具调用字段
-  references?: any[]; // 添加参考资料字段，用于存储知识库搜索结果
+  references?: ChatReference[]; // 添加参考资料字段，用于存储知识库搜索结果
 }
 
 // 聊天会话接口
@@ -40,7 +49,7 @@ export interface ChatConfig {
 // 兼容层：为未来可能的工具调用保留扩展点，但不再与 OpenAI 类型耦合
 export interface OpenAIToolCall {
   id: string;
-  type: "function";
+  type: 'function';
   function: {
     name: string;
     arguments: string;

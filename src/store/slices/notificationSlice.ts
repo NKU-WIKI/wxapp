@@ -51,12 +51,12 @@ export const fetchUnreadCounts = createAsyncThunk('notification/fetchUnreadCount
       //   type
       // });
 
-      if (res.code === 0 && res.data?.pagination) {
+      if (res.code === 0 && res.data?.pagination && Array.isArray(res.data.items)) {
         // 根据business_type重新过滤通知，确保统计正确
-        let items = res.data.items || [];
+        const items = res.data.items;
 
         // 首先过滤business_type
-        items = items.filter((item) => {
+        const filteredItems = items.filter((item) => {
           const isActivityRelated = [
             'activity_published',
             'activity_joined',
@@ -66,7 +66,7 @@ export const fetchUnreadCounts = createAsyncThunk('notification/fetchUnreadCount
             'activity_cancel_registration', // 取消报名通知
             'participant_join_success', // 参与者报名成功通知
             'participant_cancel_success', // 参与者取消报名成功通知
-          ].includes(item.business_type);
+          ].includes(item.business_type || '');
 
           if (type === 'activity') {
             // activity类型：只统计活动相关的通知
@@ -78,7 +78,7 @@ export const fetchUnreadCounts = createAsyncThunk('notification/fetchUnreadCount
         });
 
         // 然后过滤未读状态（后端的is_read参数可能不可靠）
-        const unreadItems = items.filter((item) => {
+        const unreadItems = filteredItems.filter((item) => {
           const isRead = readStatuses.includes(item.status);
           return !isRead; // 只保留未读的
         });

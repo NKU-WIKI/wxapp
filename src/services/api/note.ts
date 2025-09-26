@@ -1,29 +1,11 @@
 import http from '../request';
-import { NoteDetail, NoteRead, NoteListItem } from '@/types/api/note.d';
+import { NoteDetail, NoteRead, NoteListItem } from '@/types/api/note';
 
 // 笔记可见性枚举
 export type NoteVisibility = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
 
 // 笔记状态枚举
 export type NoteStatus = 'draft' | 'published' | 'archived' | 'deleted';
-
-// 笔记列表项接口
-export interface NoteListItem {
-  id: string;
-  title: string;
-  content?: string;
-  category_id?: string;
-  tags?: string[];
-  created_at: string;
-  updated_at: string;
-  is_public: boolean;
-  view_count: number;
-  like_count: number;
-  comment_count: number;
-  author_name?: string;
-  author_avatar?: string;
-  user_id?: string; // 新增：用户ID，用于调用正确的API
-}
 
 // 笔记统计信息接口
 export interface NoteStats {
@@ -104,7 +86,7 @@ export const toggleAction = async (params: {
   return http.post<ToggleActionResponse>('/actions/toggle', {
     target_id: params.targetId,
     target_type: params.targetType,
-    action_type: params.actionType
+    action_type: params.actionType,
   });
 };
 
@@ -126,10 +108,17 @@ export const getNoteDetail = async (noteId: string, userId?: string) => {
     // 由于单个笔记详情接口可能不存在，我们使用feed接口并通过ID筛选
     try {
       // 首先尝试直接获取笔记详情
-      return await http.get<{ code: number; message: string; data: NoteDetail }>(`/notes/${noteId}`);
+      return await http.get<{ code: number; message: string; data: NoteDetail }>(
+        `/notes/${noteId}`,
+      );
     } catch (error: unknown) {
       // 如果直接获取失败，尝试通过其他方式
-      if (error && typeof error === 'object' && 'status' in error && (error as { status: number }).status === 404) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'status' in error &&
+        (error as { status: number }).status === 404
+      ) {
         // 404错误，可能接口不存在，抛出更明确的错误
         throw new Error('笔记不存在或已被删除');
       }
@@ -142,7 +131,10 @@ export const getNoteDetail = async (noteId: string, userId?: string) => {
  * 获取用户笔记列表
  */
 export const getUserNotes = async (userId: string, params?: GetNotesParams) => {
-  return http.get<{ code: number; message: string; data: NoteListItem[] }>(`/users/${userId}/notes`, params);
+  return http.get<{ code: number; message: string; data: NoteListItem[] }>(
+    `/users/${userId}/notes`,
+    params,
+  );
 };
 
 /**
@@ -163,7 +155,7 @@ interface NoteFeedResponse {
 export const getNoteFeed = async (params: { skip?: number; limit?: number } = {}) => {
   const requestParams = {
     skip: params.skip || 0,
-    limit: params.limit || 20
+    limit: params.limit || 20,
   };
 
   return http.get<NoteFeedResponse>('/notes/feed', requestParams);
@@ -194,14 +186,17 @@ interface NoteAnalyticsData {
 }
 
 export const getNoteAnalytics = async (noteId: string, days: number = 30) => {
-  return http.get<{ code: number; message: string; data: NoteAnalyticsData }>(`/notes/${noteId}/analytics`, { days });
+  return http.get<{ code: number; message: string; data: NoteAnalyticsData }>(
+    `/notes/${noteId}/analytics`,
+    { days },
+  );
 };
 
 /**
  * 创建笔记
  */
 export const createNote = async (noteData: CreateNoteRequest) => {
-  return http.post<{ code: number; message: string; data: NoteDetail }>('/notes', noteData);
+  return http.post<NoteDetail>('/notes', noteData);
 };
 
 /**

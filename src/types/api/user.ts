@@ -1,4 +1,4 @@
-import { PaginatedData } from "./common";
+import { PaginatedData, Attachment } from './common';
 
 /**
  * @description API 返回的用户基础信息结构
@@ -34,13 +34,17 @@ export interface User {
  * @description API 返回的用户详细资料结构 (基于 UserProfileDetail)
  */
 export interface UserProfile {
-  assets: Record<string, any>;
+  assets: Record<string, Attachment>;
   interest_tags: string[];
   tokens: number;
   user_id: string;
   nickname: string;
   avatar?: string | null;
   bio?: string | null;
+  birthday?: string | null;
+  school?: string | null;
+  college?: string | null;
+  location?: string | null;
   wechat_id?: string | null;
   qq_id?: string | null;
   phone?: string | null;
@@ -60,7 +64,7 @@ export interface UserProfile {
  * @description 更新用户资料的请求结构
  */
 export interface UpdateUserProfileRequest {
-  assets?: Record<string, any> | null;
+  assets?: Record<string, Attachment> | null;
   interest_tags?: string[] | null;
   nickname?: string | null;
   avatar?: string | null;
@@ -85,7 +89,7 @@ export type FollowerList = PaginatedData<Follower>;
  * @description 创建浏览历史的请求体
  */
 export interface CreateViewHistoryRequest {
-  target_type: "post" | "product" | "user";
+  target_type: 'post' | 'product' | 'user';
   target_id: number;
 }
 
@@ -97,11 +101,11 @@ export interface HistoryItem {
   tenant_id: string;
   created_at: string;
   updated_at: string;
-  target_type: "post" | "product" | "user";
+  target_type: 'post' | 'product' | 'user';
   target_id: string;
   user_id: string;
   // 可能会有关联的目标详情
-  target_detail?: any;
+  target_detail?: Record<string, unknown>;
 }
 
 /**

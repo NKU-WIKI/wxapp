@@ -32,9 +32,19 @@ export interface CampusVerificationResponse {
   /** 认证ID */
   id: string;
   /** 认证状态 */
-  status: 'draft' | 'auto_reviewing' | 'pending_manual_review' | 'approved' | 'rejected' | 'appealing' | 'expired' | 'pending';
-  /** 提交时间 */
+  status:
+    | 'draft'
+    | 'auto_reviewing'
+    | 'pending_manual_review'
+    | 'approved'
+    | 'rejected'
+    | 'appealing'
+    | 'expired'
+    | 'pending';
+  /** 创建时间 */
   created_at: string;
+  /** 提交时间 */
+  submitted_at?: string;
   /** 审核时间 */
   reviewed_at?: string;
   /** 审核备注 */
@@ -45,7 +55,15 @@ export interface CampusVerificationInfo {
   /** 是否已认证 */
   is_verified: boolean;
   /** 认证状态 */
-  verification_status?: 'draft' | 'auto_reviewing' | 'pending_manual_review' | 'approved' | 'rejected' | 'appealing' | 'expired' | 'pending';
+  verification_status?:
+    | 'draft'
+    | 'auto_reviewing'
+    | 'pending_manual_review'
+    | 'approved'
+    | 'rejected'
+    | 'appealing'
+    | 'expired'
+    | 'pending';
   /** 认证信息 */
   verification_info?: CampusVerificationResponse;
 }
@@ -55,4 +73,4 @@ export interface CampusVerificationApplicationsResponse {
   applications: CampusVerificationResponse[];
   /** 总数 */
   total: number;
-} 
+}

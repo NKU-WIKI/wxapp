@@ -6,7 +6,13 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
 
 // Type imports
-import { GetFollowersParams, FollowActionParams, FollowRelation } from '@/types/api/followers';
+import {
+  GetFollowersParams,
+  FollowActionParams,
+  FollowRelation,
+  FollowItem,
+} from '@/types/api/followers';
+import { User } from '@/types/api/user';
 
 // Store imports
 import { fetchUserProfile } from '@/store/slices/userSlice';
@@ -48,10 +54,10 @@ const FollowersPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<FollowItem[]>([]);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]); // 用于高亮的关键词列表
-  const [allUsers, setAllUsers] = useState<any[]>([]); // 存储所有用户数据用于
+  const [allUsers, setAllUsers] = useState<FollowItem[]>([]); // 存储所有用户数据用于
   // 获取用户列表的核心函数（不使用useCallback避免循环依赖
   const fetchUsers = async (isRefresh = false) => {
     if (loading && !isRefresh) return;
@@ -72,35 +78,45 @@ const FollowersPage = () => {
       // 根据OpenAPI文档，标准响应格式为 ApiResponse<User[]>
       if (response.code === 0 && response.data !== undefined) {
         // 处理API响应格式 - data是用户对象数组
-        let newUsers: any[] = [];
-        const responseData = response.data as any[];
+        const responseData = response.data as User[];
 
         if (Array.isArray(responseData)) {
           // 为每个用户添加关注状态
-          newUsers = responseData.map((user: any) => ({
-            ...user,
+          const newUsers: FollowItem[] = responseData.map((user: User, index: number) => ({
+            id: index + 1, // 使用索引作为临时ID，避免parseInt可能的问题
+            user,
             // 关注列表中的用户都是已关注状态，粉丝列表中需要根据实际情况判断（默认为未关注）
             relation: activeTab === 'following' ? 'following' : 'none',
+            followed_at: new Date().toISOString(), // 简化处理
           }));
-        } else {
-          newUsers = [];
-        }
 
-        if (isRefresh) {
-          setUsers(newUsers);
-          setAllUsers(newUsers); // 保存所有用户数据用于搜�
-          setCurrentPage(2);
-        } else {
-          setUsers((prev) => [...prev, ...newUsers]);
-          setAllUsers((prev) => [...prev, ...newUsers]); // 也保存到allUsers
-          setCurrentPage((prev) => prev + 1);
-        }
+          if (isRefresh) {
+            setUsers(newUsers);
+            setAllUsers(newUsers);
+            setCurrentPage(2);
+          } else {
+            setUsers((prev) => [...prev, ...newUsers]);
+            setAllUsers((prev) => [...prev, ...newUsers]);
+            setCurrentPage((prev) => prev + 1);
+          }
 
-        setHasMore(newUsers.length >= 20);
+          setHasMore(newUsers.length >= 20);
+        } else {
+          if (isRefresh) {
+            setUsers([]);
+            setAllUsers([]);
+            setCurrentPage(1);
+          }
+          setHasMore(false);
+        }
       } else {
-        throw new Error((response as any).msg || (response as any).message || '获取用户列表失败');
+        throw new Error(
+          (response as { msg?: string; message?: string }).msg ||
+            (response as { msg?: string; message?: string }).message ||
+            '获取用户列表失败',
+        );
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(error instanceof Error ? error.message : '网络错误');
     } finally {
       setLoading(false);
@@ -109,7 +125,7 @@ const FollowersPage = () => {
 
   // 关注/取关操作
   const handleFollowToggle = useCallback(
-    async (userId: string, relation: FollowRelation) => {
+    async (userId: User['id'], relation: FollowRelation) => {
       try {
         const params: FollowActionParams = {
           target_user_id: userId,
@@ -120,19 +136,19 @@ const FollowersPage = () => {
 
         // 根据OpenAPI文档，标准响应格式为 ApiResponse
         if (response.code === 0) {
-          const responseData = response.data as any;
+          const responseData = response.data as { is_active?: boolean };
           const isActive = responseData?.is_active;
           // 更新本地状?- 不论在哪个tab都只更新关注状态，不删除用?
           setUsers((prev) =>
             prev.map((user) =>
-              user.id === userId
+              user.user.id === userId
                 ? { ...user, relation: isActive ? 'following' : ('none' as FollowRelation) }
                 : user,
             ),
           );
           setAllUsers((prev) =>
             prev.map((user) =>
-              user.id === userId
+              user.user.id === userId
                 ? { ...user, relation: isActive ? 'following' : ('none' as FollowRelation) }
                 : user,
             ),
@@ -142,8 +158,8 @@ const FollowersPage = () => {
           if (isActive) {
             // 获取当前用户信息
             const currentUser =
-              (window as any).g_app?.$app?.globalData?.userInfo ||
-              JSON.parse(Taro.getStorageSync('userInfo') || '{}');
+              (window as { g_app?: { $app?: { globalData?: { userInfo?: User } } } }).g_app?.$app
+                ?.globalData?.userInfo || JSON.parse(Taro.getStorageSync('userInfo') || '{}');
 
             BBSNotificationHelper.handleFollowNotification({
               targetUserId: userId,
@@ -162,7 +178,7 @@ const FollowersPage = () => {
         } else {
           throw new Error(response.message || '操作失败');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         Taro.showToast({
           title: error instanceof Error ? error.message : '操作失败',
           icon: 'error',
@@ -187,7 +203,7 @@ const FollowersPage = () => {
 
   // 处理搜索输入
   const handleSearchInput = useCallback(
-    (e: any) => {
+    (e: { detail: { value: string } }) => {
       const value = e.detail.value;
       setSearchKeyword(value);
 
@@ -197,7 +213,8 @@ const FollowersPage = () => {
         setSearchKeywords([]);
       } else {
         const filteredUsers = allUsers.filter(
-          (user) => user.nickname && user.nickname.toLowerCase().includes(value.toLowerCase()),
+          (user) =>
+            user.user.nickname && user.user.nickname.toLowerCase().includes(value.toLowerCase()),
         );
         setUsers(filteredUsers);
 
@@ -253,24 +270,34 @@ const FollowersPage = () => {
 
         // 修复：API返回code表示成功，不等于00
         if ((response.code === 200 || response.code === 0) && response.data !== undefined) {
-          let newUsers: any[] = [];
-          const responseData = response.data as any;
+          const responseData = response.data as User[];
 
           if (Array.isArray(responseData)) {
-            newUsers = responseData.map((user: any) => ({
-              ...user,
+            const newUsers: FollowItem[] = responseData.map((user: User, index: number) => ({
+              id: index + 1, // 临时ID，实际应该从API获取
+              user,
               relation: activeTab === 'following' ? 'following' : 'none',
+              followed_at: new Date().toISOString(),
             }));
-          }
 
-          setUsers(newUsers);
-          setAllUsers(newUsers); // 保存所有用户数据
-          setCurrentPage(2);
-          setHasMore(newUsers.length >= 20);
+            setUsers(newUsers);
+            setAllUsers(newUsers); // 保存所有用户数据
+            setCurrentPage(2);
+            setHasMore(newUsers.length >= 20);
+          } else {
+            setUsers([]);
+            setAllUsers([]);
+            setCurrentPage(1);
+            setHasMore(false);
+          }
         } else {
-          throw new Error((response as any).msg || (response as any).message || '获取用户列表失败');
+          throw new Error(
+            (response as { msg?: string; message?: string }).msg ||
+              (response as { msg?: string; message?: string }).message ||
+              '获取用户列表失败',
+          );
         }
-      } catch (error: any) {
+      } catch (error) {
         setError(error instanceof Error ? error.message : '网络错误');
       } finally {
         setLoading(false);
@@ -349,9 +376,9 @@ const FollowersPage = () => {
           <View className={styles.userList}>
             {users.map((user, index) => {
               return (
-                <View key={user.id || index} className={styles.userItem}>
+                <View key={user.user.id || index} className={styles.userItem}>
                   <AuthorInfo
-                    userId={user.id}
+                    userId={user.user.id}
                     mode='compact'
                     showBio
                     showFollowButton={activeTab === 'following' || user.relation === 'none'}
@@ -361,10 +388,10 @@ const FollowersPage = () => {
                     relation={user.relation}
                   />
                   {/* 搜索关键词高亮提示*/}
-                  {searchKeywords.length > 0 && user.nickname && (
+                  {searchKeywords.length > 0 && user.user.nickname && (
                     <View className={styles.searchHighlight}>
                       <Text className={styles.highlightText}>
-                        匹配: <HighlightText text={user.nickname} keywords={searchKeywords} />
+                        匹配: <HighlightText text={user.user.nickname} keywords={searchKeywords} />
                       </Text>
                     </View>
                   )}

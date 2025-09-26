@@ -70,7 +70,7 @@ export interface PostActivityCreateRequest {
   /**
    * Recurrence Pattern，重复模式
    */
-  recurrence_pattern?: { [key: string]: any } | null;
+  recurrence_pattern?: Record<string, unknown> | null;
   /**
    * Require Approval，是否需要审核
    */
@@ -78,7 +78,7 @@ export interface PostActivityCreateRequest {
   /**
    * Requirements，参与要求
    */
-  requirements?: { [key: string]: any } | null;
+  requirements?: Record<string, unknown> | null;
   /**
    * Start Time，开始时间
    */
@@ -94,7 +94,7 @@ export interface PostActivityCreateRequest {
   /**
    * Target Audience，目标受众
    */
-  target_audience?: { [key: string]: any } | null;
+  target_audience?: Record<string, unknown> | null;
   /**
    * Title，活动标题
    */
@@ -103,7 +103,7 @@ export interface PostActivityCreateRequest {
    * 可见性
    */
   visibility?: ActivityVisibility;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -112,9 +112,9 @@ export interface PostActivityCreateRequest {
  * ActivityType，活动类型枚举
  */
 export enum ActivityType {
-  Hybrid = "hybrid",
-  Offline = "offline",
-  Online = "online",
+  Hybrid = 'hybrid',
+  Offline = 'offline',
+  Online = 'online',
 }
 
 /**
@@ -123,9 +123,9 @@ export enum ActivityType {
  * ActivityVisibility，活动可见性枚举
  */
 export enum ActivityVisibility {
-  Private = "private",
-  Public = "public",
-  Tenant = "tenant",
+  Private = 'private',
+  Public = 'public',
+  Tenant = 'tenant',
 }
 
 /**
@@ -144,7 +144,7 @@ export interface PostActivityCreateResponse {
    * Message，简明中文信息
    */
   message?: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -254,7 +254,7 @@ export interface ActivityRead {
   /**
    * Meeting Info
    */
-  meeting_info: { [key: string]: any } | null;
+  meeting_info: Record<string, unknown> | null;
   /**
    * Min Participants
    */
@@ -283,7 +283,7 @@ export interface ActivityRead {
   /**
    * Recurrence Pattern
    */
-  recurrence_pattern: { [key: string]: any } | null;
+  recurrence_pattern: Record<string, unknown> | null;
   /**
    * Registration Deadline
    */
@@ -296,7 +296,7 @@ export interface ActivityRead {
   /**
    * Requirements
    */
-  requirements: { [key: string]: any } | null;
+  requirements: Record<string, unknown> | null;
   /**
    * Safety Score
    */
@@ -317,7 +317,7 @@ export interface ActivityRead {
   /**
    * Target Audience
    */
-  target_audience: { [key: string]: any } | null;
+  target_audience: Record<string, unknown> | null;
   /**
    * Tenant Id
    */
@@ -339,9 +339,8 @@ export interface ActivityRead {
    * Waitlist Count
    */
   waitlist_count: number;
-  [property: string]: any;
+  [property: string]: unknown;
 }
-
 
 /**
  * UserRead
@@ -404,7 +403,7 @@ export interface UserRead {
    * Wechat Id
    */
   wechat_id?: null | string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -415,31 +414,31 @@ export interface UserRead {
  * BANNED: 被禁用户，无法登录和使用功能
  */
 export enum UserStatus {
-  Active = "active",
-  Banned = "banned",
-  Inactive = "inactive",
+  Active = 'active',
+  Banned = 'banned',
+  Inactive = 'inactive',
 }
 
 /**
  * RegistrationStatus，报名状态枚举
  */
 export enum RegistrationStatus {
-  cancelled = "cancelled",
-  Confirmed = "confirmed",
-  Pending = "pending",
-  Rejected = "rejected",
-  Waitlist = "waitlist",
+  cancelled = 'cancelled',
+  Confirmed = 'confirmed',
+  Pending = 'pending',
+  Rejected = 'rejected',
+  Waitlist = 'waitlist',
 }
 
 /**
  * ActivityStatus，活动状态枚举
  */
 export enum ActivityStatus {
-  Cancelled = "cancelled",
-  Completed = "completed",
-  Draft = "draft",
-  Ongoing = "ongoing",
-  Published = "published",
+  Cancelled = 'cancelled',
+  Completed = 'completed',
+  Draft = 'draft',
+  Ongoing = 'ongoing',
+  Published = 'published',
 }
 
 export interface GetActivityListRequest {
@@ -495,7 +494,7 @@ export interface GetActivityListRequest {
    * Status，活动状态
    */
   status?: ActivityStatus | null;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -514,7 +513,7 @@ export interface GetActivityListResponse {
    * Message，简明中文信息
    */
   message?: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -537,7 +536,7 @@ export interface PageActivityRead {
    * Total
    */
   total: number;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 export interface PostJoinActivityRequest {
@@ -570,9 +569,8 @@ export interface PostJoinActivityResponse {
    * Message，简明中文信息
    */
   message?: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
-
 
 export interface GetMyActivityRequest {
   /**
@@ -587,7 +585,7 @@ export interface GetMyActivityRequest {
    * Status，报名状态过滤
    */
   status?: RegistrationStatus | null;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -606,7 +604,7 @@ export interface GetMyActivityResponse {
    * Message，简明中文信息
    */
   message?: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -629,7 +627,7 @@ export interface PageActivityRegistrationRead {
    * Total
    */
   total: number;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -664,7 +662,7 @@ export interface ActivityRegistrationRead {
   /**
    * Feedback
    */
-  feedback: { [key: string]: any } | null;
+  feedback: Record<string, unknown> | null;
   /**
    * Guest Count
    */
@@ -676,7 +674,7 @@ export interface ActivityRegistrationRead {
   /**
    * Participant Info
    */
-  participant_info: { [key: string]: any } | null;
+  participant_info: Record<string, unknown> | null;
   /**
    * Participation Score
    */
@@ -732,7 +730,7 @@ export interface ActivityRegistrationRead {
    * User Id
    */
   user_id: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -786,7 +784,7 @@ export interface ActivitySummary {
    * View Count
    */
   view_count: number;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 export interface GetMyOrganizedActivityRequest {
@@ -798,7 +796,7 @@ export interface GetMyOrganizedActivityRequest {
    * Skip，跳过数量
    */
   skip?: number;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -817,7 +815,7 @@ export interface GetMyOrganizedActivityResponse {
    * Message，简明中文信息
    */
   message?: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 export interface DeleteCancelRegistrationsRequest {
@@ -825,7 +823,7 @@ export interface DeleteCancelRegistrationsRequest {
    * Activity Id，活动ID
    */
   activity_id: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }
 
 /**
@@ -844,10 +842,10 @@ export interface DeleteCancelRegistrationsResponse {
   /**
    * Data，负载数据
    */
-  data?: any;
+  data?: unknown;
   /**
    * Message，简明中文信息
    */
   message?: string;
-  [property: string]: any;
+  [property: string]: unknown;
 }

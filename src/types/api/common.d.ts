@@ -46,3 +46,20 @@ export interface BackendPaginatedResponse<T> {
   data: T[];
   pagination: Pagination;
 }
+
+/**
+ * @description 附件信息结构
+ */
+export interface Attachment {
+  id?: string;
+  filename: string;
+  url: string;
+  size?: number;
+  type?: string;
+  mime_type?: string;
+}
+
+/**
+ * @description 扩展属性类型，用于动态字段
+ */
+export type ExtensionProperties = Record<string, string | number | boolean | null>;

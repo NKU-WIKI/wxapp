@@ -1,26 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Image, Input } from "@tarojs/components";
-import { useSelector, useDispatch } from "react-redux";
-import Taro from "@tarojs/taro";
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, Input } from '@tarojs/components';
+import { useSelector, useDispatch } from 'react-redux';
+import Taro from '@tarojs/taro';
 
-import { CommentDetail } from "@/types/api/comment";
-import { AppDispatch, RootState } from "@/store";
+// 类型定义：扩展 CommentDetail 以支持不同的时间字段
+type CommentWithFlexibleTime = CommentDetail & {
+  created_at?: string;
+  create_time?: string;
+  update_time?: string;
+};
+
+import { CommentDetail } from '@/types/api/comment';
+import { AppDispatch, RootState } from '@/store';
 import { createComment } from '@/store/slices/commentSlice';
-import commentApi from "@/services/api/comment";
-import AuthorInfo from "@/components/author-info";
+import commentApi from '@/services/api/comment';
+import AuthorInfo from '@/components/author-info';
 import ActionBar, { ActionButtonConfig } from '@/components/action-bar';
 import { checkLoginWithModal } from '@/utils/auth';
 
-import ChevronDownIcon from "@/assets/chevron-down.svg";
-import ChevronRightIcon from "@/assets/chevron-right.svg";
-import HeartIcon from "@/assets/heart-outline.svg";
-import HeartActiveIcon from "@/assets/heart-bold.svg";
+import ChevronDownIcon from '@/assets/chevron-down.svg';
+import ChevronRightIcon from '@/assets/chevron-right.svg';
+import HeartIcon from '@/assets/heart-outline.svg';
+import HeartActiveIcon from '@/assets/heart-bold.svg';
 import CloseIcon from '@/assets/x.svg';
 import SendIcon from '@/assets/sendcomment.svg';
 import { formatRelativeTime } from '@/utils/time';
 
-
-import styles from "./index.module.scss";
+import styles from './index.module.scss';
 
 // 渲染带有@用户名高亮的评论内容
 const renderCommentContent = (content: string): React.ReactNode => {
@@ -33,18 +39,14 @@ const renderCommentContent = (content: string): React.ReactNode => {
   while ((match = mentionRegex.exec(content)) !== null) {
     // 添加@之前的普通文本
     if (match.index > lastIndex) {
-      parts.push(
-        <Text key={`text-${lastIndex}`}>
-          {content.slice(lastIndex, match.index)}
-        </Text>
-      );
+      parts.push(<Text key={`text-${lastIndex}`}>{content.slice(lastIndex, match.index)}</Text>);
     }
 
     // 添加高亮的@用户名
     parts.push(
       <Text key={`mention-${match.index}`} className={styles.mentionText}>
         {match[0]}
-      </Text>
+      </Text>,
     );
 
     lastIndex = match.index + match[0].length;
@@ -52,11 +54,7 @@ const renderCommentContent = (content: string): React.ReactNode => {
 
   // 添加剩余的普通文本
   if (lastIndex < content.length) {
-    parts.push(
-      <Text key={`text-${lastIndex}`}>
-        {content.slice(lastIndex)}
-      </Text>
-    );
+    parts.push(<Text key={`text-${lastIndex}`}>{content.slice(lastIndex)}</Text>);
   }
 
   return parts.length > 0 ? parts : <Text>{content}</Text>;
@@ -72,7 +70,13 @@ interface SubCommentItemProps {
   showFollowButton?: boolean;
 }
 
-const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onReply, onLikeUpdate, onDeleteComment: _onDeleteComment, showFollowButton = true }) => {
+const SubCommentItem: React.FC<SubCommentItemProps> = ({
+  comment: _comment,
+  onReply,
+  onLikeUpdate,
+  onDeleteComment: _onDeleteComment,
+  showFollowButton = true,
+}) => {
   const userState = useSelector((state: RootState) => state.user);
   const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
@@ -81,7 +85,6 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
       await _onDeleteComment(_comment.id);
     }
   };
-
 
   const actionBarButtons: ActionButtonConfig[] = [
     {
@@ -92,7 +95,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
     {
       type: 'comment',
       icon: '/assets/message-circle.svg',
-    }
+    },
   ];
 
   return (
@@ -116,7 +119,7 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
             buttons={actionBarButtons}
             initialStates={{
               'like-0': { isActive: _comment.has_liked || false, count: _comment.like_count || 0 },
-              'comment-1': { isActive: false, count: _comment.reply_count || 0 }
+              'comment-1': { isActive: false, count: _comment.reply_count || 0 },
             }}
             onStateChange={(type, isActive, count) => {
               if (type === 'like') {
@@ -127,7 +130,9 @@ const SubCommentItem: React.FC<SubCommentItemProps> = ({ comment: _comment, onRe
             }}
           />
           <Text className={styles.subCommentTime}>
-            {formatRelativeTime(_comment.create_at || (_comment as any).created_at || '')}
+            {formatRelativeTime(
+              _comment.create_at || (_comment as CommentWithFlexibleTime).created_at || '',
+            )}
           </Text>
         </View>
       </View>
@@ -158,9 +163,11 @@ const CommentItem: React.FC<CommentItemProps> = ({
   onSubReply,
   onSubLikeUpdate,
   onSubDeleteComment,
-  showFollowButton = true
+  showFollowButton = true,
 }) => {
   const [showReplies, setShowReplies] = useState(false);
+  const userState = useSelector((state: RootState) => state.user);
+  const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
   const handleMoreClick = async () => {
     if (_onDeleteComment) {
@@ -176,10 +183,9 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
   const repliesToShow = shouldAutoShow
     ? _comment.children || []
-    : (showReplies
+    : showReplies
       ? _comment.children || []
-      : (_comment.children || []).slice(0, 2));
-
+      : (_comment.children || []).slice(0, 2);
 
   const handleReply = async () => {
     const hasLogin = await checkLoginWithModal();
@@ -198,7 +204,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
     {
       type: 'comment',
       icon: '/assets/message-circle.svg',
-    }
+    },
   ];
 
   const toggleReplies = async () => {
@@ -216,14 +222,17 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const fetchAllNestedReplies = async (parentComment: CommentDetail) => {
     try {
       const response = { data: [] }; // Mock response
-      const repliesData = Array.isArray(response) ? response : (response?.data || []);
-      const normalizedReplies = (repliesData || []).map((r: any) => ({
+      const repliesData = Array.isArray(response) ? response : response?.data || [];
+      const normalizedReplies = (repliesData || []).map((r: CommentWithFlexibleTime) => ({
         ...r,
-        author_nickname: r?.author_nickname ?? r?.user?.nickname ?? r?.user?.name ?? '',
+        author_nickname: r?.author_nickname ?? r?.user?.nickname ?? '',
         author_avatar: r?.author_avatar ?? r?.avatar ?? r?.user?.avatar ?? '',
-        create_at: r?.create_at || r?.created_at || r?.create_time || r?.update_time || ''
+        create_at: r?.create_at || r?.created_at || r?.create_time || r?.update_time || '',
       }));
-      const allReplies = await fetchAllNestedRepliesRecursive(normalizedReplies, parentComment.author_nickname);
+      const allReplies = await fetchAllNestedRepliesRecursive(
+        normalizedReplies,
+        parentComment.author_nickname,
+      );
       const updatedComment = { ...parentComment, children: allReplies };
       _onUpdateComment(parentComment.id, updatedComment);
     } catch {
@@ -231,23 +240,31 @@ const CommentItem: React.FC<CommentItemProps> = ({
     }
   };
 
-  const fetchAllNestedRepliesRecursive = async (replies: any[], parentauthor_nickname?: string): Promise<any[]> => {
+  const fetchAllNestedRepliesRecursive = async (
+    replies: CommentWithFlexibleTime[],
+    parentauthor_nickname?: string,
+  ): Promise<CommentWithFlexibleTime[]> => {
     const allReplies = [...replies];
     for (const reply of replies) {
-      if (!reply.parent_author_author_nickname && parentauthor_nickname) {
-        reply.parent_author_author_nickname = parentauthor_nickname;
+      if (!reply.parent_author_nickname && parentauthor_nickname) {
+        reply.parent_author_nickname = parentauthor_nickname;
       }
-      if (reply.reply_count > 0) {
+      if ((reply.reply_count ?? 0) > 0) {
         try {
           const nestedResponse = { data: [] }; // Mock response
-          const rawNested = Array.isArray(nestedResponse) ? nestedResponse : (nestedResponse?.data || []);
-          const nestedReplies = (rawNested || []).map((r: any) => ({
+          const rawNested = Array.isArray(nestedResponse)
+            ? nestedResponse
+            : nestedResponse?.data || [];
+          const nestedReplies = (rawNested || []).map((r: CommentWithFlexibleTime) => ({
             ...r,
-            author_nickname: r?.author_nickname ?? r?.user?.nickname ?? r?.user?.name ?? '',
+            author_nickname: r?.author_nickname ?? r?.user?.nickname ?? '',
             author_avatar: r?.author_avatar ?? r?.avatar ?? r?.user?.avatar ?? '',
-            create_at: r?.create_at || r?.created_at || r?.create_time || r?.update_time || ''
+            create_at: r?.create_at || r?.created_at || r?.create_time || r?.update_time || '',
           }));
-          const deeperReplies = await fetchAllNestedRepliesRecursive(nestedReplies, reply.author_nickname);
+          const deeperReplies = await fetchAllNestedRepliesRecursive(
+            nestedReplies,
+            reply.author_nickname,
+          );
           allReplies.push(...deeperReplies);
         } catch {
           //静默处理
@@ -256,8 +273,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
     }
     return allReplies;
   };
-
-  const isCommentAuthor = userState?.user?.id === _comment.user_id;
 
   return (
     <View className={styles.commentItem}>
@@ -280,7 +295,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
             buttons={actionBarButtons}
             initialStates={{
               'like-0': { isActive: _comment.has_liked || false, count: _comment.like_count || 0 },
-              'comment-1': { isActive: false, count: _comment.children?.length || 0 }
+              'comment-1': { isActive: false, count: _comment.children?.length || 0 },
             }}
             onStateChange={(type, isActive, count) => {
               if (type === 'like') {
@@ -292,7 +307,9 @@ const CommentItem: React.FC<CommentItemProps> = ({
           />
           <View className={styles.commentRightSection}>
             <Text className={styles.commentTime}>
-              {formatRelativeTime(_comment.create_at || (_comment as any).created_at || '')}
+              {formatRelativeTime(
+                _comment.create_at || (_comment as CommentWithFlexibleTime).created_at || '',
+              )}
             </Text>
             {shouldShowToggleButton && (
               <View className={styles.toggleRepliesButton} onClick={toggleReplies}>
@@ -325,7 +342,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
   );
 };
 
-
 // ## CommentInput Component ##
 interface CommentInputProps {
   postId: string;
@@ -340,7 +356,14 @@ interface CommentInputProps {
   allowComments?: boolean;
 }
 
-const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuthorId, replyTo, onCancelReply, allowComments = true }) => {
+const CommentInput: React.FC<CommentInputProps> = ({
+  postId,
+  postTitle,
+  postAuthorId,
+  replyTo,
+  onCancelReply,
+  allowComments = true,
+}) => {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userState = useSelector((state: RootState) => state.user);
@@ -385,10 +408,12 @@ const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuth
         content: finalContent,
         post_title: postTitle,
         post_author_id: postAuthorId,
-        ...(replyTo ? {
-          parent_id: replyTo.commentId,
-          parent_author_nickname: replyTo.nickname
-        } : {})
+        ...(replyTo
+          ? {
+              parent_id: replyTo.commentId,
+              parent_author_nickname: replyTo.nickname,
+            }
+          : {}),
       };
 
       await dispatch(createComment(commentParams)).unwrap();
@@ -421,11 +446,7 @@ const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuth
       {replyTo && (
         <View className={styles.replyIndicator}>
           <Text className={styles.replyText}>回复 @{replyTo.nickname}</Text>
-          <Image
-            src={CloseIcon}
-            className={styles.cancelReplyIcon}
-            onClick={handleCancelReply}
-          />
+          <Image src={CloseIcon} className={styles.cancelReplyIcon} onClick={handleCancelReply} />
         </View>
       )}
 
@@ -439,19 +460,15 @@ const CommentInput: React.FC<CommentInputProps> = ({ postId, postTitle, postAuth
           focus={!!replyTo}
         />
         <View
-          className={`${styles.sendButton} ${(isSubmitting || !allowComments) ? styles.disabled : ''}`}
+          className={`${styles.sendButton} ${isSubmitting || !allowComments ? styles.disabled : ''}`}
           onClick={handleSendComment}
         >
-          <Image
-            src={SendIcon}
-            className={styles.sendIcon}
-          />
+          <Image src={SendIcon} className={styles.sendIcon} />
         </View>
       </View>
     </View>
   );
 };
-
 
 // ## Main CommentSection Component ##
 interface CommentSectionProps {
@@ -488,7 +505,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   onDeleteComment: _onDeleteComment,
   replyTo: externalReplyTo,
   onCancelReply,
-  showFollowButton = true
+  showFollowButton = true,
 }) => {
   const [sortBy, setSortBy] = useState<'time' | 'likes'>('time');
   const [localComments, setLocalComments] = useState<CommentDetail[]>([]);
@@ -514,7 +531,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       setInternalReplyTo({
         commentId: comment.root_id || comment.id,
         nickname: comment.author_nickname || '',
-        replyToNickname: comment.author_nickname || ''
+        replyToNickname: comment.author_nickname || '',
       });
     } else if (onReply) {
       onReply(comment);
@@ -534,20 +551,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     try {
       const res = await Taro.showModal({
         title: '确认删除',
-        content: '确定要删除这条评论吗？'
+        content: '确定要删除这条评论吗？',
       });
 
       if (res.confirm) {
         await commentApi.deleteComment(commentId);
 
         // 从本地状态中移除评论
-        setLocalComments(prevComments => {
+        setLocalComments((prevComments) => {
           const removeFromComments = (comments: CommentDetail[]): CommentDetail[] => {
             return comments
-              .filter(comment => comment.id !== commentId)
-              .map(comment => ({
+              .filter((comment) => comment.id !== commentId)
+              .map((comment) => ({
                 ...comment,
-                children: comment.children ? removeFromComments(comment.children) : undefined
+                children: comment.children ? removeFromComments(comment.children) : undefined,
               }));
           };
 
@@ -562,13 +579,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   };
 
   const handleLikeUpdate = (commentId: string, isLiked: boolean, likeCount: number) => {
-    setLocalComments(prevComments => {
-      return prevComments.map(comment => {
+    setLocalComments((prevComments) => {
+      return prevComments.map((comment) => {
         if (String(comment.id) === String(commentId)) {
           return { ...comment, has_liked: isLiked, like_count: likeCount };
         }
         if (comment.children && comment.children.length > 0) {
-          const updatedChildren = comment.children.map(child => {
+          const updatedChildren = comment.children.map((child) => {
             if (String(child.id) === String(commentId)) {
               return { ...child, has_liked: isLiked, like_count: likeCount };
             }
@@ -588,8 +605,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   };
 
   const handleUpdateComment = (commentId: string, updatedComment: CommentDetail) => {
-    setLocalComments(prevComments => {
-      return prevComments.map(comment => {
+    setLocalComments((prevComments) => {
+      return prevComments.map((comment) => {
         if (String(comment.id) === String(commentId)) {
           return updatedComment;
         }
@@ -600,8 +617,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
   const sortedComments = [...localComments].sort((a, b) => {
     if (sortBy === 'time') {
-      const bTime = (b.create_at || (b as any).created_at) ? new Date((b.create_at || (b as any).created_at) as string).getTime() : 0;
-      const aTime = (a.create_at || (a as any).created_at) ? new Date((a.create_at || (a as any).created_at) as string).getTime() : 0;
+      const bTime =
+        (b as CommentWithFlexibleTime).create_at || (b as CommentWithFlexibleTime).created_at
+          ? new Date(
+              ((b as CommentWithFlexibleTime).create_at ||
+                (b as CommentWithFlexibleTime).created_at) as string,
+            ).getTime()
+          : 0;
+      const aTime =
+        (a as CommentWithFlexibleTime).create_at || (a as CommentWithFlexibleTime).created_at
+          ? new Date(
+              ((a as CommentWithFlexibleTime).create_at ||
+                (a as CommentWithFlexibleTime).created_at) as string,
+            ).getTime()
+          : 0;
       return bTime - aTime;
     } else {
       return (b.like_count || 0) - (a.like_count || 0);

@@ -1,7 +1,7 @@
-import { useState } from "react";
-import Taro from "@tarojs/taro";
-import agentApi from "@/services/api/agent";
-import type { ChatRequest } from "@/types/api/agent.d";
+import { useState } from 'react';
+import Taro from '@tarojs/taro';
+import agentApi from '@/services/api/agent';
+import type { ChatRequest } from '@/types/api/agent.d';
 
 /**
  * Wiki润色功能Hook
@@ -23,8 +23,8 @@ import type { ChatRequest } from "@/types/api/agent.d";
  */
 export const usePolish = () => {
   const [loading, setLoading] = useState(false);
-  const [polishSuggestion, setPolishSuggestion] = useState<string>("");
-  const [typingText, setTypingText] = useState<string>("");
+  const [polishSuggestion, setPolishSuggestion] = useState<string>('');
+  const [typingText, setTypingText] = useState<string>('');
   const [isTyping, setIsTyping] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
@@ -34,12 +34,9 @@ export const usePolish = () => {
    * @param style 润色风格：正式、轻松、幽默、专业等
    * @returns Promise<string> 润色后的文本
    */
-  const polishText = async (
-    text: string,
-    style: string = "正式",
-  ): Promise<string> => {
+  const polishText = async (text: string, style: string = '正式'): Promise<string> => {
     if (!text.trim()) {
-      throw new Error("请先输入内容");
+      throw new Error('请先输入内容');
     }
 
     setLoading(true);
@@ -50,33 +47,29 @@ export const usePolish = () => {
 
       // 根据原文长度动态计算max_tokens和调整策略
       let enhancedText = originalText;
-      let contextHint = "";
+      let contextHint = '';
 
       if (textLength < 20) {
         // 短文本特殊处理：提供上下文提示，让AI更好地理解和扩展
         if (
-          originalText.includes("求助") ||
-          originalText.includes("帮助") ||
-          originalText.includes("咨询")
+          originalText.includes('求助') ||
+          originalText.includes('帮助') ||
+          originalText.includes('咨询')
         ) {
           contextHint =
-            "这是一个求助或咨询信息的标题，请将其润色为更礼貌、更有吸引力的表达方式，适当扩展内容以增加亲和力。";
+            '这是一个求助或咨询信息的标题，请将其润色为更礼貌、更有吸引力的表达方式，适当扩展内容以增加亲和力。';
         } else if (
-          originalText.includes("分享") ||
-          originalText.includes("经验") ||
-          originalText.includes("教程")
+          originalText.includes('分享') ||
+          originalText.includes('经验') ||
+          originalText.includes('教程')
         ) {
           contextHint =
-            "这是一个分享或教程信息的标题，请将其润色为更吸引人的表达方式，突出价值和实用性。";
-        } else if (
-          originalText.includes("通知") ||
-          originalText.includes("公告")
-        ) {
-          contextHint =
-            "这是一个通知或公告信息的标题，请将其润色为更正式、清晰的表达方式。";
+            '这是一个分享或教程信息的标题，请将其润色为更吸引人的表达方式，突出价值和实用性。';
+        } else if (originalText.includes('通知') || originalText.includes('公告')) {
+          contextHint = '这是一个通知或公告信息的标题，请将其润色为更正式、清晰的表达方式。';
         } else {
           contextHint =
-            "这是一个简短的标题或主题，请将其润色为更完整、更有吸引力的表达方式，适当扩展内容。";
+            '这是一个简短的标题或主题，请将其润色为更完整、更有吸引力的表达方式，适当扩展内容。';
         }
         // 为短文本提供更多润色空间
         enhancedText = `请${contextHint}原文内容："${originalText}"`;
@@ -85,9 +78,7 @@ export const usePolish = () => {
       // 根据原文长度动态计算max_tokens
       // 短文本给更多token进行扩展，长文本适当增加
       const baseTokens = textLength < 20 ? 800 : 500; // 短文本基础token更多
-      const lengthBasedTokens = Math.ceil(
-        textLength * (textLength < 20 ? 3 : 1.5),
-      ); // 短文本扩展倍数更大
+      const lengthBasedTokens = Math.ceil(textLength * (textLength < 20 ? 3 : 1.5)); // 短文本扩展倍数更大
       const maxTokens = Math.min(baseTokens + lengthBasedTokens, 2000); // 最大不超过2000
 
       // 根据文风设置不同的参数
@@ -153,9 +144,7 @@ export const usePolish = () => {
         },
       };
 
-      const config =
-        styleConfigs[style as keyof typeof styleConfigs] ||
-        styleConfigs["正式"];
+      const config = styleConfigs[style as keyof typeof styleConfigs] || styleConfigs['正式'];
 
       const requestData: ChatRequest = {
         message: enhancedText,
@@ -166,20 +155,23 @@ export const usePolish = () => {
 
       const response = await agentApi.chatAPI(requestData);
 
-      if (response.code === 0 && (response.data as any)?.content) {
-        const polishedText = (response.data as any).content.trim();
+      // 注意：chatAPI 返回的是 BaseResponse<ApiResponse_ChatResponse_>
+      // 其中实际内容位于 response.data.data.content
+      const inner = response.data;
+      const content = inner?.data?.content;
+      if (typeof content === 'string') {
+        const polishedText = content.trim();
 
         setPolishSuggestion(polishedText);
         return polishedText;
-      } else {
-        const errorMsg = response.message || "润色失败，请重试";
-        throw new Error(errorMsg);
       }
-    } catch (error: any) {
-      const errorMsg = error?.message || "润色失败，请检查网络连接";
+      const errorMsg = inner?.message || response.message || response.msg || '润色失败，请重试';
+      throw new Error(errorMsg);
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : '润色失败，请检查网络连接';
       Taro.showToast({
         title: errorMsg,
-        icon: "none",
+        icon: 'none',
         duration: 2000,
       });
       throw error;
@@ -194,12 +186,9 @@ export const usePolish = () => {
    * @param speed 打字速度（毫秒/字符）
    * @returns Promise<void>
    */
-  const startTypingAnimation = async (
-    text: string,
-    speed: number = 30,
-  ): Promise<void> => {
+  const startTypingAnimation = async (text: string, speed: number = 30): Promise<void> => {
     setIsTyping(true);
-    setTypingText("");
+    setTypingText('');
     setShowOptions(false);
 
     for (let i = 0; i <= text.length; i++) {
@@ -217,10 +206,7 @@ export const usePolish = () => {
    * @param style 润色风格
    * @returns Promise<string>
    */
-  const polishTextWithAnimation = async (
-    text: string,
-    style: string = "正式",
-  ): Promise<string> => {
+  const polishTextWithAnimation = async (text: string, style: string = '正式'): Promise<string> => {
     const result = await polishText(text, style);
     await startTypingAnimation(result);
     return result;
@@ -248,8 +234,8 @@ export const usePolish = () => {
    * 清空润色建议
    */
   const clearSuggestion = () => {
-    setPolishSuggestion("");
-    setTypingText("");
+    setPolishSuggestion('');
+    setTypingText('');
     setIsTyping(false);
     setShowOptions(false);
   };

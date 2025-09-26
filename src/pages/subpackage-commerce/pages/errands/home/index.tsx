@@ -12,7 +12,7 @@ import SearchBar from '@/components/search-bar';
 import HighlightText from '@/components/highlight-text';
 import { fetchErrands, clearError } from '@/store/slices/marketplaceSlice';
 import { RootState, AppDispatch } from '@/store';
-import { ErrandType } from '@/types/api/marketplace.d';
+import { ErrandType, ErrandListParams, ErrandRead } from '@/types/api/marketplace.d';
 
 // Relative imports
 import ErrandsTabBar from '../../../components/errands-tab-bar';
@@ -41,7 +41,7 @@ const ErrandsHomePage = () => {
           setIsRefreshing(true);
         }
 
-        const queryParams: any = {
+        const queryParams: ErrandListParams = {
           skip: params?.skip || 0,
           limit: 20,
         };
@@ -85,7 +85,7 @@ const ErrandsHomePage = () => {
   }, [errandsPagination, errandsLoading, loadErrands]);
 
   // 处理任务点击
-  const handleTaskClick = useCallback((task: any) => {
+  const handleTaskClick = useCallback((task: ErrandRead) => {
     Taro.navigateTo({
       url: `/pages/subpackage-commerce/pages/errands/detail/index?id=${task.id}`,
     }).catch(() => {
@@ -147,7 +147,7 @@ const ErrandsHomePage = () => {
   }, [searchKeyword]);
 
   // 处理搜索输入
-  const handleSearchInput = useCallback((e: any) => {
+  const handleSearchInput = useCallback((e: { detail: { value: string } }) => {
     setSearchKeyword(e.detail.value);
   }, []);
 
@@ -194,8 +194,8 @@ const ErrandsHomePage = () => {
   );
 
   // 任务卡片组件
-  const TaskCard = ({ task }: { task: any }) => {
-    const getTaskTypeDisplay = (taskItem: any) => {
+  const TaskCard = ({ task }: { task: ErrandRead }) => {
+    const getTaskTypeDisplay = (taskItem: ErrandRead) => {
       if (taskItem.errand_type === 'express_pickup') return '快递代取';
       if (taskItem.errand_type === 'food_delivery') return '食堂打饭';
       if (taskItem.errand_type === 'grocery_shopping') return '超市代购';
@@ -203,7 +203,7 @@ const ErrandsHomePage = () => {
       return taskItem.title || '其他';
     };
 
-    const getTaskRouteDisplay = (taskItem: any) => {
+    const getTaskRouteDisplay = (taskItem: ErrandRead) => {
       const from = taskItem.location_from || '起始地点';
       const to = taskItem.location_to || '目的地点';
       return `${from}->${to}`;

@@ -16,15 +16,15 @@ export const checkFileUploadPermission = (): boolean => {
  */
 export const checkFileUploadPermissionWithToast = (): boolean => {
   const hasPermission = checkFileUploadPermission();
-  
+
   if (!hasPermission) {
     Taro.showToast({
       title: '权限不够，请在设置中打开允许上传文件',
       icon: 'none',
-      duration: 2500
+      duration: 2500,
     });
   }
-  
+
   return hasPermission;
 };
 
@@ -33,8 +33,8 @@ export const checkFileUploadPermissionWithToast = (): boolean => {
  * @param uploadFunction 原始上传函数
  * @returns 包装后的上传函数
  */
-export const withFileUploadPermission = <T extends any[], R>(
-  uploadFunction: (..._args: T) => R
+export const withFileUploadPermission = <T extends unknown[], R>(
+  uploadFunction: (..._args: T) => R,
 ) => {
   return (...args: T): R | undefined => {
     if (!checkFileUploadPermissionWithToast()) {

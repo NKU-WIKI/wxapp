@@ -12,12 +12,12 @@ import HighlightText from '@/components/highlight-text';
 import AuthFloatingButton from '@/components/auth-floating-button';
 import { fetchListings, clearError } from '@/store/slices/marketplaceSlice';
 import { RootState, AppDispatch } from '@/store';
-import { ListingRead, ListingType } from '@/types/api/marketplace.d';
+import { ListingRead, ListingType, ListingListParams } from '@/types/api/marketplace.d';
 
 import { useRelativeTime } from '@/hooks/useRelativeTime';
 import { useProductDetails } from '@/hooks/useProductDetails';
 import searchApi from '@/services/api/search';
-import { SearchRequest } from '@/types/api/search';
+import { SearchRequest, SearchResultItem } from '@/types/api/search';
 
 // Assets imports
 import emptyIcon from '@/assets/empty.svg';
@@ -104,7 +104,7 @@ const SecondHandHomePage = () => {
           const response = await searchApi.search(searchParams);
           if (response.code === 0 && response.data) {
             // 将搜索结果转换为现有Redux store 格式
-            const searchResults = response.data.items.map((item) => {
+            const searchResults = response.data.items.map((item: SearchResultItem) => {
               // 处理ID，提取真正的ID部分
               let itemId = item.id || '';
               if (itemId.includes(':')) {
@@ -122,8 +122,8 @@ const SecondHandHomePage = () => {
                 created_at: item.created_at || item.create_time || '',
                 user: {
                   id: item.user_id || '',
-                  nickname: item.nickname || item.user?.nickname || '',
-                  avatar: item.user?.avatar || item.avatar || '',
+                  nickname: item.nickname || '',
+                  avatar: item.avatar || '',
                 },
                 listing_type:
                   item.listing_type ||
@@ -160,7 +160,7 @@ const SecondHandHomePage = () => {
           }
         } else {
           // 没有搜索关键词，使用原有的商品列表接口
-          const queryParams: any = {
+          const queryParams: ListingListParams = {
             skip: skip,
             limit: 20,
           };
@@ -210,7 +210,7 @@ const SecondHandHomePage = () => {
       const response = await searchApi.search(searchParams);
       if (response.code === 0 && response.data) {
         // 将搜索结果转换为现有Redux store 格式
-        const searchResults = response.data.items.map((item) => {
+        const searchResults = response.data.items.map((item: SearchResultItem) => {
           // 处理ID，提取真正的ID部分
           let itemId = item.id || '';
           if (itemId.includes(':')) {
@@ -227,8 +227,8 @@ const SecondHandHomePage = () => {
             created_at: item.created_at || item.create_time || '',
             user: {
               id: item.user_id || '',
-              nickname: item.nickname || item.user?.nickname || '',
-              avatar: item.user?.avatar || item.avatar || '',
+              nickname: item.nickname || '',
+              avatar: item.avatar || '',
             },
             listing_type:
               item.listing_type || (selectedType === 'sell' ? ListingType.SELL : ListingType.BUY),
@@ -318,7 +318,7 @@ const SecondHandHomePage = () => {
   }, [error, dispatch]);
 
   // 处理搜索输入 - 使用 useCallback 保持函数稳定性，防抖优化
-  const handleSearchInput = useCallback((e: any) => {
+  const handleSearchInput = useCallback((e: { detail: { value: string } }) => {
     const value = e.detail.value;
     setSearchKeyword(value);
   }, []);

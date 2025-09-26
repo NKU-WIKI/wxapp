@@ -1,11 +1,11 @@
-import Taro from "@tarojs/taro";
+import Taro from '@tarojs/taro';
 import {
   LearningMaterial,
   LearningMaterialCategory,
   getFileTypeFromExtension,
-} from "@/types/api/learningMaterial";
+} from '@/types/api/learningMaterial';
 
-const STORAGE_KEY = "learningMaterials";
+const STORAGE_KEY = 'learningMaterials';
 
 /**
  * 学习资料本地存储管理
@@ -26,9 +26,7 @@ export class LearningMaterialService {
   /**
    * 根据分类获取学习资料
    */
-  static getMaterialsByCategory(
-    category: LearningMaterialCategory,
-  ): LearningMaterial[] {
+  static getMaterialsByCategory(category: LearningMaterialCategory): LearningMaterial[] {
     const allMaterials = this.getAllMaterials();
     return allMaterials.filter((material) => material.category === category);
   }
@@ -59,39 +57,58 @@ export class LearningMaterialService {
    * 添加学习资料
    */
   static addMaterial(
-    materialData: Partial<LearningMaterial> & { [key: string]: any },
+    materialData: Partial<LearningMaterial> & { [key: string]: unknown },
   ): LearningMaterial {
     const materials = this.getAllMaterials();
 
     // 优先使用用户提供的分类，如果没有则自动推断
-    const category = materialData.category || this.inferCategory(
-      materialData.subject,
-      materialData.description,
-    );
+    const category =
+      materialData.category ||
+      this.inferCategory(materialData.subject || '', materialData.description || '');
+
+    // 安全地获取字符串值
+    const getStringValue = (value: unknown): string => {
+      if (typeof value === 'string') return value;
+      return '';
+    };
+
+    // 安全地获取数字值
+    const getNumberValue = (value: unknown): number => {
+      if (typeof value === 'number') return value;
+      return 0;
+    };
+
+    // 安全地获取签名类型
+    const getSignatureType = (value: unknown): 'anonymous' | 'realname' => {
+      if (value === 'realname') return 'realname';
+      return 'anonymous';
+    };
+
+    const originalFileName = getStringValue(materialData.original_file_name);
 
     const newMaterial: LearningMaterial = {
       id: Date.now().toString(),
-      title:
-        materialData.original_file_name ||
-        materialData.description ||
-        "未命名资料",
-      description: materialData.description || "",
-      college: materialData.college || "",
-      subject: materialData.subject || "",
-      signatureType: materialData.signature_type || "anonymous",
-      fileUrl: materialData.file_url || "",
-      fileName: materialData.server_file_name || "",
-      originalFileName: materialData.original_file_name || "",
-      netdiskLink: materialData.netdisk_link || "",
-      qrCodeUrl: materialData.qr_code_url || "",
-      fileSize: materialData.file_size || 0,
-      fileType: getFileTypeFromExtension(materialData.original_file_name || ""),
+      title: originalFileName || getStringValue(materialData.description) || '未命名资料',
+      description: getStringValue(materialData.description),
+      college: getStringValue(materialData.college),
+      subject: getStringValue(materialData.subject),
+      signatureType: getSignatureType(materialData.signature_type),
+      fileUrl: getStringValue(materialData.file_url),
+      fileName: getStringValue(materialData.server_file_name),
+      originalFileName: originalFileName,
+      netdiskLink: getStringValue(materialData.netdisk_link),
+      qrCodeUrl: getStringValue(materialData.qr_code_url),
+      fileSize: getNumberValue(materialData.file_size),
+      fileType: getFileTypeFromExtension(originalFileName),
       uploadTime: new Date().toISOString(),
       category: category,
       downloadCount: 0,
       rating: 0,
       // 添加linkId支持新的下载API
-      linkId: materialData.link_id || materialData.linkId || materialData.id,
+      linkId:
+        getStringValue(materialData.link_id) ||
+        getStringValue(materialData.linkId) ||
+        getStringValue(materialData.id),
     };
 
     materials.unshift(newMaterial); // 添加到开头
@@ -103,33 +120,22 @@ export class LearningMaterialService {
   /**
    * 根据学科和描述推断分类
    */
-  private static inferCategory(
-    subject: string,
-    description: string,
-  ): LearningMaterialCategory {
+  private static inferCategory(subject?: string, description?: string): LearningMaterialCategory {
     const text = `${subject} ${description}`.toLowerCase();
 
-    if (text.includes("考研") || text.includes("研究生")) {
+    if (text.includes('考研') || text.includes('研究生')) {
       return LearningMaterialCategory.GRADUATE_EXAM;
     }
-    if (
-      text.includes("期末") ||
-      text.includes("考试") ||
-      text.includes("真题")
-    ) {
+    if (text.includes('期末') || text.includes('考试') || text.includes('真题')) {
       return LearningMaterialCategory.FINAL_EXAM;
     }
-    if (text.includes("笔记") || text.includes("notes")) {
+    if (text.includes('笔记') || text.includes('notes')) {
       return LearningMaterialCategory.COURSE_NOTES;
     }
-    if (
-      text.includes("实验") ||
-      text.includes("报告") ||
-      text.includes("lab")
-    ) {
+    if (text.includes('实验') || text.includes('报告') || text.includes('lab')) {
       return LearningMaterialCategory.LAB_REPORT;
     }
-    if (text.includes("书") || text.includes("教材") || text.includes("book")) {
+    if (text.includes('书') || text.includes('教材') || text.includes('book')) {
       return LearningMaterialCategory.EBOOK;
     }
 
@@ -162,13 +168,13 @@ export class LearningMaterialService {
    */
   static checkAndImportUploadData(): LearningMaterial | null {
     try {
-      const uploadData = Taro.getStorageSync("uploadMaterialData");
+      const uploadData = Taro.getStorageSync('uploadMaterialData');
       if (uploadData && uploadData.file_name) {
         // 如果有上传数据，导入为学习资料
         const material = this.addMaterial(uploadData);
 
         // 清除上传数据
-        Taro.removeStorageSync("uploadMaterialData");
+        Taro.removeStorageSync('uploadMaterialData');
 
         return material;
       }
@@ -187,34 +193,34 @@ export const CATEGORY_CONFIG: Record<
   { title: string; icon: string; description: string }
 > = {
   [LearningMaterialCategory.COURSE_NOTES]: {
-    title: "课程笔记",
-    icon: "📚",
-    description: "课堂笔记、学习总结",
+    title: '课程笔记',
+    icon: '📚',
+    description: '课堂笔记、学习总结',
   },
   [LearningMaterialCategory.FINAL_EXAM]: {
-    title: "期末真题",
-    icon: "📝",
-    description: "历年真题、考试资料",
+    title: '期末真题',
+    icon: '📝',
+    description: '历年真题、考试资料',
   },
   [LearningMaterialCategory.EBOOK]: {
-    title: "电子书",
-    icon: "📖",
-    description: "教材、参考书籍",
+    title: '电子书',
+    icon: '📖',
+    description: '教材、参考书籍',
   },
   [LearningMaterialCategory.GRADUATE_EXAM]: {
-    title: "考研资料",
-    icon: "🎓",
-    description: "考研真题、复习资料",
+    title: '考研资料',
+    icon: '🎓',
+    description: '考研真题、复习资料',
   },
   [LearningMaterialCategory.LAB_REPORT]: {
-    title: "实验报告",
-    icon: "🔬",
-    description: "实验指导、报告模板",
+    title: '实验报告',
+    icon: '🔬',
+    description: '实验指导、报告模板',
   },
   [LearningMaterialCategory.OTHER]: {
-    title: "其他资料",
-    icon: "📁",
-    description: "其他学习资料",
+    title: '其他资料',
+    icon: '📁',
+    description: '其他学习资料',
   },
 };
 

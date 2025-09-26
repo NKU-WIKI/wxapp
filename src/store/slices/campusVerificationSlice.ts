@@ -1,6 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import campusVerificationApi from '@/services/api/campus-verification';
-import { CampusVerificationInfo, CampusVerificationRequest, VerificationDocumentLink } from '@/types/api/campus-verification';
+import {
+  CampusVerificationInfo,
+  CampusVerificationRequest,
+  VerificationDocumentLink,
+  CampusVerificationResponse,
+} from '@/types/api/campus-verification';
 
 interface CampusVerificationState {
   info: CampusVerificationInfo | null;
@@ -23,9 +28,7 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
     const response = await campusVerificationApi.getCampusVerificationInfo();
     const rawData = response.data;
 
-
-
-    let applications: any[] = [];
+    let applications: CampusVerificationResponse[] = [];
 
     // 检查数据结构：可能是直接返回数组，也可能是包含applications属性的对象
     if (Array.isArray(rawData)) {
@@ -46,8 +49,8 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
     }
 
     // 按提交时间倒序排序，获取最新的申请
-    const sortedApplications = applications.sort((a, b) =>
-      new Date(b.submitted_at || b.created_at).getTime() - new Date(a.submitted_at || a.created_at).getTime()
+    const sortedApplications = applications.sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
 
     const latestApplication = sortedApplications[0];
@@ -59,26 +62,31 @@ export const fetchCampusVerificationInfo = createAsyncThunk(
     };
 
     return verificationInfo;
-  }
+  },
 );
 
 // 提交校园认证申请
 export const submitCampusVerification = createAsyncThunk(
   'campusVerification/submit',
-  async (data: {
-    real_name: string;
-    id_number?: string;
-    organization_name: string;
-    student_id: string;
-    department?: string;
-    contact_phone?: string;
-    card_image: string;
-  }, { rejectWithValue }) => {
+  async (
+    data: {
+      real_name: string;
+      id_number?: string;
+      organization_name: string;
+      student_id: string;
+      department?: string;
+      contact_phone?: string;
+      card_image: string;
+    },
+    { rejectWithValue },
+  ) => {
     try {
       // 先上传文件
       const uploadResponse = await campusVerificationApi.uploadFile(data.card_image);
 
-      const fileUrl = (uploadResponse.data as any).url || (uploadResponse.data as any).file_url; // 兼容不同的返回格式
+      // 类型守卫：确保 uploadResponse.data 是对象类型
+      const uploadData = uploadResponse.data as Record<string, unknown> | undefined;
+      const fileUrl = (uploadData?.url as string) || (uploadData?.file_url as string); // 兼容不同的返回格式
 
       if (!fileUrl) {
         return rejectWithValue('文件上传失败，请重试');
@@ -107,7 +115,7 @@ export const submitCampusVerification = createAsyncThunk(
       const response = await campusVerificationApi.submitCampusVerification(verificationRequest);
 
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // console.error('Submit campus verification failed:', {
       //   message: error?.message,
       //   statusCode: error?.statusCode,
@@ -115,16 +123,26 @@ export const submitCampusVerification = createAsyncThunk(
       //   msg: error?.msg
       // });
 
+      // 类型检查错误对象
+      const err = error as
+        | {
+            statusCode?: number;
+            data?: { detail?: string; msg?: string };
+            msg?: string;
+            message?: string;
+          }
+        | undefined;
+
       // 优化错误信息提取 - 处理409冲突错误
-      if (error?.statusCode === 409 && error?.data?.detail) {
-        return rejectWithValue(error.data.detail);
+      if (err?.statusCode === 409 && err?.data?.detail) {
+        return rejectWithValue(err.data.detail);
       }
 
       // 处理其他错误
-      const errorMessage = error?.msg || error?.message || error?.data?.msg || '提交认证失败，请重试';
+      const errorMessage = err?.msg || err?.message || err?.data?.msg || '提交认证失败，请重试';
       return rejectWithValue(errorMessage);
     }
-  }
+  },
 );
 
 const campusVerificationSlice = createSlice({
