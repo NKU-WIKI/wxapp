@@ -1,4 +1,4 @@
-import type { UserConfigExport } from "@tarojs/cli";
+import type { UserConfigExport } from '@tarojs/cli';
 
 /**
  * 生产环境配置
@@ -23,7 +23,7 @@ export default {
     },
   },
   defineConstants: {
-    "process.env.BASE_URL": JSON.stringify("https://nkuwiki.com"),
-    "process.env.NODE_ENV": JSON.stringify("production"),
+    'process.env.BASE_URL': JSON.stringify('https://nkuwiki.com'),
+    'process.env.NODE_ENV': JSON.stringify('development'),
   },
-} satisfies UserConfigExport<"webpack5">;
+} satisfies UserConfigExport<'webpack5'>;
