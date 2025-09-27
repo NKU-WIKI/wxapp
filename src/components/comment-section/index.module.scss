@@ -1,32 +1,32 @@
-@use "@/styles/variables.scss" as *;
+@use '@/styles/variables.scss' as *;
 
 /* 评论区样式 */
 .commentsSection {
   padding: 16px 16px 16px 12px;
   margin: 0 12px 12px;
-  background-color: #FFF;
+  background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
-  
+
   .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-top: 16px; /* Add margin to separate from input */
     margin-bottom: 16px;
-    
+
     .title {
       font-size: 16px;
       font-weight: 600;
       color: #333;
     }
-    
+
     .sort {
       display: flex;
       align-items: center;
       font-size: 14px;
       color: #666;
-      
+
       .icon {
         width: 16px;
         height: 16px;
@@ -34,7 +34,7 @@
       }
     }
   }
-  
+
   .emptyComments {
     padding: 20px 0;
     font-size: 14px;
@@ -46,7 +46,7 @@
 /* 评论项样式 */
 .commentItem {
   margin-bottom: 20px;
-  
+
   .content {
     padding-left: 48px; /* 36px avatar width + 12px margin */
   }
@@ -57,25 +57,25 @@
     justify-content: space-between;
     margin-top: 8px;
   }
-  
+
   .commentRightSection {
     display: flex;
     gap: 12px;
     align-items: center;
     margin-left: auto;
   }
-  
+
   .commentTime {
     font-size: 11px;
-    color: #9CA3AF;
+    color: #9ca3af;
     white-space: nowrap;
   }
-  
+
   .toggleRepliesButton {
     display: flex;
     align-items: center;
     font-size: 13px;
-    color: #4F46E5;
+    color: #4f46e5;
     cursor: pointer;
   }
 
@@ -88,16 +88,21 @@
   .repliesContainer {
     padding-left: 12px;
     margin-top: 12px;
-    border-left: 2px solid #F0F0F0;
+    border-left: 2px solid #f0f0f0;
   }
 
-  .text, .subText {
+  .text,
+  .subText {
     font-size: 15px;
     line-height: 1.6;
     color: #333;
+    /* 允许中文与长英文/URL在边界处自动换行，防止溢出 */
     white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
-  
+
   .subText {
     font-size: 14px;
   }
@@ -111,7 +116,7 @@
 /* 子评论项样式 */
 .subCommentItem {
   margin-top: 12px;
-  
+
   .subContent {
     padding-left: 42px; /* Adjust for smaller avatar */
   }
@@ -122,11 +127,11 @@
     justify-content: space-between;
     margin-top: 6px;
   }
-  
+
   .subCommentTime {
     margin-left: auto;
     font-size: 11px;
-    color: #9CA3AF;
+    color: #9ca3af;
     white-space: nowrap;
   }
 }
@@ -138,12 +143,12 @@
 }
 
 .subIcon {
-    width: 16px;
-    height: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .activeText {
-    color: $theme-primary;
+  color: $theme-primary;
 }
 
 /* Comment Input Styles */
@@ -160,15 +165,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background: #F0F4F8;
-  border-bottom: 1px solid #E2E8F0;
-  
+  background: #f0f4f8;
+  border-bottom: 1px solid #e2e8f0;
+
   .replyText {
     font-size: 14px;
     font-weight: 500;
-    color: #4F46E5;
+    color: #4f46e5;
   }
-  
+
   .cancelReplyIcon {
     width: 16px;
     height: 16px;
@@ -193,7 +198,7 @@
   margin-right: 10px;
   font-size: 15px;
   background: $bg-input;
-  border: 1px solid #C3C3C3;
+  border: 1px solid #c3c3c3;
   border-radius: 18px;
 }
 
@@ -204,9 +209,9 @@
   width: 32px;
   height: 32px;
   background: $bg-card;
-  border: 1px solid #C3C3C3;
+  border: 1px solid #c3c3c3;
   border-radius: 50%;
-  
+
   &.disabled {
     pointer-events: none;
     opacity: 0.5;

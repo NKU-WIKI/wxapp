@@ -1,17 +1,17 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { View, Text, Button, Switch, ScrollView } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "@/store/slices/userSlice";
+import React, { useCallback, useState, useEffect } from 'react';
+import { View, Text, Button, Switch, ScrollView } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '@/store/slices/userSlice';
 import {
   setPersonalizedRecommendation,
   setAllowFileUpload,
   setAllowClipboardAccess,
-} from "@/store/slices/settingsSlice";
-import { RootState } from "@/store/rootReducer";
-import { clearCache, getCacheSize } from "@/utils/cacheManager";
-import { runNetworkDiagnosis } from "@/utils/networkDiagnosis";
-import styles from "./index.module.scss";
+} from '@/store/slices/settingsSlice';
+import { RootState } from '@/store/rootReducer';
+import { clearCache, getCacheSize } from '@/utils/cacheManager';
+import { runNetworkDiagnosis } from '@/utils/networkDiagnosis';
+import styles from './index.module.scss';
 
 // 图标组件（使用Unicode字符）
 const IconLock = () => <Text className={styles.icon}>🔒</Text>;
@@ -22,7 +22,7 @@ const IconArrowRight = () => <Text className={styles.arrow}>›</Text>;
 interface SettingItem {
   label: string;
   value?: string;
-  type: "navigation" | "toggle" | "button" | "selection";
+  type: 'navigation' | 'toggle' | 'button' | 'selection';
   options?: string[];
   action?: () => void;
 }
@@ -40,7 +40,7 @@ const Settings: React.FC = () => {
   const settings = useSelector((state: RootState) => state.settings);
 
   // 缓存大小状态
-  const [cacheSize, setCacheSize] = useState<string>("计算中...");
+  const [cacheSize, setCacheSize] = useState<string>('计算中...');
 
   // 组件挂载时获取缓存大小
   useEffect(() => {
@@ -49,7 +49,7 @@ const Settings: React.FC = () => {
         const size = getCacheSize();
         setCacheSize(size);
       } catch {
-        setCacheSize("128KB");
+        setCacheSize('128KB');
       }
     };
 
@@ -59,14 +59,14 @@ const Settings: React.FC = () => {
   // 处理清除缓存
   const handleClearCache = () => {
     Taro.showModal({
-      title: "清除缓存",
+      title: '清除缓存',
       content: `确定要清除所有缓存数据吗？当前缓存大小：${cacheSize}`,
       success: (res) => {
         if (res.confirm) {
           try {
             // 显示加载状态
             Taro.showLoading({
-              title: "清理中...",
+              title: '清理中...',
               mask: true,
             });
 
@@ -80,15 +80,15 @@ const Settings: React.FC = () => {
 
               Taro.hideLoading();
               Taro.showToast({
-                title: "缓存已清除",
-                icon: "success",
+                title: '缓存已清除',
+                icon: 'success',
               });
             }, 500);
           } catch {
             Taro.hideLoading();
             Taro.showToast({
-              title: error instanceof Error ? error.message : "清除失败",
-              icon: "none",
+              title: error instanceof Error ? error.message : '清除失败',
+              icon: 'none',
             });
           }
         }
@@ -99,28 +99,21 @@ const Settings: React.FC = () => {
     });
   };
 
-  // 处理账号基本信息
-  const handleAccountInfo = () => {
-    Taro.navigateTo({
-      url: "/pages/subpackage-profile/account-info/index",
-    });
-  };
-
   // 处理注销账号
   const handleDeleteAccount = () => {
     Taro.showModal({
-      title: "注销账号",
-      content: "注销后将无法恢复，确定要注销账号吗？",
-      confirmColor: "#FF3B30",
+      title: '注销账号',
+      content: '注销后将无法恢复，确定要注销账号吗？',
+      confirmColor: '#FF3B30',
       success: (res) => {
         if (res.confirm) {
           dispatch(logout());
           Taro.showToast({
-            title: "账号已注销",
-            icon: "success",
+            title: '账号已注销',
+            icon: 'success',
           });
           setTimeout(() => {
-            Taro.switchTab({ url: "/pages/home/index" });
+            Taro.switchTab({ url: '/pages/home/index' });
           }, 1500);
         }
       },
@@ -133,17 +126,17 @@ const Settings: React.FC = () => {
   // 处理退出登录
   const handleLogout = () => {
     Taro.showModal({
-      title: "退出登录",
-      content: "确定要退出登录吗？",
+      title: '退出登录',
+      content: '确定要退出登录吗？',
       success: (res) => {
         if (res.confirm) {
           dispatch(logout());
           Taro.showToast({
-            title: "已退出登录",
-            icon: "success",
+            title: '已退出登录',
+            icon: 'success',
           });
           setTimeout(() => {
-            Taro.switchTab({ url: "/pages/home/index" });
+            Taro.switchTab({ url: '/pages/home/index' });
           }, 1500);
         }
       },
@@ -157,8 +150,8 @@ const Settings: React.FC = () => {
   const handleSaveSettings = () => {
     try {
       Taro.showToast({
-        title: "设置已保存",
-        icon: "success",
+        title: '设置已保存',
+        icon: 'success',
       });
 
       // 延迟一下显示toast，然后返回profile页面
@@ -167,8 +160,8 @@ const Settings: React.FC = () => {
       }, 1000);
     } catch {
       Taro.showToast({
-        title: "保存失败，请重试",
-        icon: "error",
+        title: '保存失败，请重试',
+        icon: 'error',
       });
     }
   };
@@ -203,57 +196,52 @@ const Settings: React.FC = () => {
   // 设置配置
   const settingsSections: SettingSection[] = [
     {
-      title: "隐私与权限",
+      title: '隐私与权限',
       icon: <IconLock />,
       items: [
         {
-          label: "允许上传文件",
-          type: "toggle",
+          label: '允许上传文件',
+          type: 'toggle',
         },
       ],
     },
     {
-      title: "通用设置",
+      title: '通用设置',
       icon: <IconSettings />,
       items: [
         {
-          label: "接受个性化内容推荐",
-          type: "toggle",
+          label: '接受个性化内容推荐',
+          type: 'toggle',
         },
         {
-          label: "允许读取剪切板",
-          type: "toggle",
+          label: '允许读取剪切板',
+          type: 'toggle',
         },
         {
-          label: "网络诊断",
-          type: "button",
+          label: '网络诊断',
+          type: 'button',
           action: handleNetworkDiagnosis,
         },
         {
-          label: "清除缓存",
+          label: '清除缓存',
           value: cacheSize,
-          type: "navigation",
+          type: 'navigation',
           action: handleClearCache,
         },
       ],
     },
     {
-      title: "账号与安全",
+      title: '账号与安全',
       icon: <IconShield />,
       items: [
         {
-          label: "账号基本信息",
-          type: "navigation",
-          action: handleAccountInfo,
-        },
-        {
-          label: "注销账号",
-          type: "navigation",
+          label: '注销账号',
+          type: 'navigation',
           action: handleDeleteAccount,
         },
         {
-          label: "退出登录",
-          type: "navigation",
+          label: '退出登录',
+          type: 'navigation',
           action: handleLogout,
         },
       ],
@@ -269,9 +257,7 @@ const Settings: React.FC = () => {
     <View className={styles.toggleItem}>
       <View className={styles.toggleContent}>
         <View className={styles.toggleLabel}>{label}</View>
-        {description && (
-          <View className={styles.toggleDescription}>{description}</View>
-        )}
+        {description && <View className={styles.toggleDescription}>{description}</View>}
       </View>
       <Switch
         checked={_value}
@@ -281,58 +267,56 @@ const Settings: React.FC = () => {
           onChange(newValue);
         }}
         className={styles.switch}
-        color="#4F46E5"
+        color='#4F46E5'
       />
     </View>
   );
 
   const renderSettingItem = (item: SettingItem, sectionTitle: string) => {
-    if (sectionTitle === "隐私与权限" && item.type === "toggle") {
+    if (sectionTitle === '隐私与权限' && item.type === 'toggle') {
       switch (item.label) {
-        case "允许上传文件":
+        case '允许上传文件':
           return renderToggleSwitch(
             item.label,
             settings.allowFileUpload,
             handleAllowFileUploadChange,
-            "关闭后将无法在发帖、笔记和学习资源中上传文件",
+            '关闭后将无法在发帖、笔记和学习资源中上传文件',
           );
         default:
           return null;
       }
     }
 
-    if (sectionTitle === "通用设置" && item.type === "toggle") {
+    if (sectionTitle === '通用设置' && item.type === 'toggle') {
       switch (item.label) {
-        case "接受个性化内容推荐":
+        case '接受个性化内容推荐':
           return renderToggleSwitch(
             item.label,
             settings.personalizedRecommendation,
             handlePersonalizedRecommendationChange,
-            "根据点赞数量为您推荐内容",
+            '根据点赞数量为您推荐内容',
           );
-        case "允许读取剪切板":
+        case '允许读取剪切板':
           return renderToggleSwitch(
             item.label,
             settings.allowClipboardAccess,
             handleAllowClipboardAccessChange,
-            "允许应用读取剪切板内容以便快速粘贴",
+            '允许应用读取剪切板内容以便快速粘贴',
           );
         default:
           return null;
       }
     }
 
-    if (sectionTitle === "通用设置" && item.type === "button") {
+    if (sectionTitle === '通用设置' && item.type === 'button') {
       switch (item.label) {
-        case "网络诊断":
+        case '网络诊断':
           return (
             <View className={styles.settingItem} onClick={item.action}>
               <View className={styles.settingContent}>
                 <View className={styles.networkDiagnosisContent}>
                   <Text className={styles.settingLabel}>{item.label}</Text>
-                  <Text className={styles.networkDiagnosisSubtitle}>
-                    页面无法打开可点网络诊断
-                  </Text>
+                  <Text className={styles.networkDiagnosisSubtitle}>页面无法打开可点网络诊断</Text>
                 </View>
               </View>
               <IconArrowRight />
@@ -345,18 +329,16 @@ const Settings: React.FC = () => {
 
     return (
       <View
-        className={`${styles.settingItem} ${item.label === "注销账号" || item.label === "退出登录" ? styles.dangerItem : ""}`}
+        className={`${styles.settingItem} ${item.label === '注销账号' || item.label === '退出登录' ? styles.dangerItem : ''}`}
         onClick={item.action}
       >
         <View className={styles.settingContent}>
           <Text
-            className={`${styles.settingLabel} ${item.label === "注销账号" || item.label === "退出登录" ? styles.dangerText : ""}`}
+            className={`${styles.settingLabel} ${item.label === '注销账号' || item.label === '退出登录' ? styles.dangerText : ''}`}
           >
             {item.label}
           </Text>
-          {item.value && (
-            <Text className={styles.settingValue}>{item.value}</Text>
-          )}
+          {item.value && <Text className={styles.settingValue}>{item.value}</Text>}
         </View>
         <IconArrowRight />
       </View>

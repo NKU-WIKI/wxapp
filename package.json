@@ -12,6 +12,8 @@
   "scripts": {
     "prepare": "husky",
     "commit": "cz",
+    "build": "taro build --type weapp",
+    "dev": "npm run build:weapp -- --watch",
     "build:weapp": "taro build --type weapp",
     "dev:weapp": "npm run build:weapp -- --watch",
     "analyze:weapp": "cross-env ANALYZE=true npm run build:weapp",

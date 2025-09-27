@@ -26,8 +26,6 @@ export default function EditProfilePage() {
   const [wechatId, setWechatId] = useState('');
   const [qqId, setQqId] = useState('');
   const [phone, setPhone] = useState('');
-  const [userLocation, setUserLocation] = useState('中国 北京');
-  const [interests, setInterests] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -296,114 +294,6 @@ export default function EditProfilePage() {
   // 选择器相关状态
   const [selectedCollegeKey, setSelectedCollegeKey] = useState('');
   const [selectedMajor, setSelectedMajor] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState('中国');
-  const [selectedProvince, setSelectedProvince] = useState('');
-
-  // 国家和地区数据
-  const countriesAndProvinces = useMemo(
-    () => ({
-      中国: [
-        '北京市',
-        '天津市',
-        '上海市',
-        '重庆市',
-        '河北省',
-        '山西省',
-        '辽宁省',
-        '吉林省',
-        '黑龙江省',
-        '江苏省',
-        '浙江省',
-        '安徽省',
-        '福建省',
-        '江西省',
-        '山东省',
-        '河南省',
-        '湖北省',
-        '湖南省',
-        '广东省',
-        '海南省',
-        '四川省',
-        '贵州省',
-        '云南省',
-        '陕西省',
-        '甘肃省',
-        '青海省',
-        '内蒙古自治区',
-        '广西壮族自治区',
-        '西藏自治区',
-        '宁夏回族自治区',
-        '新疆维吾尔自治区',
-        '香港特别行政区',
-        '澳门特别行政区',
-        '台湾省',
-      ],
-      美国: [
-        '加利福尼亚州',
-        '纽约州',
-        '德克萨斯州',
-        '佛罗里达州',
-        '伊利诺伊州',
-        '宾夕法尼亚州',
-        '俄亥俄州',
-        '佐治亚州',
-        '北卡罗来纳州',
-        '密歇根州',
-      ],
-      加拿大: [
-        '安大略省',
-        '魁北克省',
-        '不列颠哥伦比亚省',
-        '阿尔伯塔省',
-        '曼尼托巴省',
-        '萨斯喀彻温省',
-        '新斯科舍省',
-        '新不伦瑞克省',
-      ],
-      英国: ['英格兰', '苏格兰', '威尔士', '北爱尔兰'],
-      澳大利亚: [
-        '新南威尔士州',
-        '维多利亚州',
-        '昆士兰州',
-        '西澳大利亚州',
-        '南澳大利亚州',
-        '塔斯马尼亚州',
-      ],
-      日本: ['东京都', '大阪府', '京都府', '神奈川县', '兵库县', '福冈县', '北海道', '爱知县'],
-      韩国: [
-        '首尔特别市',
-        '釜山广域市',
-        '大구广域市',
-        '仁川广域市',
-        '光州广域市',
-        '大田广域市',
-        '蔚山广域市',
-      ],
-    }),
-    [],
-  );
-
-  // 国家选项
-  const countries = [
-    { value: '', name: '请选择国家' },
-    ...Object.keys(countriesAndProvinces).map((country) => ({
-      value: country,
-      name: country,
-    })),
-  ];
-
-  // 根据选择的国家获取省份选项
-  const getProvincesForCountry = (countryValue: string) => {
-    if (!countryValue || !countriesAndProvinces[countryValue]) {
-      return [{ value: '', name: '请先选择国家' }];
-    }
-
-    const provinces = countriesAndProvinces[countryValue];
-    return [
-      { value: '', name: '请选择省份/州' },
-      ...provinces.map((province) => ({ value: province, name: province })),
-    ];
-  };
 
   // 处理学院选择变化
   const handleCollegeChange = (e: BaseEventOrig<{ value: string | number }>) => {
@@ -464,29 +354,6 @@ export default function EditProfilePage() {
     [collegesAndMajors],
   );
 
-  // 根据当前位置信息反推选择器状态
-  const initializeLocationSelection = useCallback(
-    (locationInfo: string) => {
-      if (!locationInfo || locationInfo === '请选择位置') return;
-
-      // 解析位置信息 "国家 省份" 或单独的国家
-      const parts = locationInfo.split(' ');
-      const country = parts[0];
-      const province = parts[1] || '';
-
-      // 检查国家是否在支持列表中
-      if (countriesAndProvinces[country]) {
-        setSelectedCountry(country);
-
-        // 检查省份是否在该国家的省份列表中
-        if (province && countriesAndProvinces[country].includes(province)) {
-          setSelectedProvince(province);
-        }
-      }
-    },
-    [countriesAndProvinces],
-  );
-
   // 从服务器加载用户资料
   const loadUserProfile = useCallback(async () => {
     try {
@@ -510,12 +377,6 @@ export default function EditProfilePage() {
         setWechatId(profile.wechat_id || '');
         setQqId(profile.qq_id || '');
         setPhone(profile.phone || '');
-        const locationInfo = profile.location || '中国 北京';
-        setUserLocation(locationInfo);
-
-        // 初始化位置选择器状态
-        initializeLocationSelection(locationInfo);
-        setInterests(profile.interest_tags || []);
       }
     } catch {
       Taro.showToast({ title: '加载资料失败', icon: 'none' });
@@ -528,7 +389,7 @@ export default function EditProfilePage() {
     } finally {
       setIsLoading(false);
     }
-  }, [userInfo, initializeCollegeSelection, initializeLocationSelection]);
+  }, [userInfo, initializeCollegeSelection]);
 
   useEffect(() => {
     loadUserProfile();
@@ -613,7 +474,6 @@ export default function EditProfilePage() {
         wechat_id: wechatId.trim(),
         qq_id: qqId.trim(),
         phone: phone.trim(),
-        interest_tags: interests,
       };
 
       await userApi.updateMeProfile(profileData);
@@ -623,7 +483,6 @@ export default function EditProfilePage() {
         nickname: nickname.trim(),
         bio: bio.trim(),
         avatar,
-        interest_tags: interests,
       };
       await dispatch(updateUser(updateData)).unwrap();
 
@@ -640,41 +499,6 @@ export default function EditProfilePage() {
     }
   };
 
-  // 处理国家选择变化
-  const handleCountryChange = (e: BaseEventOrig<{ value: string | number }>) => {
-    const index = typeof e.detail.value === 'number' ? e.detail.value : parseInt(e.detail.value);
-    const selectedCountryValue = countries[index].value;
-    setSelectedCountry(selectedCountryValue);
-
-    // 当国家改变时，清空已选择的省份
-    setSelectedProvince('');
-
-    // 更新位置信息显示
-    updateLocationDisplay(selectedCountryValue, '');
-  };
-
-  // 处理省份选择变化
-  const handleProvinceChange = (e: BaseEventOrig<{ value: string | number }>) => {
-    const index = typeof e.detail.value === 'number' ? e.detail.value : parseInt(e.detail.value);
-    const provinces = getProvincesForCountry(selectedCountry);
-    const selectedProvinceValue = provinces[index].value;
-    setSelectedProvince(selectedProvinceValue);
-
-    // 更新位置信息显示
-    updateLocationDisplay(selectedCountry, selectedProvinceValue);
-  };
-
-  // 更新位置信息显示
-  const updateLocationDisplay = (country: string, province: string) => {
-    if (country && province) {
-      setUserLocation(`${country} ${province}`);
-    } else if (country) {
-      setUserLocation(country);
-    } else {
-      setUserLocation('请选择位置');
-    }
-  };
-
   // 处理生日输入
   const handleBirthdayInput = (e: { detail: { value: string } }) => {
     const value = e.detail.value;
@@ -685,29 +509,6 @@ export default function EditProfilePage() {
       // 这里不显示错误，只在保存时验证
     }
   };
-
-  const handleInterestToggle = (interest: string) => {
-    setInterests((prev) => {
-      if (prev.includes(interest)) {
-        return prev.filter((item) => item !== interest);
-      } else {
-        return [...prev, interest];
-      }
-    });
-  };
-
-  const availableInterests = [
-    '运动',
-    '音乐',
-    '摄影',
-    '旅行',
-    '美食',
-    '科技',
-    '阅读',
-    '电影',
-    '游戏',
-    '绘画',
-  ];
 
   // 如果正在加载，显示加载状态
   if (isLoading) {
@@ -838,30 +639,6 @@ export default function EditProfilePage() {
               </View>
             </View>
 
-            {/* 兴趣标签卡片 */}
-            <Text className={styles.sectionTitle}>兴趣标签</Text>
-            <View className={styles.card}>
-              <View className={styles.interestGrid}>
-                {availableInterests.map((interest) => (
-                  <View
-                    key={interest}
-                    className={`${styles.interestTag} ${
-                      interests.includes(interest) ? styles.interestTagActive : ''
-                    }`}
-                    onClick={() => handleInterestToggle(interest)}
-                  >
-                    <Text
-                      className={`${styles.interestText} ${
-                        interests.includes(interest) ? styles.interestTextActive : ''
-                      }`}
-                    >
-                      {interest}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-
             {/* 联系方式卡片 */}
             <Text className={styles.sectionTitle}>联系方式</Text>
             <View className={styles.card}>
@@ -894,47 +671,6 @@ export default function EditProfilePage() {
                   type='number'
                   onInput={handlePhoneChange}
                 />
-              </View>
-            </View>
-
-            {/* 位置信息卡片 */}
-            <Text className={styles.sectionTitle}>位置信息</Text>
-            <View className={styles.card}>
-              <View className={styles.fieldRow}>
-                <Text className={styles.fieldLabel}>当前位置</Text>
-                <View className={styles.fieldValue}>
-                  <Text className={styles.fieldText}>{userLocation}</Text>
-                </View>
-              </View>
-
-              <View className={styles.fieldRow}>
-                <Text className={styles.fieldLabel}>国家</Text>
-                <Picker
-                  mode='selector'
-                  range={countries}
-                  rangeKey='name'
-                  onChange={handleCountryChange}
-                >
-                  <View className={styles.fieldSelect}>
-                    <Text className={styles.fieldText}>{selectedCountry || '请选择国家'}</Text>
-                    <Text className={styles.selectArrow}>▼</Text>
-                  </View>
-                </Picker>
-              </View>
-
-              <View className={styles.fieldRow}>
-                <Text className={styles.fieldLabel}>省份/州</Text>
-                <Picker
-                  mode='selector'
-                  range={getProvincesForCountry(selectedCountry)}
-                  rangeKey='name'
-                  onChange={handleProvinceChange}
-                >
-                  <View className={styles.fieldSelect}>
-                    <Text className={styles.fieldText}>{selectedProvince || '请选择省份/州'}</Text>
-                    <Text className={styles.selectArrow}>▼</Text>
-                  </View>
-                </Picker>
               </View>
             </View>
 

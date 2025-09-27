@@ -1,4 +1,4 @@
-@use "../../styles/variables.scss" as *;
+@use '../../styles/variables.scss' as *;
 
 .container {
   padding: 16px;
@@ -214,8 +214,9 @@
 .loading {
   .loadingSkeleton {
     height: 120px;
-    background: linear-gradient(90deg, $bg-input 25%, transparent 25%),
-                linear-gradient(90deg, transparent 50%, $bg-input 50%);
+    background:
+      linear-gradient(90deg, $bg-input 25%, transparent 25%),
+      linear-gradient(90deg, transparent 50%, $bg-input 50%);
     background-size: 20px 100%;
     animation: loading 1.5s infinite;
   }
@@ -249,10 +250,11 @@
 
 .compactUserInfoLeft {
   display: flex;
-  flex-shrink: 0; /* Prevent the user info from shrinking */
+  /* 允许左侧区域在容器变窄时收缩并换行，避免挤压右侧操作区导致溢出 */
+  flex: 1 1 auto;
   align-items: center;
   min-width: 0;
-  margin-right: 12px; /* Add a small gutter between info and actions */
+  margin-right: 12px; /* 与右侧操作区留出间距 */
 }
 
 .compactAvatar {
@@ -261,7 +263,7 @@
   height: 36px;
   margin-right: 10px;
   border-radius: 18px;
-  
+
   // 当传入exploreAvatar样式类时，应用小头像样式
   &.exploreAvatar {
     width: 24px; // explore页面专用的小头像尺寸
@@ -310,6 +312,9 @@
   overflow: visible;
   text-overflow: clip;
   white-space: normal;
+  /* 处理连续字符（如长英文、破折号、URL）导致的不可换行场景 */
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 // 简洁模式等级徽章
@@ -364,6 +369,8 @@
 
 .compactActions {
   display: flex;
+  /* 右侧操作区固定宽度优先，避免被压缩到换行或溢出 */
+  flex-shrink: 0;
   gap: 8px;
   align-items: center;
   margin-left: auto; /* push whole actions group to far right */
@@ -587,8 +594,6 @@
   border-radius: 12px;
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 }
-
-
 
 .profileMenuItem {
   display: flex;

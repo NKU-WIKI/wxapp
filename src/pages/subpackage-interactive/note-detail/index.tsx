@@ -487,9 +487,14 @@ export default function NoteDetailPage() {
                       mode='aspectFill'
                     />
                     <View className={styles.commentContent}>
-                      <Text className={styles.commentAuthor}>
-                        {comment.user?.nickname || '未知用户'}
-                      </Text>
+                      <View className={styles.commentAuthorInfo}>
+                        <Text className={styles.commentAuthor}>
+                          {comment.user?.nickname || '未知用户'}
+                        </Text>
+                        {comment.user?.bio && (
+                          <Text className={styles.commentAuthorBio}>{comment.user.bio}</Text>
+                        )}
+                      </View>
                       <Text className={styles.commentText}>{comment.content}</Text>
                       <Text className={styles.commentTime}>
                         {comment.created_at ? formatPostDate(comment.created_at) : '时间未知'}

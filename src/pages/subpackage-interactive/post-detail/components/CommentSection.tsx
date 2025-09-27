@@ -39,6 +39,14 @@ import HeartActiveIcon from '@/assets/heart-bold.svg';
 
 import styles from '../index.module.scss';
 
+/**
+ * 获取评论的创建时间
+ * 优先使用 created_at 字段，如果没有则使用 create_at 兼容字段
+ */
+function getCommentCreateTime(comment: CommentDetail): string {
+  return comment.created_at || comment.create_at || '';
+}
+
 // 渲染带有@用户名高亮的评论内容
 const renderCommentContent = (content: string): React.ReactNode => {
   // 正则表达式匹配 @用户名 格式（用户名可以包含中文、英文、数字、下划线）
