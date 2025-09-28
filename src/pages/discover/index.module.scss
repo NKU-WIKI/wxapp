@@ -272,8 +272,8 @@
   margin-right: 8px;
   font-size: 11px;
   font-weight: 600;
-  color: #fff;
-  background-color: #ff6b6b;
+  color: #4f46e5;
+  background-color: #fee2e2;
   border-radius: 4px;
 }
 
@@ -292,23 +292,24 @@
   margin-right: 8px;
   font-size: 14px;
   font-weight: 700;
+  color: #4f46e5;
   background: transparent;
   border-radius: 6px;
 
   &.rank1 {
-    color: #ff4757;
+    color: #4f46e5;
   }
 
   &.rank2 {
-    color: #ff7675;
+    color: #4f46e5;
   }
 
   &.rank3 {
-    color: #fdcb6e;
+    color: #4f46e5;
   }
 
   &.rankOther {
-    color: #6c757d;
+    color: #4f46e5;
   }
 }
 
@@ -323,10 +324,18 @@
 }
 
 .hotPostScore {
+  display: flex;
+  align-items: center;
   margin-top: 4px;
   margin-left: 0; // 取消固定左边距
   font-size: 12px;
   color: #999;
+}
+
+.upArrowIcon {
+  width: 8px;
+  height: 12px;
+  margin-left: 2px;
 }
 
 /* 阅读量样式 - 优化右对齐 */

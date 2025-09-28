@@ -246,7 +246,7 @@ export default function Discover() {
         <View className={styles.contentContainer}>
         {/* 热门帖子 - 包含置顶和热榜 */}
         <Section
-          title='🔥 热榜'
+          title='热榜'
         >
           <ScrollView
             scrollY
@@ -288,15 +288,19 @@ export default function Discover() {
                               </Text>
                             </View>
                             {!isPinned && (
-                              <Text className={styles.hotPostScore}>
-                                {post.hot_score && post.hot_score > 1000
-                                  ? `热度 ${(post.hot_score / 1000).toFixed(1)}K`
-                                  : `热度 ${post.hot_score || 0}`}
-                              </Text>
+                              <View className={styles.hotPostScore}>
+                                <Text>
+                                  {post.hot_score && post.hot_score > 1000
+                                    ? `${(post.hot_score / 1000).toFixed(1)}K`
+                                    : `${post.hot_score || 0}`}
+                                  {' 热度'}
+                                </Text>
+                                <Image src='/assets/up-arrow.png' className={styles.upArrowIcon} />
+                              </View>
                             )}
                           </View>
                         </View>
-                        {!isPinned && rank <= 3 && <Text className={styles.hotBadge}>🔥</Text>}
+                        {/* {!isPinned && rank <= 3 && <Text className={styles.hotBadge}>🔥</Text>} */}
                       </View>
                     </View>
                   );
